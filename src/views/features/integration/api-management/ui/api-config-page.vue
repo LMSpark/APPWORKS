@@ -16,13 +16,7 @@ AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；
       </template>
       <RendererTabs v-if="ready" v-model="tab" :data-view-key="authKey" @update:model-value="loadTab">
         <RendererTabPane name="jwt" label="JWT设置" :index="0">
-          <RendererForm :data-view-key="authKey" :children="baseFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
-          <RendererSection title="认证设置" :bordered="true" :grid-columns="1">
-            <RendererForm :data-view-key="authKey" :children="authFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
-          </RendererSection>
-          <RendererSection title="令牌过期刷新" :bordered="true" :grid-columns="1">
-            <RendererForm :data-view-key="authKey" :children="refreshFields" :grid-columns="2" label-width="130px" :show-data-view-meta="false" />
-          </RendererSection>
+          <SparkComponentRenderer :config="jwtConfig" />
           <DisplayAlert v-if="invalid(authKey, 'loginApiName')" alert-type="warning" :closable="false" :show-icon="true"
             title="认证接口引用失效，已保留原值，请重新选择后保存。" />
         </RendererTabPane>
@@ -55,7 +49,7 @@ import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} fro
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, DisplayAlert, RendererTable, RendererForm, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, DisplayAlert, RendererTable, SparkComponentRenderer, RendererDialog, RendererButton, RendererSection, RendererTabs, RendererTabPane, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
@@ -66,7 +60,7 @@ const key = (table: string, viewId = 'default') => buildDataViewKey(table, viewI
 const authKey = key('Base_InterfaceProvider', 'authentication'), headerKey = key('Base_InterfaceProvider_Headers')
 const parameterKey = key('Base_Interface_PublicParam'), referencesKey = key('Base_Interface_PublicParam', 'references')
 const accountKey = key('Base_InterfaceProvider_Account'), headerTypeKey = key('接口公共头部信息使用类型')
-const interfaceKey = key('Base_DataServiceInterface'), loginFieldKey = key('Base_TblField', 'jwt')
+const interfaceKey = key('Base_DataServiceInterface')
 type TabName = 'jwt' | 'headers' | 'publicParams' | 'accounts'
 /** 各页签首次打开时读取的视图；接口与输出字段候选由字段级联按当前值读取。 */
 const tabViews: Readonly<Record<TabName, readonly string[]>> = {
@@ -103,24 +97,6 @@ function invalid(viewKey: string, field: string): boolean {
   return !!row?.[field] && dataSet.getFieldCascadeState({tableName: target.tableName, viewId: target.viewId, field}).valueStatus === 'invalid'
 }
 const field = (type: string, props: Record<string, unknown>): SparkNode => ({type, props})
-const baseFields: SparkNode[] = [
-  field('r-text', {field: 'Name', label: '提供商名称', readonly: true}),
-  field('r-text', {field: 'BaseURL', label: 'API 基础 URL', readonly: true}),
-]
-const responseField = (name: string, label: string) => field('r-select', {field: name, label, clearable: true, filterable: true, optionDataViewKey: loginFieldKey})
-const authFields: SparkNode[] = [
-  field('r-select', {field: 'loginApiName', label: '认证接口', clearable: true, filterable: true, optionDataViewKey: interfaceKey}),
-  field('r-text', {field: 'TokenPrefix', label: '令牌前缀'}),
-  responseField('TokenField', '从响应中提取的令牌字段名'),
-  responseField('refreshTokenField', '刷新令牌提取'),
-  responseField('expireTimeField', '过期时间提取'),
-  responseField('expireRefreshTokenField', '刷新令牌过期时间字段'),
-]
-const refreshFields: SparkNode[] = [
-  field('r-text', {field: 'tokenHeaderField', label: 'Header提取令牌属性'}),
-  field('r-text', {field: 'refreshTokenHeaderField', label: 'Header提取刷新令牌属性'}),
-  field('r-text', {field: 'expireTimeHeaderField', label: 'Header提取过期时间属性'}),
-]
 const cell = (type: string, props: Record<string, unknown>) => field(type, {showCellControl: true, sortable: false, ...props})
 const headerColumns: SparkNode[] = [
   cell('r-text', {field: 'paramName', label: '参数名称', minWidth: 240}),

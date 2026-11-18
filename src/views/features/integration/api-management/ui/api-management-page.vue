@@ -7,13 +7,19 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 <template>
   <RendererSection class="api-manage-page" title="外部服务管理" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取外部服务目录…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
+      <template #content="{children}">
+        <template v-for="(child, index) in children" :key="nodeId(child) ?? index">
+          <ApiConfigPage v-if="nodeId(child) === 'api-provider-jwt' && ready && dialog?.kind === 'config'"
+            :key="dialog.epoch" :provider-id="dialog.id" :jwt-config="child" @close="dialog = null" @interfaces="openConfigInterfaces" />
+          <SparkComponentRenderer v-else-if="nodeId(child) !== 'api-provider-jwt'" :config="child" />
+        </template>
+      </template>
+    </SparkPageRenderer>
     <FeatureRecordDialog v-if="ready && dialog?.kind === 'record'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.id"
       :created="dialog.created" :title="dialog.created ? '新增外部服务提供商' : '编辑外部服务提供商'" :specs="specs" :width="640"
       @close="closeRecord" />
     <AiDataEntryDialog v-if="ready && dialog?.kind === 'ai'" :key="dialog.epoch" :data-view-key="viewKey" @close="closeAi" />
-    <ApiConfigPage v-if="ready && dialog?.kind === 'config'" :key="dialog.epoch" :provider-id="dialog.id"
-      @close="dialog = null" @interfaces="openConfigInterfaces" />
     <ApiInterfaceListPage v-if="ready && interfaces" :key="interfaces.epoch" :provider-id="interfaces.id"
       :provider-name="interfaces.name" @close="interfaces = null" />
   </RendererSection>
@@ -22,8 +28,8 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {useRoute} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'

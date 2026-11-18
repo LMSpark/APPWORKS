@@ -119,6 +119,9 @@ function bindOriginalVerification() {
     const details = [state]
     if (result.receiptRef) details.push(`回执 ${result.receiptRef}`)
     if (result.candidateDigest) details.push(`候选摘要 ${result.candidateDigest}`)
+    if (result.actualRequirementReads?.length) {
+      details.push(`实发条款 ${result.actualRequirementReads.map(item => `${item.lineageId}（${item.version}）`).join('、')}`)
+    }
     return {status: details.join('，')}
   } catch {
     return {error: '原试次核验已失效'}

@@ -61,6 +61,8 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
        receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,
        ...(result?.state==='VERIFIED_CANDIDATE'?{candidateDigest:result.candidateDigest,
         readCandidate:exposeVerifiedJson(()=>result.candidateJson,result.candidateDigest,assertCurrent,'OPERATION_ROUTE_CANDIDATE_DIGEST')}:{}),
+       ...('actualRequirementReads' in verified&&verified.actualRequirementReads?
+        {actualRequirementReads:verified.actualRequirementReads}:{}),
        assertCurrent}),
       assertCurrent,
      })

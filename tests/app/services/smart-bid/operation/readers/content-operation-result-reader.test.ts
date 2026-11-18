@@ -18,11 +18,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   kind:'OperationRoute',actionName:'verify',source:'PUBLIC',publicationRef:'PUB'}
  const manifest=await freezeOperationRouteContext(scope,{guideVersionRef:'GV1',action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
   createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
-  {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,assertCurrent:()=>{}},
+  {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,
+   requirementRead:{lineageId:'CLAUSE',version:'V1'},assertCurrent:()=>{}},
  ])
  const actualInput={target:craft.inputExample.targetScope}
  const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest,actualInput}
- const frozen={...scope,id:'FROZEN-ROW',guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest}
+ const frozen={...scope,id:'FROZEN-ROW',guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest,
+  requirementReads:manifest.requirementReads}
  const views=contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{GenerationRun:{
   modelBinding:{modelId:'M',modelName:'GenerationRun'},columns:Object.keys(original).map(name=>({name,isPrimaryKey:name==='id'})),
@@ -114,10 +116,16 @@ it('reads the original result only for the selected attempt and verifies the ret
   })).rejects.toThrow('DATA_VIEW_READ_RESULT')
   const verificationHost=createContentOperationScriptHost(scriptHost.runtime,tools,
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:resolveGuide})
+  expect(await verificationHost.invoke('content.operation.readDispatch',scope,signal))
+   .not.toHaveProperty('verification.actualRequirementReads')
+  hideDispatchInput=false
   const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
    verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT',candidateDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
+  expect(inspected).toHaveProperty('verification.actualRequirementReads',[
+   {lineageId:'CLAUSE',version:'V1',fieldPath:'target',callRef:'DISPATCH',resultRef:'RECEIPT'},
+  ])
   if(!('verification' in inspected)||!inspected.verification?.readCandidate)throw Error('TEST_CANDIDATE_READER_REQUIRED')
   if(!('result' in verified)||verified.result.state!=='VERIFIED_CANDIDATE')throw Error('TEST_VERIFIED_RESULT_REQUIRED')
   await expect(inspected.verification.readCandidate()).resolves.toBe(verified.result.candidateJson)
@@ -125,6 +133,7 @@ it('reads the original result only for the selected attempt and verifies the ret
   const unknown=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(unknown).toMatchObject({dispatchRef:'DISPATCH',verification:{state:'RETURN_UNKNOWN'}})
   expect(unknown).not.toHaveProperty('verification.readCandidate')
+  expect(unknown).not.toHaveProperty('verification.actualRequirementReads')
   await expect(inspected.verification.readCandidate()).rejects.toThrow('DATA_VIEW_READ_RESULT')
   unknown.assertCurrent()
   hasResult=true

@@ -2,46 +2,36 @@
 @module app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page
 -->
 <template>
-  <section class="structured-editor-page">
-    <header><h1>PDF 规则设计</h1><p v-if="ruleId">规则 ID：{{ ruleId }}</p></header>
-    <p v-if="loading" role="status">正在读取…</p>
-    <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
-    <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验保存结果。</p>
-    <p v-if="missing" role="alert">当前规则不存在</p>
-    <template v-if="ready && hasDefinition">
-      <RendererForm :data-view-key="definitionKey" :auto-columns="false" :show-data-view-meta="false">
-        <FieldText field="name" label="规则名称" :readonly="busy || unconfirmed" />
-        <FieldText field="description" label="描述" :readonly="busy || unconfirmed" />
-        <FieldRadio field="enabled" label="启用" :options="[{value:0,label:'停用'},{value:1,label:'启用'}]" :readonly="busy || unconfirmed" />
-        <FieldJson field="rule_config" label="规则 JSON" mode="text" :readonly="busy || unconfirmed" :on-change="validateRule" :on-editing-change="editing => pendingInput = editing" />
-      </RendererForm>
-      <RendererButton :label="unconfirmed ? '核验保存结果' : '保存规则'" button-type="primary" :disabled="busy || pendingInput" @click="save" />
-      <RendererButton label="取消修改" :disabled="busy || unconfirmed" @click="cancel" />
-    </template>
-  </section>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" />
+  <RendererSection v-else title="PDF 规则设计" :bordered="false" :status="loading ? '正在读取…' : ''" :error="error" />
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {buildDataViewKey, type DataSet} from '@spark-appworks/spark-data'
+import {type DataSet} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {PAGE_RUNTIME, FieldText, FieldJson, FieldRadio, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {RendererSection, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
+import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
+import rule from './design-tool/rule.json?raw'
+import script from './design-tool/script.js?raw'
+import style from './design-tool/style.css?raw'
 
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const ruleId = computed(() => typeof route.query['ruleId'] === 'string' ? route.query['ruleId'] : '')
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'pdf-inspect-editor-page'})
-const session = new NativePageRuntimeSession({
-  provide: () => undefined,
-  remove: () => sparkRemove(PAGE_RUNTIME),
+const session = new NativePageRuntimeSession()
+const routeSnapshot=computed(()=>{
+  const {path,fullPath,name,params,query,hash}=route
+  return {path,fullPath,name:name??null,params,query,hash}
 })
+const runtime=shallowRef<PageRuntime>()
+const host=shallowRef<ReturnType<typeof makeHost>>()
 const dataSet = shallowRef<DataSet>(), loading = ref(false), ready = ref(false), busy = ref(false), error = ref(''), pendingInput = ref(false), revision = ref(0)
 let unsubscribe: (() => void) | undefined, generation = 0, active = true
-const definitionKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'definition', scenarioId.value))
 const definition = computed(() => dataSet.value?.getView(LowcodePdfInspect.catalogMetaName, 'definition'))
 const hasDefinition = computed(() => {revision.value; return definition.value?.rows.length === 1})
 const missing = computed(() => ready.value && !hasDefinition.value && !queryError.value)
@@ -52,17 +42,37 @@ function validateRule(value: unknown): void {
   if (typeof value !== 'string') throw new Error('规则配置必须是JSON文本')
   parseJsonDocument(value)
 }
+function makeHost(current:PageRuntime){
+  const assertCurrent=()=>{if(!active||!session.isCurrent(current))throw new Error('PDF设计运行实例已失效')}
+  return {runtime:current,assertCurrent,async invoke(command:string){
+    assertCurrent()
+    if(command==='pdf.design.connect')return {
+      state:()=>({ruleId:ruleId.value,loading:loading.value,error:error.value||queryError.value,missing:missing.value,
+        visible:ready.value&&hasDefinition.value,busy:busy.value,pending:pendingInput.value,unconfirmed:unconfirmed.value}),
+      validateRule,
+      trackInput:(editing:boolean)=>{if(active&&session.isCurrent(current))pendingInput.value=editing},
+    }
+    if(command==='pdf.design.save')await save()
+    if(command==='pdf.design.cancel')cancel()
+    return undefined
+  }}
+}
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 watch([scenarioId, ruleId], async ([scene, id]) => {
   const own = ++generation
-  unsubscribe?.(); dataSet.value = undefined; session.dispose()
+  unsubscribe?.(); runtime.value=undefined; host.value=undefined; dataSet.value = undefined; session.dispose()
   ready.value = false; loading.value = true; error.value = ''; pendingInput.value = false
   try {
     if (!id.trim()) throw new Error('缺少 ruleId 参数')
     const loaded = await LowcodePdfInspect.loadEditor(scene)
     if (!active || own !== generation) {loaded.destroy(); return}
-    const current = session.acquire({pageId: 'pdf-inspect-editor-page', scenarioIds: [scene], targetId: id,
+    const tool=new PageTool({pageId:'pdf-inspect-editor-page'})
+    tool.hydrateFileText('rule.json',rule)
+    tool.hydrateFileText('script.js',script)
+    tool.hydrateFileText('style.css',style)
+    tool.markLoaded()
+    const current = session.acquire({tool, scenarioIds: [scene], targetId: id,
       scenarioInputs: {[scene]: {ruleId: id}}, loadScenario: async () => loaded})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
@@ -71,7 +81,7 @@ watch([scenarioId, ruleId], async ([scene, id]) => {
     dataSet.value = loaded
     const changed = () => revision.value++
     unsubscribe = loaded.onAnyViewChange({rowsChanged: changed, editingChanged: changed, requestStateChanged: changed, mutatingChanged: changed})
-    if (active && own === generation && session.isCurrent(current)) sparkProvide(PAGE_RUNTIME, current)
+    runtime.value=current;host.value=makeHost(current)
     await view.refresh()
     if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
@@ -97,7 +107,3 @@ function cancel(): void {
 }
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
-
-<style scoped>
-.structured-editor-page { display: grid; gap: 12px; padding: 24px; }
-</style>

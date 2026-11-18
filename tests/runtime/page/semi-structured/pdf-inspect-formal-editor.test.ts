@@ -2,11 +2,11 @@ import {readFileSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldJson, FieldText, RendererButton, RendererTable, Spark} from '@spark-appworks/spark-component'
+import {FieldJson, FieldText, RendererButton, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
@@ -38,7 +38,14 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 }))
 const ruleText=(value:string)=>JSON.stringify({version:'1.0',rules:[{id:'title',type:'TEXT_COMPARE',source:{locator:{type:'KEYWORD',keywords:['名称'],relativePosition:'RIGHT'}},target:{type:'CONSTANT',value},compare:{operator:'EQUAL'}}]})
 const wrappers: VueWrapper[] = []
+const originalStubs={...config.global.stubs}
+afterEach(()=>{config.global.stubs=originalStubs})
 beforeEach(() => {
+  registerAllRenderers()
+  const stubs={...originalStubs}
+  delete stubs['SparkComponentRenderer']
+  delete stubs['spark-component-renderer']
+  config.global.stubs=stubs
   state.http = new ApiBackend(); state.http.primaryKeys['Base_FileInspectConfig'] = 'id'
   state.http.records = {Base_FileInspectConfig: [
     {id: 'P1', name: '发票规则', enabled: 1, rule_config: '{"pattern":"old","keep":false}'},

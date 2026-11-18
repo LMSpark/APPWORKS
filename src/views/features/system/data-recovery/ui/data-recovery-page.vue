@@ -147,7 +147,12 @@ function syncColumns(): void {
 }
 watch(ready, isReady => {
   unbind()
-  if (!isReady) {table.value = undefined; columns.value = []; return}
+  if (!isReady) {
+    table.value = undefined
+    columns.value = []
+    tab.value = 'deleted'
+    return
+  }
   listen(view(tableKey), ['currentRowChanged', 'rowsChanged', 'cleared'], syncTable)
   listen(view(fieldKey), ['rowsChanged', 'cleared', 'requestStateChanged'], syncColumns)
   syncTable(); syncColumns()
@@ -156,8 +161,16 @@ onBeforeUnmount(unbind)
 
 /** 全部数据接口遇大表由后端拒绝，只在标签激活时查询；错误由绑定表格显示原因。 */
 async function loadAll(): Promise<void> {
-  if (tab.value !== 'all' || !table.value) return
-  await view(allKey).refresh().catch(() => undefined)
+  if (!ready.value || reloadBlocked.value || tab.value !== 'all' || !table.value) return
+  const tables = view(tableKey), databases = view(dbKey)
+  const selectedTable = tables.currentRow, selectedDatabase = databases.currentRow
+  if (!selectedTable || !selectedDatabase || tables.fieldAccess(selectedTable, 'tblname').read !== 'visible'
+    || databases.fieldAccess(selectedDatabase, 'conid').read !== 'visible') return
+  const tableName = value(selectedTable, 'tblname'), dbId = value(selectedDatabase, 'conid')
+  const target = view(allKey)
+  if (!tableName || !dbId || target.queryContext['TbName'] !== selectedTable['tblname']
+    || target.queryContext['DbId'] !== selectedDatabase['conid']) return
+  await target.refresh().catch(() => undefined)
 }
 
 /** 只接受正式查询声明并由 DataView 识别的单字段主键。 */

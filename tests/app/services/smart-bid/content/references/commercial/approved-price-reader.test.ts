@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
+import {responseScenarioViews} from '@/views/features/application/smart-bid/response/model/response-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
-import {approvedPriceReadView,readRegisteredApprovedPrice} from '@/views/features/application/smart-bid/response/model/approved-price-reader'
-import {priceSheetReadView} from '@/views/features/application/smart-bid/response/model/price-sheet-reader'
+import {readRegisteredApprovedPrice} from '@/views/features/application/smart-bid/response/model/approved-price-reader'
 import {createApprovedPriceScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/approved-price-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -14,11 +14,12 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   detailRef:null,pricingVersion:null,rateOnly:true}
  const sheet={id:'PRICE-ID',scopeRef:'LOT',detailRef:'DETAIL',pricingVersion:'SHEET-V1',currency:'CNY',precision:2,rounding:'HALF_UP',
   lines:[{lineRef:'LINE',quantity:'2',unitPrice:'0.50',reportedAmount:'1.00',unit:'项',sourceRef:'SOURCE'}]}
+ const scenarioViews=responseScenarioViews({ApprovedPrice:'id',BidSecurity:'id',PriceSheet:'id',ResponseAssignment:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ApprovedPrice:{
   modelBinding:{modelName:'ApprovedPrice',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedApprovedPrice:approvedPriceReadView('id')},
+  views:{default:{},...scenarioViews.ApprovedPrice},
  },PriceSheet:{modelBinding:{modelName:'PriceSheet',modelId:'P'},
-  columns:Object.keys(sheet).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},selectedPriceSheet:priceSheetReadView('id')},
+  columns:Object.keys(sheet).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},...scenarioViews.PriceSheet},
  }}})
  try{
   const view=ds.getView('ApprovedPrice','selectedApprovedPrice')

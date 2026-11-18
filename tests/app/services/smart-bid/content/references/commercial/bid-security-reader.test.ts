@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
+import {responseScenarioViews} from '@/views/features/application/smart-bid/response/model/response-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
-import {bidSecurityRequirementView,readRegisteredBidSecurity} from '@/views/features/application/smart-bid/response/model/bid-security-reader'
+import {readRegisteredBidSecurity} from '@/views/features/application/smart-bid/response/model/bid-security-reader'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -11,9 +12,10 @@ import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode
 it('reads the specified security requirement before requesting finance receipts',async()=>{
  const row={id:'SEC',scopeRef:'LOT',requirementVersion:'R1',liablePartyRef:'BIDDER',clauseRef:'CLAUSE',
   terms:{kind:'REQUIRED',methodRef:'CASH',milestones:['RECEIVED'],deadline:10}}
+ const scenarioViews=responseScenarioViews({ApprovedPrice:'id',BidSecurity:'id',PriceSheet:'id',ResponseAssignment:'id'})
  const ds=DataSet.fromJson({scenarioId:'S',tables:{BidSecurity:{
   modelBinding:{modelName:'BidSecurity',modelId:'M'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
-  views:{default:{},selectedSecurityRequirement:bidSecurityRequirementView('id')},
+  views:{default:{},...scenarioViews.BidSecurity},
  }}})
  try{
   const view=ds.getView('BidSecurity','selectedSecurityRequirement')

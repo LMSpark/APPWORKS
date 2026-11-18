@@ -114,13 +114,20 @@ async function saveEdit():Promise<void>{
 }
 function cancelEdit():void{if(acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value&&templateUpload.value?.phase!=='upload'||editingId.value===undefined)return;try{const ds=view.value?.dataSet;if(ds)cancelExcelTemplate(ds);if(creating.value&&ds)cancelExcelSchemeCreation(ds);else view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function chooseTemplate():Promise<void>{
- const ds=view.value?.dataSet,id=editingId.value,own=generation
- if(!ds||typeof id!=='string'||acting.value||unconfirmed.value||templateDispatched.value||!pageService?.browseFiles)return
+ const target=view.value,ds=target?.dataSet,id=editingId.value,own=generation
+ if(!target||!ds||typeof id!=='string'||acting.value||unconfirmed.value||templateDispatched.value||!pageService?.browseFiles)return
  acting.value=true;error.value=''
  try{
+  const row=target.rows.find(candidate=>target.getPkKey(candidate)===id)
+  if(!row)throw new Error('模板原方案已失效，请重新打开')
+  const assertOriginal=target.dirtyTracking.isPendingCreate(id)
+   ? ()=>{if(!target.rows.includes(row)||!target.dirtyTracking.isPendingCreate(id))throw new Error('模板原方案草稿已失效')}
+   : target.captureReadRow(row,['templatePath'])
+  assertOriginal()
   const files=await pageService.browseFiles({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false})
   if(!active||own!==generation||editingId.value!==id||files.length===0)return
   if(files.length!==1)throw new Error('每次只能选择一个 Excel 模板')
+  assertOriginal()
   selectExcelTemplate(ds,id,files[0]!.file)
  }
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}

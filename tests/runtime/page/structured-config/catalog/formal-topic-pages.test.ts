@@ -149,16 +149,28 @@ describe('formal topic catalog pages', () => {
     else{expect(copy).toHaveBeenCalledWith('E2');if(mode==='failure'){expect(wrapper.text()).toContain('复制失败');expect(message).not.toHaveBeenCalled()}else expect(message).toHaveBeenCalledWith('已复制 KEY：E2','success')}
     expect(state.http.saves).toEqual([]);expect(state.http.reads).toHaveLength(reads);expect((state.http as TopicBackend).templateRequests).toEqual([])
   })
-  it.each(['cancel','upload','multiple'] as const)('uses standard Excel template buttons through %s',async mode=>{
+  it.each(['cancel','upload','multiple','stale'] as const)('uses standard Excel template buttons through %s',async mode=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}}]});await router.push('/catalog');await router.isReady()
     const file=new File([new Uint8Array([0,255])],'chosen.xlsx')
     const selected={name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}
-    const browse=vi.fn(async()=>mode==='multiple'?[selected,selected]:[selected]),upload=vi.fn(async()=>{throw Error('page upload forbidden')})
+    let refreshCatalog:()=>Promise<unknown>=async()=>{}
+    const browse=vi.fn(async()=>{
+      if(mode==='stale')await refreshCatalog()
+      return mode==='multiple'?[selected,selected]:[selected]
+    }),upload=vi.fn(async()=>{throw Error('page upload forbidden')})
     const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'excel-template-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=>'cancel',selectEntities:async()=>[],browseFiles:browse,uploadFiles:upload,showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
     const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+    const catalog=wrapper.getComponent(SparkPageRenderer).props('pageRuntime').getDataSet(EXCEL)?.getView('Base_Import_solution')
+    refreshCatalog=async()=>await catalog?.refresh()
     await click('编辑');await click('选择模板');expect(browse).toHaveBeenCalledWith({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false});expect(upload).not.toHaveBeenCalled();expect(state.http.saves).toEqual([])
     if(mode==='multiple'){
       expect(wrapper.getComponent(RendererDialog).text()).toContain('每次只能选择一个 Excel 模板')
+      expect(wrapper.text()).not.toContain('确认上传模板')
+      expect((state.http as TopicBackend).templateRequests).toEqual([])
+      return
+    }
+    if(mode==='stale'){
+      expect(wrapper.getComponent(RendererDialog).text()).toContain('原查询身份或行已变化')
       expect(wrapper.text()).not.toContain('确认上传模板')
       expect((state.http as TopicBackend).templateRequests).toEqual([])
       return

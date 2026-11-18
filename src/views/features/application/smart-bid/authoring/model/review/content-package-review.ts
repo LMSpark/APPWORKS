@@ -18,8 +18,10 @@ type PackageSource=Readonly<{
 
 /** 从原冻结请求出发核包，保留未知或终结未生效的查询状态。 */
 export async function reviewRegisteredDeliveryZipPackage(host:Parameters<typeof readRegisteredDeliveryFreeze>[0],
- request:Parameters<typeof readRegisteredDeliveryFreeze>[1],source:Parameters<typeof readFrozenDeliveryZipPackageMembers>[0],
- limits:Parameters<typeof readSubmissionZipInventory>[1]){
+ request:Parameters<typeof readRegisteredDeliveryFreeze>[1],options:Readonly<{
+  source:Parameters<typeof readFrozenDeliveryZipPackageMembers>[0];limits:Parameters<typeof readSubmissionZipInventory>[1]
+ }>){
+ const {source,limits}=options
  if(source.projectId!==host.projectId)throw Error('SUBMISSION_FROZEN_SELECTION_SCOPE')
  source.assertCurrent()
  const original=await readRegisteredDeliveryFreeze(host,request)

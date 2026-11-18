@@ -9,8 +9,24 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
 type Request=Parameters<typeof readOriginalDeliveryFreeze>[0]
+type Frozen=Extract<Awaited<ReturnType<typeof readOriginalDeliveryFreeze>>,{status:'FROZEN'}>
 const scopeFields=['projectId','requestKey','requestDigest']
 const fields=[...scopeFields,'groupScope','status','terminalRef','frozenResult']
+const groupFields=['enterpriseId','projectId','lotId','roundId','stageId','obligationGroupId']
+const memberFields=['manifestId','manifestVersion','position','fileVersionId','fileHash']
+const resultFields=['requestKey','requestDigest','selectionId','selectionVersion','memberSetHash','selectionHash']
+const referenceFields=['targetBasisRefs','compatibilityRefs','checkedStateRefs']
+function isGroupScope(value:unknown):value is Request['groupScope']{
+ return isRecord(value)&&groupFields.every(field=>identity(value[field]))
+}
+function isFrozenRecord(value:unknown):value is Frozen['record']{
+ if(!isRecord(value))return false
+ const {groupScope,expectedSelectionVersion,members}=value
+ return isGroupScope(groupScope)&&resultFields.every(field=>identity(value[field]))&&
+  (expectedSelectionVersion===null||identity(expectedSelectionVersion))&&
+  referenceFields.every(field=>{const refs=value[field];return Array.isArray(refs)&&refs.every(identity)})&&
+  Array.isArray(members)&&members.every(member=>isRecord(member)&&memberFields.every(field=>identity(member[field])))
+}
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='DeliveryManifest'&&view.commitMode==='staged'&&
   view.queryConfig.autoQuery===false&&scopeFields.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
@@ -38,9 +54,9 @@ export function readRegisteredDeliveryFreeze(host:ContentRevisionReadHost,reques
   const assertResult=view.captureReadResult(),row=view.rows[0]
   if(!row)return {status:'UNKNOWN',request:selection,assertCurrent:()=>{assertScope();assertResult()}}
   const {groupScope,status,terminalRef,frozenResult}=row
-  if(Object.entries(context).some(([field,value])=>row[field]!==value)||!isRecord(groupScope))
+  if(Object.entries(context).some(([field,value])=>row[field]!==value)||!isGroupScope(groupScope))
    throw Error('DELIVERY_FREEZE_REQUEST_SCOPE')
-  const original={...context,groupScope:groupScope as Request['groupScope']}
+  const original={...context,groupScope}
   const required=fields.filter(field=>field!=='terminalRef'&&field!=='frozenResult'||
    field==='terminalRef'&&status==='NOT_EFFECTIVE'||field==='frozenResult'&&status==='FROZEN')
   const assertRow=view.captureReadRow(row,required)
@@ -48,10 +64,7 @@ export function readRegisteredDeliveryFreeze(host:ContentRevisionReadHost,reques
   assertCurrent()
   if(status==='UNKNOWN')return {status,request:original,assertCurrent}
   if(status==='NOT_EFFECTIVE'&&identity(terminalRef))return {status,request:original,terminalRef,assertCurrent}
-  if(status==='FROZEN'&&isRecord(frozenResult)){
-   type Frozen=Extract<Awaited<ReturnType<typeof readOriginalDeliveryFreeze>>,{status:'FROZEN'}>
-   return {status,request:original,record:frozenResult as Frozen['record'],assertCurrent}
-  }
+  if(status==='FROZEN'&&isFrozenRecord(frozenResult))return {status,request:original,record:frozenResult,assertCurrent}
   throw Error('DELIVERY_FREEZE_READ_EVIDENCE')
  }})
 }

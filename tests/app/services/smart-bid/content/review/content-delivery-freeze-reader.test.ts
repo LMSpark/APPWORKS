@@ -52,10 +52,10 @@ it('preserves unknown on a complete empty original read and requires readable te
    requiredPositions:[position],packed:[member],reopen,assertCurrent:()=>{}}
   const limits={maxEntries:1,maxExpandedBytes:128}
   items=[]
-  expect(await reviewRegisteredDeliveryZipPackage(host,request,pack,limits)).toMatchObject({status:'UNKNOWN'})
+  expect(await reviewRegisteredDeliveryZipPackage(host,request,{source:pack,limits})).toMatchObject({status:'UNKNOWN'})
   expect(reopen).not.toHaveBeenCalled()
   items=[{...original,status:'FROZEN',frozenResult:{...frozen,...hashes}}]
-  const checked=await reviewRegisteredDeliveryZipPackage(host,request,pack,limits)
+  const checked=await reviewRegisteredDeliveryZipPackage(host,request,{source:pack,limits})
   expect(checked).toMatchObject({status:'FROZEN',proof:{membershipMatches:true}})
   expect(reopen).toHaveBeenCalledOnce()
   await view.refresh()

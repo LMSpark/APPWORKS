@@ -11,6 +11,30 @@ let saveReceiptError = false
 let saveReceiptRequested = false
 let saveReceiptLoading = false
 
+function bindOriginalAdoption() {
+  const {adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef} = $route.query
+  const visible = [adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef]
+    .every(value => typeof value === 'string' && !!value && value.trim() === value)
+  return {visible, disabled: !editorSession || editorFault}
+}
+
+async function openOriginalAdoption() {
+  const {visible, disabled} = bindOriginalAdoption()
+  if (!visible || disabled) return
+  const {adoptionCandidateRevisionId, adoptionRequestKey, adoptionRequestDigest, adoptionPreviewRef} = $route.query
+  try {
+    const result = await editorSession.readOriginalAdoption({candidateRevisionId: adoptionCandidateRevisionId,
+      requestKey: adoptionRequestKey, requestDigest: adoptionRequestDigest, previewRef: adoptionPreviewRef})
+    result.assertCurrent()
+    const lines = result.recordFound ? [`原采用记录 ${result.adoptionRef} · 修订 ${result.mergeRevisionId}`,
+      result.commitCheckRef ? `登记引用的提交核验 ${result.commitCheckRef}` : '提交核验引用待补'] : ['未查到原采用记录']
+    lines.push('原办理终态待核')
+    await $page.showAlert(lines.join('\n'), '原采用回查')
+  } catch {
+    $page.showMessage('原采用记录无法核验', 'warning')
+  }
+}
+
 function bindVolumePlanning() {
   return {disabled: !editorSession || editorFault}
 }

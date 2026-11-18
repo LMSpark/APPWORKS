@@ -45,7 +45,9 @@ export async function readContentAdoption(host:ContentRevisionReadHost,input:Con
   !identity(row['id'])||!identity(mergeRevisionId))throw Error('CONTENT_ADOPTION_REQUEST_MISMATCH')
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  const boundHost={...host,assertCurrent}
- return Object.freeze({dataViewKey,recordFound:true,requiresOriginalResultEvidence:true,assertCurrent,
+ const {id:adoptionRef,commitCheckRef}=row
+ return Object.freeze({dataViewKey,recordFound:true,adoptionRef,mergeRevisionId,
+  commitCheckRef:identity(commitCheckRef)?commitCheckRef:null,requiresOriginalResultEvidence:true,assertCurrent,
   async readMergeRevision(){
    const merge=await readAdoptedContentRevision(boundHost,{kind:'merge',revisionId:mergeRevisionId})
    return Object.freeze({...merge,readSnapshot:()=>readAdoptionSnapshot(boundHost,merge)})

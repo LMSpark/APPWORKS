@@ -94,7 +94,7 @@ it('reads adoption with its original project binding and revokes evidence on ses
  const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'DIGEST',previewRef:'PV'}
  try{
   const result=await binding.readOriginalAdoption(request)
-  expect(result).toMatchObject({recordFound:true,requiresOriginalResultEvidence:true})
+  expect(result).toMatchObject({recordFound:true,adoptionRef:'A',mergeRevisionId:'R',commitCheckRef:null,requiresOriginalResultEvidence:true})
   expect(f.queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',candidateRevisionId:'C',requestKey:'K'})
   auth.token='session-2'
   expect(()=>result.assertCurrent()).toThrow()

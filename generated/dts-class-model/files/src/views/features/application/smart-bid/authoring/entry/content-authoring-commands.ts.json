@@ -30,12 +30,12 @@
           "type": "object",
           "title": "() => void"
         },
+        "draftId": {
+          "type": "string"
+        },
         "runtime": {
           "type": "object",
           "title": "import(\"../../../../../../../packages/spark-project-model/src\").PageRuntime"
-        },
-        "draftId": {
-          "type": "string"
         },
         "actorUserId": {
           "type": "string"
@@ -49,8 +49,8 @@
         "projectId",
         "dataViewKey",
         "assertCurrent",
-        "runtime",
         "draftId",
+        "runtime",
         "actorUserId",
         "setPending"
       ],
@@ -605,6 +605,22 @@
           "additionalProperties": false
         },
         "method.assertInputCurrent.return": true,
+        "method.prepareSave.params": {
+          "type": "object",
+          "properties": {
+            "requestKey": {
+              "type": "string"
+            },
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSave.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        projectId: string;\n        draftId: string;\n        baseRevisionId: string | null;\n        expectedDraftVersion: string | null;\n        requestKey: string;\n        requestJson: string;\n        requestDigest: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }>>"
+        },
         "method.selectionChanged.params": {
           "type": "object",
           "properties": {
@@ -663,7 +679,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:22:32.133Z",
+  "generatedAt": "2026-11-18T05:36:19.655Z",
   "models": {
     "Binding": {
       "name": "Binding",
@@ -696,12 +712,12 @@
               "writable": true
             },
             {
-              "name": "runtime",
+              "name": "draftId",
               "readable": true,
               "writable": true
             },
             {
-              "name": "draftId",
+              "name": "runtime",
               "readable": true,
               "writable": true
             },
@@ -839,6 +855,42 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "prepareSave",
+              "jsdoc": "只捕获本行确认为编辑的内容和原查询所见的并发版本。",
+              "parameters": [
+                {
+                  "name": "requestKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        draftId: string;\n        baseRevisionId: string | null;\n        expectedDraftVersion: string | null;\n        requestKey: string;\n        requestJson: string;\n        requestDigest: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
               }
             },
             {

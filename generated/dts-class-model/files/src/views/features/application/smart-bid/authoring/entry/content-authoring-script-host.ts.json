@@ -29,11 +29,11 @@
           "type": "object",
           "title": "() => void"
         },
-        "runtime": {
-          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
-        },
         "draftId": {
           "type": "string"
+        },
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         },
         "actorUserId": {
           "type": "string"
@@ -47,8 +47,8 @@
         "projectId",
         "dataViewKey",
         "assertCurrent",
-        "runtime",
         "draftId",
+        "runtime",
         "actorUserId",
         "setPending"
       ],
@@ -147,7 +147,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T21:51:19.434Z",
+  "generatedAt": "2026-11-18T05:28:19.972Z",
   "models": {
     "Binding": {
       "name": "Binding",
@@ -180,12 +180,12 @@
               "writable": true
             },
             {
-              "name": "runtime",
+              "name": "draftId",
               "readable": true,
               "writable": true
             },
             {
-              "name": "draftId",
+              "name": "runtime",
               "readable": true,
               "writable": true
             },

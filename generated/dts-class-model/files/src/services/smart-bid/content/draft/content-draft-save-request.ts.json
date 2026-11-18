@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/draft/content-draft-save-request",
+    "sourcePath": "src/services/smart-bid/content/draft/content-draft-save-request.ts",
+    "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-request.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/draft/content-draft-save-request",
+    "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-request\n职责：固定一次个人草稿保存的原版本、基准修订和拟写内容摘要。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T05:34:46.069Z",
+  "models": {}
+}

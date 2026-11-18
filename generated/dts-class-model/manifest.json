@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1383,
+  "scannedFileCount": 1385,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17577,6 +17577,32 @@
           "ContentTextSelection",
           "VerifiedContentTextSpan"
         ]
+      }
+    },
+    "src/services/smart-bid/content/draft/content-draft-save-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/draft/content-draft-save-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/draft/content-draft-save-recovery",
+        "sourcePath": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/draft/content-draft-save-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-recovery\n职责：按原请求、作者和内容摘要核验权威草稿保存回执。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/draft/content-draft-save-request.ts": {
+      "file": "files/src/services/smart-bid/content/draft/content-draft-save-request.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/draft/content-draft-save-request",
+        "sourcePath": "src/services/smart-bid/content/draft/content-draft-save-request.ts",
+        "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-request.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/draft/content-draft-save-request",
+        "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-request\n职责：固定一次个人草稿保存的原版本、基准修订和拟写内容摘要。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/services/smart-bid/content/hashes/content-effective-hash.ts": {

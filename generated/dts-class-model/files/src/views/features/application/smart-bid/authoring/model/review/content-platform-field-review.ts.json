@@ -158,8 +158,8 @@
         },
         "stage": {
           "enum": [
-            "DRAFT",
             "SAVED",
+            "DRAFT",
             "SUBMITTED"
           ]
         },

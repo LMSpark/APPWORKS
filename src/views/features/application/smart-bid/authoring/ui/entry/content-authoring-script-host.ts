@@ -15,7 +15,7 @@ import {readBaselineSubmissionObligations} from '../../../followup/submission-ob
 import {inspectRegisteredAdoption,type ContentAdoptionSelection} from '../../model/adoption/content-adoption-reader'
 import {compareRegisteredOriginalForms,readRegisteredOriginalForm} from '../../../response/model/original-form-reader'
 import {readCandidateContent,type ContentCandidateBinding} from '../../model/content-candidate-reader'
-import {hasCompleteSingleContentResult,type ContentRevisionSelection} from '../../model/content-revision-reader'
+import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionSelection} from '../../model/content-revision-reader'
 import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/content-draft-candidate-basis'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
@@ -118,15 +118,24 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       return prepareRegisteredDraftCandidateRequest(host,captured,basis,{...requestFields,targetScope:request.targetScope})
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
-     const projectView=runtime.resolveView(projectKey),project=projectView?.rows[0]
+     const projectView=runtime.resolveView(projectKey)
      const {firstBatchId}=request
-     if(!projectView||project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId'])||
-      !identity(firstBatchId))
+     if(!projectView||projectView.dataTable?.modelBinding?.modelName!=='ContentProject'||projectView.hasEditingChanges()||
+      projectView.queryContext['projectId']!==projectId||
+      !hasContentScopeCondition(projectView,'projectId',{Type:'GetInputParam',ParamName:'projectId'})||!identity(firstBatchId))
+      throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+     await projectView.refresh()
+     assertDraft()
+     const project=projectView.rows[0]
+     if(runtime.resolveView(projectKey)!==projectView||projectView.loadingError||!hasCompleteSingleContentResult(projectView)||
+      project?.['projectId']!==projectId||project['headRevisionId']!==null||!identity(project['activeBaselineId']))
       throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const proof=projectView.captureReadRow(project,['projectId','headRevisionId','activeBaselineId'])
+     const resultProof=projectView.captureReadResult()
      const assertFirst=()=>{
       assertDraft()
       if(runtime.resolveView(projectKey)!==projectView)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+      resultProof()
       proof()
      }
      const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},

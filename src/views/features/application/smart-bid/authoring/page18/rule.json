@@ -30,6 +30,7 @@
     "type": "r-section",
     "props": {"title": "原试次返回核验", "onBeforeRender": "bindOriginalVerification"},
     "children": [
+      {"type": "r-button", "props": {"label": "查看已核候选 JSON", "onBeforeRender": "bindVerifiedCandidate", "onClick": "openVerifiedCandidate"}},
       {"type": "r-button", "props": {"label": "查看返工交接", "onBeforeRender": "bindRework", "onClick": "prepareRework"}}
     ]
   }

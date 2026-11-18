@@ -49,17 +49,21 @@ it('withdraws dispatch, verification and input details after the selected attemp
  const assertCurrent=vi.fn(),showAlert=vi.fn(),showMessage=vi.fn()
  const readActualInput=vi.fn(async()=>{query.attemptRef='OTHER';return '{}'})
  const invokeHostCommand=vi.fn(async()=>({state:'DISPATCH_RECORDED',dispatchRef:'REC',actualInputDigest:'DIGEST',assertCurrent,
-  verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RC',candidateDigest:'CANDIDATE_DIGEST',assertCurrent},readActualInput}))
- const {__init__,bindOriginalDispatch,bindOriginalVerification,openActualInput}=compileFunctions(script,{$route:{query},
+  verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RC',candidateDigest:'CANDIDATE_DIGEST',assertCurrent,
+   readCandidate:async()=>'{"nodes":[]}'},readActualInput}))
+ const {__init__,bindOriginalDispatch,bindOriginalVerification,openActualInput,openVerifiedCandidate}=compileFunctions(script,{$route:{query},
   $page:{invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
- if(!__init__||!bindOriginalDispatch||!bindOriginalVerification||!openActualInput)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
+ if(!__init__||!bindOriginalDispatch||!bindOriginalVerification||!openActualInput||!openVerifiedCandidate)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
  await __init__()
  expect(bindOriginalDispatch()).toMatchObject({status:expect.stringContaining('REC')})
  expect(bindOriginalVerification()).toEqual({status:'候选核验通过，回执 RC，候选摘要 CANDIDATE_DIGEST'})
+ await openVerifiedCandidate()
+ expect(showAlert).toHaveBeenCalledWith('{\n  "nodes": []\n}','已核候选 JSON')
  await openActualInput()
  expect(bindOriginalDispatch()).toEqual({visible:false})
  expect(bindOriginalVerification()).toEqual({visible:false})
- expect(showAlert).not.toHaveBeenCalled()
+ await openVerifiedCandidate()
+ expect(showAlert).toHaveBeenCalledTimes(1)
  expect(showMessage).not.toHaveBeenCalled()
 })
 

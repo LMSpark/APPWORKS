@@ -125,6 +125,29 @@ function bindOriginalVerification() {
   }
 }
 
+function bindVerifiedCandidate() {
+  const result = dispatchIsCurrent?.() ? dispatch?.verification : undefined
+  try {
+    result?.assertCurrent()
+    return {visible: result?.state === 'VERIFIED_CANDIDATE' && typeof result.readCandidate === 'function'}
+  } catch {return {visible: false}}
+}
+
+async function openVerifiedCandidate() {
+  if (!bindVerifiedCandidate().visible) return
+  const original = dispatch
+  const result = original.verification
+  const isCurrent = () => original === dispatch && dispatchIsCurrent?.()
+  try {
+    const json = await result.readCandidate()
+    if (!isCurrent()) return
+    result.assertCurrent()
+    await $page.showAlert(JSON.stringify(JSON.parse(json), null, 2), '已核候选 JSON')
+  } catch {
+    if (isCurrent()) $page.showMessage('已核候选无法读取', 'warning')
+  }
+}
+
 function bindRework() {
   const {runId, attemptRef, requestKey} = $route.query
   return {disabled: ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value)}

@@ -15,11 +15,11 @@ type Open=Parameters<typeof openContentOperationWorkspace>
 /** 按原身份解析已冻结工艺指南的能力。 */
 type ResolveGuide=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]
 
-function exposeActualInput(readJson:()=>string,digest:string,assertCurrent:()=>void){
+function exposeVerifiedJson(readJson:()=>string,digest:string,assertCurrent:()=>void,error='OPERATION_ROUTE_DISPATCH_DIGEST'){
  return async ()=>{
   assertCurrent()
   const inputJson=readJson()
-  if(await hashCanonicalSnapshotText(inputJson)!==digest)throw Error('OPERATION_ROUTE_DISPATCH_DIGEST')
+  if(await hashCanonicalSnapshotText(inputJson)!==digest)throw Error(error)
   assertCurrent()
   return inputJson
  }
@@ -56,10 +56,12 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
       state:dispatch&&'dispatchRef' in dispatch?'DISPATCH_RECORDED':'UNKNOWN',
       ...(dispatch&&'dispatchRef' in dispatch?{dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest}:{}),
       ...(dispatch&&'dispatchRef' in dispatch&&inputJson!==null?
-       {readActualInput:exposeActualInput(()=>inputJson,dispatch.actualInputDigest,assertCurrent)}:{}),
+       {readActualInput:exposeVerifiedJson(()=>inputJson,dispatch.actualInputDigest,assertCurrent)}:{}),
       verification:Object.freeze({state:verified.state,
        receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,
-       candidateDigest:result?.state==='VERIFIED_CANDIDATE'?result.candidateDigest:undefined,assertCurrent}),
+       ...(result?.state==='VERIFIED_CANDIDATE'?{candidateDigest:result.candidateDigest,
+        readCandidate:exposeVerifiedJson(()=>result.candidateJson,result.candidateDigest,assertCurrent,'OPERATION_ROUTE_CANDIDATE_DIGEST')}:{}),
+       assertCurrent}),
       assertCurrent,
      })
     }
@@ -67,7 +69,7 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
     readback.assertCurrent()
     return readback.state==='DISPATCH_RECORDED'
      ?Object.freeze({state:readback.state,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,
-      ...(readback.input===undefined?{}:{readActualInput:exposeActualInput(()=>canonicalSnapshotValue(readback.input),
+      ...(readback.input===undefined?{}:{readActualInput:exposeVerifiedJson(()=>canonicalSnapshotValue(readback.input),
        readback.actualInputDigest,readback.assertCurrent)}),assertCurrent:readback.assertCurrent})
      :Object.freeze({state:readback.state,assertCurrent:readback.assertCurrent})
    }

@@ -114,9 +114,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
    verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT',candidateDigest:expect.stringMatching(/^[a-f0-9]{64}$/u)}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
+  if(!('verification' in inspected)||!inspected.verification?.readCandidate)throw Error('TEST_CANDIDATE_READER_REQUIRED')
+  if(!('result' in verified)||verified.result.state!=='VERIFIED_CANDIDATE')throw Error('TEST_VERIFIED_RESULT_REQUIRED')
+  await expect(inspected.verification.readCandidate()).resolves.toBe(verified.result.candidateJson)
   hasResult=false
   const unknown=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(unknown).toMatchObject({dispatchRef:'DISPATCH',verification:{state:'RETURN_UNKNOWN'}})
+  expect(unknown).not.toHaveProperty('verification.readCandidate')
   unknown.assertCurrent()
   hasResult=true
   await view.refresh()

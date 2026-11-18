@@ -87,7 +87,8 @@ function beforeChange(value:unknown,previous:unknown,control:unknown):void{const
 function commit(value:string):void{
  const row=root.value,id=rootId.value
  if(blocked.value||!row||id===undefined||editing.value.size)throw Error('当前版式不能修改')
- const control={cancel:false};props.beforeChange?.(value,raw.value,control);if(control.cancel)throw Error('请先处理当前字段修改，再调整版式')
+ const previous=raw.value,control={cancel:false};props.beforeChange?.(value,previous,control);if(control.cancel)throw Error('请先处理当前字段修改，再调整版式')
+ if(!contextValid()||view.currentRow!==row||blocked.value||editing.value.size||view.getEditingRow(id)?.['sheet_layout_json']!==previous)throw Error('版式目标或内容已变化，请重新操作')
  view.updateEditingValue(id,'sheet_layout_json',value);error.value='';diagnostic.value='';changed()
 }
 function clear():void{try{commit('')}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}

@@ -19,12 +19,19 @@ async function fixture(existing=false,duplicate=false){
  const page=new PageRuntime({pageId:'layout-pane',scenarioIds:[EXCEL_DESIGN,SOURCE_SCENE],deferredScenarioIds:[SOURCE_SCENE],scenarioInputs:{[EXCEL_DESIGN]:{importConfigId:'E1'}},loadScenario:async id=>id===EXCEL_DESIGN?f.ds:source});await page.load();f.nodes.setCurrentRowById('C1')
  registerAllRenderers();const stubs={...originalStubs};for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key];config.global.stubs=stubs
  let wrapper:VueWrapper|undefined
- const start=async()=>{wrapper=mount(defineComponent({setup(){useSparkComponent({type:'test-layout-host'}).sparkProvide(PAGE_RUNTIME,page);return()=>h(Pane,{dataViewKey:`${EXCEL_DESIGN}@Base_ImportData_Config@default`})}}),{attachTo:document.body,global:{plugins:[ElementPlus,Spark.createPlugin()]}});await flushPromises();return wrapper}
+ const start=async(beforeChange?:()=>void)=>{wrapper=mount(defineComponent({setup(){useSparkComponent({type:'test-layout-host'}).sparkProvide(PAGE_RUNTIME,page);return()=>h(Pane,{...(beforeChange?{beforeChange}:{}),dataViewKey:`${EXCEL_DESIGN}@Base_ImportData_Config@default`})}}),{attachTo:document.body,global:{plugins:[ElementPlus,Spark.createPlugin()]}});await flushPromises();return wrapper}
  cleanups.push(()=>{wrapper?.unmount();page.dispose();f.runtime.dispose()})
  const choose=async()=>{const table=wrapper!.findComponent(RendererTable);await vi.waitFor(()=>expect(table.findAll('tbody tr').length).toBeGreaterThan(0));await table.get('tbody tr').trigger('click');await flushPromises();await vi.waitFor(()=>expect(wrapper!.findAllComponents(RendererButton).find(button=>button.props('label')==='创建单组导出版式')?.props('disabled')).toBe(false));await wrapper!.findAllComponents(RendererButton).find(button=>button.props('label')==='创建单组导出版式')!.get('button').trigger('click');await flushPromises()}
  return {...f,source,start,choose,get wrapper(){return wrapper!}}
 }
 describe('bound single layout pane source identity',()=>{
+ it('preserves a newer layout edit made by the host before applying a layout command',async()=>{
+  const f=await fixture()
+  await f.start(()=>{f.nodes.updateEditingValue('C1','sheet_layout_json','{"newer":true}')})
+  await f.choose()
+  expect(f.nodes.getEditingRow('C1')?.['sheet_layout_json']).toBe('{"newer":true}')
+  expect(f.http.saves).toEqual([])
+ })
  it('rejects two direct details with the same persisted route before creating a draft',async()=>{
   const f=await fixture(false,true);await f.start();await f.choose()
   expect(f.wrapper.text()).toContain('明细物理路由不唯一');expect(f.nodes.hasEditingChanges()).toBe(false);expect(f.http.saves).toEqual([])

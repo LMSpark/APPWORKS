@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1348,
+  "scannedFileCount": 1351,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -19210,6 +19210,32 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-platform-field-review",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-platform-field-review",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-platform-field-review\n职责：固定动作45平台拟填栏位、已采用答复及获准值。\n边界：读取方对证采用和批准原记录；拟填版本不表示已保存或提交。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-produced-file-review",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-produced-file-review",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-produced-file-review\n职责：为动作45重新打开动作41登记的电子实件并复算文件摘要。\n边界：文件和登记读取方核原授权；不登记、签署、保存或代纸件验收。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts.json",
       "module": {
@@ -19233,6 +19259,19 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader\n职责：批读固定目标及检查器版本的原 CheckFinding 记录。\n边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-versions",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-versions",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-versions\n职责：为本轮固定审定清单绑定逐件实件及逐栏拟填版本的原读取证明。\n边界：旧实件沿用决定由审定清单负责；字段必须来自当前修订的已采用答复。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-produced-file-review",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-produced-file-review",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-produced-file-review\n职责：为动作45重新打开动作41登记的电子实件并复算文件摘要。\n边界：文件和登记读取方核原授权；不登记、签署、保存或代纸件验收。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FileSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileSelection",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "producedFileId": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "producedFileId",
+        "productionRequestRef"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredFile",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "producedFileId": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.reopen.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reopen.return": {
+          "type": "object",
+          "title": "Promise<ArrayBuffer>"
+        }
+      },
+      "required": [
+        "projectId",
+        "producedFileId",
+        "productionRequestRef"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T02:29:37.129Z",
+  "models": {
+    "FileSelection": {
+      "name": "FileSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    producedFileId: string;\n    productionRequestRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    producedFileId: string;\n    productionRequestRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "producedFileId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredFile": {
+      "name": "RegisteredFile",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FileSelection & Readonly<{\n    revisionId: string;\n    documentId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n    reopen: () => Promise<ArrayBuffer>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FileSelection",
+            "targetName": "FileSelection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    revisionId: string;\n    documentId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n    reopen: () => Promise<ArrayBuffer>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reopen",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ArrayBuffer"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

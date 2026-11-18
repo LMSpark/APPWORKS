@@ -20,7 +20,8 @@
         "targets": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewTarget"
+            "type": "object",
+            "title": "ReviewTarget"
           }
         },
         "approvals": {
@@ -57,7 +58,8 @@
         "targets": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewTarget"
+            "type": "object",
+            "title": "ReviewTarget"
           }
         }
       },

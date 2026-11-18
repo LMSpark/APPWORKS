@@ -5896,6 +5896,16 @@
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T01:51:09.178Z"
     },
+    "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-platform-field-review.ts.json",
+      "sourceModifiedAt": "2026-11-18T02:34:08.023Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-produced-file-review.ts.json",
+      "sourceModifiedAt": "2026-11-18T02:29:37.129Z"
+    },
     "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts.json",
@@ -5905,6 +5915,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-findings-reader.ts.json",
       "sourceModifiedAt": "2026-11-18T02:06:53.012Z"
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts.json",
+      "sourceModifiedAt": "2026-11-18T02:21:54.838Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/content-candidate-workspace.vue",

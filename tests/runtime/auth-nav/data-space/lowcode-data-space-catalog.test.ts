@@ -492,6 +492,7 @@ describe('catalog page entry',()=>{
     expect(dialog!.props('closeDisabled')).not.toBe(true)
     dialog!.vm.$emit('update:modelValue',false);await flushPromises()
     expect(state().designId).toBe('')
+    expect(button(wrapper,'查询绑定').attributes('disabled')).toBeUndefined()
   })
   it('opens the native designer for the clicked row rather than a different selection',async()=>{
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'

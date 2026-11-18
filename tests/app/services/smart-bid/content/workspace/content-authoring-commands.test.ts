@@ -7,6 +7,7 @@ import {defineComponent,h} from 'vue'
 import {ContentAuthoringCommands} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands'
 import {createContentAuthoringScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
 import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -67,6 +68,13 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
   await expect(prepareDraftCandidateRequest(captured,{...basis,revisionId:'OTHER'},input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_SCOPE')
   await expect(prepareDraftCandidateRequest({...captured,contentDigest:'0'.repeat(64)},basis,input))
    .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_DIGEST')
+  const responseDraft=canonicalSnapshotValue({nodes:[],responseChanges:[{assignmentId:'A',basisResponseId:'R1',responseId:'R2'}]})
+  const withResponse={...captured,draftJson:responseDraft,contentDigest:await hashCanonicalSnapshotText(responseDraft)}
+  const responseBasis={...basis,responses:[{projectId:'P',assignmentId:'A',responseId:'R1'}]}
+  const responseInput={...input,targetScope:{...input.targetScope,targets:[{kind:'RESPONSE',assignmentId:'A',responseId:'R1'}]}}
+  expect((await prepareDraftCandidateRequest(withResponse,responseBasis,responseInput)).requestJson)
+   .toContain('"responseChanges":[{"assignmentId":"A","basisResponseId":"R1","responseId":"R2"}]')
+  await expect(prepareDraftCandidateRequest(withResponse,responseBasis,input)).rejects.toThrow('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
   f.commands.run(add,f.commands.epoch)
   expect(()=>captured.assertCurrent()).toThrow()
   expect(()=>candidate.assertCurrent()).toThrow()

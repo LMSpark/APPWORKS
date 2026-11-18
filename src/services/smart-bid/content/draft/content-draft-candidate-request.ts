@@ -5,6 +5,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {validateContentDraftPayload} from '../../content-draft-save-rule'
 import {hashContentNode} from '../../content-node-hash'
 import {resolveContentTargetScope} from '../content-target-scope'
+import {checkScopedResponseChanges} from '../content-scoped-preview'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '../references/snapshot-reference-values'
 
@@ -33,7 +34,10 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  const snapshot:unknown=JSON.parse(draftJson)
  validateContentDraftPayload({projectId,draft:snapshot})
  if(!isRecord(snapshot)||!Array.isArray(snapshot['nodes'])||canonicalSnapshotValue(snapshot)!==draftJson)throw Error(error)
- const {scope}=resolveContentTargetScope({...basis,scope:input.targetScope})
+ const {scope,responseTargets}=resolveContentTargetScope({...basis,scope:input.targetScope})
+ const responseScope=checkScopedResponseChanges({changes:snapshot['responseChanges'],responses:basis.responses,selected:responseTargets})
+ if(responseScope.violations.length||scope.targets.every(item=>item.kind==='RESPONSE')&&snapshot['nodes'].length>0)
+  throw Error('CONTENT_DRAFT_CANDIDATE_TARGET_MISMATCH')
  const targetScope:unknown=JSON.parse(canonicalSnapshotValue(scope))
  const capturedStage:unknown=JSON.parse(canonicalSnapshotValue(stageRef))
  const [nodes,actualDigest]=await Promise.all([Promise.all(snapshot['nodes'].map(async(node:unknown)=>{
@@ -43,7 +47,8 @@ export async function prepareDraftCandidateRequest(draft:Draft,basis:Basis,input
  if(actualDigest!==contentDigest)throw Error('CONTENT_DRAFT_CANDIDATE_DIGEST')
  nodes.sort((left,right)=>left.nodeId<right.nodeId?-1:left.nodeId>right.nodeId?1:0)
  const requestJson=canonicalSnapshotValue({projectId,draftId,actorUserId,draftVersion,baseRevisionId,baselineId,
-  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,...(inputSnapshotHash?{inputSnapshotHash,batchId,lockHash}:{})})
+  stageRef:capturedStage,targetScope,requestKey,contentDigest,nodes,responseChanges:responseScope.responseChanges,
+  ...(inputSnapshotHash?{inputSnapshotHash,batchId,lockHash}:{})})
  const requestDigest=await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${requestJson}]`)
  assertCurrent()
  return Object.freeze({projectId,draftId,draftVersion,baseRevisionId,baselineId,requestKey,contentDigest,requestJson,requestDigest,

@@ -90,6 +90,28 @@ function responseBasis(value:unknown):ContentScopeResponse[] {
   return {projectId:id(row['projectId']),assignmentId:id(row['assignmentId']),responseId:row['responseId']===null?null:id(row['responseId'])}
  })
 }
+
+/** 核拟变更的分工、旧响应和新响应身份，供草稿准备和候选预演共用。 */
+export function checkScopedResponseChanges(input:Readonly<{
+ changes:unknown;responses:readonly ContentScopeResponse[]
+ selected:ReturnType<typeof resolveContentTargetScope>['responseTargets']
+}>){
+ const responseChanges=changes(input.changes),violations:ContentScopeViolation[]=[]
+ const selectedResponses=new Map(input.selected.map(row=>[row.assignmentId,row.responseId]))
+ const basisResponses=new Map(input.responses.map(row=>[row.assignmentId,row.responseId]))
+ const usedResponseIds=new Set(input.responses.flatMap(row=>row.responseId===null?[]:[row.responseId]))
+ for(const change of responseChanges){
+  const responseViolation=(code:ContentScopeViolation['code'])=>violations.push({code,ownerKind:'RESPONSE',ownerId:change.assignmentId,relatedId:change.responseId})
+  if(!selectedResponses.has(change.assignmentId))responseViolation('RESPONSE_OUTSIDE_SCOPE')
+  if(!basisResponses.has(change.assignmentId)||basisResponses.get(change.assignmentId)!==change.basisResponseId
+   ||selectedResponses.has(change.assignmentId)&&selectedResponses.get(change.assignmentId)!==change.basisResponseId)responseViolation('RESPONSE_BASIS_MISMATCH')
+  if(change.responseId!==null){
+   if(usedResponseIds.has(change.responseId))responseViolation('RESPONSE_ID_REUSE')
+   usedResponseIds.add(change.responseId)
+  }
+ }
+ return {responseChanges,violations}
+}
 function subtreeContains(input:Readonly<{nodeId:string;tree:ReadonlyMap<string,CapturedNode>;roots:ReadonlySet<string>}>):boolean {
  let nodeId=input.nodeId
  const seen=new Set<string>()
@@ -114,7 +136,8 @@ export function previewScopedContentTree(command:ScopedContentPreviewInput):Scop
  const comparison=compareContentTreeSnapshots({projectId:input.projectId,basis:payloads(basis),current:payloads(current),candidate:payloads(candidate)})
  const resolution=resolveContentTargetScope({projectId:input.projectId,scope:input.targetScope,
   basisNodes:[...basis.values()].map(node=>node.shape),responses:input.responses})
- const responseChanges=changes(input.responseChanges),declared=new Set<string>()
+ const responseScope=checkScopedResponseChanges({changes:input.responseChanges,responses:input.responses,selected:resolution.responseTargets})
+ const {responseChanges}=responseScope,declared=new Set<string>()
  for(const value of array(input.declaredAddedNodeIds)){const nodeId=id(value)
   if(declared.has(nodeId))throw Error('CONTENT_SCOPE_ADDITION_DUPLICATE');declared.add(nodeId)}
  const allowed=new Set(resolution.nodeIds),roots=new Set(resolution.scope.targets.flatMap(target=>target.kind==='NODE'&&target.extent==='SUBTREE'?[target.nodeId]:[]))
@@ -139,18 +162,7 @@ export function previewScopedContentTree(command:ScopedContentPreviewInput):Scop
   }
  }
  for(const nodeId of declared)if(!addedNodeIds.includes(nodeId))add('UNEXPECTED_ADDITION_DECLARATION',nodeId)
- const selectedResponses=new Map(resolution.responseTargets.map(row=>[row.assignmentId,row.responseId]))
- const basisResponses=new Map(input.responses.map(row=>[row.assignmentId,row.responseId])),usedResponseIds=new Set(input.responses.flatMap(row=>row.responseId===null?[]:[row.responseId]))
- for(const change of responseChanges){
-  const responseViolation=(code:ContentScopeViolation['code'])=>violations.push({code,ownerKind:'RESPONSE',ownerId:change.assignmentId,relatedId:change.responseId})
-  if(!selectedResponses.has(change.assignmentId))responseViolation('RESPONSE_OUTSIDE_SCOPE')
-  if(!basisResponses.has(change.assignmentId)||basisResponses.get(change.assignmentId)!==change.basisResponseId
-   ||selectedResponses.has(change.assignmentId)&&selectedResponses.get(change.assignmentId)!==change.basisResponseId)responseViolation('RESPONSE_BASIS_MISMATCH')
-  if(change.responseId!==null){
-   if(usedResponseIds.has(change.responseId))responseViolation('RESPONSE_ID_REUSE')
-   usedResponseIds.add(change.responseId)
-  }
- }
+ violations.push(...responseScope.violations)
  return {targetScope:resolution.scope,comparison,scopeCheckPassed:violations.length===0,violations,changedNodeIds,addedNodeIds,responseChanges,
   requiresCurrentAuthorityChecks:true,requiresResponsePayloadChecks:true,requiresMergedSnapshotValidation:true}
 }

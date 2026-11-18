@@ -20,7 +20,7 @@ const cleanups:(()=>void)[]=[]
 const originalStubs=config.global.stubs
 const route=reactive(mocks.route)
 afterEach(()=>{cleanups.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals();route.path='/apps/APP/features/system/cache-management/ui/cache-management-page';route.meta.nodeId='CACHE_NODE';vi.clearAllMocks()})
-async function dataFixture(keyless=false){
+async function dataFixture(keyless=false,commandReadFailure=false){
  const scene='348D1C50B204C779AABBE2489C5E2FDF'
  const ds=DataSet.fromJson({scenarioId:scene,tables:{
   CacheCategories:{modelBinding:{modelId:'84e3c2b4-0df0-4b5d-b148-885c7c812baf',modelName:'缓存过滤条件'},columns:[{name:'txt',type:'string'},{name:'val',type:'string'}],views:{default:{autoLoad:false,queryConfig:{pagination:'none'}}}},
@@ -35,11 +35,11 @@ async function dataFixture(keyless=false){
  const categories=ds.getView('CacheCategories')!
  categories.bindQueryExecutor({executeQuery:async()=>({rows:[],total:0,assertIdentity:()=>undefined,rowKey:()=>undefined,fieldAccess:()=>({read:'visible' as const,write:'denied' as const,component:'readonly' as const,required:false,writeMode:'readonly' as const}),readFieldAccess:()=> 'visible' as const,addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> 'hidden',createChildActionState:()=> 'hidden',viewActionState:()=> 'enabled'})})
  const verify=vi.fn(async()=>{throw Error('UNKNOWN')})
- bindDataSetCommandSubmit(commands,{resource:{resourceType:'command',resourceId:'system:cache-delete'},inputFields:['key'],guard:()=>undefined,createKey:()=> 'ONE',submit,verify,isUnconfirmed:failure=>failure instanceof Error&&failure.message==='UNKNOWN'})
+ bindDataSetCommandSubmit(commands,{resource:{resourceType:'command',resourceId:'system:cache-delete'},inputFields:['key'],guard:()=>{if(commandReadFailure)throw Error('缓存命令查询失败')},createKey:()=> 'ONE',submit,verify,isUnconfirmed:failure=>failure instanceof Error&&failure.message==='UNKNOWN'})
  return{ds,list,commands,submit,verify}
 }
-async function fixture(realTable=false,keyless=false){
- const data=await dataFixture(keyless)
+async function fixture(realTable=false,keyless=false,commandReadFailure=false){
+ const data=await dataFixture(keyless,commandReadFailure)
  mocks.load.mockResolvedValue(data.ds)
  const TableStub=defineComponent({name:'RendererTable',props:['dataViewKey','actions','children','currentPageSearch'],setup:()=>()=>h('div',{'data-standard-table':''})})
  const ButtonStub=defineComponent({name:'RendererButton',props:['label','disabled'],emits:['click'],setup:(props,{emit})=>()=>h('button',{disabled:props['disabled'],onClick:()=>emit('click')},String(props['label']))})
@@ -69,6 +69,12 @@ it('hosts the cache manager runtime through the shared native session',()=>{
  expect(source).toContain('runtimeSession.isCurrent(current)')
  expect(source).toContain('loadLowcodeRuntimeScenario({projectId,scenarioId:id})')
  expect(source).not.toContain('new PageRuntime')
+})
+it('keeps the cache workspace unavailable after a command query failure',async()=>{
+ const f=await fixture(false,false,true)
+ expect(f.wrapper.text()).toContain('缓存命令查询失败')
+ expect(f.wrapper.findAllComponents(RendererTable)).toHaveLength(0)
+ expect(f.submit).not.toHaveBeenCalled()
 })
 it('binds the original two workspaces, stages the row delete and cancels with zero command dispatch',async()=>{
  const f=await fixture(),tables=f.wrapper.findAllComponents(RendererTable)

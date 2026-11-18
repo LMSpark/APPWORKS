@@ -83,7 +83,10 @@ async function loadCurrentRoute():Promise<void>{
   if(!active||own!==generation||!runtimeSession.isCurrent(current))return
   const loaded=current.getDataSet(scenarioId),categories=loaded?.getView('CacheCategories'),command=loaded?.getView('CacheDeleteRequest')
   if(!loaded||!categories||!command)throw Error('缓存管理缺少正式场景视图')
-  await command.refresh();await categories.refresh()
+  await command.refresh()
+  if(command.loadingError)throw command.loadingError
+  if(!active||own!==generation||!runtimeSession.isCurrent(current))return
+  await categories.refresh()
   if(categories.loadingError)throw categories.loadingError
   if(!active||own!==generation||!runtimeSession.isCurrent(current))return
   ds=loaded

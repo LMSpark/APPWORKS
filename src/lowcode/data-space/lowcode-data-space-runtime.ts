@@ -33,6 +33,7 @@ import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 import {createPdfInspectionProjectionBindings} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
 import {createPdfInspectionUploadBindings} from '../resources/semi-structured/pdf-inspect/upload-command'
+import {createPdfInspectionInitBindings} from '../resources/semi-structured/pdf-inspect/init-command'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -217,6 +218,15 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
    ...enterpriseBindings.commandBindings,
    ...apiInterfaceBindings.commandBindings,
    ...createPdfInspectionUploadBindings({config,http:lowcodeHttp,readScope,assertCurrent}),
+   ...createPdfInspectionInitBindings({config,http:lowcodeHttp,readScope,assertCurrent,
+    readStorage: () => window.localStorage,
+    readOwner: () => {
+     const session = lowcodeApi.session.get()
+     const enterpriseId = session?.enterprise.id ?? session?.identity.enterpriseId
+     if (!session || !enterpriseId) throw Error('PDF_INSPECTION_INIT_RECOVERY: 缺少当前企业认证会话')
+     return {enterpriseId, enterpriseShortName: session.enterprise.shortName,
+      actorId: session.identity.userId, applicationId: projectId, scenarioId}
+    }}),
   },
   ...(input.getPage?{getPage:input.getPage}:{}),
   ...definitions,

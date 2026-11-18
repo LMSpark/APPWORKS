@@ -32,6 +32,18 @@
       ],
       "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
     },
+    "PdfInspectionInit": {
+      "resourceType": "command", "resourceId": "pdf-inspect:init",
+      "columns": [
+        {"name": "requestId", "type": "string", "isPrimaryKey": true},
+        {"name": "configId", "type": "string"},
+        {"name": "files", "type": "json"},
+        {"name": "inspectJobId", "type": "string"},
+        {"name": "status", "type": "string"},
+        {"name": "fileCount", "type": "number"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
     "PdfInspectionHistory": {
       "resourceType": "logical-view", "resourceId": "pdf-inspect:history",
       "columns": [

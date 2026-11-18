@@ -10,11 +10,11 @@ import type {freezeOperationRouteContext} from './operation-route-context'
 type Registry=Parameters<typeof createAiAgentTask>[0]
 type FrozenContext=Awaited<ReturnType<typeof freezeOperationRouteContext>>
 type DispatchIdentity=Readonly<{registrationId:string;businessInstanceId:string;runtimeInstanceId:string;turnId:string;
- publishedVersionRef:string;guideRef:string;guideDigest:string;manifestDigest:string;inputDigest:string}>&FrozenContext['scope']
+ publishedVersionRef:string;guideRef:string;guideVersionRef:string;guideDigest:string;manifestDigest:string;inputDigest:string}>&FrozenContext['scope']
 type DispatchClaim=DispatchIdentity&Readonly<{state:'CLAIMED'|'EXISTING'|'UNKNOWN';assertCurrent:()=>void}>
 const dispatchIdentityFields={
  runId:true,attemptRef:true,requestKey:true,projectId:true,targetDigest:true,configurationLockHash:true,
- publishedVersionRef:true,guideRef:true,guideDigest:true,manifestDigest:true,inputDigest:true,
+ publishedVersionRef:true,guideRef:true,guideVersionRef:true,guideDigest:true,manifestDigest:true,inputDigest:true,
  registrationId:true,businessInstanceId:true,runtimeInstanceId:true,turnId:true,
 } satisfies Record<keyof DispatchIdentity,true>
 function isDispatchIdentityField(key:string):key is keyof DispatchIdentity{
@@ -64,7 +64,7 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
   session.scope.runtimeInstanceId!==prepared.task.scope.runtimeInstanceId||
   session.scope.instanceId!==prepared.task.scope.instanceId)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
  const dispatch=Object.freeze({...manifest.scope,manifestDigest:manifest.manifestDigest,inputDigest:manifest.inputDigest,
-  publishedVersionRef:prepared.publishedVersionRef,guideRef:manifest.guideRef,guideDigest:manifest.guideDigest,
+  publishedVersionRef:prepared.publishedVersionRef,guideRef:manifest.guideRef,guideVersionRef:manifest.guideVersionRef,guideDigest:manifest.guideDigest,
   registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
  const claim=await source.claimOriginalTurn(dispatch)
  prepared.assertCurrent()

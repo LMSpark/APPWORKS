@@ -13,6 +13,11 @@ import {readRegisteredFrozenOperationContext} from '../model/operation/content-o
 import {recoverRegisteredOperationRouteAttempt} from '../model/operation/content-operation-result-reader'
 import {prepareRegisteredOperationStepRework} from '../model/operation/content-operation-rework-reader'
 
+type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
+type RecoveryGuide=Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]
+type ResolveOriginalGuide=(original:Readonly<Pick<OriginalManifest,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>>,
+ signal:AbortSignal)=>Promise<RecoveryGuide|undefined>
+
 /** 调用方提供正式运行实例、当前业务项目和已绑定的 ClassModel 根。 */
 export function openContentOperationWorkspace(
  runtime:Pick<PageRuntime,'resolveView'|'generation'|'destroyed'|'isLoaded'>,
@@ -51,7 +56,7 @@ export function openContentOperationWorkspace(
    return guide
   },
   async freeze(attempt:Freeze[0],guide:Guide,input:Readonly<{
-   definition:Omit<Freeze[1],'action'>&Readonly<{
+   definition:Omit<Freeze[1],'action'|'guideVersionRef'>&Readonly<{
     versionRef:string;guideDigest:string;configurationLockHash:string;assertCurrent:()=>void
    }>
    sources:Freeze[2]
@@ -64,7 +69,7 @@ export function openContentOperationWorkspace(
      throw Error('OPERATION_WORKSPACE_GUIDE_SCOPE')
     guide.assertCurrent();definition.assertCurrent()
    }
-   const manifest=await freezeOperationRouteContext(attempt,{createdAt:definition.createdAt,slots:definition.slots,
+   const manifest=await freezeOperationRouteContext(attempt,{guideVersionRef:guide.versionRef,createdAt:definition.createdAt,slots:definition.slots,
     action:{guideRef:guide.guideRef,guideDigest:guide.guideDigest,assertCurrent:assertDefinition}},sources)
    assertCurrent()
    manifests.add(manifest)
@@ -82,10 +87,14 @@ export function openContentOperationWorkspace(
    guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
    return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
   },
-  async recoverOriginal(attempt:Freeze[0],guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
+  async recoverOriginal(attempt:Freeze[0],resolveGuide:ResolveOriginalGuide){
    const manifest=await readRegisteredFrozenOperationContext(host,attempt)
    assertCurrent()
    if(!manifest)throw Error('OPERATION_FROZEN_READ_REQUIRED')
+   const {scope:originalScope,guideRef,guideVersionRef,guideDigest}=manifest
+   const guide=await resolveGuide(Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest}),signal)
+   manifest.assertCurrent()
+   if(!guide)return undefined
    return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
   },
   prepareRework(selection:Parameters<typeof prepareRegisteredOperationStepRework>[1]){

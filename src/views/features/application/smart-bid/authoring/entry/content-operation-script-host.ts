@@ -8,8 +8,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {openContentOperationWorkspace} from './content-operation-workspace'
 
 type Open=Parameters<typeof openContentOperationWorkspace>
-type Recover=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>
-type ResolveGuide=(attempt:Recover[0],signal:AbortSignal)=>Promise<Recover[1]|undefined>
+type ResolveGuide=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]
 
 export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],
  scope:Omit<Open[2],'signal'>&Readonly<{resolveOriginalGuide?:ResolveGuide}>){
@@ -31,9 +30,8 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
     if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||!identity(targetDigest)||!identity(configurationLockHash)||
      ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error('OPERATION_PAGE_ATTEMPT_REQUIRED')
     const attempt={projectId:scope.projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash}
-    const guide=await scope.resolveOriginalGuide?.(attempt,signal)
-    if(guide){
-     const verified=await workspace.recoverOriginal(attempt,guide)
+    const verified=scope.resolveOriginalGuide?await workspace.recoverOriginal(attempt,scope.resolveOriginalGuide):undefined
+    if(verified){
      verified.assertCurrent()
      const dispatch='dispatch' in verified?verified.dispatch:undefined
      const result='result' in verified?verified.result:undefined

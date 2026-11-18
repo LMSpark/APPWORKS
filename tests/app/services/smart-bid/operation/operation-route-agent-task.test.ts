@@ -27,7 +27,7 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
  const time='2026-11-18T10:00:00+08:00'
  const turn={turnId:crypto.randomUUID(),seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1}
  const scope={runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
- const guide={action:{guideRef:'GUIDE',guideDigest:'c'.repeat(64),assertCurrent:source.assertCurrent},
+ const guide={guideVersionRef:'GV1',action:{guideRef:'GUIDE',guideDigest:'c'.repeat(64),assertCurrent:source.assertCurrent},
   createdAt:time,slots:[{slotId:'id',required:true},{slotId:'prompt',required:true}]}
  const inputs=Object.entries(source.inputs).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
   sourceRef:'REFERENCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))

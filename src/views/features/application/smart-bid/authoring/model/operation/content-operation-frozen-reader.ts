@@ -9,7 +9,7 @@ import type {recoverRegisteredOperationRouteAttempt} from './content-operation-r
 
 type Manifest=Parameters<typeof recoverRegisteredOperationRouteAttempt>[1]
 const keys=['projectId','runId','attemptRef','requestKey'] as const
-const fields=[...keys,'targetDigest','configurationLockHash','guideRef','guideDigest','usable','inputDigest']
+const fields=[...keys,'targetDigest','configurationLockHash','guideRef','guideVersionRef','guideDigest','usable','inputDigest']
 const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ContextManifest'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
@@ -39,9 +39,9 @@ export async function readRegisteredFrozenOperationContext(host:ContentRevisionR
  if(!row)return undefined
  const assertRow=view.captureReadRow(row,fields)
  const assertCurrent=()=>{assertScope();assertRead();assertRow()}
- const {guideRef,guideDigest,usable,inputDigest}=row
- if(Object.entries(scope).some(([field,value])=>row[field]!==value)||!identity(guideRef)||!digest(guideDigest)||
+ const {guideRef,guideVersionRef,guideDigest,usable,inputDigest}=row
+ if(Object.entries(scope).some(([field,value])=>row[field]!==value)||!identity(guideRef)||!identity(guideVersionRef)||!digest(guideDigest)||
   typeof usable!=='boolean'||(usable?!digest(inputDigest):inputDigest!==null))throw Error('OPERATION_FROZEN_READ_SCOPE')
  assertCurrent()
- return Object.freeze({scope,guideRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,assertCurrent})
+ return Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,assertCurrent})
 }

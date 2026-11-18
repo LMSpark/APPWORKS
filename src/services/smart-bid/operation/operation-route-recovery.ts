@@ -7,7 +7,7 @@ import {verifyOriginalOperationRouteDispatch} from './operation-route-dispatch-e
 import {verifyDispatchedOperationRouteReturn} from './operation-route-return'
 
 type Manifest=Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>,
- 'scope'|'guideRef'|'guideDigest'|'usable'|'inputDigest'|'assertCurrent'>
+ 'scope'|'guideRef'|'guideVersionRef'|'guideDigest'|'usable'|'inputDigest'|'assertCurrent'>
 type Dispatch=Parameters<typeof verifyOriginalOperationRouteDispatch>[1]
 type Result=Parameters<typeof verifyDispatchedOperationRouteReturn>[1]
 
@@ -15,13 +15,14 @@ type Result=Parameters<typeof verifyDispatchedOperationRouteReturn>[1]
 export async function recoverOperationRouteAttempt(manifest:Manifest,source:Readonly<{
  readDispatch:(input:Manifest['scope'])=>Promise<Dispatch|undefined>
  readResult:(input:Manifest['scope'])=>Promise<Result|undefined>
- guide:Parameters<typeof verifyDispatchedOperationRouteReturn>[2]&Readonly<{guideDigest:string}>
+ guide:Parameters<typeof verifyDispatchedOperationRouteReturn>[2]&Readonly<{guideVersionRef:string;guideDigest:string}>
  assertCurrent:()=>void
 }>){
  const assertCurrent=()=>{manifest.assertCurrent();source.assertCurrent()}
  assertCurrent()
  if(!manifest.usable||manifest.inputDigest===null)throw Error('OPERATION_ROUTE_RECOVERY_CONTEXT_REQUIRED')
- if(manifest.guideRef!==source.guide.guideRef||manifest.guideDigest!==source.guide.guideDigest)
+ if(manifest.guideRef!==source.guide.guideRef||manifest.guideDigest!==source.guide.guideDigest||
+  manifest.guideVersionRef!==source.guide.guideVersionRef||manifest.scope.configurationLockHash!==source.guide.configurationLockHash)
   throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
  const {scope}=manifest
  const sent=await source.readDispatch(scope)

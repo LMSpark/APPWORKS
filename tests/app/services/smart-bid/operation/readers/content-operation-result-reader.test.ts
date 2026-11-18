@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/entry/content-operation-script-host'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/entry/content-operation-workspace'
 import {DataSet} from '@spark-appworks/spark-data'
@@ -12,12 +12,12 @@ it('reads the original result only for the selected attempt and verifies the ret
  const scope={projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const original={...scope,id:'ROW',receiptRef:'RECEIPT',state:'COMPLETE',output:craft.outputExample}
  const guideDigest='c'.repeat(64)
- const manifest=await freezeOperationRouteContext(scope,{action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
+ const manifest=await freezeOperationRouteContext(scope,{guideVersionRef:'GV1',action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
   createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
   {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,assertCurrent:()=>{}},
  ])
  const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest}
- const frozen={...scope,id:'FROZEN-ROW',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest}
+ const frozen={...scope,id:'FROZEN-ROW',guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest}
  const filters=['projectId','runId','attemptRef','requestKey'].map(field=>({field,operator:'eq' as const,
   value:{Type:'GetInputParam',ParamName:field}}))
  const ds=DataSet.fromJson({scenarioId:'S',tables:{GenerationRun:{
@@ -64,22 +64,30 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
   const workspace=openContentOperationWorkspace(scriptHost.runtime,
    {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},{...host,rootKind:'OperationRoute',signal})
-  const guide={guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,
+  const guide={guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,
    catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},match:()=>true,
    assertCurrent:host.assertCurrent,assertGuideCurrent:host.assertCurrent}
-  const verified=await workspace.recoverOriginal(scope,guide)
+  const resolveGuide=vi.fn(async()=>guide)
+  const verified=await workspace.recoverOriginal(scope,resolveGuide)
+  expect(resolveGuide).toHaveBeenCalledExactlyOnceWith({scope,guideRef:'GUIDE',guideVersionRef:'GV1',guideDigest},signal)
   expect(verified).toMatchObject({state:'VERIFIED_CANDIDATE',dispatch:{dispatchRef:'DISPATCH'},result:{receiptRef:'RECEIPT'}})
   await dispatchView.refresh()
   expect(()=>verified.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  await expect(workspace.recoverOriginal(scope,async()=>({...guide,guideVersionRef:'GV2'})))
+   .rejects.toThrow('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
+  await expect(workspace.recoverOriginal(scope,async()=>{
+   await frozenView.refresh()
+   return guide
+  })).rejects.toThrow('DATA_VIEW_READ_RESULT')
   const verificationHost=createContentOperationScriptHost(scriptHost.runtime,
    {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
-   {...host,rootKind:'OperationRoute',resolveOriginalGuide:async()=>guide})
+   {...host,rootKind:'OperationRoute',resolveOriginalGuide:resolveGuide})
   const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',
    verification:{state:'VERIFIED_CANDIDATE',receiptRef:'RECEIPT'}})
   expect(inspected).not.toHaveProperty('verification.candidateJson')
   hideFrozen=true
-  await expect(workspace.recoverOriginal(scope,guide)).rejects.toThrow('DATA_VIEW_READ_ROW')
+  await expect(workspace.recoverOriginal(scope,resolveGuide)).rejects.toThrow('DATA_VIEW_READ_ROW')
   hidden=true
   await expect(readRegisteredOperationResult(host,scope)).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>result?.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

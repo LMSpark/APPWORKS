@@ -28,7 +28,7 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  const action=await readOperationActionGuide({executeTool:async name=>name==='model_query'?
   {ok:true,data:{rootKind:'ROOT',models:[{kind:'ROUTE',methods:[{name:'compose'}]}]}}:{ok:true,data:'原工艺指南'}},
  {rootKind:'ROOT',kind:'ROUTE',actionName:'compose',guideRef:'GUIDE',guideDigest,assertCurrent:source.assertCurrent})
- const manifestGuide={action,createdAt:'2026-11-18T10:00:00+08:00',
+ const manifestGuide={action,guideVersionRef:'GV1',createdAt:'2026-11-18T10:00:00+08:00',
   slots:Object.keys(craft.inputExample).map(slotId=>({slotId,required:true}))}
  const provenance=Object.entries(craft.inputExample).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
   sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
@@ -47,7 +47,7 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   .rejects.toThrow('OPERATION_ROUTE_DISPATCH_SCOPE')
  const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
  const response={...receipt,state:'COMPLETE' as const,output:craft.outputExample}
- const guide={...source,guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,assertGuideCurrent:action.assertCurrent}
+ const guide={...source,guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,assertGuideCurrent:action.assertCurrent}
  expect(await verifyDispatchedOperationRouteReturn(dispatch,response,guide))
   .toMatchObject({state:'VERIFIED_CANDIDATE',dispatchRef:'SENT',guideRef:'GUIDE',actualInputDigest})
  const mismatch=await verifyOriginalOperationRouteDispatch(scope,sent,{...evidence,expectedInputDigest:'0'.repeat(64)})

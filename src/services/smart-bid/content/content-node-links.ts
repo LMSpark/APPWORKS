@@ -26,7 +26,7 @@ export type ContentTableData=Readonly<{
 export type ContentNodeLinkOccurrence=ContentNodeLink&Readonly<{occurrence:number;start:number;end:number;show?:'title'|'number'}>
 export type ContentFactOccurrence=Readonly<{nodeId:string;factId:string;occurrence:number}>
 type NodeReferences={links:ContentNodeLink[];factIds:Set<string>;resourceVersionIds:Set<string>;
- linkOccurrences:ContentNodeLinkOccurrence[];factOccurrences:ContentFactOccurrence[];occurrenceCount:number}
+ linkOccurrences:ContentNodeLinkOccurrence[];factOccurrences:ContentFactOccurrence[];supplementalDisplayPositions:number[];occurrenceCount:number}
 const containers=new Set(['document','toc','chapter','list','item','figure','quote'])
 const texts=new Set(['heading','paragraph','caption','image'])
 
@@ -62,6 +62,7 @@ function checkFields(input:Readonly<{value:string;data:Record<string,unknown>;ow
   const occurrence=references.occurrenceCount++
   const reference=record(data[name]),factId=reference['factId']
   if(reference['type']==='fact'&&typeof factId==='string')references.factOccurrences.push({nodeId:ownerNodeId,factId,occurrence})
+  if(reference['type']!=='page'&&reference['type']!=='fact')references.supplementalDisplayPositions.push(occurrence)
   const link=fieldLinks.get(name)
   if(link){
    const show=reference['show']
@@ -103,7 +104,8 @@ function readNodeReferences(input:unknown) {
  canonicalContentNode(input)
  const node=record(input),ownerNodeId=text(own(node,'nodeId')),type=text(own(node,'type'))
  const value=text(own(node,'value')),data=record(own(node,'data'))
- const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[],factOccurrences:[],occurrenceCount:0}
+ const references:NodeReferences={links:[],factIds:new Set(),resourceVersionIds:new Set(),linkOccurrences:[],factOccurrences:[],
+  supplementalDisplayPositions:[],occurrenceCount:0}
  let table:ContentTableData|undefined
  if(containers.has(type)){
   if(value!==''||Object.keys(data).length!==0)throw Error('CONTENT_LINK_CONTAINER')
@@ -154,4 +156,9 @@ export function readContentNodeLinkOccurrences(input:unknown):readonly ContentNo
 /** 同一事实出现多次时，每处保留在原节点引用序中的位置。 */
 export function readContentFactOccurrences(input:unknown):readonly ContentFactOccurrence[] {
  return readNodeReferences(input).factOccurrences
+}
+
+/** 已存正文中须由其余来源解析的显示位置，事实和分页各走原来源。 */
+export function readContentSupplementalDisplayPositions(input:unknown):readonly number[]{
+ return readNodeReferences(input).supplementalDisplayPositions
 }

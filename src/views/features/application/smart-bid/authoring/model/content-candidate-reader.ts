@@ -28,6 +28,7 @@ import {hashQualificationReviews} from '@/services/smart-bid/content/hashes/qual
 import {hashContentRules} from '@/services/smart-bid/content/hashes/content-rules-hash'
 import {hashScopedResponses,type ScopedResponseTarget} from '@/services/smart-bid/content/hashes/content-root-sections'
 import {hashContentEffective,hashEffectiveResponseDependencies} from '@/services/smart-bid/content/hashes/content-effective-hash'
+import {readContentSupplementalDisplayPositions} from '@/services/smart-bid/content/content-node-links'
 import {resolveContentTargetScope} from '@/services/smart-bid/content/content-target-scope'
 import {readEffectiveRequirementVersions} from './content-requirement-reader'
 import {projectFactDisplayOccurrences,projectResponseFactDisplayOccurrences} from '@/services/smart-bid/content/hashes/fact-display-occurrences'
@@ -384,11 +385,17 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   const assertSupplement=()=>{dependencies.assertCurrent();supplement.assertCurrent()}
   assertSupplement()
   const displayRefs:unknown[]=[...dependencies.facts.nodeDisplayRefs]
+  const calculationTables=new Set(nodes.readCalculationTableIds(nodeIds))
+  const expected=new Set(payloads.filter(node=>selected.has(node.nodeId)).flatMap(node=>
+   readContentSupplementalDisplayPositions(node).map(occurrence=>JSON.stringify([node.nodeId,occurrence]))))
   visitSnapshotReferences(supplement.displayRefs,item=>{
    const ref=snapshotReferenceFields(item,['nodeId','occurrence','displayHash'],'CONTENT_REVIEW_DISPLAY_SCOPE')
-   if(typeof ref['nodeId']!=='string'||!selected.has(ref['nodeId']))throw Error('CONTENT_REVIEW_DISPLAY_SCOPE')
+   const {nodeId:owner,occurrence}=ref
+   if(typeof owner!=='string'||!selected.has(owner)||
+    !expected.delete(JSON.stringify([owner,occurrence]))&&!calculationTables.has(owner))throw Error('CONTENT_REVIEW_DISPLAY_SCOPE')
    displayRefs.push(ref)
   },'CONTENT_REVIEW_DISPLAY_SCOPE')
+  if(expected.size)throw Error('CONTENT_REVIEW_DISPLAY_INCOMPLETE')
   const qualification=await readQualificationHash(supplement.qualificationIds,assertSupplement)
   const rules=await readContentRulesHash(nodeIds,sources.readTemplate)
   const assertEffective=()=>{qualification.assertCurrent();rules.assertCurrent()}

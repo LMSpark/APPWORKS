@@ -10,13 +10,13 @@ import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {isRecord} from '@spark-appworks/spark-utils'
 
-async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>){
+async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>,primaryKey='id'){
  const ds=DataSet.fromJson({scenarioId:'S',tables:{WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
-  columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],views:{default:{commitMode:'staged'}}}}})
+  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],views:{default:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft')!,table=new DataSpaceQueryTable({scenarioId:'S',metaName:'WorkingDraft'})
- const row={id:'D',projectId:'P',userId:'U',draft:{nodes:[],responseChanges:[]}}
- const records=[row,...(other?[{...row,id:'OTHER'}]:[])]
- const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:records.length,
+ const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:{nodes:[],responseChanges:[]}}
+ const records=[row,...(other?[{...row,[primaryKey]:'OTHER'}]:[])]
+ const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:records.length,
   Items:records.map(item=>({...item,lingma_sys_params:{r:[],e:writable?['draft']:[],h:[],m:[],d:false}}))}}})}))
  const save=vi.fn(async()=>{throw Error('NO_SAVE')});view.bindQueryExecutor({executeQuery:query,save});await view.refresh()
  let current=true
@@ -27,6 +27,31 @@ async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Pr
  return {ds,runtime,view,commands,binding,query,save,pending,expire:()=>{current=false}}
 }
 const add={action:'addDocument' as const,args:[{documentId:'B',chapterId:'C',headingId:'H',title:'实施方案'}] as [{documentId:string;chapterId:string;headingId:string;title:string}]}
+it('uses the formal draft primary key for editing and cancellation',async()=>{
+ const f=await fixture(true,false,undefined,'draftId')
+ try{
+  f.commands.run(add,f.commands.epoch)
+  expect(f.view.hasEditingChanges()).toBe(true)
+  f.commands.cancel(f.commands.epoch)
+  expect(f.commands.canLeave).toBe(true)
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
+})
+it('still reports the original dirty state for departure when the editing binding is stale',async()=>{
+ const clean=await fixture(),dirty=await fixture()
+ const controller=new AbortController()
+ try{
+  const cleanSession=createContentAuthoringScriptHost(clean.binding,clean.commands).invoke('content.authoring.connect',undefined,controller.signal)
+  const dirtySession=createContentAuthoringScriptHost(dirty.binding,dirty.commands).invoke('content.authoring.connect',undefined,controller.signal)
+  dirtySession.setInputPending(true)
+  clean.expire()
+  dirty.expire()
+  expect(cleanSession.canLeave).toBe(true)
+  expect(dirtySession.canLeave).toBe(false)
+  expect(()=>dirtySession.cancel()).toThrow('HOST_STALE')
+  expect(dirty.save).not.toHaveBeenCalled()
+ }finally{clean.runtime.dispose();dirty.runtime.dispose()}
+})
 it('prevents generic CRUD save from bypassing the unavailable authoritative draft command',async()=>{
  const f=await fixture()
  try{

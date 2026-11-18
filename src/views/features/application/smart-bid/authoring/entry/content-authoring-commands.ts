@@ -30,7 +30,8 @@ export class ContentAuthoringCommands {
    ||view.dataTable?.modelBinding?.modelName!=='WorkingDraft'||view.commitMode!=='staged')throw Error('CONTENT_COMMAND_VIEW_REQUIRED')
   const row=view.rows.find(item=>view.getPkKey(item)===binding.draftId)
   if(row?.['projectId'] !== binding.projectId||row['userId']!==binding.actorUserId)throw Error('CONTENT_COMMAND_TARGET_REQUIRED')
-  this.#view=view;this.#assertResult=view.captureReadResult();this.#assertRow=view.captureReadRow(row,['id','projectId','userId'])
+  this.#view=view;this.#assertResult=view.captureReadResult()
+  this.#assertRow=view.captureReadRow(row,[view.primaryKey,'projectId','userId'])
   const table=view.dataTable
   table.setQuerySaveRule({groups:[...(table.querySaveRule?.groups??[]),...contentDraftSaveRule(binding.projectId).groups,
    {fields:['draft'],validate:()=>{throw Error('CONTENT_DRAFT_REMOTE_SAVE_UNAVAILABLE')}}]})

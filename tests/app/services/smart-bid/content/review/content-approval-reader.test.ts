@@ -30,10 +30,10 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   expect(approval).toMatchObject({revisionId:'R',nodeId:'D',effectiveHash:row.effectiveHash,requiresCurrentCoverageCheck:true})
   const original=async (decisionTraceRef:string)=>({projectId:'P',revisionId:'R',approvalRef:'A',authorityRef:'AUTH',decisionTraceRef,
    approvalEffectiveHash:row.effectiveHash,
-   approvedTargets:[{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64)}],assertCurrent:()=>{}})
+   approvedTargets:[{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64),versionHash:'c'.repeat(64)}],assertCurrent:()=>{}})
   const coverage=await readApprovalCoverageEvidence(approval,original)
-  expect(coverage.evidence).toEqual([{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64),approvalRef:'A'}])
-  const target={kind:'FILE' as const,targetId:'FILE-1',effectiveHash:'b'.repeat(64),requiredUseIds:['PRICE']}
+  expect(coverage.evidence).toEqual([{kind:'FILE',targetId:'FILE-1',effectiveHash:'b'.repeat(64),versionHash:'c'.repeat(64),approvalRef:'A'}])
+  const target={kind:'FILE' as const,targetId:'FILE-1',effectiveHash:'b'.repeat(64),versionHash:'c'.repeat(64),requiredUseIds:['PRICE']}
   const selection={projectId:'P',revisionId:'CURRENT',targets:[target],assertCurrent:()=>{}}
   const readChecks=async()=>({projectId:'P',revisionId:'CURRENT',completed:[{...target,checkRef:'CHECK',
    checkedUses:[{id:'PRICE',useCheckRef:'USE'}]}],findings:[],assertCurrent:()=>{}})
@@ -49,7 +49,7 @@ it('reads the original approval by exact identity and refuses an unreadable auth
   await expect(readApprovalCoverageEvidence(approval,async ref=>({...await original(ref),authorityRef:'OTHER'})))
    .rejects.toThrow('CONTENT_APPROVAL_TRACE_MISMATCH')
   await expect(readApprovalCoverageEvidence(approval,async ref=>({...await original(ref),
-   approvedTargets:[{kind:'FIELD',targetId:'F',effectiveHash:'b'.repeat(64)}]}))).rejects.toThrow('CONTENT_APPROVAL_TRACE_SCOPE')
+   approvedTargets:[{kind:'FIELD',targetId:'F',effectiveHash:'b'.repeat(64),versionHash:'c'.repeat(64)}]}))).rejects.toThrow('CONTENT_APPROVAL_TRACE_SCOPE')
   hidden=true
   await expect(readContentApproval(host,'A')).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>approval.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

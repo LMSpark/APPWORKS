@@ -22,16 +22,17 @@ export async function readApprovalCoverageEvidence(approval:OriginalApproval,
  if(decision.projectId!==approval.projectId||decision.revisionId!==approval.revisionId||decision.approvalRef!==approval.approvalRef||
   decision.authorityRef!==approval.authorityRef||decision.decisionTraceRef!==approval.decisionTraceRef||
   decision.approvalEffectiveHash!==approval.effectiveHash)throw Error('CONTENT_APPROVAL_TRACE_MISMATCH')
- const evidence:Array<Readonly<{kind:'FILE'|'FIELD';targetId:string;effectiveHash:string;approvalRef:string}>>=[],seen=new Set<string>()
+ const evidence:Array<Readonly<{kind:'FILE'|'FIELD';targetId:string;effectiveHash:string;versionHash:string;approvalRef:string}>>=[],seen=new Set<string>()
  const error='CONTENT_APPROVAL_TRACE_SCOPE'
  visitSnapshotReferences(decision.approvedTargets,item=>{
-  const {kind,targetId,effectiveHash}=snapshotReferenceFields(item,['kind','targetId','effectiveHash'],error)
+  const {kind,targetId,effectiveHash,versionHash}=snapshotReferenceFields(item,['kind','targetId','effectiveHash','versionHash'],error)
   if((kind!=='FILE'&&kind!=='FIELD')||!snapshotReferenceIdentity(targetId)||typeof effectiveHash!=='string'||
-   !/^[a-f0-9]{64}$/u.test(effectiveHash)||kind==='FIELD'&&approval.scope!=='PROJECT')throw Error(error)
+   !/^[a-f0-9]{64}$/u.test(effectiveHash)||typeof versionHash!=='string'||!/^[a-f0-9]{64}$/u.test(versionHash)||
+   kind==='FIELD'&&approval.scope!=='PROJECT')throw Error(error)
   const key=JSON.stringify([kind,targetId])
   if(seen.has(key))throw Error(error)
   seen.add(key)
-  evidence.push(Object.freeze({kind,targetId,effectiveHash,approvalRef:approval.approvalRef}))
+  evidence.push(Object.freeze({kind,targetId,effectiveHash,versionHash,approvalRef:approval.approvalRef}))
  },error)
  return Object.freeze({projectId:approval.projectId,evidence:Object.freeze(evidence),assertCurrent})
 }

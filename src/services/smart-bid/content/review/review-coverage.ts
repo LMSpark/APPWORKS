@@ -5,7 +5,7 @@
  */
 import {snapshotReferenceIdentity as identity} from '../references/snapshot-reference-values'
 
-type Target=Readonly<{kind:'FILE'|'FIELD';targetId:string;effectiveHash:string}>
+type Target=Readonly<{kind:'FILE'|'FIELD';targetId:string;effectiveHash:string;versionHash:string}>
 type ReviewTarget=Target&Readonly<{requiredUseIds:readonly string[]}>
 type ApprovalEvidence=Target&Readonly<{approvalRef:string}>
 type ReviewCheck=Target&Readonly<{checkRef:string;openBlockerIds:readonly string[];
@@ -17,7 +17,7 @@ function index<T extends Target>(records:readonly T[]):Map<string,T>{
  const indexed=new Map<string,T>()
  for(const record of records){
   const id=key(record)
-  if(!targetKinds.has(record.kind)||!identity(record.targetId)||!/^[a-f0-9]{64}$/u.test(record.effectiveHash)||
+  if(!targetKinds.has(record.kind)||!identity(record.targetId)||!/^[a-f0-9]{64}$/u.test(record.effectiveHash)||!/^[a-f0-9]{64}$/u.test(record.versionHash)||
    indexed.has(id))throw Error('CONTENT_REVIEW_COVERAGE_SCOPE')
   indexed.set(id,record)
  }
@@ -38,12 +38,12 @@ export function compareReviewCoverage(input:Readonly<{
    uses.size!==check.checkedUses.length||!check.checkedUses.every(item=>identity(item.id)&&identity(item.useCheckRef))))
    throw Error('CONTENT_REVIEW_COVERAGE_EVIDENCE')
   let state:CoverageState='COVERED'
-  if(check?.effectiveHash!==target.effectiveHash)state='CHECK_REQUIRED'
+  if(check?.effectiveHash!==target.effectiveHash||check.versionHash!==target.versionHash)state='CHECK_REQUIRED'
   else if(check.openBlockerIds.length)state='BLOCKED'
   else if(!approval)state='NO_APPROVAL'
-  else if(approval.effectiveHash!==target.effectiveHash)state='CHANGED'
+  else if(approval.effectiveHash!==target.effectiveHash||approval.versionHash!==target.versionHash)state='CHANGED'
   else if(target.requiredUseIds.some(useId=>!uses.has(useId)))state='USE_CHECK_REQUIRED'
-  return Object.freeze({kind:target.kind,targetId:target.targetId,effectiveHash:target.effectiveHash,state,
+  return Object.freeze({kind:target.kind,targetId:target.targetId,effectiveHash:target.effectiveHash,versionHash:target.versionHash,state,
    approvalRef:approval?.approvalRef??null,checkRef:check?.checkRef??null})
  })
  return Object.freeze({complete:items.length>0&&items.every(item=>item.state==='COVERED'),items:Object.freeze(items)})

@@ -10,6 +10,7 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import VXETable from 'vxe-table'
 import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable, FieldSelect, PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
+import {FieldJson, RendererDialog} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
 
@@ -282,10 +283,22 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(activeTab()).toBe('Body/FormData')
     await button(f.wrapper,'导入JSON')!.trigger('click')
     await vi.waitFor(()=>expect(document.body.textContent).toContain('JSON输入'))
+    const dialog=f.wrapper.findAllComponents(RendererDialog).find(node=>node.props('title')==='JSON输入')!
+    const editor=dialog.getComponent(FieldJson)
+    const original=f.interfaces.getEditingRow('I1')?.['BodyParamJsonStr']
+    const confirm=dialog.findAllComponents(RendererButton).find(node=>node.props('label')==='保存')!
+    editor.vm.$emit('update:modelValue','{}')
+    await confirm.trigger('click')
+    await vi.waitFor(()=>expect(document.body.textContent).toContain('Body/FormData 须输入 JSON 数组'))
+    expect(f.interfaces.getEditingRow('I1')?.['BodyParamJsonStr']).toBe(original)
+    editor.vm.$emit('update:modelValue','[{"name":"code","value":1}]')
+    await confirm.trigger('click')
+    const normalized='[{"fieldName":"code","fieldType":"string","defaultValue":"1","valueFun":""}]'
+    await vi.waitFor(()=>expect(f.interfaces.getEditingRow('I1')?.['BodyParamJsonStr']).toBe(normalized))
     expect(f.http.saves).toHaveLength(0)
     await button(f.wrapper,'保存')!.trigger('click')
     await vi.waitFor(()=>expect(f.http.saves).toHaveLength(1))
-    expect(f.http.saves[0]).toMatchObject({table:'Base_DataServiceInterface',changed:[expect.objectContaining({rowid:'I1',RequestType:'FormData'})]})
+    expect(f.http.saves[0]).toMatchObject({table:'Base_DataServiceInterface',changed:[expect.objectContaining({rowid:'I1',RequestType:'FormData',BodyParamJsonStr:normalized})]})
     await vi.waitFor(()=>expect(f.interfaces.dirtyTracking.hasPendingChanges()).toBe(false))
     f.select('I2')
     await vi.waitFor(()=>expect(activeTab()).toBe('Params'))

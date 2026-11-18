@@ -5,8 +5,9 @@ import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldJson, FieldText, RendererButton, Spark} from '@spark-appworks/spark-component'
+import {FieldJson, FieldText, RendererButton, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
@@ -53,6 +54,52 @@ async function open(ruleId = 'P1',catalog=false) {
   return {wrapper, click, router}
 }
 describe('formal PDF rule editor', () => {
+  it.each(['REQ', 'OTHER'])('checks history request identity before rendering the original task (%s)', async requestId => {
+    const files = [{fileId: 'FILE', rules: [{ruleId: 'RULE', matched: false}]}]
+    const backend = new class extends ApiBackend {
+      historyCalls = 0
+      resultCalls = 0
+      protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
+        let result: unknown
+        if (request.url.endsWith('/api/File/inspect/history')) {
+          this.historyCalls++
+          result = {page: 1, pageSize: 20, total: 1, items: [{inspectJobId: 'JOB', requestId: 'REQ', configId: 'P1', status: 'COMPLETED'}]}
+        } else if (request.url.endsWith('/api/File/inspect/result')) {
+          this.resultCalls++
+          expect(request.data).toEqual({inspectJobId: 'JOB'})
+          result = {protocolVersion: '2.0', inspectJobId: 'JOB', requestId, status: 'COMPLETED', progress: {total: 1, finished: 1}, files}
+        } else {
+          return super.executeRequest(request)
+        }
+        return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }()
+    backend.primaryKeys = state.http.primaryKeys
+    backend.records = state.http.records
+    state.http = backend
+    state.runtime = new DataSpaceRuntimeApi({http: backend, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+    const load = vi.spyOn(LowcodePdfInspect, 'loadCatalog')
+    const f = await open('P1', true)
+    const dataSet = await load.mock.results[0]!.value
+    load.mockRestore()
+    expect(backend.historyCalls).toBe(0)
+    await f.click('核验历史')
+    expect(backend.historyCalls, f.wrapper.text()).toBe(1)
+    const row = dataSet.getView('PdfInspectionHistory')?.rows[0]
+    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey')?.includes('@PdfInspectionHistory@'))
+    expect(row?.['inspectJobId']).toBe('JOB')
+    expect(table?.props('onRowClick')).toBeTypeOf('function')
+    await table!.props('onRowClick')!(row!, undefined, undefined, {cancel: false})
+    await flushPromises()
+    expect(backend.resultCalls).toBe(1)
+    if (requestId === 'REQ') {
+      expect(f.wrapper.text()).toContain('文件与规则核验明细')
+    } else {
+      expect(f.wrapper.text()).toContain('服务返回的原任务与历史记录不一致')
+      expect(f.wrapper.text()).not.toContain('文件与规则核验明细')
+    }
+    expect(backend.saves).toHaveLength(0)
+  })
   it('saves a new enabled rule under its native ID and reopens it',async()=>{
     const load=vi.spyOn(LowcodePdfInspect,'loadCatalog')
     const f=await open('P1',true)

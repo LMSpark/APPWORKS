@@ -15,7 +15,23 @@
     <FeatureRecordDialog v-if="creationId !== undefined" :data-view-key="creationKey" :record-id="creationId"
       title="新增PDF核验规则" :created="true" :specs="creationFields" :validate="validateCreation" @close="closeCreation" />
     <RendererSection v-if="ready && historyOpen" title="核验历史" :error="historyError" :bordered="false">
-      <RendererTable :data-view-key="historyKey" :children="historyFields" :show-data-view-meta="false" />
+      <RendererTable :data-view-key="historyKey" :show-data-view-meta="false" :on-row-click="openHistoryResult">
+        <FieldText field="inspectJobId" label="任务编号" readonly />
+        <FieldText field="requestId" label="请求编号" readonly />
+        <FieldText field="configId" label="规则编号" readonly />
+        <FieldText field="status" label="处理状态" readonly />
+      </RendererTable>
+      <RendererSection v-if="resultOpen" title="原任务结果" :bordered="false"
+        :status="resultLoading ? '正在读取原任务…' : ''" :error="resultError">
+        <RendererForm v-if="resultReady" :data-view-key="resultKey" :auto-columns="false" :show-data-view-meta="false">
+          <FieldText field="inspectJobId" label="任务编号" readonly />
+          <FieldText field="requestId" label="请求编号" readonly />
+          <FieldText field="status" label="处理状态" readonly />
+          <FieldNumber field="finished" label="已处理文件数" readonly />
+          <FieldNumber field="total" label="文件总数" readonly />
+          <FieldJson field="files" label="文件与规则核验明细" mode="text" value-format="native" readonly />
+        </RendererForm>
+      </RendererSection>
     </RendererSection>
   </RendererSection>
 </template>
@@ -33,7 +49,8 @@ import FeatureRecordDialog from '@/views/features/shared/record/feature-record-d
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {validatePdfRuleConfig} from '@/lowcode/resources/semi-structured/pdf-inspect/rule-config'
 
-const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, RendererSection, RendererTable, RendererButton, RendererForm, FieldText, FieldNumber, FieldJson,
+  useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
 const router = useRouter()
 const creationId=ref<string|number>(),adding=ref(false)
@@ -81,13 +98,38 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'default', scenarioId.value))
 const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE, 'default', scenarioId.value))
+const resultKey = computed(() => buildDataViewKey('PdfInspectionResult', 'default', scenarioId.value))
 const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = ref(false), historyError = ref('')
-const historyFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'inspectJobId', label: '任务编号'}},
-  {type: 'r-text', props: {field: 'requestId', label: '请求编号'}},
-  {type: 'r-text', props: {field: 'configId', label: '规则编号'}},
-  {type: 'r-text', props: {field: 'status', label: '处理状态'}},
-]
+const resultOpen = ref(false), resultLoading = ref(false), resultReady = ref(false), resultError = ref('')
+function openHistoryResult(row: DataRow): void {
+  if (!resultLoading.value) void readHistoryResult(row)
+}
+async function readHistoryResult(row: DataRow): Promise<void> {
+  const current = session.runtime, history = current?.resolveView(historyKey.value), result = current?.resolveView(resultKey.value)
+  if (!history || !result) return
+  const own = generation
+  resultOpen.value = true; resultLoading.value = true; resultReady.value = false; resultError.value = ''
+  try {
+    const assertOriginal = history.captureReadRow(row, ['inspectJobId', 'requestId'])
+    const {inspectJobId, requestId} = row
+    if (typeof inspectJobId !== 'string' || typeof requestId !== 'string') throw Error('历史记录缺少原任务或请求编号')
+    result.queryContext = {inspectJobId}
+    await result.refresh()
+    if (!active || own !== generation) return
+    assertOriginal()
+    if (result.loadingError) throw result.loadingError
+    const original = result.rows[0]
+    if (!original || result.rows.length !== 1 || original['requestId'] !== requestId || original['inspectJobId'] !== inspectJobId) {
+      throw Error('服务返回的原任务与历史记录不一致')
+    }
+    result.setCurrentRowById(inspectJobId)
+    resultReady.value = true
+  } catch (cause) {
+    if (active && own === generation) resultError.value = cause instanceof Error ? cause.message : String(cause)
+  } finally {
+    if (active && own === generation) resultLoading.value = false
+  }
+}
 async function openHistory(): Promise<void> {
   const current = session.runtime, history = current?.resolveView(historyKey.value)
   if (!history || historyLoading.value) return
@@ -124,6 +166,7 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   historyAvailable.value = false; historyOpen.value = false; historyLoading.value = false; historyError.value = ''
+  resultOpen.value = false; resultLoading.value = false; resultReady.value = false; resultError.value = ''
   unsubscribe?.(); view.value = undefined
   session.dispose()
   try {

@@ -489,6 +489,26 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(runtime.isLoaded).toBe(false)
   })
 
+  it('reopens a node after its blueprint acquires an explicit scene binding', async () => {
+    const navigation = {...TOOL_NAV, items: [...TOOL_NAV.items]}
+    const {router, dynamic} = await setup(navigation)
+    const path = '/apps/APP/__page/orders-node?scenarioId=S1'
+    await router.push(path)
+    const previous = dynamic.getPageRuntime(router.currentRoute.value)
+    if (!previous) throw new Error('missing original runtime')
+    await previous.load()
+    navigation.items = navigation.items.map(item => item.id === 'orders-node' ? {...item, blueprintScenarioId: 'S1'} : item)
+    await dynamic.refreshRoutes()
+    await router.push('/apps/APP/__page/orders-node-2')
+    await router.push(path)
+    const reopened = dynamic.getPageRuntime(router.currentRoute.value)
+    if (!reopened) throw new Error('missing rebound runtime')
+    expect(reopened).not.toBe(previous)
+    await reopened.load()
+    expect(reopened.getDataSet('S1')?.scenarioId).toBe('S1')
+    expect(previous.destroyed).toBe(false)
+  })
+
   it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {
     const navigation: RuntimeNavigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const { router, dynamic, requests } = await setup(navigation)

@@ -75,7 +75,7 @@ export class PageRuntimePool {
     if (route.params['projectId'] !== undefined && route.params['projectId'] !== projectId) throw new Error('页面工具所属项目与调用路径不一致')
     const call = this.scenarioCall(route.query)
     const query = Object.fromEntries(Object.keys(route.query).sort().map(key => [key, key === 'additionalScenarioIds' ? call.ids.filter(id => id !== call.main).sort() : route.query[key]]))
-    const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, query, route.hash])
+    const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, route.meta['blueprintScenarioId'], query, route.hash])
     const existing = this.pageInstances.get(key)
     if (existing && !existing.runtime.destroyed) {
       existing.assertCurrent?.()

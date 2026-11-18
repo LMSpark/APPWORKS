@@ -114,11 +114,12 @@ const dialogConfig = computed<SparkNode>(() => {
   const [section] = getSparkNodeChildren(props.config.children)
   if (!section) throw new Error('服务商配置缺少弹窗内容')
   const header = section.props?.['header'] as {children?: SparkNode[]} | undefined
+  const closeBlocked = busy.value || unconfirmed.value || pendingTabs.size > 0
   const actions = getSparkNodeChildren(header?.children).map(node => ({
     ...node,
     props: nodeId(node) === 'config-save'
       ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value}
-      : {...node.props, disabled: busy.value},
+      : {...node.props, disabled: nodeId(node) === 'config-close' ? closeBlocked : busy.value},
   }))
   const children = getSparkNodeChildren(section.children).flatMap(node => {
     if (node.type === 'r-tabs') return ready.value ? [bindTabs(node)] : []
@@ -128,7 +129,7 @@ const dialogConfig = computed<SparkNode>(() => {
   })
   return {
     ...props.config,
-    props: {...props.config.props, closeDisabled: busy.value || unconfirmed.value || pendingTabs.size > 0},
+    props: {...props.config.props, closeDisabled: closeBlocked || dirty.value},
     children: [{
       ...section,
       props: {...section.props, header: {...header, children: actions},

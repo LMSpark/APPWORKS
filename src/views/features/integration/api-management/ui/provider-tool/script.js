@@ -19,6 +19,7 @@ async function saveProviderAuthentication() { await $page.invokeHostCommand('pro
 async function verifyProviderConfiguration() { await $page.invokeHostCommand('providers.configVerify') }
 async function selectProviderConfigTab(name) { await $page.invokeHostCommand('providers.configTab',name) }
 async function retryProviderConfigTab() { await $page.invokeHostCommand('providers.configRetry') }
+async function requestProviderConfigClose() { await $page.invokeHostCommand('providers.configClose') }
 async function closeProviderConfiguration(open) {
-  if (open === false) await $page.invokeHostCommand('providers.configClose')
+  if (open === false) await requestProviderConfigClose()
 }

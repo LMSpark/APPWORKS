@@ -136,6 +136,20 @@ describe('formal topic catalog pages', () => {
     expect(source).toContain('session.isCurrent(current)')
     expect(source).not.toContain('new PageRuntime')
   })
+  it('does not open Excel design from a selected scheme with a hidden formal identity',async()=>{
+    state.http.hiddenFields['Base_Import_solution']=['rowid']
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(withTestPageService(Excel,router),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises()
+    const open=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='打开设计')!
+    expect(open.props('disabled')).toBe(true)
+    open.vm.$emit('click');await flushPromises()
+    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='Excel 导入方案设计'&&dialog.props('modelValue'))).toBe(false)
+    expect(state.http.saves).toEqual([])
+  })
   it.each(['copy','failure','hidden','stale'] as const)('copies the clicked formal Excel row key through the page service: %s',async mode=>{
     state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'OTHER-CODE',solutionName:'另一个方案'})
     if(mode==='hidden')state.http.hiddenFields['Base_Import_solution']=['rowid']

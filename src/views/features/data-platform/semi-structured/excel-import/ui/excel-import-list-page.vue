@@ -65,12 +65,17 @@ useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unco
 onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
 onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
 let unsubscribe: (() => void) | undefined, generation = 0, active = true
-const selected = computed(() => {
+const selected= computed(() => {
   revision.value
-  const row = view.value?.selectedRows[0]
-  const id = row && view.value?.selectedRows.length === 1 ? view.value.getPkKey(row) : undefined
-  return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
+  const target=view.value
+  return target?.selectedRows.length===1 ? target.selectedRows[0] : undefined
 })
+function designId(row:DataRow|undefined):string|undefined {
+  const target=view.value
+  if(!target||!row||target.editActionState(row)!=='enabled'||target.fieldAccess(row,'rowid').read!=='visible')return undefined
+  const id=target.getPkKey(row)
+  return typeof id==='string'&&id&&row['rowid']===id?id:undefined
+}
 const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
@@ -157,8 +162,10 @@ async function endCreation():Promise<void>{
 function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value&&!creating.value&&!templatePending.value){const ds=view.value?.dataSet;if(ds)cancelExcelTemplate(ds);editingId.value=undefined}}
 function openEditor(row?:DataRow):void {
   if(locked.value)return
-  const id=row&&view.value?view.value.getPkKey(row):selected.value
-  if(typeof id==='string'&&id)designTarget.value=id
+  const source=row??selected.value,target=view.value,id=designId(source)
+  if(!target||!source||!id)return
+  try{target.captureReadRow(source,['rowid'])();designTarget.value=id}
+  catch{error.value='方案身份不可读或原查询已失效'}
 }
 function closeDesign(open: boolean): void {
   if (!open && !designPending.value) designTarget.value = ''
@@ -172,7 +179,7 @@ function makeCatalogHost(runtime:PageRuntime,editable:boolean){
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='excel.catalog.connect')return {
-      editable, locked:()=>locked.value, selected:()=>!!selected.value, canCopy:()=>!!pageService?.copyText,
+      editable, locked:()=>locked.value, selected:()=>!!designId(selected.value), canCopy:()=>!!pageService?.copyText,
       error:()=>error.value,
       creationRetained:()=>creation.value?.phase==='retained',
       editState:()=>({

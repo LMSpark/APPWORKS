@@ -55,7 +55,7 @@ async function readBasisMembers(host:ContentRevisionReadHost,snapshot:Awaited<Re
  assertRevisionTemplateBindings(sections['templateRefs'],nodePayloads)
  assertRevisionResponseAnchors(sections['responses'],sections['requirementPins'],basisNodes)
  assertRevisionResponseText(sections['responses'],basisNodes.map(node=>node.nodeId))
- const independent:Array<IndependentResponseFactTarget>=[]
+ const independent:IndependentResponseFactTarget[]=[]
  visitSnapshotReferences(sections['responses'],value=>{
   const response=snapshotReferenceRecord(value,error)
   if(Object.hasOwn(response,'chapterId'))return

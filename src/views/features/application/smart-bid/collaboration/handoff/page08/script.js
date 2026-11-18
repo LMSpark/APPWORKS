@@ -56,12 +56,12 @@ async function openBidProjectScope() {
   try {
     const result = await $page.invokeHostCommand('bid.project.readScope', {})
     result.assertCurrent()
-    const pointer = (id, state) => id === null ? '尚未形成' : `${id} · ${state === 'VERIFIED' ? '已核原记录' : '缺原记录，恢复待核'}`
+    const pointer = (id, state) => id === null ? '尚未形成' : `${id} · ${state === 'VERIFIED' ? '已核原记录' : state === 'STAGE_MISMATCH' ? '原阶段不符，恢复待核' : '缺原记录，恢复待核'}`
     const lines = result.state === 'REGISTERED' ? [
       `编制项目 ${result.projectId}`,
       `阶段引用 ${result.stageRefs.join('、') || '待补'}`,
       `原正文头 ${pointer(result.headRevisionId, result.headState)}`,
-      ...(result.headStage ? [`正文头阶段 ${result.headStage} · 固定基线 ${result.headBaselineId}`] : []),
+      ...(result.headStage ? [`正文头阶段 ${result.headStage} · 固定基线 ${pointer(result.headBaselineId, result.headBaselineState)}`] : []),
       `激活基线 ${pointer(result.activeBaselineId, result.baselineState)}`,
       ...(result.baselineStage ? [`激活基线阶段 ${result.baselineStage}`] : []),
     ] : ['当前项目范围登记待确认']

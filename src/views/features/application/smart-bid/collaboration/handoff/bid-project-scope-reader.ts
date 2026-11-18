@@ -8,6 +8,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {originalRegistrationView,readOriginalRegistrationView} from '../../authority/original-registration-view'
 
 const fields=['stageRefs','headRevisionId','activeBaselineId']
+const fixedBaselineView='originalHeadBaseline'
 const targets={
  ContentRevision:{viewName:'originalProjectHead',fields:['status','snapshotHash','stageRef','baselineId']},
  Baseline:{viewName:'originalProjectBaseline',fields:['stageRef']},
@@ -20,14 +21,15 @@ export function bidProjectScopeScenarioViews(primaryKeys:Readonly<Record<'Conten
  return {
   ContentProject:{originalProjectScope:bidProjectScopeView(primaryKeys.ContentProject)},
   ContentRevision:{originalProjectHead:originalRegistrationView(primaryKeys.ContentRevision,keys,targets.ContentRevision.fields)},
-  Baseline:{originalProjectBaseline:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields)},
+  Baseline:{originalProjectBaseline:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields),
+   [fixedBaselineView]:originalRegistrationView(primaryKeys.Baseline,keys,targets.Baseline.fields)},
  }
 }
 
-async function readPointer(host:Host,model:keyof typeof targets,id:string|null){
+async function readPointer(host:Host,model:keyof typeof targets,id:string|null,viewName:string=targets[model].viewName){
  if(id===null)return Object.freeze({state:'NOT_FORMED' as const,assertCurrent:host.assertCurrent})
  const target=targets[model]
- const read=await readOriginalRegistrationView(host,{model,viewName:target.viewName},{projectId:host.projectId,id})
+ const read=await readOriginalRegistrationView(host,{model,viewName},{projectId:host.projectId,id})
  if(!read.row)return Object.freeze({state:'MISSING' as const,assertCurrent:read.assertCurrent})
  const assertCurrent=read.captureFields(target.fields)
  assertCurrent()
@@ -35,8 +37,8 @@ async function readPointer(host:Host,model:keyof typeof targets,id:string|null){
  if((!identity(stageRef)&&!isRecord(stageRef))||
   model==='ContentRevision'&&(status!=='ADOPTED'||typeof snapshotHash!=='string'||!/^[a-f0-9]{64}$/u.test(snapshotHash)||!identity(baselineId)))
   throw Error('BID_PROJECT_SCOPE_POINTER')
- const stageText=identity(stageRef)?stageRef:canonicalSnapshotValue(stageRef)
- return Object.freeze({state:'VERIFIED' as const,stageText,revisionBaselineId:model==='ContentRevision'&&identity(baselineId)?baselineId:null,assertCurrent})
+ const stageKey=canonicalSnapshotValue(stageRef),stageText=identity(stageRef)?stageRef:stageKey
+ return Object.freeze({state:'VERIFIED' as const,stageKey,stageText,revisionBaselineId:model==='ContentRevision'&&identity(baselineId)?baselineId:null,assertCurrent})
 }
 
 /** 原项目指针按当前项目精确查询，关联记录沿各自原来源继续核验。 */
@@ -58,10 +60,15 @@ export async function readBidProjectScope(host:Host){
  const boundHost={...host,assertCurrent:assertProject}
  const [head,baseline]=await Promise.all([readPointer(boundHost,'ContentRevision',headRevisionId),
   readPointer(boundHost,'Baseline',activeBaselineId)])
- const assertCurrent=()=>{assertProject();head.assertCurrent();baseline.assertCurrent()}
+ const headBaselineId=head.state==='VERIFIED'?head.revisionBaselineId:null
+ const fixed=headBaselineId===null?undefined:headBaselineId===activeBaselineId?baseline:
+  await readPointer(boundHost,'Baseline',headBaselineId,fixedBaselineView)
+ const fixedState=fixed?.state==='VERIFIED'&&head.state==='VERIFIED'&&fixed.stageKey!==head.stageKey?
+  'STAGE_MISMATCH' as const:fixed?.state??'NOT_FORMED'
+ const assertCurrent=()=>{assertProject();head.assertCurrent();baseline.assertCurrent();fixed?.assertCurrent()}
  assertCurrent()
  return Object.freeze({state:'REGISTERED' as const,projectId,stageRefs:Object.freeze([...stageRefs]),
   headRevisionId,activeBaselineId,headState:head.state,baselineState:baseline.state,
   headStage:head.state==='VERIFIED'?head.stageText:null,baselineStage:baseline.state==='VERIFIED'?baseline.stageText:null,
-  headBaselineId:head.state==='VERIFIED'?head.revisionBaselineId:null,assertCurrent})
+  headBaselineId,headBaselineState:fixedState,assertCurrent})
 }

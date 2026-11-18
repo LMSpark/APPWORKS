@@ -100,6 +100,15 @@ it('keeps responsibility with the original assignee until the current version is
    snapshot:baselineTable.applyResult({Result:{primaryKeyField:'id',data:{Count:hasBaseline?1:0,
     Items:hasBaseline?[{...baselineRow,lingma_sys_params:proof}]:[]}}}),
   })})
+  const fixedBaseline=ds.getView('Baseline','originalHeadBaseline')
+  if(!fixedBaseline)throw Error('TEST_FIXED_BASELINE_VIEW_REQUIRED')
+  const fixedTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
+  let fixedStage='OTHER'
+  fixedBaseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:fixedTable.identity,scope:'fixed',readScope:()=> 'fixed',
+   snapshot:fixedTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,
+    Items:[{...baselineRow,id:'PREVIOUS-BASELINE',stageRef:fixedStage,lingma_sys_params:proof}]}}}),
+  })})
   const headTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
   head.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:headTable.identity,scope:'head',readScope:()=> 'head',
@@ -107,7 +116,7 @@ it('keeps responsibility with the original assignee until the current version is
   })})
   const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>key==='S@BidHandoff@originalHandoff'?view:
    key==='S@BidHandoff@previousHandoff'?previousView:key==='S@ContentProject@originalProjectScope'?projectView:
-    key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:undefined},
+    key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:undefined},
    assertCurrent}
   let hasCurrentReceipt=true
   const readReceipts=vi.fn(async()=>({receipts:hasCurrentReceipt?[old,current]:[old],
@@ -147,9 +156,11 @@ it('keeps responsibility with the original assignee until the current version is
   projectRow.headRevisionId='HEAD'
   await openBidProjectScope()
   expect(showAlert).toHaveBeenLastCalledWith(
-   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 已核原记录\n正文头阶段 PREVIOUS-STAGE · 固定基线 PREVIOUS-BASELINE\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
+   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 已核原记录\n正文头阶段 PREVIOUS-STAGE · 固定基线 PREVIOUS-BASELINE · 原阶段不符，恢复待核\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
+  fixedStage='PREVIOUS-STAGE'
   const recovered=await page.invoke('bid.project.readScope',{},signal)
-  await baseline.refresh()
+  expect(recovered).toMatchObject({headBaselineState:'VERIFIED'})
+  await fixedBaseline.refresh()
   expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   projectExists=false
   await openBidProjectScope()

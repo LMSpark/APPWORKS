@@ -52,6 +52,8 @@ async function openKnowledgeGuide(row, _column, _event, control) {
     if (generation !== knowledgeGeneration || currentKnowledgeDirectory() !== current) return
     result.assertCurrent()
     const lines = [`指南 ${result.guideRef} · 版本 ${result.versionRef}`, `目录路径 ${result.pathRefs.join(' / ')}`]
+    lines.push(result.origin.source === 'PUBLIC'
+      ? `公共指南 · 发布引用 ${result.origin.publicationRef}` : '企业指南')
     if (result.materialRefs.length) lines.push(`原材料引用 ${result.materialRefs.join('、')}`)
     lines.push('', result.guide)
     await $page.showAlert(lines.join('\n'), `动作指南 · ${result.versionRef}`)

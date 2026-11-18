@@ -83,8 +83,15 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      const row=view?.rows.find(item=>view.getPkKey(item)===rowKey)
      const entry=discovery.items.find(item=>row?.['guideRef']===item.guideRef&&row['versionRef']===item.versionRef&&
       row['kind']===item.kind&&row['actionName']===item.actionName)
-     if(!entry)throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
-     return workspace.readGuide(discovery,entry)
+     if(!row||!entry)throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+     const {source,publicationRef}=row
+     if(source!=='ENTERPRISE'&&(source!=='PUBLIC'||!identity(publicationRef)))
+      throw Error('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+     const guide=await workspace.readGuide(discovery,entry)
+     guide.assertCurrent()
+     return Object.freeze({...guide,origin:source==='PUBLIC'
+      ?Object.freeze({source,publicationRef})
+      :Object.freeze({source})})
     },
    })
   },

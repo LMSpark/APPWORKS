@@ -82,7 +82,7 @@ it('discovers only the complete scoped directory and retains the original public
   if(!('dataViewKey' in directory)||typeof directory.readGuide!=='function')throw Error('TEST_DIRECTORY_REQUIRED')
   expect(directory).toMatchObject({dataViewKey:'S@KnowledgeGuide@effectiveDirectory',count:1,reachable:1})
   expect(scriptHost.runtime.resolveView(directory.dataViewKey)).toBe(view)
-  await expect(directory.readGuide('G')).resolves.toMatchObject({versionRef:'V1',guide:guideText})
+  await expect(directory.readGuide('G')).resolves.toMatchObject({versionRef:'V1',guide:guideText,origin:{source:'PUBLIC',publicationRef:'PUB'}})
   await expect(directory.readGuide('UNKNOWN')).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
   const knowledge=createKnowledgeDirectoryScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
@@ -97,7 +97,7 @@ it('discovers only the complete scoped directory and retains the original public
   expect(bindKnowledgeDirectory()).toEqual({dataViewKey:'S@KnowledgeGuide@effectiveDirectory'})
   await openKnowledgeGuide(view.rows[0])
   expect(showAlert).toHaveBeenCalledExactlyOnceWith(
-   ['指南 GUIDE · 版本 V1','目录路径 DIR','原材料引用 MATERIAL','',guideText].join('\n'),'动作指南 · V1')
+   ['指南 GUIDE · 版本 V1','目录路径 DIR','公共指南 · 发布引用 PUB','原材料引用 MATERIAL','',guideText].join('\n'),'动作指南 · V1')
   const runtime={generation:1,isLoaded:true,destroyed:false}
   const catalogTools={executeTool:vi.fn(async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool())}
   const catalog=createBidClassModelCatalogHost(runtime,catalogTools,{rootKind:'OperationRoute',assertCurrent:host.assertCurrent})

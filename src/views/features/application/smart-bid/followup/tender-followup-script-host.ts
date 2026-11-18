@@ -55,8 +55,12 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
     obligationId:item.obligationId,eventRef:item.eventRef,attemptRef:item.attemptRef,kind:item.kind,
     priorAttemptRef:item.kind==='REPLACED'?item.priorAttemptRef:null,
    }))
+   const changes=addendum.items.map(item=>Object.freeze({
+    changeId:item.id,obligationId:item.deliveryObligationId,
+    receiptRefs:Object.freeze(evidence.filter(event=>event.obligationId===item.deliveryObligationId).map(event=>event.eventRef)),
+   }))
    return Object.freeze({state:'BATCH_EVIDENCE' as const,addendumId,knownAt:delivery.knownAt,cutoffAt:delivery.cutoffAt,
-    evidence:Object.freeze(evidence),assertCurrent:assertBatches})
+    evidence:Object.freeze(evidence),changes:Object.freeze(changes),assertCurrent:assertBatches})
   }
   if(name==='tender.followup.traceCallReferences'){
    const {addendumId,runId,attemptRef,requestKey}=input

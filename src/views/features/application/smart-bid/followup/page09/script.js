@@ -17,7 +17,11 @@ async function openOutboundImpact() {
         lines.push(`事项 ${item.obligationId} · ${kinds[item.kind]}批次 ${item.attemptRef} · 原回执 ${item.eventRef}`)
         if (item.priorAttemptRef) lines.push(`原被替换批次 ${item.priorAttemptRef}`)
       }
-      lines.push(result.evidence.length ? '批次与本次变动条项的关联待核' : '本次对账范围内无已核渠道办理证据')
+      if (!result.evidence.length) lines.push('本次对账范围内无已核渠道办理证据')
+      for (const change of result.changes) {
+        if (change.receiptRefs.length) lines.push(`变动 ${change.changeId} · 事项 ${change.obligationId} · 原回执 ${change.receiptRefs.join('、')} · 递交内容待核`)
+        else lines.push(`变动 ${change.changeId} · 对应原办理批次待核`)
+      }
     }
     await $page.showAlert(lines.join('\n'), '递交批次反查')
   } catch {

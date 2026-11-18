@@ -24,7 +24,7 @@ it('reads the original addendum locations for the current project, lot and round
  const row={projectId:'P',lotId:'L',roundId:'R',id:'A',issuerRef:'ISSUER',publicationRef:'PUBLICATION',
   applicableScopeRef:'LOT-L',effectiveAt:'2026-11-18T08:00:00+08:00',changes:[
    {id:'ITEM',kind:'REPLACED',subjectRef:'REQUIREMENT',requirementLineageId:'CLAUSE',
-    previousRequirementVersion:'V1',currentRequirementVersion:'V2',
+    previousRequirementVersion:'V1',currentRequirementVersion:'V2',deliveryObligationId:'OBLIGATION',
     previousSource:{documentVersionId:'V1',locator:'5.2'},currentSource:{documentVersionId:'V2',locator:'1.3'}},
   ]}
  const manifest={hashContract:SNAPSHOT_HASH_CONTRACT,projectId:'P',stageRef:'STAGE',baselineId:'OLD',
@@ -110,7 +110,12 @@ it('reads the original addendum locations for the current project, lot and round
    {callRef:'USED',version:'V1',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ]}]})
   const batches=await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)
-  expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}]})
+  expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}],
+   changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:['REC']}]})
+  readDeadline.mockResolvedValueOnce({...deadline,evidence:deadline.evidence.map(event=>({...event,obligationId:'ANOTHER'}))})
+  expect(await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)).toMatchObject({
+   evidence:[{obligationId:'ANOTHER',eventRef:'REC'}],changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:[]}],
+  })
   readDeadline.mockResolvedValueOnce({...deadline,scope:{...receiptScope,subjectId:'OTHER'}})
   await expect(page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal))
    .rejects.toThrow('TENDER_FOLLOWUP_DEADLINE_SCOPE')

@@ -18,17 +18,18 @@ function source(value:unknown){
 }
 
 function change(value:unknown){
- const {id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,previousSource,currentSource}=
-  snapshotReferenceFields(value,
-   ['id','kind','subjectRef','requirementLineageId','previousRequirementVersion','currentRequirementVersion','previousSource','currentSource'],error)
+ const changeFields=['id','kind','subjectRef','requirementLineageId','previousRequirementVersion','currentRequirementVersion','previousSource','currentSource']
+ if(value!==null&&typeof value==='object'&&Object.hasOwn(value,'deliveryObligationId'))changeFields.push('deliveryObligationId')
+ const {id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,previousSource,currentSource,
+  deliveryObligationId=null}=snapshotReferenceFields(value,changeFields,error)
  if(!identity(id)||!identity(subjectRef)||(requirementLineageId!==null&&!identity(requirementLineageId))
-  ||(kind!=='ADDED'&&kind!=='REPLACED'&&kind!=='CANCELLED'))throw Error(error)
+  ||(deliveryObligationId!==null&&!identity(deliveryObligationId))||(kind!=='ADDED'&&kind!=='REPLACED'&&kind!=='CANCELLED'))throw Error(error)
  if(kind==='ADDED'?previousSource!==null:previousSource===null)throw Error(error)
  if(previousRequirementVersion!==null&&!identity(previousRequirementVersion)
   ||currentRequirementVersion!==null&&!identity(currentRequirementVersion)
   ||previousRequirementVersion!==null&&(requirementLineageId===null||kind==='ADDED')
   ||currentRequirementVersion!==null&&(requirementLineageId===null||kind==='CANCELLED'))throw Error(error)
- return Object.freeze({id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,
+ return Object.freeze({id,kind,subjectRef,requirementLineageId,previousRequirementVersion,currentRequirementVersion,deliveryObligationId,
   previous:previousSource===null?null:source(previousSource),current:source(currentSource)})
 }
 

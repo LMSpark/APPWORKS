@@ -11633,3 +11633,5 @@ flowchart TD
 - 正式配置页 PageRuntime 在三文件读取结束、装载页面前重新核对蓝图节点的项目、工具与发布版本；读取期间切换发布指针时拒绝旧结果。动态路由36项及专项ESLint通过，未将模拟发布指针视为投标实服回执。
 - 发布指针竞态补验：拒绝旧三文件后，同一 PageRuntime 重新加载，三次读取分别为 rule.json、script.js、style.css 且均使用新指针，页面实例成功加载。动态路由36项通过，运行时补丁全仓 typecheck 通过。
 - 正式配置页场景装载沿用该次工具三文件的蓝图版本校验；文件已读、场景返回前切换指针时，销毁迟到 DataSet 并拒绝完成装载。动态导航、场景输入和模型视图绑定3文件89项与专项ESLint通过。
+- 页11生产接线核查：src/main.ts 的 pageNode 已注入正式导航、三文件批读、场景装配和页面渲染器，HOST_PAGE_NODE_CONFIG 仅含 apiBaseUrl/homePath，生产入口未注入 preparePageCall。页11准备函数要求蓝图回读的 nodeId/pageId；目标解析测试中的 NAV11/TOOL11 是夹具。正式导航、场景输入与页11入口合同本地3文件120项通过。真实节点和工具身份、发布版本、宿主及业务冷回读仍待。
+- 正式蓝图节点的 dataSpace.scenarioId 经 blueprintScenarioId 进入路由。PageRuntime 现与当前导航节点复核此身份；工具及版本均未变但蓝图换场景时，拒绝旧调用并释放迟到的数据集。动态路由38项、专项 ESLint 通过；页11正式节点和工具仍待回读。

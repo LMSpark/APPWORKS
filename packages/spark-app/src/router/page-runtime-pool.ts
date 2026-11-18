@@ -98,19 +98,20 @@ export class PageRuntimePool {
         const batchReader = this.options.readPageFiles
         if (!reader && !batchReader) throw new Error('未注入工具文件读取器')
         const generation = runtime.generation
-        const findTool = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem['tool'] => {
+        const findNode = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined => {
           for (const node of nodes) {
-            if (node.id === route.meta['nodeId']) return node.tool
-            const match = findTool(node.children ?? [])
+            if (node.id === route.meta['nodeId']) return node
+            const match = findNode(node.children ?? [])
             if (match) return match
           }
           return undefined
         }
         const readVersion = () => {
           const navTree = this.options.readNavTree()
-          const registeredTool = findTool(navTree?.items ?? [])
+          const node = findNode(navTree?.items ?? [])
+          const registeredTool = node?.tool
           if (route.meta['programmaticTool'] !== true && navTree !== null
-            && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId)) {
+            && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
             throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
           }
           const currentTool = registeredTool ?? tool

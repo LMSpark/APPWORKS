@@ -463,7 +463,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     ])
   })
 
-  it('releases a late scenario when its page publication changed after reading the files', async () => {
+  it.each(['version', 'scenario'] as const)('releases a late scenario when the published %s changes after reading the files', async change => {
     const navigation = {...TOOL_NAV, items: [...TOOL_NAV.items]}
     const started = deferred<void>(), finish = deferred<void>()
     const dataSet = DataSet.fromJson({scenarioId: 'S1', dataSetName: 'S1', tables: {}})
@@ -478,10 +478,13 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     if (!runtime) throw new Error('missing runtime')
     const loading = runtime.load()
     await started.promise
-    navigation.items = navigation.items.map(item => item.tool ? {...item, tool: {...item.tool, versionId: 'rule=5;script=5;style=5'}} : item)
+    navigation.items = navigation.items.map(item => {
+      if (item.id !== 'orders-node' || !item.tool) return item
+      return change === 'scenario' ? {...item, blueprintScenarioId: 'S2'} : {...item, tool: {...item.tool, versionId: 'rule=5;script=5;style=5'}}
+    })
     await dynamic.refreshRoutes()
     finish.resolve()
-    await expect(loading).rejects.toThrow('发布版本已改变')
+    await expect(loading).rejects.toThrow(change === 'scenario' ? '蓝图工具绑定已改变' : '发布版本已改变')
     expect(dataSet.destroyed).toBe(true)
     expect(runtime.isLoaded).toBe(false)
   })

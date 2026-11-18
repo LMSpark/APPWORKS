@@ -4,53 +4,18 @@
 -->
 <template>
   <section class="excel-layout-pane">
-    <slot name="layout-controls">
-    <h2>相对版式</h2>
-    <p>配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。</p>
-    <p v-if="!root" role="status">请选择一个已保存的根配置。</p>
-    <template v-else>
-      <p v-if="problem || sourceError" role="status">{{ problem || sourceError }}</p>
-      <RendererButton :data-view-key="dataViewKey" label="清空版式" perm-action="edit" :disabled="blocked || !raw || editing.size>0" @click="clear" />
-      <template v-if="!part && !problem">
-        <h3>选择明细配置</h3>
-        <RendererTable :data-view-key="childrenKey" :children="childColumns" :highlight-current-row="true" :show-data-view-meta="false" />
-        <RendererButton :data-view-key="dataViewKey" label="创建单组导出版式" perm-action="edit" :disabled="blocked || !directoriesReady || !modeReady || !detailId" @click="create" />
-      </template>
-    </template>
-    </slot>
-    <slot name="layout-document">
-    <template v-if="root">
-      <RendererForm v-if="part" :key="rowEpoch" :data-view-key="dataViewKey" v-bind="rootId===undefined?{}:{contextRowId:rootId}" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-        <FieldJson field="sheet_layout_json" label="启用设置" mode="form" :schema="enabledSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending('enabled',value)" />
-        <p>主表来源：{{ part.rootTable['table'] }}；明细来源：{{ part.detailTable['table'] }}</p>
-        <section v-for="region in regions" :key="region.id" class="excel-layout-region">
-          <h3>{{ region.label }}</h3>
-          <FieldJson field="sheet_layout_json" :label="region.label+'范围'" mode="form" :value-path="['regions',region.index,'bounds']" :schema="boundsSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending(region.id+'.bounds',value)" />
-          <FieldJson v-if="region.shape==='list'" field="sheet_layout_json" label="明细表头及数据起点" mode="form" :value-path="['regions',region.index,'scan']" :schema="scanSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending('scan',value)" />
-          <FieldJson v-if="region.shape==='list'" field="sheet_layout_json" label="主表与明细关联" mode="form" :value-path="['regions',region.index,'link']" :schema="linkSchema" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending('link',value)" />
-          <FieldJson field="sheet_layout_json" :label="region.label+'字段'" mode="rows" :value-path="['regions',region.index,'fields']" :children="region.children" :row-adapter="region.adapter" :reorderable="true" :readonly="blocked || !directoriesReady || !modeReady" :on-change="beforeChange" :on-editing-change="value=>pending(region.id+'.fields',value)" />
-        </section>
-        <RendererButton label="检查版式结构" :disabled="blocked || editing.size>0" @click="diagnose" />
-        <p v-if="diagnostic" role="status">{{ diagnostic }}</p>
-      </RendererForm>
-      <RendererForm v-else-if="problem" :data-view-key="dataViewKey" v-bind="rootId===undefined?{}:{contextRowId:rootId}" :auto-columns="false" :show-data-view-meta="false">
-        <FieldJson field="sheet_layout_json" label="当前原定义（只读）" mode="text" :readonly="true" />
-      </RendererForm>
-      <p v-if="error" role="alert">{{ error }}</p>
-    </template>
-    </slot>
+    <slot name="layout-controls" />
+    <slot name="layout-document" />
   </section>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
-import {buildDataViewKey,RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
+import {RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import {isJsonObject,type JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import * as Components from '@spark-appworks/spark-component'
-import type {RJsonProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME,useSparkComponent,type RJsonProps} from '@spark-appworks/spark-component'
 import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
 import {excelLayoutTableKey} from '@/lowcode/resources/semi-structured/excel-import/layout/routes'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME,RendererButton,RendererTable,RendererForm,FieldJson,useSparkComponent}=Components
 type JsonArrayRowAdapter=NonNullable<RJsonProps['rowAdapter']>
 const props=withDefaults(defineProps<{dataViewKey:string;disabled?:boolean;beforeChange?:(value:unknown,previous:unknown,control:{cancel:boolean})=>void}>(),{disabled:false})
 const emit=defineEmits<{'session-change':[value:boolean]}>()
@@ -59,7 +24,7 @@ if(!injected||!resolved||!owned||resolved.tableName!=='Base_ImportData_Config'||
 const runtime=injected,view=resolved,dataSet=owned,openedKey=props.dataViewKey,candidate=dataSet.getView(view.tableName,'layoutChildren')
 if(!candidate)throw Error('版式编辑缺少原明细选择视图')
 const childrenView=candidate
-const childrenKey=buildDataViewKey(view.tableName,'layoutChildren',dataSet.scenarioId),revision=ref(0),rowEpoch=ref(0),rootEpoch=ref(0),editing=ref(new Set<string>()),error=ref(''),diagnostic=ref('')
+const revision=ref(0),rowEpoch=ref(0),rootEpoch=ref(0),editing=ref(new Set<string>()),error=ref(''),diagnostic=ref('')
 let active=true,generation=0
 const changed=()=>{revision.value++},stop=dataSet.onAnyViewChange({rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed,currentRowChanged:changed})
 const root=computed(()=>{revision.value;if(!active||view.destroyed||dataSet.destroyed)return null;const row=view.currentRow;try{return row&&row['schemeid']===view.queryContext['importConfigId']&&row['pid']===view.queryContext['importConfigId']&&['schemeid','pid'].every(field=>view.fieldAccess(row,field).read==='visible')?row:null}catch{return null}})
@@ -115,7 +80,6 @@ const enabledSchema:JsonSchemaObject={type:'object',required:['enabled'],propert
 const boundsSchema:JsonSchemaObject={type:'object',required:['from','to'],properties:{from:{type:'string',title:'范围起点'},to:{type:'string',title:'范围终点'}}}
 const scanSchema:JsonSchemaObject={type:'object',required:['headerRow','dataStartOffset'],properties:{headerRow:{type:'integer',title:'表头行',minimum:1,maximum:1048576},dataStartOffset:{type:'integer',title:'数据起始偏移',minimum:1,maximum:1048576}}}
 const linkSchema=computed<JsonSchemaObject>(()=>({type:'object',required:['parentField','foreignKeyField'],properties:{parentField:{type:'string',title:'主表关联键','x-optionDataViewKey':rootDirectory.dataViewKey},foreignKeyField:{type:'string',title:'明细外键','x-optionDataViewKey':detailDirectory.dataViewKey}}}))
-const childColumns:SparkNode[]=Object.entries({sheetName:'明细配置',table:'物理来源'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const adapter=(shape:string):JsonArrayRowAdapter=>({read:original=>{const locate=isJsonObject(original['locate'])?original['locate']:{};return Object.fromEntries(Object.entries({name:original['name'],title:original['title'],position:shape==='form'?locate['cell']:locate['column'],offset:locate['rowOffset']}).filter(([,value])=>value!==undefined))},write:(value,original)=>{
  const locate=original&&isJsonObject(original['locate'])?original['locate']:{}
  if(typeof value['name']!=='string'||!value['name'].trim()||typeof value['position']!=='string'||!value['position'].trim()||shape==='block'&&(typeof value['offset']!=='number'||!Number.isSafeInteger(value['offset'])||value['offset']<1))throw Error('请填写字段、位置和有效偏移')

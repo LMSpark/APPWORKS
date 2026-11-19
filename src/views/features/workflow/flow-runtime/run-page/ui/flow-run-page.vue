@@ -42,12 +42,10 @@
 
         <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
           <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
-            <SparkComponent.RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
+            <SparkComponent.RendererGraph v-if="chartPrepared && chartRule(children)" v-bind="chartRule(children)?.props"
               :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
-              label-field="TITLE" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
               :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
-              :node-badge-field="chartPrepared.nodeBadgeField" :node-badge-rules="chartBadgeRules"
-              background-pattern="dots" :disabled="true" />
+              :node-badge-field="chartPrepared.nodeBadgeField" />
           </SparkComponent.RendererSection>
         </SparkComponent.RendererDialog>
       </SparkComponent.RendererSection>
@@ -65,7 +63,6 @@ import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
   FLOW_WORKBENCH_SCENARIO_ID,
-  FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
 import {PageTool} from '@spark-appworks/spark-project-model'
@@ -234,10 +231,9 @@ function retryShell(): void {
   void retryPage(reloadFeatureRuntime)
 }
 
-const chartBadgeRules = [
-  {field: FLOW_RUN_GRAPH_NODE_BADGE_FIELD, value: 'waiting', label: '待办', tone: 'warning' as const},
-  {field: FLOW_RUN_GRAPH_NODE_BADGE_FIELD, value: 'completed', label: '已完成', tone: 'success' as const},
-]
+function chartRule(children: readonly SparkNode[]): SparkNode | undefined {
+  return children.find(node => nodeId(node) === 'flowChart' && node.type === 'r-graph')
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,0 @@
-{
-  "command": "pnpm run verify:dirs",
-  "exitCode": 0,
-  "log": "verify-dirs.log"
-}

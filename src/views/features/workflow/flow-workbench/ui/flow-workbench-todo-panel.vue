@@ -25,7 +25,7 @@ import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {PageTool} from '@spark-appworks/spark-project-model'
-import {nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {isDataRow, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {
   RendererSection,
   SparkPageRenderer,
@@ -75,8 +75,8 @@ const host = computed(() => {
   }
   return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
     assertCurrent()
-    if (!input || typeof input !== 'object') return
-    const row = input as DataRow
+    if (!isDataRow(input)) return
+    const row = input
     const source = current.resolveView(viewKey.value)
     if (!source?.rows.includes(row)) return
     if (command === 'workbench.run' && activeTab.value === 'pending') openRoute(source, row, false)

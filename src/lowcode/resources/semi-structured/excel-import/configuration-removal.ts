@@ -88,10 +88,10 @@ export class ExcelConfigurationRemoval {
       parent=this.read(nodes,ancestor,'pid')
       const targets = readExcelLayoutDeleteTargets(this.read(nodes, ancestor, 'sheet_layout_json'))
       if (!targets) continue
-      if (targets.some(target => target.configId === this.input.nodeId)) throw new Error('祖先配置布局仍引用本配置身份，不能删除')
+      if (targets.some(layoutTarget => layoutTarget.configId === this.input.nodeId)) throw new Error('祖先配置布局仍引用本配置身份，不能删除')
       const route = excelLayoutTableKey(this.read(nodes, targetRow, 'table'))
       if (!route) throw new Error('祖先配置布局物理来源无法核定')
-      if (targets.some(target => target.route === route)) throw new Error('祖先配置布局仍声明引用本配置物理来源，不能删除')
+      if (targets.some(layoutTarget => layoutTarget.route === route)) throw new Error('祖先配置布局仍声明引用本配置物理来源，不能删除')
     }
     const ids:[string[],string[],string[]] = [[this.input.nodeId], fields.rows.map(row => {
       if (this.read(fields, row, 'configid') !== this.input.nodeId) throw new Error('待删字段归属异常')

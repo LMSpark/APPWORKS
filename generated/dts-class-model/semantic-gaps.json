@@ -1,5 +1,5 @@
 {
-  "gapCount": 8480,
+  "gapCount": 8484,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -21420,9 +21420,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@299704",
+      "memberName": "__@iterator@299734",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@299704 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@299734 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,
@@ -100167,6 +100167,54 @@
       "declarationFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "JsonDataScriptHostOptions",
+      "memberName": "runtime",
+      "reason": "missing-jsdoc",
+      "chainBreak": "JsonDataScriptHostOptions.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "JsonDataScriptHostOptions",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "JsonDataScriptHostOptions.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "JsonDataScriptHostOptions",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "JsonDataScriptHostOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "JsonDataScriptHostOptions",
+      "memberName": "editable",
+      "reason": "missing-jsdoc",
+      "chainBreak": "JsonDataScriptHostOptions.editable 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",

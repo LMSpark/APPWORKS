@@ -17,7 +17,7 @@ import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey,type DataSet,type DataRow} from '@spark-appworks/spark-data'
+import {buildDataViewKey,isDataRow,type DataSet,type DataRow} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME,RendererSection,SparkPageRenderer,RendererButton,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -51,7 +51,7 @@ const host=computed(()=>{
  return {runtime:current,assertCurrent,async invoke(command:string,input:unknown){
   assertCurrent()
   if(command==='cache.connect')return {deleteDisabled:()=>busy.value||pending.value||!!session.value}
-  if(command==='cache.delete'&&input&&typeof input==='object')await beginDelete(input as DataRow)
+  if(command==='cache.delete'&&isDataRow(input))await beginDelete(input)
   return undefined
  }}
 })

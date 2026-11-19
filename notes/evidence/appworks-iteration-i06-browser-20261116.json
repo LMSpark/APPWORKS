@@ -1,9 +1,0 @@
-{
-  "observedAt": "2026-11-16T14:16:43.730583+00:00",
-  "operation": "cua.getState",
-  "browserCount": 0,
-  "error": "Browsers: Error: The browser access host is unavailable",
-  "uiActions": 0,
-  "businessWrites": 0,
-  "scope": "Browser connection inventory only; no credentials or unrelated application inventory retained. Does not establish page or service smoke acceptance."
-}

@@ -14,7 +14,7 @@ AI用途：迁移系统运维流程监控时，核对状态字典、创建人映
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {DataRow} from '@spark-appworks/spark-data'
+import {isDataRow,type DataRow} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {RendererSection, SparkPageRenderer, consumeRequiredPageService, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
@@ -85,8 +85,8 @@ const host = computed(() => {
   }
   return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
     assertCurrent()
-    if (input && typeof input === 'object' && (command === 'flowMonitor.run' || command === 'flowMonitor.detail')) {
-      openRun(input as DataRow, command === 'flowMonitor.detail')
+    if (isDataRow(input) && (command === 'flowMonitor.run' || command === 'flowMonitor.detail')) {
+      openRun(input, command === 'flowMonitor.detail')
     }
   }}
 })

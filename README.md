@@ -65,6 +65,7 @@ packages/
 ├── spark-app/                   # 🏗️ 应用层基础设施（路由、认证、宿主配置、插件系统）
 ├── spark-component/             # ⚙️ 组件核心系统（注册表、能力管理、上下文、页面渲染器）
 ├── spark-data/                  # 📊 数据空间（DataSet、DataView、TreeManager、关系与聚合）
+├── spark-json-document/         # 🧾 结构化 JSON 文档与树数据基础
 ├── spark-project-model/         # 📄 项目蓝图、PageTool、ScenarioViewFile 与 PageRuntime
 ├── spark-lowcode-api/           # 🔌 可发布的 lowcode-jdk17 前端 API 合同、领域入口与治理计划
 ├── spark-utils/                 # 🛠️ 共享工具（Logger、HTTP、能力键、基础类型）
@@ -75,6 +76,38 @@ packages/
 - AI 主线：`spark-ai` + `generated/dts-class-model`；Agent 在前端运行并通过治理后的 lowcode API 消费平台能力
 - 公共基础：`spark-utils`
 - 目录索引： [packages/README.md](packages/README.md) 、 [scripts/README.md](scripts/README.md) 、 [tools/README.md](tools/README.md)
+
+## 仓库方案树
+
+```text
+SPARK_AppWorks/
+├── src/                              # 应用入口、lowcode 装配、服务与业务页
+├── packages/                         # 9 个正式 workspace 包
+├── tests/                            # 应用、运行时、脚本、组件与治理回归
+│   └── support/fixtures/             # 长期测试夹具
+├── config/
+│   ├── navigation/
+│   ├── pages/
+│   ├── schemas/
+│   ├── agent-workflows/
+│   └── history/                      # 正式场景历史能力，不是过程备份
+├── backend-api-contracts/            # 后端端点、消费与行为合同
+├── generated/dts-class-model/        # 入库的 ClassModel 运行时真源
+├── tools/                            # Vite 插件和治理验证器
+├── scripts/                          # 构建、生成、验证与发布流程
+├── docs/
+│   ├── architecture/
+│   ├── guides/
+│   └── smart-bid/
+├── knowledge/                        # 可复用 AI 工程规则
+├── notes/
+│   ├── data-space-retirement-ledger.md
+│   └── ai-code-metrics.md
+├── public/ / patches/                # 正式静态资源与依赖补丁
+└── .cursor/skills/ / .codex/         # 随项目保留的 AI/环境配置
+```
+
+`dist/`、`artifacts/`、`cache/`、日志和 TypeScript 增量缓存只属于本地可重建产物；`generated/dts-class-model/` 与 `backend-api-contracts/` 是正式入库输入，不能按缓存删除。
 
 ## 快速开始
 

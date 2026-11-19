@@ -213,7 +213,8 @@ describe('host scenario file request wiring', () => {
       if (!isRecord(config.data) || typeof config.data['customPath'] !== 'string') throw new Error('missing path')
       const text = texts.get(config.data['customPath'])
       if (text === undefined) throw new Error('unexpected application folder')
-      return { data: { Code: 200, Result: text }, status: 200, statusText: 'OK', headers: {} }
+      const result=config.url==='/api/File/lastModifiedTime'?'2026-11-19 15:00:00 000':text
+      return { data: { Code: 200, Result: result }, status: 200, statusText: 'OK', headers: {} }
     })
     const first = await sceneWorkspace('APP-1').loadScenarioViews({ scenarioId: 'SCENE-1' })
     const second = await sceneWorkspace('APP-2').loadScenarioViews({ scenarioId: 'SCENE-1' })
@@ -247,17 +248,20 @@ describe('host scenario file request wiring', () => {
 
   it('loads and saves the scene file with the selected appId through the existing request layer', async () => {
     const workspace = sceneWorkspace()
-    let text = JSON.stringify({ scenarioId: 'SCENE-1', tables: {}, viewCascades: [] })
+    const scenarioId='SCENE-SAVE-CHECK'
+    let text = JSON.stringify({ scenarioId, tables: {}, viewCascades: [] })
     const requests: RequestConfig[] = []
     transport.request.mockImplementation(async (config: RequestConfig) => {
       requests.push(config)
       let data: unknown = { Code: 200, Result: text }
-      if (config.url === '/api/File/UploadFile') {
+      if (config.url === '/api/File/lastModifiedTime') {
+        data={Code:200,Result:'2026-11-19 15:00:00 000'}
+      } else if (config.url === '/api/File/UploadFile') {
         if (!(config.data instanceof FormData)) throw new Error('expected multipart')
         const file = config.data.get('file')
         if (!(file instanceof Blob)) throw new Error('expected file')
         text = new TextDecoder().decode(await file.arrayBuffer())
-        data = { Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/APP-1/SysForm/SCENE-1/pagedata.json' }] }
+        data = { Code: 200, Result: [{ state: 'success', filePath: `/DesignFilePaths_publisher/APP-1/SysForm/${scenarioId}/pagedata.json` }] }
       } else if (config.url === '/api/File/DownFile') {
         const bytes = new TextEncoder().encode(text)
         const buffer = new ArrayBuffer(bytes.length)
@@ -266,21 +270,22 @@ describe('host scenario file request wiring', () => {
       }
       return { data, status: 200, statusText: 'OK', headers: {} }
     })
-    const file = await workspace.loadScenarioViews({ scenarioId: 'SCENE-1' })
-    file.setText(JSON.stringify({ scenarioId: 'SCENE-1', tables: {}, viewCascades: [] }, null, 2))
-    await workspace.saveScenarioViews({ scenarioId: 'SCENE-1' })
+    const file = await workspace.loadScenarioViews({ scenarioId })
+    file.setText(JSON.stringify({ scenarioId, tables: {}, viewCascades: [] }, null, 2))
+    await workspace.saveScenarioViews({ scenarioId })
     expect(file.isDirty).toBe(false)
     expect(requests.map(config => config.url)).toEqual([
-      '/api/File/content/text', '/api/File/content/text', '/api/File/UploadFile', '/api/File/DownFile', '/api/File/content/text',
+      '/api/File/lastModifiedTime', '/api/File/content/text', '/api/File/lastModifiedTime',
+      '/api/File/UploadFile', '/api/File/DownFile', '/api/File/lastModifiedTime', '/api/File/content/text',
     ])
     for (const config of requests) {
       expect(config.headers).toMatchObject({ 'X-AppId': 'APP-1', 'tenant-id': 'fixture-tenant', Authorization: 'Bearer fixture-access' })
       if (config.data instanceof FormData) {
-        expect(config.data.get('customPath')).toBe('APP-1/SysForm/SCENE-1')
+        expect(config.data.get('customPath')).toBe(`APP-1/SysForm/${scenarioId}`)
         expect(config.data.get('newName')).toBe('pagedata.json')
         expect(config.data.has('applicationId')).toBe(false)
       } else {
-        expect(config.data).toMatchObject({ appType: 'designfile', customPath: 'APP-1/SysForm/SCENE-1', fileName: 'pagedata.json' })
+        expect(config.data).toMatchObject({ appType: 'designfile', customPath: `APP-1/SysForm/${scenarioId}`, fileName: 'pagedata.json' })
         expect(config.data).not.toHaveProperty('applicationId')
       }
     }

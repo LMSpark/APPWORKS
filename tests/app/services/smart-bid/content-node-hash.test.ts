@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 import {canonicalContentNode,canonicalOperationNode, hashContentNode} from '@/services/smart-bid/content-node-hash'
 
-const samples = JSON.parse(readFileSync('notes/evidence/smart-bid-node-hash-vectors-20261117.json', 'utf8'))
+const samples = JSON.parse(readFileSync('tests/support/fixtures/smart-bid/content-node-hash-vectors.json', 'utf8'))
 
 describe('content node payload hashing specification §1.1', () => {
   for (const sample of samples.vectors) it(sample.name, async () => {

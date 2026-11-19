@@ -77,7 +77,9 @@ it('renders the shared JSON catalog through the three tool files without reading
  try{
   const runtime=session.acquire({tool,targetId:SCENE,scenarioIds:[SCENE],loadScenario:id=>LowcodeJsonData.loadCatalog(id)})
   const {path,fullPath,name,params,query,hash}=router.currentRoute.value
-  const host=createJsonDataScriptHost(runtime,SCENE,()=>{if(!session.isCurrent(runtime))throw new Error('Stale JSON session')},true)
+  const host=createJsonDataScriptHost({runtime,scenarioId:SCENE,assertCurrent:()=>{
+    if(!session.isCurrent(runtime))throw new Error('Stale JSON session')
+  },editable:true})
   const Host=defineComponent({setup(){
    const {sparkProvide}=useSparkComponent({type:'json-tool-test-host'})
    const picker:Pick<PageServiceCapability,'browseFiles'>={browseFiles:async()=>state.picked}

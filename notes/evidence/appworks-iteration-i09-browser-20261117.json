@@ -1,9 +1,0 @@
-{
-  "recordedAt": "2026-11-16T16:07:59.0978747+00:00",
-  "operation": "cua.getState emit:false; connection summary only",
-  "browserCount": 0,
-  "error": "Browsers: Error: The browser access host is unavailable",
-  "uiActions": 0,
-  "businessWrites": 0,
-  "boundary": "No unrelated app inventory, credentials, screenshots or service acceptance retained."
-}

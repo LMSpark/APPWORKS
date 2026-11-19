@@ -13,6 +13,7 @@ import {computed, onBeforeUnmount, reactive, ref} from 'vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, getSparkNodeChildren, nodeId, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import type {ApiConfigPageProps} from './api-config-page.props'
 
@@ -113,9 +114,10 @@ function bindTabs(tabs: SparkNode): SparkNode {
 const dialogConfig = computed<SparkNode>(() => {
   const [section] = getSparkNodeChildren(props.config.children)
   if (!section) throw new Error('服务商配置缺少弹窗内容')
-  const header = section.props?.['header'] as {children?: SparkNode[]} | undefined
+  const header=section.props?.['header']
+  if(!isRecord(header)||!Array.isArray(header['children']))throw Error('服务商配置缺少弹窗操作')
   const closeBlocked = busy.value || unconfirmed.value || pendingTabs.size > 0
-  const actions = getSparkNodeChildren(header?.children).map(node => ({
+  const actions = getSparkNodeChildren(header['children']).map(node => ({
     ...node,
     props: nodeId(node) === 'config-save'
       ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value}

@@ -1,2 +1,0 @@
-$ vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json
-EXIT_CODE=0

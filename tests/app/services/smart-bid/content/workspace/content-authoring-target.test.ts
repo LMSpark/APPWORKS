@@ -73,7 +73,9 @@ it('binds page 17 to the model root supplied by the published runtime',async()=>
  const entry={applicationId:app,scenarioId:space,nodeId:'NAV17',pageId:'TOOL17'}
  const publishedRoute={path:`/apps/${app}/page17`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
   blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{projectId:'P',scenarioId:space}}
- const executeTool=vi.fn(async()=>({ok:true as const,data:{rootKind:'OperationRoute',models:[]}}))
+ const executeTool=vi.fn(async()=>({ok:true as const,data:{
+  rootKind:'OperationRoute',models:[{kind:'OperationRoute',attributes:[],methods:[]}],
+ }}))
  let rootCurrent=true
  const bindRoot=vi.fn(()=>({classModel:{executeTool},rootKind:'OperationRoute',
   assertCurrent:()=>{if(!rootCurrent)throw Error('ROOT_CHANGED')}}))

@@ -109,8 +109,8 @@ export class FileDataResource {
     }
     const rows = await this.readDirectory()
     this.assertView(view)
-    const surviving = pending.kind === 'delete' && rows.find(row => row['fileName'] === pending.fileName)
-    if (surviving) {
+    const surviving = pending.kind === 'delete' ? rows.find(row => row['fileName'] === pending.fileName) : undefined
+    if (surviving !== undefined) {
       throw fileDataError(`${String(surviving['fileName'])} 删除后仍出现在目录中`)
     }
     const accepted = uploaded === undefined ? [] : rows.filter(row => row['fileName'] === uploaded)
@@ -127,8 +127,11 @@ export class FileDataResource {
   private async readDownload(view: DataView): Promise<QueryResult> {
     const directory = view.dataSet?.getView(FILE_DATA_TABLE, 'default')
     const fileName = view.queryContext['fileName']
-    const row = typeof fileName === 'string' && directory?.rows.find(item => item['fileName'] === fileName)
-    if (!directory || !row || typeof fileName !== 'string' || !fileName || row['path'] !== `${AREA.appType}/${fileName}`) {
+    if (typeof fileName !== 'string' || fileName.length === 0) {
+      throw new Error('文件下载目标不在当前正式目录')
+    }
+    const row = directory?.rows.find(item => item['fileName'] === fileName)
+    if (directory?.rows === undefined || row?.['path'] !== `${AREA.appType}/${fileName}`) {
       throw new Error('文件下载目标不在当前正式目录')
     }
     const assertOriginal = directory.captureReadRow(row, ['fileName', 'path'])

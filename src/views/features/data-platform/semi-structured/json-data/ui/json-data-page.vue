@@ -49,9 +49,9 @@ watch([scenarioId,projectId],([id,project])=>{
  tool.markLoaded()
  const current=session.acquire({tool,scenarioIds:[id],targetId:project===undefined?id:`${project}:${id}`,
   loadScenario:()=>LowcodeJsonData.loadCatalog(id,project)})
- host.value=createJsonDataScriptHost(current,id,()=>{
+ host.value=createJsonDataScriptHost({runtime:current,scenarioId:id,assertCurrent:()=>{
   if(!session.isCurrent(current))throw new Error('JSON目录运行实例已失效')
- },!inCatalog)
+ },editable:!inCatalog})
  runtime.value=current
 },{immediate:true})
 onBeforeUnmount(()=>session.dispose())

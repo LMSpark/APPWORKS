@@ -24,7 +24,7 @@ import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, getSparkNodeChildren, isDataRow, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
@@ -77,9 +77,9 @@ const toolHost = computed(() => {
       await loadAll()
     }
     if (command === 'recovery.verify') await verifyOriginalSave()
-    if (input && typeof input === 'object') {
-      if (command === 'recovery.restore') await recover(input as DataRow)
-      if (command === 'recovery.undo') await undo(input as DataRow)
+    if (isDataRow(input)) {
+      if (command === 'recovery.restore') await recover(input)
+      if (command === 'recovery.undo') await undo(input)
     }
     return undefined
   }}

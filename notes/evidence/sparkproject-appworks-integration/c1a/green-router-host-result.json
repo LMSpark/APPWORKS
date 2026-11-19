@@ -1,5 +1,0 @@
-{
-  "exitCode": 0,
-  "command": "pnpm exec vitest run tests/app/config/vue-page-registry.test.ts --maxWorkers=1 --reporter=dot",
-  "log": "green-router-host.log"
-}

@@ -42,7 +42,7 @@ import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, isDataRow, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {RendererButton, RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
@@ -149,15 +149,15 @@ const host = computed(() => {
     if (dialog.value?.kind === 'create' && command.startsWith('reports.create.')) {
       return createDialogs.value?.[0]?.invoke(command.slice('reports.create.'.length))
     }
-    const actionRow = input && typeof input === 'object' ? input as DataRow : undefined
+    const actionRow = isDataRow(input) ? input : undefined
     if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {
       return versionDialogs.value?.[0]?.invoke(command.slice('reports.version.'.length), actionRow)
     }
     if (dialog.value?.kind === 'model' && command.startsWith('reports.model.')) {
       return modelDialogs.value?.[0]?.invoke(command.slice('reports.model.'.length), actionRow)
     }
-    if (reloadBlocked.value || busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
-    const row = input as DataRow
+    if (reloadBlocked.value || busy.value || dialog.value || unconfirmed.value || !isDataRow(input)) return undefined
+    const row = input
     if (!view(viewKey.value).rows.includes(row)) return undefined
     if (command === 'reports.remove') await remove(row)
     if (command === 'reports.edit') open('edit', row)

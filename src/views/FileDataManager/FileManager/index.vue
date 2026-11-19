@@ -88,7 +88,13 @@ async function runFileAction(action: (view: DataView, assertCurrent: () => void)
   }
 }
 
-async function commit(view: DataView, assertCurrent: () => void, change: () => Promise<unknown>, done: string): Promise<void> {
+type FileCommitOptions=Readonly<{
+ view:DataView
+ assertCurrent:()=>void
+ change:()=>Promise<unknown>
+ done:string
+}>
+async function commit({view,assertCurrent,change,done}:FileCommitOptions): Promise<void> {
   assertCurrent()
   try {
     await change()
@@ -112,7 +118,7 @@ async function commit(view: DataView, assertCurrent: () => void, change: () => P
 
 async function verifyFileAction(): Promise<void> {
   await runFileAction(async (view, assertCurrent) => {
-    await commit(view, assertCurrent, async () => {}, '原文件操作已确认')
+    await commit({view,assertCurrent,change:async()=>{},done:'原文件操作已确认'})
   }, true)
 }
 
@@ -122,7 +128,7 @@ async function pickAndUpload(): Promise<void> {
     assertCurrent()
     if (selected.length > 1) throw new Error('每次只能上传一个文件')
     const file = selected[0]?.file
-    if (file) await commit(view, assertCurrent, () => view.addRow({content: file}), `${file.name} 已上传`)
+    if (file) await commit({view,assertCurrent,change:()=>view.addRow({content:file}),done:`${file.name} 已上传`})
   })
 }
 
@@ -169,9 +175,9 @@ async function remove(row: DataRow): Promise<void> {
     assertCurrent()
     assertRow()
     if (view.deleteActionState(row) !== 'enabled') throw new Error('当前文件不允许删除')
-    await commit(view, assertCurrent, async () => {
+    await commit({view,assertCurrent,change:async()=>{
       if (!await view.removeRow(key)) throw new Error('文件删除未暂存')
-    }, `${String(key)} 已删除`)
+    },done:`${String(key)} 已删除`})
   })
 }
 </script>

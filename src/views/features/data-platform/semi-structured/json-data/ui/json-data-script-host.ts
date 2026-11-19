@@ -2,9 +2,16 @@ import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import {isRecord} from '@spark-appworks/spark-utils'
 
 /** Opens the exact catalog record in the tool's existing scenario. */
-export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,assertCurrent:()=>void,editable=false){
+export type JsonDataScriptHostOptions=Readonly<{
+ runtime:PageRuntime
+ scenarioId:string
+ assertCurrent:()=>void
+ editable?:boolean
+}>
+export function createJsonDataScriptHost({runtime,scenarioId,assertCurrent,editable=false}:JsonDataScriptHostOptions){
  let document:DataView|undefined
  let creating:string|undefined
  let fileConfirmed=false
@@ -36,13 +43,12 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    if(command==='jsonData.canEditCatalog')return editable
    const catalog=dataSet.getView(LowcodeJsonData.catalogMetaName)
    if(command==='jsonData.createDocument'||command==='jsonData.importDocument'){
-    if(!editable||document||runtime.isDirty||!catalog||catalog.addActionState()!=='enabled')throw new Error('JSON_CATALOG_REQUEST')
+    if(!editable||document!==undefined||runtime.isDirty||catalog?.addActionState()!=='enabled')throw new Error('JSON_CATALOG_REQUEST')
     let name='',content='{}'
     if(command==='jsonData.importDocument'){
-     const input=id as {name?:unknown;content?:unknown}|undefined
-     if(typeof input?.name!=='string'||typeof input.content!=='string')throw new Error('JSON_IMPORT_REQUEST')
-     name=input.name
-     content=input.content
+     if(!isRecord(id)||typeof id['name']!=='string'||typeof id['content']!=='string')throw new Error('JSON_IMPORT_REQUEST')
+     name=id['name']
+     content=id['content']
      parseJsonDocument(content)
     }
     await catalog.addRow({name,description:name,path:''})
@@ -91,16 +97,16 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
     }
     return
    }
-   if(typeof id!=='string'||!id||id.trim()!==id)throw new Error('JSON_DOCUMENT_REQUEST')
+   if(typeof id!=='string'||id.length===0||id.trim()!==id)throw new Error('JSON_DOCUMENT_REQUEST')
    if(command==='jsonData.closeDocument'){
-    if(!document||document.queryContext['jsonId']!==id||inputPending||runtime.isDirty)throw new Error('请先处理当前修改')
+    if(document?.queryContext['jsonId']!==id||inputPending||runtime.isDirty)throw new Error('请先处理当前修改')
     document.dataTable?.destroyView(document.viewId)
     document=undefined
     return
    }
    if(command==='jsonData.discardAndCloseDocument'){
     const view=document
-    if(!editable||creating!==undefined||!view||view.queryContext['jsonId']!==id||view.mutating||view.hasUnconfirmedSave)throw new Error('JSON_DOCUMENT_REQUEST')
+    if(!editable||creating!==undefined||view?.queryContext['jsonId']!==id||view.mutating||view.hasUnconfirmedSave)throw new Error('JSON_DOCUMENT_REQUEST')
     view.discardPendingChanges([id])
     view.dataTable?.destroyView(view.viewId)
     document=undefined
@@ -109,7 +115,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    }
    if(command==='jsonData.saveDocument'||command==='jsonData.cancelDocument'){
     const view=document
-    if(!editable||!view||view.queryContext['jsonId']!==id||view.mutating||view.loadingError)throw new Error('JSON_DOCUMENT_REQUEST')
+    if(!editable||view?.queryContext['jsonId']!==id||view.mutating||view.loadingError)throw new Error('JSON_DOCUMENT_REQUEST')
     if(command==='jsonData.cancelDocument'){
      if(view.hasUnconfirmedSave||fileConfirmed)throw new Error('请先核验原保存结果')
      view.discardPendingChanges()
@@ -145,7 +151,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
       if(imported)return {closed:true}
       await catalog.refresh()
       assertActive()
-      if(catalog.loadingError)return {closed:true,readError:'正文和目录已保存，但目录回读失败。'+catalog.loadingError.message}
+      if(catalog.loadingError)return {closed:true,readError:`正文和目录已保存，但目录回读失败。${catalog.loadingError.message}`}
       if(!catalog.rows.some(row=>catalog.getPkKey(row)===id))return {closed:true}
       const saved=LowcodeJsonData.openDocument(dataSet,id)
       document=saved
@@ -160,7 +166,7 @@ export function createJsonDataScriptHost(runtime:PageRuntime,scenarioId:string,a
    }
    if(command!=='jsonData.openDocument'||!editable||inputPending||runtime.isDirty)throw new Error('JSON_DOCUMENT_REQUEST')
    const next=LowcodeJsonData.openDocument(dataSet,id)
-   if(document&&document!==next)document.dataTable?.destroyView(document.viewId)
+   if(document!==undefined&&document!==next)document.dataTable?.destroyView(document.viewId)
    document=next
    await next.refresh()
    assertActive()

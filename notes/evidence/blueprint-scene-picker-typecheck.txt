@@ -1,2 +1,0 @@
-Command: pnpm run typecheck
-Result: exit 0 (final source state)

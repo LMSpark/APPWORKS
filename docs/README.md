@@ -32,6 +32,6 @@ PageRuntime -> PageTool + 多个独立场景 DataSet -> SparkPageRenderer
 - [AI 技能](../.cursor/skills)：工作方法，登记见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)，不替代产品事实。
 - [AGENTS.md](../AGENTS.md)：AI 编码工作流。
 
-正文中的类、路径与行为以当前源码为准。新增说明先判断能否合并到现有文档；计划、历史调研与目标草案不能被当作运行合同。
+正文中的类、路径与行为以当前源码为准。新增说明先判断能否合并到现有文档；计划、历史调研与目标草案不能被当作运行合同。仓库结构索引见根 [README.md](../README.md)。
 
-数据空间任务从[完整链路合同](architecture/DATAFLOW_ARCHITECTURE.md)和[唯一删除记录](../notes/data-space-retirement-ledger.md)接续；台账保存当前编号、依赖、验收证据和下一动作，不依赖聊天恢复进度。
+数据空间任务从[完整链路合同](architecture/DATAFLOW_ARCHITECTURE.md)和[唯一删除记录](../notes/data-space-retirement-ledger.md)接续。`notes/` 只保留该活动台账与 [AI 编码度量](../notes/ai-code-metrics.md)；一次性研究、计划和现场证据完成迁移后不得长期入库。

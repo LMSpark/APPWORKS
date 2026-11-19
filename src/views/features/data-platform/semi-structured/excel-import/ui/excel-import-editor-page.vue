@@ -95,7 +95,7 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route

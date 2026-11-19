@@ -1,8 +1,0 @@
-import type { DataColumn, DataViewFilterFunctionContext } from '@spark-appworks/spark-data'
-
-export type DataSpaceFilterEditorProps = {
-  modelValue?: string | null
-  columns: readonly DataColumn[]
-  functionContext?: DataViewFilterFunctionContext
-  disabled?: boolean
-}

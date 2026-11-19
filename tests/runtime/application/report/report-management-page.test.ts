@@ -283,6 +283,23 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.instance.isDirty).toBe(false)
   })
 
+  it('历史版本刷新后拒绝编辑或删除同主键旧行', async () => {
+    const f = await open()
+    await seed(f)
+    await rowAction(f, '历史版本', infoRow(f))
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)!
+    await vi.waitFor(() => expect(versions.rows).toHaveLength(2))
+    const stale = versions.rows.find(row => row['rowid'] === 'V2')
+    if (!stale) throw new Error('缺少原版本')
+    await versions.refresh()
+    await rowAction(f, '编辑', stale, 1)
+    expect(f.wrapper.findAllComponents(RendererDialog).some(dialog => dialog.props('title') === '编辑版本')).toBe(false)
+    await rowAction(f, '删除', stale, 1)
+    expect(document.body.textContent).toContain('缺少唯一原查询行')
+    expect(f.http.saves).toHaveLength(0)
+    expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
   it('启动版本被拒绝时撤销两表本地修改，未知回执须在目录核验', async () => {
     const f = await open()
     await seed(f)

@@ -86,6 +86,11 @@ function idOf(target: DataView, row: DataRow): string | number {
   if (id === undefined) throw new Error('版本缺少原生身份')
   return id
 }
+function captureVersion(versions: DataView, row: DataRow, fields: readonly string[] = []): string | number {
+  versions.captureReadRow(row, [...versions.effectivePkFields, 'RptID', ...fields])()
+  if (textOf(row, 'RptID') !== String(props.infoId)) throw new Error('版本与当前报表不一致')
+  return idOf(versions, row)
+}
 const add = () => guarded(async () => {
   assertSettled()
   const versions = view(versionKey)
@@ -95,7 +100,11 @@ const add = () => guarded(async () => {
   editor.value = {id: idOf(versions, created), created: true, epoch: ++epoch}
 })
 function edit(row: DataRow): void {
-  try { editor.value = {id: idOf(view(versionKey), row), created: false, epoch: ++epoch} } catch (cause) { message.value = failure(cause) }
+  if (busy.value || editor.value) return
+  try {
+    assertSettled()
+    editor.value = {id: captureVersion(view(versionKey), row), created: false, epoch: ++epoch}
+  } catch (cause) { message.value = failure(cause) }
 }
 async function closeEditor(): Promise<void> {
   editor.value = undefined
@@ -103,7 +112,7 @@ async function closeEditor(): Promise<void> {
 }
 const remove = (row: DataRow) => guarded(async () => {
   assertSettled()
-  const versions = view(versionKey), id = idOf(versions, row)
+  const versions = view(versionKey), id = captureVersion(versions, row, ['State'])
   if (isOn(row['State'])) throw new Error('启用中的版本不能删除，请先启动其他版本')
   try {
     await versions.removeRow(id)
@@ -118,15 +127,12 @@ const remove = (row: DataRow) => guarded(async () => {
 })
 const activate = (row: DataRow) => guarded(async () => {
   assertSettled()
-  const versions = view(versionKey), info = view(props.infoKey), id = idOf(versions, row)
+  const versions = view(versionKey), info = view(props.infoKey)
   if (versions.nextPageAvailable === true || versions.countReported === true && versions.total !== versions.rows.length) {
     throw new Error('报表版本未完整读取，不能启动版本')
   }
-  versions.captureReadRow(row, ['RptID', 'State', 'DataFormID'])()
-  for (const version of versions.rows) {
-    versions.captureReadRow(version, ['RptID', 'State'])()
-    if (textOf(version, 'RptID') !== String(props.infoId)) throw new Error('版本与当前报表不一致')
-  }
+  const id = captureVersion(versions, row, ['State', 'DataFormID'])
+  for (const version of versions.rows) captureVersion(versions, version, ['State'])
   const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''
   const ids = [id]
   try {

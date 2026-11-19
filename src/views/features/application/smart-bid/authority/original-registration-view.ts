@@ -29,7 +29,8 @@ export async function readOriginalRegistrationView(host:RegistrationViewHost,tar
  const filters=Object.entries(request),fields=Object.keys(request)
  const key=buildDataViewKey(model,viewName,scenarioId),view=runtime.resolveView(key)
  const valid=()=>view?.dataTable?.modelBinding?.modelName===model&&view.commitMode==='staged'&&
-  view.queryConfig.autoQuery===false&&fields.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
+  view.queryConfig.autoQuery===false&&(view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
+  fields.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
  if(!view||!valid()||view.hasEditingChanges())throw Error(error)
  view.queryContext={...view.queryContext,...request}
  const assertScope=()=>{

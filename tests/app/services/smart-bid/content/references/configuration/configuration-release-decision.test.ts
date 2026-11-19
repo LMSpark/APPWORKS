@@ -33,6 +33,12 @@ it('reads the current channel in the trusted scope without reusing any historica
   const active=await page.invoke('configuration.release.readCurrentChannel',selection,signal)
   expect(active).toMatchObject({state:'ACTIVE',pointerVersion:'P3',versionDigest:row.hash})
   expect(view.queryContext).toMatchObject({...selection,scope:'ENTERPRISE',scopeId:'ORG'})
+  const queryConfig=view.queryConfig
+  view.queryConfig={...queryConfig,cacheType:'page'}
+  expect(()=>active.assertCurrent()).toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+  await expect(page.invoke('configuration.release.readCurrentChannel',selection,signal))
+   .rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+  view.queryConfig=queryConfig
   row.state='DISABLED';row.version='P4'
   const disabled=await page.invoke('configuration.release.readCurrentChannel',selection,signal)
   expect(disabled).toMatchObject({state:'DISABLED',pointerVersion:'P4'})

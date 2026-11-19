@@ -118,7 +118,7 @@ it('prepares rework from the route attempt and a confirmed reason',async()=>{
  const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  const query={runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const showPrompt=vi.fn<()=>Promise<string|null>>().mockResolvedValueOnce(null).mockResolvedValueOnce('撤回结果未知')
- const invokeHostCommand=vi.fn(async()=>({assertCurrent,handoffs:[{callRef:'CALL',destination:'ORIGINAL_CALL',originalOwnerRef:'REP'}],
+ const invokeHostCommand=vi.fn(async()=>({assertCurrent,firstCallRef:'CALL',handoffs:[{callRef:'CALL',destination:'ORIGINAL_CALL',originalOwnerRef:'REP',affectedRefs:['RESULT']}],
   originalOperations:[{callRef:'CALL',destination:'52',ownerRef:'REP'}],reusable:[]}))
  const {__init__,prepareRework,bindRework}=compileFunctions(script,{$route:{query},
   $page:{showPrompt,invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
@@ -133,7 +133,7 @@ it('prepares rework from the route attempt and a confirmed reason',async()=>{
  expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.operation.prepareRework',
   {...query,reason:'撤回结果未知'})
  expect(assertCurrent).toHaveBeenCalledOnce()
- expect(showAlert).toHaveBeenCalledExactlyOnceWith('调用 CALL → ORIGINAL_CALL（REP）\n原办理 CALL → 52（REP）','返工交接预览')
+ expect(showAlert).toHaveBeenCalledExactlyOnceWith('首个退回点 CALL\n调用 CALL → ORIGINAL_CALL（REP），受影响 RESULT\n原办理 CALL → 52（REP）','返工交接预览')
  showPrompt.mockImplementationOnce(async()=>{query.attemptRef='OTHER';return '只属于原试次'})
  await prepareRework()
  expect(invokeHostCommand).toHaveBeenCalledTimes(1)

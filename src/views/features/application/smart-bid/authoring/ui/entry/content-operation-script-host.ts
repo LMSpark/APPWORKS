@@ -39,8 +39,7 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      throw Error('OPERATION_PAGE_REWORK_REQUIRED')
     const prepared=await workspace.prepareRework({runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason:reason.trim()})
     prepared.assertCurrent()
-    return Object.freeze({handoffs:prepared.handoffs,originalOperations:prepared.originalOperations,
-     reusable:prepared.reusable,assertCurrent:prepared.assertCurrent})
+    return prepared
    }
    if(name==='content.operation.readDispatch'){
     const {runId,attemptRef,requestKey,targetDigest,configurationLockHash}=input

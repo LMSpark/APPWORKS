@@ -203,9 +203,11 @@ async function prepareRework() {
     if (!isCurrent()) return
     prepared.assertCurrent()
     const lines = [
+      `首个退回点 ${prepared.firstCallRef}`,
       ...prepared.handoffs.map(item => {
         const owner = item.destination === 'ORIGINAL_CALL' || item.destination === 'CALL_OWNER' ? `（${item.originalOwnerRef}）` : ''
-        return `调用 ${item.callRef} → ${item.destination}${owner}`
+        const affected = item.affectedRefs.length ? `，受影响 ${item.affectedRefs.join("、")}` : ''
+        return `调用 ${item.callRef} → ${item.destination}${owner}${affected}`
       }),
       ...prepared.originalOperations.map(item => `原办理 ${item.callRef} → ${item.destination}（${item.ownerRef}）`),
       ...prepared.reusable.map(item => `可沿用 ${item.resultRef}`),

@@ -124,8 +124,10 @@ function listen(target: DataView, events: readonly Parameters<DataView['events']
   for (const event of events) { target.events.on(event, handler); stops.push(() => target.events.off(event, handler)) }
 }
 function syncTable(): void {
-  const row = view(tableKey).currentRow, rowid = value(row, 'rowid')
-  const previous = table.value?.rowid, desc = value(row, 'tbldesc'), name = value(row, 'tblname')
+  const tables = view(tableKey), row = tables.currentRow
+  const visible = (field: string) => row && tables.fieldAccess(row, field).read === 'visible' ? value(row, field) : ''
+  const rowid = visible('rowid')
+  const previous = table.value?.rowid, desc = visible('tbldesc'), name = visible('tblname')
   table.value = rowid ? {rowid, label: desc ? `${desc}[${name}]` : name} : undefined
   if (rowid !== previous) { syncColumns(); message.value = ''; notice.value = ''; void nextTick(loadAll) }
 }

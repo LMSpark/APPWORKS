@@ -16,9 +16,9 @@ let candidatePreviewPending = false
 let draftCandidatePending = false
 
 function draftCandidateRouteKey() {
-  const {projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
+  const {projectId, draftId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
     candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId} = $route.query
-  return JSON.stringify({projectId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
+  return JSON.stringify({projectId, draftId, draftCandidateRequestKey, candidateTargetKind, candidateTargetNodeId, candidateNodeExtent,
     candidateAssignmentId, candidateBasisResponseId, candidateFirstBatchId, candidateBatchScopeIndex, candidateAddedNodeId})
 }
 

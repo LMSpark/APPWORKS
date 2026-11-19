@@ -130,7 +130,7 @@ it('prepares the selected independent response from the saved draft and original
  const prepareDraftCandidate=vi.fn(async()=>({draftId:'D',draftVersion:'V1',baseRevisionId:null,
   baselineId:'B',requestDigest:'a'.repeat(64),requiresResponseUseCheck:true,requiresFactUseCheck:true,
   responseVersions:[{responseId:'RESPONSE'}],factVersions:[{factId:'PRICE',version:2}],assertCurrent}))
- const query:Record<string,string|null>={projectId:'P',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
+ const query:Record<string,string|null>={projectId:'P',draftId:'D',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
   candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
  const session={prepareDraftCandidate,assertCurrent,canEditDraft:true}
  const {__init__,openDraftCandidate,bindEditorStatus}=compileFunctions(script,{$route:{query},$page:{
@@ -172,6 +172,11 @@ it('prepares the selected independent response from the saved draft and original
  await openDraftCandidate()
  expect(showMessage).toHaveBeenLastCalledWith('当前草稿还有未保存的改动，请处理改动后再核对候选输入','warning')
  expect(showAlert).toHaveBeenCalledTimes(3)
+ const previousDraft=openDraftCandidate()
+ query['draftId']='OTHER'
+ await previousDraft
+ expect(showAlert).toHaveBeenCalledTimes(3)
+ expect(showMessage).toHaveBeenCalledTimes(3)
 })
 it('withdraws original form and comparison results when the selected template changes',async()=>{
  const query={projectId:'P',draftId:'D',formTemplateRef:'T',formTemplateVersion:'V2',previousFormTemplateVersion:'V1'}

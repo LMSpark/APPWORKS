@@ -89,6 +89,8 @@ it('reads the original result only for the selected attempt and verifies the ret
   const restricted=await scriptHost.invoke('content.operation.readDispatch',scope,signal)
   expect(restricted).not.toHaveProperty('readActualInput')
   await expect(projected.readActualInput()).rejects.toThrow('DATA_VIEW_READ_RESULT')
+  await expect(readRegisteredOperationResult(host,{...scope,targetDigest:'invalid'})).rejects.toThrow('OPERATION_RESULT_READ_SCOPE')
+  expect(view.queryContext).not.toHaveProperty('requestKey')
   const result=await readRegisteredOperationResult(host,scope)
   expect(result).toMatchObject({state:'COMPLETE',receiptRef:'RECEIPT',output:craft.outputExample})
   view.queryConfig={...view.queryConfig,cacheType:'page'}

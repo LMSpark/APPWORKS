@@ -47,7 +47,8 @@ async function readRegisteredOperationResultEvidence(host:ContentRevisionReadHos
  const scope=Object.freeze({...input})
  const context={projectId,runId:scope.runId,attemptRef:scope.attemptRef,requestKey:scope.requestKey}
  const error='OPERATION_RESULT_READ_SCOPE'
- if(![scenarioId,...Object.values(context)].every(identity)||scope.projectId!==projectId)throw Error(error)
+ if(![scenarioId,...Object.values(context)].every(identity)||scope.projectId!==projectId||
+  ![scope.targetDigest,scope.configurationLockHash].every(value=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)))throw Error(error)
  const key=buildDataViewKey('GenerationRun','originalResult',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('OPERATION_RESULT_VIEW_REQUIRED')
  view.queryContext={...view.queryContext,...context}

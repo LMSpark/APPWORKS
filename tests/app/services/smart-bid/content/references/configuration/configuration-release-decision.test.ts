@@ -155,11 +155,13 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
    disableRequestKey:request.requestKey,disableDecisionRef:source.decisionRef,
   }
   let changeSelectionAfterRead:(()=>void)|undefined
+  let rejectAfterSelectionChange=false
   const {openConfigurationRelease,openConfigurationCandidate,openConfigurationDisable}=compileFunctions(script,{$route:{query},
    $page:{invokeHostCommand:async(name:string,input:unknown)=>{
    const result=await page.invoke(name,input,signal)
    if(expireImpactAfterRead)impactCurrent=false
    changeSelectionAfterRead?.()
+   if(rejectAfterSelectionChange)throw Error('OLD_QUERY_FAILED')
    return result
   },showAlert,showMessage}} as unknown as PageContext)
   if(!openConfigurationRelease||!openConfigurationCandidate||!openConfigurationDisable)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
@@ -217,6 +219,14 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   changeSelectionAfterRead=()=>{query.releaseRequestKey='OTHER'}
   await openConfigurationRelease()
   expect(showAlert).not.toHaveBeenCalled()
+  query.candidateRequestKey='Q'
+  rejectAfterSelectionChange=true
+  changeSelectionAfterRead=()=>{query.candidateRequestKey='OTHER'}
+  showMessage.mockClear()
+  await openConfigurationCandidate()
+  expect(query.candidateRequestKey).toBe('OTHER')
+  expect(showMessage).not.toHaveBeenCalled()
+  rejectAfterSelectionChange=false
   changeSelectionAfterRead=undefined
   const candidate=await page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
   expect(candidate).toMatchObject({record:{expectedPointerVersion:'P1',typeCheckRef:'TYPE',closureCheckRef:'LINKS',reviewRef:'REVIEW'},

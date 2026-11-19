@@ -179,6 +179,9 @@
           }
         ]
       },
+      {"id":"parameter-choose","type":"r-button","props":{"label":"编辑选中参数绑定"}},
+      {"id":"parameter-selection-error","type":"r-alert","props":{"alertType":"error","closable":false}},
+      {"id":"parameter-close","type":"r-button","props":{"label":"关闭参数选择"}},
       {
         "id": "api-interface-binding-preview",
         "type": "r-section",

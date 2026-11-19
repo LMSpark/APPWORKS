@@ -6,15 +6,14 @@
 <template>
   <RendererDialog v-bind="dialogRule.props" :model-value="true" :close-disabled="!!chosen" @update:model-value="close">
     <SparkComponentRenderer :config="selectorConfig" />
-    <RendererButton label="编辑选中参数绑定" :disabled="!!chosen" @click="choose" />
-    <DisplayAlert v-if="error" alert-type="error" :closable="false" :title="error" />
+    <SparkComponentRenderer v-for="node in selectorActions" :key="nodeId(node) ?? node.type" :config="node" />
     <BindingRecord v-if="chosen" :preview-rule="previewRule" :key="chosen.epoch" :parameters-key="parametersKey" :record-id="chosen.id" :mode="chosen.mode" :interface-key="interfaceKey" :interface-id="interfaceId" :output-key="outputKey" :output-id="outputId" @finish="finished" />
-    <RendererButton v-else label="关闭参数选择" @click="close" />
+
   </RendererDialog>
 </template>
 <script setup lang="ts">
 import {computed,ref} from 'vue'
-import {PAGE_RUNTIME,RendererDialog,RendererButton,SparkComponentRenderer,DisplayAlert,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME,RendererDialog,SparkComponentRenderer,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import BindingRecord from './api-public-parameter-binding-record.vue'
 import {getSparkNodeChildren,nodeId,type SparkNode} from '@spark-appworks/spark-data'
 const props=defineProps<{dialogRule:SparkNode;parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
@@ -25,12 +24,22 @@ if(!resolved)throw Error('PARAMETER_BINDING_VIEW: 缺少原公共参数视图')
 const view=resolved
 const openedKey=props.parametersKey
 const chosen=ref<{id:string|number;mode:'edit'|'pending';epoch:number}>(),error=ref('')
-const [selectorRule, previewRule]=getSparkNodeChildren(props.dialogRule.children)
+const rules=getSparkNodeChildren(props.dialogRule.children)
+const selectorRule=rules.find(node=>nodeId(node)==='parameter-selector')
+const previewRule=rules.find(node=>nodeId(node)==='api-interface-binding-preview')
 const selectorField=getSparkNodeChildren(selectorRule?.children)[0]
-if(!selectorRule||!selectorField||!previewRule||nodeId(previewRule)!=='api-interface-binding-preview')throw Error('公共参数弹窗配置不完整')
+if(!selectorRule||!selectorField||!previewRule)throw Error('公共参数弹窗配置不完整')
 const selectorConfig=computed(()=>({
  ...selectorRule,
  children:[{...selectorField,props:{...selectorField.props,readonly:!!chosen.value}}],
+}))
+const selectorActions=computed(()=>rules.flatMap(node=>{
+ switch(nodeId(node)){
+  case 'parameter-choose': return [{...node,props:{...node.props,disabled:!!chosen.value,onClick:choose}}]
+  case 'parameter-selection-error': return error.value?[{...node,props:{...node.props,title:error.value}}]:[]
+  case 'parameter-close': return chosen.value?[]:[{...node,props:{...node.props,onClick:close}}]
+  default: return []
+ }
 }))
 let epoch=0
 function choose():void{

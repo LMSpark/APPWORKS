@@ -54,22 +54,27 @@ export async function readPackingRegistrationIdentity(host:ContentRevisionReadHo
  }})
 }
 
+type PackingEvidence=Readonly<{
+ candidate:Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>,'bytes'>
+ openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]
+}>
+
 /** 核原请求登记所指的电子实包。 */
 export async function recoverRegisteredPackingCandidate(host:ContentRevisionReadHost,packingRequestRef:string,
- candidate:Parameters<typeof verifyRegisteredPackingCandidate>[2],openAuthorized:Parameters<typeof verifyRegisteredPackingCandidate>[3]){
+ evidence:PackingEvidence){
+ const {candidate}=evidence
  if(candidate.projectId!==host.projectId)throw Error(error)
  const registration=await readPackingRegistrationIdentity({...host,assertCurrent:()=>{
   host.assertCurrent();candidate.assertCurrent()
  }},packingRequestRef,'ZIP')
  if(registration.status!=='REGISTERED')return registration
- const verified=await verifyRegisteredPackingCandidate({...host,assertCurrent:registration.assertCurrent},registration,candidate,openAuthorized)
+ const verified=await verifyRegisteredPackingCandidate({...host,assertCurrent:registration.assertCurrent},registration,evidence)
  return Object.freeze({status:'REGISTRATION_VERIFIED' as const,verified,assertCurrent:verified.assertCurrent})
 }
 
 /** 核本次装封回执所指原登记及实包，给下游交付同版证据。 */
 export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadHost,input:Selection,
- candidate:Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>,'bytes'>,
- openAuthorized:Parameters<typeof readRegisteredSubmissionZipSource>[2]){
+ {candidate,openAuthorized}:PackingEvidence){
  const assertScope=()=>{host.assertCurrent();candidate.assertCurrent()}
  assertScope()
  if(candidate.projectId!==host.projectId)throw Error(error)

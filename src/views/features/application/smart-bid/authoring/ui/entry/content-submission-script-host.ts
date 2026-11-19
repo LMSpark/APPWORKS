@@ -46,8 +46,7 @@ type PackingSelection=Readonly<{
  selectionRef:string;request:PackingPreparation[1];assertCurrent:()=>void
 }>&(
  Readonly<{state:'PREPARE';options:PackingPreparation[2]}>|
- Readonly<{state:'RECOVER';packingRequestRef:PackingRecovery[1];candidate:PackingRecovery[2];
-  openAuthorized:PackingRecovery[3]}>
+ Readonly<{state:'RECOVER';packingRequestRef:PackingRecovery[1]}>&PackingRecovery[2]
 )
 /** 读取原截止记录对应的回执和核对证据。 */
 type ReadDeadline=(record:Awaited<ReturnType<typeof readRegisteredDeadlineRecord>>,signal:AbortSignal)=>Promise<Readonly<{
@@ -169,7 +168,7 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
      throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
     const scopedHost={...host,assertCurrent:assertSelection}
     if(selected.state==='PREPARE')return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
-    return recoverRegisteredPackingCandidate(scopedHost,selected.packingRequestRef,selected.candidate,selected.openAuthorized)
+    return recoverRegisteredPackingCandidate(scopedHost,selected.packingRequestRef,selected)
    }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
     const {selectionRef}=input

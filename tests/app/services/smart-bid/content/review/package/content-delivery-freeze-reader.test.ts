@@ -137,11 +137,11 @@ it('preserves unknown on a complete empty original read and requires readable te
   expect(openOriginal).toHaveBeenCalledTimes(2)
   if(!('candidate' in latest))throw Error('TEST_PACKING_REQUIRED')
   const registered={packageId:pack.id,packingRequestRef:pack.packingRequestRef}
-  await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
+  await expect(verifyRegisteredPackingCandidate(host,registered,{candidate:latest.candidate,openAuthorized}))
    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
   pack.packageHash=latest.candidate.packageHash
   const openRegistered=async()=>({...await openAuthorized(),bytes:latest.candidate.bytes})
-  const verified=await verifyRegisteredPackingCandidate(host,registered,latest.candidate,openRegistered)
+  const verified=await verifyRegisteredPackingCandidate(host,registered,{candidate:latest.candidate,openAuthorized:openRegistered})
   expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
   const registeredPage=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readPackingSelection:async()=>({selectionRef:'PACK',request,state:'RECOVER',assertCurrent:host.assertCurrent,
@@ -166,7 +166,7 @@ it('preserves unknown on a complete empty original read and requires readable te
    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
   expect(openAuthorized).toHaveBeenCalledTimes(zipOpenCount)
   expect(openOriginal).toHaveBeenCalledTimes(2)
-  await expect(verifyRegisteredPackingCandidate(host,registered,latest.candidate,openAuthorized))
+  await expect(verifyRegisteredPackingCandidate(host,registered,{candidate:latest.candidate,openAuthorized}))
    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_HASH')
  }finally{ds.destroy()}
 })

@@ -19,12 +19,10 @@
             <RendererTabs v-if="selected" v-model="tab" v-bind="region(children,'api-interface-tabs').props">
               <RendererTabPane v-for="(pane, index) in getSparkNodeChildren(region(children,'api-interface-tabs').children)"
                 :key="nodeId(pane) ?? index" :index="index" v-bind="pane.props">
-                <template v-if="nodeId(pane) === 'api-interface-edit-tab'">
-                  <SparkComponentRenderer :key="String(selectedId)" :config="region(children,'api-interface-edit')" />
-                  <InterfaceJsonImportDialog v-if="importing" :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
-                </template>
-                <SparkComponentRenderer v-else-if="nodeId(pane) === 'api-interface-invoke-tab'" :config="region(children,'api-interface-invocation')" />
-                <SparkComponentRenderer v-else-if="nodeId(pane) === 'api-interface-output-tab'" :config="region(children,'api-interface-output')" />
+                <SparkComponentRenderer v-for="node in getSparkNodeChildren(pane.children)"
+                  :key="nodeId(pane) === 'api-interface-edit-tab' ? String(selectedId) : nodeId(node) ?? node.type" :config="node" />
+                <InterfaceJsonImportDialog v-if="nodeId(pane) === 'api-interface-edit-tab' && importing"
+                  :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
               </RendererTabPane>
             </RendererTabs>
             <DisplayEmpty v-else description="请选择左侧接口，或先新建接口" />

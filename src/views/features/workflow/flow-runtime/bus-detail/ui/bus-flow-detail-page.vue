@@ -3,31 +3,41 @@
 职责：业务表单 + 流程摘要只读页，与办理页共用监控场景装配。
 -->
 <template>
-  <RendererSection class="bus-flow-detail-page" title="业务流程详情" :bordered="false" :grid-columns="1"
-    :status="loading ? '正在加载…' : ''" :error="error" :retryable="!loading" @retry="loadPage">
-    <template v-if="prepared" #header-actions>
-      <RendererButton label="办理" button-type="primary" @click="openRun" />
-      <RendererButton label="运行详情" @click="openDetail" />
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
+    <template #content="{children}">
+      <RendererSection class="bus-flow-detail-page" title="业务流程详情" :bordered="false" :grid-columns="1"
+        :status="loading ? '正在加载…' : ''" :error="error" :retryable="!loading" @retry="loadPage">
+        <template v-if="prepared" #header-actions>
+          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'pageActions')" key="pageActions" :config="node" />
+        </template>
+        <p v-if="prepared" class="bus-flow-detail-page__title">{{ prepared.instanceTitle }}</p>
+        <template v-if="prepared">
+          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'summary')" key="summary" :config="node" />
+        </template>
+        <DisplayEmpty v-if="prepared && businessTabs.length === 0" description="未查询到业务表单" />
+        <RendererTabs v-else-if="prepared" v-model="activeFormId" class="bus-flow-detail-page__tabs">
+          <RendererTabPane v-for="(tab, index) in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" :index="index" lazy>
+            <DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
+            <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
+              :tab-key="tab.tabKey" :registry="businessRegistry" />
+          </RendererTabPane>
+        </RendererTabs>
+      </RendererSection>
     </template>
-  <p v-if="prepared" class="bus-flow-detail-page__title">{{ prepared.instanceTitle }}</p>
-    <RendererTable v-if="prepared && instanceViewKey" :data-view-key="instanceViewKey" :children="summaryColumns"
-      :stripe="true" :show-data-view-meta="false" />
-    <DisplayEmpty v-if="prepared && businessTabs.length === 0" description="未查询到业务表单" />
-    <RendererTabs v-else-if="prepared" v-model="activeFormId" class="bus-flow-detail-page__tabs">
-      <RendererTabPane v-for="(tab, index) in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" :index="index" lazy>
-        <DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
-        <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
-          :tab-key="tab.tabKey" :registry="businessRegistry" />
-      </RendererTabPane>
-    </RendererTabs>
-  </RendererSection>
+  </SparkPageRenderer>
+  <RendererSection v-else title="业务流程详情" :bordered="false"
+    :status="runtimeLoading ? '正在加载…' : ''" :error="runtimeError" :retryable="!runtimeLoading" @retry="loadCurrentRoute" />
 </template>
 
 <script setup lang="ts">
 import {computed, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {DisplayEmpty, PAGE_RUNTIME, RendererButton, RendererSection, RendererTable, RendererTabs, RendererTabPane, useSparkComponent} from '@spark-appworks/spark-component'
+import {nodeId} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
+import {DisplayEmpty, PAGE_RUNTIME, RendererSection, SparkComponentRenderer, SparkPageRenderer, RendererTabs, RendererTabPane, useSparkComponent} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
@@ -50,6 +60,10 @@ import FlowRunRouteRenderer from '../../run-page/ui/flow-run-route-renderer.vue'
 const scenarioId = FLOW_MONITOR_SCENARIO_ID
 const route = useRoute()
 const router = useRouter()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
 const {sparkConsume} = useSparkComponent({type: 'bus-flow-detail-page'})
 const prepared = shallowRef<FlowRunPreparedPage>()
@@ -61,8 +75,16 @@ const registeredPaths = computed(() => new Set(getVuePageOptions().map(item => i
 const buildTab = createFlowBusinessTabBuilder(() => registeredPaths.value)
 let generation = 0
 
-const {ready: runtimeReady} = useFeaturePageRuntime({
+const {ready: runtimeReady, session, loading: runtimeLoading, error: runtimeError, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   modelName: 'View_FlowObjList',
   componentType: 'bus-flow-detail-page',
   title: '业务流程详情',
@@ -70,19 +92,26 @@ const {ready: runtimeReady} = useFeaturePageRuntime({
   queryContext: () => ({rowid: routeQuery().wfid, WFOBJID: routeQuery().wfid}),
 })
 
-const instanceViewKey = computed(() => buildDataViewKey('WFOBJ_FLOW', 'default', scenarioId))
+const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(current)) throw Error('业务流程详情运行实例已失效')
+  }
+  return {runtime: current, assertCurrent, invoke(command: string) {
+    assertCurrent()
+    if (!prepared.value) return
+    if (command === 'workflow.openRun') openRun()
+    if (command === 'workflow.openDetail') openDetail()
+  }}
+})
 const businessTabs = computed(() => (prepared.value?.formTabs ?? []).map(tab => buildTab({
   tabKey: tab.tabKey,
   label: tab.label,
   sourcePath: tab.sourcePath,
   queryString: tab.queryString,
 }, router)))
-
-const summaryColumns: SparkNode[] = [
-  {type: 'r-text', props: {field: 'TITLE', label: '流程标题', readonly: true, minWidth: 200}},
-  {type: 'r-text', props: {field: 'status', label: '状态', readonly: true, minWidth: 100}},
-  {type: 'r-text', props: {field: 'BusTblObjID', label: '业务行', readonly: true, minWidth: 160}},
-]
 
 async function loadPage(): Promise<void> {
   const own = ++generation

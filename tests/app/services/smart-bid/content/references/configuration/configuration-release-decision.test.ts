@@ -147,13 +147,17 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,
    readDisableImpact,readCandidate,readDisableDecision)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
-  const {openConfigurationRelease,openConfigurationCandidate,openConfigurationDisable}=compileFunctions(script,{$route:{query:{
+  const query={
    configurationKind:scope.kind,configurationKey:scope.key,candidateRequestKey:'Q',releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
    configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
    disableRequestKey:request.requestKey,disableDecisionRef:source.decisionRef,
-  }},$page:{invokeHostCommand:async(name:string,input:unknown)=>{
+  }
+  let changeSelectionAfterRead:(()=>void)|undefined
+  const {openConfigurationRelease,openConfigurationCandidate,openConfigurationDisable}=compileFunctions(script,{$route:{query},
+   $page:{invokeHostCommand:async(name:string,input:unknown)=>{
    const result=await page.invoke(name,input,signal)
    if(expireImpactAfterRead)impactCurrent=false
+   changeSelectionAfterRead?.()
    return result
   },showAlert,showMessage}} as unknown as PageContext)
   if(!openConfigurationRelease||!openConfigurationCandidate||!openConfigurationDisable)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
@@ -204,6 +208,14 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(
    `当前启用版 V0 · 摘要 ${oldVersion.digest}\n候选 V1 · 摘要 ${version.digest}\n预期指针 P1`),'配置候选核验')
   expect(readCandidate).toHaveBeenCalledWith({...scope,versionId:'V1'},signal)
+  showAlert.mockClear()
+  changeSelectionAfterRead=()=>{query.candidateRequestKey='OTHER'}
+  await openConfigurationCandidate()
+  expect(showAlert).not.toHaveBeenCalled()
+  changeSelectionAfterRead=()=>{query.releaseRequestKey='OTHER'}
+  await openConfigurationRelease()
+  expect(showAlert).not.toHaveBeenCalled()
+  changeSelectionAfterRead=undefined
   const candidate=await page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
   expect(candidate).toMatchObject({record:{expectedPointerVersion:'P1',typeCheckRef:'TYPE',closureCheckRef:'LINKS',reviewRef:'REVIEW'},
    requestDigest:prepared.requestDigest})

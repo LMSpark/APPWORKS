@@ -35,10 +35,18 @@ async function openConfigurationRelease() {
   const {configurationKind: kind, configurationKey: key, releaseRequestKey: requestKey, releaseRequestDigest: requestDigest,
     configurationVersionId: versionId, configurationVersionDigest: versionDigest, releaseAction: action,
     expectedPointerVersion = null} = $route.query
+  const isCurrent = () => {
+    const query = $route.query
+    return query.configurationKind === kind && query.configurationKey === key &&
+      query.releaseRequestKey === requestKey && query.releaseRequestDigest === requestDigest &&
+      query.configurationVersionId === versionId && query.configurationVersionDigest === versionDigest &&
+      query.releaseAction === action && (query.expectedPointerVersion ?? null) === expectedPointerVersion
+  }
   try {
     const result = await $page.invokeHostCommand('configuration.release.readOriginal', {
       kind, key, requestKey, requestDigest, versionId, versionDigest, action, expectedPointerVersion,
     })
+    if (!isCurrent()) return
     result.assertCurrent()
     const heading = action === 'ENABLE' ? '原启用' : '原停用'
     const message = result.status === 'APPLIED'
@@ -60,7 +68,7 @@ async function openConfigurationRelease() {
     result.assertCurrent()
     await $page.showAlert(lines.join('\n'), '配置启停回查')
   } catch {
-    $page.showMessage('原启停结果无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原启停结果无法核验', 'warning')
   }
 }
 
@@ -74,8 +82,14 @@ async function openConfigurationCandidate() {
   if (!bindConfigurationCandidate().visible) return
   const {configurationKind: kind, configurationKey: key, configurationVersionId: versionId,
     candidateRequestKey: requestKey} = $route.query
+  const isCurrent = () => {
+    const query = $route.query
+    return query.configurationKind === kind && query.configurationKey === key &&
+      query.configurationVersionId === versionId && query.candidateRequestKey === requestKey
+  }
   try {
     const result = await $page.invokeHostCommand('configuration.release.prepareEnable', {kind, key, versionId, requestKey})
+    if (!isCurrent()) return
     result.assertCurrent()
     const {record, currentVersion, requestDigest} = result
     const previous = currentVersion ? `当前启用版 ${currentVersion.versionId} · 摘要 ${currentVersion.digest}` : '本作用域没有启用版本'
@@ -84,7 +98,7 @@ async function openConfigurationCandidate() {
       `类型检查 ${record.typeCheckRef} · 闭包检查 ${record.closureCheckRef} · 业务审阅 ${record.reviewRef}`,
       `待提交 · 请求摘要 ${requestDigest}`].join('\n'), '配置候选核验')
   } catch {
-    $page.showMessage('配置候选或审阅证据无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('配置候选或审阅证据无法核验', 'warning')
   }
 }
 

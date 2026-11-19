@@ -11,11 +11,11 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
       <template #content="{children}">
         <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
           <template v-if="nodeId(node) === 'reportVersions'">
-            <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" :key="dialog.epoch" :info-key="viewKey"
+            <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" ref="versionDialogs" :key="dialog.epoch" :info-key="viewKey"
               :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
           </template>
           <template v-else-if="nodeId(node) === 'reportModelPicker'">
-            <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey"
+            <ReportModelDialog v-if="ready && dialog?.kind === 'model'" ref="modelDialogs" :key="dialog.epoch" :info-key="viewKey"
               :report-key="reportKey" :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
           </template>
           <SparkComponentRenderer v-else :config="node" />
@@ -30,7 +30,7 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 </template>
 
 <script setup lang="ts">
-import {computed, ref, shallowRef} from 'vue'
+import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
@@ -122,6 +122,8 @@ const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
   return {path, fullPath, name: name ?? null, params, query, hash}
 })
+const versionDialogs = useTemplateRef<InstanceType<typeof ReportVersionDialog>[]>('versionDialogs')
+const modelDialogs = useTemplateRef<InstanceType<typeof ReportModelDialog>[]>('modelDialogs')
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
@@ -142,6 +144,15 @@ const host = computed(() => {
     if (command === 'reports.create') {
       if (!busy.value && !dialog.value && !unconfirmed.value) await create()
       return undefined
+    }
+    if (input && typeof input === 'object') {
+      const row = input as DataRow
+      if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {
+        return versionDialogs.value?.[0]?.invoke(command.slice('reports.version.'.length), row)
+      }
+      if (dialog.value?.kind === 'model' && command === 'reports.model.choose') {
+        return modelDialogs.value?.[0]?.choose(row)
+      }
     }
     if (busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
     const row = input as DataRow

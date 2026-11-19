@@ -17,14 +17,13 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref, shallowRef} from 'vue'
-import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
+import {getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent} = Components
-type RToolbarProps = Components.RToolbarProps
 const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-version-dialog'})
@@ -64,16 +63,16 @@ onMounted(() => void guarded(async () => {
 }))
 
 const specs: readonly FeatureFieldSpec[] = [{field: 'Version', label: '版本名称', required: true}]
-const actions = computed<RToolbarProps>(() => {
-  const disabled = busy.value || !!editor.value
-  const button = (label: string, run: (row: DataRow) => void): SparkNode => ({type: 'r-button', props: {label, disabled, onClick: run}})
-  return {children: [button('编辑', row => edit(row)), button('删除', row => void remove(row)), button('启动', row => void activate(row))]}
+const tableConfig = computed<SparkNode>(() => {
+  const actions = props.tableRule.props?.['actions']
+  if (!actions || typeof actions !== 'object' || !('children' in actions) || !Array.isArray(actions.children)) {
+    throw new Error('报表版本列表缺少操作规则')
+  }
+  const children = getSparkNodeChildren(actions.children).map(node => ({
+    ...node, props: {...node.props, disabled: busy.value || !!editor.value},
+  }))
+  return {...props.tableRule, props: {...props.tableRule.props, actions: {...actions, children}}}
 })
-
-const tableConfig = computed<SparkNode>(() => ({
-  ...props.tableRule,
-  props: {...props.tableRule.props, actions: actions.value},
-}))
 
 function idOf(target: DataView, row: DataRow): string | number {
   const id = target.getPkKey(row)
@@ -164,6 +163,14 @@ const activate = (row: DataRow) => guarded(async () => {
   }
   message.value = label ? `已启动版本 ${label}` : '已启动版本'
 })
+function invoke(command: string, row: DataRow): void | Promise<void> {
+  if (busy.value || editor.value) return
+  if (command === 'edit') return edit(row)
+  if (command === 'remove') return remove(row)
+  if (command === 'activate') return activate(row)
+}
+defineExpose({invoke})
+
 function close(): void {
   if (!busy.value) emit('close')
 }

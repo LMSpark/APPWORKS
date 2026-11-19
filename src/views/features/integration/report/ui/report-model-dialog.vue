@@ -8,7 +8,7 @@
     @update:model-value="close">
     <DisplayAlert v-if="message" alert-type="error" :closable="false" :title="message" />
     <DisplayAlert v-if="selectedName" alert-type="success" :closable="false" :title="`已选择：${selectedName}`" />
-    <SparkComponentRenderer v-if="ready" :config="tableConfig" />
+    <SparkComponentRenderer v-if="ready" :config="tableRule" />
     <template #footer>
       <RendererButton label="取消" :disabled="busy" @click="close" />
       <RendererButton label="确定" button-type="primary" :disabled="busy || !selectedId" @click="submit" />
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, textOf} from './report-format'
@@ -62,10 +62,6 @@ onMounted(async () => {
   } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
 })
 
-const tableConfig = computed<SparkNode>(() => ({
-  ...props.tableRule,
-  props: {...props.tableRule.props, onRowClick: choose},
-}))
 function choose(row: DataRow): void {
   if (busy.value) return
   assertSelection = undefined; selectedId.value = ''; selectedName.value = ''; message.value = ''
@@ -106,6 +102,7 @@ async function submit(): Promise<void> {
     }
   } finally { busy.value = false }
 }
+defineExpose({choose})
 function close(): void {
   if (!busy.value) emit('close')
 }

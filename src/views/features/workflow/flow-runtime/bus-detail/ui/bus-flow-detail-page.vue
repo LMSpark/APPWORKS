@@ -31,6 +31,7 @@ import {DisplayEmpty, PAGE_RUNTIME, RendererButton, RendererSection, RendererTab
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
+  FLOW_WORKBENCH_SCENARIO_ID,
   buildFlowRunDetailRoute,
   buildFlowRunPageRoute,
   prepareFlowRunPage,
@@ -65,7 +66,7 @@ const {ready: runtimeReady} = useFeaturePageRuntime({
   modelName: 'View_FlowObjList',
   componentType: 'bus-flow-detail-page',
   title: '业务流程详情',
-  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID],
+  peerScenarioIds: [FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
   queryContext: () => ({rowid: routeQuery().wfid, WFOBJID: routeQuery().wfid}),
 })
 

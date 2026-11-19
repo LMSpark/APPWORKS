@@ -33,9 +33,11 @@ async function __init__() {
   hasAttempt = Object.values(attempt).some(value => value != null)
   validAttempt = [runId, attemptRef, requestKey].every(value => typeof value === 'string' && !!value && value.trim() === value) &&
     [targetDigest, configurationLockHash].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value))
-  if (validAttempt) await refreshOriginalDispatch()
-  else if (hasAttempt) dispatchError = '原试次参数不完整或格式不正确'
-  if (generation !== selectionGeneration || !isDirectoryCurrent()) return
+  if (hasAttempt && !validAttempt) dispatchError = '原试次参数不完整或格式不正确'
+  await Promise.all([refreshOriginalDispatch(), loadDirectory(directoryRef, generation, isDirectoryCurrent)])
+}
+
+async function loadDirectory(directoryRef, generation, isDirectoryCurrent) {
   if (typeof directoryRef !== 'string' || !directoryRef || directoryRef.trim() !== directoryRef) {
     if (!hasAttempt) directoryError = '请从业务目录打开本工作区'
     return

@@ -19,15 +19,19 @@ it('rechecks the same original dispatch without starting another attempt',async(
  const query={projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),
   configurationLockHash:'b'.repeat(64),directoryRef:'DIR'}
  const showAlert=vi.fn(async()=>{})
+ const originalResult=Promise.withResolvers<{state:string;assertCurrent:()=>void}>()
  const invokeHostCommand=vi.fn()
-  .mockResolvedValueOnce({state:'UNKNOWN',assertCurrent:()=>{}})
+  .mockReturnValueOnce(originalResult.promise)
   .mockResolvedValueOnce({dataViewKey:'GUIDES',assertCurrent:()=>{},readGuide:async()=>({guide:'原指南',assertCurrent:()=>{}})})
   .mockResolvedValueOnce({state:'DISPATCH_RECORDED',dispatchRef:'ORIGINAL',actualInputDigest:'DIGEST',assertCurrent:()=>{}})
  const {__init__,bindOriginalDispatch,refreshOriginalDispatch,bindOriginalVerification,bindRework,readGuide}=compileFunctions(script,
   {$route:{query},$page:{invokeHostCommand,showAlert,resolveView:()=>({getPkKey:()=> 'ROW'})}} as unknown as PageContext)
  if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch||!bindOriginalVerification||!bindRework||!readGuide)
   throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
- await __init__()
+ const initializing=__init__()
+ expect(invokeHostCommand).toHaveBeenNthCalledWith(2,'content.operation.discover',{directoryRef:'DIR'})
+ originalResult.resolve({state:'UNKNOWN',assertCurrent:()=>{}})
+ await initializing
  expect(bindOriginalDispatch()).toEqual({status:'原试次实发结果未知'})
  const refresh=refreshOriginalDispatch()
  expect(bindOriginalDispatch()).toEqual({status:'正在回查原试次'})

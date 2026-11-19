@@ -14,5 +14,13 @@
     "children": [
       {"type": "r-button", "props": {"label": "核对候选与当前版本", "onClick": "openConfigurationCandidate"}}
     ]
+  },
+  {
+    "id": "configuration-disable-decision",
+    "type": "r-section",
+    "props": {"title": "配置停用核验", "onBeforeRender": "bindConfigurationDisable"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对停用决定与当前版本", "onClick": "openConfigurationDisable"}}
+    ]
   }
 ]

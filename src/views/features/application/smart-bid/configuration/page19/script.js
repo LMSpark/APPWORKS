@@ -65,3 +65,36 @@ async function openConfigurationCandidate() {
     $page.showMessage('配置候选或审阅证据无法核验', 'warning')
   }
 }
+
+function configurationDisableSelection() {
+  const {configurationKind: kind, configurationKey: key, configurationVersionId: versionId,
+    disableRequestKey: requestKey, disableDecisionRef: decisionRef} = $route.query
+  return {kind, key, versionId, requestKey, decisionRef}
+}
+
+function bindConfigurationDisable() {
+  return {visible: Object.values(configurationDisableSelection())
+    .every(value => typeof value === 'string' && !!value && value.trim() === value)}
+}
+
+async function openConfigurationDisable() {
+  if (!bindConfigurationDisable().visible) return
+  const selection = configurationDisableSelection()
+  const signature = JSON.stringify(selection)
+  const isCurrent = () => JSON.stringify(configurationDisableSelection()) === signature
+  try {
+    const result = await $page.invokeHostCommand('configuration.release.prepareDisable', selection)
+    if (!isCurrent()) return
+    result.assertCurrent()
+    const {record, requestDigest} = result
+    const range = record.stopScope === 'NEW_SELECTION' ? '阻止新选用' : '暂停尚未执行的事项'
+    await $page.showAlert([
+      `停用版本 ${record.version.versionId} · 预期指针 ${record.expectedPointerVersion}`,
+      `原停用决定 ${record.decisionRef} · 生效时间 ${record.effectiveAt}`,
+      range,
+      `待提交 · 请求摘要 ${requestDigest}`,
+    ].join('\n'), '配置停用核验')
+  } catch {
+    if (isCurrent()) $page.showMessage('原停用决定或当前版本无法核验', 'warning')
+  }
+}

@@ -79,17 +79,28 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const oldVersion={versionId:'V0',digest:'b'.repeat(64)}
   const pointer={...scope,pointerVersion:'P1',version:oldVersion,assertCurrent:()=>{if(!pointerCurrent)throw Error('POINTER_STALE')}}
   const readCandidate=vi.fn(async()=>({decision:enable,pointer}))
-  const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,readDisableImpact,readCandidate)
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
-  const {openConfigurationRelease,openConfigurationCandidate}=compileFunctions(script,{$route:{query:{
+  const disableDecision={...source,action:'DISABLE' as const,original:version,effectiveAt:'2026-11-18T10:00:00+08:00',
+   stopScope:'NEW_SELECTION' as const}
+  const readDisableDecision=vi.fn(async()=>({decision:disableDecision,pointer:{...pointer,version}}))
+  const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,
+   readDisableImpact,readCandidate,readDisableDecision)
+  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+  const {openConfigurationRelease,openConfigurationCandidate,openConfigurationDisable}=compileFunctions(script,{$route:{query:{
    configurationKind:scope.kind,configurationKey:scope.key,candidateRequestKey:'Q',releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
    configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
+   disableRequestKey:request.requestKey,disableDecisionRef:source.decisionRef,
   }},$page:{invokeHostCommand:async(name:string,input:unknown)=>{
    const result=await page.invoke(name,input,signal)
    if(expireImpactAfterRead)impactCurrent=false
    return result
-  },showAlert}} as unknown as PageContext)
-  if(!openConfigurationRelease||!openConfigurationCandidate)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
+  },showAlert,showMessage}} as unknown as PageContext)
+  if(!openConfigurationRelease||!openConfigurationCandidate||!openConfigurationDisable)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
+  await openConfigurationDisable()
+  expect(readDisableDecision).toHaveBeenCalledWith({...scope,versionId:version.versionId,decisionRef:source.decisionRef},signal)
+  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(disabled.requestDigest),'配置停用核验')
+  readDisableDecision.mockResolvedValueOnce({decision:disableDecision,pointer:{...pointer,version:oldVersion}})
+  await openConfigurationDisable()
+  expect(showMessage).toHaveBeenLastCalledWith('原停用决定或当前版本无法核验','warning')
   expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
   await openConfigurationRelease()
   expect(showAlert).toHaveBeenLastCalledWith([

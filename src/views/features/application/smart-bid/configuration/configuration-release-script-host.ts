@@ -16,14 +16,19 @@ type ImpactReader=(original:Readonly<Pick<Impact[0],'kind'|'key'|'scopeId'|'vers
  Promise<Readonly<{stop:Impact[0];uses:Impact[1]}>>
 
 type Prepare=Parameters<typeof prepareConfigurationRelease>
+type Pointer=Prepare[0]&Readonly<{pointerVersion:string|null;version:Readonly<{versionId:string;digest:string}>|null;assertCurrent:()=>void}>
 type CandidateReader=(selection:Prepare[0]&Readonly<{versionId:string}>,signal:AbortSignal)=>Promise<Readonly<{
  decision:Extract<Prepare[2],{action:'ENABLE'}>
- pointer:Prepare[0]&Readonly<{pointerVersion:string|null;version:Readonly<{versionId:string;digest:string}>|null;assertCurrent:()=>void}>
+ pointer:Pointer
+}>>
+type DisableReader=(selection:Prepare[0]&Readonly<{versionId:string;decisionRef:string}>,signal:AbortSignal)=>Promise<Readonly<{
+ decision:Extract<Prepare[2],{action:'DISABLE'}>
+ pointer:Pointer
 }>>
 
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
 export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
- runtime:Runtime,host:Omit<Read[0],'runtime'>,readDisableImpact?:ImpactReader,readCandidate?:CandidateReader){
+ runtime:Runtime,host:Omit<Read[0],'runtime'>,readDisableImpact?:ImpactReader,readCandidate?:CandidateReader,readDisableDecision?:DisableReader){
  return {runtime,assertCurrent:host.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   const error='CONFIGURATION_RELEASE_PAGE_REQUEST'
   if(!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)
@@ -34,6 +39,23 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
     throw Error('CONFIGURATION_RELEASE_PAGE_STALE')
   }
   const {scopeId}=host
+  if(name==='configuration.release.prepareDisable'&&readDisableDecision){
+   const {kind,key,requestKey,versionId,decisionRef}=input
+   if(Object.keys(input).length!==5||!identity(kind)||!identity(key)||!identity(requestKey)||
+    !identity(versionId)||!identity(decisionRef))throw Error(error)
+   const selection={kind,key,scopeId}
+   assertCurrent()
+   return readDisableDecision({...selection,versionId,decisionRef},signal).then(({decision,pointer})=>{
+    const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent()}
+    assertEvidence()
+    if(pointer.kind!==kind||pointer.key!==key||pointer.scopeId!==scopeId||!identity(pointer.pointerVersion)||
+     decision.decisionRef!==decisionRef||decision.original.versionId!==versionId||
+     pointer.version?.versionId!==versionId||pointer.version.digest!==decision.original.digest)
+     throw Error('CONFIGURATION_RELEASE_DISABLE_SCOPE')
+    return prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
+     {...decision,assertCurrent:assertEvidence})
+   })
+  }
   if(name==='configuration.release.prepareEnable'&&readCandidate){
    const {kind,key,requestKey,versionId}=input
    if(Object.keys(input).length!==4||!identity(kind)||!identity(key)||!identity(requestKey)||!identity(versionId))throw Error(error)

@@ -88,6 +88,7 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
  bindScope:(runtime:PageRuntime,scope:Scope)=>Readonly<{
   scopeId:string;assertCurrent:()=>void;readDisableImpact?:NonNullable<ConfigurationHost[2]>
   readCandidate?:NonNullable<ConfigurationHost[3]>
+  readDisableDecision?:NonNullable<ConfigurationHost[4]>
  }>,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -96,7 +97,7 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
   assertCurrent()
   if(!identity(binding.scopeId))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
   return createConfigurationReleaseScriptHost(runtime,{scenarioId:scope.scenarioId,scopeId:binding.scopeId,assertCurrent},
-   binding.readDisableImpact,binding.readCandidate)
+   binding.readDisableImpact,binding.readCandidate,binding.readDisableDecision)
  })
  if(prepared&&Object.hasOwn(route.query,'scopeId'))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
  return prepared

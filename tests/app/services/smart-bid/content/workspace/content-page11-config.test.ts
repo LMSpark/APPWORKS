@@ -8,6 +8,24 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
+it('does not show planning obligations after moving to another draft',async()=>{
+ const query={projectId:'P',draftId:'D'}
+ const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
+ const readVolumePlanningObligations=vi.fn(async()=>{
+  query.draftId='OTHER'
+  return {assertCurrent,baselineId:'B',obligations:[]}
+ })
+ const {__init__,openVolumePlanning}=compileFunctions(script,{$route:{query},$page:{showAlert,showMessage,
+  invokeHostCommand:async()=>({assertCurrent:()=>{},readVolumePlanningObligations})}} as unknown as PageContext)
+ if(!__init__||!openVolumePlanning)throw Error('TEST_VOLUME_PLANNING_REQUIRED')
+ await __init__()
+ await openVolumePlanning()
+ expect(readVolumePlanningObligations).toHaveBeenCalledOnce()
+ expect(assertCurrent).not.toHaveBeenCalled()
+ expect(showAlert).not.toHaveBeenCalled()
+ expect(showMessage).not.toHaveBeenCalled()
+})
+
 function fixture(user='U',primaryKey='id'){
  const row={[primaryKey]:'D',projectId:'P',userId:user,draft:{nodes:[],responseChanges:[]}}
  const proof=vi.fn(),resultProof=vi.fn(),view={dataTable:{modelBinding:{modelName:'WorkingDraft'}},queryContext:{projectId:'P',currentUserId:'U'},

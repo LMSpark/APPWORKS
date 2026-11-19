@@ -303,8 +303,12 @@ function bindVolumePlanning() {
 
 async function openVolumePlanning() {
   if (bindVolumePlanning().disabled) return
+  const session = editorSession
+  const {projectId, draftId} = $route.query
+  const isCurrent = () => editorSession === session && $route.query.projectId === projectId && $route.query.draftId === draftId
   try {
-    const result = await editorSession.readVolumePlanningObligations()
+    const result = await session.readVolumePlanningObligations()
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = ['项目激活基线 ' + result.baselineId]
     for (const item of result.obligations) {
@@ -314,7 +318,7 @@ async function openVolumePlanning() {
     if (!result.obligations.length) lines.push('当前基线的递交事项待登记')
     await $page.showAlert(lines.join('\n'), '分册策划依据')
   } catch {
-    $page.showMessage('分册策划依据无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('分册策划依据无法核验', 'warning')
   }
 }
 

@@ -160,7 +160,7 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
  auth.appId=applicationId
  const requestDigest='a'.repeat(64),contentDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue({nodes:[],responseChanges:[]}))
  const receipt={id:'RECEIPT',projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest,contentDigest,
-  expectedDraftVersion:'V1',state:'SAVED',draftVersion:'V2',receiptRef:'RC'}
+  expectedDraftVersion:'V1',state:savePending?'UNKNOWN':'SAVED',draftVersion:'V2',receiptRef:'RC'}
  const {ds,queries,save}=fixture(true,false,'id',scenarioId,1,undefined,receipt)
  const entry={nodeId:'fixture-navigation',pageId:'fixture-tool',receiptDataViewKey:`${scenarioId}@SaveReceipt@originalSave`}
  const tool={pageId:entry.pageId,projectId:applicationId}
@@ -200,11 +200,19 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
   const saveState=vi.spyOn(drafts,'hasUnconfirmedSave','get').mockImplementation(()=>savePending&&drafts.rows.length>0)
   wrapper=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
   try{
+   if(savePending){
+    await vi.waitFor(()=>expect(wrapper?.text()).toContain('原保存结果未知'),{timeout:4000})
+    receipt.state='SAVED'
+    const refresh=wrapper.findAll('button').find(item=>item.text()==='重查原保存结果')
+    if(!refresh)throw Error('TEST_REFRESH_RECEIPT_BUTTON_REQUIRED')
+    await refresh.trigger('click')
+   }
    await vi.waitFor(()=>expect(wrapper?.text()).toContain('原请求已保存草稿版 V2，回执 RC'),{timeout:4000})
    if(savePending)expect(wrapper.text()).not.toContain('当前草稿与原保存内容一致')
    else expect(wrapper.text()).toContain('当前草稿与原保存内容一致')
   }finally{saveState.mockRestore()}
   if(savePending){
+   expect(queries).toHaveBeenCalledTimes(4)
    expect(queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest})
    expect(save).not.toHaveBeenCalled()
    return

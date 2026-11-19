@@ -33,12 +33,13 @@ export async function freezeOperationRouteContext(scope:Scope,guide:Readonly<{
  const {guideRef,guideDigest}=action
  const error='OPERATION_ROUTE_CONTEXT_SCOPE'
  if(![runId,attemptRef,requestKey,projectId,guideRef,guideVersionRef].every(identity)||
-  ![targetDigest,configurationLockHash,guideDigest].every(value=>/^[a-f0-9]{64}$/u.test(value))||
+  ![targetDigest,configurationLockHash,guideDigest].every(value=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value))||
   !Number.isFinite(Date.parse(createdAt))||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(createdAt))throw Error(error)
  const slots=new Set(guide.slots.map(slot=>slot.slotId))
  const bySlot=new Map(evidence.map(item=>[item.slotId,item]))
  if(slots.size!==guide.slots.length||bySlot.size!==evidence.length||
-  guide.slots.some(slot=>!identity(slot.slotId))||evidence.some(item=>!slots.has(item.slotId)))throw Error(error)
+  guide.slots.some(slot=>!identity(slot.slotId)||typeof slot.required!=='boolean')||
+  evidence.some(item=>!slots.has(item.slotId)||!['ALLOWED','MISSING','TRIMMED','DENIED'].includes(item.state)))throw Error(error)
  const entries:Array<readonly [string,unknown]>=[]
  const requirementReads:Array<Readonly<RequirementRead&{fieldPath:string}>>=[]
  const items=guide.slots.map(({slotId,required})=>{

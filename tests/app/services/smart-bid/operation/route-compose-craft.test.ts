@@ -32,6 +32,9 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   slots:Object.keys(craft.inputExample).map(slotId=>({slotId,required:true}))}
  const provenance=Object.entries(craft.inputExample).map(([slotId,value])=>({slotId,value,state:'ALLOWED' as const,
   sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',assertCurrent:source.assertCurrent}))
+ await expect(freezeOperationRouteContext(scope,{...manifestGuide,slots:manifestGuide.slots.map(slot=>({
+  ...slot,required:undefined as unknown as boolean,
+ }))},provenance)).rejects.toThrow('OPERATION_ROUTE_CONTEXT_SCOPE')
  const manifest=await freezeOperationRouteContext(scope,manifestGuide,provenance)
  expect(manifest).toMatchObject({usable:true,inputDigest:actualInputDigest})
  const selected=provenance.map((item,index)=>index===0?{...item,requirementRead:{lineageId:'CLAUSE',version:'V1'}}:item)

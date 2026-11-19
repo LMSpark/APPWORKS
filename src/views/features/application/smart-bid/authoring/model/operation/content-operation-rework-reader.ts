@@ -14,6 +14,7 @@ const keys=['projectId','runId','attemptRef','requestKey'] as const
 const evidence=[...keys,'targetDigest','configurationLockHash','inputRef','returnRef','calls','findings','priorResults']
 const isReworkView=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='GenerationRun'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  keys.every(key=>hasContentScopeCondition(view,key,{Type:'GetInputParam',ParamName:key}))
 type Source=Parameters<typeof prepareOperationStepRework>[0]
 

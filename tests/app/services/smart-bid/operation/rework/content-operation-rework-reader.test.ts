@@ -42,6 +42,12 @@ it('prepares rework only from a visible, complete original attempt projection',a
   controller.abort()
   expect(()=>prepared?.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
   await expect(prepareFromPage()).rejects.toThrow('OPERATION_WORKSPACE_STALE')
+  const queryConfig=view.queryConfig
+  const verified=await prepare()
+  view.queryConfig={...queryConfig,cacheType:'page'}
+  expect(()=>verified.assertCurrent()).toThrow('OPERATION_REWORK_READ_STALE')
+  await expect(prepare()).rejects.toThrow('OPERATION_REWORK_VIEW_REQUIRED')
+  view.queryConfig=queryConfig
   const originalPrepared=await prepare()
   hidden=['findings']
   await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')

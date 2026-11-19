@@ -36,9 +36,11 @@ function bindSignedRegistration() {
 
 async function openSignedRegistration() {
   if (!bindSignedRegistration().visible) return
+  const selectionRef = $route.query.signedRegistrationRef
   try {
     const result = await $page.invokeHostCommand('content.review.prepareSignedRegistration',
-      {selectionRef: $route.query.signedRegistrationRef})
+      {selectionRef})
+    if ($route.query.signedRegistrationRef !== selectionRef) return
     result.assertCurrent()
     if (result.state === 'SIGNED_REGISTERED') {
       await $page.showAlert(`原登记 ${result.producedFileId} · 文件版本 ${result.resourceVersionId}`, '签后件登记核验')
@@ -50,7 +52,7 @@ async function openSignedRegistration() {
       : labels[result.state]
     await $page.showAlert(details, '签后件登记前核验')
   } catch {
-    $page.showMessage('签后件与原签署结果无法核验', 'warning')
+    if ($route.query.signedRegistrationRef === selectionRef) $page.showMessage('签后件与原签署结果无法核验', 'warning')
   }
 }
 
@@ -60,15 +62,18 @@ function bindExportRegistration() {
 
 async function openExportRegistration() {
   if (!bindExportRegistration().visible) return
+  const selectionRef = $route.query.exportRegistrationRef
   try {
     const result = await $page.invokeHostCommand('content.review.readExportRegistration',
-      {selectionRef: $route.query.exportRegistrationRef})
+      {selectionRef})
+    if ($route.query.exportRegistrationRef !== selectionRef) return
     result.assertCurrent()
     const details = result.state === 'REGISTERED'
       ? `原登记 ${result.producedFileId} · 文件版本 ${result.resourceVersionId}`
       : '原登记结果待确认'
     await $page.showAlert(details, '导出件登记')
   } catch (error) {
+    if ($route.query.exportRegistrationRef !== selectionRef) return
     const message = error?.message === 'BID_EXPORT_REGISTRATION_HASH_CONFLICT'
       ? '同一输出的文件摘要与原登记不同，请交制作人核查'
       : '原登记结果无法核验'
@@ -82,9 +87,11 @@ function bindProductionRecovery() {
 
 async function openProductionRecovery() {
   if (!bindProductionRecovery().visible) return
+  const selectionRef = $route.query.productionSelectionRef
   try {
     const result = await $page.invokeHostCommand('content.review.recoverProduction',
-      {selectionRef: $route.query.productionSelectionRef})
+      {selectionRef})
+    if ($route.query.productionSelectionRef !== selectionRef) return
     result.assertCurrent()
     const labels = {UNKNOWN: '原制作请求的结果待确认', IN_PROGRESS: '原制作请求正在处理',
       NOT_EFFECTIVE: '原制作请求未生效'}
@@ -95,7 +102,7 @@ async function openProductionRecovery() {
     const missing = result.state === 'PARTIAL' ? `\n部分完成，待出件范围 ${result.missingScopeRefs.join('、')}` : ''
     await $page.showAlert(details + missing, '原制作结果')
   } catch {
-    $page.showMessage('原制作结果无法核验', 'warning')
+    if ($route.query.productionSelectionRef === selectionRef) $page.showMessage('原制作结果无法核验', 'warning')
   }
 }
 

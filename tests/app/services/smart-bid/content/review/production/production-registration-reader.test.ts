@@ -9,6 +9,27 @@ import type {PageContext} from '../../../../../../../packages/spark-component/sr
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
+it.each([
+ ['openSignedRegistration','signedRegistrationRef'],
+ ['openExportRegistration','exportRegistrationRef'],
+ ['openProductionRecovery','productionSelectionRef'],
+])('discards obsolete page results in %s',async (handler,queryKey)=>{
+ const query:Record<string,string>={[queryKey]:'ORIGINAL'}
+ const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
+ const invokeHostCommand=vi.fn(async()=>{
+  query[queryKey]='OTHER'
+  return {state:'UNKNOWN',assertCurrent}
+ })
+ const functions=compileFunctions(script,{$route:{query},$page:{invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
+ const open=functions[handler]
+ if(!open)throw Error('TEST_RECOVERY_HANDLER_REQUIRED')
+ await open()
+ expect(invokeHostCommand).toHaveBeenCalledWith(expect.any(String),{selectionRef:'ORIGINAL'})
+ expect(assertCurrent).not.toHaveBeenCalled()
+ expect(showAlert).not.toHaveBeenCalled()
+ expect(showMessage).not.toHaveBeenCalled()
+})
+
 it('recovers a signed output only for the same signing request',async()=>{
  const signing={requestKey:'Q',requestDigest:'a'.repeat(64),objectVersion:'V1',signerRef:'SIGNER',positionRef:'FIELD'}
  const record={projectId:'P',documentId:'D',revisionId:'R',signatureOperationRef:'OP',signatureRecordId:'SIGNATURE',

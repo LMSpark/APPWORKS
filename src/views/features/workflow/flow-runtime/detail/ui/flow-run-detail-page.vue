@@ -21,13 +21,9 @@
           <div class="flow-run-detail-page__legend">
             <DisplayText text="已完成（绿徽标）· 待办（橙徽标）· 只读预览" />
           </div>
-          <RendererGraph v-if="graphReady && prepared" class="flow-run-detail-page__graph"
-            :data-view-key="prepared.nodeViewKey" :edge-data-view-key="prepared.edgeViewKey"
-            label-field="TITLE" description-field="MEMO" node-caption-field="TYPEID"
-            edge-source-field="UpNodeID" edge-target-field="NextNodeID"
-            :node-positions="prepared.graphLayout.nodePositions" :edge-paths="prepared.graphLayout.edgePaths"
-            :node-badge-rules="nodeBadgeRules" background-pattern="dots" node-appearance="card"
-            :viewport-controls="true" :disabled="true" @select="onGraphSelect" />
+          <template v-if="graphReady && prepared">
+            <SparkComponentRenderer v-for="node in graphNodes(children)" key="runGraph" :config="node" />
+          </template>
           <DisplayAlert v-else-if="ready && !graphLoading" alert-type="info" :closable="false" :show-icon="true"
             title="运行图尚未加载。" />
         </RendererSection>
@@ -66,7 +62,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {nodeId} from '@spark-appworks/spark-data'
+import {nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
@@ -78,7 +74,6 @@ const {
   DisplayText,
   FieldCheckbox,
   RendererDialog,
-  RendererGraph,
   RendererSection,
   RendererTabPane,
   SparkComponentRenderer,
@@ -164,6 +159,23 @@ const host = computed(() => {
   }}
 })
 
+function graphNodes(children: readonly SparkNode[]): SparkNode[] {
+  const graph = prepared.value
+  if (!graph) return []
+  return children.filter(node => nodeId(node) === 'runGraph').map(node => ({
+    ...node,
+    props: {
+      ...node.props,
+      dataViewKey: graph.nodeViewKey,
+      edgeDataViewKey: graph.edgeViewKey,
+      nodePositions: graph.graphLayout.nodePositions,
+      edgePaths: graph.graphLayout.edgePaths,
+      nodeBadgeRules,
+      onSelect: onGraphSelect,
+    },
+  }))
+}
+
 async function retryLoad(): Promise<void> {
   await loadCurrentRoute()
   await reloadGraph()
@@ -172,7 +184,6 @@ async function retryLoad(): Promise<void> {
 
 <style scoped>
 .flow-run-detail-page {padding: 8px}
-.flow-run-detail-page__graph {min-height: 360px; height: 48vh}
 .flow-run-detail-page__legend {margin-bottom: 4px}
 .flow-run-detail-page__voided {margin-bottom: 8px}
 </style>

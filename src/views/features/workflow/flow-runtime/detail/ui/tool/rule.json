@@ -56,5 +56,21 @@
       "buttonType": "primary",
       "onClick": "openRun"
     }
+  },
+  {
+    "id": "runGraph",
+    "type": "r-graph",
+    "props": {
+      "class": "flow-run-detail-page__graph",
+      "labelField": "TITLE",
+      "descriptionField": "MEMO",
+      "nodeCaptionField": "TYPEID",
+      "edgeSourceField": "UpNodeID",
+      "edgeTargetField": "NextNodeID",
+      "backgroundPattern": "dots",
+      "nodeAppearance": "card",
+      "viewportControls": true,
+      "disabled": true
+    }
   }
 ]

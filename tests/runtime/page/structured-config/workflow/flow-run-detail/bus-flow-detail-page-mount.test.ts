@@ -3,7 +3,7 @@ import {flushPromises, mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
@@ -62,9 +62,17 @@ it.each([
     await flushPromises()
     expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
     if (name === 'runtime detail') {
+      expect(wrapper.text()).toContain('运行轨迹')
       const graph = wrapper.getComponent({name: 'RendererGraph'})
+      expect(graph.props('disabled')).toBe(true)
+      expect(graph.props('edgeSourceField')).toBe('UpNodeID')
+      expect(graph.props('edgeTargetField')).toBe('NextNodeID')
       expect(graph.props('dataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_FLOW_NODE@default`)
       expect(graph.props('edgeDataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_NODE_REALATION@default`)
+      graph.vm.$emit('select', {kind: 'node', id: 'N1', open: true, control: {cancel: false}})
+      await flushPromises()
+      const drilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.endsWith(' - 步骤信息'))
+      expect(drilldown?.props('modelValue')).toBe(true)
       expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@View_FlowObjList@default`)
       const destination = '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'
       router.addRoute({path: destination, component: {render: () => null}})

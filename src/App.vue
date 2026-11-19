@@ -120,6 +120,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
+import {protectPageChanges} from '@/services/project/navigation/page-unload-protection'
 import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type ComponentPublicInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
@@ -483,7 +484,14 @@ navigationActionRegistry.register('platform', async () => {
   }
 })
 navigationActionRegistry.register('logout', () => {
-  getDynamicRouter()?.resetSystemPageInstances()
+  const dynamic = getDynamicRouter()
+  try {
+    dynamic?.assertPageRuntimesClean()
+  } catch (error: unknown) {
+    pageService.showMessage(error instanceof Error ? error.message : String(error), 'warning')
+    return
+  }
+  dynamic?.resetSystemPageInstances()
   resetAppProjectWorkspace()
   void lowcodeApi.platform.logout().finally(() => {
     window.location.replace(router.resolve('/').href)
@@ -640,14 +648,6 @@ function syncPageConfigSubscription(): void {
   }
   if (_stopPageConfigChange === null) {
     _stopPageConfigChange = onPageConfigChange(handlePageConfigChange)
-  }
-}
-
-function protectPageChanges(event: BeforeUnloadEvent): void {
-  try { getDynamicRouter()?.assertPageRuntimesClean() }
-  catch {
-    event.preventDefault()
-    event.returnValue = ''
   }
 }
 

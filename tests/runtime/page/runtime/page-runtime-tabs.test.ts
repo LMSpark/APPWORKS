@@ -7,6 +7,7 @@ import { PageRuntimePool, type PageRuntimePoolOptions } from '../../../../packag
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { useTabPages } from '../../../../packages/spark-app/src/navigation/useTabPages'
 import { RendererButton, Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
+import { protectPageChanges } from '@/services/project/navigation/page-unload-protection'
 import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
@@ -162,6 +163,21 @@ describe('page call tabs and retained renderer instances', () => {
     await expect(controls.closeTab(first.instanceId)).rejects.toThrow('未保存')
     content.discardDraft()
     expect(first.isDirty).toBe(false)
+    // A tool can own draft state outside its DataSet, while the router owns its lifetime.
+    let externalDirty = true
+    first.setExternalDirtySource('working-draft', {get isDirty() { return externalDirty }, subscribe: () => () => {}})
+    window.addEventListener('beforeunload', protectPageChanges)
+    try {
+      const refresh = () => window.dispatchEvent(new Event('beforeunload', {cancelable: true}))
+      expect(refresh()).toBe(false)
+      await expect(controls.closeTab(first.instanceId)).rejects.toThrow('未保存')
+      expect(first.destroyed).toBe(false)
+      externalDirty = false
+      expect(refresh()).toBe(true)
+    } finally {
+      window.removeEventListener('beforeunload', protectPageChanges)
+      first.setExternalDirtySource('working-draft', null)
+    }
     await controls.closeTab(first.instanceId)
     await flushPromises()
     expect(first.destroyed).toBe(true)

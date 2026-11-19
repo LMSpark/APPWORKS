@@ -389,5 +389,63 @@
         }
       }
     ]
+  },
+  {
+    "id": "appendActions",
+    "type": "r-toolbar",
+    "props": {
+      "wrap": true,
+      "gap": 8
+    },
+    "children": [
+      {
+        "id": "openAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "添加办理人",
+          "buttonType": "primary"
+        }
+      },
+      {
+        "id": "verifyAppendList",
+        "type": "r-button",
+        "props": {
+          "label": "核验原命令结果"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendInputActions",
+    "type": "r-toolbar",
+    "props": {
+      "wrap": true,
+      "gap": 8,
+      "justify": "end"
+    },
+    "children": [
+      {
+        "id": "verifyAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "核验原命令结果"
+        }
+      },
+      {
+        "id": "cancelAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "取消"
+        }
+      },
+      {
+        "id": "confirmAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "确认",
+          "buttonType": "primary"
+        }
+      }
+    ]
   }
 ]

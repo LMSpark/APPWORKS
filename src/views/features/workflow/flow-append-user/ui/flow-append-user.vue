@@ -20,8 +20,7 @@
         <span class="flow-append-user__node-label">节点</span>
         <span class="flow-append-user__node-value">{{ contextTitle }}</span>
       </div>
-      <RendererButton label="添加办理人" button-type="primary" :disabled="pageLoading || !listViewKey || commandLocked" @click="openAddDialog" />
-      <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="revoking" @click="verifyOriginalRevoke" />
+      <SparkComponentRenderer :config="appendActionsConfig" />
     </template>
   <p v-if="!embedded" class="flow-append-user__node-title">{{ contextTitle }}</p>
     <SparkComponentRenderer v-if="listViewKey && !pageLoading && !pageError" :config="listConfig" />
@@ -43,9 +42,7 @@
         <SparkComponentRenderer v-if="optionsViewKey && !addDialog.loading" :config="limitsConfig" />
       </RendererSection>
       <template #footer>
-        <RendererButton v-if="revokeUnconfirmed" label="核验原命令结果" :disabled="addDialog.submitting" @click="verifyOriginalRevoke" />
-        <RendererButton label="取消" :disabled="addDialog.loading || addDialog.submitting || commandLocked" @click="resetAddDialog" />
-        <RendererButton label="确认" button-type="primary" :disabled="addDialog.loading || addDialog.submitting || commandLocked" @click="submitAddDialog" />
+        <SparkComponentRenderer :config="appendInputActionsConfig" />
       </template>
     </RendererDialog>
   </RendererSection>
@@ -53,7 +50,7 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {RendererButton, RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
+import {RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
 import {getSparkNodeChildren, isSparkNode, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import {compileRule} from '@spark-appworks/spark-project-model'
 import rule from '../../flow-runtime/run-page/ui/tool/rule.json?raw'
@@ -100,11 +97,13 @@ const rules = compileRule(rule)
 const listRule = rules.find(node => nodeId(node) === 'appendParticipants')
 const inputRule = rules.find(node => nodeId(node) === 'appendInput')
 const limitsRule = rules.find(node => nodeId(node) === 'appendLimits')
+const appendActionsRule = rules.find(node => nodeId(node) === 'appendActions')
+const appendInputActionsRule = rules.find(node => nodeId(node) === 'appendInputActions')
 const revokeRule = listRule?.props?.['actions']
 const revokeButton = revokeRule && typeof revokeRule === 'object' && 'children' in revokeRule && Array.isArray(revokeRule.children)
   ? revokeRule.children.find(isSparkNode)
   : undefined
-if (!listRule || !inputRule || !limitsRule || !revokeButton) throw new Error('流程办理工具缺少追加办理人组件')
+if (!listRule || !inputRule || !limitsRule || !revokeButton || !appendActionsRule || !appendInputActionsRule) throw new Error('流程办理工具缺少追加办理人组件')
 
 const listConfig = computed<SparkNode>(() => ({
   ...listRule,
@@ -129,6 +128,24 @@ const inputConfig = computed<SparkNode>(() => ({
   }})),
 }))
 const limitsConfig = computed<SparkNode>(() => ({...limitsRule, props: {...limitsRule.props, dataViewKey: optionsViewKey.value}}))
+const inputActionsLocked = () => addDialog.loading || addDialog.submitting || commandLocked.value
+const actions: Record<string, {run: () => void | Promise<void>; disabled: () => boolean; visible?: () => boolean}> = {
+  openAppendInput: {run: openAddDialog, disabled: () => pageLoading.value || !listViewKey.value || commandLocked.value},
+  verifyAppendList: {run: verifyOriginalRevoke, disabled: () => revoking.value, visible: () => revokeUnconfirmed.value},
+  verifyAppendInput: {run: verifyOriginalRevoke, disabled: () => addDialog.submitting, visible: () => revokeUnconfirmed.value},
+  cancelAppendInput: {run: resetAddDialog, disabled: inputActionsLocked},
+  confirmAppendInput: {run: submitAddDialog, disabled: inputActionsLocked},
+}
+function bindActions(toolbar: SparkNode): SparkNode {
+  const children = getSparkNodeChildren(toolbar.children).flatMap(button => {
+    const action = actions[nodeId(button) ?? '']
+    if (!action || action.visible?.() === false) return []
+    return [{...button, props: {...button.props, onClick: action.run, disabled: action.disabled()}}]
+  })
+  return {...toolbar, children}
+}
+const appendActionsConfig = computed(() => bindActions(appendActionsRule))
+const appendInputActionsConfig = computed(() => bindActions(appendInputActionsRule))
 </script>
 
 <style scoped>

@@ -8,6 +8,17 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
+it('discards a connection returned after switching the target draft',async()=>{
+ const query={projectId:'P',draftId:'D'}
+ const {__init__,bindEditorStatus,bindCancel}=compileFunctions(script,{$route:{query},$page:{
+  invokeHostCommand:async()=>{query.draftId='OTHER';return {canEditDraft:true,canLeave:false}},
+ }} as unknown as PageContext)
+ if(!__init__||!bindEditorStatus||!bindCancel)throw Error('TEST_EDITOR_CONNECTION_REQUIRED')
+ await __init__()
+ expect(bindEditorStatus()).toEqual({})
+ expect(bindCancel()).toEqual({visible:false,disabled:true})
+})
+
 it('does not show planning obligations after moving to another draft',async()=>{
  const query={projectId:'P',draftId:'D'}
  const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()

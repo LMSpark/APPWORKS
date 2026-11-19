@@ -332,6 +332,9 @@ async function __init__() {
   saveReceipt = undefined
   saveReceiptError = false
   const query = $route.query
+  const {projectId, draftId} = query
+  const isEditorCurrent = () => generation === initialization &&
+    $route.query.projectId === projectId && $route.query.draftId === draftId
   const receiptKeys = ['saveRequestKey', 'saveRequestDigest', 'saveContentDigest', 'saveExpectedDraftVersion']
   const keys = ['projectId', 'draftId', ...receiptKeys]
   const values = keys.map(key => query[key])
@@ -341,11 +344,11 @@ async function __init__() {
   saveReceiptLoading = saveReceiptRequested
   try {
     const session = await $page.invokeHostCommand('content.authoring.connect')
-    if (generation !== initialization) return
+    if (!isEditorCurrent()) return
     editorSession = session
   }
   catch (cause) {
-    if (generation !== initialization) return
+    if (!isEditorCurrent()) return
     hostUnavailable = cause?.message === 'PAGE_HOST_COMMAND_UNAVAILABLE'
     editorFault = !hostUnavailable
   }

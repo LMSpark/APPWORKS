@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {getSparkNodeChildren} from '@spark-appworks/spark-data'
-import {FieldTextarea, RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText, FieldTextarea, RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
@@ -323,6 +323,28 @@ describe('报表多记录修改的失败收敛', () => {
       expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
     }
     expect(f.http.saves).toHaveLength(0)
+  })
+
+  it('版本规则表单校验名称并只保存原版本行', async () => {
+    const f = await open()
+    await seed(f)
+    await rowAction(f, '历史版本', infoRow(f))
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)!
+    await vi.waitFor(() => expect(versions.rows).toHaveLength(2))
+    const original = versions.rows.find(row => row['rowid'] === 'V2')
+    if (!original) throw new Error('缺少原版本')
+    await rowAction(f, '编辑', original, 1)
+    const editor = f.wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '编辑版本')
+    if (!editor) throw new Error('缺少版本编辑表单')
+    const input = editor.getComponent(FieldText).get('input')
+    await input.setValue('')
+    await f.click('确定')
+    expect(document.body.textContent).toContain('请填写版本名称')
+    expect(f.http.saves).toHaveLength(0)
+    await input.setValue('修订版')
+    await f.click('确定')
+    expect(f.http.saves).toHaveLength(1)
+    expect(f.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid: 'V2', Version: '修订版'})])
   })
 
   it('历史版本刷新后拒绝编辑或删除同主键旧行', async () => {

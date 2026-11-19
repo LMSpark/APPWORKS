@@ -12,7 +12,8 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
         <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
           <template v-if="nodeId(node) === 'reportVersions'">
             <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" ref="versionDialogs" :key="dialog.epoch" :info-key="viewKey"
-              :info-id="dialog.infoId" :table-rule="node" :toolbar-rule="children.find(child => nodeId(child) === 'reportVersionToolbar')" @close="closeDialog" />
+              :info-id="dialog.infoId" :table-rule="node" :toolbar-rule="children.find(child => nodeId(child) === 'reportVersionToolbar')"
+              :form-rule="children.find(child => nodeId(child) === 'reportVersionForm')" @close="closeDialog" />
           </template>
           <template v-else-if="nodeId(node) === 'reportModelPicker'">
             <ReportModelDialog v-if="ready && dialog?.kind === 'model'" ref="modelDialogs" :key="dialog.epoch" :info-key="viewKey"
@@ -20,13 +21,9 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
           </template>
           <template v-else-if="nodeId(node) === 'reportEditForm'">
             <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
-              title="编辑报表" :specs="editSpecs(node)" :validate="validateEdit" @close="closeDialog">
-              <template #fields="{locked}">
-                <SparkComponentRenderer :config="editForm(node, dialog.infoId, locked)" />
-              </template>
-            </FeatureRecordDialog>
+              title="编辑报表" :form-rule="node" :validate="validateEdit" @close="closeDialog" />
           </template>
-          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter'" :config="node" />
+          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm'" :config="node" />
         </template>
         <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
           :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
@@ -40,11 +37,10 @@ import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
-import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import ReportCreateDialog from './report-create-dialog.vue'
 import ReportVersionDialog from './report-version-dialog.vue'
 import ReportModelDialog from './report-model-dialog.vue'
@@ -167,19 +163,6 @@ const host = computed(() => {
     return undefined
   }}
 })
-function editSpecs(form: SparkNode): FeatureFieldSpec[] {
-  return getSparkNodeChildren(form.children).map(({props}) => {
-    const field = props?.['field'], label = props?.['label']
-    if (typeof field !== 'string' || typeof label !== 'string') throw new Error('报表字段缺少正式身份或标签')
-    return {field, label, required: props?.['required'] === true}
-  })
-}
-function editForm(form: SparkNode, id: string | number, locked: boolean): SparkNode {
-  const children = getSparkNodeChildren(form.children).filter(node => node.props?.['visible'] !== false)
-    .map(node => ({...node, props: {...node.props, readonly: locked || node.props?.['readonly'] === true}}))
-  return {...form, props: {...form.props, contextRowId: id}, children}
-}
-
 function idOf(target: DataView, row: DataRow): string | number {
   const id = target.getPkKey(row)
   if (id === undefined) throw new Error('记录缺少原生身份')

@@ -11,7 +11,7 @@
     <SparkComponentRenderer v-if="ready" :config="toolbarConfig" />
     <SparkComponentRenderer v-if="ready" :config="tableConfig" />
     <FeatureRecordDialog v-if="editor" :key="editor.epoch" :data-view-key="versionKey" :record-id="editor.id" :created="editor.created"
-      :title="editor.created ? '新增版本' : '编辑版本'" :specs="specs" @close="closeEditor" />
+      :title="editor.created ? '新增版本' : '编辑版本'" :form-rule="formRule" @close="closeEditor" />
   </RendererDialog>
 </template>
 
@@ -20,13 +20,14 @@ import {computed, onMounted, ref, shallowRef} from 'vue'
 import {getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
-import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
-const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode; toolbarRule: SparkNode | undefined}>()
+const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode; toolbarRule: SparkNode | undefined; formRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-version-dialog'})
+const formRule = props.formRule
+if (!formRule) throw new Error('报表版本缺少编辑表单')
 const binding = props.tableRule.props?.['dataViewKey']
 const versionKey = typeof binding === 'string' ? binding : ''
 if (!versionKey) throw new Error('报表版本列表缺少正式视图绑定')
@@ -62,7 +63,6 @@ onMounted(() => void guarded(async () => {
   } finally { loading.value = false }
 }))
 
-const specs: readonly FeatureFieldSpec[] = [{field: 'Version', label: '版本名称', required: true}]
 const toolbarConfig = computed<SparkNode>(() => {
   const toolbar = props.toolbarRule
   if (!toolbar) throw new Error('报表版本缺少新增操作规则')

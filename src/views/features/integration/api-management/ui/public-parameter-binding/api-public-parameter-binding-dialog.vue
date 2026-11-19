@@ -10,7 +10,7 @@
     </RendererForm>
     <RendererButton label="编辑选中参数绑定" :disabled="!!chosen" @click="choose" />
     <DisplayAlert v-if="error" alert-type="error" :closable="false" :title="error" />
-    <BindingRecord v-if="chosen" :key="chosen.epoch" :parameters-key="parametersKey" :record-id="chosen.id" :mode="chosen.mode" :interface-key="interfaceKey" :interface-id="interfaceId" :output-key="outputKey" :output-id="outputId" @finish="finished" />
+    <BindingRecord v-if="chosen" :preview-rule="previewRule" :key="chosen.epoch" :parameters-key="parametersKey" :record-id="chosen.id" :mode="chosen.mode" :interface-key="interfaceKey" :interface-id="interfaceId" :output-key="outputKey" :output-id="outputId" @finish="finished" />
     <RendererButton v-else label="关闭参数选择" @click="close" />
   </RendererDialog>
 </template>
@@ -18,7 +18,8 @@
 import {ref} from 'vue'
 import {PAGE_RUNTIME,RendererDialog,RendererForm,RendererButton,FieldSelect,DisplayAlert,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import BindingRecord from './api-public-parameter-binding-record.vue'
-const props=defineProps<{parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
+import type {SparkNode} from '@spark-appworks/spark-data'
+const props=defineProps<{previewRule:SparkNode;parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{close:[result:DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'api-public-parameter-binding-dialog'})
 const runtime=sparkConsume(PAGE_RUNTIME),resolved=runtime?.resolveView(props.parametersKey)

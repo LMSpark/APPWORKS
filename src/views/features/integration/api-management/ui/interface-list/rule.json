@@ -145,5 +145,111 @@
       },
       {"id":"api-interface-empty","type":"r-empty","props":{"description":"请选择左侧接口，或先新建接口"}}
     ]
+  },
+  {
+    "id": "api-interface-binding-preview",
+    "type": "r-section",
+    "children": [
+      {
+        "id": "parameter-original",
+        "type": "r-form",
+        "props": {
+          "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
+          "autoColumns": false,
+          "showDataViewMeta": false,
+          "gridColumns": 1
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "field": "paramName",
+              "label": "公共参数",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "desc",
+              "label": "说明",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "interfaceName",
+              "label": "接口名称",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "outputfield",
+              "label": "输出字段",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "accessPath",
+              "label": "访问路径",
+              "readonly": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "parameter-interface",
+        "type": "r-form",
+        "props": {
+          "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
+          "autoColumns": false,
+          "showDataViewMeta": false,
+          "gridColumns": 1
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "field": "Name",
+              "label": "拟绑定接口",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "LinkUrl",
+              "label": "拟访问路径",
+              "readonly": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "parameter-output",
+        "type": "r-form",
+        "props": {
+          "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_TblField@default",
+          "autoColumns": false,
+          "showDataViewMeta": false,
+          "gridColumns": 1
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "field": "enname",
+              "label": "拟输出字段",
+              "readonly": true
+            }
+          }
+        ]
+      }
+    ]
   }
 ]

@@ -5,21 +5,8 @@
 -->
 <template>
   <section>
-    <RendererForm :data-view-key="parametersKey" :context-row-id="recordId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-      <FieldText field="paramName" label="公共参数" :readonly="true" />
-      <FieldText field="desc" label="说明" :readonly="true" />
-      <FieldText field="interfaceName" label="接口名称" :readonly="true" />
-      <FieldText field="outputfield" label="输出字段" :readonly="true" />
-      <FieldText field="accessPath" label="访问路径" :readonly="true" />
-    </RendererForm>
+    <SparkComponentRenderer v-for="form in previewForms" :key="nodeId(form) ?? form.type" :config="form" />
     <template v-if="mode === 'edit'">
-      <RendererForm :data-view-key="interfaceKey" :context-row-id="interfaceId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-        <FieldText field="Name" label="拟绑定接口" :readonly="true" />
-        <FieldText field="LinkUrl" label="拟访问路径" :readonly="true" />
-      </RendererForm>
-      <RendererForm :data-view-key="outputKey" :context-row-id="outputId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-        <FieldText field="enname" label="拟输出字段" :readonly="true" />
-      </RendererForm>
       <DisplayAlert alert-type="info" :closable="false" title="确认后只修改本条参数的接口、输出名称、接口名称和访问路径，保留参数名称及说明。" />
     </template>
     <DisplayAlert v-else alert-type="info" :closable="false" title="仅处理所选参数的原待提交修改，不重新生成绑定或提交其他记录。" />
@@ -31,10 +18,11 @@
   </section>
 </template>
 <script setup lang="ts">
-import {ref,toRaw} from 'vue'
+import {computed,ref,toRaw} from 'vue'
+import {getSparkNodeChildren,nodeId,type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME,RendererForm,FieldText,RendererButton,DisplayAlert,useSparkComponent,useDataViewRecordEditing}=Components
-const props=defineProps<{parametersKey:string;recordId:string|number;mode:'edit'|'pending';interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
+const {PAGE_RUNTIME,SparkComponentRenderer,RendererButton,DisplayAlert,useSparkComponent,useDataViewRecordEditing}=Components
+const props=defineProps<{previewRule:SparkNode;parametersKey:string;recordId:string|number;mode:'edit'|'pending';interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{'finish':[result:Components.DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'api-public-parameter-binding-record'})
 const fields=['interfaceId','outputfield','interfaceName','accessPath']
@@ -42,6 +30,12 @@ const base={runtime:()=>sparkConsume(PAGE_RUNTIME),dataViewKey:()=>props.paramet
 const editing=useDataViewRecordEditing(props.mode==='edit'?{...base,mode:'edit',editableFields:fields}:{...base,mode:'pending'})
 const {view,recordId,originalRow,busy,error,ownUnconfirmed,foreignRecovery,recoveryEnded,hasStaged,confirmedCreation,cancel,discard}=editing
 const page=sparkConsume(PAGE_RUNTIME),interfaceKey=props.interfaceKey,outputKey=props.outputKey,interfaceId=props.interfaceId,outputId=props.outputId
+const previewForms=computed(()=>getSparkNodeChildren(props.previewRule.children).flatMap(form=>{
+ const id=nodeId(form)
+ if(id!=='parameter-original'&&props.mode!=='edit')return []
+ const contextRowId=id==='parameter-original'?props.recordId:id==='parameter-interface'?interfaceId:outputId
+ return [{...form,props:{...form.props,contextRowId}}]
+}))
 const inputInterfaces=page?.resolveView(interfaceKey),inputOutputs=page?.resolveView(outputKey)
 const inputInterface=inputInterfaces?.rows.find(row=>inputInterfaces.getPkKey(row)===interfaceId),inputOutput=inputOutputs?.rows.find(row=>inputOutputs.getPkKey(row)===outputId)
 if(!page||!inputInterfaces||!inputOutputs||!inputInterface||!inputOutput)throw Error('PARAMETER_BINDING_SOURCE: 缺少原正式接口或输出')

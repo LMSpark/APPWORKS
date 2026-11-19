@@ -31,7 +31,7 @@
         </div>
       </template>
     </SparkPageRenderer>
-    <ParameterBindingDialog v-if="bindingWindow" :key="bindingWindow.epoch" :parameters-key="INTERFACE_KEYS.bindings" :interface-key="INTERFACE_KEYS.interfaces" :interface-id="bindingWindow.interfaceId" :output-key="INTERFACE_KEYS.outputs" :output-id="bindingWindow.outputId" @close="closeBinding" />
+    <ParameterBindingDialog v-if="bindingWindow && listRuntime" :key="bindingWindow.epoch" :preview-rule="region(listRuntime.tool.rule.children,'api-interface-binding-preview')" :parameters-key="INTERFACE_KEYS.bindings" :interface-key="INTERFACE_KEYS.interfaces" :interface-id="bindingWindow.interfaceId" :output-key="INTERFACE_KEYS.outputs" :output-id="bindingWindow.outputId" @close="closeBinding" />
   </RendererDialog>
 </template>
 <script setup lang="ts">

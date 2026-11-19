@@ -4,10 +4,8 @@
 边界：选择交给标准FieldSelect，保存交给固定记录子窗口，不提供候选数组或保存owner。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="parametersKey" title="设置公共参数" :width="720" :append-to-body="true" :close-disabled="!!chosen" @update:model-value="close">
-    <RendererForm :data-view-key="parametersKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-      <FieldSelect :data-view-key="parametersKey" :option-data-view-key="parametersKey" data-member="value" label="公共参数" :filterable="true" :readonly="!!chosen" />
-    </RendererForm>
+  <RendererDialog v-bind="dialogRule.props" :model-value="true" :close-disabled="!!chosen" @update:model-value="close">
+    <SparkComponentRenderer :config="selectorConfig" />
     <RendererButton label="编辑选中参数绑定" :disabled="!!chosen" @click="choose" />
     <DisplayAlert v-if="error" alert-type="error" :closable="false" :title="error" />
     <BindingRecord v-if="chosen" :preview-rule="previewRule" :key="chosen.epoch" :parameters-key="parametersKey" :record-id="chosen.id" :mode="chosen.mode" :interface-key="interfaceKey" :interface-id="interfaceId" :output-key="outputKey" :output-id="outputId" @finish="finished" />
@@ -15,11 +13,11 @@
   </RendererDialog>
 </template>
 <script setup lang="ts">
-import {ref} from 'vue'
-import {PAGE_RUNTIME,RendererDialog,RendererForm,RendererButton,FieldSelect,DisplayAlert,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
+import {computed,ref} from 'vue'
+import {PAGE_RUNTIME,RendererDialog,RendererButton,SparkComponentRenderer,DisplayAlert,useSparkComponent,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import BindingRecord from './api-public-parameter-binding-record.vue'
-import type {SparkNode} from '@spark-appworks/spark-data'
-const props=defineProps<{previewRule:SparkNode;parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
+import {getSparkNodeChildren,nodeId,type SparkNode} from '@spark-appworks/spark-data'
+const props=defineProps<{dialogRule:SparkNode;parametersKey:string;interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{close:[result:DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'api-public-parameter-binding-dialog'})
 const runtime=sparkConsume(PAGE_RUNTIME),resolved=runtime?.resolveView(props.parametersKey)
@@ -27,6 +25,13 @@ if(!resolved)throw Error('PARAMETER_BINDING_VIEW: 缺少原公共参数视图')
 const view=resolved
 const openedKey=props.parametersKey
 const chosen=ref<{id:string|number;mode:'edit'|'pending';epoch:number}>(),error=ref('')
+const [selectorRule, previewRule]=getSparkNodeChildren(props.dialogRule.children)
+const selectorField=getSparkNodeChildren(selectorRule?.children)[0]
+if(!selectorRule||!selectorField||!previewRule||nodeId(previewRule)!=='api-interface-binding-preview')throw Error('公共参数弹窗配置不完整')
+const selectorConfig=computed(()=>({
+ ...selectorRule,
+ children:[{...selectorField,props:{...selectorField.props,readonly:!!chosen.value}}],
+}))
 let epoch=0
 function choose():void{
  if(chosen.value)return

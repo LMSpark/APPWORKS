@@ -147,11 +147,17 @@
     ]
   },
   {
-    "id": "api-interface-binding-preview",
-    "type": "r-section",
+    "id": "api-interface-binding-dialog",
+    "type": "r-dialog",
+    "props": {
+      "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
+      "title": "设置公共参数",
+      "width": 720,
+      "appendToBody": true
+    },
     "children": [
       {
-        "id": "parameter-original",
+        "id": "parameter-selector",
         "type": "r-form",
         "props": {
           "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
@@ -161,92 +167,121 @@
         },
         "children": [
           {
-            "type": "r-text",
+            "id": "parameter-select",
+            "type": "r-select",
             "props": {
-              "field": "paramName",
+              "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
+              "optionDataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
+              "dataMember": "value",
               "label": "公共参数",
-              "readonly": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "desc",
-              "label": "说明",
-              "readonly": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "interfaceName",
-              "label": "接口名称",
-              "readonly": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "outputfield",
-              "label": "输出字段",
-              "readonly": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "accessPath",
-              "label": "访问路径",
-              "readonly": true
+              "filterable": true
             }
           }
         ]
       },
       {
-        "id": "parameter-interface",
-        "type": "r-form",
-        "props": {
-          "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
-          "autoColumns": false,
-          "showDataViewMeta": false,
-          "gridColumns": 1
-        },
+        "id": "api-interface-binding-preview",
+        "type": "r-section",
         "children": [
           {
-            "type": "r-text",
+            "id": "parameter-original",
+            "type": "r-form",
             "props": {
-              "field": "Name",
-              "label": "拟绑定接口",
-              "readonly": true
-            }
+              "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_Interface_PublicParam@outputBinding",
+              "autoColumns": false,
+              "showDataViewMeta": false,
+              "gridColumns": 1
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "paramName",
+                  "label": "公共参数",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "desc",
+                  "label": "说明",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "interfaceName",
+                  "label": "接口名称",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "outputfield",
+                  "label": "输出字段",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "accessPath",
+                  "label": "访问路径",
+                  "readonly": true
+                }
+              }
+            ]
           },
           {
-            "type": "r-text",
+            "id": "parameter-interface",
+            "type": "r-form",
             "props": {
-              "field": "LinkUrl",
-              "label": "拟访问路径",
-              "readonly": true
-            }
-          }
-        ]
-      },
-      {
-        "id": "parameter-output",
-        "type": "r-form",
-        "props": {
-          "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_TblField@default",
-          "autoColumns": false,
-          "showDataViewMeta": false,
-          "gridColumns": 1
-        },
-        "children": [
+              "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
+              "autoColumns": false,
+              "showDataViewMeta": false,
+              "gridColumns": 1
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "Name",
+                  "label": "拟绑定接口",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "LinkUrl",
+                  "label": "拟访问路径",
+                  "readonly": true
+                }
+              }
+            ]
+          },
           {
-            "type": "r-text",
+            "id": "parameter-output",
+            "type": "r-form",
             "props": {
-              "field": "enname",
-              "label": "拟输出字段",
-              "readonly": true
-            }
+              "dataViewKey": "EC84BD89BDBDF46B1FE5132DD53836E5@Base_TblField@default",
+              "autoColumns": false,
+              "showDataViewMeta": false,
+              "gridColumns": 1
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "enname",
+                  "label": "拟输出字段",
+                  "readonly": true
+                }
+              }
+            ]
           }
         ]
       }

@@ -36,7 +36,8 @@ it('keeps recommendations and whole-round decisions separate and rejects another
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
-  const {openOutcome,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{...scope,outcomeKnownAt:time}},$page:{
+  const query={...scope,outcomeKnownAt:time}
+  const {openOutcome,bindOriginalSubmission}=compileFunctions(script,{$route:{query},$page:{
    invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert,showMessage,
   }} as unknown as PageContext)
   if(!openOutcome||!bindOriginalSubmission)throw Error('TEST_OUTCOME_PAGE_HANDLERS_REQUIRED')
@@ -44,6 +45,11 @@ it('keeps recommendations and whole-round decisions separate and rejects another
   await openOutcome()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith(
    `主体 ENT · 获得推荐\n轮次 R · 已终止\n证据截至 ${time}\nREC · 获得推荐 · 原件 DOC\nSTOP · 整轮终止决定 · 原件 DOC`,'阶段结果')
+  const previous=openOutcome()
+  query.subjectId='OTHER'
+  await previous
+  expect(showAlert).toHaveBeenCalledTimes(1)
+  expect(showMessage).not.toHaveBeenCalled()
   const result=await readRegisteredTenderOutcome(host,{...scope,knownAt:time})
   expect(result).toMatchObject({subjectState:'RECOMMENDED',roundState:'TERMINATED',evidence:[{eventRef:'REC'},{eventRef:'STOP'}]})
   expect(subject.queryContext).toMatchObject(scope)

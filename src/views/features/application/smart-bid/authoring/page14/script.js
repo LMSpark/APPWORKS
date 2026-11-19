@@ -69,8 +69,14 @@ function bindOutcome() {
 async function openOutcome() {
   if (!bindOutcome().visible) return
   const {lotId, roundId, stageId, subjectId, outcomeKnownAt: knownAt} = $route.query
+  const isCurrent = () => {
+    const query = $route.query
+    return query.lotId === lotId && query.roundId === roundId && query.stageId === stageId &&
+      query.subjectId === subjectId && query.outcomeKnownAt === knownAt
+  }
   try {
     const result = await $page.invokeHostCommand('content.submission.readOutcome', {lotId, roundId, stageId, subjectId, knownAt})
+    if (!isCurrent()) return
     result.assertCurrent()
     const labels = {QUALIFIED: '通过资格预审', DISQUALIFIED: '资格未通过', RECOMMENDED: '获得推荐', AWARDED: '中标或成交',
       NOT_AWARDED: '未中标或未成交', PENDING_CORRECTION: '更正待核', PENDING_CONFLICT: '结果冲突待核',
@@ -80,7 +86,7 @@ async function openOutcome() {
         `${item.eventRef} · ${labels[item.kind]} · 原件 ${item.documentVersionId}${item.supersedesRef ? ` · 更正 ${item.supersedesRef}` : ''}`)]
     await $page.showAlert(lines.join('\n'), '阶段结果')
   } catch {
-    $page.showMessage('正式阶段结果无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('正式阶段结果无法核验', 'warning')
   }
 }
 
@@ -91,8 +97,10 @@ function bindDeadline() {
 
 async function openDeadline() {
   if (!bindDeadline().visible) return
+  const {deadlineRef} = $route.query
   try {
-    const result = await $page.invokeHostCommand('content.submission.readDeadline', {deadlineRef: $route.query.deadlineRef})
+    const result = await $page.invokeHostCommand('content.submission.readDeadline', {deadlineRef})
+    if ($route.query.deadlineRef !== deadlineRef) return
     result.assertCurrent()
     const states = {EFFECTIVE_ATTEMPT: '有有效批次', WITHDRAWN: '已撤回', PENDING_EFFECT: '待核办理效力', PENDING_DELIVERY: '待核送达'}
     const content = {MATCHED: '内容相符', MISMATCHED: '内容有差异', PENDING: '内容待核'}
@@ -134,7 +142,7 @@ async function openDeadline() {
     }
     await $page.showAlert(lines.join('\n'), '截止有效组合')
   } catch {
-    $page.showMessage('截止有效组合无法核验', 'warning')
+    if ($route.query.deadlineRef === deadlineRef) $page.showMessage('截止有效组合无法核验', 'warning')
   }
 }
 

@@ -37,12 +37,12 @@ export async function recoverOperationRouteAttempt(manifest:Manifest,source:Read
  if(sent===undefined)return Object.freeze({state:'DISPATCH_UNKNOWN' as const,assertCurrent})
  const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,{expectedInputDigest:manifest.inputDigest,assertCurrent})
  if(dispatch.state==='UNKNOWN')return Object.freeze({state:'DISPATCH_UNKNOWN' as const,assertCurrent:dispatch.assertCurrent})
- if(dispatch.state!=='MATCHED')return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,dispatch,assertCurrent:dispatch.assertCurrent})
+ if(dispatch.state!=='MATCHED'||dispatch.inputJson===null)return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,dispatch,assertCurrent:dispatch.assertCurrent})
  const response=await source.readResult(scope)
  dispatch.assertCurrent()
  if(response===undefined)return Object.freeze({state:'RETURN_UNKNOWN' as const,dispatch,assertCurrent:dispatch.assertCurrent})
  const result=await verifyDispatchedOperationRouteReturn(dispatch,response,source.guide)
- const actualInput:unknown=dispatch.inputJson===null?null:JSON.parse(dispatch.inputJson)
+ const actualInput:unknown=JSON.parse(dispatch.inputJson)
  const requirementReads=manifest.requirementReads
  const actualRequirementReads=result.state==='VERIFIED_CANDIDATE'&&requirementReads?.length&&
   isRecord(actualInput)&&requirementReads.every(reference=>Object.hasOwn(actualInput,reference.fieldPath))?

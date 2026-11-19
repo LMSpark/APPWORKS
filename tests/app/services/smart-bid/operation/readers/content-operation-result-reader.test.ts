@@ -105,6 +105,7 @@ it('reads the original result only for the selected attempt and verifies the ret
    catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},match:()=>true,
    assertCurrent:host.assertCurrent}
   const resolveGuide=vi.fn(async()=>guide)
+  hideDispatchInput=false
   const verified=await workspace.recoverOriginal(scope,resolveGuide)
   expect(resolveGuide).toHaveBeenCalledExactlyOnceWith({scope,guideRef:'GUIDE',guideVersionRef:'GV1',guideDigest},signal)
   expect(verified).toMatchObject({state:'VERIFIED_CANDIDATE',dispatch:{dispatchRef:'DISPATCH'},result:{receiptRef:'RECEIPT'}})
@@ -119,8 +120,11 @@ it('reads the original result only for the selected attempt and verifies the ret
   })).rejects.toThrow('DATA_VIEW_READ_RESULT')
   const verificationHost=createContentOperationScriptHost(scriptHost.runtime,tools,
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:resolveGuide})
-  expect(await verificationHost.invoke('content.operation.readDispatch',scope,signal))
-   .not.toHaveProperty('verification.actualRequirementReads')
+  hideDispatchInput=true
+  const withoutActualInput=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
+  expect(withoutActualInput).toMatchObject({dispatchRef:'DISPATCH',verification:{state:'DISPATCH_EVIDENCE_REQUIRED'}})
+  expect(withoutActualInput).not.toHaveProperty('verification.readCandidate')
+  expect(withoutActualInput).not.toHaveProperty('verification.actualRequirementReads')
   hideDispatchInput=false
   const inspected=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(inspected).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH',

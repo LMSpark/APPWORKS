@@ -63,9 +63,11 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  changingScope.requestKey='OTHER'
  changingEvidence.expectedInputDigest='0'.repeat(64)
  await expect(pendingDispatch).resolves.toMatchObject({state:'MATCHED',scope})
- const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
+ const digestOnly=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
+ const dispatch=await verifyOriginalOperationRouteDispatch(scope,{...sent,input:craft.inputExample},evidence)
  const response={...receipt,state:'COMPLETE' as const,output:craft.outputExample}
  const guide={...source,guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,assertGuideCurrent:action.assertCurrent}
+ expect(await verifyDispatchedOperationRouteReturn(digestOnly,response,guide)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  expect(await verifyDispatchedOperationRouteReturn(dispatch,response,guide))
   .toMatchObject({state:'VERIFIED_CANDIDATE',dispatchRef:'SENT',guideRef:'GUIDE',actualInputDigest})
  const mismatch=await verifyOriginalOperationRouteDispatch(scope,sent,{...evidence,expectedInputDigest:'0'.repeat(64)})
@@ -86,9 +88,8 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   readDispatch:async()=>({...sent,actualInputDigest:'0'.repeat(64),input:undefined})}))
   .toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  expect(readResult).not.toHaveBeenCalled()
- expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',
-  result:{dispatchRef:'SENT',guideRef:'GUIDE'},actualRequirementReads:null})
- expect(await recoverOperationRouteAttempt(withRequirement,recovery)).toMatchObject({state:'VERIFIED_CANDIDATE',actualRequirementReads:null})
+ expect(await recoverOperationRouteAttempt(manifest,recovery)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED',dispatch:{dispatchRef:'SENT'}})
+ expect(await recoverOperationRouteAttempt(withRequirement,recovery)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  const verifiedDispatch={...recovery,readDispatch:async()=>({...sent,input:craft.inputExample})}
  expect(await recoverOperationRouteAttempt(withRequirement,verifiedDispatch)).toMatchObject({state:'VERIFIED_CANDIDATE',
   actualRequirementReads:[{lineageId:'CLAUSE',version:'V1',fieldPath:provenance[0]?.slotId,callRef:'SENT',resultRef:'RESULT'}]})

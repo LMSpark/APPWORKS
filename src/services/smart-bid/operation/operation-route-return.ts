@@ -23,7 +23,7 @@ export async function verifyDispatchedOperationRouteReturn(
  }>){
  const assertCurrent=()=>{dispatch.assertCurrent();source.assertCurrent();source.assertGuideCurrent()}
  assertCurrent()
- if(dispatch.state!=='MATCHED')return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,assertCurrent})
+ if(dispatch.state!=='MATCHED'||dispatch.inputJson===null)return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,assertCurrent})
  if(!identity(source.guideRef)||source.configurationLockHash!==dispatch.scope.configurationLockHash)
   throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
  const verified=await verifyOperationRouteReturn(dispatch.scope,receipt,{catalog:source.catalog,match:source.match,assertCurrent})

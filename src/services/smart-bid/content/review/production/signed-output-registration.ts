@@ -16,9 +16,10 @@ type Recovered=Extract<Awaited<ReturnType<typeof recoverSignatureRequest>>,{stat
 /** 只准备签后登记，签署和验签分别消费各自的原办理凭据。 */
 export async function prepareSignedOutputRegistration(
  original:FileScope&Readonly<{producedFileId:string;objectVersion:string;versionHash:string;assertCurrent:()=>void}>,
- receipt:SignedReceipt,recovered:Recovered,open:(input:Readonly<{projectId:string;resourceVersionId:string}>)=>Promise<Readonly<{
+ receipt:SignedReceipt,{recovered,open}:Readonly<{recovered:Recovered;
+ open:(input:Readonly<{projectId:string;resourceVersionId:string}>)=>Promise<Readonly<{
   projectId:string;resourceVersionId:string;bytes:ArrayBuffer;assertCurrent:()=>void
- }>>,
+ }>>}>,
 ){
  const {projectId,documentId,revisionId,signatureOperationRef,signatureRecordId,originalFileId,originalHash,
   signedObjectRef,resourceVersionId,fileHash}=receipt
@@ -37,8 +38,12 @@ export async function prepareSignedOutputRegistration(
    recovered.request.objectHash!==originalHash||
    recovered.operationRef!==signatureOperationRef||recovered.signatureRecordId!==signatureRecordId||
    recovered.signedObjectRef!==signedObjectRef||recovered.signedObjectHash!==fileHash||
-   Object.entries(signing).some(([key,value])=>recovered.request[key as keyof typeof signing]!==value)||
-   Object.entries(record).some(([key,value])=>receipt[key as keyof typeof record]!==value))
+   recovered.request.requestKey!==requestKey||recovered.request.requestDigest!==requestDigest||
+   recovered.request.objectVersion!==objectVersion||recovered.request.signerRef!==signerRef||recovered.request.positionRef!==positionRef||
+   receipt.projectId!==projectId||receipt.documentId!==documentId||receipt.revisionId!==revisionId||
+   receipt.signatureOperationRef!==signatureOperationRef||receipt.signatureRecordId!==signatureRecordId||
+   receipt.originalFileId!==originalFileId||receipt.originalHash!==originalHash||receipt.signedObjectRef!==signedObjectRef||
+   receipt.resourceVersionId!==resourceVersionId||receipt.fileHash!==fileHash)
    throw Error('BID_SIGNED_OUTPUT_SCOPE')
  }
  assertOrigin()

@@ -39,7 +39,7 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
   }>>
   readSignedRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:Parameters<typeof readOriginalSignatureRequest>[1];
-   original:SignedRegistration[0];receipt:SignedRegistration[1];open:SignedRegistration[3];assertCurrent:()=>void
+   original:SignedRegistration[0];receipt:SignedRegistration[1];open:SignedRegistration[2]['open'];assertCurrent:()=>void
   }>>
   readPaperRegistrationSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;prepared:PaperRegistration[0];paper:PaperRegistration[1];observed:PaperRegistration[2]
@@ -81,14 +81,14 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
     const recovered=await readOriginalSignatureRequest({...scope,runtime,assertCurrent:assertSelection},selection.request)
     if(recovered.state!=='SIGNED')return recovered
-    const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,recovered,selection.open)
+    const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,{recovered,open:selection.open})
     const registration=await readOriginalSignedRegistration({...scope,runtime,assertCurrent:assertSelection},prepared)
     if(registration.state==='REGISTERED'){
      const registered=registration.resourceVersionId===prepared.record.resourceVersionId?prepared:
       await prepareSignedOutputRegistration(selection.original,{
        ...selection.receipt,resourceVersionId:registration.resourceVersionId,
        assertCurrent:()=>{selection.receipt.assertCurrent();registration.assertCurrent()},
-      },recovered,selection.open)
+      },{recovered,open:selection.open})
      const assertRegistered=()=>{registration.assertCurrent();registered.assertCurrent()}
      assertRegistered()
      return Object.freeze({...registration,state:'SIGNED_REGISTERED' as const,assertCurrent:assertRegistered})

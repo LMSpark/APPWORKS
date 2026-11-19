@@ -143,6 +143,13 @@ it('preserves unknown on a complete empty original read and requires readable te
   const openRegistered=async()=>({...await openAuthorized(),bytes:latest.candidate.bytes})
   const verified=await verifyRegisteredPackingCandidate(host,registered,{candidate:latest.candidate,openAuthorized:openRegistered})
   expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
+  pack.requiredPositions=[position,'SECOND']
+  pack.packed=[member,{...member,position:'SECOND'}]
+  await expect(verifyRegisteredPackingCandidate(host,registered,{
+   candidate:{...latest.candidate,packed:[member,member]},openAuthorized:openRegistered,
+  })).rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
+  pack.requiredPositions=[position]
+  pack.packed=[member]
   const registeredPage=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readPackingSelection:async()=>({selectionRef:'PACK',request,state:'RECOVER',assertCurrent:host.assertCurrent,
     packingRequestRef:registered.packingRequestRef,candidate:latest.candidate,openAuthorized:openRegistered}),

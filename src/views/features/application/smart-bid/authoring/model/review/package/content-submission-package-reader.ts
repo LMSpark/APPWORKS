@@ -83,9 +83,11 @@ export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadH
  const source=await readRegisteredSubmissionZipSource({...host,assertCurrent:assertScope},input,openAuthorized)
  const positions=new Set(source.requiredPositions)
  const packed=new Map(source.packed.map(member=>[member.position,member]))
+ const candidatePositions=new Set(candidate.packed.map(member=>member.position))
  if(source.selectionId!==candidate.selectionId||source.selectionVersion!==candidate.selectionVersion||
   source.selectionHash!==candidate.selectionHash||source.packageHash!==candidate.packageHash||
-  positions.size!==candidate.packed.length||packed.size!==candidate.packed.length||packed.size!==source.packed.length||
+  positions.size!==candidate.packed.length||candidatePositions.size!==candidate.packed.length||
+  packed.size!==candidate.packed.length||packed.size!==source.packed.length||
   candidate.packed.some(member=>{
    const original=packed.get(member.position)
    return !positions.has(member.position)||original?.fileVersionId!==member.fileVersionId||original.fileHash!==member.fileHash

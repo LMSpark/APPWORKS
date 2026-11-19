@@ -12,7 +12,7 @@ import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
   it('invalidates a prepared command when its published tool version changes', async () => {
-    const tool = {pageId: 'TOOL', projectId: 'APP', versionId: 'v1'}
+    const tool: {pageId: string; projectId: string; versionId?: string} = {pageId: 'TOOL', projectId: 'APP', versionId: 'v1'}
     const invoke = vi.fn()
     let assertHostCurrent: (() => void) | undefined
     registerAllRenderers()
@@ -20,14 +20,15 @@ describe('page call tabs and retained renderer instances', () => {
       assertHostCurrent = () => props.host.assertCurrent()
       return () => h(SparkPageRenderer, {pageRuntime: props.pageRuntime, routeSnapshot: props.routeSnapshot, host: props.host})
     }})
+    const readFiles = vi.fn<NonNullable<PageRuntimePoolOptions['readPageFiles']>>()
     const options: PageRuntimePoolOptions = {
       pageComponent: component,
       readPageFile: undefined,
-      readPageFiles: async commands => commands.map(command => {
+      readPageFiles: readFiles.mockImplementation(async commands => commands.map(command => {
         if (command.fileName === 'rule.json') return '[{"type":"r-button","props":{"label":"保存","onClick":"save"}}]'
         if (command.fileName === 'script.js') return "async function save(){try{await $page.invokeHostCommand('save')}catch(error){if(!String(error).includes('发布版本已改变'))throw error}}"
         return ''
-      }),
+      })),
       preparePageCall: () => ({scenarioInputs: {}, assertCurrent() {}, createHost: runtime => ({runtime, assertCurrent() {}, invoke})}),
       loadScenario: undefined,
       readNavTree: () => ({title: 'App', childPlacement: 'header', items: [{id: 'node', title: 'Tool', itemKind: 'page', path: '/tool', tool}]}),
@@ -53,6 +54,12 @@ describe('page call tabs and retained renderer instances', () => {
       wrapper.getComponent(RendererButton).vm.$emit('click')
       await flushPromises()
       expect(invoke).toHaveBeenCalledTimes(1)
+      expect(readFiles.mock.calls.map(([commands]) => commands.map(command => command.versionId))).toEqual([['v1', 'v1', 'v1']])
+      await runtime.reload()
+      expect(readFiles.mock.calls[1]?.[0].map(command => command.versionId)).toEqual(['v2', 'v2', 'v2'])
+      delete tool.versionId
+      await expect(runtime.reload()).rejects.toThrow('已发布工具缺少版本绑定')
+      expect(readFiles).toHaveBeenCalledTimes(2)
     } finally {wrapper.unmount(); runtime.dispose()}
   })
   it('keeps distinct calls across native pages and twelve tabs, rejects dirty closes, and preserves aborted navigation', async () => {

@@ -88,6 +88,7 @@ export class PageRuntimePool {
     if (inputText !== undefined && (typeof inputText !== 'string' || !inputText.trim())) throw new Error('scenarioInputs 必须是单个非空 JSON 参数')
     const scenarioInputs = prepared?.scenarioInputs ?? (inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText))
     const page = new PageTool({ pageId: tool.pageId })
+    const expectsPublishedVersion = 'versionId' in tool && typeof tool.versionId === 'string'
     const reader = this.options.readPageFile
     let assertPublishedVersion: (() => void) | undefined
     const runtime = markRaw(new PageRuntime({
@@ -115,7 +116,14 @@ export class PageRuntimePool {
             throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
           }
           const currentTool = registeredTool ?? tool
-          return 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
+          const versionId = 'versionId' in currentTool ? currentTool.versionId : undefined
+          if (versionId === undefined && expectsPublishedVersion) {
+            throw new Error('PAGE_RUNTIME_STALE: 已发布工具缺少版本绑定，请重新打开页面')
+          }
+          if (versionId !== undefined && (typeof versionId !== 'string' || !versionId.trim() || versionId !== versionId.trim())) {
+            throw new Error('配置页的工具发布版本无效')
+          }
+          return versionId
         }
         const versionId = readVersion()
         const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({

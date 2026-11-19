@@ -114,8 +114,14 @@ function bindCallImpact() {
 async function openCallImpact() {
   if (!bindCallImpact().visible) return
   const {addendumId, runId, attemptRef, requestKey} = $route.query
+  const isCurrent = () => {
+    const query = $route.query
+    return query.addendumId === addendumId && query.runId === runId &&
+      query.attemptRef === attemptRef && query.requestKey === requestKey
+  }
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceCallReferences', {addendumId, runId, attemptRef, requestKey})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = ['原调用引用或正式修改登记待核']
     if (result.state === 'CALLS_TRACED') {
@@ -135,7 +141,7 @@ async function openCallImpact() {
     }
     await $page.showAlert(lines.join('\n'), '原调用条款引用')
   } catch {
-    $page.showMessage('原调用条款引用无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原调用条款引用无法核验', 'warning')
   }
 }
 
@@ -146,8 +152,10 @@ function bindTenderAddendum() {
 
 async function openTenderAddendum() {
   if (!bindTenderAddendum().visible) return
+  const {addendumId} = $route.query
   try {
-    const result = await $page.invokeHostCommand('tender.followup.readAddendum', {addendumId: $route.query.addendumId})
+    const result = await $page.invokeHostCommand('tender.followup.readAddendum', {addendumId})
+    if ($route.query.addendumId !== addendumId) return
     result.assertCurrent()
     const lines = ['正式修改登记待核']
     if (result.state === 'REGISTERED') {
@@ -163,7 +171,7 @@ async function openTenderAddendum() {
     }
     await $page.showAlert(lines.join('\n'), '正式澄清与修改')
   } catch {
-    $page.showMessage('正式修改原位无法核验', 'warning')
+    if ($route.query.addendumId === addendumId) $page.showMessage('正式修改原位无法核验', 'warning')
   }
 }
 

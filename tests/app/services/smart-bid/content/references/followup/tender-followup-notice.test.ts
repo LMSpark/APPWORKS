@@ -136,11 +136,12 @@ it('reads the original addendum locations for the current project, lot and round
    requirementLineageId:'CLAUSE',previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
   }]})
   const showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
-  const impactQuery={revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A'}
-  const {openChapterImpact}=compileFunctions(script,{$route:{query:impactQuery},
+  const impactQuery={revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A',
+   runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}
+  const {openChapterImpact,openCallImpact,openTenderAddendum}=compileFunctions(script,{$route:{query:impactQuery},
    $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage},
   } as unknown as PageContext)
-  if(!openChapterImpact)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
+  if(!openChapterImpact||!openCallImpact||!openTenderAddendum)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
   await openChapterImpact()
   expect(showAlert).toHaveBeenCalledExactlyOnceWith([
    '正式修改 A · 原正文 ORIGINAL',
@@ -149,6 +150,12 @@ it('reads the original addendum locations for the current project, lot and round
   const previousImpact=openChapterImpact()
   impactQuery.previousFrozenBaselineId='OTHER'
   await previousImpact
+  const previousCall=openCallImpact()
+  impactQuery.attemptRef='OTHER'
+  await previousCall
+  const previousAddendum=openTenderAddendum()
+  impactQuery.addendumId='OTHER'
+  await previousAddendum
   expect(showAlert).toHaveBeenCalledTimes(1)
   expect(showMessage).not.toHaveBeenCalled()
   const calls=await page.invoke('tender.followup.traceCallReferences',

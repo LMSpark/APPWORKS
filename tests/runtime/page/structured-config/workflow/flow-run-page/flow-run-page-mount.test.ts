@@ -322,6 +322,11 @@ describe('flow run page mount', () => {
     if(!source||!target)throw Error('流程图必须声明正式连线端点字段')
     expect(edge[source]).toBe('N1')
     expect(edge[target]).toBe('N2')
+    const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '流程图')
+    expect(dialog?.props('modelValue')).toBe(true)
+    dialog?.vm.$emit('update:modelValue', false)
+    await flushPromises()
+    expect(dialog?.props('modelValue')).toBe(false)
   })
   it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})

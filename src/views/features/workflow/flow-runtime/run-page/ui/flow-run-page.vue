@@ -40,8 +40,7 @@
             :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
         </SparkComponent.RendererDialog>
 
-        <SparkComponent.RendererDialog v-model="chartOpen" v-bind="dialogRule(children, 'chartDialog')?.props"
-          :children="chartContent(children)" />
+        <SparkComponentRenderer v-for="node in chartDialogs(children)" :key="nodeId(node)" :config="node" />
       </SparkComponent.RendererSection>
     </template>
   </SparkPageRenderer>
@@ -229,9 +228,10 @@ function dialogRule(children: readonly SparkNode[], id: string): SparkNode | und
   return children.find(node => nodeId(node) === id && node.type === 'r-dialog')
 }
 
-function chartContent(children: readonly SparkNode[]): SparkNode[] {
-  const section = getSparkNodeChildren(dialogRule(children, 'chartDialog')?.children)[0]
-  if (!section) return []
+function chartDialogs(children: readonly SparkNode[]): SparkNode[] {
+  const dialog = dialogRule(children, 'chartDialog')
+  const section = getSparkNodeChildren(dialog?.children)[0]
+  if (!dialog || !section) return []
   const graph = chartPrepared.value
   const nodes = graph ? getSparkNodeChildren(section.children).map(node => ({
     ...node,
@@ -245,9 +245,17 @@ function chartContent(children: readonly SparkNode[]): SparkNode[] {
     },
   })) : []
   return [{
-    ...section,
-    props: {...section.props, status: chartLoading.value ? '正在加载流程图…' : '', error: chartError.value},
-    children: nodes,
+    ...dialog,
+    props: {
+      ...dialog.props,
+      modelValue: chartOpen.value,
+      'onUpdate:modelValue': (visible: boolean) => { chartOpen.value = visible },
+    },
+    children: [{
+      ...section,
+      props: {...section.props, status: chartLoading.value ? '正在加载流程图…' : '', error: chartError.value},
+      children: nodes,
+    }],
   }]
 }
 </script>

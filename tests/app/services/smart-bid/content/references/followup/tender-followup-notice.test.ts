@@ -263,7 +263,11 @@ it('retains a formal notice and deadline while the historical package and scope 
   expect(unlinked).toContain('原包关联证据无法核验')
   expect(unlinked).toContain('所指原包 PKG · 待配')
   expect(unlinked).not.toContain('原递交批次 SEND')
+  const previous=openFollowupNotices()
   query.followupKnownAt=later.knownAt
+  await previous
+  expect(showAlert).toHaveBeenCalledTimes(2)
+  expect(showMessage).not.toHaveBeenCalled()
   await openFollowupNotices()
   expect(showMessage).toHaveBeenCalledExactlyOnceWith('后续通知无法核验','warning')
   await expect(readRegisteredTenderFollowupNotices(host,scope,later.knownAt)).rejects.toThrow('TENDER_FOLLOWUP_SOURCE_CONFLICT')

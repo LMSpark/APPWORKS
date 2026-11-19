@@ -28,6 +28,7 @@ export function tenderFollowupNoticeView(primaryKey:string):ViewMetadata{
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName===model&&view.commitMode==='staged'&&
   view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 }
 

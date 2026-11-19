@@ -215,8 +215,10 @@ function bindFollowupNotices() {
 
 async function openFollowupNotices() {
   if (!bindFollowupNotices().visible) return
+  const {followupKnownAt: knownAt} = $route.query
   try {
-    const result = await $page.invokeHostCommand('tender.followup.readNotices', {knownAt: $route.query.followupKnownAt})
+    const result = await $page.invokeHostCommand('tender.followup.readNotices', {knownAt})
+    if ($route.query.followupKnownAt !== knownAt) return
     result.assertCurrent()
     const statuses = {ACTIVE: '有效来件', SUPERSEDED: '已被更正或撤销', CANCELLED: '撤销通知',
       PENDING_LINK: '前序通知待配', PENDING_CONFLICT: '通知关系冲突'}
@@ -234,6 +236,6 @@ async function openFollowupNotices() {
     }
     await $page.showAlert(lines.join('\n'), '后续通知')
   } catch {
-    $page.showMessage('后续通知无法核验', 'warning')
+    if ($route.query.followupKnownAt === knownAt) $page.showMessage('后续通知无法核验', 'warning')
   }
 }

@@ -200,9 +200,9 @@ async function confirm(text: string): Promise<boolean> {
 /** 一次恢复记录提交：目标视图、记录主键、失败后丢弃本地变更的方式及成功提示。 */
 type RecoveryCommit = Readonly<{target: DataView; id: string | number; tableId: string; discard: () => void; done: string}>
 async function refreshAfterCommit({target, tableId, done}: RecoveryCommit): Promise<void> {
-  notice.value = done
   const isCurrent = () => !reloadBlocked.value && !target.destroyed && table.value?.rowid === tableId && target === recoveredView()
   if (!isCurrent()) return
+  notice.value = done
   const views = [view(deletedKey), target]
   const results = await Promise.allSettled(views.map(item => item.refresh()))
   if (!isCurrent()) return
@@ -265,9 +265,10 @@ async function recover(row: DataRow): Promise<void> {
 }
 
 async function undo(row: DataRow): Promise<void> {
-  const target = recoveredView(), id = target.rows.includes(row) ? target.getPkKey(row) : undefined
   const tableId = table.value?.rowid
-  if (locked.value || reloadBlocked.value || id === undefined || !tableId) return
+  if (locked.value || reloadBlocked.value || !tableId) return
+  const target = recoveredView(), id = target.rows.includes(row) ? target.getPkKey(row) : undefined
+  if (id === undefined) return
   const blocker = undoBlocker(row)
   if (blocker) { message.value = `无法撤销恢复：${blocker}`; return }
   busy.value = true; message.value = ''; notice.value = ''

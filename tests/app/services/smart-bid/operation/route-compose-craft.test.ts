@@ -16,6 +16,8 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  const receipt={...scope,receiptRef:'RESULT',assertCurrent:()=>{}}
  const source={catalog:{stationRefs:craft.inputExample.stationCatalog.map(station=>station.ref),routeRefs:[]},
   match:()=>true,assertCurrent:()=>{}}
+ await expect(verifyOperationRouteReturn(scope,{...receipt,state:'INVALID' as 'PARTIAL'},source))
+  .rejects.toThrow('OPERATION_ROUTE_RETURN_SCOPE')
  expect(await verifyOperationRouteReturn(scope,{...receipt,state:'PARTIAL'},source)).toMatchObject({state:'PARTIAL'})
  expect(await verifyOperationRouteReturn(scope,{...receipt,state:'COMPLETE',output:craft.outputExample},source))
   .toMatchObject({state:'VERIFIED_CANDIDATE',receiptRef:'RESULT'})

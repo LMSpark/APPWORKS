@@ -39,6 +39,7 @@ export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,sou
  const assertCurrent=()=>{source.assertCurrent();receipt.assertCurrent()}
  assertCurrent()
  if(fields.some(key=>!identity(scope[key])||scope[key]!==receipt[key])||!identity(receipt.receiptRef)||
+  !['COMPLETE','PARTIAL','FAILED','UNKNOWN'].includes(receipt.state)||
   ![scope.targetDigest,scope.configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))
   throw Error('OPERATION_ROUTE_RETURN_SCOPE')
  const {receiptRef}=receipt

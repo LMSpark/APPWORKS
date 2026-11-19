@@ -105,9 +105,8 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
 
 /** 页07由本次正式实例绑定企业及原占用快照读取方。 */
 export function preparePublishedResourceAllocationCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- bindEnterprise:(runtime:PageRuntime,scope:Scope)=>Readonly<{
-  enterpriseId:string;assertCurrent:()=>void;readSnapshot:Parameters<typeof createResourceAllocationScriptHost>[2]
-  readRelease?:NonNullable<Parameters<typeof createResourceAllocationScriptHost>[3]>
+ bindEnterprise:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createResourceAllocationScriptHost>[2]&Readonly<{
+  enterpriseId:string;assertCurrent:()=>void
  }>,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -115,7 +114,7 @@ export function preparePublishedResourceAllocationCall(route:ContentAuthoringRou
   const assertCurrent=()=>{scope.assertCurrent();binding.assertCurrent()}
   assertCurrent()
   return createResourceAllocationScriptHost(runtime,{enterpriseId:binding.enterpriseId,projectId:scope.projectId,assertCurrent},
-   binding.readSnapshot,binding.readRelease)
+   binding)
  })
  if(prepared&&Object.hasOwn(route.query,'enterpriseId'))throw Error('BID_RESOURCE_ALLOCATION_PAGE_SCOPE')
  return prepared
@@ -149,20 +148,20 @@ type PublishedScopeBinding<Options>=Readonly<{projectId:string;options:Options;a
 export function preparePublishedBidHandoffCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  bindHandoff:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createBidHandoffScriptHost>[2]>,
 ){
- return preparePublishedTenderScopeCall(route,entry,bindHandoff,createBidHandoffScriptHost)
+ return preparePublishedTenderScopeCall(route,entry,{bind:bindHandoff,createHost:createBidHandoffScriptHost})
 }
 
 /** 页09沿同一项目、轮次和主体查询正式通知。 */
 export function preparePublishedTenderFollowupCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  bindFollowup:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createTenderFollowupScriptHost>[2]>,
 ){
- return preparePublishedTenderScopeCall(route,entry,bindFollowup,createTenderFollowupScriptHost)
+ return preparePublishedTenderScopeCall(route,entry,{bind:bindFollowup,createHost:createTenderFollowupScriptHost})
 }
 
 function preparePublishedTenderScopeCall<Options,Host>(
  route:ContentAuthoringRoute,entry:PublishedEntry,
- bind:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Options>,
- createHost:(runtime:PageRuntime,scope:Scope,options:Options)=>Host,
+ {bind,createHost}:Readonly<{bind:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Options>
+  createHost:(runtime:PageRuntime,scope:Scope,options:Options)=>Host}>,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
   const binding=bind(runtime,scope)
@@ -183,24 +182,24 @@ type EnterpriseBinding=Readonly<{enterpriseId:string;assertCurrent:()=>void}>
 export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  bindEnterprise:(runtime:PageRuntime,scope:EnterpriseScope)=>EnterpriseBinding,
 ){
- return preparePublishedEnterpriseCall(route,entry,['enterpriseId'],(runtime,scope)=>{
+ return preparePublishedEnterpriseCall(route,entry,{forbidden:['enterpriseId'],createHost:(runtime,scope)=>{
   const binding=bindEnterprise(runtime,scope)
   if(!identity(binding.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
   return createAuthorityGrantScriptHost(runtime,{...scope,enterpriseId:binding.enterpriseId,
    assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
- })
+ }})
 }
 
 /** 页05从企业级发布实例读取已选原资料及其历史。 */
 export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  bindResource:(runtime:PageRuntime,scope:EnterpriseScope)=>Readonly<{resourceId:string;assertCurrent:()=>void}>,
 ){
- return preparePublishedEnterpriseCall(route,entry,['resourceId','enterpriseId'],(runtime,scope)=>{
+ return preparePublishedEnterpriseCall(route,entry,{forbidden:['resourceId','enterpriseId'],createHost:(runtime,scope)=>{
   const binding=bindResource(runtime,scope)
   if(!identity(binding.resourceId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
   return createBidResourceVersionHost(runtime,{...scope,resourceId:binding.resourceId,
    assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
- })
+ }})
 }
 
 /** 页06按当前项目及可信企业读取原用途决定。 */
@@ -217,8 +216,8 @@ export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entr
  return prepared
 }
 
-function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,forbidden:readonly string[],
- createHost:(runtime:PageRuntime,scope:EnterpriseScope)=>Host,
+function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,
+ {forbidden,createHost}:Readonly<{forbidden:readonly string[];createHost:(runtime:PageRuntime,scope:EnterpriseScope)=>Host}>,
 ){
  if(!matchesPublishedNavigation(route,entry))return undefined
  if(forbidden.some(key=>Object.hasOwn(route.query,key))||Object.hasOwn(route.query,'projectId'))

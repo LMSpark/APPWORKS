@@ -38,7 +38,7 @@ it('checks only the current enterprise allocation request and does not clear inc
  const readRelease=vi.fn(async()=>({allocation,complete:releaseComplete,effectiveAt:end,obligationRefs:['OBLIGATION'],
   evidence:[{...allocation,obligationRef:'OBLIGATION',endedAt,evidenceRef:'END-RECEIPT',
    assertCurrent:()=>{if(!evidenceCurrent)throw Error('EVIDENCE_STALE')}}],assertCurrent:scope.assertCurrent}))
- const host=createResourceAllocationScriptHost(runtime,scope,snapshot,readRelease)
+ const host=createResourceAllocationScriptHost(runtime,scope,{readSnapshot:snapshot,readRelease})
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
  const {openAllocation,openAllocationRelease}=compileFunctions(script,{$route:{query:{resourceVersionId:'V1',allocationRequestRef:'REQUEST',allocationRef:'ALLOC'}},
   $page:{showAlert,invokeHostCommand:(name:string,input:unknown)=>host.invoke(name,input,signal)}} as unknown as PageContext)
@@ -77,7 +77,7 @@ it('excludes only the verified prior allocation when checking an adjustment',asy
  const own={...requested,exclusive:true,allocationRef:'OWN'}
  const other={...requested,allocationRef:'OTHER',units:2}
  let snapshot={...scope,...request,requested,limit:2,complete:true,previous,occupancies:[own,other]}
- const host=createResourceAllocationScriptHost({generation:1,isLoaded:true,destroyed:false},scope,async()=>snapshot)
+ const host=createResourceAllocationScriptHost({generation:1,isLoaded:true,destroyed:false},scope,{readSnapshot:async()=>snapshot})
  const check=()=>host.invoke('bid.resources.checkAllocation',request,new AbortController().signal)
  await expect(check()).resolves.toMatchObject({state:'CONFLICT',allocationRefs:['OTHER'],replacesAllocationRef:'OWN'})
  snapshot={...snapshot,occupancies:[own]}

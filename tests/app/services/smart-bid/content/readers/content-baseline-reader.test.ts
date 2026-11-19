@@ -86,10 +86,10 @@ it('maps a located original form only from the reference fixed by the baseline',
   ]}))
   const request={basis:input,reference:requirementSource,mapping:{formRef:'FORM',fillerRef:'P',
    mappings:[{fieldRef:'F',cellRef:'CELL',meaningRef:'PRICE'}]}}
-  const form=await readBaselineOriginalForm(scoped.host,request,readCells)
+  const form=await readBaselineOriginalForm(scoped.host,request,{readCells})
   expect(form).toMatchObject({formVersion:'002',mappings:[{fieldRef:'F',cell:{unit:'元'}}]})
   expect(readCells).toHaveBeenCalledExactlyOnceWith({text:'原文'},{page:1})
-  await expect(readBaselineOriginalForm(scoped.host,{...request,reference:{...requirementSource,recordVersion:'003'}},readCells))
+  await expect(readBaselineOriginalForm(scoped.host,{...request,reference:{...requirementSource,recordVersion:'003'}},{readCells}))
    .rejects.toThrow('BASELINE_TENDER_RECORD_MISSING')
   expect(readCells).toHaveBeenCalledTimes(1)
   expect(()=>form.assertCurrent()).toThrow()

@@ -22,8 +22,9 @@ type ReleaseReader=(allocation:Release['allocation'],signal:AbortSignal)=>Promis
 export function createResourceAllocationScriptHost<Runtime extends Pick<PageRuntime,'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,
  scope:Pick<Selection,'enterpriseId'|'projectId'>&Readonly<{assertCurrent:()=>void}>,
- readSnapshot:(selection:Selection,signal:AbortSignal)=>Promise<Snapshot>,
- readRelease?:ReleaseReader,
+ {readSnapshot,readRelease}:Readonly<{
+  readSnapshot:(selection:Selection,signal:AbortSignal)=>Promise<Snapshot>;readRelease?:ReleaseReader
+ }>,
 ){
  return {runtime,assertCurrent:scope.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
   const error='BID_RESOURCE_ALLOCATION_PAGE_SCOPE'

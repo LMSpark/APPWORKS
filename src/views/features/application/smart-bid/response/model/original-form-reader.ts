@@ -72,7 +72,7 @@ export async function readRegisteredOriginalForm(host:Parameters<typeof readBase
  const reference=readTenderRecordReference(tenderRecordRef)
  const form=await readBaselineOriginalForm({...host,assertCurrent},
   {basis:{baselineId,stageRef,...(previous?{viewName:priorBaselineView}:{})},reference,
-   mapping:{formRef,fillerRef,mappings:fields}},readLocatedForm,previous?priorTenderView:undefined)
+   mapping:{formRef,fillerRef,mappings:fields}}, {readCells:readLocatedForm,...(previous?{tenderViewName:priorTenderView}:{})})
  return Object.freeze({state:'MATCHED' as const,...form,baselineId,templateRef,templateVersion,tenderRecordRef:reference})
 }
 
@@ -101,7 +101,7 @@ export async function readBaselineOriginalForm(
  host:Parameters<typeof readContentBaselineTenderRecord>[0],
  input:Readonly<{basis:Parameters<typeof readContentBaselineTenderRecord>[1];reference:unknown
   mapping:Omit<FormInput,'projectId'|'formVersion'>}>,
- readCells:(payload:unknown,sourceSpan:unknown)=>FormFields,tenderViewName?:string,
+ {readCells,tenderViewName}:Readonly<{readCells:(payload:unknown,sourceSpan:unknown)=>FormFields;tenderViewName?:string}>,
 ){
  const reference=readTenderRecordReference(input.reference)
  const baseline=await readContentBaselineTenderRecord(host,input.basis,reference)

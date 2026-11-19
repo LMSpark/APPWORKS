@@ -14,6 +14,7 @@ const parameters=['projectId','candidateRevisionId','requestKey'] as const
 const fields=['id',...parameters,'requestDigest','previewRef','mergeRevisionId','commitCheckRef']
 function validScope(view:DataView):boolean{
  return view.dataTable?.modelBinding?.modelName==='ContentAdoption'&&view.commitMode==='staged'&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   parameters.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 }
 
@@ -30,7 +31,7 @@ export async function readContentAdoption(host:ContentRevisionReadHost,input:Con
  view.queryContext={...view.queryContext,...expected}
  const assertScope=()=>{
   host.assertCurrent()
-  if(runtime.resolveView(dataViewKey)!==view||!validScope(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(dataViewKey)!==view||!validScope(view)||view.loadingError||view.hasEditingChanges()||
    parameters.some(field=>view.queryContext[field]!==expected[field]))throw Error('CONTENT_ADOPTION_STALE')
  }
  await view.refresh();assertScope()

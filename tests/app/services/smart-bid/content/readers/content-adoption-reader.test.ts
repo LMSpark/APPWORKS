@@ -148,6 +148,11 @@ it('binds the original record without claiming the request outcome',async()=>{
   expect(result).toMatchObject({dataViewKey:'S@ContentAdoption@selectedAdoption',recordFound:true,requiresOriginalResultEvidence:true})
   expect(f.view.queryContext).toEqual({projectId:'P',candidateRevisionId:'C',requestKey:'K'})
   result.assertCurrent()
+  const queryConfig=f.view.queryConfig
+  f.view.queryConfig={...queryConfig,cacheType:'page'}
+  expect(()=>result.assertCurrent()).toThrow('CONTENT_ADOPTION_STALE')
+  await expect(readContentAdoption(f.host,request)).rejects.toThrow('CONTENT_ADOPTION_SCOPE_REQUIRED')
+  f.view.queryConfig=queryConfig
   await f.view.refresh()
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   expect(f.save).not.toHaveBeenCalled()

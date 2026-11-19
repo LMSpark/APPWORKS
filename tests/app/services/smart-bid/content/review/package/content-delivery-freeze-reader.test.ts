@@ -143,15 +143,17 @@ it('preserves unknown on a complete empty original read and requires readable te
   const openRegistered=async()=>({...await openAuthorized(),bytes:latest.candidate.bytes})
   const verified=await verifyRegisteredPackingCandidate(host,registered,{candidate:latest.candidate,openAuthorized:openRegistered})
   expect(verified).toMatchObject({packageId:pack.id,packageHash:pack.packageHash,selectionHash:hashes.selectionHash})
+  const candidateMember=latest.candidate.packed[0]
+  if(!candidateMember)throw Error('TEST_PACKING_MEMBER_REQUIRED')
   pack.requiredPositions=[position,'SECOND']
   pack.packed=[member,{...member,position:'SECOND'}]
   await expect(verifyRegisteredPackingCandidate(host,registered,{
-   candidate:{...latest.candidate,packed:[member,member]},openAuthorized:openRegistered,
+   candidate:{...latest.candidate,packed:[candidateMember,candidateMember]},openAuthorized:openRegistered,
   })).rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
   const priorDownloads=openAuthorized.mock.calls.length
   pack.packed=[member,member]
   await expect(verifyRegisteredPackingCandidate(host,registered,{
-   candidate:{...latest.candidate,packed:[member,{...member,position:'SECOND'}]},openAuthorized:openRegistered,
+   candidate:{...latest.candidate,packed:[candidateMember,{...candidateMember,position:'SECOND'}]},openAuthorized:openRegistered,
   })).rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
   expect(openAuthorized).toHaveBeenCalledTimes(priorDownloads)
   pack.requiredPositions=[position]

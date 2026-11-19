@@ -201,7 +201,7 @@ it('prepares the selected independent response from the saved draft and original
   responseVersions:[{responseId:'RESPONSE'}],factVersions:[{factId:'PRICE',version:2}],assertCurrent}))
  const query:Record<string,string|null>={projectId:'P',draftId:'D',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
   candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
- const session={prepareDraftCandidate,assertCurrent,canEditDraft:true,canLeave:false,
+ const session={prepareDraftCandidate,assertCurrent,canEditDraft:true,canLeave:false,canCancel:true,
   cancel:vi.fn(()=>{throw Error('CONTENT_AUTHORING_STALE')})}
  const {__init__,openDraftCandidate,bindEditorStatus,cancelDraft,bindCancel}=compileFunctions(script,{$route:{query},$page:{
   invokeHostCommand:async()=>session,showAlert,showMessage,
@@ -249,6 +249,11 @@ it('prepares the selected independent response from the saved draft and original
  expect(showMessage).toHaveBeenCalledTimes(3)
  cancelDraft()
  expect(showMessage).toHaveBeenLastCalledWith('当前草稿无法取消，未保存内容仍保留','warning')
+ session.canCancel=false
+ expect(bindCancel()).toEqual({visible:true,disabled:true})
+ cancelDraft()
+ expect(session.cancel).toHaveBeenCalledOnce()
+ session.canCancel=true
  expect(bindCancel()).toEqual({visible:true,disabled:false})
 })
 it('withdraws original form and comparison results when the selected template changes',async()=>{

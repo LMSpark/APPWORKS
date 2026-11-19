@@ -520,10 +520,11 @@ function bindRemove() {return bindAction('删除所选子树')}
 function bindMoveUp() {return bindAction('上移')}
 function bindMoveDown() {return bindAction('下移')}
 function bindCancel() {
-  try {return {visible: !!editorSession, disabled: !editorSession || editorSession.canLeave}}
+  try {return {visible: !!editorSession, disabled: editorSession?.canCancel !== true}}
   catch {return {disabled: true}}
 }
 function cancelDraft() {
+  if (bindCancel().disabled) return
   try {
     editorSession?.cancel()
     selectedNodeId = null

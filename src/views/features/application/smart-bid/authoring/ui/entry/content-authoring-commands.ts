@@ -103,6 +103,10 @@ export class ContentAuthoringCommands {
   this.#epoch++
  }
  get canLeave():boolean{return this.#inputs.size===0&&!this.binding.runtime.isDirty&&!this.#view.mutating&&!this.#view.hasUnconfirmedSave&&!this.#view.hasPendingSavedRowPermissions}
+ get canCancel():boolean{
+  return !this.#view.mutating&&!this.#view.hasUnconfirmedSave&&!this.#view.hasPendingSavedRowPermissions&&
+   (this.#inputs.size>0||this.#view.hasEditingChanges(this.binding.draftId))
+ }
  private assertCurrent(epoch:number):void {
   if(!this.#active||epoch!==this.#epoch)throw Error('CONTENT_COMMAND_STALE')
   this.binding.assertCurrent();this.#assertResult();this.#assertRow()

@@ -13,18 +13,20 @@ import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 import script from '@/views/features/integration/report/ui/tool/script.js?raw'
 import style from '@/views/features/integration/report/ui/tool/style.css?raw'
 
-const state: {runtime: PageRuntime | undefined; preserveRuntime?: () => boolean} = vi.hoisted(() => ({runtime: undefined}))
+const state: {runtime: PageRuntime | undefined; preserveRuntime?: () => boolean; setReloadBlocked?: (value: boolean) => void} = vi.hoisted(() => ({runtime: undefined}))
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
   const {ref} = await import('vue')
   const {PAGE_RUNTIME, useSparkComponent} = await import('@spark-appworks/spark-component')
   return {useFeaturePageRuntime: (options: {preserveRuntime: () => boolean}) => {
     state.preserveRuntime = options.preserveRuntime
+    const reloadBlocked = ref(false)
+    state.setReloadBlocked = value => {reloadBlocked.value = value}
     if (!state.runtime) throw new Error('缺少测试运行实例')
     const {sparkProvide} = useSparkComponent({type: 'report-test-runtime'})
     sparkProvide(PAGE_RUNTIME, state.runtime)
     return {viewKey: ref(`${scenario}@Base_ReportInfo@default`), session: {runtime: state.runtime, isCurrent: (runtime: PageRuntime) => state.runtime === runtime},
-      ready: ref(true), loading: ref(false), error: ref(''), reloadBlocked: ref(false), loadCurrentRoute: vi.fn()}
+      ready: ref(true), loading: ref(false), error: ref(''), reloadBlocked, loadCurrentRoute: vi.fn()}
   }}
 })
 
@@ -45,6 +47,7 @@ afterEach(() => {
   runtimes.splice(0).forEach(runtime => runtime.dispose())
   state.runtime = undefined
   delete state.preserveRuntime
+  delete state.setReloadBlocked
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   config.global.stubs = originalStubs
@@ -239,6 +242,13 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.http.saves).toHaveLength(2)
     expect(f.instance.isDirty).toBe(true)
     expect(state.preserveRuntime?.()).toBe(true)
+    state.setReloadBlocked?.(true)
+    await flushPromises()
+    expect(f.wrapper.text()).toContain('当前仍显示原报表')
+    const switchButton = f.wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '切换到当前导航')
+    expect(switchButton?.props('disabled')).toBe(true)
+    const verifyButton = f.wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '核验原保存结果')
+    expect(verifyButton?.props('disabled')).toBe(false)
     await f.click('新增')
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(true)
     await f.click('核验原保存结果')

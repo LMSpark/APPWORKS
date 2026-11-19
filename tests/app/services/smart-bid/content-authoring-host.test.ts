@@ -202,6 +202,7 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
   try{
    if(savePending){
     await vi.waitFor(()=>expect(wrapper?.text()).toContain('原保存结果未知'),{timeout:4000})
+    expect(wrapper.findAll('button:not([disabled])').map(item=>item.text())).not.toContain('取消本次草稿编辑')
     receipt.state='SAVED'
     const refresh=wrapper.findAll('button').find(item=>item.text()==='重查原保存结果')
     if(!refresh)throw Error('TEST_REFRESH_RECEIPT_BUTTON_REQUIRED')

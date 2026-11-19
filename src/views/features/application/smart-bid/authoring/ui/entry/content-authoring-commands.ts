@@ -89,8 +89,10 @@ export class ContentAuthoringCommands {
   if(signature===canonicalSnapshotValue(original['draft']))throw Error('CONTENT_DRAFT_SAVE_UNCHANGED')
   const assertCurrent=()=>{
    this.assertCurrent(epoch);assertVersion()
+   if(this.#inputs.size)throw Error('CONTENT_COMMAND_PENDING_INPUT')
    const row=view.getEditingRow(draftId)
-   if(!row||canonicalSnapshotValue(row['draft'])!==signature)throw Error('CONTENT_DRAFT_SAVE_STALE')
+   if(!row||view.fieldAccess(row,'draft').read!=='visible'||view.fieldAccess(row,'draft').write!=='allowed'||
+    canonicalSnapshotValue(row['draft'])!==signature)throw Error('CONTENT_DRAFT_SAVE_STALE')
   }
   return prepareContentDraftSaveRequest({projectId,draftId,baseRevisionId,expectedDraftVersion:draftVersion,requestKey,draft,assertCurrent})
  }

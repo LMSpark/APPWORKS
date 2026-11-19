@@ -148,6 +148,12 @@ it('preserves unknown on a complete empty original read and requires readable te
   await expect(verifyRegisteredPackingCandidate(host,registered,{
    candidate:{...latest.candidate,packed:[member,member]},openAuthorized:openRegistered,
   })).rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
+  const priorDownloads=openAuthorized.mock.calls.length
+  pack.packed=[member,member]
+  await expect(verifyRegisteredPackingCandidate(host,registered,{
+   candidate:{...latest.candidate,packed:[member,{...member,position:'SECOND'}]},openAuthorized:openRegistered,
+  })).rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_SCOPE')
+  expect(openAuthorized).toHaveBeenCalledTimes(priorDownloads)
   pack.requiredPositions=[position]
   pack.packed=[member]
   const registeredPage=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{

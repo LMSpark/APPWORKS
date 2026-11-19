@@ -87,7 +87,7 @@ export async function verifyRegisteredPackingCandidate(host:ContentRevisionReadH
  if(source.selectionId!==candidate.selectionId||source.selectionVersion!==candidate.selectionVersion||
   source.selectionHash!==candidate.selectionHash||source.packageHash!==candidate.packageHash||
   positions.size!==candidate.packed.length||candidatePositions.size!==candidate.packed.length||
-  packed.size!==candidate.packed.length||packed.size!==source.packed.length||
+  packed.size!==candidate.packed.length||
   candidate.packed.some(member=>{
    const original=packed.get(member.position)
    return !positions.has(member.position)||original?.fileVersionId!==member.fileVersionId||original.fileHash!==member.fileHash
@@ -129,9 +129,11 @@ export async function readRegisteredSubmissionZipSource(host:ContentRevisionRead
   if(!identity(position)||requiredPositions.includes(position))throw Error(error)
   requiredPositions.push(position)
  },error)
+ const packedPositions=new Set<string>()
  visitSnapshotReferences(row['packed'],item=>{
   const {position,fileVersionId,fileHash}=snapshotReferenceFields(item,['position','fileVersionId','fileHash'],error)
-  if(!identity(position)||!identity(fileVersionId)||!digest(fileHash))throw Error(error)
+  if(!identity(position)||packedPositions.has(position)||!identity(fileVersionId)||!digest(fileHash))throw Error(error)
+  packedPositions.add(position)
   packed.push(Object.freeze({position,fileVersionId,fileHash}))
  },error)
  const assertCurrent=()=>{assertScope();assertRead();assertRow();assertResource?.()}

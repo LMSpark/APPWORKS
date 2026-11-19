@@ -79,7 +79,8 @@ it('reads the original addendum locations for the current project, lot and round
   Baseline:{projectId:'P',id:'OLD',stageRef:'STAGE',factVersions:[],requirementVersions:[{lineageId:'CLAUSE',version:'V1'}],tenderRecords:[]},
   SubmissionObligation:{projectId:'P',id:'O',baselineId:'OLD',obligationRef:'O',sourceRef:'FORM-V1',
    kind:'INDEPENDENT',required:true,allowedDisclosureRefs:['PUBLIC']},
-  GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',actualRequirementReads:[
+  GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',
+   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64),actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ],changeDispositions:[
@@ -162,6 +163,12 @@ it('reads the original addendum locations for the current project, lot and round
    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],
   }]}]})
   history.assertCurrent()
+  expect(history).toMatchObject({items:[{operationAttempt:{projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',
+   requestKey:'REQUEST',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}}]})
+  hiddenFields=['configurationLockHash']
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+   .toMatchObject({items:[{operationAttempt:null,impacts:[{references:[{callRef:'USED'}]}]}]})
+  hiddenFields=[]
   const dispositions=rows.GenerationRun.changeDispositions
   dispositions.push({...dispositions[0]!,decisionRef:'CONFLICT',decision:'REUSE'})
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))

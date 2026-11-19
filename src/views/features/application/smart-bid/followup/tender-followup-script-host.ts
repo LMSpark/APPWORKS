@@ -66,7 +66,7 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
    if(addendum.state!=='REGISTERED')return addendum
    const attempts=await readTenderChangeAttempts({...readHost,assertCurrent:addendum.assertCurrent},revisionId,true)
-   const items=attempts.items.map(({runId,attemptRef,requestKey,evidence})=>Object.freeze({runId,attemptRef,requestKey,
+   const items=attempts.items.map(({runId,attemptRef,requestKey,evidence,operationAttempt})=>Object.freeze({runId,attemptRef,requestKey,operationAttempt,
     impacts:evidence?.state==='REGISTERED'?traceCallImpacts(addendum,evidence):null}))
    attempts.assertCurrent()
    return Object.freeze({state:'HISTORY_TRACED' as const,basisRevisionId:revisionId,items:Object.freeze(items),assertCurrent:attempts.assertCurrent})

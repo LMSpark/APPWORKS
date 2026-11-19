@@ -9,11 +9,13 @@ import {captureTenderChangeCallEvidence,tenderChangeCallFields} from './tender-c
 
 const keys=['projectId','basisRevisionId'] as const
 const fields=['runId','attemptRef','requestKey']
+const frozenFields=['targetDigest','configurationLockHash']
+const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
 const model='GenerationRun',viewName='originalBasisAttempts'
 const error='TENDER_CHANGE_ATTEMPT_SCOPE'
 
 export function tenderChangeAttemptScenarioView(primaryKey:string):ViewMetadata{
- const view=originalRegistrationView(primaryKey,keys,[...fields,...tenderChangeCallFields])
+ const view=originalRegistrationView(primaryKey,keys,[...fields,...frozenFields,...tenderChangeCallFields])
  return {...view,queryConfig:{...view.queryConfig,pagination:'paged',allPages:true}}
 }
 
@@ -59,7 +61,12 @@ export async function readTenderChangeAttempts(host:ContentRevisionReadHost,basi
    }
   }
   if(evidence)proofs.push(evidence.assertCurrent)
-  return Object.freeze({runId,attemptRef,requestKey,evidence})
+  const {targetDigest,configurationLockHash}=row
+  const canReadFrozen=frozenFields.every(field=>view.fieldAccess(row,field).read==='visible')
+  const operationAttempt=canReadFrozen&&digest(targetDigest)&&digest(configurationLockHash)?
+   Object.freeze({projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash}):null
+  if(operationAttempt)proofs.push(view.captureReadRow(row,frozenFields))
+  return Object.freeze({runId,attemptRef,requestKey,evidence,operationAttempt})
  })
  const assertCurrent=()=>{assertScope();assertRead();for(const proof of proofs)proof()}
  assertCurrent()

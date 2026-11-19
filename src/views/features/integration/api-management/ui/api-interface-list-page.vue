@@ -12,12 +12,13 @@
       <template #content="{children}">
         <div class="interface-list">
           <SparkComponentRenderer :config="region(children,'api-interface-sidebar')" />
-          <RendererSection v-bind="region(children,'api-interface-workspace').props" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy">
+          <RendererSection v-for="workspace in children.filter(node => nodeId(node) === 'api-interface-workspace')" key="api-interface-workspace"
+            v-bind="workspace.props" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy">
             <template v-if="selected" #header-actions>
-              <SparkComponentRenderer :config="region(children,'api-interface-save')" />
+              <SparkComponentRenderer :config="region(getSparkNodeChildren(workspace.children),'api-interface-save')" />
             </template>
-            <RendererTabs v-if="selected" v-model="tab" v-bind="region(children,'api-interface-tabs').props">
-              <RendererTabPane v-for="(pane, index) in getSparkNodeChildren(region(children,'api-interface-tabs').children)"
+            <RendererTabs v-if="selected" v-model="tab" v-bind="region(getSparkNodeChildren(workspace.children),'api-interface-tabs').props">
+              <RendererTabPane v-for="(pane, index) in getSparkNodeChildren(region(getSparkNodeChildren(workspace.children),'api-interface-tabs').children)"
                 :key="nodeId(pane) ?? index" :index="index" v-bind="pane.props">
                 <SparkComponentRenderer v-for="node in getSparkNodeChildren(pane.children)"
                   :key="nodeId(pane) === 'api-interface-edit-tab' ? String(selectedId) : nodeId(node) ?? node.type" :config="node" />
@@ -25,7 +26,7 @@
                   :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
               </RendererTabPane>
             </RendererTabs>
-            <DisplayEmpty v-else description="请选择左侧接口，或先新建接口" />
+            <SparkComponentRenderer v-else :config="region(getSparkNodeChildren(workspace.children),'api-interface-empty')" />
           </RendererSection>
         </div>
       </template>
@@ -51,7 +52,7 @@ import script from './interface-list/script.js?raw'
 import style from './interface-list/style.css?raw'
 import {featureTableToolbar,runFeatureTableAction,type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
-const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, DisplayEmpty, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()

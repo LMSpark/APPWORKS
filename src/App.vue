@@ -484,14 +484,7 @@ navigationActionRegistry.register('platform', async () => {
   }
 })
 navigationActionRegistry.register('logout', () => {
-  const dynamic = getDynamicRouter()
-  try {
-    dynamic?.assertPageRuntimesClean()
-  } catch (error: unknown) {
-    pageService.showMessage(error instanceof Error ? error.message : String(error), 'warning')
-    return
-  }
-  dynamic?.resetSystemPageInstances()
+  getDynamicRouter()?.resetSystemPageInstances()
   resetAppProjectWorkspace()
   void lowcodeApi.platform.logout().finally(() => {
     window.location.replace(router.resolve('/').href)

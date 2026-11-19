@@ -71,5 +71,5 @@ export async function prepareRegisteredOperationStepRework(host:ContentRevisionR
  })
  const rework=prepareOperationStepRework({...context,reason,inputRef:attemptInputRef,returnRef:attemptReturnRef,
   calls,findings,priorResults,assertCurrent})
- return Object.freeze({...rework,requestKey})
+ return Object.freeze({...rework,requestKey,targetDigest,configurationLockHash})
 }

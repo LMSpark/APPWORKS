@@ -6,7 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readRegisteredConfigurationRelease} from './configuration-release-reader'
-import {readRegisteredConfigurationChannel,type ConfigurationScope} from './configuration-channel-reader'
+import {readRegisteredConfigurationChannel,readRegisteredConfigurationVersion,type ConfigurationScope} from './configuration-channel-reader'
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
 
 import {prepareConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
@@ -80,9 +80,11 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
      pointer.pointerVersion!==expectedPointerVersion||(channel.state==='ACTIVE'?
       !pointer.version||!identity(pointer.version.versionId)||pointer.version.digest!==channel.versionDigest:
       pointer.version!==null))throw Error('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
+     const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
+      {kind,key,hash:decision.candidate.digest})
     const currentVersion=pointer.version===null?null:Object.freeze({...pointer.version})
     const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion},
-     {...decision,assertCurrent:assertEvidence})
+      {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})
     return Object.freeze({...prepared,currentVersion})
    })
   }

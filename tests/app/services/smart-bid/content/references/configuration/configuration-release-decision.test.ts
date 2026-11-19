@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {configurationReleaseReadView,readRegisteredConfigurationRelease} from '@/views/features/application/smart-bid/configuration/configuration-release-reader'
-import {configurationChannelReadView} from '@/views/features/application/smart-bid/configuration/configuration-channel-reader'
+import {configurationChannelReadView,configurationVersionReadView} from '@/views/features/application/smart-bid/configuration/configuration-channel-reader'
 import {createConfigurationReleaseScriptHost} from '@/views/features/application/smart-bid/configuration/configuration-release-script-host'
 import script from '@/views/features/application/smart-bid/configuration/page19/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -88,6 +88,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   versionId:version.versionId,versionDigest:version.digest,expectedPointerVersion:'P1',status:'APPLIED',releaseRef:'STOP',
   resultPointerVersion:'P2',state:'DISABLED',terminalRef:'TERMINAL'}
  const channelRow={id:'CHANNEL',...scope,scope:'ENTERPRISE',state:'ACTIVE',version:'P1',hash:version.digest}
+ const versionRow={id:'VERSION',kind:scope.kind,key:scope.key,hash:version.digest}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ConfigurationRelease:{
   modelBinding:{modelName:'ConfigurationRelease',modelId:'M'},
   columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},originalRelease:configurationReleaseReadView('id')},
@@ -95,6 +96,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   modelBinding:{modelName:'ConfigChannel',modelId:'C'},
   columns:Object.keys(channelRow).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},currentChannel:configurationChannelReadView('id')},
+ },ConfigVersion:{
+  modelBinding:{modelName:'ConfigVersion',modelId:'V'},
+  columns:Object.keys(versionRow).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalVersion:configurationVersionReadView('id')},
  }}})
  try{
   const view=ds.getView('ConfigurationRelease','originalRelease')
@@ -113,9 +118,20 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
     primaryKeyField:'id',data:{Count:1,Items:[{...channelRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
    }}),
   })})
+  const versionView=ds.getView('ConfigVersion','originalVersion')
+  if(!versionView)throw Error('TEST_CONFIGURATION_VERSION_VIEW_REQUIRED')
+  const versionTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigVersion'})
+  let versionExists=true
+  versionView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:versionTable.identity,scope:'version',readScope:()=> 'version',snapshot:versionTable.applyResult({Result:{
+    primaryKeyField:'id',data:{Count:Number(versionExists),Items:versionExists?
+     [{...versionRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]},
+   }}),
+  })})
   const host={scopeId:scope.scopeId,scenarioId:'S',configurationScope:'ENTERPRISE' as const,
    runtime:{resolveView:(key:string)=>key==='S@ConfigurationRelease@originalRelease'?view:
-    key==='S@ConfigChannel@currentChannel'?channel:undefined},assertCurrent:source.assertCurrent}
+    key==='S@ConfigChannel@currentChannel'?channel:key==='S@ConfigVersion@originalVersion'?versionView:undefined},
+   assertCurrent:source.assertCurrent}
   const original={...disabled.record,requestDigest:disabled.requestDigest}
   const proved=await readRegisteredConfigurationRelease(host,original)
   expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
@@ -193,6 +209,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
    .rejects.toThrow('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
   pointerCurrent=false
   expect(()=>candidate.assertCurrent()).toThrow('POINTER_STALE')
+  pointerCurrent=true
+  versionExists=false
+  await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal))
+   .rejects.toThrow('CONFIGURATION_RELEASE_VERSION_MISSING')
   hidden=true
   await expect(readRegisteredConfigurationRelease(host,original)).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>proved.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

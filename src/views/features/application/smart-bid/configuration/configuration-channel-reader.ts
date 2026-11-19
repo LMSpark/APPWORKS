@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/application/smart-bid/configuration/configuration-channel-reader
- * 职责：读取当前作用域的原配置指针，不用历史启停回执推断当前版本。
+ * 职责：读取正式配置指针和不可变版本。
  */
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {originalRegistrationView,readOriginalRegistrationView} from '../authority/original-registration-view'
@@ -11,6 +11,18 @@ const fields=['version','state','hash']
 
 export function configurationChannelReadView(primaryKey:string){
  return originalRegistrationView(primaryKey,keys,fields)
+}
+
+export function configurationVersionReadView(primaryKey:string){
+ return originalRegistrationView(primaryKey,['kind','key','hash'],[])
+}
+
+export async function readRegisteredConfigurationVersion(
+ host:Parameters<typeof readOriginalRegistrationView>[0],
+ input:Readonly<{kind:string;key:string;hash:string}>){
+ const read=await readOriginalRegistrationView(host,{model:'ConfigVersion',viewName:'originalVersion'},input)
+ if(!read.row)throw Error('CONFIGURATION_RELEASE_VERSION_MISSING')
+ return read.captureFields([])
 }
 
 export async function readRegisteredConfigurationChannel(

@@ -13,6 +13,7 @@ import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-
 function validScope(view:DataView):boolean{
  return view.dataTable?.modelBinding?.modelName==='FactVersion'&&view.commitMode==='staged'&&
   view.queryConfig.allPages===true&&view.queryConfig.pagination==='paged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'})
 }
 

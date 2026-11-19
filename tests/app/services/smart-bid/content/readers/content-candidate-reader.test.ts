@@ -70,8 +70,9 @@ it('binds a prepared draft candidate to the original fact version query',async()
    factDependencyHash:expect.stringMatching(/^[a-f0-9]{64}$/u),requiresFactUseCheck:true})
   expect(request.requestJson).toContain(`"factDependencyHash":"${request.factDependencyHash}"`)
   expect(request.requestDigest).toBe(await hashCanonicalSnapshotText(`["spark-bid.draft-candidate/1",${request.requestJson}]`))
-  await f.ds.getView('FactVersion','effectiveFactVersions')?.refresh()
-  expect(()=>request.assertCurrent()).toThrow()
+  const facts=f.ds.getView('FactVersion','effectiveFactVersions')!
+  facts.queryConfig={...facts.queryConfig,cacheType:'page'}
+  expect(()=>request.assertCurrent()).toThrow('EFFECTIVE_FACT_VIEW_STALE')
  }finally{f.ds.destroy()}
 })
 it('pins a new independent response and its frozen facts in the candidate request',async()=>{

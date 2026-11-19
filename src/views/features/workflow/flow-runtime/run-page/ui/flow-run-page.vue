@@ -246,8 +246,6 @@ const chartBadgeRules = [
 .flow-run-page__business {min-width: 0}
 .flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
 .flow-run-page__handle-title {margin: 0; font-size: 16px}
-.flow-run-page__nodes {display: grid; gap: 8px}
-.flow-run-page__node-option {display: flex; gap: 8px; align-items: center}
 .flow-run-page__chart {min-height: 50vh}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}

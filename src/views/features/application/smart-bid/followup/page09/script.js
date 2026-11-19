@@ -64,10 +64,10 @@ async function openOriginalAttempts() {
       for (const {source, references, results} of item.impacts) {
         lines.push(`变动 ${source.id} · 已核旧版引用 ${references.length} 项`)
         for (const ref of references) lines.push(`调用 ${ref.callRef} · 成果 ${ref.resultRef} · 字段 ${ref.fieldPath} · 版本 ${ref.version}`)
-        for (const {resultRef, disposition, dispositionConflict} of results) {
+        for (const {resultRef, disposition, conflictingDecisionRefs} of results) {
           const decisions = {REDO: '重做', RECHECK: '复核', REUSE: '沿用'}
           lines.push(disposition ? `成果 ${resultRef} · ${decisions[disposition.decision]} · 登记 ${disposition.decisionRef} · ${disposition.reason}` :
-            `成果 ${resultRef} · ${dispositionConflict ? '原处置登记冲突' : '原处置待核'}`)
+            `成果 ${resultRef} · ${conflictingDecisionRefs.length ? '原处置登记冲突 ' + conflictingDecisionRefs.join('、') : '原处置待核'}`)
         }
       }
     }
@@ -144,7 +144,7 @@ async function openCallImpact() {
     result.assertCurrent()
     const lines = ['原调用引用或正式修改登记待核']
     if (result.state === 'CALLS_TRACED') {
-      lines[0] = '原试次 ' + result.attemptRef
+      lines[0] = `运行 ${result.runId} · 原试次 ${result.attemptRef} · 原请求 ${result.requestKey}`
       const decisions = {REDO: '重做', RECHECK: '复核', REUSE: '沿用'}
       for (const {source, references, results} of result.impacts) {
         lines.push(`${source.id} · 修改依据 ${source.current.documentVersionId} / ${source.current.locator}`)
@@ -152,9 +152,9 @@ async function openCallImpact() {
         for (const item of references) {
           lines.push(`调用 ${item.callRef} · 成果 ${item.resultRef} · 字段 ${item.fieldPath} · 版本 ${item.version}`)
         }
-        for (const {resultRef, disposition, dispositionConflict} of results) {
+        for (const {resultRef, disposition, conflictingDecisionRefs} of results) {
           lines.push(disposition ? `成果 ${resultRef} · ${decisions[disposition.decision]} · 责任人 ${disposition.ownerRef} · 登记 ${disposition.decisionRef} · ${disposition.reason}` :
-            `成果 ${resultRef} · ${dispositionConflict ? '原处置登记冲突' : '原处置待核'}`)
+            `成果 ${resultRef} · ${conflictingDecisionRefs.length ? '原处置登记冲突 ' + conflictingDecisionRefs.join('、') : '原处置待核'}`)
         }
       }
     }

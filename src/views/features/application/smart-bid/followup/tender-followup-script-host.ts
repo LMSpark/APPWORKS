@@ -22,7 +22,7 @@ function traceCallImpacts(addendum:Addendum,calls:CallEvidence){
   const references=calls.items.filter(item=>item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion)
   const results=[...new Set(references.map(item=>item.resultRef))].map(resultRef=>{
    const decisions=calls.dispositions.filter(item=>item.addendumId===addendum.id&&item.changeId===source.id&&item.resultRef===resultRef)
-   return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null,dispositionConflict:decisions.length>1})
+   return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null,conflictingDecisionRefs:Object.freeze(decisions.length>1?decisions.map(item=>item.decisionRef):[])})
   })
   return Object.freeze({source,references:Object.freeze(references),results:Object.freeze(results)})
  }))
@@ -114,7 +114,7 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    if(calls.state!=='REGISTERED')return calls
    const impacts=traceCallImpacts(addendum,calls)
    calls.assertCurrent()
-   return Object.freeze({state:'CALLS_TRACED' as const,attemptRef,impacts:Object.freeze(impacts),assertCurrent:calls.assertCurrent})
+   return Object.freeze({state:'CALLS_TRACED' as const,runId,attemptRef,requestKey,impacts,assertCurrent:calls.assertCurrent})
   }
   if(name==='tender.followup.traceChapterPins'){
    const {revisionId,previousId,currentId,addendumId}=input

@@ -165,12 +165,12 @@ it('reads the original addendum locations for the current project, lot and round
   const dispositions=rows.GenerationRun.changeDispositions
   dispositions.push({...dispositions[0]!,decisionRef:'CONFLICT',decision:'REUSE'})
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
-   .toMatchObject({state:'HISTORY_TRACED',items:[{impacts:[{results:[{resultRef:'RESULT',disposition:null,dispositionConflict:true}]}]}]})
+   .toMatchObject({state:'HISTORY_TRACED',items:[{impacts:[{results:[{resultRef:'RESULT',disposition:null,conflictingDecisionRefs:['DECISION','CONFLICT']}]}]}]})
   dispositions.pop()
   hiddenFields=['changeDispositions']
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
    .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:[{
-    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:null,dispositionConflict:false}],
+    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:null,conflictingDecisionRefs:[]}],
    }]}]})
   hiddenFields=['actualRequirementReads']
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))

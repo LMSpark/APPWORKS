@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {readOriginalExportRegistration} from '@/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader'
+import {readOriginalExportRegistration,readOriginalSignedRegistration} from '@/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader'
 import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
@@ -8,6 +8,36 @@ import {compileFunctions} from '../../../../../../../packages/spark-component/sr
 import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+
+it('recovers a signed output only for the same signing request',async()=>{
+ const signing={requestKey:'Q',requestDigest:'a'.repeat(64),objectVersion:'V1',signerRef:'SIGNER',positionRef:'FIELD'}
+ const record={projectId:'P',documentId:'D',revisionId:'R',signatureOperationRef:'OP',signatureRecordId:'SIGNATURE',
+  originalFileId:'BEFORE',originalHash:'b'.repeat(64),signedObjectRef:'AFTER',resourceVersionId:'V2',fileHash:'c'.repeat(64),signing}
+ const row={...record,id:'ORIGINAL'}
+ let persistedSigning={...signing}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{ProducedFile:{
+  modelBinding:{modelId:'M',modelName:'ProducedFile'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},...producedFileScenarioViews()},
+ }}})
+ try{
+  const view=ds.getView('ProducedFile','originalSignedRegistration')!
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ProducedFile'})
+  view.bindQueryExecutor({save:async()=>{throw Error('UNEXPECTED_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'signed',readScope:()=> 'signed',
+   snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[
+    {...row,signing:persistedSigning,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}},
+   ]}}}),
+  })})
+  const host={runtime:{resolveView:()=>view},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+  const read=()=>readOriginalSignedRegistration(host,{record,assertCurrent:()=>{}})
+  const original=await read()
+  expect(original).toMatchObject({state:'REGISTERED',producedFileId:'ORIGINAL',resourceVersionId:'V2'})
+  expect(view.queryContext).toMatchObject({projectId:'P',signatureOperationRef:'OP',signedObjectRef:'AFTER'})
+  persistedSigning={...signing,positionRef:'OTHER'}
+  await expect(read()).rejects.toThrow('BID_SIGNED_REGISTRATION_REQUEST_MISMATCH')
+  expect(()=>original.assertCurrent()).toThrow()
+ }finally{ds.destroy()}
+})
 
 it('reads the original registration, rejects a different hash and keeps an empty result unknown',async()=>{
  const record={projectId:'P',documentId:'D',revisionId:'R',requestKey:'Q',inputDigest:'a'.repeat(64),productionRequestRef:'RUN',

@@ -19,6 +19,7 @@ const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9
 const error='SUBMISSION_ORIGINAL_PACKAGE_SCOPE'
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   scopeFields.every(([field,ParamName])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 }
 
@@ -30,7 +31,8 @@ export async function readPackingRegistrationIdentity(host:ContentRevisionReadHo
  const key=buildDataViewKey('SubmissionPackage',format==='ZIP'?'originalPackedZipByRequest':'originalPackedPaperByRequest',scenarioId)
  const view=runtime.resolveView(key),context={projectId,packingRequestRef,format}
  const isRequestView=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='SubmissionPackage'&&
-  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
+  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&
+  (target.queryConfig.cacheType===undefined||target.queryConfig.cacheType==='none')&&Object.keys(context).every(field=>
    hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))
  if(!view||!isRequestView(view)||view.hasEditingChanges())throw Error('SUBMISSION_ORIGINAL_PACKAGE_VIEW')
  view.queryContext={...view.queryContext,...context}
@@ -107,7 +109,7 @@ export async function readRegisteredSubmissionZipSource(host:ContentRevisionRead
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent()
-  if(runtime.resolveView(key)!==view||!valid(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('SUBMISSION_ORIGINAL_PACKAGE_STALE')
  }
  await view.refresh()

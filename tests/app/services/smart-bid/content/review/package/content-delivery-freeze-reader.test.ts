@@ -153,6 +153,14 @@ it('preserves unknown on a complete empty original read and requires readable te
   registrationMode='FOUND'
   const recovered=await registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal)
   expect(recovered).toMatchObject({status:'REGISTRATION_VERIFIED',verified:{packageId:pack.id,packageHash:pack.packageHash}})
+  for(const view of [packageRequestView,packageView]){
+   const config=view.queryConfig
+   view.queryConfig={...config,cacheType:'page'}
+   expect(()=>recovered.assertCurrent()).toThrow()
+   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))
+    .rejects.toThrow('SUBMISSION_ORIGINAL_PACKAGE_VIEW')
+   view.queryConfig=config
+  }
   const zipOpenCount=openAuthorized.mock.calls.length
   registrationMode='DUPLICATE'
   await expect(registeredPage.invoke('content.submission.preparePacking',{selectionRef:'PACK'},signal))

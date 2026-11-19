@@ -64,6 +64,33 @@ describe('page call tabs and retained renderer instances', () => {
       expect(readFiles).toHaveBeenCalledTimes(2)
     } finally {wrapper.unmount(); runtime.dispose()}
   })
+  it('does not borrow a published version from inherited menu metadata on an explicit tool call', async () => {
+    const page = defineComponent({render: () => h('div')})
+    const readPageFiles = vi.fn<NonNullable<PageRuntimePoolOptions['readPageFiles']>>(async commands =>
+      commands.map(({fileName}) => fileName === 'rule.json' ? '[]' : ''))
+    const readNavTree = vi.fn<PageRuntimePoolOptions['readNavTree']>(() => ({title: 'App', childPlacement: 'header', items: [
+      {id: 'parent', title: 'Published', itemKind: 'page', path: '/published',
+        tool: {projectId: 'APP', pageId: 'another-tool', versionId: 'release-7'}},
+    ]}))
+    const router = createRouter({history: createMemoryHistory(), routes: [{
+      path: '/apps/:projectId', component: page, meta: {nodeId: 'parent'}, children: [{
+        path: '__tool/:pageId', component: page, meta: {type: 'config-page', programmaticTool: true},
+      }],
+    }]})
+    const pool = new PageRuntimePool({pageComponent: page, readNavTree, readPageFiles, readPageFile: undefined,
+      loadScenario: undefined, refreshRoutes: async () => undefined})
+    await router.push('/apps/APP/__tool/called-tool')
+    const runtime = pool.getPageRuntime(router.currentRoute.value)
+    if (!runtime) throw Error('missing explicit tool runtime')
+    try {
+      expect(router.currentRoute.value.meta['nodeId']).toBe('parent')
+      await runtime.load()
+      expect(readNavTree).not.toHaveBeenCalled()
+      expect(readPageFiles.mock.calls[0]?.[0]).toEqual(['rule.json', 'script.js', 'style.css'].map(fileName =>
+        ({projectId: 'APP', pageId: 'called-tool', fileName})))
+    } finally {runtime.dispose()}
+  })
+
   it('keeps distinct calls across native pages and twelve tabs, rejects dirty closes, and preserves aborted navigation', async () => {
     const mounted = vi.fn()
     const invoke = vi.fn()

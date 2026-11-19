@@ -66,7 +66,8 @@ export class PageRuntimePool {
   /** 按路由调用身份获取或创建页面实例；非配置页返回 undefined，目标非法时抛错。 */
   getPageRuntime(route: RouteLocationNormalizedLoaded): PageRuntime | undefined {
     if (route.meta['type'] !== 'config-page') return undefined
-    const tool = route.meta['programmaticTool'] === true
+    const programmatic = route.meta['programmaticTool'] === true
+    const tool = programmatic
       ? { pageId: route.params['pageId'], projectId: route.params['projectId'] }
       : route.meta['tool']
     if (typeof tool !== 'object' || tool === null || !('pageId' in tool) || typeof tool.pageId !== 'string'
@@ -108,10 +109,11 @@ export class PageRuntimePool {
           return undefined
         }
         const readVersion = () => {
+          if (programmatic) return undefined
           const navTree = this.options.readNavTree()
           const node = findNode(navTree?.items ?? [])
           const registeredTool = node?.tool
-          if (route.meta['programmaticTool'] !== true && navTree !== null
+          if (navTree !== null
             && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
             throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
           }

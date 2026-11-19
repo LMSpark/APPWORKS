@@ -7,6 +7,7 @@ import {createMemoryHistory,createRouter} from 'vue-router'
 import {DataSet} from '@spark-appworks/spark-data'
 import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
+import {preparePublishedContentOperationCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-target'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
 import {createKnowledgeDirectoryScriptHost} from '@/views/features/application/smart-bid/knowledge/knowledge-directory-script-host'
@@ -23,6 +24,10 @@ import style from '@/views/features/application/smart-bid/authoring/page18/style
 import {PageRuntimePool} from '../../../../../../packages/spark-app/src/router/page-runtime-pool'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+
+vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+ session:{get:()=>({identity:{userId:'USER'}})},readRequestScope:()=>({token:'TOKEN',headers:{'X-AppId':'APP'}}),
+}}))
 
 it('discovers only the complete scoped directory and retains the original publication and permission proof',async()=>{
  const guideText='### 核路线候选',guideDigest=await hashCanonicalSnapshotText(guideText)
@@ -196,21 +201,22 @@ it('discovers only the complete scoped directory and retains the original public
   expect(()=>frozen.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
   registerAllRenderers()
   const path='/apps/APP/page18',tool={projectId:'APP',pageId:'PAGE18'}
+  const published={applicationId:'APP',nodeId:'NODE18',pageId:'PAGE18',scenarioId:'S'}
   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
-   meta:{type:'config-page',nodeId:'NODE18',pageId:'PAGE18',tool}}]})
+   meta:{type:'config-page',nodeId:'NODE18',pageId:'PAGE18',blueprintScenarioId:'S',tool}}]})
   const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>
    commands.map(({fileName})=>fileName==='rule.json'?rule:fileName==='script.js'?script:style))
   const executePageTool=vi.fn(tools.executeTool)
   const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,
-   preparePageCall:()=>({scenarioInputs:{},assertCurrent:host.assertCurrent,
-    createHost:runtime=>createContentOperationScriptHost(runtime,{executeTool:executePageTool},{...host,rootKind:'OperationRoute'})}),
+   preparePageCall:route=>preparePublishedContentOperationCall(route,published,()=>({
+    classModel:{executeTool:executePageTool},rootKind:'OperationRoute',assertCurrent:host.assertCurrent})),
    loadScenario:async()=>ds,readNavTree:()=>({title:'Fixture',childPlacement:'header',
-    items:[{id:'NODE18',title:'工艺',itemKind:'page',tool}]}),refreshRoutes:async()=>{}})
+    items:[{id:'NODE18',title:'工艺',itemKind:'page',blueprintScenarioId:'S',tool}]}),refreshRoutes:async()=>{}})
   const originalStubs={...config.global.stubs},stubs={...originalStubs}
   for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
   config.global.stubs=stubs
   try{
-   await router.push({path,query:{scenarioId:'S',directoryRef:'DIR'}})
+   await router.push({path,query:{scenarioId:'S',projectId:'P',directoryRef:'DIR'}})
    const component=pool.getPageRuntimeView(router.currentRoute.value)
    if(!component)throw Error('TEST_OPERATION_PAGE_REQUIRED')
    const rendered=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})

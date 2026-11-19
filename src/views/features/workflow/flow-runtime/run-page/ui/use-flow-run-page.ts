@@ -74,13 +74,16 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const appendInputState = useDataViewState(appendInputView)
   function hasPendingAppendInput(): boolean {
     const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID), view = ds?.getView('AppendInput')
-    return ds?.getView('AppendOptions')?.requestState === RequestState.Loading || (view !== undefined && (view.rows.length > 0 || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+    return ds?.getView('AppendOptions')?.requestState === RequestState.Loading || (view !== undefined
+      && (view.mutating || view.hasUnconfirmedSave || view.rows.length > 0 || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
   }
   function hasPendingWork(): boolean {
     return handleLoading.value || hasPendingApproval() || approvalWorkspace.value?.dirty === true || hasPendingAppendInput()
   }
   useSystemPageDirtySource({get isDirty() { return hasPendingWork() }})
-  const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
+  const appendCloseDisabled = computed(() => handleLoading.value || commandState.resultReplacementBlocked.value
+    || commandState.mutating.value || appendOptionsState.requestState.value === RequestState.Loading
+    || appendInputState.mutating.value || appendInputState.rows.value.length > 0 || appendInputState.resultReplacementBlocked.value)
   const inputLocked = computed(() => {commandState.mutating.value; commandState.requestState.value; return handleLoading.value || hasPendingApproval()})
   const activeFormId = ref('')
   const appendOpen = ref(false)

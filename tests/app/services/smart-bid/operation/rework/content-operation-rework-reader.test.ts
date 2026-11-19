@@ -45,7 +45,13 @@ it('prepares rework only from a visible, complete original attempt projection',a
   hidden=['findings']
   await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')
   expect(()=>originalPrepared.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  hidden=['targetDigest']
+  await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')
+  hidden=['configurationLockHash']
+  await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')
   hidden=[]
+  await expect(prepareRegisteredOperationStepRework(host,{...scope,targetDigest:'d'.repeat(64),reason:'原目标不符'}))
+   .rejects.toThrow('OPERATION_REWORK_READ_SCOPE')
   returnedKey='OTHER'
   await expect(prepare()).rejects.toThrow('OPERATION_REWORK_READ_SCOPE')
  }finally{ds.destroy()}

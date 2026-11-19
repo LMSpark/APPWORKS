@@ -33,7 +33,7 @@
           <FieldCheckbox v-bind="dialog.checkbox.props" v-model="dialog.showVoided.value" />
           <RendererTabs v-bind="dialog.tabs.props" v-model="dialog.activeTab.value">
             <RendererTabPane v-for="(pane, index) in dialog.panes" :key="index" :index="index" v-bind="pane.props">
-              <FlowRunDetailStepTable v-if="dialog.open.value && prepared" :view-key="prepared.stepViewKey"
+              <FlowRunDetailStepTable v-if="dialog.open.value && prepared" :rule="dialog.stepTable" :view-key="prepared.stepViewKey"
                 v-bind="stepFilters(pane.props?.['name'])" :show-voided="dialog.showVoided.value" />
             </RendererTabPane>
           </RendererTabs>
@@ -167,11 +167,13 @@ const drilldownState = [
   {id: 'edgeSteps', open: edgeDialogOpen, title: edgeDialogTitle, activeTab: edgeActiveTab, showVoided: edgeShowVoided},
 ]
 function drilldownDialogs(children: readonly SparkNode[]) {
+  const stepTable = children.find(node => nodeId(node) === 'stepTable' && node.type === 'r-table')
+  if (!stepTable) return []
   return drilldownState.flatMap(state => {
     const rule = children.find(node => nodeId(node) === state.id)
     const [checkbox, tabs] = getSparkNodeChildren(rule?.children)
     return rule && checkbox && tabs
-      ? [{...state, rule, checkbox, tabs, panes: getSparkNodeChildren(tabs.children)}]
+      ? [{...state, rule, checkbox, tabs, stepTable, panes: getSparkNodeChildren(tabs.children)}]
       : []
   })
 }

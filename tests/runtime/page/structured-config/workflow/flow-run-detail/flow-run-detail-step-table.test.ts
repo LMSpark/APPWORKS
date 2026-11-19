@@ -6,6 +6,7 @@ import {DataSet, buildDataViewKey} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {PAGE_RUNTIME, RendererTable, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import detailRule from '@/views/features/workflow/flow-runtime/detail/ui/tool/rule.json'
 import StepTable from '@/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
@@ -38,8 +39,10 @@ async function fixture(hidden = false) {
   const runtime = new PageRuntime({pageId: 'step-detail', scenarioIds: ['WORK'], loadScenario: async () => ds})
   await runtime.load()
   const options = reactive<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided: boolean}>({viewKey: buildDataViewKey('Steps','default','WORK'), receivedNodeId: 'N1', showVoided: false})
-  const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'step-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(StepTable, {...options})}})
-  const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+  const rule = detailRule.find(node => node.id === 'stepTable')
+  if (!rule) throw Error('运行详情缺少钻取表规则')
+  const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'step-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(StepTable, {...options, rule})}})
+  const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
   instances.push({wrapper, runtime}); await flushPromises(); await flushPromises()
   return {ds, source, http, runtime, wrapper, options}
 }

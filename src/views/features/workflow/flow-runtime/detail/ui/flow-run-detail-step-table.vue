@@ -4,27 +4,26 @@
 -->
 <template>
   <RendererSection :error="error" :bordered="false" :grid-columns="1">
-    <RendererTable v-if="detailView" :data-source="detailView" :data-view-key="detailViewKey" :children="fields"
-      :stripe="true" :max-height="380" :show-pagination="false" :show-data-view-meta="false" />
+    <SparkComponentRenderer v-if="detailView" :config="tableConfig" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {onBeforeUnmount, ref, shallowRef, useId, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, useId, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, type DataView, type DataViewFilterTree, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererSection, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererSection, SparkComponentRenderer, useSparkComponent} from '@spark-appworks/spark-component'
 
-const props = defineProps<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided?: boolean}>()
+const props = defineProps<{rule: SparkNode; viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided?: boolean}>()
 const {sparkConsume} = useSparkComponent({type: 'flow-run-detail-step-table'})
 const detailView = shallowRef<DataView>(), detailViewKey = ref(''), error = ref('')
 const viewId = `step-detail-${useId()}`
 let generation = 0
 let stopObserving: (() => void) | undefined
-const fields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'description', label: '摘要', minWidth: 280, readonly: true, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'STARTTIME', label: '开始时间', minWidth: 160, readonly: true}},
-  {type: 'r-text', props: {field: 'StepState', label: '步骤状态', minWidth: 100, readonly: true}},
-]
+const tableConfig = computed(() => ({
+  ...props.rule,
+  id: viewId,
+  props: {...props.rule.props, dataViewKey: detailViewKey.value},
+}))
 function release(): void {
   stopObserving?.(); stopObserving = undefined
   const previous = detailView.value

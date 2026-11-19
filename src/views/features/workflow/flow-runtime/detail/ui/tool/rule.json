@@ -158,5 +158,45 @@
         ]
       }
     ]
+  },
+  {
+    "id": "stepTable",
+    "type": "r-table",
+    "props": {
+      "stripe": true,
+      "maxHeight": 380,
+      "showPagination": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-text",
+        "props": {
+          "field": "description",
+          "label": "摘要",
+          "minWidth": 280,
+          "readonly": true,
+          "showOverflowTooltip": true
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "STARTTIME",
+          "label": "开始时间",
+          "minWidth": 160,
+          "readonly": true
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "StepState",
+          "label": "步骤状态",
+          "minWidth": 100,
+          "readonly": true
+        }
+      }
+    ]
   }
 ]

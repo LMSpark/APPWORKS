@@ -20,7 +20,8 @@ const scopeKeys=['projectId','lotId','subjectId','channelId','requestDigest'] as
 const scopeConditions=[...scopeKeys.map(field=>[field,field] as const),['id','attemptRef'] as const]
 const fields=['id',...scopeKeys,'events','combinedWithdrawalTarget']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='SubmissionAttempt'&&
- view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&scopeConditions.every(([field,ParamName])=>
+ view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&scopeConditions.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
 function readEvent(scope:Scope,value:unknown,assertCurrent:()=>void):Event{

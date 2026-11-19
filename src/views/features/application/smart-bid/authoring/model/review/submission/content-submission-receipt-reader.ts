@@ -11,6 +11,7 @@ const scopeFields=[['projectId','projectId'],['id','receiptRef'],['attemptRef','
 const fields=['id','projectId','revisionId','attemptRef','eventKind','observationRefs']
 function valid(view:DataView):boolean{
  return view.dataTable?.modelBinding?.modelName==='ChannelReceipt'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   scopeFields.every(([field,param])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:param}))
 }
 
@@ -27,7 +28,7 @@ export async function readPlatformSubmissionReceipt(host:ContentRevisionReadHost
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent()
-  if(runtime.resolveView(key)!==view||!valid(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('CONTENT_PLATFORM_RECEIPT_STALE')
  }
  await view.refresh();assertScope()

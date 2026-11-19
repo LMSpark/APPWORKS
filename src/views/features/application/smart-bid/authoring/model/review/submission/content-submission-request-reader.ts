@@ -14,6 +14,7 @@ const scopeFields=[['projectId','projectId'],['id','attemptRef'],['requestKey','
 const fields=['id','projectId','requestKey','requestDigest','requestPayload']
 function valid(view:DataView){
  return view.dataTable?.modelBinding?.modelName==='SubmissionAttempt'&&view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   scopeFields.every(([field,ParamName])=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 }
 
@@ -31,7 +32,7 @@ export async function readRegisteredSubmissionRequest(host:ContentRevisionReadHo
  view.queryContext={...view.queryContext,...context}
  const assertScope=()=>{
   host.assertCurrent()
-  if(runtime.resolveView(key)!==view||!valid(view)||view.hasEditingChanges()||
+  if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('SUBMISSION_REQUEST_READ_STALE')
  }
  await view.refresh()

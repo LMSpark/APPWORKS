@@ -22,6 +22,11 @@ it('uses only the original channel reception event and its explicitly covered ob
  try{
   const receipt=await readPlatformSubmissionReceipt(host,selection)
   expect(receipt.observationRefs).toEqual(['OBS'])
+  const config=view.queryConfig
+  view.queryConfig={...config,cacheType:'page'}
+  expect(()=>receipt.assertCurrent()).toThrow('CONTENT_PLATFORM_RECEIPT_STALE')
+  await expect(readPlatformSubmissionReceipt(host,selection)).rejects.toThrow('CONTENT_PLATFORM_RECEIPT_VIEW')
+  view.queryConfig=config
   row.eventKind='WITHDRAWN'
   await expect(readPlatformSubmissionReceipt(host,selection)).rejects.toThrow('CONTENT_PLATFORM_RECEIPT_NOT_ACCEPTED')
   expect(()=>receipt.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')

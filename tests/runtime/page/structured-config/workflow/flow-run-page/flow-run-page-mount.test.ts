@@ -65,9 +65,6 @@ vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-rende
   }})}
 })
 vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}]}))
-vi.mock('@/views/features/workflow/flow-append-user/ui/flow-append-user.vue', () => ({
-  default: {name: 'FlowAppendUser', template: '<div data-testid="append-user">加签</div>'},
-}))
 const {default: MobileFlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue')
 const {default: FlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue')
 
@@ -369,6 +366,11 @@ describe('flow run page mount', () => {
     try {
       await flushPromises()
       if (outcome === 'append-input') {
+        await wrapper.findAll('button').find(item => item.text() === '加签')!.trigger('click')
+        await flushPromises()
+        const appendDialog = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')
+        expect(appendDialog?.props('modelValue')).toBe(true)
+        expect(new DOMWrapper(document.body).text()).toContain('追加参与人')
         ensureDataSetStaticInputTable(ds, 'AppendInput', [{name: 'inputId', primary: true}, {name: 'receiveUsers', type: 'array'}])
         const input = ds.getView('AppendInput')!; input.commitMode = 'staged'
         await appendOptions.refresh(); await flushPromises()

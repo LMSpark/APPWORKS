@@ -46,18 +46,24 @@ async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Pr
  const commands=new ContentAuthoringCommands(binding)
  return {ds,runtime,view,commands,binding,query,save,pending,expire:()=>{current=false}}
 }
-it('refreshes an empty cached project head before preparing a first candidate',async()=>{
+it('requires a fresh project head before preparing a first candidate',async()=>{
  const project:{headRevisionId:string|null}={headRevisionId:null}
  const f=await fixture(true,false,undefined,'id',project)
  try{
-  const view=f.ds.getView('ContentProject','selectedProject')
-  expect(view?.rows[0]?.['headRevisionId']).toBeNull()
+  const view=f.ds.getView('ContentProject','selectedProject')!
+  expect(view.rows[0]?.['headRevisionId']).toBeNull()
   project.headRevisionId='ADOPTED'
   const session=createContentAuthoringScriptHost(f.binding,f.commands)
    .invoke('content.authoring.connect',undefined,new AbortController().signal)
+  const queryConfig=view.queryConfig
+  view.queryConfig={...queryConfig,cacheType:'page'}
+  await expect(session.prepareDraftCandidate({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:0}))
+   .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_BASIS')
+  expect(view.rows[0]?.['headRevisionId']).toBeNull()
+  view.queryConfig=queryConfig
   await expect(session.prepareDraftCandidate({requestKey:'Q',firstBatchId:'BATCH',targetScopeIndex:0}))
    .rejects.toThrow('CONTENT_DRAFT_FIRST_HEAD_CHANGED')
-  expect(view?.rows[0]?.['headRevisionId']).toBe('ADOPTED')
+  expect(view.rows[0]?.['headRevisionId']).toBe('ADOPTED')
   expect(f.save).not.toHaveBeenCalled()
  }finally{f.runtime.dispose()}
 })

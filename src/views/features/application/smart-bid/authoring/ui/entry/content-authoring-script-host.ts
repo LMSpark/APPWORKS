@@ -134,7 +134,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const projectView=runtime.resolveView(projectKey)
      const {firstBatchId}=request
      if(!projectView||projectView.dataTable?.modelBinding?.modelName!=='ContentProject'||projectView.hasEditingChanges()||
-      projectView.queryContext['projectId']!==projectId||
+      !isUncachedContentRead(projectView)||projectView.queryContext['projectId']!==projectId||
       !hasContentScopeCondition(projectView,'projectId',{Type:'GetInputParam',ParamName:'projectId'})||!identity(firstBatchId))
       throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      await projectView.refresh()
@@ -149,15 +149,16 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      if(project['headRevisionId']!==null||!identity(project['activeBaselineId']))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
      const assertFirst=()=>{
       assertDraft()
-      if(runtime.resolveView(projectKey)!==projectView)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
+      if(runtime.resolveView(projectKey)!==projectView||!isUncachedContentRead(projectView))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       resultProof()
       proof()
      }
-     const basis=await readDraftCandidateBasis({...host,assertCurrent:assertFirst},
+     const firstHost={...host,assertCurrent:assertFirst}
+     const basis=await readDraftCandidateBasis(firstHost,
       {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope,
        ...(request.targetScopeIndex===undefined?{}:{targetScopeIndex:request.targetScopeIndex})})
      if(!('targetScope' in basis))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
-     return prepareRegisteredDraftCandidateRequest(host,captured,basis,{...requestFields,targetScope:basis.targetScope})
+     return prepareRegisteredDraftCandidateRequest(firstHost,captured,basis,{...requestFields,targetScope:basis.targetScope})
     },
     async captureCandidateDraft(){
      assertCurrent()

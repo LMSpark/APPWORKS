@@ -23,7 +23,7 @@
                 <SparkComponentRenderer v-for="node in getSparkNodeChildren(pane.children)"
                   :key="nodeId(pane) === 'api-interface-edit-tab' ? String(selectedId) : nodeId(node) ?? node.type" :config="node" />
                 <InterfaceJsonImportDialog v-if="nodeId(pane) === 'api-interface-edit-tab' && importing"
-                  :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
+                  :key="importing.epoch" :dialog-rule="region(children,'api-interface-json-import')" :target="importing.target" @close="importing=undefined" />
               </RendererTabPane>
             </RendererTabs>
             <SparkComponentRenderer v-else :config="region(getSparkNodeChildren(workspace.children),'api-interface-empty')" />

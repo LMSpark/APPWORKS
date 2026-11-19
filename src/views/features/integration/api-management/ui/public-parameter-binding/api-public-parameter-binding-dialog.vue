@@ -33,7 +33,7 @@ const selectorConfig=computed(()=>({
  ...selectorRule,
  children:[{...selectorField,props:{...selectorField.props,readonly:!!chosen.value}}],
 }))
-const selectorActions=computed(()=>rules.flatMap(node=>{
+const selectorActions=computed(()=>rules.flatMap<SparkNode>(node=>{
  switch(nodeId(node)){
   case 'parameter-choose': return [{...node,props:{...node.props,disabled:!!chosen.value,onClick:choose}}]
   case 'parameter-selection-error': return error.value?[{...node,props:{...node.props,title:error.value}}]:[]

@@ -4,6 +4,7 @@ import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/vi
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
+import {prepareRegisteredOperationStepRework} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader'
 import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
@@ -80,7 +81,9 @@ it('reads the original addendum locations for the current project, lot and round
   SubmissionObligation:{projectId:'P',id:'O',baselineId:'OLD',obligationRef:'O',sourceRef:'FORM-V1',
    kind:'INDEPENDENT',required:true,allowedDisclosureRefs:['PUBLIC']},
   GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',
-   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64),actualRequirementReads:[
+   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64),inputRef:'INPUT',returnRef:'RESULT',
+   calls:[{callRef:'USED',ownerRef:'OWNER',effect:'COMPUTE',state:'COMPLETE',inputRef:'INPUT',returnRef:'RESULT'}],
+   findings:[{cause:'INPUT',callRef:'USED',evidenceRef:'ITEM',affectedRefs:['RESULT']}],priorResults:[],actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ],changeDispositions:[
@@ -165,6 +168,18 @@ it('reads the original addendum locations for the current project, lot and round
   history.assertCurrent()
   expect(history).toMatchObject({items:[{operationAttempt:{projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',
    requestKey:'REQUEST',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}}]})
+  const reworkView=ds.getView('GenerationRun','originalReworkEvidence')
+  if(!reworkView)throw Error('TEST_REWORK_VIEW_REQUIRED')
+  reworkView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:attemptTable.identity,scope:'rework',readScope:()=> 'rework',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:1,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+  })})
+  if(!('items' in history)||history.state!=='HISTORY_TRACED')throw Error('TEST_ATTEMPT_TRACE_REQUIRED')
+  const operationAttempt=history.items[0]?.operationAttempt
+  if(!operationAttempt)throw Error('TEST_FROZEN_IDENTITY_REQUIRED')
+  const rework=await prepareRegisteredOperationStepRework({runtime,scenarioId:'S',projectId:operationAttempt.projectId,
+   assertCurrent:history.assertCurrent},{...operationAttempt,reason:'按正式修改退回取材'})
+  expect(rework).toMatchObject({...operationAttempt,firstCallRef:'USED',handoffs:[{destination:'03',affectedRefs:['RESULT']}]})
   hiddenFields=['configurationLockHash']
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
    .toMatchObject({items:[{operationAttempt:null,impacts:[{references:[{callRef:'USED'}]}]}]})

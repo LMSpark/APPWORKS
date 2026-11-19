@@ -16,6 +16,11 @@ import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-pr
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string, _options?: unknown) => Promise<string>>())
+// Vitest strips CSS imports by default. Use the actual tool stylesheet.
+vi.mock('@/views/features/integration/api-management/ui/interface-list/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/integration/api-management/ui/interface-list/style.css', 'utf8')}
+})
 vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
@@ -553,6 +558,10 @@ describe('external API pages assembled through the standard scenario entry', () 
     const dialog = wrapper.getComponent(RendererDialog)
     expect(dialog.props('dataViewKey')).toBe(`${API}@Base_DataServiceInterface@default`)
     expect(dialog.props('width')).toBe(1480)
+    const page = dialog.get('.spark-page-container')
+    const scope = `[data-page="${page.attributes('data-page')}"].spark-page-container`
+    expect(page.find('.interface-list').exists()).toBe(true)
+    expect(dialog.get('style').element.textContent).toContain(`${scope} .interface-list {`)
     expect(wrapper.text()).toContain('取令牌')
     expect(wrapper.text()).not.toContain('其他')
     expect(wrapper.text()).toContain('请选择左侧接口，或先新建接口')

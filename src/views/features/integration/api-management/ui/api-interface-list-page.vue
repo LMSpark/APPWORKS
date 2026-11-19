@@ -383,7 +383,3 @@ async function loadProvider(providerId: string): Promise<void> {
 watch(() => props.providerId, loadProvider, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
-<style scoped>
-.interface-list {display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 16px; align-items: start; min-height: 560px;}
-@media (max-width: 900px) {.interface-list {grid-template-columns: minmax(0, 1fr);}}
-</style>

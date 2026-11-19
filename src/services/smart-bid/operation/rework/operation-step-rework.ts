@@ -48,7 +48,7 @@ export function prepareOperationStepRework(source:Readonly<{
   else if((cause==='RECOMPUTE'||cause==='EVIDENCE_ONLY')&&call.inputRef===null)destination='05'
   else if(cause==='EVIDENCE_ONLY'&&(call.returnRef===null||call.state!=='COMPLETE'))destination='ORIGINAL_CALL'
   return Object.freeze({cause,callRef,evidenceRef,affectedRefs:Object.freeze([...affectedRefs]),destination,
-   inputRef:call.inputRef,returnRef:call.returnRef})
+   originalOwnerRef:call.ownerRef,inputRef:call.inputRef,returnRef:call.returnRef})
  })
  handoffs.sort((left,right)=>(order.get(left.callRef)??calls.length)-(order.get(right.callRef)??calls.length))
  const originalOperations=calls.flatMap(({callRef,ownerRef,effect,state})=>

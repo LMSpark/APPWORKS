@@ -24,9 +24,10 @@ it('returns to the earliest affected call and hands external operations back to 
   handoffs:[{destination:'03'},{destination:'06',inputRef:'SIGN-IN',returnRef:'SIGN-OUT'},{destination:'ORIGINAL_CALL'}],
   reusable:[{resultRef:'INDEPENDENT'}],originalOperations:[{destination:'46',ownerRef:'SIGNER'},
    {destination:'52',state:'UNKNOWN',ownerRef:'REP'}]})
- expect(prepareOperationStepRework({...request,findings:[makeFinding('UNKNOWN_IMPACT','CALC')]}).reusable).toEqual([])
+ expect(prepareOperationStepRework({...request,findings:[makeFinding('UNKNOWN_IMPACT','CALC')]}))
+  .toMatchObject({reusable:[],handoffs:[{destination:'CALL_OWNER',originalOwnerRef:'OPERATOR'}]})
  expect(prepareOperationStepRework({...request,findings:[makeFinding('EVIDENCE_ONLY','SUBMIT')]}).handoffs)
-  .toMatchObject([{destination:'ORIGINAL_CALL'}])
+  .toMatchObject([{destination:'ORIGINAL_CALL',originalOwnerRef:'REP'}])
  stale=true
  expect(()=>rework.assertCurrent()).toThrow('STALE_PROOF')
 })

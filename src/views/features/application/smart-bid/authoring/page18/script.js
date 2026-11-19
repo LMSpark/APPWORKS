@@ -203,7 +203,10 @@ async function prepareRework() {
     if (!isCurrent()) return
     prepared.assertCurrent()
     const lines = [
-      ...prepared.handoffs.map(item => `调用 ${item.callRef} → ${item.destination}`),
+      ...prepared.handoffs.map(item => {
+        const owner = item.destination === 'ORIGINAL_CALL' || item.destination === 'CALL_OWNER' ? `（${item.originalOwnerRef}）` : ''
+        return `调用 ${item.callRef} → ${item.destination}${owner}`
+      }),
       ...prepared.originalOperations.map(item => `原办理 ${item.callRef} → ${item.destination}（${item.ownerRef}）`),
       ...prepared.reusable.map(item => `可沿用 ${item.resultRef}`),
     ]

@@ -34,6 +34,12 @@ it('requires verification of the exact AI-assisted position separately from the 
  const another=await readReviewedResponseForCandidate(scope,draft,anotherReview)
  expect(another.draftHash).toBe(reviewed.draftHash)
  expect(another.reviewHash).not.toBe(reviewed.reviewHash)
+ const additional={...position,positionRef:'ADDITIONAL',requiresAiVerification:false}
+ const checks=[{...check,aiVerificationRef:'AI'},{...check,...additional}]
+ const ordered=await reviewResponseDraft(draft,{...source,checks,positions:[additional,position],deferredPositionRefs:['A','B']})
+ const reversed=await reviewResponseDraft(draft,{...source,checks,positions:[position,additional],deferredPositionRefs:['B','A']})
+ expect((await readReviewedResponseForCandidate(scope,draft,reversed)).reviewHash)
+  .toBe((await readReviewedResponseForCandidate(scope,draft,ordered)).reviewHash)
  await expect(readReviewedResponseForCandidate(scope,draft,pending)).rejects.toThrow('BID_RESPONSE_CANDIDATE_SCOPE')
  await expect(readReviewedResponseForCandidate(scope,{...draft,body:{statement:'换文',data:{}}},verified))
   .rejects.toThrow('BID_RESPONSE_CANDIDATE_VERSION')

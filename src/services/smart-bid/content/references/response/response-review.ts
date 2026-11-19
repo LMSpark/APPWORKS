@@ -22,7 +22,7 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
  const assertSource=()=>{draft.assertCurrent();source.assertCurrent();for(const check of checks)check.assertCurrent()}
  assertSource()
  const positionsInput=source.positions.map(position=>({...position}))
- const deferredPositionRefs=Object.freeze([...source.deferredPositionRefs])
+ const deferredPositionRefs=Object.freeze([...source.deferredPositionRefs].sort())
  const {reviewerRef,ruleVersionRef,deviation,deviationAllowed,draftHash:expectedDraftHash}=source
  const {assertCurrent:_proof,...document}=draft
  const documentText=canonicalSnapshotValue(document)
@@ -52,6 +52,7 @@ export async function reviewResponseDraft(draft:Draft,source:Readonly<{
    throw Error('BID_RESPONSE_REVIEW_EVIDENCE')
   byPosition.set(check.positionRef,check)
  }
+ positionsInput.sort((left,right)=>left.positionRef<right.positionRef?-1:left.positionRef>right.positionRef?1:0)
  const results=Object.freeze(positionsInput.map(position=>{
   const check=byPosition.get(position.positionRef)
   const verified=check?.accepted===true&&(!position.requiresAiVerification||check.aiVerificationRef!==null)

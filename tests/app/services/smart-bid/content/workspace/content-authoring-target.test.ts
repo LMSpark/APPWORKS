@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
+import {preparePublishedContentAuthoringCall,resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
 import {preparePublishedAuthorityGrantCall,preparePublishedResourceVersionCall,preparePublishedResourceUseCall,preparePublishedBidHandoffCall,preparePublishedTenderFollowupCall,preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
@@ -179,6 +179,12 @@ it('dispatches only the published node and tool pair in the declared space',()=>
  expect(()=>resolvePublishedContentAuthoringTarget({...route(),meta:{...route().meta,blueprintScenarioId:'OTHER'}},entry))
   .toThrow('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
  expect(resolvePublishedContentAuthoringTarget({...route(),meta:{...route().meta,blueprintScenarioId:space}},entry)?.scenarioId).toBe(space)
+})
+it('derives the production page 11 host identity from the authorized route',()=>{
+ const target={...route(),meta:{...route().meta,blueprintScenarioId:space}}
+ const prepared=preparePublishedContentAuthoringCall(target)
+ expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
+ expect(resolvePublishedContentAuthoringTarget(target)?.pageId).toBe('TOOL11')
 })
 it('takes page and space identity from resolved navigation while keeping explicit project/draft',()=>{
  const target=resolveContentAuthoringTarget(route())

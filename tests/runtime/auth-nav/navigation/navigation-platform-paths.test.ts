@@ -191,7 +191,7 @@ describe('useNavigation platform paths', () => {
   it('navigates a config node with its tool identity and scenario call parameter', async () => {
     const node={id:'orders-node',title:'Orders',itemKind:'page' as const,
       path:buildConfigPageNavigationPath('orders-node','SPACE & 2'),
-      tool:{projectId:'homepage',pageId:'orders-tool',versionId:'rule=2;script=1;style=3'}}
+      tool:{projectId:'homepage',pageId:'orders-tool'}}
     const {router,navigateTo}=await mountNavigationProbe('/apps/homepage/home',{...NAV_ROOT,items:[node]})
     router.addRoute({path:'/apps/:projectId/__page/orders-node',name:'nav-orders-node',component:DummyPage,
       meta:{type:'config-page',nodeId:node.id,tool:node.tool}})

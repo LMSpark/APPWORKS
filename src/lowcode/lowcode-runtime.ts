@@ -24,6 +24,7 @@ import {readRepositoryScenarioText} from './resources/repository/scenarios/resou
 import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/repository/scenarios/host-client'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
 import {applicationDesignItems, lowcodeEnterpriseNavigation, withApplicationDesign} from './system-navigation'
+import {invalidateRuntimeFile, readRuntimeFile} from './runtime-file-cache'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -215,8 +216,6 @@ function buildRuntimeNavigationItem(
         : target.targetKind === 'empty'
           ? 'system-action'
           : 'page'
-  const sourceVersion = record.source['VersionId']
-  const versionId = typeof sourceVersion === 'string' ? sourceVersion.trim() : ''
   return {
     id: record.nodeId,
     title: (record.navigation?.title ?? record.capability.name),
@@ -226,7 +225,6 @@ function buildRuntimeNavigationItem(
     ...(record.dataSpace?.scenarioId === undefined ? {} : { blueprintScenarioId: record.dataSpace.scenarioId }),
     ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
       projectId: record.projectId, pageId: ProjectModel.parseConfigToolPageId(record.navigation.target),
-      ...(versionId ? { versionId } : {}),
     } } : {}),
     ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
     ...(record.navigation?.icon === undefined ? {} : { icon: record.navigation.icon }),
@@ -491,6 +489,12 @@ function toolFilePath(applicationId: string, pageId: string): string {
   return `${applicationId}/${id}`
 }
 
+function runtimeFileCacheOwner(projectId:string):string | undefined {
+  const session=lowcodeApi.session.get()
+  if(!session) return undefined
+  return JSON.stringify([session.enterprise.id,session.identity.userId,projectId])
+}
+
 function assertProjectFilePath(applicationId:string,customPath:string):string {
   const normalized=customPath.trim(),segments=normalized.split('/')
   if(normalized!==customPath||segments[0]!==applicationId||segments.length<2||/[\\%\u0000-\u001f\u007f?#]/.test(normalized)
@@ -553,11 +557,22 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
             return text
         }
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
-        const scope = lowcodeApi.readRequestScope().token
+        const scope = lowcodeApi.readRequestScope()
+        const locator={appType:'designfile',customPath,fileName:'pagedata.json'} as const
         try {
-          return await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+          return await readRuntimeFile({
+            owner:runtimeFileCacheOwner(normalizedProjectId),
+            locator,
+            assertCurrent:()=> {
+              const current=lowcodeApi.readRequestScope()
+              if(current.token!==scope.token||current.headers['X-AppId']!==normalizedProjectId)
+                throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
+            },
+            readVersion:()=>lowcodeApi.design.readFileLastModified(locator),
+            readText:()=>lowcodeApi.design.readTextFile(locator),
+          })
         } catch (error) {
-          if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
+          if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
           if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
           throw error
         }
@@ -582,6 +597,9 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         }
         await scenarioFileUpload.uploadWorkingText({
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json', text,
+        })
+        invalidateRuntimeFile(runtimeFileCacheOwner(normalizedProjectId),{
+          appType:'designfile',customPath:scenarioViewPath(normalizedProjectId,scenarioId),fileName:'pagedata.json',
         })
       },
       listVersions: async scenarioId => {
@@ -727,7 +745,16 @@ export function createPageToolFilesIo(projectId:string){
     read:async(app:string,page:string,name:string)=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       if(name.length===0||name!==name.trim()||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('FILE_SCOPE: 文件名无效')
-      try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})}
+      const customPath=toolFilePath(appId,page),locator={appType:'designfile',customPath,fileName:name} as const
+      try{return await readRuntimeFile({
+        owner:runtimeFileCacheOwner(appId),locator,
+        assertCurrent:()=> {
+          if(lowcodeApi.readRequestScope().headers['X-AppId']!==appId)
+            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工具文件请求所属应用已失效')
+        },
+        readVersion:()=>lowcodeApi.design.readFileLastModified(locator),
+        readText:()=>lowcodeApi.design.readTextFile(locator),
+      })}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string;replace?:true}>)=>{
@@ -735,10 +762,13 @@ export function createPageToolFilesIo(projectId:string){
       const file = {customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text}
       if(command.replace) await scenarioFileUpload.uploadWorkingText(file)
       else await scenarioFileUpload.uploadTextVersion(file)
+      invalidateRuntimeFile(runtimeFileCacheOwner(appId),{appType:'designfile',customPath:file.customPath,fileName:file.fileName})
     },
     restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
-      await scenarioFileUpload.uploadWorkingText({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
+      const file={customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text}
+      await scenarioFileUpload.uploadWorkingText(file)
+      invalidateRuntimeFile(runtimeFileCacheOwner(appId),{appType:'designfile',customPath:file.customPath,fileName:file.fileName})
     },
     listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css'})=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
@@ -760,6 +790,7 @@ export function createPageToolFilesIo(projectId:string){
     remove:async(app:string,page:string,name:string)=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await lowcodeApi.design.removeFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})
+      invalidateRuntimeFile(runtimeFileCacheOwner(appId),{appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})
     },
   }
 }

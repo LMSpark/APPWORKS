@@ -53,6 +53,7 @@ import type {
 } from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
 import { loadLowcodeRuntimeScenario } from './lowcode/data-space/lowcode-data-space-runtime'
+import { preparePublishedContentAuthoringCall } from './views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
 
 import {
@@ -404,6 +405,7 @@ async function startApp() {
       pageNode: {
         ...HOST_PAGE_NODE_CONFIG,
         readPageFiles: readLowcodePageFiles,
+        preparePageCall: route => preparePublishedContentAuthoringCall(route),
         pageComponent: SparkPageRenderer,
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,

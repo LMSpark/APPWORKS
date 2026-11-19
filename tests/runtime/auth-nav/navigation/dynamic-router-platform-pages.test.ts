@@ -13,7 +13,7 @@ const PRE_AUTH_NAV: RuntimeNavigation = { id: 'public', title: 'Public', childPl
   { id: 'demo', title: 'Demo', itemKind: 'system-page', path: '/demo/template-dsl' },
 ] }
 const TOOL_NAV: RuntimeNavigation = { id: 'root', projectId: 'APP', title: 'App', childPlacement: 'header', items: [
-  { id: 'orders-node', title: 'Orders', itemKind: 'page', path: '/__page/orders-node?scenarioId=S1', tool: { projectId: 'APP', pageId: 'orders-tool', versionId: 'rule=2;script=1;style=3' } },
+  { id: 'orders-node', title: 'Orders', itemKind: 'page', path: '/__page/orders-node?scenarioId=S1', tool: { projectId: 'APP', pageId: 'orders-tool' } },
   { id: 'orders-node-2', title: 'Orders Again', itemKind: 'page', path: '/__page/orders-node-2', tool: { projectId: 'APP', pageId: 'orders-tool' } },
 ] }
 
@@ -382,7 +382,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     await first.load()
     expect(loadScenario.mock.calls.map(([command]) => command.scenarioId)).toEqual(['S1', 'S2', 'S3'])
     expect(requests).toHaveLength(3)
-    expect(requests.every(command => command.versionId === 'rule=2;script=1;style=3' && command.pageId === 'orders-tool' && command.projectId === 'APP')).toBe(true)
+    expect(requests.every(command => command.versionId === undefined && command.pageId === 'orders-tool' && command.projectId === 'APP')).toBe(true)
     expect(first.getDataSet('S1')).not.toBe(first.getDataSet('S2'))
     await router.push('/apps/APP/__page/orders-node?blank=&bare&zero=0&additionalScenarioIds=S2&additionalScenarioIds=S3&scenarioId=S1')
     expect(dynamic.getPageRuntime(router.currentRoute.value)).toBe(first)
@@ -432,7 +432,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(current?.destroyed).toBe(false)
   })
 
-  it('rejects files from a superseded version when navigation changes during the read', async () => {
+  it('rejects files from a superseded tool binding when navigation changes during the read', async () => {
     const navigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const requests: PageFileReadCommand[] = []
     const started = deferred<void>(), finish = deferred<void>()
@@ -449,21 +449,20 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     if (!runtime) throw new Error('missing runtime')
     const loading = runtime.load()
     await started.promise
-    navigation.items = navigation.items.map(item => item.tool ? {...item, tool: {...item.tool, versionId: 'rule=5;script=5;style=5'}} : item)
+    navigation.items = navigation.items.map(item => item.id === 'orders-node' && item.tool
+      ? {...item, tool: {...item.tool, pageId: 'orders-tool-next'}} : item)
     await dynamic.refreshRoutes()
     finish.resolve()
-    await expect(loading).rejects.toThrow('发布版本已改变')
+    await expect(loading).rejects.toThrow('蓝图工具绑定已改变')
     expect(runtime.isLoaded).toBe(false)
+    navigation.items = [...TOOL_NAV.items]
+    await dynamic.refreshRoutes()
     await runtime.reload()
     expect(runtime.isLoaded).toBe(true)
-    expect(requests.slice(3).map(({fileName, versionId}) => [fileName, versionId])).toEqual([
-      ['rule.json', 'rule=5;script=5;style=5'],
-      ['script.js', 'rule=5;script=5;style=5'],
-      ['style.css', 'rule=5;script=5;style=5'],
-    ])
+    expect(requests.slice(3).every(command => command.versionId === undefined)).toBe(true)
   })
 
-  it.each(['version', 'scenario'] as const)('releases a late scenario when the published %s changes after reading the files', async change => {
+  it('releases a late scenario when the published scene binding changes after reading the files', async () => {
     const navigation = {...TOOL_NAV, items: [...TOOL_NAV.items]}
     const started = deferred<void>(), finish = deferred<void>()
     const dataSet = DataSet.fromJson({scenarioId: 'S1', dataSetName: 'S1', tables: {}})
@@ -480,11 +479,11 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     await started.promise
     navigation.items = navigation.items.map(item => {
       if (item.id !== 'orders-node' || !item.tool) return item
-      return change === 'scenario' ? {...item, blueprintScenarioId: 'S2'} : {...item, tool: {...item.tool, versionId: 'rule=5;script=5;style=5'}}
+      return {...item, blueprintScenarioId: 'S2'}
     })
     await dynamic.refreshRoutes()
     finish.resolve()
-    await expect(loading).rejects.toThrow(change === 'scenario' ? '蓝图工具绑定已改变' : '发布版本已改变')
+    await expect(loading).rejects.toThrow('蓝图工具绑定已改变')
     expect(dataSet.destroyed).toBe(true)
     expect(runtime.isLoaded).toBe(false)
   })
@@ -509,7 +508,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(previous.destroyed).toBe(false)
   })
 
-  it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {
+  it('reloads the latest files in the retained instance and rejects changed tool identity', async () => {
     const navigation: RuntimeNavigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const { router, dynamic, requests } = await setup(navigation)
     await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
@@ -517,14 +516,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     if (!current) throw new Error('missing runtime')
     await current.load()
     const before = current.getDataSet('S1')
-    navigation.items = navigation.items.map(item => item.id === 'orders-node'
-      ? { ...item, tool: { projectId: 'APP', pageId: 'orders-tool', versionId: 'rule=4;script=4;style=4' } } : item)
     dynamic.markPageConfigPending('orders-tool')
     await dynamic.refreshRoutes()
     await current.reload()
     expect(current.configPending).toBe(false)
     expect(current.getDataSet('S1')).not.toBe(before)
-    expect(requests.slice(-3).every(command => command.versionId === 'rule=4;script=4;style=4')).toBe(true)
+    expect(requests.slice(-3).every(command => command.versionId === undefined)).toBe(true)
     navigation.items = navigation.items.filter(item => item.id !== 'orders-node')
     dynamic.markPageConfigPending('orders-tool')
     await dynamic.refreshRoutes()

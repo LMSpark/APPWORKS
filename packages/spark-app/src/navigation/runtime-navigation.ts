@@ -39,7 +39,7 @@ export type RuntimeNavigationItem = {
   children?: RuntimeNavigationItem[]
   path?: string
   blueprintScenarioId?: string
-  tool?: Readonly<{ projectId: string; pageId: string; versionId?: string }>
+  tool?: Readonly<{ projectId: string; pageId: string }>
   linkTarget?: NavigationLinkTarget
   redirect?: string
   refId?: string

@@ -129,6 +129,23 @@ export class LowcodeDesignApi {
     return result
   }
 
+  /** 读取正式文件最后修改时间；该时间仅作为文件缓存版本，不是业务记录版本。 */
+  public async readFileLastModified(locator: LowcodeFileLocator): Promise<string> {
+    const scope = this.readScope()
+    const result = await this.client.requestResult({
+      path: '/api/File/lastModifiedTime',
+      method: 'POST',
+      data: fileInfo(locator),
+      headers: scope.headers,
+    })
+    this.assertScope(scope)
+    if (typeof result !== 'string'
+      || !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \d{3}$/.test(result)) {
+      throw new LowcodeApiError(0, '文件修改时间 Result 不是 yyyy-MM-dd HH:mm:ss SSS 字符串')
+    }
+    return result
+  }
+
   /** 列出正式目录快照；整批校验名称、唯一性及安全整数时间，异常不伪装为空目录。 */
   public async listFiles(directory: LowcodeFileDirectory): Promise<readonly LowcodeFileEntry[]> {
     const scope = this.readScope()

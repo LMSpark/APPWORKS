@@ -89,9 +89,25 @@ export class PageRuntimePool {
     if (inputText !== undefined && (typeof inputText !== 'string' || !inputText.trim())) throw new Error('scenarioInputs 必须是单个非空 JSON 参数')
     const scenarioInputs = prepared?.scenarioInputs ?? (inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText))
     const page = new PageTool({ pageId: tool.pageId })
-    let expectsPublishedVersion = 'versionId' in tool && typeof tool.versionId === 'string'
     const reader = this.options.readPageFile
-    let assertPublishedVersion: (() => void) | undefined
+    const findNode = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined => {
+      for (const node of nodes) {
+        if (node.id === route.meta['nodeId']) return node
+        const match = findNode(node.children ?? [])
+        if (match) return match
+      }
+      return undefined
+    }
+    const assertBindingCurrent = (): void => {
+      if (programmatic) return
+      const navTree = this.options.readNavTree()
+      const node = findNode(navTree?.items ?? [])
+      const registeredTool = node?.tool
+      if (navTree !== null
+        && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
+        throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
+      }
+    }
     const runtime = markRaw(new PageRuntime({
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
       ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
@@ -100,62 +116,27 @@ export class PageRuntimePool {
         const batchReader = this.options.readPageFiles
         if (!reader && !batchReader) throw new Error('未注入工具文件读取器')
         const generation = runtime.generation
-        const findNode = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined => {
-          for (const node of nodes) {
-            if (node.id === route.meta['nodeId']) return node
-            const match = findNode(node.children ?? [])
-            if (match) return match
-          }
-          return undefined
-        }
-        const readVersion = () => {
-          if (programmatic) return undefined
-          const navTree = this.options.readNavTree()
-          const node = findNode(navTree?.items ?? [])
-          const registeredTool = node?.tool
-          if (navTree !== null
-            && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
-            throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
-          }
-          const currentTool = registeredTool ?? tool
-          const versionId = 'versionId' in currentTool ? currentTool.versionId : undefined
-          if (versionId === undefined && expectsPublishedVersion) {
-            throw new Error('PAGE_RUNTIME_STALE: 已发布工具缺少版本绑定，请重新打开页面')
-          }
-          if (versionId !== undefined && (typeof versionId !== 'string' || !versionId.trim() || versionId !== versionId.trim())) {
-            throw new Error('配置页的工具发布版本无效')
-          }
-          return versionId
-        }
-        const versionId = readVersion()
-        if (versionId !== undefined) expectsPublishedVersion = true
-        const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({
-          projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }),
-        }))
+        assertBindingCurrent()
+        const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({ projectId, pageId: page.pageId, fileName }))
         const texts = batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
         if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
         prepared?.assertCurrent()
-        const assertVersion = () => {
-          if (readVersion() !== versionId) throw new Error('PAGE_RUNTIME_STALE: 发布版本已改变，请重新加载')
-        }
-        assertVersion()
+        assertBindingCurrent()
         if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
         for (const [index, command] of commands.entries()) {
           const text = texts[index]
           if (typeof text !== 'string') throw new Error('工具文件读取结果缺少文本')
           page.hydrateFileText(command.fileName, text)
         }
-        assertPublishedVersion = assertVersion
         page.markLoaded()
         return page
       },
       loadScenario: async scenarioId => {
         prepared?.assertCurrent()
-        const assertVersion = assertPublishedVersion
-        assertVersion?.()
+        assertBindingCurrent()
         if (!this.options.loadScenario) throw new Error('未注入场景运行装配器')
         const dataSet = await this.options.loadScenario({ projectId, scenarioId })
-        try { prepared?.assertCurrent(); assertVersion?.(); return dataSet }
+        try { prepared?.assertCurrent(); assertBindingCurrent(); return dataSet }
         catch (error) { dataSet.destroy(); throw error }
       },
     }))
@@ -189,7 +170,7 @@ export class PageRuntimePool {
         const host = capability && {
           runtime,
           assertCurrent() {
-            assertPublishedVersion?.()
+            assertBindingCurrent()
             capability.assertCurrent()
           },
           invoke: (name: string, input: unknown, signal: AbortSignal) => capability.invoke(name, input, signal),

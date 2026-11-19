@@ -182,6 +182,32 @@ describe('LowcodeDesignApi', () => {
     })])
   })
 
+  it('reads a validated file modification time with the source-faithful locator', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: '2026-11-19 13:20:30 123'})
+    const api = new LowcodeDesignApi({http, readScope: fixtureScope})
+    await expect(api.readFileLastModified({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).resolves.toBe('2026-11-19 13:20:30 123')
+    expect(http.requests).toEqual([expect.objectContaining({
+      url: '/api/File/lastModifiedTime',
+      method: 'POST',
+      headers: fixtureScope().headers,
+      data: expect.objectContaining({
+        customPath: 'APP-A/page', fileName: 'rule.json', appType: 'designfile',
+      }),
+    })])
+  })
+
+  it.each([null, 1, '', '2026-11-19'])('rejects malformed file modification time %j', async result => {
+    const api = new LowcodeDesignApi({
+      http: new FixtureHttpClient({Code: 200, Result: result}),
+      readScope: fixtureScope,
+    })
+    await expect(api.readFileLastModified({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).rejects.toThrow('yyyy-MM-dd HH:mm:ss SSS')
+  })
+
   it('lists complete validated file entries from the actual list endpoint', async () => {
     const http = new FixtureHttpClient({
       Code: 200,

@@ -183,26 +183,27 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   }))
   const navTree = assembleLowcodeRuntimeNavigation({applicationName:'Orders', projectId:'APP', navigationRootId:'ROOT', records,
     authorization:{items:records.map(record=>({id:record.nodeId, target, targetKind:'route', formKey:record.nodeId, children:[]})), contexts:[]}})
-  expect(records.map(record => navTree.items.find(node => node.id === record.nodeId)?.tool?.versionId)).toEqual([versionId, versionId])
+  expect(records.map(record => navTree.items.find(node => node.id === record.nodeId)?.tool)).toEqual([
+    {projectId:'APP',pageId:'orders-tool'}, {projectId:'APP',pageId:'orders-tool'},
+  ])
   const router = createRouter({history:createMemoryHistory(), routes:navTree.items.map(node=>({
     path:`/apps/:projectId/__page/${node.id}`, component:defineComponent({render:()=>h('div')}),
     meta:{type:'config-page', nodeId:node.id, tool:node.tool, blueprintScenarioId:node.blueprintScenarioId},
   }))})
   const openMenu = (nodeId:string) => router.push(`/apps/APP${navTree.items.find(node=>node.id===nodeId)!.path}`)
   const style = '.main-title { font-weight: bold; }'
-  const snapshots = new Map([['2__rule.json', rule], ['3__script.js', script], ['4__style.css', style]])
+  const workingFiles = new Map([['rule.json', rule], ['script.js', script], ['style.css', style]])
   vi.spyOn(lowcodeApi, 'readRequestScope').mockReturnValue({token: 'SCOPE', headers: {'X-AppId': 'APP'}})
   vi.spyOn(scenarioRuntime, 'loadLowcodeRuntimeScenario').mockImplementation(async ({projectId, scenarioId}) => {
     expect([projectId, scenarioId]).toEqual(['APP', blueprintConfig.scenarioId])
     return DataSet.fromJson({scenarioId, tables: {ProjectToolFile: blueprintConfig.tables.ProjectToolFile}})
   })
-  const downloads = vi.spyOn(lowcodeApi.design, 'readFileBytes').mockImplementation(async locator => {
+  const workingRead = vi.spyOn(lowcodeApi.design, 'readTextFile').mockImplementation(async locator => {
     expect(locator).toMatchObject({appType: 'designfile', customPath: 'APP/orders-tool'})
-    const text = snapshots.get(locator.fileName)
-    if (text === undefined) throw new LowcodeApiError(404, 'snapshot missing')
-    return new TextEncoder().encode(text)
+    const text = workingFiles.get(locator.fileName)
+    if (text === undefined) throw new LowcodeApiError(404, 'file missing')
+    return text
   })
-  const workingRead = vi.spyOn(lowcodeApi.design, 'readTextFile').mockRejectedValue(new Error('unexpected working file read'))
   const pool = new PageRuntimePool({pageComponent: SparkPageRenderer, readNavTree: () => navTree,
     refreshRoutes: async () => undefined,
     readPageFile: async () => {throw new Error('Expected the atomic page file reader')},
@@ -219,7 +220,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   const first = pool.getPageRuntime(router.currentRoute.value)!
   calls.push(first)
   await first.load()
-  expect(downloads.mock.calls.map(([locator]) => locator.fileName).sort()).toEqual([...snapshots.keys()].sort())
+  expect(workingRead.mock.calls.map(([locator]) => locator.fileName).sort()).toEqual([...workingFiles.keys()].sort())
   expect(first.tool.getFileText('style.css')).toBe(style)
   expect(first.resolveView('Orders@detail')).toBe(first.getDataSet('A')!.getView(differentNames ? 'InternalA' : 'Orders', 'detail'))
   const errors: unknown[] = []
@@ -289,11 +290,11 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     expect(() => first.resolveView('Orders@detail')).toThrow(/DESTROYED/)
     expect(second.resolveView('Orders@detail')!.dataSet?.destroyed).toBe(false)
     reopened.dispose()
-    snapshots.delete('3__script.js')
+    workingFiles.delete('script.js')
     const incomplete = pool.getPageRuntime(router.currentRoute.value)!
     calls.push(incomplete)
-    await expect(incomplete.load()).rejects.toThrow(/FILE_RESOURCE_VERSION_MISSING: .*APP\/orders-tool\/3__script\.js/)
-    expect(workingRead).not.toHaveBeenCalled()
+    await expect(incomplete.load()).rejects.toThrow(/PAGE_TOOL_FILE_MISSING/)
+    expect(workingRead).toHaveBeenCalled()
     expect(http.requests.filter(request => request.url.endsWith('/BatchTableOperateRequestByCRUD'))).toHaveLength(2)
   } finally { wrapper.unmount(); pool.disposePageRuntimes() }
 })

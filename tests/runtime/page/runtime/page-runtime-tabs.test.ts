@@ -11,10 +11,8 @@ import { protectPageChanges } from '@/services/project/navigation/page-unload-pr
 import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
-  it.each([undefined, 'v1'])('invalidates the original command on version change from %s and rejects a later missing version', async initialVersion => {
-    const tool: {pageId: string; projectId: string; versionId?: string} = {
-      pageId: 'TOOL', projectId: 'APP', ...(initialVersion === undefined ? {} : {versionId: initialVersion}),
-    }
+  it('invalidates the original command when its formal tool binding changes', async () => {
+    const tool: {pageId: string; projectId: string} = {pageId: 'TOOL', projectId: 'APP'}
     const invoke = vi.fn()
     let assertHostCurrent: (() => void) | undefined
     registerAllRenderers()
@@ -28,7 +26,7 @@ describe('page call tabs and retained renderer instances', () => {
       readPageFile: undefined,
       readPageFiles: readFiles.mockImplementation(async commands => commands.map(command => {
         if (command.fileName === 'rule.json') return '[{"type":"r-button","props":{"label":"保存","onClick":"save"}}]'
-        if (command.fileName === 'script.js') return "async function save(){try{await $page.invokeHostCommand('save')}catch(error){if(!String(error).includes('发布版本已改变'))throw error}}"
+        if (command.fileName === 'script.js') return "async function save(){try{await $page.invokeHostCommand('save')}catch(error){if(!String(error).includes('蓝图工具绑定已改变'))throw error}}"
         return ''
       })),
       preparePageCall: () => ({scenarioInputs: {}, assertCurrent() {}, createHost: runtime => ({runtime, assertCurrent() {}, invoke})}),
@@ -51,26 +49,24 @@ describe('page call tabs and retained renderer instances', () => {
       wrapper.getComponent(RendererButton).vm.$emit('click')
       await flushPromises()
       expect(invoke).toHaveBeenCalledExactlyOnceWith('save', undefined, expect.any(AbortSignal))
-      tool.versionId = 'v2'
-      expect(() => assertHostCurrent!()).toThrow('发布版本已改变')
+      tool.pageId = 'TOOL-NEXT'
+      expect(() => assertHostCurrent!()).toThrow('蓝图工具绑定已改变')
       wrapper.getComponent(RendererButton).vm.$emit('click')
       await flushPromises()
       expect(invoke).toHaveBeenCalledTimes(1)
-      expect(readFiles.mock.calls.map(([commands]) => commands.map(command => command.versionId))).toEqual([[initialVersion, initialVersion, initialVersion]])
+      expect(readFiles.mock.calls.map(([commands]) => commands.map(command => command.versionId))).toEqual([[undefined, undefined, undefined]])
+      tool.pageId = 'TOOL'
       await runtime.reload()
-      expect(readFiles.mock.calls[1]?.[0].map(command => command.versionId)).toEqual(['v2', 'v2', 'v2'])
-      delete tool.versionId
-      await expect(runtime.reload()).rejects.toThrow('已发布工具缺少版本绑定')
-      expect(readFiles).toHaveBeenCalledTimes(2)
+      expect(readFiles.mock.calls[1]?.[0].map(command => command.versionId)).toEqual([undefined, undefined, undefined])
     } finally {wrapper.unmount(); runtime.dispose()}
   })
-  it('does not borrow a published version from inherited menu metadata on an explicit tool call', async () => {
+  it('does not borrow inherited menu file metadata on an explicit tool call', async () => {
     const page = defineComponent({render: () => h('div')})
     const readPageFiles = vi.fn<NonNullable<PageRuntimePoolOptions['readPageFiles']>>(async commands =>
       commands.map(({fileName}) => fileName === 'rule.json' ? '[]' : ''))
     const readNavTree = vi.fn<PageRuntimePoolOptions['readNavTree']>(() => ({title: 'App', childPlacement: 'header', items: [
       {id: 'parent', title: 'Published', itemKind: 'page', path: '/published',
-        tool: {projectId: 'APP', pageId: 'another-tool', versionId: 'release-7'}},
+        tool: {projectId: 'APP', pageId: 'another-tool'}},
     ]}))
     const router = createRouter({history: createMemoryHistory(), routes: [{
       path: '/apps/:projectId', component: page, meta: {nodeId: 'parent'}, children: [{

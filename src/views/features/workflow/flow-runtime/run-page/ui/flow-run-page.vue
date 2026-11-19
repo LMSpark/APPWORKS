@@ -16,8 +16,8 @@
             <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
             <SparkComponent.DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
             <SparkComponent.DisplayEmpty v-if="businessTabs.length === 0" description="未查询到业务页签" />
-            <SparkComponent.RendererTabs v-else :model-value="activeFormId" @update:model-value="selectBusinessForm" class="flow-run-page__tabs">
-              <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
+            <SparkComponent.RendererTabs v-else v-bind="businessTabsRule(children)?.props" :model-value="activeFormId" @update:model-value="selectBusinessForm">
+              <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" v-bind="getSparkNodeChildren(businessTabsRule(children)?.children)[0]?.props" :label="tab.label" :name="tab.tabKey">
                 <SparkComponent.DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
                 <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
                   :tab-key="tab.tabKey" :registry="businessRegistry"
@@ -222,6 +222,10 @@ const shellError = computed(() => runtimeError.value || pageError.value)
 
 function retryShell(): void {
   void retryPage(reloadFeatureRuntime)
+}
+
+function businessTabsRule(children: readonly SparkNode[]): SparkNode | undefined {
+  return children.find(node => nodeId(node) === 'businessFormTabs' && node.type === 'r-tabs')
 }
 
 function dialogRule(children: readonly SparkNode[], id: string): SparkNode | undefined {

@@ -468,6 +468,14 @@
     ]
   },
   {
+    "id": "businessFormTabs",
+    "type": "r-tabs",
+    "props": {"class": "flow-run-page__tabs"},
+    "children": [
+      {"id": "businessFormPane", "type": "r-tab-pane", "props": {"lazy": true}}
+    ]
+  },
+  {
     "id": "appendDialog",
     "type": "r-dialog",
     "props": {

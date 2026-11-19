@@ -4,7 +4,7 @@ import ElementPlus from 'element-plus'
 import {defineComponent, h, markRaw, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, getSparkNodeChildren, nodeId, type DataView} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
@@ -26,8 +26,9 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     useFeaturePageRuntime: (options: Parameters<typeof runtimeOptions>[0]) => {
       runtimeOptions(options)
       openTool.mockImplementation(options.tool)
+      const runtime = markRaw({tool: options.tool(options.navigationId ?? 'mobile-navigation-node')})
       return {
-        session: {runtime: undefined},
+        session: {runtime, isCurrent: (candidate: unknown) => candidate === runtime},
         viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
         ready: ref(true),
         loading: ref(false),
@@ -177,6 +178,18 @@ const Host = pageInstance.view
 
 const wrappers: VueWrapper[] = []
 const baselineStubs = {...config.global.stubs}
+const WorkflowRendererStub = defineComponent({
+  props: ['pageRuntime', 'host'],
+  setup(props, {slots}) {
+    return () => slots['content']?.({children: getSparkNodeChildren((props['pageRuntime'] as PageRuntime).tool.rule.children).filter(node => nodeId(node) !== 'history').map(node => {
+      if (nodeId(node) !== 'pageActions' && nodeId(node) !== 'approvalActions') return node
+      return {...node, children: getSparkNodeChildren(node.children).map(button => ({
+        ...button, props: {...button.props, onClick: () => (props['host'] as {invoke: (name: string) => unknown}).invoke(`workflow.${nodeId(button)}`)},
+      }))}
+    })})
+  },
+})
+
 
 beforeEach(async () => {
   const prepared=await designFixture(false,false);designDataSet=prepared.ds
@@ -186,7 +199,7 @@ beforeEach(async () => {
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
   originalDirectoryView = undefined
-  config.global.stubs = {...baselineStubs}
+  config.global.stubs = {...baselineStubs, SparkPageRenderer: WorkflowRendererStub}
   delete config.global.stubs['SparkComponentRenderer']
   delete config.global.stubs['spark-component-renderer']
   reloadRuntime.mockClear()
@@ -244,12 +257,14 @@ describe('flow run page mount', () => {
     }))
     delete config.global.stubs['el-table']
     delete config.global.stubs['el-table-column']
+    const invoke = vi.fn()
     try {
       const wrapper = mount(withTestPageService(defineComponent({setup: () => () => h(SparkPageRenderer, {
         pageRuntime: runtime,
+        host: {runtime, assertCurrent: () => {}, invoke},
         routeSnapshot: {path: '/test', fullPath: '/test', params: {}, query: {}, hash: '', name: null},
         autoLoad: false,
-      })})), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      })})), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkPageRenderer: false}}})
       wrappers.push(wrapper)
       await flushPromises()
       const history = workbench.getView(model)
@@ -276,6 +291,9 @@ describe('flow run page mount', () => {
       expect(wrapper.text()).toContain('原步骤摘要')
       expect(wrapper.text()).toContain('测试办理人')
       expect(wrapper.text()).not.toContain('2026-11-19')
+      await wrapper.findAll('button').find(button => button.text() === '核验原办理结果')?.trigger('click')
+      await flushPromises()
+      expect(invoke).toHaveBeenCalledWith('workflow.verify', undefined, expect.any(AbortSignal))
     } finally {
       wrappers.pop()?.unmount()
       runtime.dispose()

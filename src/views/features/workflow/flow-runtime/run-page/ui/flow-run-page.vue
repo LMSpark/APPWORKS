@@ -3,56 +3,58 @@
 职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。
 -->
 <template>
-  <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
-    :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
-    <template v-if="prepared" #header-actions>
-      <SparkComponentRenderer :config="pageActionsConfig" />
-    </template>
-    <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
-    <div v-if="prepared" class="flow-run-page__layout">
-      <section class="flow-run-page__business">
-        <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
-        <SparkComponent.DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
-        <SparkComponent.DisplayEmpty v-if="businessTabs.length === 0" description="未查询到业务页签" />
-        <SparkComponent.RendererTabs v-else :model-value="activeFormId" @update:model-value="selectBusinessForm" class="flow-run-page__tabs">
-          <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
-            <SparkComponent.DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
-            <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
-              :tab-key="tab.tabKey" :registry="businessRegistry"
-              :fallback-props="{flowid: prepared.flowModelId, flowobjid: prepared.flowObjectId, stepid: prepared.stepId,
-                workFormId: tab.tabKey, pageParam: prepared.formTabs.find(form => form.tabKey === tab.tabKey)?.queryString ?? '', busRowid: prepared.busRowId}" />
-          </SparkComponent.RendererTabPane>
-        </SparkComponent.RendererTabs>
-      </section>
-      <SparkPageRenderer v-if="runtime" :page-runtime="runtime" :route-snapshot="routeSnapshot" :auto-load="false">
-        <template #content="{children}">
-          <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
+    <template #content="{children}">
+      <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
+        :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
+        <template v-if="prepared" #header-actions>
+          <SparkComponentRenderer v-for="node in actionToolbars(children, 'pageActions')" key="pageActions" :config="node" />
         </template>
-      </SparkPageRenderer>
-      <aside v-if="handleOpen" class="flow-run-page__handle">
-        <h3 class="flow-run-page__handle-title">办理</h3>
-        <SparkComponentRenderer :config="approvalNodesConfig" />
-        <SparkComponentRenderer :config="approvalInputConfig" />
-        <SparkComponentRenderer :config="approvalActionsConfig" />
-      </aside>
-    </div>
+        <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
+        <div v-if="prepared" class="flow-run-page__layout">
+          <section class="flow-run-page__business">
+            <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
+            <SparkComponent.DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
+            <SparkComponent.DisplayEmpty v-if="businessTabs.length === 0" description="未查询到业务页签" />
+            <SparkComponent.RendererTabs v-else :model-value="activeFormId" @update:model-value="selectBusinessForm" class="flow-run-page__tabs">
+              <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" lazy>
+                <SparkComponent.DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
+                <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
+                  :tab-key="tab.tabKey" :registry="businessRegistry"
+                  :fallback-props="{flowid: prepared.flowModelId, flowobjid: prepared.flowObjectId, stepid: prepared.stepId,
+                    workFormId: tab.tabKey, pageParam: prepared.formTabs.find(form => form.tabKey === tab.tabKey)?.queryString ?? '', busRowid: prepared.busRowId}" />
+              </SparkComponent.RendererTabPane>
+            </SparkComponent.RendererTabs>
+          </section>
+          <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
+          <aside v-if="handleOpen" class="flow-run-page__handle">
+            <h3 class="flow-run-page__handle-title">办理</h3>
+            <SparkComponentRenderer v-for="node in children.filter(child => nodeId(child) === 'approvalNodes')" key="approvalNodes" :config="bindApprovalNodes(node)" />
+            <SparkComponentRenderer v-for="node in children.filter(child => nodeId(child) === 'approvalInput')" key="approvalInput" :config="bindApprovalInput(node)" />
+            <SparkComponentRenderer v-for="node in actionToolbars(children, 'approvalActions')" key="approvalActions" :config="node" />
+          </aside>
+        </div>
 
-    <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true" :close-disabled="appendCloseDisabled">
-      <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
-        :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
-    </SparkComponent.RendererDialog>
+        <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true" :close-disabled="appendCloseDisabled">
+          <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
+            :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
+        </SparkComponent.RendererDialog>
 
-    <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
-      <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
-        <SparkComponent.RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
-          :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
-          label-field="TITLE" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
-          :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
-          :node-badge-field="chartPrepared.nodeBadgeField" :node-badge-rules="chartBadgeRules"
-          background-pattern="dots" :disabled="true" />
+        <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
+          <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
+            <SparkComponent.RendererGraph v-if="chartPrepared" class="flow-run-page__chart"
+              :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
+              label-field="TITLE" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
+              :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
+              :node-badge-field="chartPrepared.nodeBadgeField" :node-badge-rules="chartBadgeRules"
+              background-pattern="dots" :disabled="true" />
+          </SparkComponent.RendererSection>
+        </SparkComponent.RendererDialog>
       </SparkComponent.RendererSection>
-    </SparkComponent.RendererDialog>
-  </SparkComponent.RendererSection>
+    </template>
+  </SparkPageRenderer>
+  <SparkComponent.RendererSection v-else title="流程办理" :bordered="false" :grid-columns="1"
+    :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell" />
 </template>
 
 <script setup lang="ts">
@@ -66,7 +68,7 @@ import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   readFlowRuntimeRouteQuery,
 } from '@/lowcode/resources/system/workflow/manage'
-import {compileRule, PageTool} from '@spark-appworks/spark-project-model'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {buildDataViewKey, getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import rule from './tool/rule.json?raw'
@@ -144,36 +146,34 @@ const {
   stepViewKey,
 } = useFlowRunPage(routeQuery, () => runtimeReady.value, () => reloadBlocked.value)
 
-const toolRules = compileRule(rule)
-const approvalInputRule = toolRules.find(node => nodeId(node) === 'approvalInput')
-const approvalNodesRule = toolRules.find(node => nodeId(node) === 'approvalNodes')
-const pageActionsRule = toolRules.find(node => nodeId(node) === 'pageActions')
-const approvalActionsRule = toolRules.find(node => nodeId(node) === 'approvalActions')
-if (!approvalInputRule || !approvalNodesRule || !pageActionsRule || !approvalActionsRule) throw new Error('流程办理工具缺少办理组件')
-const approvalInputConfig = computed(() => ({
-  ...approvalInputRule,
-  props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
-  children: getSparkNodeChildren(approvalInputRule.children)
-    .filter(field => field.props?.['field'] !== 'forceNodeId' || (allowForceBack.value && forceBackNodeOptions.value.length > 0))
-    .map(field => ({...field, props: {...field.props, readonly: inputLocked.value,
-      ...(field.props?.['field'] === 'forceNodeId'
-        ? {optionDataViewKey: buildDataViewKey('ApprovalForceTargets', 'default', FLOW_WORKBENCH_SCENARIO_ID)}
-        : {}),
-    }})),
-}))
-const approvalNodesConfig = computed(() => ({
-  ...approvalNodesRule,
-  props: {...approvalNodesRule.props, dataViewKey: buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
-  children: getSparkNodeChildren(approvalNodesRule.children).map(column => {
-    if (column.type !== 'r-column-group') return column
-    return {...column, children: getSparkNodeChildren(column.children).map(field => ({
-      ...field,
-      props: {...field.props, readonly: inputLocked.value || field.props?.['readonly'] || false,
-        ...(field.type === 'r-user-picker' ? {optionDataViewKey: '$[candidateViewKey]'} : {}),
-      },
-    }))}
-  }),
-}))
+function bindApprovalInput(approvalInputRule: SparkNode): SparkNode {
+  return {
+    ...approvalInputRule,
+    props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
+    children: getSparkNodeChildren(approvalInputRule.children)
+      .filter(field => field.props?.['field'] !== 'forceNodeId' || (allowForceBack.value && forceBackNodeOptions.value.length > 0))
+      .map(field => ({...field, props: {...field.props, readonly: inputLocked.value,
+        ...(field.props?.['field'] === 'forceNodeId'
+          ? {optionDataViewKey: buildDataViewKey('ApprovalForceTargets', 'default', FLOW_WORKBENCH_SCENARIO_ID)}
+          : {}),
+      }})),
+  }
+}
+function bindApprovalNodes(approvalNodesRule: SparkNode): SparkNode {
+  return {
+    ...approvalNodesRule,
+    props: {...approvalNodesRule.props, dataViewKey: buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
+    children: getSparkNodeChildren(approvalNodesRule.children).map(column => {
+      if (column.type !== 'r-column-group') return column
+      return {...column, children: getSparkNodeChildren(column.children).map(field => ({
+        ...field,
+        props: {...field.props, readonly: inputLocked.value || field.props?.['readonly'] || false,
+          ...(field.type === 'r-user-picker' ? {optionDataViewKey: '$[candidateViewKey]'} : {}),
+        },
+      }))}
+    }),
+  }
+}
 const actions: Record<string, {run: () => void | Promise<void>; loading?: true; blockedByNavigation?: true; visible?: () => boolean}> = {
   chart: {run: openFlowChart, blockedByNavigation: true},
   append: {run: openAppendDialog, blockedByNavigation: true},
@@ -190,16 +190,35 @@ function bindActions(toolbar: SparkNode): SparkNode {
   const children = getSparkNodeChildren(toolbar.children).flatMap(button => {
     const action = actions[nodeId(button) ?? '']
     if (!action || action.visible?.() === false) return []
-    return [{...button, props: {...button.props, onClick: action.run,
+    return [{...button, props: {...button.props,
       disabled: action.blockedByNavigation === true && reloadBlocked.value,
       loading: action.loading === true && handleLoading.value,
     }}]
   })
   return {...toolbar, children}
 }
-const pageActionsConfig = computed(() => bindActions(pageActionsRule))
-const approvalActionsConfig = computed(() => bindActions(approvalActionsRule))
+function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
+  const toolbar = children.find(node => nodeId(node) === id)
+  return toolbar ? [bindActions(toolbar)] : []
+}
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(current)) throw new Error('流程办理运行实例已失效')
+  }
+  return {runtime: current, assertCurrent, invoke(command: string) {
+    assertCurrent()
+    if (!command.startsWith('workflow.')) return
+    const id = command.slice('workflow.'.length)
+    if (!Object.hasOwn(actions, id)) return
+    const action = actions[id]
+    if (!action || (action.loading && handleLoading.value) || (action.blockedByNavigation && reloadBlocked.value)
+      || action.visible?.() === false) return
+    return action.run()
+  }}
+})
 const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
   return {path, fullPath, name: name ?? null, params, query, hash}

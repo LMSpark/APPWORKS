@@ -207,21 +207,24 @@
         "type": "r-button",
         "id": "chart",
         "props": {
-          "label": "流程图"
+          "label": "流程图",
+          "onClick": "runChart"
         }
       },
       {
         "type": "r-button",
         "id": "append",
         "props": {
-          "label": "加签"
+          "label": "加签",
+          "onClick": "runAppend"
         }
       },
       {
         "type": "r-button",
         "id": "revoke",
         "props": {
-          "label": "撤回"
+          "label": "撤回",
+          "onClick": "runRevoke"
         }
       },
       {
@@ -229,14 +232,16 @@
         "id": "handle",
         "props": {
           "label": "办理",
-          "buttonType": "primary"
+          "buttonType": "primary",
+          "onClick": "runHandle"
         }
       },
       {
         "type": "r-button",
         "id": "verify",
         "props": {
-          "label": "核验原办理结果"
+          "label": "核验原办理结果",
+          "onClick": "runVerify"
         }
       }
     ]
@@ -254,35 +259,40 @@
         "id": "submit",
         "props": {
           "label": "提交",
-          "buttonType": "primary"
+          "buttonType": "primary",
+          "onClick": "runSubmit"
         }
       },
       {
         "type": "r-button",
         "id": "back",
         "props": {
-          "label": "普通退回"
+          "label": "普通退回",
+          "onClick": "runBack"
         }
       },
       {
         "type": "r-button",
         "id": "forceBack",
         "props": {
-          "label": "强制退回"
+          "label": "强制退回",
+          "onClick": "runForceBack"
         }
       },
       {
         "type": "r-button",
         "id": "backToCreator",
         "props": {
-          "label": "退回发起人"
+          "label": "退回发起人",
+          "onClick": "runBackToCreator"
         }
       },
       {
         "type": "r-button",
         "id": "close",
         "props": {
-          "label": "关闭"
+          "label": "关闭",
+          "onClick": "runClose"
         }
       }
     ]

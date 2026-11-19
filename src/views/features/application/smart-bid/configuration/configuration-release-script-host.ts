@@ -24,7 +24,6 @@ type CandidateReader=(selection:Prepare[0]&Readonly<{versionId:string}>,signal:A
 }>>
 type DisableReader=(selection:Prepare[0]&Readonly<{versionId:string;decisionRef:string}>,signal:AbortSignal)=>Promise<Readonly<{
  decision:Extract<Prepare[2],{action:'DISABLE'}>
- pointer:Pointer
 }>>
 
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
@@ -46,18 +45,20 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
    if(Object.keys(input).length!==2||!identity(kind)||!identity(key))throw Error(error)
    return readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key})
   }
-  if(name==='configuration.release.prepareDisable'&&readDisableDecision){
+  if(name==='configuration.release.prepareDisable'&&readDisableDecision&&host.configurationScope){
    const {kind,key,requestKey,versionId,decisionRef}=input
    if(Object.keys(input).length!==5||!identity(kind)||!identity(key)||!identity(requestKey)||
     !identity(versionId)||!identity(decisionRef))throw Error(error)
    const selection={kind,key,scopeId}
    assertCurrent()
-   return readDisableDecision({...selection,versionId,decisionRef},signal).then(({decision,pointer})=>{
+   return Promise.all([
+    readDisableDecision({...selection,versionId,decisionRef},signal),
+    readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key}),
+   ]).then(([{decision},pointer])=>{
     const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent()}
     assertEvidence()
-    if(pointer.kind!==kind||pointer.key!==key||pointer.scopeId!==scopeId||!identity(pointer.pointerVersion)||
-     decision.decisionRef!==decisionRef||decision.original.versionId!==versionId||
-     pointer.version?.versionId!==versionId||pointer.version.digest!==decision.original.digest)
+    if(pointer.state!=='ACTIVE'||decision.decisionRef!==decisionRef||decision.original.versionId!==versionId||
+     pointer.versionDigest!==decision.original.digest)
      throw Error('CONFIGURATION_RELEASE_DISABLE_SCOPE')
     return prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
      {...decision,assertCurrent:assertEvidence})

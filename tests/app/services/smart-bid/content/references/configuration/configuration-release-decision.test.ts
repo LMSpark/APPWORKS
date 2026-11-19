@@ -87,9 +87,14 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
  const row={id:'ROW',...scope,requestKey:request.requestKey,requestDigest:disabled.requestDigest,action:'DISABLE',
   versionId:version.versionId,versionDigest:version.digest,expectedPointerVersion:'P1',status:'APPLIED',releaseRef:'STOP',
   resultPointerVersion:'P2',state:'DISABLED',terminalRef:'TERMINAL'}
+ const channelRow={id:'CHANNEL',...scope,scope:'ENTERPRISE',state:'ACTIVE',version:'P1',hash:version.digest}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ConfigurationRelease:{
   modelBinding:{modelName:'ConfigurationRelease',modelId:'M'},
   columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},originalRelease:configurationReleaseReadView('id')},
+ },ConfigChannel:{
+  modelBinding:{modelName:'ConfigChannel',modelId:'C'},
+  columns:Object.keys(channelRow).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},currentChannel:configurationChannelReadView('id')},
  }}})
  try{
   const view=ds.getView('ConfigurationRelease','originalRelease')
@@ -100,8 +105,17 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
    identity:table.identity,scope:'release',readScope:()=> 'release',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['resultPointerVersion']:[],m:[],d:false}}]}}}),
   })})
-  const host={scopeId:scope.scopeId,scenarioId:'S',
-   runtime:{resolveView:(key:string)=>key==='S@ConfigurationRelease@originalRelease'?view:undefined},assertCurrent:source.assertCurrent}
+  const channel=ds.getView('ConfigChannel','currentChannel')
+  if(!channel)throw Error('TEST_CONFIGURATION_CHANNEL_VIEW_REQUIRED')
+  const channelTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigChannel'})
+  channel.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
+   identity:channelTable.identity,scope:'channel',readScope:()=> 'channel',snapshot:channelTable.applyResult({Result:{
+    primaryKeyField:'id',data:{Count:1,Items:[{...channelRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+   }}),
+  })})
+  const host={scopeId:scope.scopeId,scenarioId:'S',configurationScope:'ENTERPRISE' as const,
+   runtime:{resolveView:(key:string)=>key==='S@ConfigurationRelease@originalRelease'?view:
+    key==='S@ConfigChannel@currentChannel'?channel:undefined},assertCurrent:source.assertCurrent}
   const original={...disabled.record,requestDigest:disabled.requestDigest}
   const proved=await readRegisteredConfigurationRelease(host,original)
   expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
@@ -113,7 +127,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const readCandidate=vi.fn(async()=>({decision:enable,pointer}))
   const disableDecision={...source,action:'DISABLE' as const,original:version,effectiveAt:'2026-11-18T10:00:00+08:00',
    stopScope:'NEW_SELECTION' as const}
-  const readDisableDecision=vi.fn(async()=>({decision:disableDecision,pointer:{...pointer,version}}))
+  const readDisableDecision=vi.fn(async()=>({decision:disableDecision}))
   const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,
    readDisableImpact,readCandidate,readDisableDecision)
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
@@ -130,9 +144,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   await openConfigurationDisable()
   expect(readDisableDecision).toHaveBeenCalledWith({...scope,versionId:version.versionId,decisionRef:source.decisionRef},signal)
   expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(disabled.requestDigest),'配置停用核验')
-  readDisableDecision.mockResolvedValueOnce({decision:disableDecision,pointer:{...pointer,version:oldVersion}})
+  channelRow.hash=oldVersion.digest
   await openConfigurationDisable()
   expect(showMessage).toHaveBeenLastCalledWith('原停用决定或当前版本无法核验','warning')
+  channelRow.hash=version.digest
   expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
   await openConfigurationRelease()
   expect(showAlert).toHaveBeenLastCalledWith([

@@ -40,7 +40,7 @@ export function createBidHandoffScriptHost<Runtime extends Pick<PageRuntime,'res
   if(compare?Object.keys(input).length!==2||!identity(previousHandoffId)||previousHandoffId===handoffId:
    name!=='bid.handoff.readOriginal'||Object.keys(input).length!==1)throw Error(error)
   const read=(id:string,role:'current'|'previous')=>readRegisteredBidHandoff({...host,runtime,assertCurrent},
-   {...scope,handoffId:id},(selected,items)=>readReceipts(selected,items,signal,role),role)
+   {...scope,handoffId:id,role},(selected,items)=>readReceipts(selected,items,signal,role))
   const current=await read(handoffId,'current')
   if(!compare||!identity(previousHandoffId))return current
   const previous=await read(previousHandoffId,'previous')

@@ -46,9 +46,9 @@ function readItem(value:unknown):Item{
 
 /** 先核唯一原清单和原可读字段，再请正式任务来源读取其签收。 */
 export async function readRegisteredBidHandoff(host:ContentRevisionReadHost,
- selection:Omit<Scope,'projectId'>&Readonly<{handoffId:string}>,
- readReceipts:(scope:Scope,items:readonly Item[])=>Promise<Pick<Source,'receipts'|'assertCurrent'>>,role:'current'|'previous'='current'){
- const {runtime,scenarioId,projectId}=host,{lotId,roundId,stageId,handoffId}=selection
+ selection:Omit<Scope,'projectId'>&Readonly<{handoffId:string;role?:'current'|'previous'}>,
+ readReceipts:(scope:Scope,items:readonly Item[])=>Promise<Pick<Source,'receipts'|'assertCurrent'>>){
+ const {runtime,scenarioId,projectId}=host,{lotId,roundId,stageId,handoffId,role='current'}=selection
  const scope=Object.freeze({projectId,lotId,roundId,stageId}),query={...scope,handoffId}
  host.assertCurrent()
  if(![scenarioId,...Object.values(query)].every(identity))throw Error(error)

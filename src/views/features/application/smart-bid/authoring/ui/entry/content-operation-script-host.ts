@@ -15,7 +15,8 @@ type Open=Parameters<typeof openContentOperationWorkspace>
 /** 按原身份解析已冻结工艺指南的能力。 */
 type ResolveGuide=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]
 
-function exposeVerifiedJson(readJson:()=>string,digest:string,assertCurrent:()=>void,error='OPERATION_ROUTE_DISPATCH_DIGEST'){
+function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,error='OPERATION_ROUTE_DISPATCH_DIGEST'}:
+ Readonly<{assertCurrent:()=>void;error?:string}>){
  return async ()=>{
   assertCurrent()
   const inputJson=readJson()
@@ -56,11 +57,11 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
       state:dispatch&&'dispatchRef' in dispatch?'DISPATCH_RECORDED':'UNKNOWN',
       ...(dispatch&&'dispatchRef' in dispatch?{dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest}:{}),
       ...(dispatch&&'dispatchRef' in dispatch&&inputJson!==null?
-       {readActualInput:exposeVerifiedJson(()=>inputJson,dispatch.actualInputDigest,assertCurrent)}:{}),
+       {readActualInput:exposeVerifiedJson(()=>inputJson,dispatch.actualInputDigest,{assertCurrent})}:{}),
       verification:Object.freeze({state:verified.state,
        receiptRef:result&&'receiptRef' in result?result.receiptRef:undefined,
        ...(result?.state==='VERIFIED_CANDIDATE'?{candidateDigest:result.candidateDigest,
-        readCandidate:exposeVerifiedJson(()=>result.candidateJson,result.candidateDigest,assertCurrent,'OPERATION_ROUTE_CANDIDATE_DIGEST')}:{}),
+        readCandidate:exposeVerifiedJson(()=>result.candidateJson,result.candidateDigest,{assertCurrent,error:'OPERATION_ROUTE_CANDIDATE_DIGEST'})}:{}),
        ...('actualRequirementReads' in verified&&verified.actualRequirementReads?
         {actualRequirementReads:verified.actualRequirementReads}:{}),
        assertCurrent}),
@@ -72,7 +73,7 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
     return readback.state==='DISPATCH_RECORDED'
      ?Object.freeze({state:readback.state,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,
       ...(readback.input===undefined?{}:{readActualInput:exposeVerifiedJson(()=>canonicalSnapshotValue(readback.input),
-       readback.actualInputDigest,readback.assertCurrent)}),assertCurrent:readback.assertCurrent})
+       readback.actualInputDigest,{assertCurrent:readback.assertCurrent})}),assertCurrent:readback.assertCurrent})
      :Object.freeze({state:readback.state,assertCurrent:readback.assertCurrent})
    }
    if(name!=='content.operation.discover'||!identity(input['directoryRef']))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')

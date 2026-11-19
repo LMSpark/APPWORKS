@@ -68,15 +68,6 @@ vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{pat
 vi.mock('@/views/features/workflow/flow-append-user/ui/flow-append-user.vue', () => ({
   default: {name: 'FlowAppendUser', template: '<div data-testid="append-user">加签</div>'},
 }))
-vi.mock('@spark-appworks/spark-component', async importOriginal => {
-  const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
-  return {
-    ...actual,
-    __v_isRef: false,
-    RendererGraph: {name: 'RendererGraph', props:['edgeSourceField','edgeTargetField'],template: '<div data-testid="run-chart" :data-source-field="edgeSourceField" :data-target-field="edgeTargetField">图</div>'},
-  }
-})
-
 const {default: MobileFlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue')
 const {default: FlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue')
 
@@ -325,9 +316,9 @@ describe('flow run page mount', () => {
     const wrapper=mount(withTestPageService(Host),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
     wrappers.push(wrapper);await flushPromises()
     await wrapper.findAll('button').find(button=>button.text()==='流程图')!.trigger('click');await flushPromises()
-    const graph=new DOMWrapper(document.body).find('[data-testid="run-chart"]'),edge=designDataSet.getView('WFM_NODE_REALATION')!.rows[0]!
+    const graph=wrapper.findComponent({name: 'RendererGraph'}),edge=designDataSet.getView('WFM_NODE_REALATION')!.rows[0]!
     expect(graph.exists()).toBe(true)
-    const source=graph.attributes('data-source-field'),target=graph.attributes('data-target-field')
+    const source=graph.props('edgeSourceField'),target=graph.props('edgeTargetField')
     if(!source||!target)throw Error('流程图必须声明正式连线端点字段')
     expect(edge[source]).toBe('N1')
     expect(edge[target]).toBe('N2')

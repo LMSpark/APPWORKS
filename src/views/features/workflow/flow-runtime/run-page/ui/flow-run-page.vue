@@ -42,10 +42,7 @@
 
         <SparkComponent.RendererDialog v-model="chartOpen" v-bind="dialogRule(children, 'chartDialog')?.props">
           <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
-            <SparkComponent.RendererGraph v-if="chartPrepared && chartRule(children)" v-bind="chartRule(children)?.props"
-              :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
-              :node-positions="chartPrepared.graphLayout.nodePositions" :edge-paths="chartPrepared.graphLayout.edgePaths"
-              :node-badge-field="chartPrepared.nodeBadgeField" />
+            <SparkComponentRenderer v-for="node in chartNodes(children)" :key="nodeId(node)" :config="node" />
           </SparkComponent.RendererSection>
         </SparkComponent.RendererDialog>
       </SparkComponent.RendererSection>
@@ -235,8 +232,20 @@ function dialogRule(children: readonly SparkNode[], id: string): SparkNode | und
   return children.find(node => nodeId(node) === id && node.type === 'r-dialog')
 }
 
-function chartRule(children: readonly SparkNode[]): SparkNode | undefined {
-  return getSparkNodeChildren(dialogRule(children, 'chartDialog')?.children).find(node => nodeId(node) === 'flowChart' && node.type === 'r-graph')
+function chartNodes(children: readonly SparkNode[]): SparkNode[] {
+  const graph = chartPrepared.value
+  if (!graph) return []
+  return getSparkNodeChildren(dialogRule(children, 'chartDialog')?.children).map(node => ({
+    ...node,
+    props: {
+      ...node.props,
+      dataViewKey: graph.nodeViewKey,
+      edgeDataViewKey: graph.edgeViewKey,
+      nodePositions: graph.graphLayout.nodePositions,
+      edgePaths: graph.graphLayout.edgePaths,
+      nodeBadgeField: graph.nodeBadgeField,
+    },
+  }))
 }
 </script>
 

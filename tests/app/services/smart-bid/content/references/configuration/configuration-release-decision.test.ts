@@ -55,11 +55,13 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
  const disabled=await prepareConfigurationRelease(scope,request,{...source,action:'DISABLE',original:version,
   effectiveAt:'2026-11-18T10:00:00+08:00',stopScope:'NEW_SELECTION'})
  expect(disabled.record).toMatchObject({targetState:'DISABLED',version})
- const parent={...scope,scopeId:'GLOBAL',pointerVersion:'G1',state:'ENABLED' as const,version}
+ const parent={...scope,scopeId:'GLOBAL',pointerVersion:'G1',state:'ACTIVE' as const,version}
  const local={...scope,pointerVersion:'P2',state:'DISABLED' as const}
  const read={scopeIds:['ORG','GLOBAL'],assertCurrent:()=>{}}
- expect(resolveActiveConfiguration(scope,{...read,pointers:[parent]})).toMatchObject({state:'ENABLED',scopeId:'GLOBAL'})
+ expect(resolveActiveConfiguration(scope,{...read,pointers:[parent]})).toMatchObject({state:'ACTIVE',scopeId:'GLOBAL'})
  expect(resolveActiveConfiguration(scope,{...read,pointers:[parent,local]})).toMatchObject({state:'DISABLED',scopeId:'ORG'})
+ const malformed={...local,state:'UNKNOWN'} as unknown as typeof local
+ expect(()=>resolveActiveConfiguration(scope,{...read,pointers:[parent,malformed]})).toThrow('CONFIGURATION_POINTER_SCOPE')
  const recover=(lookup:Parameters<typeof readOriginalConfigurationRelease>[1]['lookup'])=>
   readOriginalConfigurationRelease({...disabled.record,requestDigest:disabled.requestDigest},{lookup,assertCurrent:source.assertCurrent})
  expect(await recover(async()=>undefined)).toMatchObject({status:'UNKNOWN'})

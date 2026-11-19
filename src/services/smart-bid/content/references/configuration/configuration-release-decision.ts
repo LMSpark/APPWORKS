@@ -16,7 +16,7 @@ const digest=(value:string)=>/^[a-f0-9]{64}$/u.test(value)
 /** 按授权查询给出的作用域顺序选用，显式停用阻止继承。 */
 export function resolveActiveConfiguration(scope:Pick<Scope,'kind'|'key'>,source:Readonly<{
  scopeIds:readonly string[]
- pointers:ReadonlyArray<Scope&Readonly<{pointerVersion:string;state:'DISABLED'}|{pointerVersion:string;state:'ENABLED';version:Version}>>
+ pointers:ReadonlyArray<Scope&Readonly<{pointerVersion:string;state:'DISABLED'}|{pointerVersion:string;state:'ACTIVE';version:Version}>>
  assertCurrent:()=>void
 }>){
  source.assertCurrent()
@@ -26,12 +26,13 @@ export function resolveActiveConfiguration(scope:Pick<Scope,'kind'|'key'>,source
  for(const pointer of source.pointers){
   if(pointer.kind!==scope.kind||pointer.key!==scope.key||!scopes.has(pointer.scopeId)||
    !identity(pointer.pointerVersion)||byScope.has(pointer.scopeId)||
-   pointer.state==='ENABLED'&&(!identity(pointer.version.versionId)||!digest(pointer.version.digest)))throw Error(error)
+   !['ACTIVE','DISABLED'].includes(pointer.state)||
+   pointer.state==='ACTIVE'&&(!identity(pointer.version.versionId)||!digest(pointer.version.digest)))throw Error(error)
   byScope.set(pointer.scopeId,pointer)
  }
  for(const scopeId of scopeIds){
   const pointer=byScope.get(scopeId)
-  if(pointer)return Object.freeze({...pointer,...(pointer.state==='ENABLED'?{version:Object.freeze({...pointer.version})}:{}),
+  if(pointer)return Object.freeze({...pointer,...(pointer.state==='ACTIVE'?{version:Object.freeze({...pointer.version})}:{}),
    assertCurrent:()=>source.assertCurrent()})
  }
  return Object.freeze({state:'MISSING' as const,assertCurrent:()=>source.assertCurrent()})

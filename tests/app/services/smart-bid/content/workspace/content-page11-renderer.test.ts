@@ -82,6 +82,13 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   await expect(session.readCurrentHead()).rejects.toThrow('CONTENT_AUTHORING_HEAD_SCOPE')
   await expect(session.readVolumePlanningObligations()).rejects.toThrow('CONTENT_VOLUME_PLAN_SCOPE')
   project.queryContext={projectId:'P'}
+  const latestHead=await session.readCurrentHead()
+  const queryConfig=project.queryConfig
+  project.queryConfig={...queryConfig,cacheType:'page'}
+  expect(()=>latestHead.assertCurrent()).toThrow('CONTENT_AUTHORING_HEAD_SCOPE')
+  await expect(session.readCurrentHead()).rejects.toThrow('CONTENT_AUTHORING_HEAD_SCOPE')
+  await expect(session.readVolumePlanningObligations()).rejects.toThrow('CONTENT_VOLUME_PLAN_SCOPE')
+  project.queryConfig=queryConfig
  }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})
  await router.push('/?projectId=P&draftId=D');await router.isReady()

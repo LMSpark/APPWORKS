@@ -31,6 +31,11 @@ type DraftCandidateInput=Readonly<{
  requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number;declaredAddedNodeIds?:readonly string[]
 }>
 
+function isUncachedContentRead(view:NonNullable<ReturnType<PageRuntime['resolveView']>>){
+ const {cacheType}=view.queryConfig
+ return cacheType===undefined||cacheType==='none'
+}
+
 /** 实例池创建宿主后，仅在三文件脚本连接时装配原视图。并行连接共享本次装载。 */
 export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:ContentAuthoringTarget,
  {assertSession,receiptDataViewKey}:Readonly<{assertSession:()=>void;receiptDataViewKey?:string}>){
@@ -191,7 +196,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
-     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||
+     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||!isUncachedContentRead(view)||
       view.queryContext['projectId']!==projectId||
       !hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'}))throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
      await view.refresh()
@@ -203,7 +208,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const proof=view.captureReadRow(row,['projectId','headRevisionId']),resultProof=view.captureReadResult()
      const assertHead=()=>{
       assertCurrent()
-      if(runtime.resolveView(key)!==view)throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
+      if(runtime.resolveView(key)!==view||!isUncachedContentRead(view))throw Error('CONTENT_AUTHORING_HEAD_SCOPE')
       resultProof()
       proof()
      }
@@ -215,7 +220,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const {runtime,projectId}=binding,scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
      const key=buildDataViewKey('ContentProject','selectedProject',scenarioId),view=runtime.resolveView(key)
-     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||
+     if(view?.dataTable?.modelBinding?.modelName!=='ContentProject'||view.hasEditingChanges()||!isUncachedContentRead(view)||
       view.queryContext['projectId']!==projectId||
       !hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'}))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
      await view.refresh()
@@ -227,7 +232,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const resultProof=view.captureReadResult()
      const assertProject=()=>{
       assertCurrent()
-      if(runtime.resolveView(key)!==view)throw Error('CONTENT_VOLUME_PLAN_SCOPE')
+      if(runtime.resolveView(key)!==view||!isUncachedContentRead(view))throw Error('CONTENT_VOLUME_PLAN_SCOPE')
       resultProof()
       proof()
      }

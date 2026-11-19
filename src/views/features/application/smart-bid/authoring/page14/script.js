@@ -4,17 +4,40 @@ let receipt
 let originalError
 let receiptError
 
+let originalSelection
+let receiptSelection
+let loadGeneration = 0
+
+function originalSelectionKey() {
+  const {attemptRef, requestKey, requestDigest} = $route.query
+  return JSON.stringify([attemptRef, requestKey, requestDigest])
+}
+
 async function __init__() {
+  const generation = ++loadGeneration
   const {attemptRef, requestKey, requestDigest, receiptRef} = $route.query
+  const selection = originalSelectionKey()
+  originalSelection = selection
+  receiptSelection = receiptRef
+  original = undefined
+  originalError = undefined
+  receipt = undefined
+  receiptError = undefined
+  const currentOriginal = () => generation === loadGeneration && selection === originalSelectionKey()
+  const currentReceipt = () => generation === loadGeneration && receiptRef === $route.query.receiptRef
   await Promise.all([
     attemptRef === undefined ? undefined : $page.invokeHostCommand('content.submission.readOriginal', {attemptRef, requestKey, requestDigest})
-      .then(result => {original = result}, () => {originalError = '原办理记录无法核验'}),
+      .then(result => {if (currentOriginal()) original = result},
+        () => {if (currentOriginal()) originalError = '原办理记录无法核验'}),
     receiptRef === undefined ? undefined : $page.invokeHostCommand('content.submission.readReceipt', {receiptRef})
-      .then(result => {receipt = result}, () => {receiptError = '接收凭据无法核验'}),
+      .then(result => {if (currentReceipt()) receipt = result},
+        () => {if (currentReceipt()) receiptError = '接收凭据无法核验'}),
   ])
 }
 
 function bindOriginalSubmission() {
+  if (originalSelection !== undefined && originalSelection !== originalSelectionKey())
+    return $route.query.attemptRef === undefined ? {visible: false} : {error: '原办理查询已失效'}
   if (!original) {
     if ($route.query.attemptRef === undefined && ($route.query.receiptRef !== undefined || bindDeadline().visible || bindOutcome().visible))
       return {visible: false}
@@ -116,6 +139,7 @@ async function openDeadline() {
 }
 
 function bindOriginalReceipt() {
+  if (receiptSelection !== $route.query.receiptRef) return {visible: false}
   if (!receipt) return receiptError ? {error: receiptError} : {visible: false}
   try {
     receipt.assertCurrent()

@@ -57,11 +57,15 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
   }))).resolves.toMatchObject({state:'PENDING_PAIR',attemptRef:null})
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},host)
   const signal=new AbortController().signal
-  const {__init__,bindOriginalReceipt,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{receiptRef:'REC'}},
+  const query={receiptRef:'REC'}
+  const {__init__,bindOriginalReceipt,bindOriginalSubmission}=compileFunctions(script,{$route:{query},
    $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal)}} as unknown as PageContext)
   if(!__init__||!bindOriginalReceipt||!bindOriginalSubmission)throw Error('TEST_RECEIPT_PAGE_HANDLERS_REQUIRED')
   await __init__()
   expect(bindOriginalReceipt()).toEqual({status:'接收凭据 REC，原批次 A'})
+  query.receiptRef='OTHER'
+  expect(bindOriginalReceipt()).toEqual({visible:false})
+  query.receiptRef='REC'
   expect(candidateView.queryContext).toMatchObject(scope)
   const candidateConfig=candidateView.queryConfig
   candidateView.queryConfig={...candidateConfig,cacheType:'page'}

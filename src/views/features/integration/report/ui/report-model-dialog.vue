@@ -21,7 +21,7 @@
 import {onMounted, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-import {formatDay, textOf} from './report-format'
+import {formatDay, isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, DisplayAlert, useSparkComponent} = Components
 type RFilterProps = Components.RFilterProps
@@ -29,6 +29,9 @@ const props = defineProps<{infoKey: string; reportKey: string; pickerKey: string
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-model-dialog'})
 const busy = ref(false), ready = ref(false), message = ref(''), selectedId = ref(''), selectedName = ref('')
+
+let originalVersion: {id: string; assertCurrent: () => void} | undefined
+let assertSelection: (() => void) | undefined
 
 function view(key: string): DataView {
   const found = sparkConsume(PAGE_RUNTIME)?.resolveView(key)
@@ -39,9 +42,20 @@ const failure = (cause: unknown) => cause instanceof Error ? cause.message : Str
 onMounted(async () => {
   busy.value = true
   try {
+    const info = view(props.infoKey), report = view(props.reportKey)
+    const head = info.rows.find(row => info.getPkKey(row) === props.infoId)
+    if (!head) throw new Error('该报表缺少当前正式记录')
+    const assertHead = info.captureReadRow(head, ['version_id'])
+    const id = textOf(head, 'version_id')
+    const version = id && report.rows.find(row => String(report.getPkKey(row)) === id)
+    if (!version) throw new Error('该报表的启用版本不存在，请先在历史版本中启动一个版本')
+    const assertVersion = report.captureReadRow(version, ['RptID', 'State'])
+    if (textOf(version, 'RptID') !== String(props.infoId) || !isOn(version['State'])) throw new Error('该版本不是当前报表的启用版本')
+    originalVersion = {id, assertCurrent() { assertHead(); assertVersion() }}
     const picker = view(props.pickerKey)
     await picker.refresh()
     if (picker.loadingError) throw picker.loadingError
+    originalVersion.assertCurrent()
     ready.value = true
   } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
 })
@@ -55,18 +69,31 @@ const filter: RFilterProps = {
   children: [{type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '名称', filterTrim: true}}],
 }
 function choose(row: DataRow): void {
-  selectedId.value = textOf(row, 'rowid'); selectedName.value = textOf(row, 'Name')
+  if (busy.value) return
+  assertSelection = undefined; selectedId.value = ''; selectedName.value = ''; message.value = ''
+  try {
+    const picker = view(props.pickerKey)
+    const id = picker.getPkKey(row)
+    if (id === undefined) throw new Error('模型候选缺少正式身份')
+    const nameReadable = picker.fieldAccess(row, 'Name').read === 'visible'
+    assertSelection = picker.captureReadRow(row, [...picker.effectivePkFields, ...(nameReadable ? ['Name'] : [])])
+    selectedId.value = String(id)
+    selectedName.value = nameReadable ? textOf(row, 'Name') : ''
+  } catch (cause) { message.value = failure(cause) }
 }
 async function submit(): Promise<void> {
-  if (busy.value || !selectedId.value) return
+  if (busy.value || !selectedId.value || !originalVersion || !assertSelection) return
   busy.value = true; message.value = ''
   const info = view(props.infoKey), report = view(props.reportKey)
   let versionId = ''
   try {
     const reason = reportPendingReason([info, report])
     if (reason) throw new Error(reason)
-    versionId = textOf(info.getEditingRow(props.infoId) ?? undefined, 'version_id')
-    if (!versionId || !report.getEditingRow(versionId)) throw new Error('该报表的启用版本不存在，请先在历史版本中启动一个版本')
+    try { originalVersion.assertCurrent() }
+    catch (cause) { ready.value = false; selectedId.value = ''; selectedName.value = ''; throw new Error(`${failure(cause)}；请关闭后重新打开模型选择`) }
+    try { assertSelection() }
+    catch (cause) { selectedId.value = ''; selectedName.value = ''; assertSelection = undefined; throw new Error(`${failure(cause)}；请选择当前查询中的模型`) }
+    versionId = originalVersion.id
     info.updateEditingValue(props.infoId, 'version_dataid', selectedId.value)
     report.updateEditingValue(versionId, 'DataFormID', selectedId.value)
     await commitReportChanges({label: '绑定模型', targets: [{view: info, ids: [props.infoId]}, {view: report, ids: [versionId]}]})

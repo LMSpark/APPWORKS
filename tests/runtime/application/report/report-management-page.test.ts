@@ -348,6 +348,28 @@ describe('报表多记录修改的失败收敛', () => {
     expect(persisted.versions.rows.find(row => row['rowid'] === 'V2')?.['State']).toBe('1')
     expect(persisted.versions.rows.find(row => row['rowid'] === 'V1')?.['State']).toBe('0')
   })
+  it.each(['version', 'picker'] as const)('拒绝使用失效版本或候选绑定模型 (%s)', async changed => {
+    const f = await open()
+    await seed(f)
+    await rowAction(f, '模型', infoRow(f))
+    const picker = f.runtime.resolveView(`${scenario}@Base_DataSet@picker`)!
+    await vi.waitFor(() => expect(picker.rows).toHaveLength(2))
+    const choose = f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick') as ((row: Record<string, unknown>) => void) | undefined
+    const target = picker.rows.find(row => row['rowid'] === 'D2')
+    if (!choose || !target) throw new Error('模型选择入口缺失')
+    choose(target)
+    await flushPromises()
+    if (changed === 'version') {
+      f.http.records['Base_ReportInfo']![0]!['version_id'] = 'V2'
+      await f.info.refresh()
+    } else await picker.refresh()
+    await f.click('确定')
+    expect(document.body.textContent).toContain('原查询身份或行已变化')
+    expect(f.http.saves).toHaveLength(0)
+    expect(f.info.hasEditingChanges()).toBe(false)
+    expect(f.report.hasEditingChanges()).toBe(false)
+  })
+
   it('绑定模型被拒绝时撤销两表修改，回执中断后关窗核验不重发', async () => {
     const f = await open()
     await seed(f)
@@ -369,6 +391,14 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(f.report.dirtyTracking.hasPendingChanges()).toBe(false)
 
+    await f.click('取消')
+    await rowAction(f, '模型', infoRow(f))
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick')).toBeTypeOf('function'))
+    const reopened = f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick')
+    const current = picker.rows.find(row => row['rowid'] === 'D2')
+    if (!reopened || !current) throw new Error('重新打开后缺少正式模型候选')
+    await reopened(current, undefined, undefined, {cancel: false})
+    await flushPromises()
     f.http.failAfterWrite = true
     await f.click('确定')
     await vi.waitFor(() => expect(document.body.textContent).toContain('结果未确认'))

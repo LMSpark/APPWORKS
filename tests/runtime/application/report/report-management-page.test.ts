@@ -283,6 +283,21 @@ describe('报表多记录修改的失败收敛', () => {
       if (!found) throw new Error('缺少版本二')
       return found
     }
+    await rowAction(f, '启动', {...second()}, 1)
+    expect(f.http.saves).toHaveLength(0)
+    expect(versions.hasEditingChanges()).toBe(false)
+    expect(f.info.hasEditingChanges()).toBe(false)
+    const originalAccess = versions.fieldAccess.bind(versions)
+    const restricted = vi.spyOn(versions, 'fieldAccess').mockImplementation((row, field) => {
+      const access = originalAccess(row, field)
+      return row?.['rowid'] === 'V1' && field === 'State' ? {...access, read: 'invisible'} : access
+    })
+    try {
+      await rowAction(f, '启动', second(), 1)
+      expect(f.http.saves).toHaveLength(0)
+      expect(versions.hasEditingChanges()).toBe(false)
+      expect(f.info.hasEditingChanges()).toBe(false)
+    } finally {restricted.mockRestore()}
     f.http.rejectNextSave = true
     await rowAction(f, '启动', second(), 1)
     await vi.waitFor(() => expect(dialog().textContent).toContain('已撤销本地修改'))

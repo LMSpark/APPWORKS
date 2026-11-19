@@ -119,6 +119,13 @@ const remove = (row: DataRow) => guarded(async () => {
 const activate = (row: DataRow) => guarded(async () => {
   assertSettled()
   const versions = view(versionKey), info = view(props.infoKey), id = idOf(versions, row)
+  if (versions.total > versions.rows.length) throw new Error('报表版本未完整读取，不能启动版本')
+  versions.captureReadRow(row, ['RptID', 'State', 'DataFormID'])()
+  for (const version of versions.rows) {
+    versions.captureReadRow(version, ['RptID', 'State'])()
+    if (textOf(version, 'RptID') !== String(props.infoId)) throw new Error('版本与当前报表不一致')
+  }
+  const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''
   const ids = [id]
   try {
     for (const other of versions.rows) {
@@ -136,7 +143,7 @@ const activate = (row: DataRow) => guarded(async () => {
       await loadVersions()
     }
   }
-  message.value = `已启动版本 ${textOf(row, 'Version')}`
+  message.value = label ? `已启动版本 ${label}` : '已启动版本'
 })
 function close(): void {
   if (!busy.value) emit('close')

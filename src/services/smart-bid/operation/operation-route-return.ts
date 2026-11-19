@@ -3,6 +3,7 @@
  * 职责：核同一已派发路线工艺的原返回身份与原生 JSON。
  */
 import {readComposedOperationRouteCandidate} from './operation-station-fit'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '../content/references/snapshot-reference-values'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '../content/revision-snapshot-hash'
 import type {verifyOriginalOperationRouteDispatch} from './operation-route-dispatch-evidence'
@@ -26,7 +27,17 @@ export async function verifyDispatchedOperationRouteReturn(
  if(dispatch.state!=='MATCHED'||dispatch.inputJson===null)return Object.freeze({state:'DISPATCH_EVIDENCE_REQUIRED' as const,assertCurrent})
  if(!identity(source.guideRef)||source.configurationLockHash!==dispatch.scope.configurationLockHash)
   throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
- const verified=await verifyOperationRouteReturn(dispatch.scope,receipt,{catalog:source.catalog,match:source.match,assertCurrent})
+ const actualInputJson=dispatch.inputJson
+ const verified=await verifyOperationRouteReturn(dispatch.scope,receipt,{catalog:source.catalog,match:source.match,assertCurrent,
+  assertCandidateScope(candidate){
+   const input:unknown=JSON.parse(actualInputJson)
+   if(!isRecord(input)||!Array.isArray(input['stationCatalog'])||!Array.isArray(input['routeCatalog']))
+    throw Error('OPERATION_ROUTE_DISPATCH_CATALOG_REQUIRED')
+   const stations=new Set(input['stationCatalog'].filter(isRecord).map(item=>item['ref']).filter(identity))
+   const routes=new Set(input['routeCatalog'].map(canonicalSnapshotValue))
+   if(candidate.nodes.some(node=>node.type==='task'&&!stations.has(node.data.stationRef)||
+    node.type==='call'&&!routes.has(canonicalSnapshotValue(node.data.routeRef))))throw Error('OPERATION_ROUTE_OUTSIDE_DISPATCH_CATALOG')
+  }})
  return Object.freeze({...verified,dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest,guideRef:source.guideRef})
 }
 
@@ -35,6 +46,7 @@ export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,sou
  catalog:NonNullable<Parameters<typeof readComposedOperationRouteCandidate>[1]>
  match:Parameters<typeof readComposedOperationRouteCandidate>[2]
  assertCurrent:()=>void
+ assertCandidateScope?:(candidate:ReturnType<typeof readComposedOperationRouteCandidate>)=>void
 }>){
  const assertCurrent=()=>{source.assertCurrent();receipt.assertCurrent()}
  assertCurrent()
@@ -45,6 +57,7 @@ export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,sou
  const {receiptRef}=receipt
  if(receipt.state!=='COMPLETE')return Object.freeze({state:receipt.state,receiptRef,assertCurrent})
  const candidate=readComposedOperationRouteCandidate(receipt.output,source.catalog,source.match)
+ source.assertCandidateScope?.(candidate)
  const candidateJson=canonicalSnapshotValue(candidate)
  const candidateDigest=await hashCanonicalSnapshotText(candidateJson)
  assertCurrent()

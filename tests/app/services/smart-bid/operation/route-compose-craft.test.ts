@@ -70,6 +70,11 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
  expect(await verifyDispatchedOperationRouteReturn(digestOnly,response,guide)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  expect(await verifyDispatchedOperationRouteReturn(dispatch,response,guide))
   .toMatchObject({state:'VERIFIED_CANDIDATE',dispatchRef:'SENT',guideRef:'GUIDE',actualInputDigest})
+ const reducedInput={...craft.inputExample,stationCatalog:[]}
+ const reducedDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(reducedInput))
+ const reducedDispatch=await verifyOriginalOperationRouteDispatch(scope,{...sent,input:reducedInput,actualInputDigest:reducedDigest},
+  {...evidence,expectedInputDigest:reducedDigest})
+ await expect(verifyDispatchedOperationRouteReturn(reducedDispatch,response,guide)).rejects.toThrow('OPERATION_ROUTE_OUTSIDE_DISPATCH_CATALOG')
  const mismatch=await verifyOriginalOperationRouteDispatch(scope,sent,{...evidence,expectedInputDigest:'0'.repeat(64)})
  expect(await verifyDispatchedOperationRouteReturn(mismatch,response,guide)).toMatchObject({state:'DISPATCH_EVIDENCE_REQUIRED'})
  await expect(verifyDispatchedOperationRouteReturn(dispatch,response,{...guide,configurationLockHash:'0'.repeat(64)}))

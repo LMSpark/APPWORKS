@@ -17,11 +17,13 @@ it('reads the original result only for the selected attempt and verifies the ret
  const guideRow={id:'GUIDE-ROW',projectId:'P',guideRef:'GUIDE',versionRef:'GV1',guideDigest,
   kind:'OperationRoute',actionName:'verify',source:'PUBLIC',publicationRef:'PUB'}
  const manifest=await freezeOperationRouteContext(scope,{guideVersionRef:'GV1',action:{guideRef:'GUIDE',guideDigest,assertCurrent:()=>{}},
-  createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}]},[
+  createdAt:'2026-11-18T10:00:00+08:00',slots:['target','stationCatalog','routeCatalog'].map(slotId=>({slotId,required:true}))},[
   {slotId:'target',state:'ALLOWED',sourceRef:'SOURCE',versionRef:'V1',useRef:'USE',value:craft.inputExample.targetScope,
    requirementRead:{lineageId:'CLAUSE',version:'V1'},assertCurrent:()=>{}},
+  ...(['stationCatalog','routeCatalog'] as const).map(slotId=>({slotId,state:'ALLOWED' as const,sourceRef:'CATALOG',
+   versionRef:'V1',useRef:'USE',value:craft.inputExample[slotId],assertCurrent:()=>{}})),
  ])
- const actualInput={target:craft.inputExample.targetScope}
+ const actualInput={target:craft.inputExample.targetScope,stationCatalog:craft.inputExample.stationCatalog,routeCatalog:craft.inputExample.routeCatalog}
  const dispatch={...scope,id:'DISPATCH-ROW',dispatchRef:'DISPATCH',actualInputDigest:manifest.inputDigest,actualInput}
  const frozen={...scope,id:'FROZEN-ROW',guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,usable:true,inputDigest:manifest.inputDigest,
   requirementReads:manifest.requirementReads}

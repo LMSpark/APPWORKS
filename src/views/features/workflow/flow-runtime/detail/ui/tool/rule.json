@@ -58,20 +58,50 @@
     }
   },
   {
-    "id": "runGraph",
-    "type": "r-graph",
+    "id": "runTrace",
+    "type": "r-section",
     "props": {
-      "class": "flow-run-detail-page__graph",
-      "labelField": "TITLE",
-      "descriptionField": "MEMO",
-      "nodeCaptionField": "TYPEID",
-      "edgeSourceField": "UpNodeID",
-      "edgeTargetField": "NextNodeID",
-      "backgroundPattern": "dots",
-      "nodeAppearance": "card",
-      "viewportControls": true,
-      "disabled": true
-    }
+      "title": "运行轨迹",
+      "bordered": true,
+      "gridColumns": 1,
+      "gridGap": 8
+    },
+    "children": [
+      {
+        "id": "runLegend",
+        "type": "r-text-display",
+        "props": {
+          "class": "flow-run-detail-page__legend",
+          "text": "已完成（绿徽标）· 待办（橙徽标）· 只读预览"
+        }
+      },
+      {
+        "id": "runGraph",
+        "type": "r-graph",
+        "props": {
+          "class": "flow-run-detail-page__graph",
+          "labelField": "TITLE",
+          "descriptionField": "MEMO",
+          "nodeCaptionField": "TYPEID",
+          "edgeSourceField": "UpNodeID",
+          "edgeTargetField": "NextNodeID",
+          "backgroundPattern": "dots",
+          "nodeAppearance": "card",
+          "viewportControls": true,
+          "disabled": true
+        }
+      },
+      {
+        "id": "runGraphUnavailable",
+        "type": "r-alert",
+        "props": {
+          "alertType": "info",
+          "closable": false,
+          "showIcon": true,
+          "title": "运行图尚未加载。"
+        }
+      }
+    ]
   },
   {
     "id": "nodeSteps",

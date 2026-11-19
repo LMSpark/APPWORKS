@@ -1,2 +1,3 @@
 .flow-run-detail-summary { min-width: 0; }
 .flow-run-detail-page__graph { min-height: 360px; height: 48vh; }
+.flow-run-detail-page__legend { margin-bottom: 4px; }

@@ -17,16 +17,9 @@
         <template v-if="ready">
           <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'summary')" key="summary" :config="node" />
         </template>
-        <RendererSection v-if="ready" title="运行轨迹" :bordered="true" :grid-columns="1" :grid-gap="8">
-          <div class="flow-run-detail-page__legend">
-            <DisplayText text="已完成（绿徽标）· 待办（橙徽标）· 只读预览" />
-          </div>
-          <template v-if="graphReady && prepared">
-            <SparkComponentRenderer v-for="node in graphNodes(children)" key="runGraph" :config="node" />
-          </template>
-          <DisplayAlert v-else-if="ready && !graphLoading" alert-type="info" :closable="false" :show-icon="true"
-            title="运行图尚未加载。" />
-        </RendererSection>
+        <template v-if="ready">
+          <SparkComponentRenderer v-for="node in traceSections(children)" key="runTrace" :config="node" />
+        </template>
         <RendererDialog v-for="dialog in drilldownDialogs(children)" :key="dialog.id"
           v-bind="dialog.rule.props" :model-value="dialog.open.value" :title="dialog.title.value"
           @update:model-value="dialog.open.value = $event">
@@ -57,7 +50,6 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 
 const {
   DisplayAlert,
-  DisplayText,
   FieldCheckbox,
   RendererDialog,
   RendererSection,
@@ -145,21 +137,30 @@ const host = computed(() => {
   }}
 })
 
-function graphNodes(children: readonly SparkNode[]): SparkNode[] {
-  const graph = prepared.value
-  if (!graph) return []
-  return children.filter(node => nodeId(node) === 'runGraph').map(node => ({
-    ...node,
-    props: {
-      ...node.props,
-      dataViewKey: graph.nodeViewKey,
-      edgeDataViewKey: graph.edgeViewKey,
-      nodePositions: graph.graphLayout.nodePositions,
-      edgePaths: graph.graphLayout.edgePaths,
-      nodeBadgeRules,
-      onSelect: onGraphSelect,
-    },
-  }))
+function traceSections(children: readonly SparkNode[]): SparkNode[] {
+  const section = children.find(node => nodeId(node) === 'runTrace')
+  if (!section) return []
+  const graph = graphReady.value ? prepared.value : undefined
+  const nodes = getSparkNodeChildren(section.children).flatMap(node => {
+    switch (nodeId(node)) {
+      case 'runGraph':
+        return graph ? [{
+          ...node,
+          props: {
+            ...node.props,
+            dataViewKey: graph.nodeViewKey,
+            edgeDataViewKey: graph.edgeViewKey,
+            nodePositions: graph.graphLayout.nodePositions,
+            edgePaths: graph.graphLayout.edgePaths,
+            nodeBadgeRules,
+            onSelect: onGraphSelect,
+          },
+        }] : []
+      case 'runGraphUnavailable': return graph || graphLoading.value ? [] : [node]
+      default: return [node]
+    }
+  })
+  return [{...section, children: nodes}]
 }
 
 const drilldownState = [
@@ -195,6 +196,5 @@ async function retryLoad(): Promise<void> {
 
 <style scoped>
 .flow-run-detail-page {padding: 8px}
-.flow-run-detail-page__legend {margin-bottom: 4px}
 .flow-run-detail-page__voided {margin-bottom: 8px}
 </style>

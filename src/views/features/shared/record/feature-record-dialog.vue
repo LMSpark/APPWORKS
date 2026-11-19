@@ -8,7 +8,9 @@
     :append-to-body="true" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原记录已变化，请关闭并保留原修改。</p>
-    <FeatureRecordFields :data-view-key="dataViewKey" :record-id="recordId" :row="row" :specs="specs" :locked="locked" :columns="columns" />
+    <slot name="fields" :locked="locked">
+      <FeatureRecordFields :data-view-key="dataViewKey" :record-id="recordId" :row="row" :specs="specs" :locked="locked" :columns="columns" />
+    </slot>
     <template #footer>
       <RendererButton :label="foreignRecovery || recoveryEnded || hasStaged && !created ? '关闭并保留修改' : confirmedCreation ? '关闭' : '取消'"
         :disabled="busy || ownUnconfirmed" @click="cancel" />

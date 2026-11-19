@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {getSparkNodeChildren} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldTextarea, RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
@@ -210,6 +210,20 @@ describe('报表多记录修改的失败收敛', () => {
       expect(typeof action.props?.['dataViewKey']).toBe('string')
       expect(action.props?.['dataViewKey']).toBe(`${scenario}@Base_ReportInfo@default`)
     }
+  })
+
+  it('规则驱动的编辑表单只保存原报表及重新映射的应用名称', async () => {
+    const f = await open()
+    await seed(f)
+    f.http.records['Base_ReportInfo']![0]!['modname'] = '旧名称'
+    await f.info.refresh()
+    await rowAction(f, '编辑', infoRow(f))
+    const field = f.wrapper.findAllComponents(FieldTextarea).find(item => item.props('field') === 'RptDesc')
+    if (!field) throw new Error('报表编辑规则未渲染描述字段')
+    await field.get('textarea').setValue('更新后的描述')
+    await f.click('确定')
+    expect(f.http.saves).toHaveLength(1)
+    expect(f.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid: 'R1', RptDesc: '更新后的描述', modname: '应用'})])
   })
 
   it('删除回执中断后保留原删除捕获，即使独立重开已读不到目录与版本', async () => {

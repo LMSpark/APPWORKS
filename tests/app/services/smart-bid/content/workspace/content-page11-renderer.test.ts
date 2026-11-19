@@ -72,6 +72,12 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   expect(session.canEditDraft).toBe(editable)
   const obligations=await session.readVolumePlanningObligations()
   expect(obligations).toMatchObject({baselineId:'ACTIVE',obligations:[{obligationRef:'O',sourceRef:'SOURCE',kind:'DOCUMENT'}]})
+  const obligationView=ds.getView('SubmissionObligation','originalBaselineObligations')!
+  const obligationConfig=obligationView.queryConfig
+  obligationView.queryConfig={...obligationConfig,cacheType:'page'}
+  expect(()=>obligations.assertCurrent()).toThrow('BID_SUBMISSION_OBLIGATION_SCOPE')
+  await expect(session.readVolumePlanningObligations()).rejects.toThrow('BID_SUBMISSION_OBLIGATION_SCOPE')
+  obligationView.queryConfig=obligationConfig
   const head=await session.readCurrentHead()
   expect(head).toMatchObject({headRevisionId:'CURRENT'})
   expect(()=>obligations.assertCurrent()).toThrow()

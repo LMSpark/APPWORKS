@@ -25,6 +25,7 @@ export async function readBaselineSubmissionObligations(host:ContentRevisionRead
  const key=buildDataViewKey(model,viewName,scenarioId),view=runtime.resolveView(key)
  const valid=()=>view?.dataTable?.modelBinding?.modelName===model&&view.commitMode==='staged'&&
   view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
  if(!view||!valid()||view.hasEditingChanges())throw Error(error)
  view.queryContext={...view.queryContext,...scope}

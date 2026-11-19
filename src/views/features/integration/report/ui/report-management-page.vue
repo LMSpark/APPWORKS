@@ -6,7 +6,8 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 -->
 <template>
   <RendererSection title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取报表列表…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    :status="loading ? '正在读取报表列表…' : reloadBlocked ? '当前仍显示原报表，请处理原操作后切换。' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPending()" @click="loadCurrentRoute" />
     <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
       <template #content="{children}">
         <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
@@ -42,7 +43,7 @@ import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {RendererButton, RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import ReportCreateDialog from './report-create-dialog.vue'
@@ -59,7 +60,7 @@ const scenarioId = 'FB291E325272007AEED8921C28B93CFD'
 const key = (model: string, view = 'default') => buildDataViewKey(model, view, scenarioId)
 const {sparkConsume} = useSparkComponent({type: 'report-management-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'report-management-page')
-const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const {viewKey, session, ready, loading, error, reloadBlocked, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_ReportInfo', componentType: 'report-management-page', title: '业务报表管理',
   tool: pageId => {
     const tool = new PageTool({pageId})
@@ -69,6 +70,7 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
     tool.markLoaded()
     return tool
   },
+  preserveRuntime: () => hasPending(),
   optionModels: ['Base_Report', 'Base_AppSystemList', 'Base_UserInfo', 'Base_DataSet', '功能导航状态字典'],
 })
 const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList')
@@ -79,14 +81,7 @@ const dialog = shallowRef<Dialog>()
 let epoch = 0
 
 function hasPending(): boolean {
-  const runtime = session.runtime
-  if (busy.value || dialog.value?.kind === 'create' || runtime?.isDirty) return true
-  if (!runtime || runtime.destroyed) return false
-  return runtime.call.scenarioIds.some(id => {
-    const dataSet = runtime.getDataSet(id)
-    return dataSet && Object.values(dataSet.tables).some(table => table.viewList.some(item =>
-      item.mutating || item.hasUnconfirmedSave || item.hasPendingSavedRowPermissions))
-  })
+  return busy.value || dialog.value?.kind === 'create' || session.runtime?.isDirty === true
 }
 useSystemPageDirtySource({get isDirty() {return hasPending()}})
 onBeforeRouteLeave(() => !hasPending())
@@ -139,7 +134,7 @@ const host = computed(() => {
   return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
     assertCurrent()
     if (command === 'reports.connect') return {
-      locked: () => busy.value || !!dialog.value || unconfirmed.value,
+      locked: () => reloadBlocked.value || busy.value || !!dialog.value || unconfirmed.value,
       verification: () => ({visible: unconfirmed.value, disabled: busy.value}),
       formatDay,
     }
@@ -148,7 +143,7 @@ const host = computed(() => {
       return undefined
     }
     if (command === 'reports.create') {
-      if (!busy.value && !dialog.value && !unconfirmed.value) await create()
+      if (!reloadBlocked.value && !busy.value && !dialog.value && !unconfirmed.value) await create()
       return undefined
     }
     if (dialog.value?.kind === 'create' && command.startsWith('reports.create.')) {
@@ -161,7 +156,7 @@ const host = computed(() => {
     if (dialog.value?.kind === 'model' && command.startsWith('reports.model.')) {
       return modelDialogs.value?.[0]?.invoke(command.slice('reports.model.'.length), actionRow)
     }
-    if (busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
+    if (reloadBlocked.value || busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
     const row = input as DataRow
     if (!view(viewKey.value).rows.includes(row)) return undefined
     if (command === 'reports.remove') await remove(row)

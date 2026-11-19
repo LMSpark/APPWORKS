@@ -13,17 +13,18 @@ import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 import script from '@/views/features/integration/report/ui/tool/script.js?raw'
 import style from '@/views/features/integration/report/ui/tool/style.css?raw'
 
-const state: {runtime: PageRuntime | undefined} = vi.hoisted(() => ({runtime: undefined}))
+const state: {runtime: PageRuntime | undefined; preserveRuntime?: () => boolean} = vi.hoisted(() => ({runtime: undefined}))
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
 vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => {
   const {ref} = await import('vue')
   const {PAGE_RUNTIME, useSparkComponent} = await import('@spark-appworks/spark-component')
-  return {useFeaturePageRuntime: () => {
+  return {useFeaturePageRuntime: (options: {preserveRuntime: () => boolean}) => {
+    state.preserveRuntime = options.preserveRuntime
     if (!state.runtime) throw new Error('缺少测试运行实例')
     const {sparkProvide} = useSparkComponent({type: 'report-test-runtime'})
     sparkProvide(PAGE_RUNTIME, state.runtime)
     return {viewKey: ref(`${scenario}@Base_ReportInfo@default`), session: {runtime: state.runtime, isCurrent: (runtime: PageRuntime) => state.runtime === runtime},
-      ready: ref(true), loading: ref(false), error: ref(''), loadCurrentRoute: vi.fn()}
+      ready: ref(true), loading: ref(false), error: ref(''), reloadBlocked: ref(false), loadCurrentRoute: vi.fn()}
   }}
 })
 
@@ -43,6 +44,7 @@ afterEach(() => {
   wrappers.splice(0).forEach(wrapper => wrapper.unmount())
   runtimes.splice(0).forEach(runtime => runtime.dispose())
   state.runtime = undefined
+  delete state.preserveRuntime
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   config.global.stubs = originalStubs
@@ -236,6 +238,7 @@ describe('报表多记录修改的失败收敛', () => {
     await vi.waitFor(() => expect(document.body.textContent).toContain('核验原保存结果'))
     expect(f.http.saves).toHaveLength(2)
     expect(f.instance.isDirty).toBe(true)
+    expect(state.preserveRuntime?.()).toBe(true)
     await f.click('新增')
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(true)
     await f.click('核验原保存结果')
@@ -295,6 +298,7 @@ describe('报表多记录修改的失败收敛', () => {
     await confirmBox(false)
     expect(f.http.saves).toHaveLength(0)
     expect(f.instance.isDirty).toBe(false)
+    expect(state.preserveRuntime?.()).toBe(false)
   })
 
   it.each(['confirmed', 'mismatch'] as const)('新增版本核对启用版本配置 (%s)', async mode => {

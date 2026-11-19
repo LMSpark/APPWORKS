@@ -10,6 +10,11 @@ import * as scenarioLoader from '@/lowcode/data-space/lowcode-data-space-runtime
 import DataRecoveryPage from '@/views/features/system/data-recovery/ui/data-recovery-page.vue'
 import {withTestPageService} from '../../../support/helpers/page-service-host'
 
+vi.mock('@/views/features/system/data-recovery/ui/tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/system/data-recovery/ui/tool/style.css', 'utf8')}
+})
+
 it('renders only the selected recovery table fields while the next field result is pending', async () => {
   const scenarioId = '70D5D8FACCC201A822F64B16A441BE8F'
   const models = {
@@ -60,12 +65,15 @@ it('renders only the selected recovery table fields while the next field result 
   const wrapper = mount(withTestPageService(RouterView, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   try {
     const deletedFields = () => {
-      const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === scenarioId + '@获取软删除的数据@default')
+      const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === `${scenarioId}@获取软删除的数据@default`)
       return table ? getSparkNodeChildren(table.props('children')).map(node => node.props?.['field']) : undefined
     }
     await vi.waitFor(() => expect(deletedFields()).toEqual(['before']))
     tables.setCurrentRowById('T2')
     await flushPromises()
+    const pageRoot = wrapper.get('.spark-page-container')
+    const scope = `[data-page="${pageRoot.attributes('data-page')}"].spark-page-container`
+    expect(wrapper.get('style').element.textContent).toContain(`${scope} .recovery-page__body`)
     expect(deletedFields()).toEqual([])
     fieldRows = [...fieldRows, {rowid: 'F2', tblid: 'T2', enname: 'after', cnname: '新字段'}]
     await fields.refresh()

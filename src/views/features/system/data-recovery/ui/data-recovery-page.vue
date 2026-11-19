@@ -287,5 +287,4 @@ async function undo(row: DataRow): Promise<void> {
 
 <style scoped>
 .recovery-page {padding: 8px}
-.recovery-page__body {display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); gap: 16px; align-items: start}
 </style>

@@ -12,10 +12,18 @@ function fixture(user='U',primaryKey='id'){
  const proof=vi.fn(),resultProof=vi.fn(),view={dataTable:{modelBinding:{modelName:'WorkingDraft'}},queryContext:{projectId:'P',currentUserId:'U'},
   primaryKey,rows:[row],getPkKey:(item:typeof row)=>item[primaryKey],getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
  const resolveView=vi.fn(()=>view)
- const functions=compileFunctions(script,{$route:{query:{projectId:'P',draftId:'D'}},$page:{resolveView,
+ const query={projectId:'P',draftId:'D'}
+ const functions=compileFunctions(script,{$route:{query},$page:{resolveView,
   invokeHostCommand:async()=>({assertCurrent:()=>{}})}} as unknown as PageContext)
- return {row,view,proof,resultProof,functions,resolveView}
+ return {row,view,proof,resultProof,functions,resolveView,query}
 }
+it('does not reuse the original proof for another draft in the same view',()=>{
+ const f=fixture()
+ expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})
+ f.query.draftId='OTHER'
+ expect(f.functions['bindOriginalDraft']!()).toEqual({visible:false})
+ expect(f.view.captureReadResult).toHaveBeenCalledTimes(1)
+})
 it('expresses the draft structure with standard children and binds its original row',()=>{
  const f=fixture()
  expect(rule[0]?.type).toBe('r-section')

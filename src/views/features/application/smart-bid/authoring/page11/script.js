@@ -414,7 +414,8 @@ function originalDraft() {
     if (!originalRow) throw Error('CONTENT_PAGE_ORIGINAL_DRAFT_REQUIRED')
     const assertResult = view.captureReadResult(), assertRow = view.captureReadRow(originalRow, [view.primaryKey, 'projectId', 'userId', 'draft'])
     assertOriginalDraft = () => {
-      if ($page.resolveView(originalDraftKey) !== view) throw Error('CONTENT_PAGE_RUNTIME_CHANGED')
+      if ($page.resolveView(originalDraftKey) !== view || $route.query.projectId !== projectId ||
+        $route.query.draftId !== draftId) throw Error('CONTENT_PAGE_RUNTIME_CHANGED')
       assertResult(); assertRow()
     }
   }
@@ -468,7 +469,11 @@ function bindAction(label) {
     const draft = originalDraft()
     if (!editorSession) return {visible: false}
     const action = editorSession.actionProps(label, selectedNodePath(draft))
-    return {...action, onClick: () => {action.onClick(); selectedNodeId = null}}
+    return {...action, onClick: () => {
+      if ($route.query.projectId !== draft.projectId || $route.query.draftId !== draft.draftId) return
+      action.onClick()
+      selectedNodeId = null
+    }}
   } catch {return {disabled: true}}
 }
 function bindAddDocument() {return bindAction('新增逻辑册')}

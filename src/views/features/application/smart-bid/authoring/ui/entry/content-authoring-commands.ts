@@ -80,7 +80,7 @@ export class ContentAuthoringCommands {
   const view=this.#view
   const original=view.rows.find(row=>view.getPkKey(row)===draftId),edited=view.getEditingRow(draftId)
   if(!original||!edited)throw Error('CONTENT_DRAFT_SAVE_SCOPE')
-  const assertVersion=view.captureReadRow(original,['draftVersion','baseRevisionId'])
+  const assertOriginal=view.captureReadRow(original,['draftVersion','baseRevisionId','draft'])
   const {draftVersion,baseRevisionId}=original
   if(typeof draftVersion!=='string'||baseRevisionId!==null&&typeof baseRevisionId!=='string'||
    view.fieldAccess(edited,'draft').read!=='visible'||view.fieldAccess(edited,'draft').write!=='allowed')
@@ -88,7 +88,7 @@ export class ContentAuthoringCommands {
   const draft=edited['draft'],signature=canonicalSnapshotValue(draft)
   if(signature===canonicalSnapshotValue(original['draft']))throw Error('CONTENT_DRAFT_SAVE_UNCHANGED')
   const assertCurrent=()=>{
-   this.assertCurrent(epoch);assertVersion()
+   this.assertCurrent(epoch);assertOriginal()
    if(this.#inputs.size)throw Error('CONTENT_COMMAND_PENDING_INPUT')
    const row=view.getEditingRow(draftId)
    if(!row||view.fieldAccess(row,'draft').read!=='visible'||view.fieldAccess(row,'draft').write!=='allowed'||

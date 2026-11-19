@@ -79,6 +79,9 @@ it('seals only confirmed changes and binds them to the original draft version',a
   f.commands.setInputPending('detail',true,f.commands.epoch)
   expect(()=>prepared.assertCurrent()).toThrow('CONTENT_COMMAND_PENDING_INPUT')
   f.commands.setInputPending('detail',false,f.commands.epoch)
+  const original=f.view.rows[0]!
+  original['draft']={nodes:[],responseChanges:['new source value']}
+  expect(()=>prepared.assertCurrent()).toThrow('DATA_VIEW_READ_ROW')
   f.commands.cancel(f.commands.epoch)
   expect(()=>prepared.assertCurrent()).toThrow()
   expect(f.save).not.toHaveBeenCalled()

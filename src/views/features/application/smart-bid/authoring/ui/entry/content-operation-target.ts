@@ -41,11 +41,16 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
  }>){
  const target=resolvePublishedContentOperationTarget(route,entry)
  if(!target)return undefined
+ if(route.query['scenarioId']!==target.scenarioId)throw Error('OPERATION_PAGE_PUBLICATION_SCENARIO_REQUIRED')
  const session=captureContentAuthoringSession(target)
  return {
   scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
   createHost(runtime:PageRuntime){
    session.assertCurrent()
+   const inputs=runtime.call.scenarioInputs?.[target.scenarioId]
+   if(runtime.pageId!==target.pageId||runtime.call.scenarioIds.length!==1||runtime.call.scenarioIds[0]!==target.scenarioId||
+    inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
+    throw Error('OPERATION_PAGE_PUBLICATION_RUNTIME_CONFLICT')
    const binding=bindRoot(runtime,target)
    if(!identity(binding.rootKind))throw Error('OPERATION_PAGE_ROOT_REQUIRED')
    const {classModel,rootKind,resolveOriginalGuide}=binding

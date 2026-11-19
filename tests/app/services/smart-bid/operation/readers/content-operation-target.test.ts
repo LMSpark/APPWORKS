@@ -1,5 +1,10 @@
-import {expect,it} from 'vitest'
-import {resolvePublishedContentOperationTarget} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-target'
+import {expect,it,vi} from 'vitest'
+import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
+import {preparePublishedContentOperationCall,resolvePublishedContentOperationTarget} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-target'
+
+vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+ session:{get:()=>({identity:{userId:'USER'}})},readRequestScope:()=>({token:'TOKEN',headers:{'X-AppId':'APP'}}),
+}}))
 
 it('keeps the published navigation, page, scenario and selected project together',()=>{
  const entry={applicationId:'APP',pageId:'TOOL',nodeId:'NODE',scenarioId:'SPACE'}
@@ -20,4 +25,14 @@ it('keeps the published navigation, page, scenario and selected project together
   .toThrow('OPERATION_PAGE_PUBLICATION_CONFLICT')
  expect(()=>resolvePublishedContentOperationTarget({...route,query:{...route.query,currentUserId:'OTHER'}},entry))
   .toThrow('OPERATION_PAGE_PUBLICATION_CONFLICT')
+ const bindRoot=vi.fn(()=>({classModel:{executeTool:async()=>({ok:true})},rootKind:'OperationRoute',assertCurrent:()=>{}}))
+ expect(()=>preparePublishedContentOperationCall({...route,query:{projectId:'P'}},entry,bindRoot))
+  .toThrow('OPERATION_PAGE_PUBLICATION_SCENARIO_REQUIRED')
+ const prepared=preparePublishedContentOperationCall(route,entry,bindRoot)
+ if(!prepared)throw Error('TEST_PREPARED_OPERATION_REQUIRED')
+ const runtime=new PageRuntime({tool:new PageTool({pageId:'TOOL'}),scenarioIds:['OTHER'],loadScenario:async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')}})
+ try{
+  expect(()=>prepared.createHost(runtime)).toThrow('OPERATION_PAGE_PUBLICATION_RUNTIME_CONFLICT')
+  expect(bindRoot).not.toHaveBeenCalled()
+ }finally{runtime.dispose()}
 })

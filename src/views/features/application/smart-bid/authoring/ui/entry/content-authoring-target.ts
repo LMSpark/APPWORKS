@@ -28,7 +28,9 @@ export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute
  return {scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
   createHost(runtime:PageRuntime){
    session.assertCurrent()
-   if(runtime.pageId!==target.pageId||runtime.call.scenarioIds.length!==1||runtime.call.scenarioIds[0]!==target.scenarioId)
+   const inputs=runtime.call.scenarioInputs?.[target.scenarioId]
+   if(runtime.pageId!==target.pageId||runtime.call.scenarioIds.length!==1||runtime.call.scenarioIds[0]!==target.scenarioId||
+    inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
     throw Error('CONTENT_AUTHORING_PUBLICATION_RUNTIME_CONFLICT')
    return createPublishedContentAuthoringHost(runtime,target,{
     assertSession:session.assertCurrent,...(entry.receiptDataViewKey===undefined?{}:{receiptDataViewKey:entry.receiptDataViewKey}),

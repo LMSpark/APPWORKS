@@ -111,7 +111,7 @@ function openRunPage(): void {
     void pageService.showMessage(message, 'warning')
   }
 }
-const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   navigationId: FLOW_MONITOR_SCENARIO_ID,
   modelName: 'View_FlowObjList',
@@ -125,7 +125,7 @@ const {
   prepared, graphLoading, graphError, graphReady, nodeBadgeRules, nodeDialogOpen, edgeDialogOpen,
   nodeShowVoided, edgeShowVoided, nodeDialogTitle, edgeDialogTitle, nodeActiveTab, edgeActiveTab,
   selectedNodeId, edgeSourceId, edgeTargetId, onGraphSelect, reloadGraph,
-} = useFlowRunDetailPage(() => routeQuery.value, () => ready.value)
+} = useFlowRunDetailPage(() => routeQuery.value, () => ready.value ? session.runtime : undefined)
 
 const stateKey = buildDataViewKey('Dict_state', 'default', scenarioId)
 const columns: SparkNode[] = [

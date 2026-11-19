@@ -1,4 +1,4 @@
-import {expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, expect, it, vi} from 'vitest'
 import {flushPromises, mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {createMemoryHistory, createRouter} from 'vue-router'
@@ -9,17 +9,27 @@ import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENAR
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
 import FlowRunPage from '@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
+import FlowRunDetailPage from '@/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue'
+import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 const {loadScenario} = vi.hoisted(() => ({loadScenario: vi.fn()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
 
+beforeEach(() => {
+  loadScenario.mockClear()
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+})
+afterEach(() => vi.unstubAllGlobals())
+
 it.each([
   {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page'},
+  {name: 'runtime detail', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page'},
   {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page'},
 ])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix}) => {
   const monitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
-  const design = DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
+  const design = name === 'runtime detail' ? (await designFixture(false, false)).ds
+    : DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
   const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
   const instance = {rowid: 'WF-1', WFMID: 'FM-1', TITLE: '流程实例摘要', status: '待办理', BusTblObjID: 'BUS-1'}
   function bind(dataSet: DataSet, tableName: string, row?: Record<string, string>) {
@@ -30,7 +40,9 @@ it.each([
   }
   bind(monitor, 'View_FlowObjList', instance)
   bind(monitor, 'WFOBJ_FLOW', instance)
-  bind(design, 'WFM_WORKFORM')
+  if (name !== 'runtime detail') bind(design, 'WFM_WORKFORM')
+  bind(monitor, 'Dict_state')
+  bind(workbench, 'WFOBJ_FLOW_Waiting')
   bind(workbench, 'WFOBJ_FLOW_FORM')
   bind(workbench, 'WFOBJ_FLOW_RELATIONLINE_STEP')
   bind(workbench, 'WFOBJ_FLOW', instance)
@@ -49,6 +61,12 @@ it.each([
   try {
     await flushPromises()
     expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
+    if (name === 'runtime detail') {
+      const graph = wrapper.getComponent({name: 'RendererGraph'})
+      expect(graph.props('dataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_FLOW_NODE@default`)
+      expect(graph.props('edgeDataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_NODE_REALATION@default`)
+      return
+    }
     if (name === 'workflow run') {
       expect(wrapper.text()).toContain('流程实例摘要')
       expect(wrapper.text()).toContain('步骤历史')

@@ -4,7 +4,7 @@
  */
 import {onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
-import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   prepareFlowRunDetailPage,
@@ -18,8 +18,7 @@ const NODE_BADGE_RULES = [
   {field: FLOW_RUN_GRAPH_NODE_BADGE_FIELD, value: 'completed', label: '已完成', tone: 'success' as const},
 ]
 
-export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, runtimeReady: () => boolean) {
-  const {sparkConsume} = useSparkComponent({type: 'flow-run-detail-page'})
+export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, getRuntime: () => PageRuntime | undefined) {
   const prepared = shallowRef<FlowRunDetailPreparedPage>()
   const graphLoading = ref(false)
   const graphError = ref('')
@@ -44,15 +43,14 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     graphError.value = ''
     prepared.value = undefined
     try {
-      if (!runtimeReady()) throw new Error('运行详情场景尚未就绪')
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      if (!runtime) throw new Error('缺少页面运行实例')
+      const runtime = getRuntime()
+      if (!runtime) throw new Error('运行详情场景尚未就绪')
       const query = routeQuery()
       const next = await prepareFlowRunDetailPage({
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
-        assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程详情读取已失效')},
+        assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || getRuntime() !== runtime) throw Error('原流程详情读取已失效')},
       })
       if (own !== generation) return
       prepared.value = next
@@ -65,7 +63,7 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
   }
 
   function resolveNodeTitle(nodeId: string): string {
-    const runtime = sparkConsume(PAGE_RUNTIME)
+    const runtime = getRuntime()
     const view = prepared.value && runtime ? runtime.resolveView(prepared.value.nodeViewKey) : null
     const row = view?.rows.find(item => String(item['rowid'] ?? '') === nodeId)
     const title = row && view?.fieldAccess(row, 'TITLE').read === 'visible' ? row['TITLE'] : undefined
@@ -83,7 +81,7 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
       nodeDialogOpen.value = true
       return
     }
-    const runtime = sparkConsume(PAGE_RUNTIME)
+    const runtime = getRuntime()
     const edgeView = runtime?.resolveView(prepared.value.edgeViewKey)
     const row = edgeView?.rows.find(item => String(item['rowid'] ?? item['ROWID'] ?? '') === String(event.id))
     if (!row || edgeView?.fieldAccess(row, 'UpNodeID').read !== 'visible' || edgeView.fieldAccess(row, 'NextNodeID').read !== 'visible') return
@@ -96,8 +94,8 @@ export function useFlowRunDetailPage(routeQuery: () => FlowRunDetailRouteQuery, 
     edgeDialogOpen.value = true
   }
 
-  watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid] as const, () => {
-    if (runtimeReady()) void loadGraph()
+  watch(() => [getRuntime(), routeQuery().wfid, routeQuery().flowid] as const, () => {
+    if (getRuntime()) void loadGraph()
     else withdraw()
   }, {immediate: true})
   onBeforeUnmount(withdraw)

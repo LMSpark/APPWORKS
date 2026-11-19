@@ -14,6 +14,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
   const {ref} = await import('vue')
   return {
     useFeaturePageRuntime: () => ({
+      session: {runtime: currentRuntime},
       viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
       ready: ref(true),
       loading: ref(false),
@@ -89,10 +90,12 @@ function createRuntime(): PageRuntime {
   } as unknown as PageRuntime
 }
 
+let currentRuntime: PageRuntime
 const Host = defineComponent({
   setup() {
     const {sparkProvide} = useSparkComponent({type: 'flow-run-detail-mount-host'})
-    sparkProvide(PAGE_RUNTIME, createRuntime())
+    currentRuntime = createRuntime()
+    sparkProvide(PAGE_RUNTIME, currentRuntime)
     return () => h(FlowRunDetailPage)
   },
 })

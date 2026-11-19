@@ -18,6 +18,7 @@ const keys=['projectId','guideRef','versionRef'] as const
 const fields=[...keys,'guideDigest','kind','actionName','source','publicationRef']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='KnowledgeGuide'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 
 /** 公共指南的历史版本须由原版本查询返回向本项目可读的发布引用。 */
@@ -42,12 +43,12 @@ export async function readRegisteredOriginalOperationGuide(host:ContentRevisionR
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
   throw Error('OPERATION_ORIGINAL_GUIDE_INCOMPLETE')
  const assertResult=view.captureReadResult(),row=view.rows[0]
- if(!row)return undefined
+ if(!row)return Object.freeze({assertCurrent:()=>{assertScope();assertResult()}})
  const assertRow=view.captureReadRow(row,fields)
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  const {kind,actionName,source,publicationRef}=row
  if(keys.some(field=>row[field]!==context[field])||row['guideDigest']!==guideDigest||!identity(kind)||!identity(actionName)||
   (source!=='ENTERPRISE'&&(source!=='PUBLIC'||!identity(publicationRef))))throw Error('OPERATION_ORIGINAL_GUIDE_SCOPE')
  const guide=await readOperationActionGuide(runtime,{rootKind,kind,actionName,guideRef,guideDigest,assertCurrent})
- return Object.freeze({...guide,guideVersionRef:versionRef})
+ return Object.freeze({guide:Object.freeze({...guide,guideVersionRef:versionRef}),assertCurrent})
 }

@@ -89,8 +89,8 @@ export function openContentOperationWorkspace(
   readDispatch(attempt:Parameters<typeof readRegisteredOperationDispatch>[1]){
    return readRegisteredOperationDispatch(host,attempt)
   },
-  readOriginalGuide(original:Parameters<typeof readRegisteredOriginalOperationGuide>[2]['original']){
-   return readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
+  async readOriginalGuide(original:Parameters<typeof readRegisteredOriginalOperationGuide>[2]['original']){
+   return (await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})).guide
   },
   recover(manifest:Parameters<typeof recoverRegisteredOperationRouteAttempt>[1],
    guide:Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]){
@@ -103,9 +103,11 @@ export function openContentOperationWorkspace(
    if(!manifest?.usable)return Object.freeze({state:'FROZEN_CONTEXT_REQUIRED' as const,assertCurrent:frozen.assertCurrent})
    const {scope:originalScope,guideRef,guideVersionRef,guideDigest}=manifest
    const original=Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest})
-   const guide=await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
+   const originalGuide=await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})
+   const {guide}=originalGuide
    manifest.assertCurrent()
-   if(!guide)return Object.freeze({state:'ORIGINAL_GUIDE_REQUIRED' as const,assertCurrent:manifest.assertCurrent})
+   if(!guide)return Object.freeze({state:'ORIGINAL_GUIDE_REQUIRED' as const,
+    assertCurrent:()=>{manifest.assertCurrent();originalGuide.assertCurrent()}})
    const rules=await resolveGuide(original,signal)
    manifest.assertCurrent()
    guide.assertCurrent()

@@ -62,9 +62,10 @@ it('reads the original result only for the selected attempt and verifies the ret
  const guideView=ds.getView('KnowledgeGuide','originalVersion')
  if(!guideView)throw Error('TEST_GUIDE_VIEW_REQUIRED')
  const guideTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})
+ let hasGuide=true
  guideView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:guideTable.identity,scope:'guide',readScope:()=> 'guide',snapshot:guideTable.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...guideRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+   data:{Count:hasGuide?1:0,Items:hasGuide?[{...guideRow,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]:[]}}}),
  })})
  const host={runtime:{resolveView:(key:string)=>key==='S@GenerationRun@originalResult'?view:
   key==='S@ContextManifest@originalDispatch'?dispatchView:key==='S@ContextManifest@originalFrozen'?frozenView:
@@ -153,6 +154,12 @@ it('reads the original result only for the selected attempt and verifies the ret
   if(!('verification' in withoutFrozen)||!withoutFrozen.verification)throw Error('TEST_MISSING_CONTEXT_STATUS_REQUIRED')
   const missingContext=withoutFrozen.verification
   expect(()=>missingContext.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  hasGuide=false
+  const withoutGuide=await workspace.recoverOriginal(scope,resolveGuide)
+  expect(withoutGuide).toMatchObject({state:'ORIGINAL_GUIDE_REQUIRED'})
+  hasGuide=true
+  await guideView.refresh()
+  expect(()=>withoutGuide.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const withoutRules=createContentOperationScriptHost(scriptHost.runtime,tools,
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:async()=>undefined})
   expect(await withoutRules.invoke('content.operation.readDispatch',scope,signal))

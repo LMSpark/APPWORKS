@@ -7,15 +7,9 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 252,
-  "directUnmatchedCount": 132,
+  "consumerCount": 243,
+  "directUnmatchedCount": 123,
   "consumers": [
-    {
-      "expression": "/api/v1",
-      "sourceFile": "packages/spark-app/dist/app/bootstrap.d.ts",
-      "sourceLine": 77,
-      "scope": "tooling"
-    },
     {
       "expression": "/api/v1",
       "sourceFile": "packages/spark-app/src/app/bootstrap.ts",
@@ -44,54 +38,6 @@
       "expression": "/api/logs",
       "sourceFile": "packages/spark-app/src/logger/__tests__/logger.test.ts",
       "sourceLine": 302,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/:id",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 25,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/{id}",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 25,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/:id",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 31,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/42",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 32,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/tree/{parentId}/children",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 34,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/tree/root/children",
-      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
-      "sourceLine": 35,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/dist/core/utils.d.ts",
-      "sourceLine": 22,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/dist/types.d.ts",
-      "sourceLine": 428,
       "scope": "tooling"
     },
     {

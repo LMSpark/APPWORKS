@@ -5,6 +5,7 @@ import process from 'node:process'
 const APPWORKS_ROOT = resolve(import.meta.dirname, '..', '..')
 const LOWCODE_ROOT = resolve(process.env['LOWCODE_JDK17_ROOT'] ?? 'E:\\lowcode-jdk17')
 const CHECK_ONLY = process.argv.includes('--check')
+const IGNORED_DIRECTORY_NAMES = new Set(['.git', 'dist', 'node_modules', 'target'])
 
 async function walk(root, predicate) {
   const files = []
@@ -12,7 +13,7 @@ async function walk(root, predicate) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = resolve(directory, entry.name)
       if (entry.isDirectory()) {
-        if (entry.name !== 'target' && entry.name !== 'node_modules' && entry.name !== '.git') await visit(path)
+        if (!IGNORED_DIRECTORY_NAMES.has(entry.name)) await visit(path)
       } else if (predicate(path)) {
         files.push(path)
       }

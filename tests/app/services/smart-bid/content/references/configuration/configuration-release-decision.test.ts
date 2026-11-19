@@ -160,6 +160,12 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   await openConfigurationDisable()
   expect(readDisableDecision).toHaveBeenCalledWith({...scope,versionId:version.versionId,decisionRef:source.decisionRef},signal)
   expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(disabled.requestDigest),'配置停用核验')
+  expect(versionView.queryContext).toMatchObject({kind:scope.kind,key:scope.key,hash:version.digest})
+  versionExists=false
+  await expect(page.invoke('configuration.release.prepareDisable',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,versionId:version.versionId,decisionRef:source.decisionRef,
+  },signal)).rejects.toThrow('CONFIGURATION_RELEASE_VERSION_MISSING')
+  versionExists=true
   channelRow.hash=oldVersion.digest
   await openConfigurationDisable()
   expect(showMessage).toHaveBeenLastCalledWith('原停用决定或当前版本无法核验','warning')

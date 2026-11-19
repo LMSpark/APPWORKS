@@ -54,14 +54,16 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
    return Promise.all([
     readDisableDecision({...selection,versionId,decisionRef},signal),
     readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key}),
-   ]).then(([{decision},pointer])=>{
+   ]).then(async ([{decision},pointer])=>{
     const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent()}
     assertEvidence()
     if(pointer.state!=='ACTIVE'||decision.decisionRef!==decisionRef||decision.original.versionId!==versionId||
      pointer.versionDigest!==decision.original.digest)
      throw Error('CONFIGURATION_RELEASE_DISABLE_SCOPE')
+    const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
+     {kind,key,hash:pointer.versionDigest})
     return prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
-     {...decision,assertCurrent:assertEvidence})
+     {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})
    })
   }
   if(name==='configuration.release.prepareEnable'&&readCandidate&&host.configurationScope){

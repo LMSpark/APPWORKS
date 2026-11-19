@@ -80,7 +80,8 @@ export async function readPaperRegistration(host:ContentRevisionReadHost,scope:O
 }
 
 /** 观察必须关联已登记的指定份次。 */
-export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,scope:PaperScope):Promise<RegisteredPaper>{
+export async function readRegisteredPaperCopy(host:ContentRevisionReadHost,input:PaperScope):Promise<RegisteredPaper>{
+ const scope={...input}
  const registration=await readPaperRegistration(host,scope)
  if(registration.state==='UNKNOWN')throw Error('CONTENT_PAPER_REGISTRATION_NOT_UNIQUE')
  const copy=registration.copies.find(item=>item.copyRef===scope.copyRef)

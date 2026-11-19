@@ -12,7 +12,9 @@ import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-ap
 it('requires the exact registered copy and page before returning the original observed value',async()=>{
  const row={id:'OBS',projectId:'P',paperRef:'PAPER',copyRef:'COPY',revisionId:'R',
   pageRef:'P01',locationRef:'TOTAL',evidenceRef:'SCAN',value:'0.00',unit:'元',producedFileId:'REG'}
- const registration={id:'REG',projectId:'P',paperRef:'PAPER',revisionId:'R',copies:[{copyRef:'COPY',pageRefs:['P01']}]}
+ const registration={id:'REG',projectId:'P',paperRef:'PAPER',revisionId:'R',copies:[
+  {copyRef:'COPY',pageRefs:['P01']},{copyRef:'SECOND',pageRefs:['P02']},
+ ]}
  const {ProducedFile,AnswerLocation}=contentProductionReviewScenarioViews()
  const ds=DataSet.fromJson({scenarioId:'S',tables:{AnswerLocation:{
   modelBinding:{modelId:'M',modelName:'AnswerLocation'},
@@ -64,6 +66,9 @@ it('requires the exact registered copy and page before returning the original ob
   expect(showAlert).toHaveBeenCalledExactlyOnceWith('纸件 PAPER · 份次 COPY\n页 P01 · 位置 TOTAL\n原实填值 "0.00" 元\n原登记 REG · 观察凭据 SCAN','纸件实填回读')
   pageRef='P02'
   await expect(readRegisteredPaperAnswer(host,'OBS')).rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')
+  copyRef='SECOND'
+  await expect(readRegisteredPaperAnswer(host,'OBS')).resolves.toMatchObject({copyRef:'SECOND',pageRef:'P02'})
+  copyRef='COPY'
   pageRef='P01'
   producedFileId='OLD-REG'
   await expect(readRegisteredPaperAnswer(host,'OBS')).rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')

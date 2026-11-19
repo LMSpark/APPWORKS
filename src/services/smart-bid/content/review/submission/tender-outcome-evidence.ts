@@ -64,11 +64,13 @@ export function projectTenderOutcome(scope:Scope,source:Readonly<{
   kinds.size>1?'PENDING_CONFLICT':subjects[0]?.kind??(recommended?'RECOMMENDED':'PENDING')
  const roundState=pendingEvents.some(event=>event.subjectId===null)?'PENDING_CORRECTION':
   active.some(event=>event.kind==='ROUND_TERMINATED')?'TERMINATED':'UNCONFIRMED'
- const evidence=[...known.values()].map(({eventRef,issuerRef,documentVersionId,kind,eventAt,knownAt:acquiredAt,supersedesRef})=>
+ const compareEvents=(left:Event,right:Event)=>time(left.eventAt)-time(right.eventAt)||
+  (left.eventRef<right.eventRef?-1:left.eventRef>right.eventRef?1:0)
+ const evidence=[...known.values()].sort(compareEvents).map(({eventRef,issuerRef,documentVersionId,kind,eventAt,knownAt:acquiredAt,supersedesRef})=>
   Object.freeze({eventRef,issuerRef,documentVersionId,kind,eventAt,acquiredAt,supersedesRef}))
  assertCurrent()
  return Object.freeze({...scope,knownAt:source.knownAt,subjectState,roundState,evidence:Object.freeze(evidence),
-  pendingCorrectionRefs:Object.freeze(pendingEvents.map(event=>event.eventRef)),assertCurrent})
+  pendingCorrectionRefs:Object.freeze(pendingEvents.sort(compareEvents).map(event=>event.eventRef)),assertCurrent})
 }
 
 /** 已被更正的通知仍可供追溯原处置，关联由正式处置原据提供。 */

@@ -18,6 +18,8 @@ it('retains recommendations and prior results while limiting corrections to thei
  expect(assess(at('12'),[recommendation,award,correction])).toMatchObject({
   subjectState:'NOT_AWARDED',roundState:'UNCONFIRMED',evidence:[{eventRef:'REC'},{eventRef:'AWARD'},{eventRef:'CORRECT'}],
  })
+ expect(assess(at('12'),[correction,award,recommendation]).evidence.map(event=>event.eventRef))
+  .toEqual(['REC','AWARD','CORRECT'])
  expect(assess(at('12'),[recommendation,correction])).toMatchObject({
   subjectState:'PENDING_CORRECTION',roundState:'UNCONFIRMED',pendingCorrectionRefs:['CORRECT'],
  })

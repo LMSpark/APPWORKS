@@ -33,8 +33,12 @@ describe('embedded workflow business route', () => {
     const wrapper = mount(FlowRunRouteRenderer, {props: {route: router.resolve('/business'), cacheKey: 'business', tabKey: 'form', registry}, global: {plugins: [router]}})
     await flushPromises()
     expect(registry.set).toHaveBeenLastCalledWith('form', expect.objectContaining({flowSubmit}))
+    await wrapper.setProps({tabKey: 'next-form', cacheKey: 'next-context'})
+    await flushPromises()
+    expect(registry.set).toHaveBeenCalledWith('form', null)
+    expect(registry.set).toHaveBeenLastCalledWith('next-form', expect.objectContaining({flowSubmit}))
     wrapper.unmount()
-    expect(registry.set).toHaveBeenLastCalledWith('form', null)
+    expect(registry.set).toHaveBeenLastCalledWith('next-form', null)
   })
 
   it('provides the business route to a real child and updates it when the target changes', async () => {

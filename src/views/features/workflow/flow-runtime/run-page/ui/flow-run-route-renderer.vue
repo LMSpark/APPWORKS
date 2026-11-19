@@ -6,7 +6,7 @@
   <div class="flow-run-route-renderer">
     <DisplayAlert v-if="renderError" alert-type="error" :closable="false" :show-icon="true" :title="renderError" />
     <div v-else-if="!businessComponent" class="flow-run-route-renderer__loading">业务页面加载中…</div>
-    <component :is="businessComponent" v-else v-bind="routeProps" :key="cacheKey" @vue:mounted="syncExpose" @vue:unmounted="() => registry.set(tabKey, null)" />
+    <component :is="businessComponent" v-else v-bind="routeProps" :key="cacheKey" @vue:mounted="syncExpose" />
   </div>
 </template>
 
@@ -55,11 +55,12 @@ const routeProps = computed(() => {
   return {...(props.fallbackProps ?? {}), ...normalized}
 })
 
-watch(() => props.route, async route => {
+watch(() => [props.route, props.cacheKey, props.tabKey] as const, async ([route], previous) => {
   Object.assign(embeddedRoute, route, {name: route.name ?? undefined})
   const version = ++loadVersion
   businessComponent.value = null
   renderError.value = ''
+  if (previous && previous[2] !== props.tabKey) props.registry.set(previous[2], null)
   props.registry.set(props.tabKey, null)
   try {
     const loaded = await loadRouteLocation(route)

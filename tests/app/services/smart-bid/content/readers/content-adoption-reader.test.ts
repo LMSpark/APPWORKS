@@ -53,13 +53,28 @@ it('will not prepare formal production from an adopted index without matching co
   expect(readEvidence).not.toHaveBeenCalled()
  }finally{f.ds.destroy()}
 })
-function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean;registeredRoot?:string}={}){
+it('rejects a different original merge even when its adoption and commit references match',async()=>{
+ const f=fixture({commitCheckRef:'CHECK'})
+ try{
+  const original={...request,projectId:'P'}
+  const production={projectId:'P',documentId:'DOC',revisionId:'OTHER',baselineId:'B',requestKey:'MAKE',
+   toolVersionRef:'TOOL',outputOptions:{format:'PDF'}}
+  const readEvidence=vi.fn(async()=>{throw Error('UNEXPECTED_PRODUCTION_EVIDENCE')})
+  await expect(prepareAdoptedProduction(f.host,production,{adoption:[
+   original,{...original,effect:'COMMITTED',resultEvidenceRef:'RESULT'},
+   {...original,kind:'COMMITTED',resultEvidenceRef:'RESULT',adoptionRef:'A',mergeRevisionId:'OTHER',commitCheckRef:'CHECK'},
+  ],readEvidence,assertCurrent:()=>{}})).rejects.toThrow('BID_PRODUCTION_ADOPTION_REQUIRED')
+  expect(f.revisionQuery).not.toHaveBeenCalled()
+ }finally{f.ds.destroy()}
+})
+function fixture(options:{count?:number;requestDigest?:string;withRoot?:boolean;registeredRoot?:string;commitCheckRef?:string}={}){
  const manifest={hashContract:'spark-bid.revision-snapshot/1',projectId:'P',stageRef:{id:'ST'},baselineId:'B',
   templateRefs:[],nodes:[],requirementPins:[],responseAssignments:[],responses:[],qualificationReviews:[],sensitiveRefs:[]}
  const hash=hashRevisionSnapshot(manifest)
  const baseline={id:'B',projectId:'P',stageRef:manifest.stageRef,factVersions:[]}
  const root=options.withRoot?hashRevisionContentRoot({manifest,baseline}):null
- const record={id:'A',projectId:'P',...request,mergeRevisionId:'R',commitCheckRef:null,requestDigest:options.requestDigest??request.requestDigest}
+ const record={id:'A',projectId:'P',...request,mergeRevisionId:'R',commitCheckRef:options.commitCheckRef??null,
+  requestDigest:options.requestDigest??request.requestDigest}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentAdoption:{modelBinding:{modelId:'M',modelName:'ContentAdoption'},
   columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},selectedAdoption:{commitMode:'staged',
    scopeFilter:{logic:'and',filters:['projectId','candidateRevisionId','requestKey'].map(field=>({field,operator:'eq',

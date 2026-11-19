@@ -14,10 +14,11 @@ type Production=Parameters<typeof prepareProductionRequest>
 /** 正式制件既需原责任域提交实核，也需本次独立读取同版修订和册节点。 */
 export async function prepareAdoptedProduction(
  host:Parameters<typeof readContentAdoption>[0],
- request:Omit<Production[0],'purpose'>,
+ input:Omit<Production[0],'purpose'>,
  source:Readonly<{adoption:RecoveryInput;assertCurrent:()=>void;readEvidence:(version:Production[1])=>Promise<Production[2]>}>,
 ){
  source.assertCurrent()
+ const request=structuredClone(input)
  const result=inspectAdoptionRecovery(...source.adoption)
  const [adoptionRequest]=source.adoption
  const error='BID_PRODUCTION_ADOPTION_REQUIRED'
@@ -27,8 +28,8 @@ export async function prepareAdoptedProduction(
  const original=await readContentAdoption(scopedHost,adoptionRequest)
  if(!original.recordFound)throw Error(error)
  original.assertCurrent()
- const row=host.runtime.resolveView(original.dataViewKey)?.rows[0]
- if(row?.['id']!==result.adoptionRef||row['commitCheckRef']!==result.commitCheckRef)throw Error(error)
+ if(original.adoptionRef!==result.adoptionRef||original.commitCheckRef!==result.commitCheckRef||
+  original.mergeRevisionId!==result.mergeRevisionId)throw Error(error)
  const merge=await original.readMergeRevision()
  const snapshot=await merge.readSnapshot()
  const documentView=snapshot.nodes.dataViewKey?host.runtime.resolveView(snapshot.nodes.dataViewKey):undefined

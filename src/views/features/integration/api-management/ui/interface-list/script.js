@@ -73,3 +73,5 @@ async function openJsonImport() { await $page.invokeHostCommand('interfaces.impo
 
 function bindDefinitionSave() { return {disabled:interfaces?.save().disabled !== false} }
 async function saveDefinition() { await $page.invokeHostCommand('interfaces.saveDefinition') }
+
+async function verifyDefinition() { await $page.invokeHostCommand('interfaces.verifyDefinition') }

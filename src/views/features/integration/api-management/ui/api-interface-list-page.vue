@@ -11,7 +11,7 @@
       <template #content="{children}">
         <div class="interface-list">
           <SparkComponentRenderer :config="region(children,'api-interface-sidebar')" />
-          <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
+          <RendererSection v-bind="region(children,'api-interface-workspace').props" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy">
             <template v-if="selected" #header-actions>
               <SparkComponentRenderer :config="region(children,'api-interface-save')" />
             </template>
@@ -147,6 +147,10 @@ const listHost=computed(()=>{
         const removable=!!interfaces&&!!row&&id!==undefined&&(interfaces.dirtyTracking.isPendingCreate(id)||interfaces.deleteActionState(row)==='enabled')
         return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
       },
+    }
+    if(command==='interfaces.verifyDefinition'&&definitionUnconfirmed.value&&!busy.value){
+      await verifyOriginalSaves()
+      return undefined
     }
     if(command==='interfaces.saveDefinition'&&selected.value&&!locked.value&&interfacePending.value){
       await saveApi()

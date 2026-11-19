@@ -151,7 +151,7 @@ it('connects the published script to the original runtime only once per load',as
   await expect(first.readOriginalSave(originalSave)).rejects.toThrow('CONTENT_PAGE_RENDER_STALE')
  }finally{runtime.dispose()}
 })
-it('loads the actual three files and authoring host through the page runtime pool',async()=>{
+it.each([false,true])('loads the actual authoring page and original receipt (pending save: %s)',async(savePending)=>{
  registerAllRenderers()
  const stubs={...originalStubs}
  for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
@@ -196,8 +196,19 @@ it('loads the actual three files and authoring host through the page runtime poo
    saveContentDigest:contentDigest,saveExpectedDraftVersion:'V1'}})
   const route=router.currentRoute.value, runtime=pool.getPageRuntime(route), component=pool.getPageRuntimeView(route)
   if(!runtime||!component)throw Error('Missing pooled authoring page')
+  const drafts=ds.getView('WorkingDraft','personalDraft')!
+  const saveState=vi.spyOn(drafts,'hasUnconfirmedSave','get').mockImplementation(()=>savePending&&drafts.rows.length>0)
   wrapper=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
-  await vi.waitFor(()=>expect(wrapper?.text()).toContain('原请求已保存草稿版 V2，回执 RC。当前草稿与原保存内容一致。'),{timeout:4000})
+  try{
+   await vi.waitFor(()=>expect(wrapper?.text()).toContain('原请求已保存草稿版 V2，回执 RC'),{timeout:4000})
+   if(savePending)expect(wrapper.text()).not.toContain('当前草稿与原保存内容一致')
+   else expect(wrapper.text()).toContain('当前草稿与原保存内容一致')
+  }finally{saveState.mockRestore()}
+  if(savePending){
+   expect(queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest})
+   expect(save).not.toHaveBeenCalled()
+   return
+  }
   expect(wrapper.text()).toContain('标书正文编制')
   expect(wrapper.text()).toContain('新增逻辑册')
   expect(runtime.getDataSet(scenarioId)).toBe(ds)
@@ -206,7 +217,6 @@ it('loads the actual three files and authoring host through the page runtime poo
   expect(queries).toHaveBeenCalledTimes(3)
   expect(queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest})
   expect(load).not.toHaveBeenCalled()
-  const drafts=ds.getView('WorkingDraft','personalDraft')!
   const button=(label:string)=>wrapper?.findAll('button').find(item=>item.text()===label)
   await button('新增逻辑册')!.trigger('click');await flushPromises()
   await vi.waitFor(()=>expect(drafts.getEditingRow('D')?.['draft']).not.toEqual(drafts.rows[0]?.['draft']))

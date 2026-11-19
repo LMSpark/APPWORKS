@@ -8,6 +8,19 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
+it('does not query for an incomplete original save request',async()=>{
+ const query={projectId:'P',draftId:'D',saveRequestKey:'Q',saveExpectedDraftVersion:null}
+ const readOriginalSave=vi.fn()
+ const {__init__,bindOriginalSave,bindRefreshOriginalSave}=compileFunctions(script,{$route:{query},$page:{
+  invokeHostCommand:async()=>({readOriginalSave}),
+ }} as unknown as PageContext)
+ if(!__init__||!bindOriginalSave||!bindRefreshOriginalSave)throw Error('TEST_SAVE_RECEIPT_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindOriginalSave()).toEqual({error:'原保存请求参数不完整或格式不正确'})
+ expect(bindRefreshOriginalSave()).toMatchObject({visible:false})
+ expect(readOriginalSave).not.toHaveBeenCalled()
+})
+
 it('discards a connection returned after switching the target draft',async()=>{
  const query={projectId:'P',draftId:'D'}
  const {__init__,bindEditorStatus,bindCancel}=compileFunctions(script,{$route:{query},$page:{

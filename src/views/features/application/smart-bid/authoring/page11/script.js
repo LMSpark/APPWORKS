@@ -9,6 +9,7 @@ let hostUnavailable = false
 let saveReceipt
 let saveReceiptError = false
 let saveReceiptRequested = false
+let saveReceiptQueryValid = false
 let saveReceiptLoading = false
 let saveReceiptSelection
 let initialization = 0
@@ -342,7 +343,11 @@ async function __init__() {
   const isCurrent = () => generation === initialization && keys.every((key, index) => $route.query[key] === values[index])
   saveReceiptSelection = isCurrent
   saveReceiptRequested = receiptKeys.some(key => Object.hasOwn(query, key))
-  saveReceiptLoading = saveReceiptRequested
+  const {saveRequestKey, saveRequestDigest, saveContentDigest, saveExpectedDraftVersion} = query
+  const id = value => typeof value === 'string' && !!value && value.trim() === value
+  saveReceiptQueryValid = id(saveRequestKey) && (saveExpectedDraftVersion === null || id(saveExpectedDraftVersion)) &&
+    [saveRequestDigest, saveContentDigest].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value))
+  saveReceiptLoading = saveReceiptQueryValid
   try {
     const session = await $page.invokeHostCommand('content.authoring.connect')
     if (!isEditorCurrent()) return
@@ -353,7 +358,7 @@ async function __init__() {
     hostUnavailable = cause?.message === 'PAGE_HOST_COMMAND_UNAVAILABLE'
     editorFault = !hostUnavailable
   }
-  if (!saveReceiptRequested || !editorSession || !isCurrent()) {
+  if (!saveReceiptQueryValid || !editorSession || !isCurrent()) {
     saveReceiptLoading = false
     return
   }
@@ -361,7 +366,7 @@ async function __init__() {
 }
 
 function bindRefreshOriginalSave() {
-  return {visible: saveReceiptRequested && saveReceiptSelection?.() === true,
+  return {visible: saveReceiptQueryValid && saveReceiptSelection?.() === true,
     disabled: !editorSession || saveReceiptLoading}
 }
 
@@ -389,6 +394,7 @@ async function readOriginalSave(query, isCurrent, generation) {
 function bindOriginalSave() {
   if (!saveReceiptRequested) return {visible: false}
   if (!saveReceiptSelection?.()) return {visible: false}
+  if (!saveReceiptQueryValid) return {error: '原保存请求参数不完整或格式不正确'}
   if (saveReceiptLoading) return {status: '正在核验原保存结果'}
   if (saveReceiptError || !saveReceipt) return {error: '原保存结果无法核验'}
   try {

@@ -35,7 +35,9 @@ export function bidProjectScopeScenarioViews(primaryKeys:Readonly<Record<'Conten
  }
 }
 
-async function readPointer(host:Host,model:keyof typeof targets,id:string|null,viewName:string=targets[model].viewName){
+async function readPointer(host:Host,{model,id,viewName=targets[model].viewName}:Readonly<{
+ model:keyof typeof targets;id:string|null;viewName?:string
+}>){
  if(id===null)return Object.freeze({state:'NOT_FORMED' as const,assertCurrent:host.assertCurrent})
  const target=targets[model]
  const read=await readOriginalRegistrationView(host,{model,viewName},{projectId:host.projectId,id})
@@ -50,9 +52,9 @@ async function readPointer(host:Host,model:keyof typeof targets,id:string|null,v
  return Object.freeze({state:'VERIFIED' as const,stageKey,stageText,revisionBaselineId:model==='ContentRevision'&&identity(baselineId)?baselineId:null,assertCurrent})
 }
 
-async function inspectPointer(host:Host,model:keyof typeof targets,id:string|null,viewName?:string){
+async function inspectPointer(host:Host,selection:Parameters<typeof readPointer>[1]){
  try{
-  return await readPointer(host,model,id,viewName)
+  return await readPointer(host,selection)
  }catch{
   host.assertCurrent()
   return Object.freeze({state:'UNVERIFIED' as const,assertCurrent:host.assertCurrent})
@@ -76,11 +78,11 @@ export async function readBidProjectScope(host:Host){
   (headRevisionId!==null&&!identity(headRevisionId))||(activeBaselineId!==null&&!identity(activeBaselineId)))
   throw Error('BID_PROJECT_SCOPE_READ')
  const boundHost={...host,assertCurrent:assertProject}
- const [head,baseline]=await Promise.all([inspectPointer(boundHost,'ContentRevision',headRevisionId),
-  inspectPointer(boundHost,'Baseline',activeBaselineId)])
+ const [head,baseline]=await Promise.all([inspectPointer(boundHost,{model:'ContentRevision',id:headRevisionId}),
+  inspectPointer(boundHost,{model:'Baseline',id:activeBaselineId})])
  const headBaselineId=head.state==='VERIFIED'?head.revisionBaselineId:null
  const fixed=headBaselineId===null?undefined:headBaselineId===activeBaselineId?baseline:
-  await inspectPointer(boundHost,'Baseline',headBaselineId,fixedBaselineView)
+  await inspectPointer(boundHost,{model:'Baseline',id:headBaselineId,viewName:fixedBaselineView})
  const fixedState=fixed?.state==='VERIFIED'&&head.state==='VERIFIED'&&fixed.stageKey!==head.stageKey?
   'STAGE_MISMATCH' as const:fixed?.state??'NOT_FORMED'
  const assertCurrent=()=>{assertProject();head.assertCurrent();baseline.assertCurrent();fixed?.assertCurrent()}

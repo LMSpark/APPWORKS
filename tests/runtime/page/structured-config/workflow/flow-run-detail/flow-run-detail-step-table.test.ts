@@ -39,7 +39,7 @@ async function fixture(hidden = false) {
   const runtime = new PageRuntime({pageId: 'step-detail', scenarioIds: ['WORK'], loadScenario: async () => ds})
   await runtime.load()
   const options = reactive<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided: boolean}>({viewKey: buildDataViewKey('Steps','default','WORK'), receivedNodeId: 'N1', showVoided: false})
-  const rule = detailRule.find(node => node.id === 'stepTable')
+  const rule = detailRule[0]?.children.find(node => node.id === 'stepTable')
   if (!rule) throw Error('运行详情缺少钻取表规则')
   const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'step-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(StepTable, {...options, rule})}})
   const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})

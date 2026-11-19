@@ -6,21 +6,14 @@
 <template>
   <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
     <template #content="{children}">
-      <RendererSection class="flow-run-detail-page" title="流程运行详情" :bordered="false" :grid-columns="1" :grid-gap="12"
+      <RendererSection v-for="section in children.filter(node => nodeId(node) === 'runtimeDetail')" key="runtimeDetail"
+        v-bind="section.props" :children="detailContent(section)"
         :status="loading || graphLoading ? '正在读取运行详情…' : ''"
         :error="error || graphError" :retryable="!loading && !graphLoading && (!ready || !graphReady)" @retry="retryLoad">
         <template v-if="ready && canOpenRun" #header-actions>
-          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'openRun')" key="openRun" :config="node" />
+          <SparkComponentRenderer v-for="node in getSparkNodeChildren(section.children).filter(item => nodeId(item) === 'openRun')" key="openRun" :config="node" />
         </template>
-        <DisplayAlert v-if="ready" alert-type="info" :closable="false" :show-icon="true"
-          :title="`实例 ${routeQuery.wfid} · 模型 ${routeQuery.flowid}`" />
-        <template v-if="ready">
-          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'summary')" key="summary" :config="node" />
-        </template>
-        <template v-if="ready">
-          <SparkComponentRenderer v-for="node in traceSections(children)" key="runTrace" :config="node" />
-        </template>
-        <RendererDialog v-for="dialog in drilldownDialogs(children)" :key="dialog.id"
+        <RendererDialog v-for="dialog in drilldownDialogs(getSparkNodeChildren(section.children))" :key="dialog.id"
           v-bind="dialog.rule.props" :model-value="dialog.open.value" :title="dialog.title.value"
           @update:model-value="dialog.open.value = $event">
           <FieldCheckbox v-bind="dialog.checkbox.props" v-model="dialog.showVoided.value" />
@@ -49,7 +42,6 @@ import style from './tool/style.css?raw'
 import * as SparkComponent from '@spark-appworks/spark-component'
 
 const {
-  DisplayAlert,
   FieldCheckbox,
   RendererDialog,
   RendererSection,
@@ -137,9 +129,22 @@ const host = computed(() => {
   }}
 })
 
-function traceSections(children: readonly SparkNode[]): SparkNode[] {
-  const section = children.find(node => nodeId(node) === 'runTrace')
-  if (!section) return []
+function detailContent(section: SparkNode): SparkNode[] {
+  if (!ready.value) return []
+  return getSparkNodeChildren(section.children).flatMap(node => {
+    switch (nodeId(node)) {
+      case 'instanceIdentity': return [{
+        ...node,
+        props: {...node.props, title: `实例 ${routeQuery.value.wfid} · 模型 ${routeQuery.value.flowid}`},
+      }]
+      case 'summary': return [node]
+      case 'runTrace': return [traceSection(node)]
+      default: return []
+    }
+  })
+}
+
+function traceSection(section: SparkNode): SparkNode {
   const graph = graphReady.value ? prepared.value : undefined
   const nodes = getSparkNodeChildren(section.children).flatMap(node => {
     switch (nodeId(node)) {
@@ -160,7 +165,7 @@ function traceSections(children: readonly SparkNode[]): SparkNode[] {
       default: return [node]
     }
   })
-  return [{...section, children: nodes}]
+  return {...section, children: nodes}
 }
 
 const drilldownState = [
@@ -195,6 +200,5 @@ async function retryLoad(): Promise<void> {
 </script>
 
 <style scoped>
-.flow-run-detail-page {padding: 8px}
 .flow-run-detail-page__voided {margin-bottom: 8px}
 </style>

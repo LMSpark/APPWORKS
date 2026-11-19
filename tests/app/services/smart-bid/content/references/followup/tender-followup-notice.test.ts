@@ -40,6 +40,24 @@ it.each([
  expect(showMessage).not.toHaveBeenCalled()
 })
 
+it('only shows the latest original-attempt read on repeated clicks',async()=>{
+ const query={revisionId:'R',addendumId:'A'}
+ const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
+ let rejectPrevious!: (error:Error)=>void
+ const previous=new Promise((_resolve,reject)=>{rejectPrevious=reject})
+ const invokeHostCommand=vi.fn().mockReturnValueOnce(previous)
+  .mockResolvedValueOnce({state:'HISTORY_TRACED',basisRevisionId:'R',items:[],assertCurrent})
+ const {openOriginalAttempts}=compileFunctions(script,{$route:{query},$page:{showAlert,showMessage,invokeHostCommand}} as unknown as PageContext)
+ if(!openOriginalAttempts)throw Error('TEST_FOLLOWUP_HANDLER_REQUIRED')
+ const first=openOriginalAttempts()
+ await openOriginalAttempts()
+ rejectPrevious(Error('SUPERSEDED_READ'))
+ await first
+ expect(assertCurrent).toHaveBeenCalledOnce()
+ expect(showAlert).toHaveBeenCalledOnce()
+ expect(showMessage).not.toHaveBeenCalled()
+})
+
 it('reads the original addendum locations for the current project, lot and round',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
  const row={projectId:'P',lotId:'L',roundId:'R',id:'A',issuerRef:'ISSUER',publicationRef:'PUBLICATION',

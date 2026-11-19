@@ -1,4 +1,5 @@
 /* global $page, $route */
+let originalAttemptReadGeneration = 0
 function bindSubmissionObligations() {
   const {frozenBaselineId} = $route.query
   return {visible: typeof frozenBaselineId === 'string' && !!frozenBaselineId && frozenBaselineId.trim() === frozenBaselineId}
@@ -31,7 +32,9 @@ function bindOriginalAttempts() {
 async function openOriginalAttempts() {
   if (!bindOriginalAttempts().visible) return
   const {revisionId, addendumId} = $route.query
-  const isCurrent = () => $route.query.revisionId === revisionId && $route.query.addendumId === addendumId
+  const generation = ++originalAttemptReadGeneration
+  const isCurrent = () => generation === originalAttemptReadGeneration &&
+    $route.query.revisionId === revisionId && $route.query.addendumId === addendumId
   try {
     const trace = bindTenderAddendum().visible
     const result = trace ? await $page.invokeHostCommand('tender.followup.traceOriginalAttempts', {revisionId, addendumId}) :

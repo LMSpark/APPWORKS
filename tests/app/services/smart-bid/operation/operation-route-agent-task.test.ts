@@ -40,7 +40,7 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
   .rejects.toThrow('OPERATION_ROUTE_AGENT_INPUT_REQUIRED')
  expect(claimOriginalTurn).not.toHaveBeenCalled()
  const dispatched=await dispatchOperationRouteAgentTask(options,{...source,turn,manifest,claimOriginalTurn})
- expect(dispatched).toMatchObject({state:'CHECK_ORIGINAL',observation:'SEND_RETURNED'})
+ expect(dispatched).toMatchObject({state:'CHECK_ORIGINAL',observation:'SEND_RETURNED',attempt:scope})
  expect(dispatched.turnId).toBe(turn.turnId)
  expect(executeTurn).toHaveBeenCalledOnce()
  expect(claimOriginalTurn).toHaveBeenCalledWith(expect.objectContaining({attemptRef:'TRY',manifestDigest:manifest.manifestDigest}))
@@ -61,7 +61,7 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
   const unknownClaim={...turn,turnId:crypto.randomUUID()}
   claimOriginalTurn.mockRejectedValueOnce(Error('CLAIM_TIMEOUT'))
   await expect(dispatchOperationRouteAgentTask(options,{...source,turn:unknownClaim,manifest,claimOriginalTurn}))
-   .resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN',turnId:unknownClaim.turnId})
+   .resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN',turnId:unknownClaim.turnId,attempt:scope})
   expect(start).toHaveBeenCalledOnce()
   expect(executeTurn).toHaveBeenCalledOnce()
  }finally{start.mockRestore()}

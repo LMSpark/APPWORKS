@@ -68,19 +68,20 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  const dispatch=Object.freeze({...manifest.scope,manifestDigest:manifest.manifestDigest,inputDigest:manifest.inputDigest,
   publishedVersionRef:prepared.publishedVersionRef,guideRef:manifest.guideRef,guideVersionRef:manifest.guideVersionRef,guideDigest:manifest.guideDigest,
   registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
+ const recovery=Object.freeze({state:'CHECK_ORIGINAL' as const,turnId:fixedTurn.turnId,attempt:Object.freeze({...manifest.scope})})
  let claim:DispatchClaim
  try{
   claim=await source.claimOriginalTurn(dispatch)
  }catch{
   prepared.assertCurrent()
-  return Object.freeze({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNKNOWN' as const,turnId:fixedTurn.turnId})
+  return Object.freeze({...recovery,observation:'CLAIM_UNKNOWN' as const})
  }
  prepared.assertCurrent()
  claim.assertCurrent()
  if(Object.keys(dispatchIdentityFields).some(key=>isDispatchIdentityField(key)&&claim[key]!==dispatch[key]))
   throw Error('OPERATION_ROUTE_AGENT_SCOPE')
- if(claim.state!=='CLAIMED')return Object.freeze({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNAVAILABLE' as const,turnId:fixedTurn.turnId})
- const original={state:'CHECK_ORIGINAL' as const,session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef}
+ if(claim.state!=='CLAIMED')return Object.freeze({...recovery,observation:'CLAIM_UNAVAILABLE' as const})
+ const original={...recovery,session,publishedVersionRef:prepared.publishedVersionRef}
  try{
   await session.start()
  }catch{

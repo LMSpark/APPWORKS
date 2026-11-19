@@ -151,6 +151,8 @@ watch(ready, isReady => {
     table.value = undefined
     columns.value = []
     tab.value = 'deleted'
+    message.value = ''
+    notice.value = ''
     return
   }
   listen(view(tableKey), ['currentRowChanged', 'rowsChanged', 'cleared'], syncTable)

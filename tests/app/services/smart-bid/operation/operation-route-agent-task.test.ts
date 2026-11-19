@@ -65,4 +65,11 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
   expect(start).toHaveBeenCalledOnce()
   expect(executeTurn).toHaveBeenCalledOnce()
  }finally{start.mockRestore()}
+ let current=true
+ const assertCurrent=()=>{if(!current)throw Error('OPERATION_ROUTE_STALE')}
+ const staleTurn={...turn,turnId:crypto.randomUUID()}
+ claimOriginalTurn.mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:()=>{}}))
+ executeTurn.mockImplementationOnce(async()=>{current=false;return {text:'{}',toolCalls:[]}})
+ await expect(dispatchOperationRouteAgentTask(options,{...source,turn:staleTurn,manifest,claimOriginalTurn,assertCurrent}))
+  .rejects.toThrow('OPERATION_ROUTE_STALE')
 })

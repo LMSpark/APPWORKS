@@ -84,6 +84,8 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  try{
   await session.start()
  }catch{
+  prepared.assertCurrent()
+  claim.assertCurrent()
   return Object.freeze({...original,observation:'START_UNKNOWN' as const})
  }
  prepared.assertCurrent()
@@ -91,7 +93,11 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  try{
   await session.send(request)
  }catch{
+  prepared.assertCurrent()
+  claim.assertCurrent()
   return Object.freeze({...original,observation:'SEND_UNKNOWN' as const})
  }
+ prepared.assertCurrent()
+ claim.assertCurrent()
  return Object.freeze({...original,observation:'SEND_RETURNED' as const})
 }

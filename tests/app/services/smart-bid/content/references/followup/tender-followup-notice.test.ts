@@ -21,6 +21,26 @@ import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice,projectTender
 import {checkTenderFollowupResponseScope} from '@/services/smart-bid/content/references/followup/tender-followup-response-scope'
 import {linkTenderOutcomeFollowup,projectTenderOutcome} from '@/services/smart-bid/content/review/submission/tender-outcome-evidence'
 
+it.each([
+ ['openSubmissionObligations','frozenBaselineId'],
+ ['openOriginalAttempts','revisionId'],
+ ['openOutboundImpact','followupKnownAt'],
+])('suppresses results for a previous selection in %s',async (handler,key)=>{
+ const query:Record<string,string>={frozenBaselineId:'B',revisionId:'R',addendumId:'A',followupKnownAt:'TIME'}
+ const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
+ const invokeHostCommand=vi.fn(async()=>{
+  query[key]='OTHER'
+  return {assertCurrent}
+ })
+ const open=compileFunctions(script,{$route:{query},$page:{showAlert,showMessage,invokeHostCommand}} as unknown as PageContext)[handler]
+ if(!open)throw Error('TEST_FOLLOWUP_HANDLER_REQUIRED')
+ await open()
+ expect(invokeHostCommand).toHaveBeenCalledOnce()
+ expect(assertCurrent).not.toHaveBeenCalled()
+ expect(showAlert).not.toHaveBeenCalled()
+ expect(showMessage).not.toHaveBeenCalled()
+})
+
 it('reads the original addendum locations for the current project, lot and round',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
  const row={projectId:'P',lotId:'L',roundId:'R',id:'A',issuerRef:'ISSUER',publicationRef:'PUBLICATION',

@@ -6,8 +6,10 @@ function bindSubmissionObligations() {
 
 async function openSubmissionObligations() {
   if (!bindSubmissionObligations().visible) return
+  const {frozenBaselineId: baselineId} = $route.query
   try {
-    const result = await $page.invokeHostCommand('tender.followup.readBaselineObligations', {baselineId: $route.query.frozenBaselineId})
+    const result = await $page.invokeHostCommand('tender.followup.readBaselineObligations', {baselineId})
+    if ($route.query.frozenBaselineId !== baselineId) return
     result.assertCurrent()
     const lines = ['依据基线 ' + result.baselineId]
     for (const item of result.obligations) {
@@ -17,7 +19,7 @@ async function openSubmissionObligations() {
     if (!result.obligations.length) lines.push('该基线还没有可核的递交事项登记')
     await $page.showAlert(lines.join('\n'), '应递交事项')
   } catch {
-    $page.showMessage('基线递交事项无法核验', 'warning')
+    if ($route.query.frozenBaselineId === baselineId) $page.showMessage('基线递交事项无法核验', 'warning')
   }
 }
 
@@ -28,11 +30,13 @@ function bindOriginalAttempts() {
 
 async function openOriginalAttempts() {
   if (!bindOriginalAttempts().visible) return
+  const {revisionId, addendumId} = $route.query
+  const isCurrent = () => $route.query.revisionId === revisionId && $route.query.addendumId === addendumId
   try {
-    const {revisionId, addendumId} = $route.query
     const trace = bindTenderAddendum().visible
     const result = trace ? await $page.invokeHostCommand('tender.followup.traceOriginalAttempts', {revisionId, addendumId}) :
       await $page.invokeHostCommand('tender.followup.readOriginalAttempts', {revisionId})
+    if (!isCurrent()) return
     result.assertCurrent()
     if (trace && result.state !== 'HISTORY_TRACED') {
       await $page.showAlert('正式修改登记待核', '原正文工艺试次')
@@ -59,7 +63,7 @@ async function openOriginalAttempts() {
     if (!result.items.length) lines.push('当前查询范围内无原工艺试次登记')
     await $page.showAlert(lines.join('\n'), '原正文工艺试次')
   } catch {
-    $page.showMessage('原工艺试次目录无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原工艺试次目录无法核验', 'warning')
   }
 }
 
@@ -70,8 +74,10 @@ function bindOutboundImpact() {
 async function openOutboundImpact() {
   if (!bindOutboundImpact().visible) return
   const {addendumId, followupKnownAt} = $route.query
+  const isCurrent = () => $route.query.addendumId === addendumId && $route.query.followupKnownAt === followupKnownAt
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceOutboundBatches', {addendumId, knownAt: followupKnownAt})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = ['正式修改或原渠道办理批次待核']
     if (result.state === 'BATCH_EVIDENCE') {
@@ -101,7 +107,7 @@ async function openOutboundImpact() {
     }
     await $page.showAlert(lines.join('\n'), '递交批次反查')
   } catch {
-    $page.showMessage('原办理批次无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('原办理批次无法核验', 'warning')
   }
 }
 

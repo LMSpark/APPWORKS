@@ -64,19 +64,24 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
      {...decision,assertCurrent:assertEvidence})
    })
   }
-  if(name==='configuration.release.prepareEnable'&&readCandidate){
+  if(name==='configuration.release.prepareEnable'&&readCandidate&&host.configurationScope){
    const {kind,key,requestKey,versionId}=input
    if(Object.keys(input).length!==4||!identity(kind)||!identity(key)||!identity(requestKey)||!identity(versionId))throw Error(error)
    const selection={kind,key,scopeId}
    assertCurrent()
-   return readCandidate({...selection,versionId},signal).then(async ({decision,pointer})=>{
-    const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent()}
+   return Promise.all([
+    readCandidate({...selection,versionId},signal),
+    readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key}),
+   ]).then(async ([{decision,pointer},channel])=>{
+    const assertEvidence=()=>{assertCurrent();pointer.assertCurrent();decision.assertCurrent();channel.assertCurrent()}
     assertEvidence()
+    const expectedPointerVersion=channel.state==='MISSING'?null:channel.pointerVersion
     if(pointer.kind!==kind||pointer.key!==key||pointer.scopeId!==scopeId||decision.candidate.versionId!==versionId||
-     (pointer.version!==null&&(!identity(pointer.pointerVersion)||!identity(pointer.version.versionId)||
-      !/^[a-f0-9]{64}$/u.test(pointer.version.digest))))throw Error('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
+     pointer.pointerVersion!==expectedPointerVersion||(channel.state==='ACTIVE'?
+      !pointer.version||!identity(pointer.version.versionId)||pointer.version.digest!==channel.versionDigest:
+      pointer.version!==null))throw Error('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
     const currentVersion=pointer.version===null?null:Object.freeze({...pointer.version})
-    const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
+    const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion},
      {...decision,assertCurrent:assertEvidence})
     return Object.freeze({...prepared,currentVersion})
    })

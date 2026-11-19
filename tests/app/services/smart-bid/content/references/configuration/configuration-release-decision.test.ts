@@ -177,6 +177,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   expect(view.queryContext).not.toHaveProperty('requestDigest')
   await expect(readRegisteredConfigurationRelease(host,{...original,expectedPointerVersion:'OTHER'}))
    .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
+  channelRow.hash=oldVersion.digest
   await openConfigurationCandidate()
   expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(
    `当前启用版 V0 · 摘要 ${oldVersion.digest}\n候选 V1 · 摘要 ${version.digest}\n预期指针 P1`),'配置候选核验')
@@ -184,6 +185,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const candidate=await page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
   expect(candidate).toMatchObject({record:{expectedPointerVersion:'P1',typeCheckRef:'TYPE',closureCheckRef:'LINKS',reviewRef:'REVIEW'},
    requestDigest:prepared.requestDigest})
+  channelRow.version='P2'
+  await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal))
+   .rejects.toThrow('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
+  channelRow.version='P1'
   await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'OTHER',requestKey:'Q'},signal))
    .rejects.toThrow('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
   pointerCurrent=false

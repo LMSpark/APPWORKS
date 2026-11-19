@@ -34,7 +34,9 @@ export function projectTenderOutcome(scope:Scope,source:Readonly<{
    ![event.eventRef,event.issuerRef,event.documentVersionId].every(identity)||seen.has(event.eventRef))
    throw Error('TENDER_OUTCOME_SCOPE')
   seen.add(event.eventRef)
-  if(time(event.eventAt)<=knownAt&&time(event.knownAt)<=knownAt)known.set(event.eventRef,event)
+  const eventTime=time(event.eventAt),acquiredTime=time(event.knownAt)
+  if(acquiredTime<eventTime)throw Error('TENDER_OUTCOME_TIME')
+  if(acquiredTime<=knownAt)known.set(event.eventRef,event)
  }
  const superseded=new Set<string>(),pending=new Set<string>()
  for(const event of known.values()){

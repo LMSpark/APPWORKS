@@ -17,6 +17,7 @@ const keys=['projectId','lotId','roundId','stageId'] as const
 const fields=[...keys,'subjectId','kind','eventRef','issuerRef','documentVersionId','eventAt','knownAt','supersedesRef']
 const valid=(view:DataView,round:boolean)=>view.dataTable?.modelBinding?.modelName==='TenderOutcome'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))&&
  (round?hasContentScopeCondition(view,'kind','ROUND_TERMINATED'):
   hasContentScopeCondition(view,'subjectId',{Type:'GetInputParam',ParamName:'subjectId'}))

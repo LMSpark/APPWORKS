@@ -12,6 +12,7 @@ it('retains recommendations and prior results while limiting corrections to thei
   eventAt:at('11'),knownAt:at('12'),supersedesRef:'AWARD'}
  const assess=(knownAt:string,officialEvents:Parameters<typeof projectTenderOutcome>[1]['officialEvents'])=>
   projectTenderOutcome(scope,{knownAt,officialEvents,assertCurrent})
+ expect(()=>assess(at('12'),[{...award,knownAt:at('09')}])).toThrow('TENDER_OUTCOME_TIME')
  expect(assess(at('09'),[recommendation,award,correction])).toMatchObject({subjectState:'RECOMMENDED'})
  expect(assess(at('11'),[recommendation,award,correction])).toMatchObject({subjectState:'AWARDED'})
  expect(assess(at('12'),[recommendation,award,correction])).toMatchObject({

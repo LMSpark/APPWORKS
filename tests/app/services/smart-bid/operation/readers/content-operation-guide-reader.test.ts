@@ -135,6 +135,9 @@ it('discovers only the complete scoped directory and retains the original public
   catalogTools.executeTool.mockResolvedValueOnce({ok:true,data:{rootKind:'OperationRoute',
    models:[{kind:'OperationRoute',attributes:[{name:'status',typeText:'string'}],methods:[{name:'verify',signature:''}]}]}})
   await expect(catalog.invoke('bid.models.readCatalog',{},controller.signal)).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
+  catalogTools.executeTool.mockResolvedValueOnce({ok:true,data:{rootKind:'OperationRoute',
+   models:[{kind:'Other',attributes:[],methods:[]}]}})
+  await expect(catalog.invoke('bid.models.readCatalog',{},controller.signal)).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const callCount=catalogTools.executeTool.mock.calls.length
   await expect(evidence.readGuide('OperationRoute','unknown')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   await expect(evidence.readAttributeGuide('OperationRoute','missing')).rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')

@@ -45,6 +45,7 @@ export function createBidClassModelCatalogHost<Runtime extends Pick<PageRuntime,
    seen.add(kind)
    return Object.freeze({kind,attributes:Object.freeze(attributes),methods:Object.freeze(methods)})
   })
+  if(!seen.has(rootKind))throw Error(error)
   async function readAttributeGuide(kind:string,attributeName:string){
    assertCurrent()
    if(!models.find(item=>item.kind===kind)?.attributes.some(attribute=>attribute.name===attributeName))throw Error(error)

@@ -49,6 +49,8 @@ it('reads the original registration, rejects a different hash and keeps an empty
   expect(bindExportRegistration()).toEqual({visible:true})
   await openExportRegistration()
   expect(showAlert).toHaveBeenCalledWith('原登记 ORIGINAL · 文件版本 V1','导出件登记')
+  rows=[{...row,templateVersionRef:'OTHER'}]
+  await expect(read()).rejects.toThrow('BID_EXPORT_REGISTRATION_SCOPE')
   rows=[{...row,fileHash:'c'.repeat(64)}]
   await expect(read()).rejects.toThrow('BID_EXPORT_REGISTRATION_HASH_CONFLICT')
   await openExportRegistration()

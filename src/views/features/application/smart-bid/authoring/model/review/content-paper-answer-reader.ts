@@ -64,7 +64,7 @@ export async function readPaperRegistration(host:ContentRevisionReadHost,scope:O
  const {id,copies}=row
  if(!identity(id)||!Array.isArray(copies)||Object.entries(context).some(([field,value])=>row[field]!==value))throw Error(error)
  const copyRefs=new Set<string>()
- const registeredCopies=(copies as unknown[]).map(copy=>{
+ const registeredCopies=copies.map((copy:unknown)=>{
   if(!isRecord(copy)||!identity(copy['copyRef'])||copyRefs.has(copy['copyRef'])||!Array.isArray(copy['pageRefs']))throw Error(error)
   const pages:unknown[]=copy['pageRefs']
   if(!pages.length||!pages.every(identity)||new Set(pages).size!==pages.length)throw Error(error)

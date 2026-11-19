@@ -13,26 +13,26 @@ import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../conte
 export function readOriginalExportRegistration(host:ContentRevisionReadHost,
  prepared:Awaited<ReturnType<typeof prepareExportRegistration>>){
  const {record}=prepared
- return readRegistration(host,prepared,'originalExportRegistration',{projectId:record.projectId,
-  requestKey:record.requestKey,outputRef:record.outputRef},{documentId:record.documentId,revisionId:record.revisionId,
+ return readRegistration(host,prepared,{viewName:'originalExportRegistration',context:{projectId:record.projectId,
+  requestKey:record.requestKey,outputRef:record.outputRef},match:{documentId:record.documentId,revisionId:record.revisionId,
   inputDigest:record.inputDigest,productionRequestRef:record.productionRequestRef,templateVersionRef:record.templateVersionRef,
-  ruleVersionRef:record.ruleVersionRef,formVersionRef:record.formVersionRef})
+  ruleVersionRef:record.ruleVersionRef,formVersionRef:record.formVersionRef}})
 }
 
 /** 签后件按原签署操作及输出定位既有登记。 */
 export function readOriginalSignedRegistration(host:ContentRevisionReadHost,
  prepared:Awaited<ReturnType<typeof prepareSignedOutputRegistration>>){
  const {record}=prepared
- return readRegistration(host,prepared,'originalSignedRegistration',{projectId:record.projectId,
+ return readRegistration(host,prepared,{viewName:'originalSignedRegistration',context:{projectId:record.projectId,
   signatureOperationRef:record.signatureOperationRef,signedObjectRef:record.signedObjectRef},
- {documentId:record.documentId,revisionId:record.revisionId,signatureRecordId:record.signatureRecordId,
-  originalFileId:record.originalFileId,originalHash:record.originalHash},record.signing)
+ match:{documentId:record.documentId,revisionId:record.revisionId,signatureRecordId:record.signatureRecordId,
+  originalFileId:record.originalFileId,originalHash:record.originalHash},signing:record.signing})
 }
 
 async function readRegistration(host:ContentRevisionReadHost,
  prepared:Readonly<{record:Readonly<{fileHash:string}>;assertCurrent:()=>void}>,
- viewName:string,context:Readonly<Record<string,string>>,match:Readonly<Record<string,string|null>>,
- signing?:Readonly<Record<string,string>>){
+ {viewName,context,match,signing}:Readonly<{viewName:string;context:Readonly<Record<string,string>>;
+  match:Readonly<Record<string,string|null>>;signing?:Readonly<Record<string,string>>}>){
  const {runtime,scenarioId,projectId}=host
  host.assertCurrent();prepared.assertCurrent()
  if(!identity(scenarioId)||context['projectId']!==projectId)throw Error('BID_EXPORT_REGISTRATION_SCOPE')

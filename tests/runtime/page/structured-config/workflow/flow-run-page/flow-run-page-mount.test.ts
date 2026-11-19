@@ -4,7 +4,7 @@ import ElementPlus from 'element-plus'
 import {defineComponent, h, markRaw, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, getSparkNodeChildren, nodeId, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, getSparkNodeChildren, nodeId, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
@@ -173,12 +173,15 @@ const baselineStubs = {...config.global.stubs}
 const WorkflowRendererStub = defineComponent({
   props: ['pageRuntime', 'host'],
   setup(props, {slots}) {
-    return () => slots['content']?.({children: getSparkNodeChildren((props['pageRuntime'] as PageRuntime).tool.rule.children).filter(node => nodeId(node) !== 'history').map(node => {
+    const bindCommands = (node: SparkNode): SparkNode => {
+      if (nodeId(node) === 'approvalSection') return {...node, children: getSparkNodeChildren(node.children).map(bindCommands)}
       if (nodeId(node) !== 'pageActions' && nodeId(node) !== 'approvalActions') return node
       return {...node, children: getSparkNodeChildren(node.children).map(button => ({
         ...button, props: {...button.props, onClick: () => (props['host'] as {invoke: (name: string) => unknown}).invoke(`workflow.${nodeId(button)}`)},
       }))}
-    })})
+    }
+    return () => slots['content']?.({children: getSparkNodeChildren((props['pageRuntime'] as PageRuntime).tool.rule.children)
+      .filter(node => nodeId(node) !== 'history').map(bindCommands)})
   },
 })
 

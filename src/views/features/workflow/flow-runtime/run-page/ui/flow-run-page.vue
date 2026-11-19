@@ -28,10 +28,7 @@
           </section>
           <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
           <aside v-if="handleOpen" class="flow-run-page__handle">
-            <h3 class="flow-run-page__handle-title">办理</h3>
-            <SparkComponentRenderer v-for="node in children.filter(child => nodeId(child) === 'approvalNodes')" key="approvalNodes" :config="bindApprovalNodes(node)" />
-            <SparkComponentRenderer v-for="node in children.filter(child => nodeId(child) === 'approvalInput')" key="approvalInput" :config="bindApprovalInput(node)" />
-            <SparkComponentRenderer v-for="node in actionToolbars(children, 'approvalActions')" key="approvalActions" :config="node" />
+            <SparkComponentRenderer v-for="node in approvalSections(children)" :key="nodeId(node)" :config="node" />
           </aside>
         </div>
 
@@ -182,6 +179,18 @@ function bindActions(toolbar: SparkNode): SparkNode {
   })
   return {...toolbar, children}
 }
+function approvalSections(children: readonly SparkNode[]): SparkNode[] {
+  const section = children.find(node => nodeId(node) === 'approvalSection')
+  if (!section) return []
+  return [{...section, children: getSparkNodeChildren(section.children).map(node => {
+    switch (nodeId(node)) {
+      case 'approvalNodes': return bindApprovalNodes(node)
+      case 'approvalInput': return bindApprovalInput(node)
+      case 'approvalActions': return bindActions(node)
+      default: return node
+    }
+  })}]
+}
 function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
   const toolbar = children.find(node => nodeId(node) === id)
   return toolbar ? [bindActions(toolbar)] : []
@@ -269,7 +278,6 @@ function chartDialogs(children: readonly SparkNode[]): SparkNode[] {
 .flow-run-page__title {margin: 0 0 12px; font-weight: 600}
 .flow-run-page__business {min-width: 0}
 .flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
-.flow-run-page__handle-title {margin: 0; font-size: 16px}
 .flow-run-page__chart {min-height: 50vh}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}

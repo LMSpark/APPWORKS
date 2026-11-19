@@ -4,6 +4,7 @@ import ElementPlus from 'element-plus'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
 import FlowRunPage from '@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue'
@@ -58,6 +59,17 @@ it.each([
     expect(summary.props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@WFOBJ_FLOW@default`)
     expect(summary.props('children')).toEqual(expect.arrayContaining([expect.objectContaining({props: expect.objectContaining({field: 'TITLE', label: '流程标题'})})]))
     expect(monitor.getView('WFOBJ_FLOW')?.rows[0]).toMatchObject(instance)
-    expect(wrapper.findAll('button').map(button => button.text())).toEqual(expect.arrayContaining(['办理', '运行详情']))
+    for (const [label, destination] of [
+      ['办理', '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'],
+      ['运行详情', '/apps/APP-1/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'],
+    ] as const) {
+      router.addRoute({path: destination, component: {render: () => null}})
+      const button = wrapper.findAll('button').find(item => item.text() === label)
+      expect(button).toBeDefined()
+      await button!.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.path).toBe(destination)
+      expect(router.currentRoute.value.query).toMatchObject({...query, [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: FLOW_MONITOR_SCENARIO_ID})
+    }
   } finally {wrapper.unmount()}
 })

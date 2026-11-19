@@ -326,10 +326,15 @@ function resetOutputs(): Promise<void> {
   })
 }
 async function verifyOriginalSaves(): Promise<void> {
-  if (bindingWindow.value) return
+  const runtime = listRuntime.value
+  if (!runtime || bindingWindow.value) return
+  const pendingViews = views.value.filter(view => view.hasUnconfirmedSave)
   await act(async () => {
-    for (const view of views.value.filter(item => item.hasUnconfirmedSave)) {
+    for (const view of pendingViews) {
+      if (!active || !session.isCurrent(runtime)) return
+      if (!view.hasUnconfirmedSave) continue
       const result=await view.saveChanges()
+      if (!active || !session.isCurrent(runtime)) return
       if(!result.success)throw new Error(result.error?.message || result.message || '原保存结果尚未核定')
     }
   })

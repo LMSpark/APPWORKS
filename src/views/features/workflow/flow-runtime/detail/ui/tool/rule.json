@@ -72,5 +72,91 @@
       "viewportControls": true,
       "disabled": true
     }
+  },
+  {
+    "id": "nodeSteps",
+    "type": "r-dialog",
+    "props": {
+      "width": 960,
+      "appendToBody": true,
+      "destroyOnClose": true
+    },
+    "children": [
+      {
+        "type": "r-checkbox",
+        "props": {
+          "checkboxText": "显示作废信息",
+          "class": "flow-run-detail-page__voided"
+        }
+      },
+      {
+        "type": "r-tabs",
+        "children": [
+          {
+            "type": "r-tab-pane",
+            "props": {
+              "name": "received",
+              "label": "提交到当前节点",
+              "lazy": true
+            }
+          },
+          {
+            "type": "r-tab-pane",
+            "props": {
+              "name": "sent",
+              "label": "当前节点提交的",
+              "lazy": true
+            }
+          },
+          {
+            "type": "r-tab-pane",
+            "props": {
+              "name": "all",
+              "label": "所有信息",
+              "lazy": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "edgeSteps",
+    "type": "r-dialog",
+    "props": {
+      "width": 960,
+      "appendToBody": true,
+      "destroyOnClose": true
+    },
+    "children": [
+      {
+        "type": "r-checkbox",
+        "props": {
+          "checkboxText": "显示作废信息",
+          "class": "flow-run-detail-page__voided"
+        }
+      },
+      {
+        "type": "r-tabs",
+        "children": [
+          {
+            "type": "r-tab-pane",
+            "props": {
+              "name": "edge",
+              "label": "连线步骤",
+              "lazy": true
+            }
+          },
+          {
+            "type": "r-tab-pane",
+            "props": {
+              "name": "all",
+              "label": "所有信息",
+              "lazy": true
+            }
+          }
+        ]
+      }
+    ]
   }
 ]

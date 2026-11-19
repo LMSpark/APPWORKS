@@ -28,8 +28,12 @@ it.each([
   {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page'},
 ])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix}) => {
   const monitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
-  const design = name === 'runtime detail' ? (await designFixture(false, false)).ds
-    : DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
+  const designSource = name === 'runtime detail' ? await designFixture(false, false) : undefined
+  if (designSource) {
+    designSource.http.records['WFM_FLOW_NODE']?.push({rowid: 'N2', FLOWID: 'FM-1', TITLE: 'Target', TYPEID: 11})
+    designSource.http.records['WFM_NODE_REALATION'] = [{rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N2'}]
+  }
+  const design = designSource?.ds ?? DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
   const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
   const instance = {rowid: 'WF-1', WFMID: 'FM-1', TITLE: '流程实例摘要', status: '待办理', BusTblObjID: 'BUS-1'}
   function bind(dataSet: DataSet, tableName: string, row?: Record<string, string>) {
@@ -73,6 +77,14 @@ it.each([
       await flushPromises()
       const drilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.endsWith(' - 步骤信息'))
       expect(drilldown?.props('modelValue')).toBe(true)
+      drilldown?.vm.$emit('update:modelValue', false)
+      const edge = design.getView('WFM_NODE_REALATION')?.rows[0]
+      expect(edge?.['rowid']).toBeDefined()
+      graph.vm.$emit('select', {kind: 'edge', id: edge?.['rowid'], open: true, control: {cancel: false}})
+      await flushPromises()
+      const edgeDrilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.includes(' → '))
+      expect(drilldown?.props('modelValue')).toBe(false)
+      expect(edgeDrilldown?.props('modelValue')).toBe(true)
       expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@View_FlowObjList@default`)
       const destination = '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'
       router.addRoute({path: destination, component: {render: () => null}})

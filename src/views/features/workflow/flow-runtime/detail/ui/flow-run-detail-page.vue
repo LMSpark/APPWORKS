@@ -27,28 +27,14 @@
           <DisplayAlert v-else-if="ready && !graphLoading" alert-type="info" :closable="false" :show-icon="true"
             title="运行图尚未加载。" />
         </RendererSection>
-        <RendererDialog v-model="nodeDialogOpen" :title="nodeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-          <FieldCheckbox v-model="nodeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
-          <RendererTabs v-model="nodeActiveTab">
-            <RendererTabPane name="received" label="提交到当前节点" :index="0" lazy>
-              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :received-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
-            </RendererTabPane>
-            <RendererTabPane name="sent" label="当前节点提交的" :index="1" lazy>
-              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
-            </RendererTabPane>
-            <RendererTabPane name="all" label="所有信息" :index="2" lazy>
-              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="nodeShowVoided" />
-            </RendererTabPane>
-          </RendererTabs>
-        </RendererDialog>
-        <RendererDialog v-model="edgeDialogOpen" :title="edgeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-          <FieldCheckbox v-model="edgeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
-          <RendererTabs v-model="edgeActiveTab">
-            <RendererTabPane name="edge" label="连线步骤" :index="0" lazy>
-              <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="edgeSourceId" :received-node-id="edgeTargetId" :show-voided="edgeShowVoided" />
-            </RendererTabPane>
-            <RendererTabPane name="all" label="所有信息" :index="1" lazy>
-              <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="edgeShowVoided" />
+        <RendererDialog v-for="dialog in drilldownDialogs(children)" :key="dialog.id"
+          v-bind="dialog.rule.props" :model-value="dialog.open.value" :title="dialog.title.value"
+          @update:model-value="dialog.open.value = $event">
+          <FieldCheckbox v-bind="dialog.checkbox.props" v-model="dialog.showVoided.value" />
+          <RendererTabs v-bind="dialog.tabs.props" v-model="dialog.activeTab.value">
+            <RendererTabPane v-for="(pane, index) in dialog.panes" :key="index" :index="index" v-bind="pane.props">
+              <FlowRunDetailStepTable v-if="dialog.open.value && prepared" :view-key="prepared.stepViewKey"
+                v-bind="stepFilters(pane.props?.['name'])" :show-voided="dialog.showVoided.value" />
             </RendererTabPane>
           </RendererTabs>
         </RendererDialog>
@@ -62,7 +48,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {nodeId, type SparkNode} from '@spark-appworks/spark-data'
+import {getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
@@ -174,6 +160,29 @@ function graphNodes(children: readonly SparkNode[]): SparkNode[] {
       onSelect: onGraphSelect,
     },
   }))
+}
+
+const drilldownState = [
+  {id: 'nodeSteps', open: nodeDialogOpen, title: nodeDialogTitle, activeTab: nodeActiveTab, showVoided: nodeShowVoided},
+  {id: 'edgeSteps', open: edgeDialogOpen, title: edgeDialogTitle, activeTab: edgeActiveTab, showVoided: edgeShowVoided},
+]
+function drilldownDialogs(children: readonly SparkNode[]) {
+  return drilldownState.flatMap(state => {
+    const rule = children.find(node => nodeId(node) === state.id)
+    const [checkbox, tabs] = getSparkNodeChildren(rule?.children)
+    return rule && checkbox && tabs
+      ? [{...state, rule, checkbox, tabs, panes: getSparkNodeChildren(tabs.children)}]
+      : []
+  })
+}
+
+function stepFilters(pane: unknown) {
+  switch (pane) {
+    case 'received': return {receivedNodeId: selectedNodeId.value}
+    case 'sent': return {sentNodeId: selectedNodeId.value}
+    case 'edge': return {sentNodeId: edgeSourceId.value, receivedNodeId: edgeTargetId.value}
+    default: return {}
+  }
 }
 
 async function retryLoad(): Promise<void> {

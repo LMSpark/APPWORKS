@@ -1540,6 +1540,46 @@ export type DataSetPhasedSaveResult = {
   results: Array<CrudResult<DataSetSaveChangesResult>>
 }
 
+/** One immutable save-recovery fact in the current DataSet runtime instance. */
+export type DataSetSaveJournalView = Readonly<{
+  tableName: string
+  viewId: string
+  ids: ReadonlyArray<string | number>
+  resourceType: TableResourceType | undefined
+  owner: 'database' | 'file' | 'command' | 'pagedata'
+  completed: boolean
+  state: 'pending' | 'applied' | 'not-applied' | 'unknown'
+  originalError: Error | undefined
+}>
+
+/** One explicit DataSet save phase, with its original target projection retained. */
+export type DataSetSaveJournalPhase = Readonly<{
+  index: number
+  completed: boolean
+  state: 'pending' | 'completed' | 'not-applied' | 'unknown'
+  views: readonly DataSetSaveJournalView[]
+}>
+
+/** The only shared action the caller may offer for the journal's current state. */
+export type DataSetSaveRecoverableAction =
+  | 'verify-original-receipt'
+  | 'continue-phase'
+  | 'retain-draft'
+  | 'discard-not-applied'
+  | 'none'
+
+/** Read-only projection of the original DataSet save capture and its current recovery facts. */
+export type DataSetSaveJournal = Readonly<{
+  batchId: string | null
+  completed: boolean
+  completedPhases: number
+  originalError: Error | undefined
+  currentRecoverableAction: DataSetSaveRecoverableAction
+  retainedDraft: boolean
+  phases: readonly DataSetSaveJournalPhase[]
+  views: readonly DataSetSaveJournalView[]
+}>
+
 /** DataSet 级单视图保存结果 */
 export type DataSetSaveChangesViewResult = {
   /** 表名 */

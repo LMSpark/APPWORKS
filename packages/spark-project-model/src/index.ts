@@ -85,22 +85,17 @@ export type {
 
 export { PageTool } from './page/page-tool'
 export type { PageToolOptions, PageToolDefinition } from './page/page-tool'
-export type { PageToolLoadOptions } from './page/page-file'
 export { PAGE_TOOL_FILE_NAMES } from './page/page-file'
 
 export type {
   PageToolFileName,
   PageToolFileVersionSummary,
-} from './page/page-file'
-
-export { PageContentLoader } from './io/page-content-loader'
-export type {
-  PageContentLoaderOptions,
   PageFileReadCommand,
   PageFileReader,
-} from './io/page-content-loader'
+} from './page/page-file'
+
 export { PageRuntime } from './page/runtime-page'
-export type { PageRuntimeOptions, PageRuntimeCall } from './page/runtime-page'
+export type { PageRuntimeOptions, PageRuntimeCall, PageRuntimeMode, PageRuntimeSource } from './page/runtime-page'
 export {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from './scenario/scenario-view-file'
 export type {ScenarioViewSubmission} from './scenario/scenario-view-file'
 export {createScenarioSubmissionJournal} from './scenario/scenario-submission-journal'

@@ -18,7 +18,14 @@ import {
 import { buildConfigPageNavigationPath, readConfigPageScenarioCall } from '@/services/application-scope'
 import { onPageConfigChange } from '@/services/sse-events'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { withPageToolPublication, type PageToolPublication } from '@/services/project/page-tool-publication'
+import {
+  createPageToolPublicationManifest,
+  withPageToolPublication,
+  type PageToolPublication,
+  type PageToolPublicationFileSource,
+  type PageToolPublicationScenarioSource,
+} from '@/services/project/page-tool-publication'
+import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
 
@@ -267,6 +274,12 @@ export function usePageDesign(state: DevState) {
     void state.projectRevision.value
     return state.hasUnconfirmedBlueprintWrite() && !delivering.value && !state.allSaving.value && !state.pageIoBusy.value && !state.blueprintSaving.value
   })
+  const saveJournal = computed(() => state.blueprintWorkspaceDataView.value?.dataSet.saveJournal)
+  const pendingWriteActionLabel = computed(() => {
+    const action=saveJournal.value?.currentRecoverableAction
+    return action==='verify-original-receipt'?'核验原保存回执'
+      :action==='continue-phase'?'继续原保存阶段':'核验待定提交'
+  })
   function verifyPendingWrites(): void {
     if (hasPendingPreview()) {
       state.addStatus('预览页面仍有未保存业务数据或待核验写入，请在预览中处理；页面设计不会代替业务提交', 'warning')
@@ -282,7 +295,7 @@ export function usePageDesign(state: DevState) {
     return !!owner && !!actionScope.value.pageId && owner.canRead('NavigationUrl') && owner.canRead('VersionId') && owner.canWrite('VersionId')
   })
 
-  /** 三文件交付：逐文件追加正式快照，再写回 VersionId 指针并回读；任一步失败即停止并如实报告已确认部分。 */
+  /** 四文件交付：工具、pagedata与发布说明均经原 DataView owner 生成不可覆盖快照，再切换 VersionId。 */
   async function saveDelivery(captured:NonNullable<typeof actionScope.value>): Promise<void> {
     try {
       const session = lowcodeApi.session.get()
@@ -365,13 +378,13 @@ export function usePageDesign(state: DevState) {
       assertTarget()
       const readbackVersions = String(current.value('VersionId') ?? '').trim()
       if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) {
-        throw new Error('三文件发布指针回读不一致')
+        throw new Error('四文件发布指针回读不一致')
       }
       recoverPublication = undefined
       confirmed.push(...written)
       journal.finish()
       state.refreshBlueprintTreeProjection()
-      state.addStatus('三个交付文件快照均已确认，发布指针已一次切换并读回', 'success')
+      state.addStatus('工具、场景与发布 manifest 快照均已确认，发布指针已一次切换并读回', 'success')
       try {await reloadAndSyncNavigation()} catch (error) {
         state.addStatus(`发布已确认，运行菜单刷新失败：${String(error)}`, 'warning')
       }
@@ -401,11 +414,32 @@ export function usePageDesign(state: DevState) {
       const ruleText = texts.get('rule.json')
       if (ruleText === undefined) throw new Error('交付规则文本缺失')
       tool.hydrateFileText('rule.json', ruleText)
-      resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
-      const digest = await digestOf(JSON.stringify([...texts]))
+      const callDefinition = resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
+      const scenarioSources = await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
+        const dataSet = await state.editor.loadScenarioDefinitions({scenarioId})
+        assertTarget()
+        const fileView = dataSet.getView('DataViewDefinition')
+        if (!fileView || fileView.destroyed || fileView.queryContext['dataSpaceId'] !== scenarioId) {
+          throw new Error(`场景 ${scenarioId} 的正式 pagedata DataView 无效`)
+        }
+        await fileView.refresh()
+        assertTarget()
+        const source = await fileView.previewSource()
+        assertTarget()
+        const definitionViews = Object.values(dataSet.tables).flatMap(table => table.viewList)
+        if (definitionViews.some(view => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+          || source.version === null || source.content === null) throw new Error(`场景 ${scenarioId} 有未保存或未确认的 pagedata 修改`)
+        return {
+          scenarioId, fileView, text: source.content, sourceRevision: String(source.version),
+        }
+      }))
+      const digest = await digestOf(JSON.stringify({
+        files: [...texts], pagedata: scenarioSources.map(source => [source.scenarioId, source.sourceRevision, source.text]),
+      }))
       assertTarget()
       const intent = journal.open(call, digest, originalVersionId)
       let versions = parseLowcodeBlueprintFileVersions(expectedVersionId.trim())
+      const fileSources: PageToolPublicationFileSource[] = []
       for (const fileName of DELIVERY_FILES) {
         assertTarget()
         const text = texts.get(fileName)
@@ -417,13 +451,61 @@ export function usePageDesign(state: DevState) {
           onAttempt: name => attemptedSnapshots.push(name)})
         assertTarget()
         written.push(`${version}__${fileName}`)
+        fileSources.push({fileName, version, text})
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
         versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
+      }
+      const pagedataSources: PageToolPublicationScenarioSource[] = []
+      for (const source of scenarioSources) {
+        assertTarget()
+        const snapshot = await journal.scenarioSnapshot({
+          intent, scenarioId: source.scenarioId, fileView: source.fileView, text: source.text,
+          sourceRevision: source.sourceRevision, assertTarget,
+          onAttempt: name => attemptedSnapshots.push(`${source.scenarioId}/${name}`),
+        })
+        pagedataSources.push(snapshot)
+        written.push(`${source.scenarioId}/${snapshot.version}__pagedata.json`)
       }
       assertTarget()
       for (const fileName of DELIVERY_FILES) {
         if (readFileText(fileName) !== texts.get(fileName)) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
       }
+      const manifest = await createPageToolPublicationManifest({
+        pageId, files: fileSources, pagedata: pagedataSources,
+      })
+      const manifestText = `${JSON.stringify(manifest, null, 2)}\n`
+      const manifestView = createPagePublicationManifestFileView({
+        dataSet: current.dataSet, appId: projectId, pageId, workspace: state.editor, assertCurrent: () => assertTarget(),
+      })
+      await manifestView.refresh()
+      assertTarget()
+      let manifestRow = manifestView.currentRow
+      if (!manifestRow) {
+        await manifestView.addRow({text: manifestText})
+        manifestRow = manifestView.currentRow
+      } else {
+        const manifestId = manifestView.getPkKey(manifestRow)
+        if (manifestId === undefined) throw new Error('发布 manifest 文件 DataView 缺少身份')
+        const edited = manifestView.getEditingRow(manifestId) ?? manifestRow
+        if (edited['text'] !== manifestText) await manifestView.editRowById(manifestId, {text: manifestText})
+      }
+      if (manifestView.hasUnconfirmedSave) {
+        const verified = await manifestView.verifySourceWriteAttempt()
+        if (verified.state !== 'confirmed') throw new Error('发布 manifest 原工作文件提交仍待核验')
+        manifestView.acknowledgeSourceWriteAttempt()
+      }
+      if (manifestView.dirtyTracking.hasPendingChanges() || manifestView.hasEditingChanges()) {
+        const result = await current.dataSet.saveChanges({views: [{tableName: manifestView.tableName, viewId: manifestView.viewId}]})
+        assertTarget()
+        if (!result.success) throw result.error ?? new Error(result.message ?? '发布 manifest 工作文件保存失败')
+      }
+      const manifestVersion = await journal.snapshot({
+        intent, fileView: manifestView, fileName: 'publication-manifest.json', text: manifestText, assertTarget,
+        onAttempt: name => attemptedSnapshots.push(name),
+      })
+      assertTarget()
+      written.push(`${manifestVersion}__publication-manifest.json`)
+      versions = Object.freeze({...versions, manifest: manifestVersion})
       expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
       current.update('VersionId', expectedVersionId)
       state.notifyExternalDataViewChanged()
@@ -501,6 +583,8 @@ export function usePageDesign(state: DevState) {
     previewActionLabel,
     canRunPageDesignAi,
     canVerifyPendingWrites,
+    saveJournal,
+    pendingWriteActionLabel,
     verifyPendingWrites,
     delivering,
     canSaveDelivery,

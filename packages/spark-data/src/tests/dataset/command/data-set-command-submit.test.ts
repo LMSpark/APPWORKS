@@ -210,6 +210,38 @@ describe('DataSet command submit helper', () => {
     } finally {f.dataSet.destroy()}
   })
 
+  it('reuses one immutable requestKey/requestDigest proof after an unknown command response',async()=>{
+    const submitProofs:unknown[]=[],verifyProofs:unknown[]=[]
+    const f=setup({
+      submit:async(row,proof)=>{submitProofs.push(proof);row['ServerName']='submit mutation';throw new TransportFailure('lost')},
+      verify:async(row,proof)=>{verifyProofs.push(proof);return {...row,ServerName:'confirmed'}},
+    })
+    try{
+      await addInput(f.view,{ServerName:'original',Password:'secret'})
+      await expect(f.save()).rejects.toThrow('lost')
+      await expect(f.save()).resolves.toMatchObject({success:true})
+      const submitted=submitProofs[0],verified=verifyProofs[0]
+      expect(submitted).toMatchObject({requestKey:'K1',requestDigest:expect.stringMatching(/^[0-9a-f]{64}$/)})
+      expect(Object.isFrozen(submitted)).toBe(true)
+      expect(verified).toBe(submitted)
+      expect(f.verify.mock.calls[0]?.[0]).toMatchObject({rowid:'K1',ServerName:'original',Password:'secret'})
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('creates a different proof when an explicitly rejected input is edited before resubmit',async()=>{
+    const f=setup({submit:async row=>({...row})})
+    try{
+      await addInput(f.view,{ServerName:'first'})
+      f.submit.mockRejectedValueOnce(new Error('definite rejection'))
+      await expect(f.save()).rejects.toThrow('definite rejection')
+      f.view.updateEditingValue('K1','ServerName','second')
+      await expect(f.save()).resolves.toMatchObject({success:true})
+      const first=f.submit.mock.calls[0]?.[1],second=f.submit.mock.calls[1]?.[1]
+      expect(first?.requestKey).toBe('K1');expect(second?.requestKey).toBe('K1')
+      expect(second?.requestDigest).not.toBe(first?.requestDigest)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('retains an independent confirmed receipt instead of sharing nested adapter state', async () => {
     const receipt = {rowid: 'K1', ServerName: {value: 'confirmed'}}
     const f = setup({retainConfirmedOnRefresh: true, submit: async () => receipt})
@@ -384,7 +416,11 @@ describe('DataSet command submit helper', () => {
     try{
       await addInput(f.view,{ServerName:'S'})
       await expect(f.save()).rejects.toThrow('lost')
-      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'not-applied',views:[{tableName:'Register',state:'not-applied'}]})
+      expect(f.dataSet.saveJournal).toMatchObject({currentRecoverableAction:'verify-original-receipt',
+        views:[{tableName:'Register',resourceType:'command',owner:'command',state:'unknown'}]})
+      expect(await f.dataSet.verifySaveJournal()).toMatchObject({currentRecoverableAction:'discard-not-applied',
+        views:[{tableName:'Register',state:'not-applied'}]})
+      expect(f.dataSet.saveJournal.currentRecoverableAction).toBe('discard-not-applied')
       expect(f.submit).toHaveBeenCalledOnce();expect(f.verify).toHaveBeenCalledOnce()
       expect(f.view.dirtyTracking.hasPendingChanges()).toBe(true)
     }finally{f.dataSet.destroy()}

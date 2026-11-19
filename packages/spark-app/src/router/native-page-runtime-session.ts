@@ -15,6 +15,8 @@ export type NativePageRuntimeIdentity = Readonly<{
   deferredScenarioIds?: readonly string[]
   targetId?: string
   scenarioInputs?: PageRuntimeOptions['scenarioInputs']
+  source?: PageRuntimeOptions['source']
+  resolveSource?: PageRuntimeOptions['resolveSource']
 }>
 
 /** 创建原生 PageRuntime 所需的调用身份与装配回调。 */
@@ -36,6 +38,7 @@ function identityKey(input: NativePageRuntimeIdentity): string {
     input.deferredScenarioIds ? [...input.deferredScenarioIds] : null,
     input.targetId ?? null,
     input.scenarioInputs ?? null,
+    input.source ?? (input.resolveSource ? 'resolved-source' : null),
   ])
 }
 
@@ -62,7 +65,8 @@ export class NativePageRuntimeSession {
     if ((tool !== undefined) === (pageId !== undefined)) throw new Error('页面工具与系统页pageId必须二选一')
     const key = identityKey(input)
     const current = this.#runtime
-    if (tool === undefined && current && !current.destroyed && this.#key === key) return current
+    if (tool === undefined && input.resolveSource === undefined && current
+      && !current.destroyed && this.#key === key) return current
     this.release()
     const options = {
       scenarioIds: input.scenarioIds,
@@ -70,6 +74,8 @@ export class NativePageRuntimeSession {
       ...(input.mainScenarioId === undefined ? {} : {mainScenarioId: input.mainScenarioId}),
       ...(input.deferredScenarioIds === undefined ? {} : {deferredScenarioIds: input.deferredScenarioIds}),
       ...(input.scenarioInputs === undefined ? {} : {scenarioInputs: input.scenarioInputs}),
+      ...(input.source === undefined ? {} : {source: input.source}),
+      ...(input.resolveSource === undefined ? {} : {resolveSource: input.resolveSource}),
     }
     const runtime = tool !== undefined
       ? new PageRuntime({...options, tool})

@@ -535,7 +535,7 @@ describe('DataSpace runtime save owner', () => {
   })
 
   it.each([[{deleted: [{rowid: 'ROW-1'}]}, []], [{changed: [{rowid: 'ROW-1', salary: 120}]}, [{rowid: 'ROW-1', salary: 130}]]] as const)(
-    'keeps a lost save unresolved even when a read could be mistaken for a terminal result (%j)', async (changes, rows) => {
+    'verifies a lost save only from exact-key field proof (%j)', async (changes, rows) => {
       const http = new DataSpaceFixtureHttpClient()
       const api = activeApi(http)
       const context = await api.dataSpace.runtime.query(identity)
@@ -543,8 +543,14 @@ describe('DataSpace runtime save owner', () => {
       http.saveError = new Error('socket closed')
       await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
       http.queryResults.push({primaryKeyField: 'rowid', data: {Items: rows, Count: rows.length}})
-      await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+      if ('deleted' in changes) {
+        const receipts = await api.dataSpace.runtime.save(command)
+        expect(receipts[0]?.deleted).toEqual([{rowid: 'ROW-1', salary: 100}])
+        expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+      } else {
+        await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+      }
       expect(http.saveRequests).toHaveLength(1)
     })
 
@@ -578,7 +584,7 @@ describe('DataSpace runtime save owner', () => {
     expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
   })
 
-  it('does not turn a matching current row into a receipt for a lost write', async () => {
+  it('confirms a matching changed row without replaying the lost write', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)
     const context = await api.dataSpace.runtime.query(identity)
@@ -589,10 +595,11 @@ describe('DataSpace runtime save owner', () => {
     http.saveError = undefined
     http.queryResults.push({ ...(http.result as Record<string, unknown>), data: { Items: [{ rowid: 'ROW-1', salary: 120,
       lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['salary'], e: ['salary'], h: [], m: [], d: true } }], Count: 1 } })
-    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const receipts = await api.dataSpace.runtime.save(command)
+    expect(receipts[0]?.changed).toEqual([{rowid: 'ROW-1', salary: 120}])
     expect(http.saveRequests).toHaveLength(1)
-    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
-    expect(http.queryRequests).toHaveLength(1)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+    expect(http.queryRequests).toHaveLength(2)
   })
 
   it('preserves original ownership without constructing a receipt from returned rows',async()=>{
@@ -606,9 +613,9 @@ describe('DataSpace runtime save owner', () => {
       lingma_sys_key:'ROW-KEY',lingma_sys_params:{r:['salary'],e:['salary'],h:[],m:[],d:true}}],Count:1}}
     http.queryResults.push(snapshot)
     const accept = vi.spyOn(context, 'acceptSaveReceipt')
-    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(api.dataSpace.runtime.save(command)).resolves.toMatchObject([{changed: [{rowid:'ROW-1', salary:120}]}])
     expect(accept).not.toHaveBeenCalled()
-    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
     expect(http.saveRequests).toHaveLength(1)
   })
 
@@ -625,9 +632,9 @@ describe('DataSpace runtime save owner', () => {
     http.saveError = undefined
     http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [{...row,
       lingma_sys_key: 'NEW-ROW-KEY', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}], Count: 1}})
-    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(api.dataSpace.runtime.save(command)).resolves.toMatchObject([{added: [{rowid: 'ROOT-NEW', name: '新模块'}]}])
     expect(http.saveRequests).toHaveLength(1)
-    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
   })
 
   it('refuses to mix another change into an unconfirmed batch', async () => {
@@ -639,6 +646,19 @@ describe('DataSpace runtime save owner', () => {
     http.saveError = undefined
     await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 999 }] } }] }))
       .rejects.toThrow('不能夹带')
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('does not use an empty exact result as proof that an added row was applied', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const command = {changes: [{identity, context, changes: {added: [{rowid:'MISSING', salary:120}]}}]}
+    http.saveError = new Error('socket closed after add')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed after add')
+    http.queryResults.push({primaryKeyField: 'rowid', data: {Items: [], Count: 0}})
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
     expect(http.saveRequests).toHaveLength(1)
   })
 
@@ -1156,8 +1176,11 @@ describe('DataView original query execution boundary', () => {
       if (unknown) {
         http.saveError = new Error('socket closed')
         await expect(view.saveChanges()).rejects.toThrow('socket closed')
-        await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-        expect(view.hasUnconfirmedSave).toBe(true)
+        http.queryResults = [{primaryKeyField:'rowid',data:{Count:1,Items:[
+          {rowid:'ALIASED',salary:200,lingma_sys_key:'ALIASED-ROW-KEY',lingma_sys_params:{e:['salary'],d:true}},
+        ]}}]
+        await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
+        expect(view.hasUnconfirmedSave).toBe(false)
         expect(http.saveRequests).toHaveLength(1)
         return
       }
@@ -1541,11 +1564,31 @@ describe('DataView original query execution boundary', () => {
     http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
       {rowid: 'STABLE', salary: 110, lingma_sys_key: 'STABLE-KEY', lingma_sys_params: {r: ['salary'], e: ['salary'], h: [], m: [], d: true}},
     ], Count: 1}})
-    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
     expect(http.saveRequests).toHaveLength(1)
     expect(view.rows).toContainEqual(expect.objectContaining({rowid: 'STABLE', salary: 110}))
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(view.hasPendingSavedRowPermissions).toBe(false)
+    ds.destroy()
+  })
+
+  it('accepts the original changed fields without consuming a later edit', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', {salary: 120})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    await view.editRowById('ROW-1', {salary: 121})
+    http.queryResults.push({...http.result as Record<string, unknown>, data:{Items:[
+      {rowid:'ROW-1', salary:120, lingma_sys_key:'ROW-KEY',
+        lingma_sys_params:{r:['salary'],e:['salary'],h:[],m:[],d:true}},
+    ], Count:1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true})
+    expect(view.rows[0]?.['salary']).toBe(121)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(http.saveRequests).toHaveLength(1)
     ds.destroy()
   })
 
@@ -1566,9 +1609,9 @@ describe('DataView original query execution boundary', () => {
       {rowid: 'FIXED-ID', salary: 115, lingma_sys_key: 'FIXED-KEY',
         lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
     ], Count: 1}})
-    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
     expect(http.saveRequests).toHaveLength(1)
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
     ds.destroy()
   })
 

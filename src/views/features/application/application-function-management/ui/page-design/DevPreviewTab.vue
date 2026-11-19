@@ -312,7 +312,13 @@ async function refresh():Promise<void> {
     }
     tool.markLoaded()
     const call = resolvePageToolCall(tool, navigationTarget, mainScenarioId)
+    const temporaryRevision = `preview:${JSON.stringify([
+      projectId, pageId, target.externalRevision, props.state.scenarioDefinitionRevision.value,
+      props.state.scenarioDefinitionDocument.value?.getText() ?? null,
+      ...props.state.pageFileNames.map(fileName => [fileName, tool.getFileText(fileName)]),
+    ])}`
     runtime=previewSession.acquire({tool,scenarioIds:call.scenarioIds,targetId:`${projectId}:${pageId}`,
+      source:{mode:'preview',sourceRevision:temporaryRevision,publicationRef:null,scenarioIds:call.scenarioIds},
       ...(mainScenarioId ? {mainScenarioId} : {}),
       ...(call.scenarioInputs === undefined ? {} : {scenarioInputs:call.scenarioInputs}),
       loadScenario:async scenarioId=>{

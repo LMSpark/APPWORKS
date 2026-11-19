@@ -1,28 +1,28 @@
 /**
  * @module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version
- * 职责：解析与编码工具三文件的正式发布引用。
- * 边界：文件名快照独立存在，裸文件是工作内容；场景文件没有三文件发布指针。
+ * 职责：解析与编码工具发布文件的正式发布引用。
+ * 边界：文件名快照独立存在，裸文件是工作内容；场景文件通过 manifest 引用各自快照。
  * AI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。
  */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 
-export const LOWCODE_BLUEPRINT_FILE_NAMES = ['rule.json', 'script.js', 'style.css'] as const
+export const LOWCODE_BLUEPRINT_FILE_NAMES = ['rule.json', 'script.js', 'style.css', 'publication-manifest.json'] as const
 
-/** 工具定义的三个文件名；场景共享 pagedata.json 不属于此集合。 */
+/** 三份工具文件及一次发布说明；场景共享 pagedata.json 由说明文件引用。 */
 export type LowcodeBlueprintFileName = typeof LOWCODE_BLUEPRINT_FILE_NAMES[number]
-/** VersionId 的三个具名发布引用分段。 */
-export type LowcodeBlueprintFileVersionKey = 'rule' | 'script' | 'style'
+/** VersionId 的具名发布引用分段。 */
+export type LowcodeBlueprintFileVersionKey = 'rule' | 'script' | 'style' | 'manifest'
 /** 各工具文件的非负快照编号或缺失引用；不是实际历史列表。 */
 export type LowcodeBlueprintFileVersions = Readonly<Record<LowcodeBlueprintFileVersionKey, number | null>>
 
-const FILE_VERSION_KEYS: readonly LowcodeBlueprintFileVersionKey[] = ['rule', 'script', 'style']
+const FILE_VERSION_KEYS: readonly LowcodeBlueprintFileVersionKey[] = ['rule', 'script', 'style', 'manifest']
 
 function isFileVersionKey(value: string): value is LowcodeBlueprintFileVersionKey {
   return FILE_VERSION_KEYS.some(candidate => candidate === value)
 }
 
 function emptyVersions(): Record<LowcodeBlueprintFileVersionKey, number | null> {
-  return { rule: null, script: null, style: null }
+  return { rule: null, script: null, style: null, manifest: null }
 }
 
 function version(value: string, source: string): number {
@@ -37,17 +37,18 @@ export function lowcodeBlueprintFileVersionKey(
 ): LowcodeBlueprintFileVersionKey {
   if (fileName === 'rule.json') return 'rule'
   if (fileName === 'script.js') return 'script'
-  return 'style'
+  if (fileName === 'style.css') return 'style'
+  return 'manifest'
 }
 
-/** 解析导航 versionId；空值产生缺失引用，历史单值对三个文件共用。 */
+/** 解析导航 versionId；空值产生缺失引用，历史单值只兼容旧三文件。 */
 export function parseLowcodeBlueprintFileVersions(value: string): LowcodeBlueprintFileVersions {
   const source = value.trim()
   const result = emptyVersions()
   if (!source) return Object.freeze(result)
   if (/^\d+$/.test(source)) {
     const shared = version(source, source)
-    return Object.freeze({ rule: shared, script: shared, style: shared })
+    return Object.freeze({ rule: shared, script: shared, style: shared, manifest: null })
   }
   const seen = new Set<LowcodeBlueprintFileVersionKey>()
   for (const segment of source.split(';')) {

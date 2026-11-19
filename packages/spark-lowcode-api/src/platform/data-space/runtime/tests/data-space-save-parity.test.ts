@@ -62,20 +62,21 @@ describe('original save recovery after post-dispatch invalidation', () => {
       expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([true, true])
       expect(queries).toBe(4)
       scope = 'original'
-      await expect(api.save({changes})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(queries).toBe(4)
-      const current = await Promise.all(identities.map(identity => api.query(identity, {fields: ['rowid', 'salary']})))
+      const verified = await api.save({changes})
+      expect(verified.map(receipt => receipt.added)).toEqual([
+        [{rowid:'NEW-A',salary:120}], [{rowid:'NEW-B',salary:120}],
+      ])
       expect(queries).toBe(6)
-      expect(current.map(context => context.rows)).toEqual([
+      expect(verified.map(receipt => receipt.context.rows)).toEqual([
         [{rowid: 'NEW-A', salary: 120}], [{rowid: 'NEW-B', salary: 120}],
       ])
-      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([true, true])
-      await expect(api.save({changes: [changes[0]!]})).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
+      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([false, false])
+      await expect(api.save({changes: [changes[0]!]})).rejects.toThrow('SPARK_SAVE_CONTEXT_OWNER')
     }
     expect(writes).toBe(1)
   })
 
-  it.each(['abort', 'late-scope'] as const)('retains the unconfirmed %s submission after independently reading the current row', async mode => {
+  it.each(['abort', 'late-scope'] as const)('recovers the unconfirmed %s submission from exact readback', async mode => {
     const controller = new AbortController()
     let scope = 'original', writes = 0, queries = 0, stored = 100
     class AppliedSaveHttp extends HttpClientBase {
@@ -112,13 +113,11 @@ describe('original save recovery after post-dispatch invalidation', () => {
     expect(api.hasUnconfirmedSave(context)).toBe(true)
     expect(writes).toBe(1)
     scope = 'original'
-    await expect(api.save({changes})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(queries).toBe(1)
-    const current = await api.query(identity)
+    const verified = await api.save({changes})
     expect(queries).toBe(2)
-    expect(current.rows).toEqual([{rowid: 'ROW-1', salary: 120}])
+    expect(verified[0]?.context.rows).toEqual([{rowid: 'ROW-1', salary: 120}])
     expect(context.rows).toEqual([{rowid: 'ROW-1', salary: 100}])
-    expect(api.hasUnconfirmedSave(context)).toBe(true)
+    expect(api.hasUnconfirmedSave(context)).toBe(false)
     expect(writes).toBe(1)
   })
 })
@@ -152,6 +151,32 @@ describe('SPARK same-scenario save request', () => {
       retry: 0, cache: false, meta: { rawEnvelope: true }, headers: { 'X-AppId': 'APP-ID', 'x-FormKey': 'SCENE' },
       data: ['Orders', 'Lines'].map(TableName => ({ TableName,
         CrudModel: { Added: [], Changed: [{ id: 1, value: 'X', lingma_sys_key: 'signed-1' }], Deleted: [] } })) })
+  })
+
+  it.each(['change', 'delete', 'add'] as const)('captures formal identities and changed fields for %s recovery', async action => {
+    const {http, request, change} = fixture()
+    const target = change()
+    const prepared = action === 'add' ? {...target, changes: {added: [{id: 'NEW', value: 'X'}]}}
+      : action === 'delete' ? {...target, changes: {deleted: [{id: 1}]}}
+        : target
+    http.response = {Code: 200, Result: action === 'add' ? {maplistadd: [{physical: [{id: 'NEW', value: 'X'}]}]}
+      : action === 'delete' ? {maplistdelete: [{physical: [{id: 1}]}]}
+        : {maplistedit: [{physical: [{id: 1, value: 'X'}]}]}}
+    const receipts = await request.save({changes: [prepared]})
+    expect(receipts).toHaveLength(1)
+    const recovery = prepared.context.captureSaveRecovery(prepared.changes)
+    expect(recovery.primaryKey).toBe('id')
+    expect(recovery.expectedIdentities[action === 'add' ? 'added' : action === 'delete' ? 'deleted' : 'changed'])
+      .toEqual([{id: action === 'add' ? 'NEW' : 1}])
+    expect(recovery.entries[0]?.changedFields).toEqual(action === 'delete' ? [] : ['value'])
+  })
+
+  it('rejects an added row without a formal recovery key before transport', async () => {
+    const {http, request, change} = fixture()
+    const target = change()
+    await expect(request.save({changes: [{...target, changes: {added: [{value: 'X'}]}}]}))
+      .rejects.toThrow('SAVE_RECOVERY_KEY_REQUIRED')
+    expect(http.calls).toHaveLength(0)
   })
 
   it('saves disjoint rows of one model with separate original query signatures and receipts', async () => {
@@ -373,12 +398,10 @@ describe('SPARK save private query baseline', () => {
     expect(context.rows).toEqual([{ id: 0, name: 'Original' }])
   })
 
-  it('does not supply a token from another row or from a caller for unknown keys', () => {
+  it('rejects unknown existing-row identities instead of constructing an unrecoverable payload', () => {
     const { context } = fixture()
-    expect(context.buildSaveRequest({ changed: [{ id: 'unknown', name: 'X', lingma_sys_key: 'forged' }],
-      deleted: [{ id: '', lingma_sys_key: 'forged' }] })).toEqual([{ TableName: 'Orders', CrudModel: {
-      Added: [], Changed: [{ id: 'unknown', name: 'X' }], Deleted: [{ id: '' }],
-    } }])
+    expect(() => context.buildSaveRequest({ changed: [{ id: 'unknown', name: 'X', lingma_sys_key: 'forged' }],
+      deleted: [{ id: '', lingma_sys_key: 'forged' }] })).toThrow('原查询基线')
   })
 
   it('rejects ambiguous original row keys', () => {
@@ -395,20 +418,20 @@ describe('SPARK save private query baseline', () => {
 
   it('segments consecutive heterogeneous insert fields without filling absent values', () => {
     const { context } = fixture()
-    const requests = context.buildSaveRequest({ added: [{ a: 1 }, { a: 2, b: null }, { b: 3 }, { a: 4 }],
+    const requests = context.buildSaveRequest({ added: [{ id: 1, a: 1 }, { id: 2, a: 2, b: null }, { id: 3, b: 3 }, { id: 4, a: 4 }],
       changed: [{ id: 0, name: 'X' }], deleted: [{ id: 0 }] })
     expect(requests.map(request => request.CrudModel)).toEqual([
-      { Added: [{ a: 1, lingma_sys_key: 'model-token' }, { a: 2, b: null, lingma_sys_key: 'model-token' }],
+      { Added: [{ id: 1, a: 1, lingma_sys_key: 'model-token' }, { id: 2, a: 2, b: null, lingma_sys_key: 'model-token' }],
         Changed: [], Deleted: [{ id: 0, lingma_sys_key: 'row-token' }] },
-      { Added: [{ b: 3, lingma_sys_key: 'model-token' }], Changed: [], Deleted: [] },
-      { Added: [{ a: 4, lingma_sys_key: 'model-token' }], Changed: [{ id: 0, name: 'X', lingma_sys_key: 'row-token' }], Deleted: [] },
+      { Added: [{ id: 3, b: 3, lingma_sys_key: 'model-token' }], Changed: [], Deleted: [] },
+      { Added: [{ id: 4, a: 4, lingma_sys_key: 'model-token' }], Changed: [{ id: 0, name: 'X', lingma_sys_key: 'row-token' }], Deleted: [] },
     ])
   })
 
   it('uses explicit complete action order while retaining insert groups', () => {
     const { context } = fixture()
     const requests = context.buildSaveRequest({ actionOrder: ['deleted', 'added', 'changed'],
-      added: [{ a: 1 }, { b: 2 }], changed: [{ id: 0, name: 'X' }], deleted: [{ id: 0 }] })
+      added: [{ id: 1, a: 1 }, { id: 2, b: 2 }], changed: [{ id: 0, name: 'X' }], deleted: [{ id: 0 }] })
     expect(requests.map(request => [request.CrudModel.Added.length, request.CrudModel.Changed.length,
       request.CrudModel.Deleted.length])).toEqual([[0, 0, 1], [1, 0, 0], [1, 0, 0], [0, 1, 0]])
   })

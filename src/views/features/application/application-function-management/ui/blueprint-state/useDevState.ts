@@ -250,9 +250,14 @@ export function useDevState() {
   async function savePendingPageFiles(dataSet:DataSet, verifyOnly = false):Promise<void>{
     const table=dataSet.getTable(PAGE_FILE_TABLE)
     if(!table)throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile DataTable 缺失')
+    if(verifyOnly){
+      const journal=await dataSet.verifySaveJournal()
+      const unknown=journal.views.find(view=>view.state==='unknown')
+      if(unknown)throw unknown.originalError??new Error('PAGE_TOOL_FILE_UNKNOWN: 原文件 DataView 回执仍待核验')
+      return
+    }
     for(const view of table.viewList){
-      if(view.viewId==='default'||(verifyOnly ? !view.hasUnconfirmedSave
-        : !view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave))continue
+      if(view.viewId==='default'||!view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave)continue
       const result=await dataSet.saveChanges({views:[{tableName:PAGE_FILE_TABLE,viewId:view.viewId}]})
       if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存失败')
       if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')

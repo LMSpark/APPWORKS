@@ -520,11 +520,9 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.requiresVerification).toBe(true)
     await expect(workspace.saveData()).rejects.toThrow()
     expect(http.saves).toHaveLength(1)
-    const reads = http.reads.length
-    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
-    expect(http.reads).toHaveLength(reads)
-    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
-    expect(workspace.pending).toBe(true)
+    await expect(workspace.load(true)).resolves.toBeUndefined()
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.pending).toBe(false)
     const reopened = fixture(http)
     try {
       await reopened.workspace.load()
@@ -552,7 +550,7 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
-    expect(http.reads).toHaveLength(reads)
+    expect(http.reads).toHaveLength(reads + 1)
     const reopened = fixture(http)
     try {
       await reopened.workspace.load()
@@ -612,7 +610,7 @@ describe('Dictionary resource through formal DataViews', () => {
 
     const reads = http.reads.length
     await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
-    expect(http.reads).toHaveLength(reads)
+    expect(http.reads).toHaveLength(reads + 1)
     const reopened = fixture(http)
     try { await expect(reopened.workspace.load()).rejects.toThrow('读取失败') }
     finally {reopened.dataSet.destroy()}
@@ -623,7 +621,7 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.rows[0]!['exVal_4']).toBe('已写但回执丢失')
     expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
-    expect(http.reads).toHaveLength(reads + 1)
+    expect(http.reads).toHaveLength(reads + 2)
     dataSet.destroy()
   })
   it.each([false, true])('keeps verification locked when the original capture disappears before explicit reload (pending sibling=%s)', async sibling => {
@@ -728,7 +726,7 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
     await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
-    expect(http.reads).toHaveLength(reads)
+    expect(http.reads).toHaveLength(reads + 2)
     const reopened = fixture(http)
     try {
       await reopened.workspace.load()
@@ -789,11 +787,10 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.definition.hasUnconfirmedSave).toBe(true)
     http.failAfterWrite = false
 
-    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
-    expect(workspace.requiresVerification).toBe(true)
-    expect(workspace.pending).toBe(true)
-    await expect(workspace.addEntry()).rejects.toThrow()
-    await expect(workspace.saveData()).rejects.toThrow()
+    await expect(workspace.load(true)).resolves.toBeUndefined()
+    expect(workspace.requiresVerification).toBe(false)
+    expect(workspace.pending).toBe(false)
+    await expect(workspace.addEntry()).resolves.toBeUndefined()
     expect(http.saves).toHaveLength(1)
     const reopened = fixture(http)
     try {
@@ -805,7 +802,7 @@ describe('Dictionary resource through formal DataViews', () => {
       entries.updateEditingValue(id, 'txt', '新条目')
       await reopened.workspace.saveData()
     } finally {reopened.dataSet.destroy()}
-    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
+    expect(workspace.definition.hasUnconfirmedSave).toBe(false)
     expect(http.saves).toHaveLength(2)
     expect(http.saves[1]!.data).toMatchObject([{TableName: '_Base_DictData'}])
     expect(http.records['_Base_DictData']).toMatchObject([{typeid: 'D1', val: 'A', txt: '新条目'}])

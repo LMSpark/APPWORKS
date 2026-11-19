@@ -14,6 +14,7 @@ import type {
   DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult, DataSetPhasedSaveResult, DataSetDiscardAndReloadOptions,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
+  DataSetSaveJournal, DataSetSaveJournalPhase, DataSetSaveJournalView, DataSetSaveRecoverableAction,
 } from './types'
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
@@ -143,6 +144,26 @@ type DataSetTransactionOperationPlan = {
 type DataSetTransactionViewPlan = {
   viewResult: DataSetSaveChangesViewResult
   operations: DataSetTransactionOperationPlan[]}
+
+type DataSetSaveJournalViewRecord = {
+  tableName: string
+  viewId: string
+  ids: Array<string | number>
+  resourceType: TableMetadata['resourceType'] | undefined
+  owner: DataSetSaveJournalView['owner']
+  state: DataSetSaveJournalView['state']
+  originalError: Error | undefined
+  pendingSignature: string | undefined
+  draftDiscarded: boolean
+}
+
+type DataSetSaveJournalRecord = {
+  readonly batchId: string
+  readonly phases: Array<Readonly<{options: DataSetSaveChangesOptions; views: DataSetSaveJournalViewRecord[]}>>
+  completedPhases: number
+  completed: boolean
+  retainedDraft: boolean
+}
 
 /** Data Set Config 的配置结构。 */
 type DataSetConfig = {
@@ -450,6 +471,9 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   private _parentCascadeIdx = new Map<string, DataViewQueryCascade[]>()
   private _fieldCascadeRuntime: DataViewFieldCascadeRuntime | undefined
   private _optionFillRuntime: DataViewOptionFillRuntime | undefined
+  private _saveJournal: DataSetSaveJournalRecord | undefined
+  private _saveJournalPhaseIndex = 0
+  private _saveJournalBatchSequence = 0
   private _fieldCascadeListeners = new Map<
     (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void, () => void>()
 
@@ -1521,6 +1545,208 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return resolveDataViewKey(buildDataViewKey(source.tableName, viewId, source.scope), peer)
   }
 
+  private saveJournalIds(view: DataView, selected?: Array<string | number>): Array<string | number> {
+    if (selected !== undefined) return [...new Set(selected)]
+    const ids = new Set<string | number>([
+      ...view.dirtyTracking.pendingCreateIds,
+      ...view.dirtyTracking.dirtyRowIds,
+      ...view.dirtyTracking.pendingDeleteIds,
+      ...view.editingRows.map(row => view.getPkKey(row)).filter((id): id is string | number => id !== undefined),
+    ])
+    return [...ids]
+  }
+
+  private saveJournalPendingSignature(view: DataView, ids: ReadonlyArray<string | number>): string {
+    return JSON.stringify(ids.map(id => ({
+      id,
+      row: view.rows.find(candidate => view.getPkKey(candidate) === id),
+      editing: view.getEditingRow(id),
+      dirty: view.getDirtyChanges(id),
+      create: view.dirtyTracking.isPendingCreate(id),
+      change: view.dirtyTracking.hasPendingChanges(id),
+      delete: view.dirtyTracking.isPendingDelete(id),
+    })))
+  }
+
+  private beginSaveJournal(phases: readonly DataSetSaveChangesOptions[]): void {
+    if (this._saveJournal !== undefined && !this._saveJournal.completed) return
+    const built = phases.map(options => ({
+      options: {
+        ...(options.views === undefined ? {} : {views: options.views.map(view => ({...view, ...(view.ids === undefined ? {} : {ids: [...view.ids]})}))}),
+        ...(options.applyEditingRows === undefined ? {} : {applyEditingRows: options.applyEditingRows}),
+        ...(options.mode === undefined ? {} : {mode: options.mode}),
+        ...(options.transaction === undefined ? {} : {transaction: {...options.transaction}}),
+      },
+      views: this.resolveSaveChangesTargets(options).flatMap(target => {
+        const ids = this.saveJournalIds(target.view, target.ids)
+        const table = target.view.dataTable
+        const owner: DataSetSaveJournalView['owner'] = table?.resourceType === 'command' ? 'command'
+          : table?.resourceType === 'file'
+            ? table.resourceId === 'pagedata.json' || table.resourceId?.startsWith('pagedata:') ? 'pagedata' : 'file'
+            : 'database'
+        return ids.length === 0 && !target.view.hasUnconfirmedSave ? [] : [{
+          tableName: target.view.tableName, viewId: target.view.viewId, ids,
+          resourceType: table?.modelBinding !== undefined && table.resourceType === undefined
+            ? 'database-table' : table?.resourceType, owner, state: 'pending' as const,
+          originalError: undefined, pendingSignature: undefined, draftDiscarded: false,
+        }]
+      }),
+    }))
+    this._saveJournal = {
+      batchId: `${this.scenarioId ?? this.dataSetName}:${++this._saveJournalBatchSequence}`,
+      phases: built, completedPhases: 0, completed: false, retainedDraft: false,
+    }
+  }
+
+  private currentJournalViews(phaseIndex = this._saveJournalPhaseIndex): DataSetSaveJournalViewRecord[] {
+    return this._saveJournal?.phases[phaseIndex]?.views ?? []
+  }
+
+  private settleSaveJournal(error?: unknown, result?: CrudResult<DataSetSaveChangesResult>): void {
+    const journal = this._saveJournal
+    if (!journal) return
+    const failure = error === undefined ? undefined : error instanceof Error ? error : new Error(String(error))
+    for (const record of this.currentJournalViews()) {
+      const view = this.getView(record.tableName, record.viewId)
+      if (!view) {
+        if (failure && record.originalError === undefined) record.originalError = failure
+        record.state = 'unknown'
+        continue
+      }
+      const pending = record.ids.some(id => view.dirtyTracking.hasPendingChanges(id) || view.hasEditingChanges(id))
+      if (view.hasUnconfirmedSave) {
+        record.state = 'unknown'
+        if (record.originalError === undefined && failure) record.originalError = failure
+      } else if (failure && (failure instanceof DataSetSavePreflightError || view.mutatingError !== null)) {
+        record.state = 'not-applied'
+        record.originalError ??= failure
+        record.pendingSignature ??= this.saveJournalPendingSignature(view, record.ids)
+      } else if (!result?.success && result !== undefined) {
+        record.state = pending ? 'not-applied' : 'applied'
+        record.originalError ??= result.error ?? new Error(result.message ?? '保存未完成')
+        if (record.state === 'not-applied') {
+          record.pendingSignature ??= this.saveJournalPendingSignature(view, record.ids)
+        }
+      } else {
+        record.state = 'applied'
+      }
+    }
+    this.refreshSaveJournalCompletion()
+  }
+
+  private refreshSaveJournalCompletion(): void {
+    const journal = this._saveJournal
+    if (!journal) return
+    let completed = 0
+    for (const phase of journal.phases) {
+      if (phase.views.every(view => view.state === 'applied' || view.draftDiscarded)) completed++
+      else break
+    }
+    journal.completedPhases = completed
+    journal.completed = completed === journal.phases.length
+  }
+
+  /** Current immutable projection of the original save batch; later drafts never replace an unresolved journal. */
+  get saveJournal(): DataSetSaveJournal {
+    const journal = this._saveJournal
+    if (!journal) return Object.freeze({
+      batchId: null, completed: false, completedPhases: 0, originalError: undefined,
+      currentRecoverableAction: 'none', retainedDraft: false, phases: Object.freeze([]), views: Object.freeze([]),
+    })
+    const project = (record: DataSetSaveJournalViewRecord): DataSetSaveJournalView => Object.freeze({
+      tableName: record.tableName, viewId: record.viewId, ids: Object.freeze([...record.ids]),
+      resourceType: record.resourceType, owner: record.owner,
+      completed: record.state === 'applied' || record.draftDiscarded,
+      state: record.state, originalError: record.originalError,
+    })
+    const phases: DataSetSaveJournalPhase[] = journal.phases.map((phase, index) => {
+      const views = phase.views.map(project)
+      const state: DataSetSaveJournalPhase['state'] = views.every(view => view.completed) ? 'completed'
+        : views.some(view => view.state === 'unknown') ? 'unknown'
+          : views.some(view => view.state === 'not-applied') ? 'not-applied' : 'pending'
+      return Object.freeze({index, completed: state === 'completed', state, views: Object.freeze(views)})
+    })
+    const views = Object.freeze(phases.flatMap(phase => phase.views))
+    const originalError = views.find(view => view.originalError)?.originalError
+    const hasUnknown = views.some(view => view.state === 'unknown')
+    const hasNotApplied = views.some(view => view.state === 'not-applied' && !view.completed)
+    const action: DataSetSaveRecoverableAction = journal.completed ? 'none'
+      : hasUnknown ? 'verify-original-receipt'
+        : hasNotApplied ? 'discard-not-applied'
+          : journal.retainedDraft ? 'retain-draft' : 'continue-phase'
+    return Object.freeze({
+      batchId: journal.batchId, completed: journal.completed, completedPhases: journal.completedPhases,
+      originalError, currentRecoverableAction: action, retainedDraft: journal.retainedDraft,
+      phases: Object.freeze(phases), views,
+    })
+  }
+
+  /** Verify only the original unknown captures and retain the first error for UI diagnosis. */
+  async verifySaveJournal(): Promise<DataSetSaveJournal> {
+    if (this.destroyed) throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原 DataSet 已释放')
+    const resolution = await this.resolveUnconfirmedSaves()
+    for (const phase of this._saveJournal?.phases ?? []) for (const record of phase.views) {
+      if (record.state !== 'unknown') continue
+      const outcome = resolution.views.find(view => view.tableName === record.tableName && view.viewId === record.viewId)
+      if (!outcome) continue
+      record.state = outcome.state === 'confirmed' ? 'applied' : outcome.state === 'not-applied' ? 'not-applied' : 'unknown'
+      if (outcome.error && record.originalError === undefined) record.originalError = outcome.error
+      const view = this.getView(record.tableName, record.viewId)
+      if (record.state === 'not-applied' && view && record.pendingSignature === undefined) {
+        record.pendingSignature = this.saveJournalPendingSignature(view, record.ids)
+      }
+    }
+    this.refreshSaveJournalCompletion()
+    return this.saveJournal
+  }
+
+  /** Continue the original explicit phase plan after completed recovery, never a replacement plan. */
+  async continueSaveJournal(): Promise<DataSetPhasedSaveResult> {
+    const journal = this._saveJournal
+    if (!journal) return {success: true, completedPhases: 0, results: []}
+    if (this.destroyed) throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原 DataSet 已释放')
+    if (journal.phases.some(phase => phase.views.some(view =>
+      view.state === 'unknown' || view.state === 'not-applied' && !view.draftDiscarded))) {
+      throw new Error('DATA_SET_SAVE_JOURNAL_RECOVERY: 请先核验未知提交并显式丢弃已证明未应用的草稿')
+    }
+    if (journal.completed) return {success: true, completedPhases: journal.completedPhases, results: []}
+    return this.saveChangesInPhases(journal.phases.map(phase => phase.options))
+  }
+
+  /** Retain the original draft and journal without cancelling, replaying, or replacing it. */
+  retainSaveJournalDraft(): DataSetSaveJournal {
+    if (this._saveJournal) this._saveJournal.retainedDraft = true
+    return this.saveJournal
+  }
+
+  /** Discard only a still-identical draft proven not applied; late edits force retention instead. */
+  discardSaveJournalNotApplied(): DataSetSaveJournal {
+    if (this.destroyed) throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原 DataSet 已释放')
+    const journal = this._saveJournal
+    if (!journal || journal.phases.some(phase => phase.views.some(view => view.state === 'unknown'))) {
+      throw new Error('DATA_SET_SAVE_JOURNAL_UNKNOWN: 未确认提交不能丢弃')
+    }
+    const selected = journal.phases.flatMap(phase => phase.views)
+      .filter(view => view.state === 'not-applied' && !view.draftDiscarded)
+    if (selected.length === 0) return this.saveJournal
+    for (const record of selected) {
+      const view = this.getView(record.tableName, record.viewId)
+      if (!view || view.hasUnconfirmedSave || record.pendingSignature === undefined
+        || record.pendingSignature !== this.saveJournalPendingSignature(view, record.ids)) {
+        throw new Error('DATA_SET_SAVE_JOURNAL_CHANGED: 原未应用草稿已变化，请保留而非覆盖或丢弃')
+      }
+    }
+    for (const record of selected) {
+      const view = this.getView(record.tableName, record.viewId)
+      if (!view) throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原视图已释放')
+      view.discardPendingChanges(record.ids)
+      record.draftDiscarded = true
+    }
+    journal.retainedDraft = false
+    this.refreshSaveJournalCompletion()
+    return this.saveJournal
+  }
+
   /**
    * 保存 DataSet 范围内的编辑态和 staged 变更。
    *
@@ -1530,6 +1756,18 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
+    this.beginSaveJournal([options ?? {}])
+    try {
+      const result = await this.executeSaveChanges(options)
+      this.settleSaveJournal(undefined, result)
+      return result
+    } catch (error) {
+      this.settleSaveJournal(error)
+      throw error
+    }
+  }
+
+  private async executeSaveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
     if (this._optionFillRuntime?.pending === true) await this._optionFillRuntime.settled()
     const requested = this.resolveSaveChangesTargets(options)
     const recovering = requested.some(target => target.view.hasUnconfirmedSave)
@@ -1663,7 +1901,13 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       if (!phase.views?.length) throw new Error(`DATA_SET_PHASED_SAVE: 第 ${index + 1} 阶段必须显式列出视图`)
       if (phase.mode === 'transaction') throw new Error('DATA_SET_PHASED_SAVE: 分阶段提交不提供事务')
     }
+    this.beginSaveJournal(phases)
+    if (this._saveJournal?.completed) {
+      this._saveJournal = undefined
+      this.beginSaveJournal(phases)
+    }
     for (const [index, phase] of phases.entries()) {
+      this._saveJournalPhaseIndex = index
       const targets = this.resolveSaveChangesTargets(phase)
       const applyEditing = phase.applyEditingRows ?? true
       const dirty = () => targets.some(target => target.view.hasUnconfirmedSave || hasPendingChanges(target.view, target.ids)
@@ -1673,6 +1917,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       results.push(result)
       if (!result.success || dirty()) return {success: false, completedPhases: index, results}
     }
+    this._saveJournalPhaseIndex = 0
     return {success: true, completedPhases: phases.length, results}
   }
 

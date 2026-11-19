@@ -21,49 +21,6 @@ describe('ProjectBlueprint', () => {
     expect(ProjectWorkspace.prototype).not.toHaveProperty('loadPageFile')
   })
 
-  it.each(['file', 'page', 'all'] as const)('does not refill cleared %s content from an in-flight read', async (scope) => {
-    let finishRead: (text: string) => void = () => { throw new Error('read has not started') }
-    const loader = new ProjectBlueprintApi.PageContentLoader({ projectId: 'crm',
-      readPageFile: async ({ pageId }) => pageId === 'orders'
-        ? new Promise<string>((resolve) => { finishRead = resolve }) : 'reports' })
-    await loader.loadPageFileContent('reports', 'script.js')
-    const loading = loader.loadPageFileContent('orders', 'script.js')
-    if (scope === 'file') loader.clearCache('/orders/script.js')
-    else if (scope === 'page') loader.clearPageCache('orders')
-    else loader.clearAllCache()
-    finishRead('old')
-
-    expect(await loading).toMatchObject({ success: false, error: expect.stringContaining('PAGE_FILE_READ_STALE') })
-    expect(loader.getCacheStats().keys).toEqual(scope === 'all' ? [] : ['crm/reports/script.js'])
-  })
-
-  it('keeps a successor read valid when the invalidated predecessor settles', async () => {
-    const completions: Array<(text: string) => void> = []
-    const loader = new ProjectBlueprintApi.PageContentLoader({ projectId: 'crm',
-      readPageFile: async () => new Promise<string>((resolve) => { completions.push(resolve) }) })
-    const oldRead = loader.loadPageFileContent('orders', 'script.js')
-    loader.clearPageCache('orders')
-    const currentRead = loader.loadPageFileContent('orders', 'script.js')
-    completions[0]!('old')
-    expect(await oldRead).toMatchObject({ success: false })
-    completions[1]!('current')
-    expect(await currentRead).toMatchObject({ success: true, data: 'current' })
-    expect(await loader.loadPageFileContent('orders', 'script.js')).toMatchObject({ data: 'current', fromCache: true })
-    expect(completions).toHaveLength(2)
-  })
-
-  it('rejects an in-flight file result after the injected project identity changes', async () => {
-    let projectId = 'crm'
-    let finishRead: (text: string) => void = () => { throw new Error('read has not started') }
-    const loader = new ProjectBlueprintApi.PageContentLoader({ getProjectId: () => projectId,
-      readPageFile: async () => new Promise<string>((resolve) => { finishRead = resolve }) })
-    const loading = loader.loadPageFileContent('orders', 'script.js')
-    projectId = 'erp'
-    finishRead('crm content')
-    expect(await loading).toMatchObject({ success: false, error: expect.stringContaining('PAGE_FILE_READ_STALE') })
-    expect(loader.getCacheStats()).toEqual({ size: 0, keys: [] })
-  })
-
   it('constructs a ProjectBlueprint root distinct from nodes and tools',()=>{ const workspace=createWorkspace(); expect(workspace.project).toBeInstanceOf(ProjectBlueprintApi.ProjectBlueprint); expect(workspace.project.openPageDesign('orders')).not.toBeInstanceOf(ProjectBlueprintNode) })
   it('does not expose raw blueprint gateway loading from ProjectWorkspace', () => {
     const workspace = createWorkspace()

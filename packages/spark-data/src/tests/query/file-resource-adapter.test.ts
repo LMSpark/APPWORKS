@@ -2,8 +2,8 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
 import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor, type FileResourceTransport} from '../../query/file-resource-adapter'
 
-function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true) {
-  const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
+function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='page-files') {
+  const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId,
     columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
       {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
   const view=dataSet.getView('Files')!
@@ -22,7 +22,7 @@ function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true) {
     verify:async(_target,attempt,expectedText)=>versions.get(Number(attempt.version))===expectedText,
   }
   const transport:FileResourceTransport={read,write,remove,history,isUnknown:error=>error instanceof Error&&error.message==='timeout'}
-  const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId:'page-files',contentField:'text',...(exposeRevision?{revisionField:'revision'}:{}),
+  const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId,contentField:'text',...(exposeRevision?{revisionField:'revision'}:{}),
     target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),transport})
   bind(view)
   return {dataSet,view,current,read,write,remove,bind,versions,history,transport}
@@ -644,10 +644,26 @@ describe('DataView file resource adapter',()=>{
       const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
       await expect(f.dataSet.saveChanges(input)).rejects.toThrow('timeout')
       expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect(f.dataSet.saveJournal).toMatchObject({currentRecoverableAction:'verify-original-receipt',
+        views:[{tableName:'Files',resourceType:'file',owner:'file',ids:[id],state:'unknown'}]})
       expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.dataSet.saveJournal).toMatchObject({completed:true,views:[{state:'applied'}]})
       expect(f.write).toHaveBeenCalledOnce()
       expect(f.view.hasUnconfirmedSave).toBe(false)
     } finally {f.dataSet.destroy()}
+  })
+
+  it('projects pagedata file saves as the pagedata recovery owner',async()=>{
+    const f=fixture(false,true,'pagedata:views')
+    try{
+      await f.view.refresh();const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'pagedata change'})
+      f.write.mockImplementationOnce(async({text})=>{f.current.text=text;throw new Error('timeout')})
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      expect(f.dataSet.saveJournal).toMatchObject({
+        views:[{tableName:'Files',resourceType:'file',owner:'pagedata',state:'unknown'}],
+      })
+    }finally{f.dataSet.destroy()}
   })
 
   it('keeps an accepted write pending when receipt readback fails and verifies it without rewriting',async()=>{

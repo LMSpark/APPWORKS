@@ -29,13 +29,20 @@ type DataSpaceRuntimeApiOptions = Readonly<{
 /** 统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。 */
 type DataSpaceRuntimeSaveChange = Parameters<DataSpaceRequest['save']>[0]['changes'][number]
   & Readonly<{tableConfig?: Pick<SparkData.TableMetadata, 'api' | 'crudConfig'>}>
+type DataSpaceRuntimePreparedSaveChange = DataSpaceRuntimeSaveChange & Readonly<{
+  recovery: NonNullable<DataSpaceRuntimeSaveChange['recovery']>
+}>
 type DataSpaceRuntimeSaveCommand = Readonly<{
   changes: readonly DataSpaceRuntimeSaveChange[]
   signal?: AbortSignal
 }>
 /** 实际保存回执和推进后的独立上下文；失败不产生确认结果。 */
 type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
-type DataSpaceRuntimeUnconfirmed = Readonly<{signature: string; contexts: ReadonlySet<DataSpaceQueryContext>}>
+type DataSpaceRuntimeUnconfirmed = Readonly<{
+  signature: string
+  contexts: ReadonlySet<DataSpaceQueryContext>
+  captures: readonly DataSpaceRuntimePreparedSaveChange[]
+}>
 type DataSpaceQueryWithConfigInput = Readonly<{
   /** 正式子查询解析产生的本次只读投影与模型图守卫。 */
   projection?: DataSpaceQueryProjection
@@ -511,20 +518,25 @@ export class DataSpaceRuntimeApi {
     const scope = this.currentScope()
     const signal = command.signal
     signal?.throwIfAborted()
-    const changes = command.changes.map(change => ({ ...change,
-      identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
-    const signature = JSON.stringify(changes.map(change => ({identity: change.identity, changes: change.changes})))
-    const assertNoPending = () => {
+    const targets = command.changes.map(change => ({...change,
+      identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes)}))
+    targets.forEach(change => this.assertContextOwner(scope, change))
+    const changes = targets.map(target => {
+      const prepared = target.context.prepareSaveChanges(target.changes)
+      return {...target, changes: prepared, recovery: target.context.captureSaveRecovery(prepared, target.recovery)}
+    })
+    const signature = JSON.stringify(changes.map(change => ({identity: change.identity, changes: change.changes, recovery: change.recovery})))
+    const pendingFor = (): DataSpaceRuntimeUnconfirmed | undefined => {
       const pending = changes.map(change => this.#unconfirmed.get(change.context)).find(item => item !== undefined)
-      if (!pending) return
+      if (!pending) return undefined
       if (signature !== pending.signature || changes.length !== pending.contexts.size
         || changes.some(change => !pending.contexts.has(change.context))) {
         throw new Error('SPARK_SAVE_UNCONFIRMED: 请先核验原提交，不能夹带另一批修改')
       }
       changes.forEach(change => this.assertContextOwner(scope, change))
-      throw new Error('SPARK_SAVE_UNVERIFIABLE: 服务未提供原请求的权威终态，原提交仍待核验')
+      return pending
     }
-    assertNoPending()
+    pendingFor()
     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
     changes.forEach(change => this.assertContextOwner(scope, change))
     const config = DataSpaceRequestConfig.resolveSave(changes)
@@ -537,12 +549,32 @@ export class DataSpaceRuntimeApi {
         if (flights !== undefined) await Promise.allSettled([...flights])
       }))
       this.assertScope(scope)
-      assertNoPending()
       changes.forEach(change => this.assertContextOwner(scope, change))
       this.invalidateQueryCache()
       let receipts: DataSpaceRuntimeSaveResult
       let responseAccepted = false
       try {
+        const pending = pendingFor()
+        if (pending !== undefined) {
+          try { receipts = await this.verifyUnconfirmedSave({changes: pending.captures, scope, keys}) }
+          catch (cause) {
+            throw new Error(`SPARK_SAVE_UNVERIFIABLE: 原提交精确回读未能确认: ${
+              cause instanceof Error ? cause.message : String(cause)}`, {cause})
+          }
+          for (const [index, receipt] of receipts.entries()) {
+            const change = changes[index]
+            if (change === undefined) throw new Error('SPARK_SAVE_RECOVERY: 缺少原保存目标')
+            this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
+            const origin = this.#queryOrigins.get(change.context)
+            if (origin) this.#queryOrigins.set(receipt.context, origin)
+          }
+          this.assertScope(scope)
+          for (const change of changes) {
+            this.#unconfirmed.delete(change.context)
+            this.#contexts.delete(change.context)
+          }
+          return receipts
+        }
         receipts = await this.#saveRequest.save({ changes, config, ...(signal === undefined ? {} : { signal }) })
         responseAccepted = true
         this.assertScope(scope)
@@ -570,7 +602,8 @@ export class DataSpaceRuntimeApi {
         const error = responseAccepted && !(cause instanceof DataSpaceSaveUnconfirmedError)
           ? new DataSpaceSaveUnconfirmedError('保存回执返回后原执行域失效', cause) : cause
         if (error instanceof DataSpaceSaveUnconfirmedError) {
-          const record = Object.freeze({signature, contexts: new Set(changes.map(change => change.context))})
+          const record = Object.freeze({signature, contexts: new Set(changes.map(change => change.context)),
+            captures: Object.freeze(changes)})
           for (const change of changes) this.#unconfirmed.set(change.context, record)
         }
         throw error
@@ -583,6 +616,56 @@ export class DataSpaceRuntimeApi {
         if (this.#mutationFlights.get(key) === tail) this.#mutationFlights.delete(key)
       })
     })
+  }
+
+  /** Read each original model once by captured formal keys; no mutation endpoint is involved. */
+  private async verifyUnconfirmedSave(parameters: Readonly<{
+    changes: readonly DataSpaceRuntimePreparedSaveChange[]
+    scope: string
+    keys: readonly string[]
+  }>): Promise<DataSpaceRuntimeSaveResult> {
+    const receipts: DataSpaceRuntimeSaveResult = []
+    const {changes, scope, keys} = parameters
+    for (const change of changes) {
+      this.assertContextOwner(scope, change)
+      const origin = this.#queryOrigins.get(change.context)
+      if (!origin) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存缺少正式查询来源')
+      const recovery = change.recovery
+      const identities: Array<string | number> = []
+      for (const entry of recovery.entries) {
+        const value = entry.identity[recovery.primaryKey]
+        if (typeof value !== 'string' && typeof value !== 'number') {
+          throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存主键类型无效')
+        }
+        identities.push(value)
+      }
+      const requestKey = origin.definition?.fields.find(field => field.canonicalName === recovery.primaryKey)?.name
+        ?? recovery.primaryKey
+      const fieldNames = new Set<string>([requestKey])
+      for (const entry of recovery.entries) {
+        for (const field of entry.changedFields) {
+          fieldNames.add(origin.definition?.fields.find(item => item.canonicalName === field)?.name ?? field)
+        }
+      }
+      const {sort, tree, page, filter, fields, ...base} = origin.options
+      void sort; void tree; void page; void filter; void fields
+      const queried = await this.queryWithConfig({
+        identity: origin.identity,
+        config: origin.config,
+        options: {...base, fields: [...fieldNames],
+          filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: identities}),
+          pagination: 'paged', page: {index: 1, size: identities.length},
+          allPages: true, maxRows: identities.length + 1, singleFlight: false},
+        ...(origin.accept === undefined ? {} : {accept: origin.accept}),
+        ...(origin.definition === undefined ? {} : {definition: origin.definition}),
+      }, new Set(keys))
+      this.assertScope(scope)
+      this.assertContextOwner(scope, change)
+      receipts.push(change.context.acceptVerifiedSaveRecovery({
+        requested: change.changes, recovery, queried,
+      }))
+    }
+    return receipts
   }
 
     private async refreshSavedPermissions(parameters:Readonly<{context:DataSpaceQueryContext;identity:DataSpaceQueryIdentity;scope:string;heldMutationKeys?:ReadonlySet<string>|undefined;targetIds?:readonly unknown[]|undefined}>): Promise<DataSpaceQueryContext> {

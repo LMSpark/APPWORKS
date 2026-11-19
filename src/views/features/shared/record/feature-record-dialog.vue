@@ -8,13 +8,14 @@
     :append-to-body="true" :close-disabled="busy || ownUnconfirmed" @update:model-value="cancel">
     <p v-if="error || hint" role="alert">{{ error || hint }}</p>
     <p v-if="!current" role="status">原记录已变化，请关闭并保留原修改。</p>
+    <p v-if="saveJournal.originalError && ownUnconfirmed" role="status">保存结果未知：{{ saveJournal.originalError.message }}</p>
     <SparkComponentRenderer v-if="recordForm" :config="recordForm" />
     <FeatureRecordFields v-else :data-view-key="dataViewKey" :record-id="recordId" :row="row" :specs="fieldSpecs" :locked="locked" :columns="columns" />
     <template #footer>
       <RendererButton :label="foreignRecovery || recoveryEnded || hasStaged && !created ? '关闭并保留修改' : confirmedCreation ? '关闭' : '取消'"
-        :disabled="busy || ownUnconfirmed" @click="cancel" />
-      <RendererButton :label="permissionsPending ? '回读已保存权限' : ownUnconfirmed ? '核验原保存结果' : '确定'" button-type="primary"
-        :disabled="busy || foreignRecovery || !permissionsPending && (recoveryEnded || !current && !ownUnconfirmed)" @click="submit" />
+        :disabled="busy" @click="close" />
+      <RendererButton :label="saveActionLabel" button-type="primary"
+        :disabled="busy || foreignRecovery || recoverableAction === 'retain-draft' || !permissionsPending && (recoveryEnded && recoverableAction === 'none' || !current && !ownUnconfirmed)" @click="submit" />
     </template>
   </RendererDialog>
 </template>
@@ -42,7 +43,8 @@ const fieldSpecs = computed<readonly FeatureFieldSpec[]>(() => {
   })
 })
 const {row, busy, current, locked, error, ownUnconfirmed, foreignRecovery, recoveryEnded, hasStaged, permissionsPending,
-  confirmedCreation, save, cancel} = useDataViewRecordEditing({mode: 'edit', runtime: () => sparkConsume(PAGE_RUNTIME),
+  confirmedCreation, saveJournal, recoverableAction, save, cancel, verifyOriginalReceipt, continuePhase,
+  retainDraft, discardNotApplied} = useDataViewRecordEditing({mode: 'edit', runtime: () => sparkConsume(PAGE_RUNTIME),
   dataViewKey: () => props.dataViewKey, recordId: () => props.recordId, created: () => props.created,
   editableFields: fieldSpecs.value.map(spec => spec.field), onFinish: () => emit('close')})
 const recordForm = computed<SparkNode | undefined>(() => {
@@ -53,8 +55,19 @@ const recordForm = computed<SparkNode | undefined>(() => {
   return {...form, props: {...form.props, contextRowId: props.recordId}, children}
 })
 const hint = ref('')
+const saveActionLabel = computed(() => permissionsPending.value ? '回读已保存权限'
+  : recoverableAction.value === 'verify-original-receipt' ? '核验原保存结果'
+    : recoverableAction.value === 'discard-not-applied' ? '丢弃确认未应用草稿'
+      : recoverableAction.value === 'continue-phase' ? '继续下一保存阶段' : '确定')
+function close():void{
+  if (ownUnconfirmed.value || recoverableAction.value !== 'none') retainDraft()
+  else cancel()
+}
 async function submit(): Promise<void> {
   hint.value = ''
+  if (recoverableAction.value === 'verify-original-receipt') {await verifyOriginalReceipt();return}
+  if (recoverableAction.value === 'continue-phase') {await continuePhase();return}
+  if (recoverableAction.value === 'discard-not-applied') {discardNotApplied();return}
   if (!ownUnconfirmed.value && !permissionsPending.value && row.value) {
     const missing = missingFeatureField(fieldSpecs.value, row.value)
     if (missing) { hint.value = `请填写${missing.label}`; return }
@@ -66,7 +79,8 @@ async function submit(): Promise<void> {
 defineExpose({
   state:()=>({busy:busy.value,current:current.value,locked:locked.value,error:error.value||hint.value,
     ownUnconfirmed:ownUnconfirmed.value,foreignRecovery:foreignRecovery.value,recoveryEnded:recoveryEnded.value,
-    hasStaged:hasStaged.value,permissionsPending:permissionsPending.value,confirmedCreation:confirmedCreation.value}),
-  submit,cancel,
+    hasStaged:hasStaged.value,permissionsPending:permissionsPending.value,confirmedCreation:confirmedCreation.value,
+    saveJournal:saveJournal.value,recoverableAction:recoverableAction.value}),
+  submit,cancel:close,retainDraft,
 })
 </script>

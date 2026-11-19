@@ -101,15 +101,15 @@ describe('formal new-row inputs separate from query output', () => {
       http.lateRows = [{id: row['rowid'], caption: row['title'], parentId: row['parent_id'],
         lingma_sys_key: 'CHILD-SIGNED', lingma_sys_params: {e: ['caption'], d: true}}]
       const reads = http.queries.length
-      await expect(ds.saveChanges({views: [view]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(http.queries).toHaveLength(reads)
+      await expect(ds.saveChanges({views: [view]})).resolves.toMatchObject({success:true})
+      expect(http.queries).toHaveLength(reads + 1)
       const fresh = view.createQueryView('childReadback')
       try {
         await fresh.refresh()
-        expect(http.queries).toHaveLength(reads + 1)
+        expect(http.queries).toHaveLength(reads + 2)
         expect(fresh.rows).toMatchObject([{id: row['rowid'], caption: 'child', parentId: 'A'}])
       } finally {fresh.destroy()}
-      expect(view.hasUnconfirmedSaveFor([row['rowid']])).toBe(true)
+      expect(view.hasUnconfirmedSaveFor([row['rowid']])).toBe(false)
       expect(view.rows.some(child => child['id'] === row['rowid'])).toBe(false)
       expect(http.saves).toHaveLength(1)
       expect(view.dirtyTracking.pendingCreateIds.has(row['rowid'])).toBe(false)

@@ -24,41 +24,16 @@ export const PAGE_TOOL_FILE_NAMES: readonly ['rule.json', 'script.js', 'style.cs
 /** 页面工具只允许rule.json、script.js、style.css三文件。 */
 export type PageToolFileName = typeof PAGE_TOOL_FILE_NAMES[number]
 
-/** Page Tool Load Options 的调用配置。 */
-export type PageToolLoadOptions = {
-    /** force Reload 字段。 */
-forceReload?: boolean
-}
+/** One formal page-file read, optionally pinned to a publication reference. */
+export type PageFileReadCommand = Readonly<{
+  versionId?: string
+  projectId: string
+  pageId: string
+  fileName: PageToolFileName
+}>
 
-export function pageFilePath(pageId: string, filename: string): string {
-  return `/${encodeURIComponent(pageId)}/${encodeURIComponent(filename)}`
-}
-
-export function pageFilePaths(pageId: string): readonly string[] {
-  return PAGE_TOOL_FILE_NAMES.map(filename => pageFilePath(pageId, filename))
-}
-
-/** Page Content Load Result 的返回结果。 */
-export type PageContentLoadResult<T = unknown> = {
-    /** success 字段。 */
-success: boolean
-    /** 业务数据载荷。 */
-data?: T
-    /** 错误对象或错误信息。 */
-error?: string
-    /** reason 字段。 */
-reason?: string
-    /** 来源对象。 */
-source?: 'remote'
-    /** 事件时间戳。 */
-timestamp?: number
-    /** source Timestamp 字段。 */
-sourceTimestamp?: string
-    /** from Cache 字段。 */
-fromCache?: boolean
-    /** not Modified 字段。 */
-notModified?: boolean
-}
+/** Host-provided text reader; failures must remain explicit. */
+export type PageFileReader = (command: PageFileReadCommand) => Promise<string>
 
 /** N__filename快照摘要；缺少修改时间为null，编号不代表发布引用。 */
 export type PageToolFileVersionSummary = {

@@ -26,6 +26,114 @@ async function fixture(options:Readonly<{layoutType?:string;declaredPk?:boolean;
  return {ds,view,stored,owner,masked,denied,setAllowAdd:(value:boolean)=>{allowAdd=value},writes:()=>writes,loseNextAck:()=>{failAfterWrite=true}}
 }
 describe('DataTable instance query save rule',()=>{
+ it('projects the immutable original journal and ignores later edits while an exact receipt is unknown',async()=>{
+  const f=await fixture()
+  try{
+   f.view.updateEditingValue('1','layout','original intent');f.loseNextAck()
+   const journalIds:number[]=[]
+   await expect(f.ds.saveChanges()).rejects.toThrow('ack lost')
+   const original=f.ds.saveJournal
+   expect(original).toMatchObject({completed:false,currentRecoverableAction:'verify-original-receipt',
+    completedPhases:0,phases:[{completed:false,state:'unknown',views:[{tableName:'Items',viewId:'default',ids:['1'],owner:'database',resourceType:'database-table',state:'unknown'}]}]})
+   expect(original.originalError?.message).toBe('ack lost')
+   for(const view of original.views)journalIds.push(view.ids.length)
+   f.view.updateEditingValue('1','name','later draft')
+   expect(f.ds.saveJournal.views[0]?.ids).toEqual(['1']);expect(journalIds).toEqual([1])
+   await f.ds.verifySaveJournal()
+   expect(f.ds.saveJournal).toMatchObject({completed:true,currentRecoverableAction:'none',views:[{state:'applied'}]})
+   expect(f.ds.saveJournal.originalError).toBe(original.originalError)
+   expect(f.view.getEditingRow('1')?.['name']).toBe('later draft')
+  }finally{f.ds.destroy()}
+ })
+ it('discards a not-applied draft only while its captured pending signature is unchanged',async()=>{
+  const f=await fixture()
+  try{
+   f.owner.save.mockRejectedValueOnce(Error('source rejected before dispatch'))
+   await f.view.editRowById('1',{layout:'not applied'})
+   await expect(f.ds.saveChanges()).rejects.toThrow('source rejected')
+   expect(f.ds.saveJournal).toMatchObject({currentRecoverableAction:'discard-not-applied',views:[{state:'not-applied'}]})
+   f.view.updateEditingValue('1','name','later edit')
+   expect(()=>f.ds.discardSaveJournalNotApplied()).toThrow('DATA_SET_SAVE_JOURNAL_CHANGED')
+   expect(f.view.dirtyTracking.hasPendingChanges('1')).toBe(true)
+   expect(f.view.getEditingRow('1')?.['name']).toBe('later edit')
+  }finally{f.ds.destroy()}
+ })
+  it('discards an unchanged proven not-applied draft without claiming remote application',async()=>{
+   const f=await fixture()
+   try{
+    f.owner.save.mockRejectedValueOnce(Error('definite source rejection'))
+    await f.view.editRowById('1',{layout:'discard me'})
+    await expect(f.ds.saveChanges()).rejects.toThrow('definite source rejection')
+    expect(f.ds.discardSaveJournalNotApplied()).toMatchObject({completed:true,
+     views:[{state:'not-applied',completed:true}]})
+    expect(f.view.dirtyTracking.hasPendingChanges('1')).toBe(false)
+    expect(f.stored[0]?.['layout']).toBe('ok')
+   }finally{f.ds.destroy()}
+  })
+ it('continues the immutable phase plan and reports phase completion',async()=>{
+  const f=await fixture()
+  try{
+   await f.view.editRowById('1',{layout:'phase one'});await f.view.editRowById('2',{layout:'phase two'})
+   const phases=[{views:[{tableName:'Items',viewId:'default',ids:['1']}]},
+    {views:[{tableName:'Items',viewId:'default',ids:['2']}]}]
+   const result=await f.ds.saveChangesInPhases(phases)
+   expect(result).toMatchObject({success:true,completedPhases:2})
+   expect(f.ds.saveJournal).toMatchObject({completed:true,completedPhases:2,
+    phases:[{index:0,completed:true,state:'completed'},{index:1,completed:true,state:'completed'}]})
+   expect(f.writes()).toBe(2)
+  }finally{f.ds.destroy()}
+ })
+ it('verifies a lost first phase then continues only the original remaining phase',async()=>{
+  const f=await fixture()
+  try{
+   await f.view.editRowById('1',{layout:'phase one'});await f.view.editRowById('2',{layout:'phase two'})
+   f.loseNextAck()
+   const phases=[{views:[{tableName:'Items',viewId:'default',ids:['1']}]},
+    {views:[{tableName:'Items',viewId:'default',ids:['2']}]}]
+   await expect(f.ds.saveChangesInPhases(phases)).rejects.toThrow('ack lost')
+   expect(f.ds.saveJournal).toMatchObject({completedPhases:0,currentRecoverableAction:'verify-original-receipt'})
+   await f.ds.verifySaveJournal()
+   const continued=await f.ds.continueSaveJournal()
+   expect(continued).toMatchObject({success:true,completedPhases:2})
+   expect(f.ds.saveJournal).toMatchObject({completed:true,completedPhases:2})
+   expect(f.writes()).toBe(2)
+  }finally{f.ds.destroy()}
+ })
+ it('captures exact recovery proof for every dispatched action before transport',async()=>{
+  const f=await fixture()
+  try{
+   await f.view.addRow({layout:'added',kind:'flat',name:'new'})
+   await f.view.editRowById('1',{layout:'changed'})
+   await f.view.removeRow('2')
+   await f.view.saveChanges()
+   const command=f.owner.save.mock.calls[0]?.[0]
+   expect(command).toBeDefined()
+   const recovery=command?.changes[0]?.recovery
+   expect(recovery).toMatchObject({
+    primaryKey:'id',primaryKeyFields:['id'],
+    expectedIdentities:{
+     added:[{id:'TEMP'}],changed:[{id:'1'}],deleted:[{id:'2'}],
+    },
+   })
+   expect(recovery?.entries.map(entry=>[entry.action,entry.changedFields])).toEqual([
+    ['added',['kind','layout','name']],['changed',['layout']],['deleted',[]],
+   ])
+   expect(recovery?.entries.every(entry=>entry.changeDigest.length>0)).toBe(true)
+   expect(recovery?.changeDigest.length).toBeGreaterThan(0)
+  }finally{f.ds.destroy()}
+ })
+ it('rejects a query-owner added row without a recoverable formal key',async()=>{
+  const ds=DataSet.fromJson({scenarioId:'S',tables:{Items:{modelBinding:{modelId:'M',modelName:'Items'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'name',type:'string'}],views:{default:{commitMode:'staged'}}}}})
+  try{
+   const view=ds.getView('Items')!
+   const result={rows:[],total:0,assertIdentity:()=>{},rowKey:(row:DataRow)=>row['id'],prepareNewRow:(row:DataRow)=>row,
+    fieldAccess:()=>({read:'visible' as const,write:'allowed' as const,component:'editable' as const,required:false,writeMode:'editable' as const}),readFieldAccess:()=> 'visible' as const,
+    addActionState:()=> 'enabled' as const,editActionState:()=> 'enabled' as const,deleteActionState:()=> 'enabled' as const,createChildActionState:()=> 'enabled' as const,viewActionState:()=> 'enabled' as const}
+   view.bindQueryExecutor({executeQuery:async()=>({...result,resultPrimaryKey:'id'}),save:async()=>[]})
+   await view.refresh()
+   await expect(view.addRow({name:'keyless'})).rejects.toThrow('SAVE_RECOVERY_KEY_REQUIRED')
+  }finally{ds.destroy()}
+ })
  it('rejects sparse groups and invalid callbacks without replacing the current registration',async()=>{
   const f=await fixture()
   try{

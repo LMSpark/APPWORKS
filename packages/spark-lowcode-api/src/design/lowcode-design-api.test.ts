@@ -198,6 +198,43 @@ describe('LowcodeDesignApi', () => {
     })])
   })
 
+  it('uses a strict File V2 stat sha256 etag without reading V1 bytes', async () => {
+    const sha256='ab'.repeat(32)
+    const http = new FixtureHttpClient({Code: 200, Result: {size: 4, contentType: 'text/plain', lastModified: 10, etag: sha256}})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).readFileHash({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).resolves.toBe(sha256)
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat'])
+  })
+
+  it('falls back to a V1 byte hash when V2 stat exists without a content hash', async () => {
+    const bytes=new Uint8Array([1,2,3])
+    class StatWithoutEtag extends FixtureHttpClient {
+      protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        if(config.url==='/api/File/v2/stat')return {data:{Code:200,Result:{size:3,etag:''}},status:200,statusText:'OK',headers:{}}
+        return {data:bytes.buffer,status:200,statusText:'OK',headers:{}}
+      }
+    }
+    const http=new StatWithoutEtag(new Uint8Array())
+    const expected=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer))]
+      .map(value=>value.toString(16).padStart(2,'0')).join('')
+    await expect(new LowcodeDesignApi({http,readScope:fixtureScope}).readFileHash({
+      appType:'designfile',customPath:'APP-A/page',fileName:'rule.json',
+    })).resolves.toBe(expected)
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat','/api/File/DownFile'])
+  })
+
+  it('does not fall back after V2 stat responds in a stale scope', async () => {
+    let token='scope-A'
+    const http=new FixtureHttpClient({Code:200,Result:{etag:'ab'.repeat(32)}})
+    http.interceptors.request.use({onRequest:config=>{token='scope-B';return config}})
+    await expect(new LowcodeDesignApi({http,readScope:()=>({...fixtureScope(),token})}).readFileHash({
+      appType:'designfile',customPath:'APP-A/page',fileName:'rule.json',
+    })).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat'])
+  })
+
   it.each([null, 1, '', '2026-11-19'])('rejects malformed file modification time %j', async result => {
     const api = new LowcodeDesignApi({
       http: new FixtureHttpClient({Code: 200, Result: result}),

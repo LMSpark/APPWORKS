@@ -62,6 +62,8 @@ export type DynamicRouterOptions = {
   /** 工具三文件读取器；缺省时打开配置页会明确失败。 */
   readPageFile?: PageFileReader
   readPageFiles?: NonNullable<PageRuntimePoolOptions['readPageFiles']>
+  resolvePagePublication?: NonNullable<PageRuntimePoolOptions['resolvePagePublication']>
+  resolvePageNavigationReceipt?: NonNullable<PageRuntimePoolOptions['resolvePageNavigationReceipt']>
   preparePageCall?: NonNullable<PageRuntimePoolOptions['preparePageCall']>
 
   /**
@@ -227,9 +229,12 @@ constructor(options: DynamicRouterOptions) {
       pageComponent: options.pageComponent,
       readPageFile: options.readPageFile,
       ...(options.readPageFiles ? {readPageFiles: options.readPageFiles} : {}),
+      ...(options.resolvePagePublication ? {resolvePagePublication: options.resolvePagePublication} : {}),
+      ...(options.resolvePageNavigationReceipt ? {resolvePageNavigationReceipt: options.resolvePageNavigationReceipt} : {}),
       ...(options.preparePageCall ? {preparePageCall: options.preparePageCall} : {}),
       loadScenario: options.loadScenario,
       readNavTree: () => this._navTree,
+      readCurrentRoute: () => this.router.currentRoute.value,
       refreshRoutes: () => this.refreshRoutes(),
     })
   }

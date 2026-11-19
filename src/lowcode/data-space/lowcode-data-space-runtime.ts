@@ -8,7 +8,7 @@ import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type PageRuntimeSource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
@@ -242,14 +242,39 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
 }
 
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
-export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string; getPage?:ApiModelRuleHost['getPage'] }>): Promise<DataSet> {
+export async function loadLowcodeRuntimeScenario(command: Readonly<{
+ projectId: string
+ scenarioId: string
+ source?: PageRuntimeSource
+ pagedata?: Readonly<{scenarioId: string; version: number; fileName: string; sha256: string; sourceRevision: string; text: string}>
+ getPage?:ApiModelRuleHost['getPage']
+}>): Promise<DataSet> {
  const { projectId, scenarioId } = command
  if (projectId === APPLICATION_CATALOG_PROJECT_ID) return loadCatalogRuntimeScenario(command)
  const execution = readLowcodeExecutionProject()
  if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
  const assertCurrent = execution.assertCurrent
  assertCurrent()
- const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
+ const source = command.source ?? {mode:'design' as const,sourceRevision:'working',publicationRef:null,scenarioIds:[scenarioId]}
+ if (!source.scenarioIds.includes(scenarioId)
+   || source.scenarioIds.some(id => typeof id !== 'string' || !id.trim())) {
+  throw new Error('PAGE_RUNTIME_SOURCE_CONTRACT: 场景加载来源身份不一致')
+ }
+ if (source.mode === 'preview') {
+  throw new Error('PAGE_PREVIEW_TEMPORARY_SOURCE: 预览配置必须由临时装配入口消费')
+ }
+ if (source.mode === 'published') {
+  if (!source.publicationRef?.trim() || !command.pagedata) {
+   throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布场景必须使用 manifest pagedata')
+  }
+ } else if (source.publicationRef !== null || command.pagedata) {
+  throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: 设计运行只能读取工作 pagedata')
+ }
+ if (command.pagedata && command.pagedata.scenarioId !== scenarioId) {
+  throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: pagedata 场景身份不一致')
+ }
+ const text = command.pagedata?.text
+  ?? await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
  assertCurrent()
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
  return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,

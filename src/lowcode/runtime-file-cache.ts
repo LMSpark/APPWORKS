@@ -1,10 +1,17 @@
 import type {LowcodeFileLocator} from '@spark-appworks/spark-lowcode-api'
+import type {PageRuntimeMode} from '@spark-appworks/spark-project-model'
 
 type RuntimeFileCacheEntry = Readonly<{version:string; text:string}>
+export type RuntimeFileCacheScope = Readonly<{
+  mode: PageRuntimeMode
+  sourceRevision: string
+  publicationRef: string | null
+}>
 
 type ReadRuntimeFileOptions = Readonly<{
   owner: string | undefined
   locator: LowcodeFileLocator
+  scope?: RuntimeFileCacheScope
   assertCurrent: () => void
   readVersion: () => Promise<string>
   readText: () => Promise<string>
@@ -16,8 +23,9 @@ function isRecord(value:unknown):value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function cacheKey(owner:string, locator:LowcodeFileLocator):string {
+function cacheKey(owner:string, locator:LowcodeFileLocator, scope:RuntimeFileCacheScope):string {
   return `spark_runtime_file_v1:${JSON.stringify([
+    scope.mode, scope.sourceRevision, scope.publicationRef,
     owner, locator.appType, locator.customPath, locator.fileName, locator.isCrossEnterprise ?? false,
   ])}`
 }
@@ -63,7 +71,8 @@ function writeEntry(key:string, entry:RuntimeFileCacheEntry):void {
 export async function readRuntimeFile(options:ReadRuntimeFileOptions):Promise<string> {
   options.assertCurrent()
   if(options.owner === undefined) return options.readText()
-  const key=cacheKey(options.owner, options.locator)
+  const scope=options.scope ?? {mode:'design',sourceRevision:'working',publicationRef:null}
+  const key=cacheKey(options.owner, options.locator,scope)
   const version=await options.readVersion()
   options.assertCurrent()
   const cached=readEntry(key)
@@ -74,9 +83,9 @@ export async function readRuntimeFile(options:ReadRuntimeFileOptions):Promise<st
   return text
 }
 
-export function invalidateRuntimeFile(owner:string | undefined, locator:LowcodeFileLocator):void {
+export function invalidateRuntimeFile(owner:string | undefined, locator:LowcodeFileLocator, scope?:RuntimeFileCacheScope):void {
   if(owner === undefined) return
-  const key=cacheKey(owner, locator)
+  const key=cacheKey(owner, locator,scope ?? {mode:'design',sourceRevision:'working',publicationRef:null})
   memory.delete(key)
   browserStorage()?.removeItem(key)
 }

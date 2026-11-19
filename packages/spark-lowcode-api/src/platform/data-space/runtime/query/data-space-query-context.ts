@@ -12,6 +12,7 @@ import type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from '../protoc
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { snapshotDataSpaceSaveActionOrder } from '../save/data-space-save-order'
 import type { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
+import {isRecord} from '@spark-appworks/spark-utils'
 
 /** 操作入口的隐藏、禁用或可用状态；业务可用性不扩大权限。 */
 type DataSpaceActionState = 'hidden' | 'disabled' | 'enabled'
@@ -25,6 +26,24 @@ type DataSpaceSaveChanges = Readonly<{
   changed?: readonly DataSpaceRow[]
   deleted?: readonly DataSpaceRow[]
   actionOrder?: ReturnType<typeof snapshotDataSpaceSaveActionOrder>
+}>
+type DataSpaceSaveRecoveryIdentity = Readonly<Record<string, unknown>>
+type DataSpaceSaveRecoveryEntry = Readonly<{
+  action: 'added' | 'changed' | 'deleted'
+  identity: DataSpaceSaveRecoveryIdentity
+  changedFields: readonly string[]
+  changeDigest: string
+}>
+type DataSpaceSaveRecovery = Readonly<{
+  primaryKey: string
+  primaryKeyFields: readonly string[]
+  expectedIdentities: Readonly<{
+    added: readonly DataSpaceSaveRecoveryIdentity[]
+    changed: readonly DataSpaceSaveRecoveryIdentity[]
+    deleted: readonly DataSpaceSaveRecoveryIdentity[]
+  }>
+  entries: readonly DataSpaceSaveRecoveryEntry[]
+  changeDigest: string
 }>
 /** 单模型 CRUD 协议分组；系统凭据从私有原查询基线重新附入。 */
 type DataSpaceSaveRequest = Readonly<{
@@ -66,6 +85,31 @@ type DataSpaceQueryContextOptions = Readonly<{
 
 function canonicalKey(value: unknown): string {
   return value === undefined || value === null ? '' : String(value).trim()
+}
+
+function canonicalSaveRecoveryValue(value: unknown): string {
+  if (value === undefined) return 'undefined'
+  if (value === null) return 'null'
+  if (typeof value === 'string') return `s:${JSON.stringify(value)}`
+  if (typeof value === 'number') return `n:${Object.is(value, -0) ? '-0' : String(value)}`
+  if (typeof value === 'boolean') return value ? 'b:true' : 'b:false'
+  if (Array.isArray(value)) return `[${value.map(canonicalSaveRecoveryValue).join(',')}]`
+  if (typeof value === 'object') {
+    if (!isRecord(value)) throw new Error('SAVE_RECOVERY_DIGEST_UNSUPPORTED: object')
+    return `{${Object.keys(value).sort().map(key =>
+      `${JSON.stringify(key)}:${canonicalSaveRecoveryValue(value[key])}`).join(',')}}`
+  }
+  throw new Error(`SAVE_RECOVERY_DIGEST_UNSUPPORTED: ${typeof value}`)
+}
+
+function saveRecoveryDigest(value: unknown): string {
+  const canonical = canonicalSaveRecoveryValue(value)
+  let hash = 0xcbf29ce484222325n
+  for (let index = 0; index < canonical.length; index += 1) {
+    hash ^= BigInt(canonical.charCodeAt(index))
+    hash = (hash * 0x100000001b3n) & 0xffffffffffffffffn
+  }
+  return `${canonical.length.toString(16)}:${hash.toString(16).padStart(16, '0')}`
 }
 
 /** 后代授权行必须由正式模型路径owner承接；此处不删凭据后冒充已消费子行权限。 */
@@ -455,7 +499,8 @@ export class DataSpaceQueryContext {
     if (!key || this.keyField === '_pk') throw new Error('SPARK 保存缺少正式主键查询基线')
     const originals = this.#rows.filter(item => canonicalKey(this.rowKeyValue(item)) === key)
     const original = originals[0]
-    if (originals.length !== 1 || original === undefined) throw new Error(`SPARK 保存未找到唯一原查询基线: ${key}`)
+    if (originals.length > 1) throw new Error(`SPARK 保存行主键在原查询基线中不唯一: ${key}`)
+    if (original === undefined) throw new Error(`SPARK 保存未找到唯一原查询基线: ${key}`)
     return original
   }
 
@@ -569,10 +614,182 @@ export class DataSpaceQueryContext {
     return { ...receipt, context, changedFields }
   }
 
+  /**
+   * Verify one original unknown batch by exact primary-key readback and advance a private baseline.
+   * The queried result is consumed only as proof; it is never treated as a replay receipt.
+   */
+  public acceptVerifiedSaveRecovery(command: Readonly<{
+    requested: DataSpaceSaveChanges
+    recovery: DataSpaceSaveRecovery
+    queried: DataSpaceQueryContext
+  }>): DataSpaceSaveAcceptedReceipt {
+    this.assertCurrent()
+    const {requested, recovery, queried} = command
+    this.captureSaveRecovery(requested, recovery)
+    queried.assertCurrent()
+    queried.assertIdentity(this.#identity)
+    if (queried.#scope !== this.#scope || queried.keyField !== this.keyField
+      || queried.#readonlyKind || this.#readonlyKind || JSON.stringify(queried.#model) !== JSON.stringify(this.#model)) {
+      throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读身份或查询模型不一致')
+    }
+    if (recovery.primaryKey !== this.keyField || recovery.primaryKeyFields.length !== 1
+      || recovery.primaryKeyFields[0] !== this.keyField) {
+      throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存捕获缺少唯一正式主键')
+    }
+    const submitted = new Map<string, DataSpaceSaveRecoveryEntry>()
+    for (const entry of recovery.entries) {
+      const id = canonicalSaveRecoveryValue(entry.identity[this.keyField])
+      if (submitted.has(id)) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存主键重复')
+      submitted.set(id, entry)
+    }
+    const found = new Map<string, DataSpaceRow>()
+    const foundRaw = new Map<string, DataSpaceRow>()
+    for (const [index, raw] of queried.#snapshot.rows.entries()) {
+      const publicRow = queried.#rows[index]
+      const id = canonicalSaveRecoveryValue(queried.rowKeyValue(raw))
+      if (publicRow === undefined || !submitted.has(id) || found.has(id)) {
+        throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读返回重复或越界记录')
+      }
+      found.set(id, publicRow)
+      foundRaw.set(id, raw)
+    }
+    const addedEntries = recovery.entries.filter(entry => entry.action === 'added')
+    const changedEntries = recovery.entries.filter(entry => entry.action === 'changed')
+    const deletedEntries = recovery.entries.filter(entry => entry.action === 'deleted')
+    const rowFor = (entry: DataSpaceSaveRecoveryEntry, required: boolean): DataSpaceRow | undefined => {
+      const id = canonicalSaveRecoveryValue(entry.identity[this.keyField])
+      const row = found.get(id)
+      if ((row === undefined) === required) {
+        throw new Error(entry.action === 'added'
+          ? 'SPARK_SAVE_RECOVERY_UNKNOWN: 新增记录未能从精确回读完整证明'
+          : entry.action === 'changed'
+            ? 'SPARK_SAVE_RECOVERY_UNKNOWN: 修改记录未能从精确回读完整证明'
+            : 'SPARK_SAVE_RECOVERY_CONFLICT: 删除记录仍存在')
+      }
+      return row
+    }
+    const compareRows = [...addedEntries, ...changedEntries].map(entry => {
+      const row = rowFor(entry, true)
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读记录缺失')
+      const requestedRow = (entry.action === 'added' ? requested.added : requested.changed)?.[
+        (entry.action === 'added' ? addedEntries : changedEntries).indexOf(entry)]
+      if (requestedRow === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存捕获记录缺失')
+      for (const field of entry.changedFields) {
+        if (!Object.hasOwn(row, field) || queried.readFieldAccess(row, field) !== 'visible'
+          || canonicalSaveRecoveryValue(row[field]) !== canonicalSaveRecoveryValue(requestedRow[field])) {
+          throw new Error(`SPARK_SAVE_RECOVERY_UNKNOWN: 原提交字段无法核验: ${field}`)
+        }
+      }
+      const raw = foundRaw.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (raw === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读原始记录缺失')
+      return {entry, row, raw}
+    })
+    for (const entry of deletedEntries) rowFor(entry, false)
+    const changedByKey = new Map(compareRows.filter(item => item.entry.action === 'changed')
+      .map(item => [canonicalSaveRecoveryValue(item.entry.identity[this.keyField]), item]))
+    const addedRows = compareRows.filter(item => item.entry.action === 'added').map(item => item.raw)
+    const deletedKeys = new Set(deletedEntries.map(entry => canonicalSaveRecoveryValue(entry.identity[this.keyField])))
+    const retained = this.#snapshot.rows.filter(row => !deletedKeys.has(canonicalSaveRecoveryValue(this.rowKeyValue(row))))
+      .map(row => {
+        const proof = changedByKey.get(canonicalSaveRecoveryValue(this.rowKeyValue(row)))
+        if (proof === undefined) return row
+        const patch = Object.fromEntries(proof.entry.changedFields.map(field => [field, structuredClone(proof.raw[field])]))
+        return {...row, ...patch}
+      })
+    const keys = new Set(retained.map(row => canonicalSaveRecoveryValue(this.rowKeyValue(row))))
+    for (const row of addedRows) {
+      const key = canonicalSaveRecoveryValue(this.rowKeyValue(row))
+      if (!key || keys.has(key)) throw new Error('SPARK_SAVE_RECOVERY_CONFLICT: 新增记录与现有主键冲突')
+      keys.add(key)
+    }
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: [...retained, ...addedRows], Count: this.#snapshot.total + addedRows.length - deletedKeys.size},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const context = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}),
+      scope: this.#scope, readScope: this.#readScope, resultKind: 'entity',
+      ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) context.bindFormalModel(this.#model)
+    const added = addedEntries.map(entry => {
+      const row = found.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 新增记录回读缺失')
+      return this.consumerSaveRow(row)
+    })
+    const changed = changedEntries.map(entry => {
+      const row = found.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 修改记录回读缺失')
+      const original = this.#rows.find(item =>
+        canonicalSaveRecoveryValue(this.rowKeyValue(item)) === canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (original === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原修改基线缺失')
+      return {...this.consumerSaveRow(original), ...Object.fromEntries(
+        entry.changedFields.map(field => [field, structuredClone(row[field])]))}
+    })
+    const deleted = deletedEntries.map((_entry, index) => {
+      const row = requested.deleted?.[index]
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原删除捕获缺失')
+      return this.consumerSaveRow(row)
+    })
+    const changedFields = changedEntries.map(entry => Object.freeze([...entry.changedFields]))
+    this.assertCurrent()
+    return {metaName: this.#identity.metaName, added, changed, deleted, changedFields, context}
+  }
+
+  /** Capture the exact formal identities and intended changes before any save request is dispatched. */
+  public captureSaveRecovery(changes: DataSpaceSaveChanges, expected?: DataSpaceSaveRecovery): DataSpaceSaveRecovery {
+    this.assertCurrent()
+    const keyField = this.keyField
+    if (!keyField || keyField === '_pk' || /[,+]/.test(keyField)) {
+      throw new Error('SAVE_RECOVERY_KEY_REQUIRED: 保存缺少唯一正式主键')
+    }
+    const makeIdentity = (row: DataSpaceRow, original: boolean): DataSpaceSaveRecoveryIdentity => {
+      const baseline = original ? this.originalMutationRow(row) : row
+      const value = baseline[keyField]
+      if ((typeof value !== 'string' && typeof value !== 'number')
+        || (typeof value === 'string' && value.trim() === '')
+        || (typeof value === 'number' && !Number.isFinite(value))) {
+        throw new Error('SAVE_RECOVERY_KEY_REQUIRED: 新增、修改或删除缺少可精确恢复的正式主键')
+      }
+      return Object.freeze({[keyField]: structuredClone(value)})
+    }
+    const entry = (action: DataSpaceSaveRecoveryEntry['action'], row: DataSpaceRow): DataSpaceSaveRecoveryEntry => {
+      const identity = makeIdentity(row, action !== 'added')
+      const changedFields = action === 'changed'
+        ? Object.keys(row).filter(field => field !== keyField && field !== '_pk' && !field.startsWith('lingma_sys_')).sort()
+        : action === 'added'
+          ? Object.keys(row).filter(field => field !== keyField && field !== '_pk' && !field.startsWith('lingma_sys_')).sort()
+          : []
+      const values = Object.freeze(Object.fromEntries(changedFields.map(field => [field, structuredClone(row[field])])))
+      return Object.freeze({action, identity, changedFields: Object.freeze(changedFields),
+        changeDigest: saveRecoveryDigest({action, identity, changedFields, values})})
+    }
+    const added = Object.freeze((changes.added ?? []).map(row => entry('added', row)))
+    const changed = Object.freeze((changes.changed ?? []).map(row => entry('changed', row)))
+    const deleted = Object.freeze((changes.deleted ?? []).map(row => entry('deleted', row)))
+    const entries = Object.freeze([...added, ...changed, ...deleted])
+    const recovery = Object.freeze({
+      primaryKey: keyField, primaryKeyFields: Object.freeze([keyField]),
+      expectedIdentities: Object.freeze({
+        added: Object.freeze(added.map(item => item.identity)),
+        changed: Object.freeze(changed.map(item => item.identity)),
+        deleted: Object.freeze(deleted.map(item => item.identity)),
+      }),
+      entries, changeDigest: saveRecoveryDigest({primaryKey: keyField, primaryKeyFields: [keyField], entries}),
+    })
+    if (expected !== undefined
+      && canonicalSaveRecoveryValue(expected) !== canonicalSaveRecoveryValue(recovery)) {
+      throw new Error('SPARK_SAVE_RECOVERY_MISMATCH: 保存捕获与正式查询基线不一致')
+    }
+    return recovery
+  }
+
   /** API 保存边界使用私有原查询凭据封包；不按前端权限集合裁剪业务值。 */
   public buildSaveRequest(changes: DataSpaceSaveChanges): DataSpaceSaveRequest[] {
     this.assertCurrent()
     this.assertModelSaveAllowed(changes)
+    this.captureSaveRecovery(changes)
     const order = Object.hasOwn(changes, 'actionOrder') ? snapshotDataSpaceSaveActionOrder(changes.actionOrder) : undefined
     const added = (changes.added ?? []).map(row => this.prepareSaveRow(row, 'add'))
     const changed = (changes.changed ?? []).map(row => this.prepareSaveRow(row, 'change'))

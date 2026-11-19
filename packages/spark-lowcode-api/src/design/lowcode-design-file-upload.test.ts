@@ -39,7 +39,7 @@ describe('LowcodeDesignFileUpload', () => {
     })).resolves.toEqual(receipt)
 
     expect(http.requests[0]).toMatchObject({
-      url: '/api/File/UploadFile',
+      url: '/api/File/v2/UploadFile',
       method: 'POST',
       headers: { 'X-AppId': 'APP-A', 'tenant-id': 'tenant' },
       retry: 0,
@@ -92,7 +92,7 @@ describe('LowcodeDesignFileUpload', () => {
     const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
     await expect(upload.uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text })).resolves.toEqual(result)
     const config = http.requests[0]
-    expect(config?.url).toBe('/api/File/UploadFile')
+    expect(config?.url).toBe('/api/File/v2/UploadFile')
     expect(config?.retry).toBe(0)
     expect(config?.headers?.['Content-Type']).toBeUndefined()
     const form = config?.data
@@ -116,7 +116,7 @@ describe('LowcodeDesignFileUpload', () => {
     const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: 'script.js', state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js' }] }, 'other')
     const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
     await expect(upload.uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: 'source' })).rejects.toThrow('写入后回读不一致')
-    expect(http.requests.filter(config => config.url === '/api/File/UploadFile')).toHaveLength(1)
+    expect(http.requests.filter(config => config.url.endsWith('/UploadFile'))).toHaveLength(1)
   })
 
   it('rejects changed bytes even when the download length is unchanged', async () => {
@@ -159,7 +159,7 @@ describe('LowcodeDesignFileUpload', () => {
     let token = 'scope-A'
     const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/APP-A/SysForm/scene/1__pagedata.json' }] }, 'source')
     http.interceptors.request.use({ onRequest: config => {
-      if (config.url === (stage === 'write' ? '/api/File/UploadFile' : '/api/File/DownFile')) token = 'scope-B'
+      if (config.url === (stage === 'write' ? '/api/File/v2/UploadFile' : '/api/File/DownFile')) token = 'scope-B'
       return config
     } })
     const upload = new LowcodeDesignFileUpload({ http, readScope: () => ({ ...fixtureScope(), token }) })
@@ -167,13 +167,61 @@ describe('LowcodeDesignFileUpload', () => {
     const pending = kind === 'working' ? upload.uploadWorkingText(command) : upload.uploadTextVersion(command)
     await expect(pending).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(http.requests).toHaveLength(stage === 'write' ? 1 : 2)
-    expect(http.requests.filter(config => config.url === '/api/File/UploadFile')).toHaveLength(1)
+    expect(http.requests.filter(config => config.url.endsWith('/UploadFile'))).toHaveLength(1)
   })
 
   it('rejects a backend failure without reading back', async () => {
     const http = new FixtureHttpClient({ Code: 500, Message: 'backend rejected', Result: [] }, '')
     await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: '' })).rejects.toThrow('backend rejected')
     expect(http.requests).toHaveLength(1)
+  })
+
+  it('falls back to V1 upload only when V2 endpoint is definitely unavailable',async()=>{
+    class V2Unavailable extends FixtureHttpClient{
+      protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
+        if(config.url==='/api/File/v2/UploadFile'){
+          this.requests.push(config)
+          return {data:{Code:404,Message:'not registered'},status:200,statusText:'OK',headers:{}}
+        }
+        return super.executeRequest(config)
+      }
+    }
+    const http=new V2Unavailable({Code:200,Result:[{state:'success',filePath:'/DesignFilePaths_publisher/APP-A/page/rule.json'}]},'body')
+    await new LowcodeDesignFileUpload({http,readScope:fixtureScope}).uploadWorkingText({
+      customPath:'APP-A/page',fileName:'rule.json',text:'body',
+    })
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/UploadFile','/api/File/UploadFile','/api/File/DownFile'])
+  })
+
+  it('confirms a V2 upload by stat hash without another byte download',async()=>{
+    const bytes=new TextEncoder().encode('body')
+    const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer))]
+      .map(value=>value.toString(16).padStart(2,'0')).join('')
+    class V2Hash extends HttpClientBase{
+      readonly requests:RequestConfig[]=[]
+      protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
+        this.requests.push(config)
+        if(config.url==='/api/File/v2/UploadFile')return {data:{Code:200,Result:[{state:'success',sha256:hash,
+          filePath:'/DesignFilePaths_publisher/APP-A/page/rule.json'}]},status:200,statusText:'OK',headers:{}}
+        if(config.url==='/api/File/v2/stat')return {data:{Code:200,Result:{etag:hash,size:bytes.length}},status:200,statusText:'OK',headers:{}}
+        throw Error(`unexpected ${config.url}`)
+      }
+    }
+    const http=new V2Hash()
+    await expect(new LowcodeDesignFileUpload({http,readScope:fixtureScope}).uploadWorkingText({
+      customPath:'APP-A/page',fileName:'rule.json',text:'body',
+    })).resolves.toMatchObject({sha256:hash})
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/UploadFile','/api/File/v2/stat'])
+  })
+
+  it('keeps a V2 upload response unknown when scope expires without replaying through V1',async()=>{
+    let token='scope-A'
+    const http=new FixtureHttpClient({Code:200,Result:[{state:'success',filePath:'/DesignFilePaths_publisher/APP-A/page/rule.json'}]},'body')
+    http.interceptors.request.use({onRequest:config=>{if(config.url==='/api/File/v2/UploadFile')token='scope-B';return config}})
+    await expect(new LowcodeDesignFileUpload({http,readScope:()=>({...fixtureScope(),token})}).uploadWorkingText({
+      customPath:'APP-A/page',fileName:'rule.json',text:'body',
+    })).rejects.toMatchObject({fileResourceMutationMayHaveApplied:true,message:expect.stringContaining('SPARK_EXECUTION_SCOPE_STALE')})
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/UploadFile'])
   })
 
   it('fails closed when a version upload Result is not a single-file receipt', async () => {

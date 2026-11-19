@@ -44,6 +44,16 @@ export type LowcodeFileVersionSummary = Readonly<{
   lastModified: number | null
 }>
 
+/** File V2 实际元数据；etag 为空时不能用它充当内容证明。 */
+export type LowcodeFileStat = Readonly<{
+  size: number | null
+  contentType: string | null
+  lastModified: number | string | null
+  etag: string | null
+}>
+
+const SHA256_PATTERN = /^[0-9a-f]{64}$/i
+
 function requiredText(value: string, name: string): string {
   const normalized = value.trim()
   if (!normalized) throw new LowcodeApiError(0, `${name} 不能为空`)
@@ -84,6 +94,35 @@ function decodeFileEntries(values: readonly unknown[]): readonly LowcodeFileEntr
     entries.push({name, lastModified: lastModified ?? null})
   }
   return entries
+}
+
+function decodeFileStat(value: unknown): LowcodeFileStat {
+  if (!isRecord(value)) throw new LowcodeApiError(0, 'File V2 stat Result 不是对象')
+  const size = value['size'], contentType = value['contentType'], lastModified = value['lastModified'], etag = value['etag']
+  if (size !== undefined && size !== null && (typeof size !== 'number' || !Number.isSafeInteger(size) || size < 0)) {
+    throw new LowcodeApiError(0, 'File V2 stat size 不是非负安全整数')
+  }
+  if (contentType !== undefined && contentType !== null && typeof contentType !== 'string') {
+    throw new LowcodeApiError(0, 'File V2 stat contentType 不是字符串')
+  }
+  if (lastModified !== undefined && lastModified !== null && typeof lastModified !== 'number' && typeof lastModified !== 'string') {
+    throw new LowcodeApiError(0, 'File V2 stat lastModified 无效')
+  }
+  if (etag !== undefined && etag !== null && typeof etag !== 'string') {
+    throw new LowcodeApiError(0, 'File V2 stat etag 不是字符串')
+  }
+  return {
+    size: size ?? null,
+    contentType: contentType ?? null,
+    lastModified: lastModified ?? null,
+    etag: typeof etag === 'string' && etag.trim() ? etag.trim() : null,
+  }
+}
+
+function sha256Etag(value: string | null): string | null {
+  if (value === null) return null
+  const normalized = value.replace(/^W\//, '').replace(/^"|"$/g, '').toLowerCase()
+  return SHA256_PATTERN.test(normalized) ? normalized : null
 }
 
 /** 设计文件读取和删除 owner；保留原字节，版本列表严格匹配同文件规范名并拒绝重复编号。 */
@@ -127,6 +166,38 @@ export class LowcodeDesignApi {
       throw new LowcodeApiError(0, '文件内容 Result 不是字符串')
     }
     return result
+  }
+
+  /** 优先读取 File V2 单文件元数据；V2 不可用或只返回非哈希 etag 时由调用方选择 V1 证明。 */
+  public async statFileV2(locator: LowcodeFileLocator): Promise<LowcodeFileStat> {
+    const scope = this.readScope()
+    const result = await this.client.requestResult({
+      path: '/api/File/v2/stat', method: 'POST', data: fileInfo(locator), headers: scope.headers,
+    })
+    this.assertScope(scope)
+    return decodeFileStat(result)
+  }
+
+  /**
+   * 返回文件内容的 SHA-256；优先使用 V2 stat etag，V2 明确不可用或 etag 未提供内容 hash 时只回读一次 V1 原字节。
+   * 读取失败不创建 mutation attempt，也不会因为时间戳相同而确认文件。
+   */
+  public async readFileHash(locator: LowcodeFileLocator): Promise<string> {
+    const scope = this.readScope()
+    try {
+      const stat = await this.statFileV2(locator)
+      this.assertScope(scope)
+      const hash = sha256Etag(stat.etag)
+      if (hash !== null) return hash
+    } catch (error) {
+      if (!(error instanceof LowcodeApiError) || (error.code !== 404 && error.code !== 405)) throw error
+      this.assertScope(scope)
+    }
+    const bytes = await this.readFileBytes(locator)
+    this.assertScope(scope)
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', new Uint8Array(bytes).buffer)
+    this.assertScope(scope)
+    return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('')
   }
 
   /** 读取正式文件最后修改时间；该时间仅作为文件缓存版本，不是业务记录版本。 */

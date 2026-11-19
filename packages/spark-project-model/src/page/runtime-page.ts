@@ -13,6 +13,14 @@ const logger=Logger('PageRuntime')
 
 /** 按本次声明空间 ID 分组的业务查询输入；空间参数名称保留原样。 */
 type PageScenarioInputs = Readonly<Record<string, DataViewQueryContext>>
+export type PageRuntimeMode = 'design' | 'preview' | 'published'
+/** Immutable source identity for one complete runtime configuration. */
+export type PageRuntimeSource = Readonly<{
+  mode: PageRuntimeMode
+  sourceRevision: string
+  publicationRef: string | null
+  scenarioIds: readonly string[]
+}>
 /** 一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。 */
 export type PageRuntimeOptions = {
   /** 三文件工具；与系统页pageId二选一。 */
@@ -26,6 +34,10 @@ export type PageRuntimeOptions = {
   /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */
   scenarioInputs?: PageScenarioInputs
   instanceId?: string
+  /** Static design/preview source. Published routes resolve the source before loading any file. */
+  source?: PageRuntimeSource
+  /** Resolves a published source atomically before tool or scenario materialization. */
+  resolveSource?: () => Promise<PageRuntimeSource>
   loadScenario: (scenarioId: string) => Promise<DataSet>
   loadTool?: () => Promise<PageTool>
 }
@@ -44,7 +56,25 @@ export class PageRuntime {
     if (!this.#tool) throw new Error('原生系统页没有三文件工具')
     return this.#tool
   }
+  static #snapshotSource(source:PageRuntimeSource,scenarioIds:readonly string[]):PageRuntimeSource {
+    if(!['design','preview','published'].includes(source.mode)
+      ||typeof source.sourceRevision!=='string'||!source.sourceRevision.trim()
+      ||source.scenarioIds.length!==scenarioIds.length
+      ||new Set(source.scenarioIds).size!==source.scenarioIds.length
+      ||source.scenarioIds.some(id=>!scenarioIds.includes(id))){
+      throw new Error('PAGE_RUNTIME_SOURCE_CONTRACT: 页面运行来源身份与场景集合不一致')
+    }
+    if(source.mode==='published'){
+      if(typeof source.publicationRef!=='string'||!source.publicationRef.trim()
+        ||source.publicationRef!==source.publicationRef.trim())throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布运行缺少 publicationRef')
+    }else if(source.publicationRef!==null)throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: 非发布运行不能携带 publicationRef')
+    if(source.mode==='preview'&&!source.sourceRevision.startsWith('preview:'))throw new Error('PAGE_RUNTIME_PREVIEW_SOURCE: 预览必须使用明确临时 sourceRevision')
+    return Object.freeze({mode:source.mode,sourceRevision:source.sourceRevision,publicationRef:source.publicationRef,
+      scenarioIds:Object.freeze([...source.scenarioIds])})
+  }
   readonly call: PageRuntimeCall
+  #source: PageRuntimeSource | undefined
+  readonly #resolveSource: PageRuntimeOptions['resolveSource']
   readonly #loadScenario: PageRuntimeOptions['loadScenario']
   readonly #loadTool: PageRuntimeOptions['loadTool']
   readonly #dataSets = new Map<string,DataSet>()
@@ -71,7 +101,11 @@ export class PageRuntime {
     if(deferred && (new Set(deferred).size!==deferred.length || deferred.some(id=>!ids.includes(id))))throw new Error('延后装配空间身份未声明或重复')
     const scenarioInputs=options.scenarioInputs===undefined ? undefined : PageRuntime.#snapshotInputs(options.scenarioInputs)
     if(scenarioInputs && Object.keys(scenarioInputs).some(id=>!ids.includes(id)))throw new Error('scenarioInputs 引用了未声明的场景')
+    if(options.source && options.resolveSource)throw new Error('页面运行来源不能同时使用静态配置和异步解析')
+    const source=options.source ?? {mode:'design' as const,sourceRevision:'working',publicationRef:null,scenarioIds:ids}
+    if(!options.resolveSource) this.#source=PageRuntime.#snapshotSource(source,ids)
     this.#tool=options.tool;this.#loadScenario=options.loadScenario;this.#loadTool=options.loadTool
+    this.#resolveSource=options.resolveSource
     this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId,scenarioIds:Object.freeze(ids),...(deferred===undefined ? {} : {deferredScenarioIds:Object.freeze([...deferred])}),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {}),...(scenarioInputs===undefined ? {} : {scenarioInputs})})
   }
   /** 解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。 */
@@ -113,6 +147,11 @@ export class PageRuntime {
   }
   get instanceId():string { return this.call.instanceId }
   get pageId():string { return this.call.pageId }
+  get source():PageRuntimeSource {
+    this.#assertAlive()
+    if(!this.#source)throw new Error('PAGE_RUNTIME_SOURCE_PENDING: 页面运行来源尚未解析')
+    return this.#source
+  }
   get generation():number { return this.#generation }
   get configPending():boolean { return this.#configPending }
   markConfigPending():void { this.#assertAlive();this.#configPending=true }
@@ -123,6 +162,7 @@ export class PageRuntime {
     if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
     this.#clearExternalDirtySources()
     this.#generation++;this.#loaded=false;this.#loading=undefined
+    if(this.#resolveSource)this.#source=undefined
     this.#scenarioLoading.clear()
     for(const content of this.#content.values())content.dispose()
     this.#content.clear()
@@ -165,6 +205,11 @@ export class PageRuntime {
     this.#loading=loading;return loading
   }
   async #load(generation:number):Promise<void> {
+    if(this.#resolveSource){
+      const resolved=await this.#resolveSource()
+      this.#assertGeneration(generation)
+      this.#source=PageRuntime.#snapshotSource(resolved,this.call.scenarioIds)
+    }
     if(this.#loadTool){const tool=await this.#loadTool();this.#assertGeneration(generation);if(tool!==this.tool)throw new Error('页面工具装载身份改变')}
     this.#tool?.toDefinition()
     const ids=this.call.scenarioIds.filter(id=>!this.call.deferredScenarioIds?.includes(id))

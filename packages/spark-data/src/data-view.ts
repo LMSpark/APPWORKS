@@ -320,12 +320,31 @@ type DataViewQuerySaveChanges = Readonly<{
   changed?: readonly DataViewQueryRow[]
   deleted?: readonly DataViewQueryRow[]
 }>
+type DataViewQuerySaveRecoveryIdentity = Readonly<Record<string, unknown>>
+type DataViewQuerySaveRecoveryEntry = Readonly<{
+  action: 'added' | 'changed' | 'deleted'
+  identity: DataViewQuerySaveRecoveryIdentity
+  changedFields: readonly string[]
+  changeDigest: string
+}>
+type DataViewQuerySaveRecovery = Readonly<{
+  primaryKey: string
+  primaryKeyFields: readonly string[]
+  expectedIdentities: Readonly<{
+    added: readonly DataViewQuerySaveRecoveryIdentity[]
+    changed: readonly DataViewQuerySaveRecoveryIdentity[]
+    deleted: readonly DataViewQuerySaveRecoveryIdentity[]
+  }>
+  entries: readonly DataViewQuerySaveRecoveryEntry[]
+  changeDigest: string
+}>
 /** 单模型保存输入，明确绑定原查询身份、私有上下文与当前变更。 */
 type DataViewQuerySaveChange = Readonly<{
   identity: DataViewQueryIdentity
   tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>
   context: DataViewQueryResult
   changes: DataViewQuerySaveChanges
+  recovery?: DataViewQuerySaveRecovery
 }>
 /** 同场景视图的一次保存命令；同模型各视图的记录须不重叠，保留独立查询基线，不承诺事务。 */
 type DataViewQuerySaveCommand = Readonly<{
@@ -380,6 +399,7 @@ type DataViewDomainReferenceGroup = {
 }
 type DataViewQuerySaveAcceptance = DataViewQuerySaveCapture & Readonly<{
   receipt: DataViewQuerySaveReceipt
+  recovered: boolean
 }>
 type DataViewRefreshRequest = Readonly<{identity: string; table: DataTable | null}>
 class DataViewUnsavedChangesError extends Error {}
@@ -402,6 +422,31 @@ function dataRowFromPartial(record: Partial<DataRow>): DataRow {
 function withoutPermissionWireFields(record: Partial<DataRow>): Partial<DataRow> {
   const { lingma_sys_params: _permissionSets, lingma_sys_key: _permissionToken, ...rest } = record
   return rest
+}
+
+function canonicalSaveRecoveryValue(value: unknown): string {
+  if (value === undefined) return 'undefined'
+  if (value === null) return 'null'
+  if (typeof value === 'string') return `s:${JSON.stringify(value)}`
+  if (typeof value === 'number') return `n:${Object.is(value, -0) ? '-0' : String(value)}`
+  if (typeof value === 'boolean') return value ? 'b:true' : 'b:false'
+  if (Array.isArray(value)) return `[${value.map(canonicalSaveRecoveryValue).join(',')}]`
+  if (typeof value === 'object') {
+    if (!isRecord(value)) throw new Error('SAVE_RECOVERY_DIGEST_UNSUPPORTED: object')
+    return `{${Object.keys(value).sort().map(key =>
+      `${JSON.stringify(key)}:${canonicalSaveRecoveryValue(value[key])}`).join(',')}}`
+  }
+  throw new Error(`SAVE_RECOVERY_DIGEST_UNSUPPORTED: ${typeof value}`)
+}
+
+function saveRecoveryDigest(value: unknown): string {
+  const canonical = canonicalSaveRecoveryValue(value)
+  let hash = 0xcbf29ce484222325n
+  for (let index = 0; index < canonical.length; index += 1) {
+    hash ^= BigInt(canonical.charCodeAt(index))
+    hash = (hash * 0x100000001b3n) & 0xffffffffffffffffn
+  }
+  return `${canonical.length.toString(16)}:${hash.toString(16).padStart(16, '0')}`
 }
 
 function dataRowsFromUnknown(value: unknown, context: string): DataRow[] {
@@ -3351,6 +3396,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (this.shouldDirectCommitCrud('create')) {
       return this.crudDelegate.createRecord(row)
     }
+    if (this.#queryExecutor !== undefined && this.requiresQuerySaveRowRecovery) {
+      const context = this.currentQueryResult(), key = this.getPkKey(row)
+      if (context === undefined || (typeof key !== 'string' && typeof key !== 'number')
+        || (typeof key === 'string' && key.trim() === '') || context.rowKey(row) !== key) {
+        throw new Error(`SAVE_RECOVERY_KEY_REQUIRED: ${this.tableName}@${this.viewId} 新增缺少可精确恢复的正式主键`)
+      }
+    }
     this.appendRow(row)
     const pkKey = this.getPkKey(row)
     if (pkKey !== undefined) {
@@ -3839,13 +3891,17 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
               throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
             }
           }
-          const changes = batch.map(({ capture }) => ({ identity: structuredClone(capture.identity),
+          const changes = batch.map(({ view, capture }) => {
+            const recovery = view.captureQuerySaveRecovery(capture)
+            return { identity: structuredClone(capture.identity),
             ...(capture.tableConfig === undefined ? {} : {tableConfig: {
               ...(capture.tableConfig.api === undefined ? {} : {api: structuredClone(capture.tableConfig.api)}),
               ...(capture.tableConfig.crudConfig === undefined ? {} : {crudConfig: { ...capture.tableConfig.crudConfig }}),
             }}),
-            context: capture.context, changes: { added: capture.added.map(item => structuredClone(item.row)),
-              changed: capture.changed.map(item => structuredClone(item.row)), deleted: capture.deleted.map(item => structuredClone(item.row)) } }))
+            context: capture.context, ...(recovery === undefined ? {} : {recovery: structuredClone(recovery)}),
+            changes: { added: capture.added.map(item => structuredClone(item.row)),
+              changed: capture.changed.map(item => structuredClone(item.row)), deleted: capture.deleted.map(item => structuredClone(item.row)) } }
+          })
           batch.forEach(({view},index)=>{
             const change=changes[index]
             if(!change)throw new Error('DATA_VIEW_SAVE_CAPTURE: 缺少本次派发输入')
@@ -3865,7 +3921,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             }
             const receipt = receipts[index]
             if (receipt?.metaName !== capture.identity.metaName) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少唯一模型回执')
-            const command = { ...capture, receipt }
+            const command = { ...capture, receipt, recovered: recovering }
             view.validateQuerySaveReceipt(command)
             return { view, command }
           })
@@ -3943,7 +3999,80 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
   }
 
+  private get requiresQuerySaveRowRecovery(): boolean {
+    const resourceType = this.dataTable?.resourceType
+    return resourceType !== 'file' && resourceType !== 'command'
+  }
+
+  private captureQuerySaveRecovery(capture: DataViewQuerySavePreview): DataViewQuerySaveRecovery | undefined {
+    if (!this.requiresQuerySaveRowRecovery) return undefined
+    const primaryKey = capture.context.resultPrimaryKey ?? this.primaryKey
+    const primaryKeyFields = [...this.effectivePkFields]
+    if (capture.added.length + capture.changed.length + capture.deleted.length === 0) {
+      return Object.freeze({
+        primaryKey, primaryKeyFields: Object.freeze(primaryKeyFields),
+        expectedIdentities: Object.freeze({added: Object.freeze([]), changed: Object.freeze([]), deleted: Object.freeze([])}),
+        entries: Object.freeze([]), changeDigest: saveRecoveryDigest({primaryKey, primaryKeyFields, entries: []}),
+      })
+    }
+
+    if (!primaryKey || primaryKey === '_pk' || primaryKeyFields.length === 0
+      || primaryKeyFields.some(field => !field || field === '_pk')) {
+      throw new Error(`SAVE_RECOVERY_KEY_REQUIRED: ${this.tableName}@${this.viewId} 查询结果缺少可恢复正式主键`)
+    }
+    const rules = this.querySaveRuleRows(capture)
+    const changedFields = new Map(rules.filter(item => !item.created).map(item => [item.id, [...item.fields].sort()]))
+    const makeIdentity = (row: DataViewQueryRow, original: boolean): DataViewQuerySaveRecoveryIdentity => {
+      const baseline = original ? capture.context.rows.filter(candidate =>
+        this.querySaveKey(capture.context, candidate) === this.querySaveKey(capture.context, row)) : [row]
+      if (baseline.length !== 1 || baseline[0] === undefined) {
+        throw new Error(`SAVE_RECOVERY_KEY_REQUIRED: ${this.tableName}@${this.viewId} 缺少唯一原查询主键`)
+      }
+      const source = baseline[0]
+      const values = Object.freeze(Object.fromEntries(primaryKeyFields.map(field => [field, structuredClone(source[field])])))
+      const invalid = primaryKeyFields.some(field => {
+        const value = values[field]
+        return (typeof value !== 'string' && typeof value !== 'number')
+          || (typeof value === 'string' && value.trim() === '')
+          || (typeof value === 'number' && !Number.isFinite(value))
+      })
+      if (invalid) throw new Error(`SAVE_RECOVERY_KEY_REQUIRED: ${this.tableName}@${this.viewId} 新增或修改缺少可恢复正式主键`)
+      const key = this.querySaveKey(capture.context, source)
+      const onlyField = primaryKeyFields.length === 1 ? primaryKeyFields[0] : undefined
+      if (key === '' || onlyField !== undefined && !Object.is(String(values[onlyField] ?? '').trim(), key)) {
+        throw new Error(`SAVE_RECOVERY_KEY_REQUIRED: ${this.tableName}@${this.viewId} 行身份与正式主键不一致`)
+      }
+      return values
+    }
+    const entry = (action: DataViewQuerySaveRecoveryEntry['action'], item: DataViewQuerySaveRow): DataViewQuerySaveRecoveryEntry => {
+      const identity = makeIdentity(item.row, action !== 'added')
+      const fields = action === 'changed' ? changedFields.get(item.id) ?? []
+        : action === 'added' ? [...new Set(Object.keys(item.row).filter(field =>
+          !field.startsWith('lingma_sys_') && field !== '_pk' && !primaryKeyFields.includes(field)
+          && !this.computedColumnNames.has(field)))].sort()
+          : []
+      const values = Object.freeze(Object.fromEntries(fields.map(field => [field, structuredClone(item.row[field])])))
+      return Object.freeze({action, identity, changedFields: Object.freeze(fields),
+        changeDigest: saveRecoveryDigest({action, identity, changedFields: fields, values})})
+    }
+    const added = Object.freeze(capture.added.map(item => entry('added', item)))
+    const changed = Object.freeze(capture.changed.map(item => entry('changed', item)))
+    const deleted = Object.freeze(capture.deleted.map(item => entry('deleted', item)))
+    const entries = Object.freeze([...added, ...changed, ...deleted])
+    return Object.freeze({
+      primaryKey, primaryKeyFields: Object.freeze(primaryKeyFields),
+      expectedIdentities: Object.freeze({
+        added: Object.freeze(added.map(item => item.identity)),
+        changed: Object.freeze(changed.map(item => item.identity)),
+        deleted: Object.freeze(deleted.map(item => item.identity)),
+      }),
+      entries,
+      changeDigest: saveRecoveryDigest({primaryKey, primaryKeyFields, entries}),
+    })
+  }
+
   private validateQuerySaveColumns(capture: DataViewQuerySavePreview, includeEditingRows = false): void {
+    this.captureQuerySaveRecovery(capture)
     const validator = this.validator
     const label = `${this.tableName}@${this.viewId}`
     const check = (row: DataRow, fields?: ReadonlySet<string>): void => {
@@ -4115,6 +4244,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   prepareQuerySave(input: DataViewQuerySaveValidationInput): Promise<() => void> | undefined {
     if (this.#queryExecutor === undefined || this.currentQueryResult() === undefined || this.hasUnconfirmedSave) return
+    this.captureQuerySaveRecovery(this.previewQuerySave(input))
     if (!this.columns.some(column => column.trim === 'normalize' || column.optionsView?.fill !== undefined)) return
     return this.prepareQuerySaveWrites(input)
   }
@@ -4361,7 +4491,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       this.#childCreateParents.delete(submitted.id)
       this.dirtyTrackingDelegate.cancelCreate(submitted.id)
       if (current === null) {
-        this.dirtyTrackingDelegate.trackDelete(nextId, row)
+        if (!command.recovered) this.dirtyTrackingDelegate.trackDelete(nextId, row)
         return
       }
       for (const [field, value] of Object.entries(this.stripComputedColumns(current))) {

@@ -89,6 +89,36 @@ describe('PageRuntime deferred declared scenarios', () => {
   })
 })
 describe('PageRuntime lifecycle',()=>{
+  it('exposes one explicit source contract and resolves publication before any materialization', async()=>{
+    const events:string[]=[]
+    const page=tool()
+    const runtime=new PageRuntime({
+      tool:page,scenarioIds:['scene'],
+      resolveSource:async()=>{
+        events.push('source')
+        return {mode:'published',sourceRevision:'manifest-proof',publicationRef:'rule=1;script=1;style=1;manifest=2',
+          scenarioIds:['scene']}
+      },
+      loadTool:async()=>{events.push('tool');return page},
+      loadScenario:async id=>{events.push(`scenario:${id}`);return data(id)},
+    })
+    expect(()=>runtime.source).toThrow('SOURCE_PENDING')
+    await runtime.load()
+    expect(events).toEqual(['source','tool','scenario:scene'])
+    expect(runtime.source).toEqual({
+      mode:'published',sourceRevision:'manifest-proof',
+      publicationRef:'rule=1;script=1;style=1;manifest=2',scenarioIds:['scene'],
+    })
+    runtime.dispose()
+  })
+  it('rejects preview configs that claim a publication or omit the temporary marker',()=>{
+    expect(()=>new PageRuntime({pageId:'preview',scenarioIds:['scene'],loadScenario:async id=>data(id),
+      source:{mode:'preview',sourceRevision:'published',publicationRef:'manifest=1',scenarioIds:['scene']}}))
+      .toThrow('publicationRef')
+    expect(()=>new PageRuntime({pageId:'preview',scenarioIds:['scene'],loadScenario:async id=>data(id),
+      source:{mode:'preview',sourceRevision:'working',publicationRef:null,scenarioIds:['scene']}}))
+      .toThrow('临时')
+  })
   it('tracks a shared scenario file until reload or dispose without owning it', async()=>{
     const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
     await runtime.load()

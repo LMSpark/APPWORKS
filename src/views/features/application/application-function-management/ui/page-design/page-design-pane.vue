@@ -22,7 +22,7 @@ AI用途：调整页面设计页签布局时定位本组件；动作与 saga 在
           :disabled="!pageDesign.canPreviewCurrentPage.value" @click="pageDesign.actions.value.preview" />
         <RendererButton v-if="state.activePageId.value" v-bind="binding" label="打开运行页面" icon="Connection"
           @click="pageDesign.actions.value.openRuntimePage" />
-        <RendererButton v-if="pageDesign.canVerifyPendingWrites.value" v-bind="binding" label="核验待定提交" button-type="warning"
+        <RendererButton v-if="pageDesign.canVerifyPendingWrites.value" v-bind="binding" :label="pageDesign.pendingWriteActionLabel.value" button-type="warning"
           :loading="state.allSaving.value" @click="pageDesign.verifyPendingWrites" />
       </div>
     </div>

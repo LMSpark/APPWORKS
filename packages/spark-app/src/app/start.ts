@@ -81,6 +81,8 @@ export type PageNodeOptions = {
   /** 注入式页面四文件读取器，不绑定服务器路径。 */
   readPageFile?: PageFileReader
   readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>
+  resolvePagePublication?: NonNullable<PageRuntimePoolOptions['resolvePagePublication']>
+  resolvePageNavigationReceipt?: NonNullable<PageRuntimePoolOptions['resolvePageNavigationReceipt']>
   preparePageCall?: NonNullable<PageRuntimePoolOptions['preparePageCall']>
   /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */
   isAuthenticated?: () => boolean
@@ -316,6 +318,8 @@ export async function start(options: StartOptions): Promise<void> {
         router,
         ...(pageNode.readPageFile ? {readPageFile: pageNode.readPageFile} : {}),
         ...(pageNode.readPageFiles ? {readPageFiles: pageNode.readPageFiles} : {}),
+        ...(pageNode.resolvePagePublication ? {resolvePagePublication: pageNode.resolvePagePublication} : {}),
+        ...(pageNode.resolvePageNavigationReceipt ? {resolvePageNavigationReceipt: pageNode.resolvePageNavigationReceipt} : {}),
         ...(pageNode.preparePageCall ? {preparePageCall: pageNode.preparePageCall} : {}),
         pageComponent, // SparkPageRenderer 或用户提供的组件，if 块已确保非空
         ...(pageNode.componentMap !== undefined && { componentMap: pageNode.componentMap }),

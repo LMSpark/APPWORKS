@@ -53,6 +53,19 @@ export type LowcodeBinaryFileUploadReceipt=Readonly<{
 function binaryScope(scope:DataSpaceRequestScope):string{return JSON.stringify([scope.token,Object.entries(scope.headers).sort(([a],[b])=>a.localeCompare(b))])}
 function binaryUnconfirmed(cause:unknown):Error{return Object.assign(new Error(`二进制文件上传结果未确认：${cause instanceof Error?cause.message:String(cause)}`,{cause}),{fileResourceMutationMayHaveApplied:true})}
 
+function uploadSha256(receipt:Readonly<Record<string,unknown>>):string|null{
+  const value=receipt['sha256']
+  if(typeof value!=='string')return null
+  const normalized=value.toLowerCase()
+  if(!/^[0-9a-f]{64}$/.test(normalized))throw new LowcodeApiError(0,'文件上传 sha256 不是有效摘要')
+  return normalized
+}
+
+function v2UploadUnavailable(error:unknown):boolean{
+  return error instanceof LowcodeApiError&&[404,405].includes(error.code)
+    ||isRequestError(error)&&[404,405].includes(error.status??0)
+}
+
 function requiredText(value: string, name: string): string {
   const normalized = value.trim()
   if (!normalized) throw new LowcodeApiError(0, `${name} 不能为空`)
@@ -149,9 +162,15 @@ export class LowcodeDesignFileUpload {
     data.append('newName', fileName)
     data.append('isCrossEnt', 'false')
     data.append('file', new Blob([bytes]), fileName)
-    const result = await this.requestUpload({ url: '/api/File/UploadFile', method: 'POST', data,
-      headers: { ...scope.headers } })
     try {
+      let result: unknown
+      try{
+        result=await this.requestUpload({url:'/api/File/v2/UploadFile',method:'POST',data,headers:{...scope.headers}})
+      }catch(error){
+        if(!v2UploadUnavailable(error))throw error
+        this.assertScope(scope)
+        result=await this.requestUpload({url:'/api/File/UploadFile',method:'POST',data,headers:{...scope.headers}})
+      }
       this.assertScope(scope)
       if (!Array.isArray(result) || result.length !== 1 || !isRecord(result[0])) {
         throw new LowcodeApiError(0, '文件上传 Result 不是单文件信息数组')
@@ -162,10 +181,20 @@ export class LowcodeDesignFileUpload {
         || !matchesFileUploadPath(actualPath, {customPath, fileName, appType})) {
         throw new LowcodeApiError(0, '文件名与预定目标不一致，不能确认文件')
       }
-      const readback = await this.design.readFileBytes({ appType, customPath, fileName })
+      const expectedHash = [...new Uint8Array(await globalThis.crypto.subtle.digest('SHA-256', new Uint8Array(bytes).buffer))]
+        .map(value => value.toString(16).padStart(2, '0')).join('')
+      const receiptHash = uploadSha256(receipt)
+      if(receiptHash!==null&&receiptHash!==expectedHash)throw new LowcodeApiError(0,`${fileName} 上传摘要与原字节不一致`)
+      const readbackHash = receiptHash===null?null:await this.design.readFileHash({ appType, customPath, fileName })
       this.assertScope(scope)
-      if (readback.length !== bytes.length || bytes.some((value, index) => readback[index] !== value)) {
-        throw new LowcodeApiError(0, `${fileName} 写入后回读不一致`)
+      if(readbackHash!==null){
+        if(readbackHash!==expectedHash)throw new LowcodeApiError(0,`${fileName} 写入后文件摘要不一致`)
+      }else{
+        const readback = await this.design.readFileBytes({ appType, customPath, fileName })
+        this.assertScope(scope)
+        if (readback.length !== bytes.length || bytes.some((value, index) => readback[index] !== value)) {
+          throw new LowcodeApiError(0, `${fileName} 写入后回读不一致`)
+        }
       }
       return receipt
     } catch (cause) {

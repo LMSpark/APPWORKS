@@ -4,7 +4,7 @@
  * 边界：值与待提交状态始终归原DataView；不查询、不复制草稿、不创建保存owner。
  */
 import {computed,onBeforeUnmount,ref,shallowRef,toRaw,type ComputedRef} from 'vue'
-import type {DataSet,DataView,DataRow} from '@spark-appworks/spark-data'
+import type {DataSet,DataView,DataRow,DataSetSaveJournal,DataSetSaveRecoverableAction} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {recordValueProof} from './record-value-proof.js'
 /** 明确区分本窗保存、取消与关闭保留原修改。 */
@@ -52,6 +52,10 @@ export type DataViewRecordEditing=Readonly<{
  busy:ComputedRef<boolean>
  /** 当前交互错误，保留原数据层错误文本。 */
  error:ComputedRef<string>
+ /** 原DataSet的只读保存日志；未知、已应用与明确未应用事实来自原owner。 */
+ saveJournal:ComputedRef<DataSetSaveJournal>
+ /** 本窗可提供的共享恢复动作；其它记录的journal不会被本窗接管。 */
+ recoverableAction:ComputedRef<DataSetSaveRecoverableAction>
  /** 由本次原异常与完整目标ID证明属于本窗的未知保存。 */
  ownUnconfirmed:ComputedRef<boolean>
  /** 同视图存在不属于本窗的未知捕获。 */
@@ -72,6 +76,14 @@ export type DataViewRecordEditing=Readonly<{
  cancel():void
  /** 用户明确放弃原pending；不取消未知提交或已确认新增。 */
  discard():void
+ /** 只核验原回执，不应用本窗后续编辑。 */
+ verifyOriginalReceipt():Promise<void>
+ /** 在已完成阶段之后继续原显式阶段计划。 */
+ continuePhase():Promise<void>
+ /** 保留原journal与草稿并关闭当前交互，不重发或放弃未知提交。 */
+ retainDraft():void
+ /** 仅在原捕获仍完全相同且已证明未应用时丢弃。 */
+ discardNotApplied():void
 }>
 /** 固定记录公共交互；销毁只释放监听/checkpoint，不取消原DataSet提交。 */
 export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataViewRecordEditing{
@@ -110,6 +122,11 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
  const ownUnconfirmed=computed(()=>{revision.value;return failure.value!==undefined&&view.hasUnconfirmedSaveFor([id],failure.value)})
  const foreignRecovery=computed(()=>{revision.value;return view.hasUnconfirmedSave&&!ownUnconfirmed.value})
  const recoveryEnded=computed(()=>failure.value!==undefined&&!ownUnconfirmed.value&&!foreignRecovery.value)
+ const saveJournal=computed(()=>{revision.value;return dataSet.saveJournal})
+ const journalOwnView=computed(()=>saveJournal.value.views.some(item=>item.tableName===view.tableName&&item.viewId===view.viewId
+  &&item.ids.length===1&&item.ids[0]===id))
+ const recoverableAction=computed<DataSetSaveRecoverableAction>(()=>journalOwnView.value
+  ?saveJournal.value.currentRecoverableAction:'none')
  const permissionsPending=computed(()=>{revision.value;return confirmedCreation.value&&view.hasPendingSavedRowPermissions})
  const hasStaged=computed(()=>{revision.value;return view.dirtyTracking.hasPendingChanges(id)})
  const locked=computed(()=>mode!=='edit'||busy.value||ownUnconfirmed.value||foreignRecovery.value||recoveryEnded.value||permissionsPending.value||!created&&hasStaged.value||!current.value)
@@ -133,6 +150,42 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
  function discard():void{
   if(mode!=='pending'||busy.value||view.hasUnconfirmedSave||confirmedCreation.value)return
   try{if(!isCurrent())throw Error('RECORD_EDIT_STALE: 原待提交记录已变化');view.discardPendingChanges([id]);finish('cancelled')}catch(cause){message(cause)}
+ }
+ async function verifyOriginalReceipt():Promise<void>{
+  if(!active||closed.value||busy.value||!ownUnconfirmed.value||!journalOwnView.value)return
+  busy.value=true;error.value=''
+  try{
+   const projection=await dataSet.verifySaveJournal()
+   if(!sameContext())return
+   const outcome=projection.views.find(item=>item.tableName===view.tableName&&item.viewId===view.viewId
+    &&item.ids.length===1&&item.ids[0]===id)
+   if(outcome?.state==='applied')finish('saved')
+   else error.value=outcome?.originalError?.message??'原保存结果仍未确认'
+  }catch(cause){if(sameInput())message(cause)}
+  finally{if(isActive()){busy.value=false;changed()}}
+ }
+ async function continuePhase():Promise<void>{
+  if(!isCurrent()||busy.value||ownUnconfirmed.value||foreignRecovery.value)return
+  busy.value=true;error.value=''
+  try{
+   await dataSet.continueSaveJournal()
+   if(sameContext()&&dataSet.saveJournal.completed)finish('saved')
+  }catch(cause){if(sameInput())message(cause)}
+  finally{if(isActive()){busy.value=false;changed()}}
+ }
+ function retainDraft():void{
+  if(!active||closed.value||busy.value)return
+  try{
+   if(journalOwnView.value)dataSet.retainSaveJournalDraft()
+   finish('preserved')
+  }catch(cause){message(cause)}
+ }
+ function discardNotApplied():void{
+  if(!active||closed.value||busy.value||!journalOwnView.value)return
+  try{
+   dataSet.discardSaveJournalNotApplied()
+   finish('cancelled')
+  }catch(cause){message(cause)}
  }
  async function save():Promise<void>{
   if(!active||closed.value||busy.value||input.pendingInputs?.())return
@@ -158,5 +211,5 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
   finally{if(isActive()){busy.value=false;changed()}}
  }
  onBeforeUnmount(()=>{active=false;stop();checkpoint?.release()})
- return{view,dataSet,dataViewKey:key,recordId:id,originalRow:original,current,locked,busy:computed(()=>busy.value),error:computed(()=>error.value),ownUnconfirmed,foreignRecovery,recoveryEnded,permissionsPending,confirmedCreation:computed(()=>confirmedCreation.value),hasStaged,row,save,cancel,discard}
+ return{view,dataSet,dataViewKey:key,recordId:id,originalRow:original,current,locked,busy:computed(()=>busy.value),error:computed(()=>error.value),saveJournal,recoverableAction,ownUnconfirmed,foreignRecovery,recoveryEnded,permissionsPending,confirmedCreation:computed(()=>confirmedCreation.value),hasStaged,row,save,cancel,discard,verifyOriginalReceipt,continuePhase,retainDraft,discardNotApplied}
 }

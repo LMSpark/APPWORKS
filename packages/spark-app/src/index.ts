@@ -93,6 +93,12 @@ export { setupRouterGuards, setupLoadingGuard } from './router/guards'
 // 动态路由
 export { DynamicRouter, createDynamicRouter } from './router/dynamic'
 export type { DynamicRouterOptions } from './router/dynamic'
+export type {
+  RuntimePageNavigationReceipt,
+  RuntimePageNavigationReceiptState,
+  RuntimePagePublicationManifest,
+  RuntimePagePublicationResolution,
+} from './router/page-runtime-pool'
 
 // Error Handler
 export { setupErrorHandler, createErrorBoundary } from './app/error-handler'

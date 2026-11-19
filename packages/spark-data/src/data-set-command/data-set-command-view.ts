@@ -189,6 +189,33 @@ type QueryExecutor = Parameters<DataView['bindQueryExecutor']>[0]
 type SaveCommand = Parameters<NonNullable<QueryExecutor['save']>>[0]
 type SaveReceipt = Awaited<ReturnType<NonNullable<QueryExecutor['save']>>>[number]
 
+/** 首次派发前固定、且每次核验复用的普通命令请求证明；owner 不得在 HTTP 适配中重建。 */
+export type DataSetCommandRequestProof = Readonly<{
+  requestKey: string
+  requestDigest: string
+}>
+
+function stableCommandValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableCommandValue)
+  if (value !== null && typeof value === 'object') {
+    if (value instanceof Date) return { $date: value.toISOString() }
+    if (value instanceof Uint8Array) return { $bytes: [...value] }
+    if (!isRecord(value)) throw new Error('DATA_SET_COMMAND_INPUT: 命令输入必须是普通记录')
+    const record = value
+    return Object.fromEntries(Object.keys(record).sort().map(key => [key, stableCommandValue(record[key])]))
+  }
+  return value
+}
+
+async function commandRequestProof(row: Readonly<DataRow>, key: unknown): Promise<DataSetCommandRequestProof> {
+  if (typeof key !== 'string' || key.length === 0) throw new Error('DATA_SET_COMMAND_REQUEST_KEY: 命令主键必须是非空字符串')
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(stableCommandValue(row))))
+  return Object.freeze({
+    requestKey: key,
+    requestDigest: [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join(''),
+  })
+}
+
 /**
  * 写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。
  * inputFields — 可录入的命令参数，其余列只读
@@ -204,8 +231,8 @@ export type BindCommandSubmitOptions = Readonly<{
   createKey: () => string
   /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */
   onPrepareInput?: (row: Readonly<DataRow>) => void
-  submit: (row: DataRow) => Promise<DataRow>
-  verify: (row: DataRow) => Promise<DataRow | undefined>
+  submit: (row: DataRow, proof?: DataSetCommandRequestProof) => Promise<DataRow>
+  verify: (row: DataRow, proof?: DataSetCommandRequestProof) => Promise<DataRow | undefined>
   isUnconfirmed?: (error: unknown) => boolean
   /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */
   allowAbandonUnconfirmed?: boolean
@@ -268,6 +295,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
   let confirmed: DataRow[] = []
   const pending = new WeakMap<object, DataRow>()
   const received = new WeakMap<object, DataRow>()
+  const proofs = new WeakMap<object, Readonly<{input: string; proof: DataSetCommandRequestProof}>>()
   const save = async (command: SaveCommand): Promise<SaveReceipt[]> => {
     options.guard()
     return Promise.all(command.changes.map(async change => {
@@ -277,11 +305,23 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
       if (added.length !== 1 || submitted === undefined) throw new Error(`DATA_SET_COMMAND_SINGLE_ROW: ${view.tableName} 每次提交一行命令`)
       const original = pending.get(change.context) ?? structuredClone(submitted)
       const key = original[view.primaryKey]
+      const input = JSON.stringify(stableCommandValue(original))
+      let captured = proofs.get(change.context)
+      if (!pending.has(change.context) && captured?.input !== input) {
+        const proof = await commandRequestProof(original, key)
+        options.guard()
+        captured = {input, proof}
+        proofs.set(change.context, captured)
+      }
+      const proof = captured?.proof
+      if (!proof || pending.has(change.context) && proof.requestKey !== key) {
+        throw new Error('DATA_SET_COMMAND_REQUEST_PROOF: 原命令请求证明不匹配')
+      }
       let accepted: DataRow | undefined
       if (received.has(change.context)) {
         accepted = received.get(change.context)
       } else if (pending.has(change.context)) {
-        accepted = await options.verify(structuredClone(original))
+        accepted = await options.verify(structuredClone(original), proof)
         options.guard()
         if (accepted === undefined) {
           pending.delete(change.context)
@@ -289,7 +329,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
         }
       } else {
         try {
-          accepted = await options.submit(structuredClone(original))
+          accepted = await options.submit(structuredClone(original), proof)
         } catch (error) {
           if (options.isUnconfirmed?.(error) === true) pending.set(change.context, original)
           throw error

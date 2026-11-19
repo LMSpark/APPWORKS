@@ -62,6 +62,7 @@ import {
   hasLowcodeSession,
   lowcodeApi,
   readLowcodePageFiles,
+  resolveLowcodePageNavigationReceipt,
   readLowcodePrincipal,
   readLowcodeRuntimeNavigation,
 } from './lowcode/lowcode-runtime'
@@ -405,6 +406,7 @@ async function startApp() {
       pageNode: {
         ...HOST_PAGE_NODE_CONFIG,
         readPageFiles: readLowcodePageFiles,
+        resolvePageNavigationReceipt: resolveLowcodePageNavigationReceipt,
         preparePageCall: route => preparePublishedContentAuthoringCall(route),
         pageComponent: SparkPageRenderer,
         loadScenario: loadLowcodeRuntimeScenario,

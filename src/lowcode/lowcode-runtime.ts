@@ -6,6 +6,7 @@
  */
 import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
 import type {
+  RuntimePageNavigationReceipt,
   RuntimeNavigation,
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
@@ -25,6 +26,7 @@ import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRep
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
 import {applicationDesignItems, lowcodeEnterpriseNavigation, withApplicationDesign} from './system-navigation'
 import {invalidateRuntimeFile, readRuntimeFile} from './runtime-file-cache'
+import {parsePageToolPublicationManifest} from '@/services/project/page-tool-publication'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -127,6 +129,244 @@ export async function readLowcodePageFile(command: ProjectModel.PageFileReadComm
   const [text] = await readLowcodePageFiles([command])
   if (text === undefined) throw new Error('PAGE_TOOL_FILE_MISSING: 未找到指定工具文件')
   return text
+}
+
+export async function resolveLowcodePagePublication(command: Readonly<{
+  projectId: string
+  pageId: string
+  nodeId?: string
+  scenarioIds: readonly string[]
+}>): Promise<Readonly<{
+  publicationRef: string
+  manifest: Awaited<ReturnType<typeof parsePageToolPublicationManifest>>
+  assertCurrent(): void
+}> | undefined> {
+  const execution = readLowcodeExecutionProject()
+  if (execution.projectId !== command.projectId) {
+    throw new Error('PAGE_PUBLICATION_SCOPE_STALE: 发布解析所属应用已失效')
+  }
+  execution.assertCurrent()
+  if (!command.nodeId) return undefined
+  const records = await lowcodeApi.blueprint.readRecords(command.projectId)
+  execution.assertCurrent()
+  const record = records.find(item => item.nodeId === command.nodeId)
+  if (record?.projectId !== command.projectId) {
+    throw new Error('PAGE_PUBLICATION_POINTER_MISSING: 导航节点发布记录不存在')
+  }
+  const target = record.navigation?.target
+  if (target === undefined || !target.startsWith('cfg:')
+    || ProjectModel.parseConfigToolPageId(target) !== command.pageId) {
+    throw new Error('PAGE_PUBLICATION_SCOPE_STALE: 导航工具绑定已改变')
+  }
+  const raw = record.source['VersionId'] ?? record.source['versionId']
+  const versionId = typeof raw === 'string' ? raw.trim() : ''
+  if (!versionId) throw new Error('PAGE_PUBLICATION_MANIFEST_MISSING: 导航发布缺少 manifest 指针')
+  const versions = LowcodePlatform.parseLowcodeBlueprintFileVersions(versionId)
+  if (versions.manifest === null) throw new Error('PAGE_PUBLICATION_MANIFEST_MISSING: 发布运行不接受旧三文件指针')
+  if (versions.rule === null || versions.script === null || versions.style === null) {
+    throw new Error('PAGE_PUBLICATION_POINTER_CONFLICT: manifest 发布指针缺少工具快照')
+  }
+  const io = createPageToolFilesIo(command.projectId)
+  const text = await io.readVersion({
+    appId: command.projectId, customPath: toolFilePath(command.projectId, command.pageId),
+    fileName: 'publication-manifest.json', version: versions.manifest,
+  })
+  execution.assertCurrent()
+  if (text === null) {
+    throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: ${versions.manifest}__publication-manifest.json 不存在`)
+  }
+  const manifest = await parsePageToolPublicationManifest(text)
+  execution.assertCurrent()
+  if (manifest.pageId !== command.pageId
+    || manifest.scenarioIds.length !== command.scenarioIds.length
+    || manifest.scenarioIds.some(id => !command.scenarioIds.includes(id))) {
+    throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: manifest 与当前页面调用不一致')
+  }
+  for (const file of manifest.files) {
+    const expectedVersion = file.fileName === 'rule.json' ? versions.rule
+      : file.fileName === 'script.js' ? versions.script
+        : versions.style
+    if (expectedVersion !== file.version) {
+      throw new Error(`PAGE_PUBLICATION_POINTER_CONFLICT: ${file.fileName} manifest 版本冲突`)
+    }
+  }
+  return {publicationRef: versionId, manifest, assertCurrent: execution.assertCurrent}
+}
+
+type LowcodePageNavigationReceiptCommand = Readonly<{
+  projectId: string
+  pageId: string
+  nodeId: string
+  mainScenarioId?: string
+  scenarioIds: readonly string[]
+}>
+
+type LowcodeReceiptFileReader = (
+  commands: readonly ProjectModel.PageFileReadCommand[],
+) => Promise<string[]>
+
+type LowcodePageNavigationReceiptDetails = Readonly<{
+  assertCurrent: () => void
+  reason: string
+  proof?: Pick<RuntimePageNavigationReceipt, 'publication' | 'files'>
+}>
+
+function receipt(state: RuntimePageNavigationReceipt['state'], details: LowcodePageNavigationReceiptDetails): RuntimePageNavigationReceipt {
+  return {state, reason: details.reason, assertCurrent: details.assertCurrent, ...details.proof}
+}
+
+function findAuthorization(
+  items: readonly LowcodePlatform.LowcodeNavigationAuthorizationItem[],
+  nodeId: string,
+): LowcodePlatform.LowcodeNavigationAuthorizationItem | undefined {
+  for (const item of items) {
+    if (item.id === nodeId) return item
+    const child = findAuthorization(item.children, nodeId)
+    if (child) return child
+  }
+  return undefined
+}
+
+async function proofDigest(text: string): Promise<string> {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * Resolves an authorized menu call, its immutable publication and every runtime file proof
+ * into one receipt. Navigation keeps only blueprint identity; VersionId remains a server-side pointer.
+ */
+export async function resolveLowcodePageNavigationReceipt(
+  command: LowcodePageNavigationReceiptCommand,
+  readFiles: LowcodeReceiptFileReader = readLowcodePageFiles,
+): Promise<RuntimePageNavigationReceipt> {
+  if (!lowcodeApi.session.isAuthenticated()) {
+    return receipt('AUTH_MISSING', {assertCurrent: () => {
+      if (lowcodeApi.session.isAuthenticated()) {
+        throw new Error('PAGE_NAVIGATION_RECEIPT_SCOPE_STALE: 原导航调用缺少认证上下文')
+      }
+    }, reason: '当前会话未通过认证'})
+  }
+  const active = lowcodeApi.application.get()
+  if (active?.application.id !== command.projectId) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: () => {
+      if (lowcodeApi.application.get()?.application.id === command.projectId) {
+        throw new Error('PAGE_NAVIGATION_RECEIPT_SCOPE_STALE: 原应用调用身份已变化')
+      }
+    }, reason: '页面调用应用与当前执行应用不一致'})
+  }
+  const execution = readLowcodeExecutionProject()
+  execution.assertCurrent()
+  if (execution.projectId !== command.projectId) {
+    throw new Error('PAGE_NAVIGATION_RECEIPT_SCOPE_STALE: 发布解析所属应用已失效')
+  }
+  const records = await lowcodeApi.blueprint.readRecords(command.projectId)
+  execution.assertCurrent()
+  const record = records.find(item => item.nodeId === command.nodeId)
+  if (record === undefined) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: '导航节点没有匹配的蓝图记录'})
+  }
+  const authorization = await readNavigationAuthorizationDataView({
+    applicationId: command.projectId,
+    navigationRootId: active.navigationRootId,
+    assertCurrent: execution.assertCurrent,
+  })
+  execution.assertCurrent()
+  const authorizedNode = findAuthorization(authorization.items, record.nodeId)
+  if (!record.navigation?.publishInMenu || !authorizedNode) {
+    return receipt('BLUEPRINT_ONLY', {assertCurrent: execution.assertCurrent, reason: '蓝图节点未出现在正式授权菜单中'})
+  }
+  const target = record.navigation.target
+  if (record.projectId !== command.projectId || target === undefined || !target.startsWith('cfg:')
+    || ProjectModel.parseConfigToolPageId(target) !== command.pageId || authorizedNode.target !== target) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: '授权菜单工具身份与页面调用不一致'})
+  }
+  const blueprintScenarioId = record.dataSpace?.scenarioId
+  if (!blueprintScenarioId || !command.mainScenarioId) {
+    return receipt('SCENARIO_MISSING', {assertCurrent: execution.assertCurrent, reason: '主场景身份缺失'})
+  }
+  if (blueprintScenarioId !== command.mainScenarioId || !command.scenarioIds.includes(blueprintScenarioId)) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: '蓝图主场景与页面调用场景不一致'})
+  }
+  const raw = record.source['VersionId'] ?? record.source['versionId']
+  const versionId = typeof raw === 'string' ? raw.trim() : ''
+  if (!versionId) return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '授权菜单没有可读的发布清单指针'})
+  const versions = LowcodePlatform.parseLowcodeBlueprintFileVersions(versionId)
+  if (versions.manifest === null || versions.rule === null || versions.script === null || versions.style === null) {
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '当前导航发布仅有旧三文件指针或指针不完整'})
+  }
+  const io = createPageToolFilesIo(command.projectId)
+  let manifestText: string | null
+  try {
+    manifestText = await io.readVersion({
+      appId: command.projectId, customPath: toolFilePath(command.projectId, command.pageId),
+      fileName: 'publication-manifest.json', version: versions.manifest,
+    })
+  } catch {
+    execution.assertCurrent()
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '发布清单不可读'})
+  }
+  execution.assertCurrent()
+  if (manifestText === null) {
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '发布清单文件不存在'})
+  }
+  let manifest: Awaited<ReturnType<typeof parsePageToolPublicationManifest>>
+  try {
+    manifest = await parsePageToolPublicationManifest(manifestText)
+  } catch {
+    execution.assertCurrent()
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '发布清单格式或内置 proof 不可读'})
+  }
+  execution.assertCurrent()
+  if (manifest.pageId !== command.pageId) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: '发布清单工具身份冲突'})
+  }
+  if (manifest.scenarioIds.length !== command.scenarioIds.length
+    || manifest.scenarioIds.some(id => !command.scenarioIds.includes(id))) {
+    const missing = command.scenarioIds.some(id => !manifest.scenarioIds.includes(id))
+    return receipt(missing ? 'SCENARIO_MISSING' : 'IDENTITY_CONFLICT', {
+      assertCurrent: execution.assertCurrent, reason: '发布清单场景集合与调用不一致',
+    })
+  }
+  const expectedVersions = { 'rule.json': versions.rule, 'script.js': versions.script, 'style.css': versions.style } as const
+  if (manifest.files.some(file => expectedVersions[file.fileName] !== file.version)) {
+    return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: '发布清单文件版本与蓝图指针冲突'})
+  }
+  const fileCommands = ProjectModel.PAGE_TOOL_FILE_NAMES.map(fileName => ({
+    projectId: command.projectId, pageId: command.pageId, fileName, versionId,
+  }))
+  let texts: string[]
+  try {
+    texts = await readFiles(fileCommands)
+  } catch {
+    execution.assertCurrent()
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '发布工具文件不可读'})
+  }
+  execution.assertCurrent()
+  if (texts.length !== fileCommands.length) {
+    return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: '发布工具文件 proof 不完整'})
+  }
+  const files: Array<NonNullable<RuntimePageNavigationReceipt['files']>[number]> = []
+  for (const [index, fileName] of ProjectModel.PAGE_TOOL_FILE_NAMES.entries()) {
+    const text = texts[index]
+    const proof = manifest.files.find(file => file.fileName === fileName)
+    if (text === undefined || proof === undefined) {
+      return receipt('MANIFEST_MISSING', {assertCurrent: execution.assertCurrent, reason: `${fileName} 发布 proof 不完整`})
+    }
+    if (await proofDigest(text) !== proof.sha256) {
+      return receipt('IDENTITY_CONFLICT', {assertCurrent: execution.assertCurrent, reason: `${fileName} 发布 proof 冲突`})
+    }
+    files.push({fileName, version: proof.version, text})
+  }
+  execution.assertCurrent()
+  return receipt('READY', {
+    assertCurrent: execution.assertCurrent,
+    reason: '导航发布四文件 proof 已确认',
+    proof: {
+      publication: {publicationRef: versionId, manifest, assertCurrent: execution.assertCurrent},
+      files,
+    },
+  })
 }
 
 /** 正式蓝图记录和后端授权证据，按节点身份投影宿主导航。 */
@@ -757,34 +997,45 @@ export function createPageToolFilesIo(projectId:string){
       })}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
-    upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string;replace?:true}>)=>{
+    upload:async(command:Readonly<{appId:string;pageId:string;fileName:string;text:string;replace?:true}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       const file = {customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text}
       if(command.replace) await scenarioFileUpload.uploadWorkingText(file)
       else await scenarioFileUpload.uploadTextVersion(file)
       invalidateRuntimeFile(runtimeFileCacheOwner(appId),{appType:'designfile',customPath:file.customPath,fileName:file.fileName})
     },
-    restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
+    restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:string;text:string}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       const file={customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text}
       await scenarioFileUpload.uploadWorkingText(file)
       invalidateRuntimeFile(runtimeFileCacheOwner(appId),{appType:'designfile',customPath:file.customPath,fileName:file.fileName})
     },
-    listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css'})=>{
+    listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:string})=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       return [...await lowcodeApi.design.listFileVersions({appType:'designfile',customPath:assertProjectFilePath(appId,customPath),fileName})]
     },
-    uploadVersion:async({appId:app,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number;text:string})=>{
+    uploadVersion:async({appId:app,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:string;version:number;text:string})=>{
       if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),fileName:`${version}__${fileName}`,text})
     },
-    readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number}):Promise<string|null>=>{
+    readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:string;version:number}):Promise<string|null>=>{
       if(app!==appId||!Number.isSafeInteger(version)||version<0)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       const path=assertProjectFilePath(appId,customPath)
-      try{
-        const bytes=await lowcodeApi.design.readFileBytes({appType:'designfile',customPath:path,fileName:`${version}__${fileName}`})
-        return new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes)
-      }
+      const versionedName=`${version}__${fileName}`
+      const locator={appType:'designfile',customPath:path,fileName:versionedName} as const
+      try{return await readRuntimeFile({
+        owner:runtimeFileCacheOwner(appId),locator,
+        scope:{mode:'published',sourceRevision:`published:${versionedName}`,publicationRef:`${versionedName}@${fileName}`},
+        assertCurrent:()=> {
+          if(lowcodeApi.readRequestScope().headers['X-AppId']!==appId)
+            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 文件快照所属应用已失效')
+        },
+        readVersion:()=>Promise.resolve(`published:${versionedName}`),
+        readText:async()=>{
+          const bytes=await lowcodeApi.design.readFileBytes(locator)
+          return new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes)
+        },
+      })}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     remove:async(app:string,page:string,name:string)=>{

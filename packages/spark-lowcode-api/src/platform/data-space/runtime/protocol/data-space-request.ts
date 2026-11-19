@@ -42,6 +42,7 @@ type DataSpaceRequestSaveChange = Readonly<{
   identity: DataSpaceQueryIdentity
   context: DataSpaceQueryContext
   changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0]
+  recovery?: ReturnType<DataSpaceQueryContext['captureSaveRecovery']>
 }>
 /** 同场景且模型不重复的批量保存目标；无实际变更不能提交。 */
 type DataSpaceRequestSaveCommand = Readonly<{
@@ -145,8 +146,10 @@ export class DataSpaceRequest {
       requireDataSpaceMutationInput('保存', (target.changes.added?.length ?? 0) + (target.changes.changed?.length ?? 0)
         + (target.changes.deleted?.length ?? 0), target.identity.metaName)
     }
-    const prepared = targets.map(target => ({ ...target,
-      changes: target.context.prepareSaveChanges(structuredClone(target.changes)) }))
+    const prepared = targets.map(target => {
+      const changes = target.context.prepareSaveChanges(structuredClone(target.changes))
+      return {...target, changes, recovery: target.context.captureSaveRecovery(changes, target.recovery)}
+    })
     const ineffective = prepared.find(target => (target.changes.added?.length ?? 0)
       + (target.changes.changed?.length ?? 0) + (target.changes.deleted?.length ?? 0) === 0)
     if (ineffective !== undefined) failDataSpaceMutationWithoutEffect('保存', ineffective.identity.metaName)

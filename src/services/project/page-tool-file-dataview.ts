@@ -12,6 +12,7 @@ import {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
 
 const TABLE='ProjectToolFile'
 type PageFileIo=ReturnType<typeof createPageToolFilesIo>
+export type PagePublicationFileName=PageToolFileName|'publication-manifest.json'
 function pageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:string}{
   const pageId=String(resource.fields['pageId']??''),fileName=resource.fields['fileName']
   if(!pageId||!isSafeFileName(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 来源文件身份无效')
@@ -19,6 +20,9 @@ function pageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fi
 }
 function isPageToolFileName(value:unknown):value is PageToolFileName{
   return value==='rule.json'||value==='script.js'||value==='style.css'
+}
+function isPublicationFileName(value:unknown):value is PagePublicationFileName{
+  return isPageToolFileName(value)||value==='publication-manifest.json'
 }
 function isSafeFileName(value:unknown):value is string{return typeof value==='string'&&value.length>0&&value===value.trim()
   &&value!=='.'&&value!=='..'&&!/[\\/\u0000-\u001f\u007f]/.test(value)}
@@ -38,6 +42,18 @@ export function createPageFileResourceView(input:Readonly<{
   rejectLocalDirty?:boolean
 }>):DataView{
   return createPageFileView({...input,io:createPageToolFilesIo(input.appId),allowDirectoryEntry:false})
+}
+
+/** Bind the generated publication manifest through the same formal file DataView owner. */
+export function createPagePublicationManifestFileView(input:Readonly<{
+  dataSet:DataSet
+  appId:string
+  pageId:string
+  assertCurrent:()=>void
+  workspace?:ProjectWorkspace
+}>):DataView{
+  return createPageFileView({...input,fileName:'publication-manifest.json',io:createPageToolFilesIo(input.appId),
+    allowDirectoryEntry:false,allowPublicationManifest:true})
 }
 
 /** Creates the same FileResource executor for declared ProjectToolFile tables and named query clones. */
@@ -115,15 +131,18 @@ function createPageFileView(input:Readonly<{
   allowDirectoryEntry:boolean
   workspace?:ProjectWorkspace
   rejectLocalDirty?:boolean
+  allowPublicationManifest?:boolean
 }>):DataView{
   const {dataSet,appId,pageId,io,assertCurrent}=input,resourceFileName=input.fileName
-  if(!isSafeFileName(resourceFileName)||!input.allowDirectoryEntry&&!isPageToolFileName(resourceFileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件名无效')
+  const isAllowedFile=(value:unknown)=>input.allowDirectoryEntry||isPageToolFileName(value)
+    ||input.allowPublicationManifest===true&&value==='publication-manifest.json'
+  if(!isSafeFileName(resourceFileName)||!isAllowedFile(resourceFileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件名无效')
   if(!pageId.trim()||pageId!==pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
   const formalTable=assertProjectToolFileTable(dataSet)
   const target=(view:DataView)=>{
     const targetAppId=view.queryContext['appId']??appId,targetPageId=String(view.queryContext['pageId']??''),fileName=view.queryContext['fileName']
     if(targetAppId!==appId)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 应用身份与绑定资源不一致')
-    if(!targetPageId||!isSafeFileName(fileName)||!input.allowDirectoryEntry&&!isPageToolFileName(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
+    if(!targetPageId||!isSafeFileName(fileName)||!isAllowedFile(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
     const versionId=view.queryContext['versionId']??''
     if(typeof versionId!=='string'||versionId!==''&&!versionId.trim())throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 发布目标无效')
     return {key:JSON.stringify([targetAppId,targetPageId,fileName,versionId]),fields:{pageId:targetPageId,fileName,versionId}}
@@ -171,9 +190,9 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
     read:async resource=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource),versionId=resource.fields['versionId']
       let text:string|null
       if(typeof versionId==='string'&&versionId){
-        if(!isPageToolFileName(fileName))throw new Error('PAGE_TOOL_FILE_VERSION_SCOPE: 只有三份工具文件有发布快照')
+        if(!isPublicationFileName(fileName))throw new Error('PAGE_TOOL_FILE_VERSION_SCOPE: 只有发布文件具有发布快照')
         const versions=LowcodePlatform.parseLowcodeBlueprintFileVersions(versionId)
-        const key=fileName==='rule.json'?'rule':fileName==='script.js'?'script':'style',version=versions[key]
+        const key=LowcodePlatform.lowcodeBlueprintFileVersionKey(fileName),version=versions[key]
         if(version===null)throw new Error(`发布指针缺少 ${fileName}`)
         const customPath = `${appId}/${filePage}`
         text = await io.readVersion({appId, customPath, fileName, version})
@@ -194,15 +213,17 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       return text===null?null:{text,revision:typeof versionId==='string'&&versionId?versionId:'0',
         fields:{localDirty,localText}}},
     write:async({target:resource,text,baseline})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
-      if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_WRITE_SCOPE: 只有工作三文件允许写入')
+      if(!isPublicationFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_WRITE_SCOPE: 只有工作发布文件允许写入')
       if(fileName==='rule.json')new PageTool({pageId:filePage}).hydrateFileText(fileName,text)
-      const page=workspace?.project.findPageTool(filePage),localText=page?.getFileText(fileName)
-      const localDirty=page?.getDirtyFileNames().includes(fileName)??false
+      const toolFileName=isPageToolFileName(fileName)?fileName:undefined
+      const page=workspace?.project.findPageTool(filePage),localText=toolFileName===undefined?null:page?.getFileText(toolFileName)
+      const localDirty=toolFileName!==undefined&&page?.getDirtyFileNames().includes(toolFileName)===true
       if(input.rejectLocalDirty&&localDirty)throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑')
       await io.upload({appId,pageId:filePage,fileName,text,...(baseline === null ? {} : {replace:true as const})})
       try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}
-      if(input.rejectLocalDirty&&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(fileName)!==localText
-        ||page?.getDirtyFileNames().includes(fileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},
+      if(input.rejectLocalDirty&&toolFileName!==undefined
+        &&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(toolFileName)!==localText
+        ||page?.getDirtyFileNames().includes(toolFileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},
     remove:async({target:resource})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       await io.remove(appId,filePage,fileName)
       try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}},
@@ -225,8 +246,8 @@ function assertProjectToolFileTable(dataSet:DataSet){
   }
   return table
 }
-function knownPageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:PageToolFileName}{
+function knownPageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:PagePublicationFileName}{
   const {pageId,fileName}=pageFileResourceIdentity(resource)
-  if(!isPageToolFileName(fileName))throw new Error('PAGE_TOOL_FILE_HISTORY_SCOPE: 只有三份工具文件具有版本历史')
+  if(!isPublicationFileName(fileName))throw new Error('PAGE_TOOL_FILE_HISTORY_SCOPE: 只有发布文件具有版本历史')
   return {pageId,fileName}
 }

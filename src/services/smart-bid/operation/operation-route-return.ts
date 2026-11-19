@@ -15,6 +15,7 @@ type Receipt=Scope&Readonly<{receiptRef:string;assertCurrent:()=>void}>&(
  Readonly<{state:'COMPLETE';output:unknown}>|Readonly<{state:'PARTIAL'|'FAILED'|'UNKNOWN'}>
 )
 const fields=['runId','attemptRef','requestKey','projectId','targetDigest','configurationLockHash'] as const
+type CandidateIssue='DISPATCH_CATALOG_REQUIRED'|'OUTSIDE_DISPATCH_CATALOG'
 
 /** 用第05项实发证明和原指南核第06项，发送内容不合时暂不交候选。 */
 export async function verifyDispatchedOperationRouteReturn(
@@ -29,14 +30,15 @@ export async function verifyDispatchedOperationRouteReturn(
   throw Error('OPERATION_ROUTE_RETURN_GUIDE_SCOPE')
  const actualInputJson=dispatch.inputJson
  const verified=await verifyOperationRouteReturn(dispatch.scope,receipt,{catalog:source.catalog,match:source.match,assertCurrent,
-  assertCandidateScope(candidate){
+  checkCandidateScope(candidate){
    const input:unknown=JSON.parse(actualInputJson)
    if(!isRecord(input)||!Array.isArray(input['stationCatalog'])||!Array.isArray(input['routeCatalog']))
-    throw Error('OPERATION_ROUTE_DISPATCH_CATALOG_REQUIRED')
+    return 'DISPATCH_CATALOG_REQUIRED'
    const stations=new Set(input['stationCatalog'].filter(isRecord).map(item=>item['ref']).filter(identity))
    const routes=new Set(input['routeCatalog'].map(canonicalSnapshotValue))
    if(candidate.nodes.some(node=>node.type==='task'&&!stations.has(node.data.stationRef)||
-    node.type==='call'&&!routes.has(canonicalSnapshotValue(node.data.routeRef))))throw Error('OPERATION_ROUTE_OUTSIDE_DISPATCH_CATALOG')
+    node.type==='call'&&!routes.has(canonicalSnapshotValue(node.data.routeRef))))return 'OUTSIDE_DISPATCH_CATALOG'
+   return undefined
   }})
  return Object.freeze({...verified,dispatchRef:dispatch.dispatchRef,actualInputDigest:dispatch.actualInputDigest,guideRef:source.guideRef})
 }
@@ -46,7 +48,7 @@ export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,sou
  catalog:NonNullable<Parameters<typeof readComposedOperationRouteCandidate>[1]>
  match:Parameters<typeof readComposedOperationRouteCandidate>[2]
  assertCurrent:()=>void
- assertCandidateScope?:(candidate:ReturnType<typeof readComposedOperationRouteCandidate>)=>void
+ checkCandidateScope?:(candidate:ReturnType<typeof readComposedOperationRouteCandidate>)=>CandidateIssue|undefined
 }>){
  const assertCurrent=()=>{source.assertCurrent();receipt.assertCurrent()}
  assertCurrent()
@@ -57,7 +59,11 @@ export async function verifyOperationRouteReturn(scope:Scope,receipt:Receipt,sou
  const {receiptRef}=receipt
  if(receipt.state!=='COMPLETE')return Object.freeze({state:receipt.state,receiptRef,assertCurrent})
  const candidate=readComposedOperationRouteCandidate(receipt.output,source.catalog,source.match)
- source.assertCandidateScope?.(candidate)
+ const issue=source.checkCandidateScope?.(candidate)
+ if(issue){
+  assertCurrent()
+  return Object.freeze({state:issue,receiptRef,assertCurrent})
+ }
  const candidateJson=canonicalSnapshotValue(candidate)
  const candidateDigest=await hashCanonicalSnapshotText(candidateJson)
  assertCurrent()

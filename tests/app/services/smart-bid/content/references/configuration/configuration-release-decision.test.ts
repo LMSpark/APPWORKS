@@ -90,7 +90,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   versionId:version.versionId,versionDigest:version.digest,expectedPointerVersion:'P1',status:'APPLIED',releaseRef:'STOP',
   resultPointerVersion:'P2',state:'DISABLED',terminalRef:'TERMINAL'}
  const channelRow={id:'CHANNEL',...scope,scope:'ENTERPRISE',state:'ACTIVE',version:'P1',hash:version.digest}
- const versionRow={id:'VERSION',kind:scope.kind,key:scope.key,hash:version.digest}
+ const versionRow={id:'VERSION',kind:scope.kind,key:scope.key,hash:version.digest,version:version.versionId}
  const ds=DataSet.fromJson({scenarioId:'S',tables:{ConfigurationRelease:{
   modelBinding:{modelName:'ConfigurationRelease',modelId:'M'},
   columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),views:{default:{},originalRelease:configurationReleaseReadView('id')},
@@ -240,6 +240,10 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   pointerCurrent=false
   expect(()=>candidate.assertCurrent()).toThrow('POINTER_STALE')
   pointerCurrent=true
+  versionRow.version='OTHER'
+  await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal))
+   .rejects.toThrow('CONFIGURATION_RELEASE_VERSION_MISMATCH')
+  versionRow.version=version.versionId
   versionExists=false
   await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal))
    .rejects.toThrow('CONFIGURATION_RELEASE_VERSION_MISSING')

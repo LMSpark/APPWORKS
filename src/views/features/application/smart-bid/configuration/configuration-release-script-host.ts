@@ -61,7 +61,7 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
      pointer.versionDigest!==decision.original.digest)
      throw Error('CONFIGURATION_RELEASE_DISABLE_SCOPE')
     const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
-     {kind,key,hash:pointer.versionDigest})
+     {kind,key,hash:pointer.versionDigest},versionId)
     return prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
      {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})
    })
@@ -82,8 +82,8 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
      pointer.pointerVersion!==expectedPointerVersion||(channel.state==='ACTIVE'?
       !pointer.version||!identity(pointer.version.versionId)||pointer.version.digest!==channel.versionDigest:
       pointer.version!==null))throw Error('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')
-     const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
-      {kind,key,hash:decision.candidate.digest})
+    const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
+     {kind,key,hash:decision.candidate.digest},versionId)
     const currentVersion=pointer.version===null?null:Object.freeze({...pointer.version})
     const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion},
       {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})

@@ -14,15 +14,18 @@ export function configurationChannelReadView(primaryKey:string){
 }
 
 export function configurationVersionReadView(primaryKey:string){
- return originalRegistrationView(primaryKey,['kind','key','hash'],[])
+ return originalRegistrationView(primaryKey,['kind','key','hash'],['version'])
 }
 
 export async function readRegisteredConfigurationVersion(
  host:Parameters<typeof readOriginalRegistrationView>[0],
- input:Readonly<{kind:string;key:string;hash:string}>){
+ input:Readonly<{kind:string;key:string;hash:string}>,expectedVersion:string){
  const read=await readOriginalRegistrationView(host,{model:'ConfigVersion',viewName:'originalVersion'},input)
  if(!read.row)throw Error('CONFIGURATION_RELEASE_VERSION_MISSING')
- return read.captureFields([])
+ const assertCurrent=read.captureFields(['version'])
+ assertCurrent()
+ if(read.row['version']!==expectedVersion)throw Error('CONFIGURATION_RELEASE_VERSION_MISMATCH')
+ return assertCurrent
 }
 
 export async function readRegisteredConfigurationChannel(

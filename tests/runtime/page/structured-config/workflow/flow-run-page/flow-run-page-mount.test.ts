@@ -5,6 +5,7 @@ import {defineComponent, h, markRaw, reactive} from 'vue'
 import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, getSparkNodeChildren, nodeId, type DataView} from '@spark-appworks/spark-data'
+import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
@@ -26,7 +27,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     useFeaturePageRuntime: (options: Parameters<typeof runtimeOptions>[0]) => {
       runtimeOptions(options)
       openTool.mockImplementation(options.tool)
-      const runtime = markRaw({tool: options.tool(options.navigationId ?? 'mobile-navigation-node')})
+      const runtime = markRaw({...(fixturePageRuntime ?? createRuntime()), tool: options.tool(options.navigationId ?? 'mobile-navigation-node')})
       return {
         session: {runtime, isCurrent: (candidate: unknown) => candidate === runtime},
         viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
@@ -135,23 +136,21 @@ function createRuntime(): PageRuntime {
     WFOBJ_FLOW_Waiting: createView([]),
   }
   const instanceRows = monitor.View_FlowObjList.rows
-  const actualWorkbench = originalOptionsView?.dataSet
-  if (actualWorkbench) {
-    vi.spyOn(actualWorkbench, 'getView').mockImplementation((name, id) => DataSet.prototype.getView.call(actualWorkbench, name, id) ?? workbench[name as keyof typeof workbench] as DataView | undefined)
-  }
+  const actualWorkbench = originalOptionsView?.dataSet ?? DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+  vi.spyOn(actualWorkbench, 'getView').mockImplementation((name, id) => DataSet.prototype.getView.call(actualWorkbench, name, id) ?? workbench[name as keyof typeof workbench] as DataView | undefined)
   Object.defineProperty(monitor.View_FlowObjList, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {
       if (id === FLOW_DESIGN_SCENARIO_ID) return designDataSet
       if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
-      if (id === FLOW_WORKBENCH_SCENARIO_ID) return actualWorkbench ?? {getView: (name: string) => workbench[name as keyof typeof workbench]}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return actualWorkbench
       return undefined
     },
     resolveView: (key: string) => {
       if (key === `${FLOW_MONITOR_SCENARIO_ID}@Base_UserInfo@default`) return originalDirectoryView ?? null
       const descriptor = parseDataViewKey(key)
-      const actual = descriptor && actualWorkbench?.getView(descriptor.tableName, descriptor.viewId)
+      const actual = descriptor && actualWorkbench.getView(descriptor.tableName, descriptor.viewId)
       if (actual) return actual
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
       if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
@@ -164,10 +163,12 @@ function createRuntime(): PageRuntime {
   } as unknown as PageRuntime
 }
 
+let fixturePageRuntime: PageRuntime | undefined
 const RawHost = defineComponent({
   setup() {
     const {sparkProvide} = useSparkComponent({type: 'flow-run-page-mount-host'})
-    sparkProvide(PAGE_RUNTIME, createRuntime())
+    fixturePageRuntime = createRuntime()
+    sparkProvide(PAGE_RUNTIME, fixturePageRuntime)
     return () => h(FlowRunPage)
   },
 })
@@ -206,6 +207,7 @@ beforeEach(async () => {
   callbacks.end.mockReset().mockResolvedValue(true); callbacks.succeeded.mockReset().mockResolvedValue(undefined); callbacks.failed.mockClear()
   routeState.reloadBlocked = false
   routeState.query.wfid = 'WF-1'
+  fixturePageRuntime = undefined
   routeState.query.stepid = ''
   releaseOldQuery = undefined
   delayFirstQuery = false
@@ -251,6 +253,8 @@ describe('flow run page mount', () => {
       [model]: {...configured, views: {default: configured.views.default}, columns: configured.views.default.queryConfig.fields
         .map(name => ({name, type: name === 'STEPTYPE' ? 'number' : 'string', isPrimaryKey: name === 'rowid'}))},
     }})
+    const approval = ensureFlowRunApprovalViews(workbench)
+    expect([approval.inputs.rows, approval.nodes.rows, approval.forceTargets.rows]).toEqual([[], [], []])
     const runtime = markRaw(new PageRuntime({tool, scenarioIds: [FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
       mainScenarioId: FLOW_MONITOR_SCENARIO_ID,
       loadScenario: async id => id === FLOW_WORKBENCH_SCENARIO_ID ? workbench : DataSet.fromJson({scenarioId: id, tables: {}}),

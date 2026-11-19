@@ -70,6 +70,7 @@
     "id": "approvalInput",
     "type": "r-form",
     "props": {
+      "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalInput@default",
       "autoColumns": false,
       "showDataViewMeta": false
     },
@@ -86,6 +87,7 @@
         "type": "r-select",
         "props": {
           "field": "forceNodeId",
+          "optionDataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalForceTargets@default",
           "label": "强制退回目标",
           "optionValueField": "id",
           "optionLabelField": "title"
@@ -125,6 +127,7 @@
     "id": "approvalNodes",
     "type": "r-table",
     "props": {
+      "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalNodeInput@default",
       "autoColumns": false,
       "showPagination": false,
       "showDataViewMeta": false

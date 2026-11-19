@@ -70,13 +70,14 @@ import {
 } from '@/lowcode/resources/system/workflow/manage'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
-import {buildDataViewKey, getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
+import {getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 import FlowRunRouteRenderer from './flow-run-route-renderer.vue'
+import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {useFlowRunPage} from './use-flow-run-page'
 
 const props = defineProps<{mobile?: boolean}>()
@@ -149,20 +150,14 @@ const {
 function bindApprovalInput(approvalInputRule: SparkNode): SparkNode {
   return {
     ...approvalInputRule,
-    props: {...approvalInputRule.props, dataViewKey: buildDataViewKey('ApprovalInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
     children: getSparkNodeChildren(approvalInputRule.children)
       .filter(field => field.props?.['field'] !== 'forceNodeId' || (allowForceBack.value && forceBackNodeOptions.value.length > 0))
-      .map(field => ({...field, props: {...field.props, readonly: inputLocked.value,
-        ...(field.props?.['field'] === 'forceNodeId'
-          ? {optionDataViewKey: buildDataViewKey('ApprovalForceTargets', 'default', FLOW_WORKBENCH_SCENARIO_ID)}
-          : {}),
-      }})),
+      .map(field => ({...field, props: {...field.props, readonly: inputLocked.value}})),
   }
 }
 function bindApprovalNodes(approvalNodesRule: SparkNode): SparkNode {
   return {
     ...approvalNodesRule,
-    props: {...approvalNodesRule.props, dataViewKey: buildDataViewKey('ApprovalNodeInput', 'default', FLOW_WORKBENCH_SCENARIO_ID)},
     children: getSparkNodeChildren(approvalNodesRule.children).map(column => {
       if (column.type !== 'r-column-group') return column
       return {...column, children: getSparkNodeChildren(column.children).map(field => ({
@@ -202,7 +197,12 @@ function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
   return toolbar ? [bindActions(toolbar)] : []
 }
 const appendUser = useTemplateRef<InstanceType<typeof FlowAppendUser>>('appendUser')
-const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
+const runtime = computed(() => {
+  const current = runtimeReady.value ? session.runtime : undefined
+  const workbench = current?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+  if (workbench) ensureFlowRunApprovalViews(workbench)
+  return current
+})
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined

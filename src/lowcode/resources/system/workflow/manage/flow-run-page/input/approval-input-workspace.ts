@@ -15,20 +15,31 @@ const nextKeys = ['nextNodes', 'NextNodeList', 'nextNodeList', 'nodes']
 const backKeys = ['allowToBackSteps', 'BackNodeList', 'backNodeList', 'historyNodes', 'BackNodes']
 const forceKeys = ['forceBackNodes', 'ForceBackNodeList', 'forceBackNodeList', 'ForceBackNodes']
 
+const forceTargetResource = {resourceType: 'logical-view', resourceId: 'workflow:ApprovalForceTargets'}
+
+/** Register empty, instance-owned views without reading approval options. */
+export function ensureFlowRunApprovalViews(ds: DataSet) {
+  if (!ds.scenarioId) throw Error('办理参数缺少明确数据空间身份')
+  ensureDataSetStaticInputTable(ds, 'ApprovalInput', [{name: 'inputId', primary: true}, ...['idea', 'forceNodeId'].map(name => ({name})), ...['notifySms', 'notifyQywx', 'notifyDingTalk', 'notifyWechat'].map(name => ({name, type: 'boolean'}))])
+  ensureDataSetStaticInputTable(ds, 'ApprovalNodeInput', [{name: 'NodeId', primary: true}, {name: 'title'}, {name: 'selected', type: 'boolean'}, {name: 'ExecUserList', type: 'array'}, {name: 'checkedReturn', type: 'boolean'}, {name: 'candidateViewKey'}, {name: 'peopleReadonly', type: 'boolean'}, {name: 'returnReadonly', type: 'boolean'}])
+  const inputs = ds.getView('ApprovalInput'), nodes = ds.getView('ApprovalNodeInput')
+  if (!inputs || !nodes) throw Error('办理参数视图未装配')
+  const forceTargets = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalForceTargets', resource: forceTargetResource, columns: [{name: 'id', primary: true}, {name: 'title'}]})
+  return {inputs, nodes, forceTargets}
+}
+
 export class FlowRunApprovalInputWorkspace {
   readonly inputs: DataView
   readonly nodes: DataView
   private target: Target | undefined
   private source: DataRow | undefined
   private sourceGuard: (() => void) | undefined
+  private readonly forceTargets: DataView
   private readonly bound = new Set<DataView>()
   constructor(private readonly options: Readonly<{dataSet: DataSet; assertCurrent: () => void; userDirectory?: () => DataView}>) {
     const ds = options.dataSet
-    if (!ds.scenarioId) throw Error('办理参数缺少明确数据空间身份')
-    ensureDataSetStaticInputTable(ds, 'ApprovalInput', [{name: 'inputId', primary: true}, ...['idea', 'forceNodeId'].map(name => ({name})), ...['notifySms', 'notifyQywx', 'notifyDingTalk', 'notifyWechat'].map(name => ({name, type: 'boolean'}))])
-    ensureDataSetStaticInputTable(ds, 'ApprovalNodeInput', [{name: 'NodeId', primary: true}, {name: 'title'}, {name: 'selected', type: 'boolean'}, {name: 'ExecUserList', type: 'array'}, {name: 'checkedReturn', type: 'boolean'}, {name: 'candidateViewKey'}, {name: 'peopleReadonly', type: 'boolean'}, {name: 'returnReadonly', type: 'boolean'}])
-    const inputs = ds.getView('ApprovalInput'), nodes = ds.getView('ApprovalNodeInput')
-    if (!inputs || !nodes) throw Error('办理参数视图未装配')
+    const {inputs, nodes, forceTargets} = ensureFlowRunApprovalViews(ds)
+    this.forceTargets = forceTargets
     this.inputs = inputs; this.nodes = nodes
     for (const view of [inputs, nodes]) view.configure({commitMode: 'staged'})
   }
@@ -79,13 +90,12 @@ export class FlowRunApprovalInputWorkspace {
         ExecUserList: max > 0 && users.length <= max ? users : [], checkedReturn: false, candidateViewKey: buildDataViewKey('ApprovalCandidates', viewId, ds.scenarioId),
         peopleReadonly: max < 1, returnReadonly: node.direction !== 'backward' || node.isTurnBack !== true})
     }
-    for (const [name, keys] of [['ApprovalForceTargets', forceKeys]] as const) {
-      const resource = {resourceType: 'logical-view', resourceId: `workflow:${name}`}
-      const view = ensureDataSetResourceView({dataSet: ds, tableName: name, resource, columns: [{name: 'id', primary: true}, {name: 'title'}]})
+    {
+      const view = this.forceTargets
       if (!this.bound.has(view)) {
-        bindDataSetReadonlyCommandQuery(view, {resource, guard: this.options.assertCurrent,
+        bindDataSetReadonlyCommandQuery(view, {resource: forceTargetResource, guard: this.options.assertCurrent,
           captureQueryInputs: () => {const original = source.rows[0]; if (!original || source.rows.length !== 1) throw Error('退回目标缺少原选项'); return source.captureReadRow(original, ['payload'])},
-          loadRows: () => {const current = source.rows[0]?.['payload']; if (!isRecord(current)) throw Error('退回目标来源失效'); return Promise.resolve(parseFlowRunHandleNodeOptions(current, keys).map(node => ({id: node.id, title: node.title})))}})
+          loadRows: () => {const current = source.rows[0]?.['payload']; if (!isRecord(current)) throw Error('退回目标来源失效'); return Promise.resolve(parseFlowRunHandleNodeOptions(current, forceKeys).map(node => ({id: node.id, title: node.title})))}})
         this.bound.add(view)
       }
       await view.refresh(); assertInputCurrent(); assertSource()

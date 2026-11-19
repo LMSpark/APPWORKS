@@ -1,3 +1,4 @@
+import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {config, flushPromises, mount} from '@vue/test-utils'
@@ -74,6 +75,7 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
   // The shared tool also binds the history view by its formal workbench identity.
   const runtime = markRaw(new PageRuntime({tool, scenarioIds: [scene], loadScenario: async () => ds}))
   await runtime.load()
+  ensureFlowRunApprovalViews(ds)
   registerAllRenderers()
   const append = shallowRef<InstanceType<typeof FlowAppendUser> | null>(null)
   const AppendHost = defineComponent({

@@ -341,7 +341,11 @@
   {
     "id":"api-interface-json-import",
     "type":"r-dialog",
-    "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","title":"JSON输入","width":720,"appendToBody":true},
+    "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","title":"JSON输入","width":720,"appendToBody":true,
+      "footer":{"children":[
+        {"id":"json-import-cancel","type":"r-button","props":{"label":"取消"}},
+        {"id":"json-import-confirm","type":"r-button","props":{"label":"保存","buttonType":"primary"}}
+      ]}},
     "children":[
       {"id":"json-import-input","type":"r-json","props":{"label":"请输入 JSON","mode":"text","height":360}},
       {"id":"json-import-error","type":"r-alert","props":{"alertType":"error","closable":false}}

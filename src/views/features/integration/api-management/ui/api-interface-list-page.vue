@@ -15,16 +15,15 @@
             <template v-if="selected" #header-actions>
               <SparkComponentRenderer :config="region(children,'api-interface-save')" />
             </template>
-            <RendererTabs v-if="selected" v-model="tab" :data-view-key="INTERFACE_KEYS.interfaces">
-              <RendererTabPane name="edit" label="接口编辑" :index="0" :data-view-key="INTERFACE_KEYS.interfaces">
-                <SparkComponentRenderer :key="String(selectedId)" :config="region(children,'api-interface-edit')" />
-                <InterfaceJsonImportDialog v-if="importing" :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
-              </RendererTabPane>
-              <RendererTabPane name="invoke" label="调用输出" :index="1" :lazy="true" :data-view-key="INTERFACE_KEYS.calls">
-                <SparkComponentRenderer :config="region(children,'api-interface-invocation')" />
-              </RendererTabPane>
-              <RendererTabPane name="output" label="输出内容" :index="2" :lazy="true" :data-view-key="INTERFACE_KEYS.outputs">
-                <SparkComponentRenderer :config="region(children,'api-interface-output')" />
+            <RendererTabs v-if="selected" v-model="tab" v-bind="region(children,'api-interface-tabs').props">
+              <RendererTabPane v-for="(pane, index) in getSparkNodeChildren(region(children,'api-interface-tabs').children)"
+                :key="nodeId(pane) ?? index" :index="index" v-bind="pane.props">
+                <template v-if="nodeId(pane) === 'api-interface-edit-tab'">
+                  <SparkComponentRenderer :key="String(selectedId)" :config="region(children,'api-interface-edit')" />
+                  <InterfaceJsonImportDialog v-if="importing" :key="importing.epoch" :target="importing.target" @close="importing=undefined" />
+                </template>
+                <SparkComponentRenderer v-else-if="nodeId(pane) === 'api-interface-invoke-tab'" :config="region(children,'api-interface-invocation')" />
+                <SparkComponentRenderer v-else-if="nodeId(pane) === 'api-interface-output-tab'" :config="region(children,'api-interface-output')" />
               </RendererTabPane>
             </RendererTabs>
             <DisplayEmpty v-else description="请选择左侧接口，或先新建接口" />
@@ -39,7 +38,7 @@
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {nodeId, type DataSet, type DataRow, type DataView, type DataViewEditingFieldChangeEvent, type SparkNode} from '@spark-appworks/spark-data'
+import {getSparkNodeChildren, nodeId, type DataSet, type DataRow, type DataView, type DataViewEditingFieldChangeEvent, type SparkNode} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'

@@ -119,5 +119,15 @@
     "id":"api-interface-save",
     "type":"r-button",
     "props":{"label":"保存","buttonType":"primary","onBeforeRender":"bindDefinitionSave","onClick":"saveDefinition"}
+  },
+  {
+    "id":"api-interface-tabs",
+    "type":"r-tabs",
+    "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"},
+    "children":[
+      {"id":"api-interface-edit-tab","type":"r-tab-pane","props":{"name":"edit","label":"接口编辑","dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"}},
+      {"id":"api-interface-invoke-tab","type":"r-tab-pane","props":{"name":"invoke","label":"调用输出","lazy":true,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@InterfaceCallRequest@default"}},
+      {"id":"api-interface-output-tab","type":"r-tab-pane","props":{"name":"output","label":"输出内容","lazy":true,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_TblField@default"}}
+    ]
   }
 ]

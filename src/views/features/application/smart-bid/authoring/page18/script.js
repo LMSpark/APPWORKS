@@ -125,6 +125,7 @@ async function openActualInput() {
 
 function bindOriginalVerification() {
   if (!hasAttempt || !dispatchIsCurrent?.()) return {visible: false}
+  if (dispatchLoading) return {status: '正在回查原试次'}
   const result = dispatch?.verification
   if (!result) return {error: dispatchError ?? '缺原冻结输入或同版核验依据，待核原返回'}
   try {
@@ -171,7 +172,8 @@ async function openVerifiedCandidate() {
 
 function bindRework() {
   const {runId, attemptRef, requestKey} = $route.query
-  return {disabled: ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value)}
+  return {disabled: dispatchLoading || reworkPending ||
+    ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value)}
 }
 
 async function prepareRework() {

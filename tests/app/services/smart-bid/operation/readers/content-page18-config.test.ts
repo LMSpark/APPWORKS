@@ -10,13 +10,16 @@ it('rechecks the same original dispatch without starting another attempt',async(
  const invokeHostCommand=vi.fn()
   .mockResolvedValueOnce({state:'UNKNOWN',assertCurrent:()=>{}})
   .mockResolvedValueOnce({state:'DISPATCH_RECORDED',dispatchRef:'ORIGINAL',actualInputDigest:'DIGEST',assertCurrent:()=>{}})
- const {__init__,bindOriginalDispatch,refreshOriginalDispatch}=compileFunctions(script,
+ const {__init__,bindOriginalDispatch,refreshOriginalDispatch,bindOriginalVerification,bindRework}=compileFunctions(script,
   {$route:{query},$page:{invokeHostCommand}} as unknown as PageContext)
- if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch)throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
+ if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch||!bindOriginalVerification||!bindRework)
+  throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
  await __init__()
  expect(bindOriginalDispatch()).toEqual({status:'原试次实发结果未知'})
  const refresh=refreshOriginalDispatch()
  expect(bindOriginalDispatch()).toEqual({status:'正在回查原试次'})
+ expect(bindOriginalVerification()).toEqual({status:'正在回查原试次'})
+ expect(bindRework()).toEqual({disabled:true})
  await refreshOriginalDispatch()
  await refresh
  expect(bindOriginalDispatch()).toEqual({status:'实发记录 ORIGINAL，输入摘要 DIGEST'})

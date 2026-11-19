@@ -192,10 +192,12 @@ describe('external API pages assembled through the standard scenario entry', () 
     const f=await bindingFixture();await f.outputs.refresh();await f.click('确认替换原绑定')
     expect(f.http.saves).toHaveLength(0);expect(f.parameters.hasEditingChanges()).toBe(false)
   })
-  it('verifies an unknown binding once without replaying its change',async()=>{
+  it('keeps an unknown binding pending without replaying its change',async()=>{
     const f=await bindingFixture();f.http.failAfterWrite=true;await f.click('确认替换原绑定')
     await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(true));await f.click('核验原参数重绑')
-    await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(false));expect(f.http.saves).toHaveLength(1)
+    await vi.waitFor(()=>expect(document.body.textContent).toContain('服务未提供原请求的权威终态'))
+    expect(f.parameters.hasUnconfirmedSave).toBe(true)
+    expect(f.http.saves).toHaveLength(1)
   })
   it('does not write when source selection changes during the original formal reference query',async()=>{
     const f=await bindingFixture();let entered=false,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve})
@@ -216,14 +218,16 @@ describe('external API pages assembled through the standard scenario entry', () 
       expect(f.parameters.getEditingRow('Q3')?.['desc']).toBe('late draft')
     }finally{release()}
   })
-  it('verifies the already dispatched binding after a late source change without replaying it',async()=>{
+  it('keeps the dispatched binding pending after a late source change without replaying it',async()=>{
     const f=await bindingFixture();let entered=false,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve})
     f.http.beforeSave=async()=>{entered=true;await gate}
     try{
       await f.click('确认替换原绑定');await vi.waitFor(()=>expect(entered).toBe(true))
       f.parent.setCurrentRowById('I2');f.parent.setSelectedRows([f.parent.currentRow!]);f.http.failAfterWrite=true;release();await flushPromises()
       await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(true));await f.click('核验原参数重绑')
-      await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(false));expect(f.http.saves).toHaveLength(1)
+      await vi.waitFor(()=>expect(document.body.textContent).toContain('服务未提供原请求的权威终态'))
+      expect(f.parameters.hasUnconfirmedSave).toBe(true)
+      expect(f.http.saves).toHaveLength(1)
       expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')?.['interfaceId']).toBe('I1')
     }finally{release()}
   })
@@ -546,9 +550,15 @@ describe('external API pages assembled through the standard scenario entry', () 
 
   it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {
     const wrapper = await mountAt(InterfacePage, {providerId: 'P1'})
+    const dialog = wrapper.getComponent(RendererDialog)
+    expect(dialog.props('dataViewKey')).toBe(`${API}@Base_DataServiceInterface@default`)
+    expect(dialog.props('width')).toBe(1480)
     expect(wrapper.text()).toContain('取令牌')
     expect(wrapper.text()).not.toContain('其他')
     expect(wrapper.text()).toContain('请选择左侧接口，或先新建接口')
     expect(api.current.state.http.reads.some(read => read.table === '_Base_ParamList')).toBe(false)
+    dialog.vm.$emit('update:modelValue', false)
+    await flushPromises()
+    expect(wrapper.getComponent(InterfacePage).emitted('close')).toEqual([[]])
   })
 })

@@ -131,6 +131,11 @@
     ]
   },
   {
+    "id":"api-interface-dialog",
+    "type":"r-dialog",
+    "props":{"width":1480,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"}
+  },
+  {
     "id":"api-interface-workspace",
     "type":"r-section",
     "props":{"gridColumns":1,"bordered":false,"retryText":"核验原保存结果","onRetry":"verifyDefinition"}

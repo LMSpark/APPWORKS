@@ -6,7 +6,8 @@
 <template>
   <RendererSection v-if="!ready" :grid-columns="1" :bordered="false" :status="loading ? '正在读取接口方案…' : ''" :error="error" />
   <RendererButton v-if="!loading && !ready" label="关闭接口方案" @click="emit('close')" />
-  <RendererDialog v-if="ready" :data-view-key="INTERFACE_KEYS.interfaces" :model-value="true" :title="`${providerName || '当前提供商'} - 接口列表`" :width="1480" :close-disabled="busy" @update:model-value="close">
+  <RendererDialog v-if="dialogRule" v-bind="dialogRule.props" :model-value="true"
+    :title="`${providerName || '当前提供商'} - 接口列表`" :close-disabled="busy" @update:model-value="close">
     <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" >
       <template #content="{children}">
         <div class="interface-list">
@@ -117,6 +118,10 @@ function requestToolbar(table:string,order:readonly FeatureTableAction[]){
   })
 }
 const listRuntime=computed(()=>ready.value?session.runtime:undefined)
+const dialogRule=computed(()=>{
+  const runtime=listRuntime.value
+  return runtime ? region(runtime.tool.rule.children,'api-interface-dialog') : undefined
+})
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
   return {path,fullPath,name:name??null,params,query,hash}

@@ -18,11 +18,13 @@ export async function verifyOriginalOperationRouteDispatch(scope:Scope,receipt:R
 }>){
  const assertCurrent=()=>{source.assertCurrent();receipt.assertCurrent()}
  assertCurrent()
+ const fixedScope=Object.freeze({...scope})
+ const {expectedInputDigest}=source
  const fields=['runId','attemptRef','requestKey','projectId','targetDigest','configurationLockHash'] as const
  const error='OPERATION_ROUTE_DISPATCH_SCOPE'
- const digest=(value:string)=>/^[a-f0-9]{64}$/u.test(value)
- if(fields.some(key=>!identity(scope[key])||scope[key]!==receipt[key])||
-  ![scope.targetDigest,scope.configurationLockHash,source.expectedInputDigest].every(digest))throw Error(error)
+ const digest=(value:unknown)=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
+ if(fields.some(key=>!identity(fixedScope[key])||fixedScope[key]!==receipt[key])||
+  ![fixedScope.targetDigest,fixedScope.configurationLockHash,expectedInputDigest].every(digest))throw Error(error)
  if(receipt.state==='UNKNOWN')return Object.freeze({state:'UNKNOWN' as const,assertCurrent})
  const {dispatchRef,actualInputDigest}=receipt
  if(!identity(dispatchRef)||!digest(actualInputDigest))throw Error(error)
@@ -30,6 +32,6 @@ export async function verifyOriginalOperationRouteDispatch(scope:Scope,receipt:R
  if(inputJson!==null&&await hashCanonicalSnapshotText(inputJson)!==actualInputDigest)
   throw Error('OPERATION_ROUTE_DISPATCH_DIGEST')
  assertCurrent()
- return Object.freeze({state:actualInputDigest===source.expectedInputDigest?'MATCHED':'MISMATCHED',
-  dispatchRef,actualInputDigest,inputJson,scope:Object.freeze({...scope}),assertCurrent})
+ return Object.freeze({state:actualInputDigest===expectedInputDigest?'MATCHED':'MISMATCHED',
+  dispatchRef,actualInputDigest,inputJson,scope:fixedScope,assertCurrent})
 }

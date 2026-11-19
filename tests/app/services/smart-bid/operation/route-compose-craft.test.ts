@@ -57,6 +57,12 @@ it('accepts only the original complete attempt and the JSON candidate that fits 
   .rejects.toThrow('OPERATION_ROUTE_DISPATCH_DIGEST')
  await expect(verifyOriginalOperationRouteDispatch(scope,{...sent,configurationLockHash:'0'.repeat(64)},evidence))
   .rejects.toThrow('OPERATION_ROUTE_DISPATCH_SCOPE')
+ const changingScope={...scope}
+ const changingEvidence={...evidence}
+ const pendingDispatch=verifyOriginalOperationRouteDispatch(changingScope,{...sent,input:craft.inputExample},changingEvidence)
+ changingScope.requestKey='OTHER'
+ changingEvidence.expectedInputDigest='0'.repeat(64)
+ await expect(pendingDispatch).resolves.toMatchObject({state:'MATCHED',scope})
  const dispatch=await verifyOriginalOperationRouteDispatch(scope,sent,evidence)
  const response={...receipt,state:'COMPLETE' as const,output:craft.outputExample}
  const guide={...source,guideVersionRef:'GV1',guideRef:'GUIDE',guideDigest,configurationLockHash:scope.configurationLockHash,assertGuideCurrent:action.assertCurrent}

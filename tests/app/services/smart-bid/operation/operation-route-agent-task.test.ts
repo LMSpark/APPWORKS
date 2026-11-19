@@ -58,6 +58,11 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
   await expect(dispatchOperationRouteAgentTask(options,{...source,turn:failedTurn,manifest,claimOriginalTurn}))
    .resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNAVAILABLE',turnId:failedTurn.turnId})
   expect(start).toHaveBeenCalledOnce()
+  const unknownClaim={...turn,turnId:crypto.randomUUID()}
+  claimOriginalTurn.mockRejectedValueOnce(Error('CLAIM_TIMEOUT'))
+  await expect(dispatchOperationRouteAgentTask(options,{...source,turn:unknownClaim,manifest,claimOriginalTurn}))
+   .resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN',turnId:unknownClaim.turnId})
+  expect(start).toHaveBeenCalledOnce()
   expect(executeTurn).toHaveBeenCalledOnce()
  }finally{start.mockRestore()}
 })

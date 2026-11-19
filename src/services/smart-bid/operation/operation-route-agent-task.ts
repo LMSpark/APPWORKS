@@ -68,7 +68,13 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  const dispatch=Object.freeze({...manifest.scope,manifestDigest:manifest.manifestDigest,inputDigest:manifest.inputDigest,
   publishedVersionRef:prepared.publishedVersionRef,guideRef:manifest.guideRef,guideVersionRef:manifest.guideVersionRef,guideDigest:manifest.guideDigest,
   registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
- const claim=await source.claimOriginalTurn(dispatch)
+ let claim:DispatchClaim
+ try{
+  claim=await source.claimOriginalTurn(dispatch)
+ }catch{
+  prepared.assertCurrent()
+  return Object.freeze({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNKNOWN' as const,turnId:fixedTurn.turnId})
+ }
  prepared.assertCurrent()
  claim.assertCurrent()
  if(Object.keys(dispatchIdentityFields).some(key=>isDispatchIdentityField(key)&&claim[key]!==dispatch[key]))

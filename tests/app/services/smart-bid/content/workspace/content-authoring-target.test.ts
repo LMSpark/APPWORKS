@@ -169,6 +169,10 @@ it('dispatches only the published node and tool pair in the declared space',()=>
  const entry={nodeId:'NAV11',pageId:'TOOL11'}
  expect(resolvePublishedContentAuthoringTarget(route(),entry)?.draftId).toBe('D')
  expect(resolvePublishedContentAuthoringTarget(route(),{...entry,nodeId:'OTHER'})).toBeUndefined()
+ for(const receiptDataViewKey of ['OTHER@SaveReceipt@originalSave',`${space}@WorkingDraft@personalDraft`,'SaveReceipt@originalSave']){
+  expect(()=>resolvePublishedContentAuthoringTarget(route(),{...entry,receiptDataViewKey}))
+   .toThrow('CONTENT_AUTHORING_PUBLICATION_RECEIPT_CONFLICT')
+ }
  expect(()=>resolvePublishedContentAuthoringTarget(route(),{...entry,pageId:'OTHER'})).toThrow('PUBLICATION_IDENTITY_CONFLICT')
  expect(()=>resolvePublishedContentAuthoringTarget({...route(),query:{...route().query,additionalScenarioIds:'OTHER'}},entry))
   .toThrow('PUBLICATION_IDENTITY_CONFLICT')

@@ -7,6 +7,7 @@
 import {captureContentAuthoringSession, type ContentAuthoringTarget} from '../../model/content-authoring-host'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {parseDataViewKey} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {createPublishedContentAuthoringHost} from './content-authoring-script-host'
 
@@ -39,6 +40,11 @@ export function resolvePublishedContentAuthoringTarget(
  const target = resolveContentAuthoringTarget(route)
  if (target.pageId !== entry.pageId || route.query['additionalScenarioIds'] !== undefined) {
   throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_CONFLICT')
+ }
+ if(entry.receiptDataViewKey!==undefined){
+  const receipt=parseDataViewKey(entry.receiptDataViewKey)
+  if(receipt?.scope!==target.scenarioId||receipt.tableName==='WorkingDraft')
+   throw Error('CONTENT_AUTHORING_PUBLICATION_RECEIPT_CONFLICT')
  }
  return target
 }

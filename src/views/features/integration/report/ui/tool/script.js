@@ -17,3 +17,6 @@ async function chooseReportModel(row) { await $page.invokeHostCommand('reports.m
 async function addReportVersion() { await $page.invokeHostCommand('reports.version.add') }
 async function cancelReportModel() { await $page.invokeHostCommand('reports.model.cancel') }
 async function submitReportModel() { await $page.invokeHostCommand('reports.model.submit') }
+async function cancelCreateReport() { await $page.invokeHostCommand('reports.create.cancel') }
+async function abandonCreateReport() { await $page.invokeHostCommand('reports.create.abandon') }
+async function submitCreateReport() { await $page.invokeHostCommand('reports.create.submit') }

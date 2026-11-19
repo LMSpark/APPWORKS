@@ -1,18 +1,19 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {defineComponent, h, ref} from 'vue'
+import {defineComponent, h, markRaw, ref, shallowRef, type PropType} from 'vue'
 import ElementPlus, {ElMessageBox} from 'element-plus'
-import {compileRule, type PageRuntime} from '@spark-appworks/spark-project-model'
-import {FieldCheckbox, PAGE_RUNTIME, PAGE_SERVICE, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
+import {FieldCheckbox, PAGE_SERVICE, RendererButton, RendererDialog, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import ReportCreateDialog from '@/views/features/integration/report/ui/report-create-dialog.vue'
 import {createReportRuntime} from './report.fixture'
 import {createTestPageService} from '../../../support/helpers/page-service-host'
 
 import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 
-const nodes = compileRule(rule)
-const infoRule = nodes.find(node => node.id === 'reportCreateInfo')!
-const versionRule = nodes.find(node => node.id === 'reportCreateVersion')!
+import script from '@/views/features/integration/report/ui/tool/script.js?raw'
+import style from '@/views/features/integration/report/ui/tool/style.css?raw'
+import {nodeId, type SparkNode} from '@spark-appworks/spark-data'
+
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
 const infoKey = `${scenario}@Base_ReportInfo@default`
 const reportKey = `${scenario}@Base_Report@default`
@@ -40,17 +41,39 @@ afterEach(() => {
 })
 
 async function open() {
-  const {http, dataSet, runtime, info, report, apps} = await createReportRuntime(scenario)
+  const tool = new PageTool({pageId: 'report-create-test'})
+  tool.hydrateFileText('rule.json', rule)
+  tool.hydrateFileText('script.js', script)
+  tool.hydrateFileText('style.css', style)
+  tool.markLoaded()
+  const {http, dataSet, runtime, info, report, apps} = await createReportRuntime(scenario, undefined, tool)
   runtimes.push(runtime)
   await info.addRowWithIdentity({field: 'rowid', value: 'I'}, {RptName: '测试报表', modid: 'APP', modname: '应用', version_id: 'V'})
   await report.addRowWithIdentity({field: 'rowid', value: 'V'}, {RptID: 'I', Version: '0', State: '1', isMerg: '0', isDashboards: '0'})
   const closed = vi.fn(), boundInfoId = ref('I')
-  const Host = defineComponent({setup() {
-    const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
-    sparkProvide(PAGE_RUNTIME, runtime)
-    sparkProvide(PAGE_SERVICE, createTestPageService())
-    return () => h(ReportCreateDialog, {infoKey, reportKey, appKey, infoRule, versionRule, infoId: boundInfoId.value, reportId: 'V', onClose: closed})
-  }})
+  const dialog = shallowRef<InstanceType<typeof ReportCreateDialog> | null>(null)
+  const CreateHost = defineComponent({
+    props: {rules: {type: Array as PropType<SparkNode[]>, required: true}},
+    setup(props) {
+      const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
+      sparkProvide(PAGE_SERVICE, createTestPageService())
+      return () => {
+        const infoRule = props.rules.find(node => nodeId(node) === 'reportCreateInfo')
+        if (!infoRule) throw new Error('缺少报表创建规则')
+        return h(ReportCreateDialog, {ref: dialog, infoKey, reportKey, appKey, infoRule,
+          versionRule: props.rules.find(node => nodeId(node) === 'reportCreateVersion'),
+          footerRule: props.rules.find(node => nodeId(node) === 'reportCreateFooter'),
+          infoId: boundInfoId.value, reportId: 'V', onClose: closed})
+      }
+    },
+  })
+  const host = {runtime, assertCurrent() {}, invoke(command: string) {
+    if (command.startsWith('reports.create.')) return dialog.value?.invoke(command.slice('reports.create.'.length))
+  }}
+  const Host = defineComponent({setup: () => () => h(SparkPageRenderer, {
+    pageRuntime: markRaw(runtime), host, autoLoad: false,
+    routeSnapshot: {path: '/test', fullPath: '/test', name: null, params: {}, query: {}, hash: ''},
+  }, {content: ({children}: {children: SparkNode[]}) => h(CreateHost, {rules: children})})})
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
   wrappers.push(wrapper)
   await flushPromises()

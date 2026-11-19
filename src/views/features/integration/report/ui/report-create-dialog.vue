@@ -11,21 +11,18 @@
     <SparkComponentRenderer :config="infoForm" />
     <SparkComponentRenderer :config="versionForm" />
     <template #footer>
-      <RendererButton label="取消" :disabled="!canCancel" @click="cancel" />
-      <RendererButton v-if="ownUnknown && !abandonInterrupted" label="放弃核验并返回" :disabled="busy || !current" @click="abandon" />
-      <RendererButton :label="saveLabel" button-type="primary" :disabled="busy || abandonInterrupted || foreignUnknown || recoveryEnded || missingReceipt || !current"
-        @click="submit" />
+      <SparkComponentRenderer :config="footerConfig" />
     </template>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {DataViewSaveNotAppliedError, getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {DataViewSaveNotAppliedError, getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, syncAppName, textOf} from './report-format'
-const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = Components
-const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number; infoRule: SparkNode; versionRule: SparkNode | undefined}>()
+const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent, consumeRequiredPageService} = Components
+const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number; infoRule: SparkNode; versionRule: SparkNode | undefined; footerRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: [reason?: 'abandoned']}>()
 const {sparkConsume} = useSparkComponent({type: 'report-create-dialog'})
 const pageService = consumeRequiredPageService(sparkConsume, 'report-create-dialog')
@@ -74,6 +71,19 @@ const blocked = computed(() => !current.value ? '原报表编辑身份已变化�
   : missingReceipt.value ? '部分记录缺少本窗确认回执，请先核对正式结果，不能重发或丢弃。' : '')
 const saveLabel = computed(() => ownUnknown.value ? '核验原保存结果' : permissionsPending.value ? '回读已保存权限'
   : confirmed.value.size > 0 ? '保存剩余记录' : '确定')
+const submitDisabled = computed(() => busy.value || abandonInterrupted.value || foreignUnknown.value || recoveryEnded.value
+  || missingReceipt.value || !current.value)
+const footerConfig = computed<SparkNode>(() => {
+  const footer = props.footerRule
+  if (!footer) throw new Error('新增报表缺少确认操作规则')
+  const children = getSparkNodeChildren(footer.children).flatMap(node => {
+    if (nodeId(node) === 'cancelCreateReport') return [{...node, props: {...node.props, disabled: !canCancel.value}}]
+    if (nodeId(node) === 'abandonCreateReport') return ownUnknown.value && !abandonInterrupted.value
+      ? [{...node, props: {...node.props, disabled: busy.value || !current.value}}] : []
+    return [{...node, props: {...node.props, label: saveLabel.value, disabled: submitDisabled.value}}]
+  })
+  return {...footer, children}
+})
 const editing = (target: DataView, id: string | number): Readonly<DataRow> | undefined => {
   void revision.value
   return target.getEditingRow(id) ?? undefined
@@ -209,4 +219,10 @@ async function submit(): Promise<void> {
     if (active) {busy.value = false; revision.value++}
   }
 }
+function invoke(command: string): void | Promise<void> {
+  if (command === 'cancel') return cancel()
+  if (command === 'abandon') return abandon()
+  if (command === 'submit' && !submitDisabled.value) return submit()
+}
+defineExpose({invoke})
 </script>

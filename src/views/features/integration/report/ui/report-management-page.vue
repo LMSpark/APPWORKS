@@ -24,11 +24,12 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
               title="编辑报表" :form-rule="node" :validate="validateEdit" @close="closeDialog" />
           </template>
           <template v-else-if="nodeId(node) === 'reportCreateInfo'">
-            <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch"
+            <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" ref="createDialogs" :key="dialog.epoch"
               :info-key="viewKey" :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId"
-              :info-rule="node" :version-rule="children.find(child => nodeId(child) === 'reportCreateVersion')" @close="closeDialog" />
+              :info-rule="node" :version-rule="children.find(child => nodeId(child) === 'reportCreateVersion')"
+              :footer-rule="children.find(child => nodeId(child) === 'reportCreateFooter')" @close="closeDialog" />
           </template>
-          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm' && nodeId(node) !== 'reportCreateVersion'" :config="node" />
+          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm' && nodeId(node) !== 'reportCreateVersion' && nodeId(node) !== 'reportCreateFooter'" :config="node" />
         </template>
       </template>
     </SparkPageRenderer>
@@ -126,6 +127,7 @@ const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
   return {path, fullPath, name: name ?? null, params, query, hash}
 })
+const createDialogs = useTemplateRef<InstanceType<typeof ReportCreateDialog>[]>('createDialogs')
 const versionDialogs = useTemplateRef<InstanceType<typeof ReportVersionDialog>[]>('versionDialogs')
 const modelDialogs = useTemplateRef<InstanceType<typeof ReportModelDialog>[]>('modelDialogs')
 const host = computed(() => {
@@ -148,6 +150,9 @@ const host = computed(() => {
     if (command === 'reports.create') {
       if (!busy.value && !dialog.value && !unconfirmed.value) await create()
       return undefined
+    }
+    if (dialog.value?.kind === 'create' && command.startsWith('reports.create.')) {
+      return createDialogs.value?.[0]?.invoke(command.slice('reports.create.'.length))
     }
     const actionRow = input && typeof input === 'object' ? input as DataRow : undefined
     if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {

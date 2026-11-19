@@ -294,10 +294,10 @@ flowchart LR
 
 | 优先级 | 断点 | 当前源码事实 | 风险 | 解除条件 |
 |---|---|---|---|---|
-| P0 | 原请求无权威终态 | `DataSpaceRuntimeApi.save` 对 response 已离开当前域/回执不明的提交保留 unconfirmed；相同批再次调用抛 `SPARK_SAVE_UNVERIFIABLE` | 页面可能永久卡在 unknown；不能自动恢复 | 服务提供原请求 ID/终态查询，或明确可证明的条件读回合同 |
-| P0 | 正式导航与授权菜单未闭环 | 本地可装配 PageRuntime，但运行菜单仍依赖正式授权回包；某些业务节点/场景可在蓝图中存在但不在授权菜单 | 代码通过不代表用户可达 | 真实授权菜单包含同一 nodeId/pageId/scenarioId，冷开成功 |
+| 已关闭（源码/fixture） | 普通 CRUD 原请求无权威终态 | save capture 固定正式主键、字段与 digest；unknown 仅按原 key exact readback，确认后接纳，不能证明时保留 unknown；不会重发 | 源码层已闭环，但服务侧仍无 durable request terminal | 保留精确回读；真实 service write、丢回执与重开仍按页面逐项验收 |
+| 部分实服验证 | 正式导航与授权菜单 | 表和视图管理已由真实授权菜单进入并冷重开返回 33 条；SmartBid 11 个 `/bid/` 节点是 plan/vue 目标且缺 VersionId | 前端通过不代表全部业务节点 READY | SmartBid 服务发布 cfg/manifest 或原生页实现；每节点取得 READY 后逐个冷开 |
 | P1 | 混合 owner 分阶段恢复 | `saveChangesInPhases` 有顺序保护，无跨来源事务；数据库、pagedata、工具、业务数据分别确认 | partial 后续可能误重放或误报整体失败 | 每阶段固定原视图集合和 receipt；unknown 只核原捕获；UI 显示逐阶段结果 |
-| P1 | 四文件逐文件缓存无原子集 | rule/script/style/pagedata 分别 lastModified 与缓存；同一组内容更新可能形成跨版本组合 | 页面可由同次读取的四个最新版本装配，但不存在服务端集合版本证明 | 后端提供四文件 manifest/ETag，或正式发布指针查询只在读取层消费 |
+| 已关闭（源码/fixture） | 四文件逐文件缓存无原子集 | publication manifest 固定 rule/script/style/pagedata snapshot 与 SHA-256；PageRuntime 只在整组 proof 通过后物化 | 实服 SmartBid 尚无发布 manifest | 服务节点指向该 manifest 后由真实冷开验收 |
 | P1 | 时间戳版本碰撞 | `readRuntimeFile` 以修改时间判定命中，不是内容 hash | 同毫秒不同内容可能命中旧缓存 | 后端返回 ETag/hash，或相同时间时强制正文读取 |
 | P1 | 系统场景/动态场景双来源 | 仓内系统场景与动态应用场景读取路径不同，但共享装配器 | 装配语义一致性依赖宿主适配 | 保持单一 `loadScenarioDataSet`，为系统/动态来源建立契约测试 |
 | P1 | 设计、运行、预览仍是不同生命周期 | 正式运行读已保存文件；预览可由临时定义装配；设计器持有额外草稿 owner | 预览结果、已保存结果与工作草稿可能混淆 | 每次结果携带 source revision / generation / saved-or-preview 标记 |

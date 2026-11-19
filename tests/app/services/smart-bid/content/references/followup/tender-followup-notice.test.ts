@@ -131,6 +131,11 @@ it('reads the original addendum locations for the current project, lot and round
    .rejects.toThrow('BID_SUBMISSION_OBLIGATION_SCOPE')
   const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal)
   expect(listed).toMatchObject({basisRevisionId:'ORIGINAL',items:[{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}]})
+  const attemptQuery=attempts.queryConfig
+  attempts.queryConfig={...attemptQuery,cacheType:'page'}
+  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
+   .rejects.toThrow('TENDER_CHANGE_ATTEMPT_SCOPE')
+  attempts.queryConfig=attemptQuery
   const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal)
   expect(history).toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:[{
    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],

@@ -164,7 +164,6 @@ export async function prepareRegisteredDraftCandidateRequest(host:ContentRevisio
  const responses=await readDraftResponseVersions({...host,assertCurrent:request.assertCurrent},selected,request.nodeIds)
  const usedIds=new Set([...request.factVersions.map(item=>item.factId),...responses.factIds])
  const factVersions=basis.factVersions.filter(item=>usedIds.has(item.factId))
-  .sort((left,right)=>left.factId<right.factId?-1:left.factId>right.factId?1:0)
  const facts=await readEffectiveFactsFromBaseline(host,[...usedIds],{factVersions,assertCurrent:responses.assertCurrent})
  return bindDraftCandidateFactEvidence(request,{...facts,factVersions,responseVersions:responses.versions})
 }

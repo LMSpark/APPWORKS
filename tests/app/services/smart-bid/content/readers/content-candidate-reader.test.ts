@@ -87,6 +87,13 @@ it('pins a new independent response and its frozen facts in the candidate reques
   expect(prepared.requestJson).toContain('"payloadHash":')
   const [version]=prepared.responseVersions
   if(!version)throw Error('Expected the selected response version')
+  const extra={factId:'ADDITIONAL',version:1}
+  const ordered=await bindDraftCandidateFactEvidence(prepared,{...prepared,factVersions:[extra,...prepared.factVersions]})
+  const reversed=await bindDraftCandidateFactEvidence(prepared,{...prepared,factVersions:[...prepared.factVersions,extra]})
+  expect(reversed.requestJson).toBe(ordered.requestJson)
+  expect(reversed.requestDigest).toBe(ordered.requestDigest)
+  extra.version=2
+  expect(reversed.factVersions[0]?.version).toBe(1)
   for(const responseVersions of [[],[version,version],[{...version,responseId:'OTHER'}]]){
    await expect(bindDraftCandidateFactEvidence(prepared,{...prepared,responseVersions}))
     .rejects.toThrow('CONTENT_DRAFT_CANDIDATE_FACT_EVIDENCE')

@@ -98,6 +98,10 @@ it('captures the saved draft for candidacy and withdraws it when edits start',as
  const f=await fixture()
  try{
   const captured=await f.commands.captureCandidateDraft(f.commands.epoch)
+  const pendingSave=vi.spyOn(f.view,'hasUnconfirmedSave','get').mockReturnValue(true)
+  expect(()=>captured.assertCurrent()).toThrow('CONTENT_COMMAND_MUTATING')
+  await expect(f.commands.captureCandidateDraft(f.commands.epoch)).rejects.toThrow('CONTENT_COMMAND_MUTATING')
+  pendingSave.mockRestore()
   const original=f.view.rows[0]!
   f.view.dirtyTracking.markDirty('D',original)
   expect(f.view.hasEditingChanges()).toBe(false)

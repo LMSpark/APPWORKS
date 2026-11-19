@@ -197,15 +197,29 @@ async function closeDialog(reason?: 'abandoned'): Promise<void> {
 const remove = (row: DataRow) => guarded(async () => {
   const info = view(viewKey.value), id = idOf(info, row)
   assertSettled()
-  if (!await pageService.showConfirm(`确定删除报表"${textOf(row, 'RptName') || String(id)}"及其全部版本吗？`, '删除确认', {type: 'warning'})) return
+  const nameReadable = info.fieldAccess(row, 'RptName').read === 'visible'
+  const assertReport = info.captureReadRow(row, [...info.effectivePkFields, ...(nameReadable ? ['RptName'] : [])])
+  const label = nameReadable ? textOf(row, 'RptName') || String(id) : String(id)
+  if (!await pageService.showConfirm(`确定删除报表"${label}"及其全部版本吗？`, '删除确认', {type: 'warning'})) return
+  assertReport()
   assertSettled()
   const versions = view(versionsKey)
   versions.queryContext = {reportId: String(id)}
   await versions.refresh()
   if (versions.loadingError) throw versions.loadingError
-  const versionIds = versions.rows.map(version => idOf(versions, version))
+  assertReport()
+  versions.captureReadResult()()
+  if (versions.nextPageAvailable === true || versions.countReported === true && versions.total !== versions.rows.length) {
+    throw new Error('报表版本未完整读取，不能删除报表')
+  }
+  const versionIds = versions.rows.map(version => {
+    versions.captureReadRow(version, [...versions.effectivePkFields, 'RptID'])()
+    if (textOf(version, 'RptID') !== String(id)) throw new Error('版本与当前报表不一致')
+    return idOf(versions, version)
+  })
   try {
     for (const versionId of versionIds) await versions.removeRow(versionId)
+    assertReport()
     await info.removeRow(id)
     await commitReportChanges({label: '删除报表', targets: [{view: versions, ids: versionIds}, {view: info, ids: [id]}]})
   } finally {

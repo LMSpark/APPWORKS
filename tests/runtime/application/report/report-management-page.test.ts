@@ -257,6 +257,23 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.http.records['Base_Report']).toHaveLength(0)
   })
 
+  it.each(['refreshed', 'partial'] as const)('拒绝使用失效报表或不完整版本删除 (%s)', async mode => {
+    const f = await open()
+    await seed(f)
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)!
+    const paging = mode === 'partial' ? vi.spyOn(versions, 'nextPageAvailable', 'get').mockReturnValue(true) : undefined
+    try {
+      await rowAction(f, '删除', infoRow(f))
+      if (mode === 'refreshed') await f.info.refresh()
+      await confirmBox(true)
+      await vi.waitFor(() => expect(document.body.textContent).toContain(
+        mode === 'refreshed' ? '原查询身份或行已变化' : '报表版本未完整读取'))
+      expect(f.http.saves).toHaveLength(0)
+      expect(f.info.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {paging?.mockRestore()}
+  })
+
   it('取消删除确认不提交', async () => {
     const f = await open()
     await seed(f)

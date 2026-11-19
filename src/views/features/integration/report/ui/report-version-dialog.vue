@@ -119,7 +119,9 @@ const remove = (row: DataRow) => guarded(async () => {
 const activate = (row: DataRow) => guarded(async () => {
   assertSettled()
   const versions = view(versionKey), info = view(props.infoKey), id = idOf(versions, row)
-  if (versions.total > versions.rows.length) throw new Error('报表版本未完整读取，不能启动版本')
+  if (versions.nextPageAvailable === true || versions.countReported === true && versions.total !== versions.rows.length) {
+    throw new Error('报表版本未完整读取，不能启动版本')
+  }
   versions.captureReadRow(row, ['RptID', 'State', 'DataFormID'])()
   for (const version of versions.rows) {
     versions.captureReadRow(version, ['RptID', 'State'])()

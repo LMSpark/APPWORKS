@@ -132,11 +132,12 @@ it('prepares the selected independent response from the saved draft and original
   responseVersions:[{responseId:'RESPONSE'}],factVersions:[{factId:'PRICE',version:2}],assertCurrent}))
  const query:Record<string,string|null>={projectId:'P',draftId:'D',draftCandidateRequestKey:'Q',candidateTargetKind:'RESPONSE',candidateAssignmentId:'ASSIGNMENT',
   candidateBasisResponseId:null,candidateFirstBatchId:'BATCH'}
- const session={prepareDraftCandidate,assertCurrent,canEditDraft:true}
- const {__init__,openDraftCandidate,bindEditorStatus}=compileFunctions(script,{$route:{query},$page:{
+ const session={prepareDraftCandidate,assertCurrent,canEditDraft:true,canLeave:false,
+  cancel:vi.fn(()=>{throw Error('CONTENT_AUTHORING_STALE')})}
+ const {__init__,openDraftCandidate,bindEditorStatus,cancelDraft,bindCancel}=compileFunctions(script,{$route:{query},$page:{
   invokeHostCommand:async()=>session,showAlert,showMessage,
  }} as unknown as PageContext)
- if(!__init__||!openDraftCandidate)throw Error('TEST_CANDIDATE_PREPARATION_REQUIRED')
+ if(!__init__||!openDraftCandidate||!cancelDraft||!bindCancel)throw Error('TEST_CANDIDATE_PREPARATION_REQUIRED')
  await __init__()
  expect(bindEditorStatus?.()).toEqual({status:'本页可暂存编辑。正式保存尚不可用，离页前可取消本次编辑。'})
  session.canEditDraft=false
@@ -177,6 +178,9 @@ it('prepares the selected independent response from the saved draft and original
  await previousDraft
  expect(showAlert).toHaveBeenCalledTimes(3)
  expect(showMessage).toHaveBeenCalledTimes(3)
+ cancelDraft()
+ expect(showMessage).toHaveBeenLastCalledWith('当前草稿无法取消，未保存内容仍保留','warning')
+ expect(bindCancel()).toEqual({visible:true,disabled:false})
 })
 it('withdraws original form and comparison results when the selected template changes',async()=>{
  const query={projectId:'P',draftId:'D',formTemplateRef:'T',formTemplateVersion:'V2',previousFormTemplateVersion:'V1'}

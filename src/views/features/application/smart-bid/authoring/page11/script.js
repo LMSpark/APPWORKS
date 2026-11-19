@@ -487,7 +487,14 @@ function bindCancel() {
   try {return {visible: !!editorSession, disabled: !editorSession || editorSession.canLeave}}
   catch {return {disabled: true}}
 }
-function cancelDraft() {editorSession?.cancel(); selectedNodeId = null}
+function cancelDraft() {
+  try {
+    editorSession?.cancel()
+    selectedNodeId = null
+  } catch {
+    $page.showMessage('当前草稿无法取消，未保存内容仍保留', 'warning')
+  }
+}
 
 function bindSelectedNode() {
   try {

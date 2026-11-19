@@ -137,18 +137,18 @@ it('reads the original addendum locations for the current project, lot and round
    .rejects.toThrow('TENDER_CHANGE_ATTEMPT_SCOPE')
   attempts.queryConfig=attemptQuery
   const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal)
-  expect(history).toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:[{
+  expect(history).toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:[{
    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],
   }]}]})
   history.assertCurrent()
   hiddenFields=['changeDispositions']
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
-   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:[{
+   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:[{
     references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:null}],
    }]}]})
   hiddenFields=['actualRequirementReads']
   expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
-   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',impacts:null}]})
+   .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:null}]})
   attemptCount=2
   await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
    .rejects.toThrow('TENDER_CHANGE_ATTEMPT_INCOMPLETE')

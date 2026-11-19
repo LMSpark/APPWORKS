@@ -44,7 +44,7 @@ async function openOriginalAttempts() {
     }
     const lines = ['正文基版 ' + result.basisRevisionId]
     for (const item of result.items) {
-      lines.push(`运行 ${item.runId} · 试次 ${item.attemptRef}`)
+      lines.push(`运行 ${item.runId} · 试次 ${item.attemptRef} · 原请求 ${item.requestKey}`)
       if (!trace) continue
       if (!item.impacts) {
         lines.push('原引用待核')

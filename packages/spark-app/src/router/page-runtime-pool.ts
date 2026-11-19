@@ -88,7 +88,7 @@ export class PageRuntimePool {
     if (inputText !== undefined && (typeof inputText !== 'string' || !inputText.trim())) throw new Error('scenarioInputs 必须是单个非空 JSON 参数')
     const scenarioInputs = prepared?.scenarioInputs ?? (inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText))
     const page = new PageTool({ pageId: tool.pageId })
-    const expectsPublishedVersion = 'versionId' in tool && typeof tool.versionId === 'string'
+    let expectsPublishedVersion = 'versionId' in tool && typeof tool.versionId === 'string'
     const reader = this.options.readPageFile
     let assertPublishedVersion: (() => void) | undefined
     const runtime = markRaw(new PageRuntime({
@@ -126,6 +126,7 @@ export class PageRuntimePool {
           return versionId
         }
         const versionId = readVersion()
+        if (versionId !== undefined) expectsPublishedVersion = true
         const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({
           projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }),
         }))

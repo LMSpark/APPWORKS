@@ -11,8 +11,10 @@ import { protectPageChanges } from '@/services/project/navigation/page-unload-pr
 import { SparkData } from '@spark-appworks/spark-data'
 
 describe('page call tabs and retained renderer instances', () => {
-  it('invalidates a prepared command when its published tool version changes', async () => {
-    const tool: {pageId: string; projectId: string; versionId?: string} = {pageId: 'TOOL', projectId: 'APP', versionId: 'v1'}
+  it.each([undefined, 'v1'])('invalidates the original command on version change from %s and rejects a later missing version', async initialVersion => {
+    const tool: {pageId: string; projectId: string; versionId?: string} = {
+      pageId: 'TOOL', projectId: 'APP', ...(initialVersion === undefined ? {} : {versionId: initialVersion}),
+    }
     const invoke = vi.fn()
     let assertHostCurrent: (() => void) | undefined
     registerAllRenderers()
@@ -54,7 +56,7 @@ describe('page call tabs and retained renderer instances', () => {
       wrapper.getComponent(RendererButton).vm.$emit('click')
       await flushPromises()
       expect(invoke).toHaveBeenCalledTimes(1)
-      expect(readFiles.mock.calls.map(([commands]) => commands.map(command => command.versionId))).toEqual([['v1', 'v1', 'v1']])
+      expect(readFiles.mock.calls.map(([commands]) => commands.map(command => command.versionId))).toEqual([[initialVersion, initialVersion, initialVersion]])
       await runtime.reload()
       expect(readFiles.mock.calls[1]?.[0].map(command => command.versionId)).toEqual(['v2', 'v2', 'v2'])
       delete tool.versionId

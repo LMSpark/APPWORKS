@@ -165,9 +165,11 @@ function bindObservation() {
 
 async function openObservation() {
   if (!bindObservation().visible) return
+  const selectionRef = $route.query.platformObservationRef
   try {
     const result = await $page.invokeHostCommand('content.review.readPlatformObservation',
-      {selectionRef: $route.query.platformObservationRef})
+      {selectionRef})
+    if ($route.query.platformObservationRef !== selectionRef) return
     result.assertCurrent()
     const labels = {MATCHED: '与本版批准值一致', MISMATCHED: '与本版批准值不一致',
       STAGE_REQUIRED: '本次记录缺所需平台状态', RECEIPT_REQUIRED: '缺同次提交回执'}
@@ -181,7 +183,7 @@ async function openObservation() {
     if (result.receiptRef) lines.push(`同次提交回执 ${result.receiptRef}`)
     await $page.showAlert(lines.join('\n'), '平台实填回读')
   } catch {
-    $page.showMessage('平台实填证据无法核验', 'warning')
+    if ($route.query.platformObservationRef === selectionRef) $page.showMessage('平台实填证据无法核验', 'warning')
   }
 }
 
@@ -191,9 +193,11 @@ function bindFileObservation() {
 
 async function openFileObservation() {
   if (!bindFileObservation().visible) return
+  const selectionRef = $route.query.fileObservationRef
   try {
     const result = await $page.invokeHostCommand('content.review.readFileObservation',
-      {selectionRef: $route.query.fileObservationRef})
+      {selectionRef})
+    if ($route.query.fileObservationRef !== selectionRef) return
     result.assertCurrent()
     const lines = [`文件 ${result.file.producedFileId} · 位置 ${result.locationRef}`,
       `原实填值 ${result.observedValueJson}${result.unit ? ` ${result.unit}` : ''}`]
@@ -210,7 +214,7 @@ async function openFileObservation() {
     }
     await $page.showAlert(lines.join('\n'), '文件实填回读')
   } catch {
-    $page.showMessage('文件实填证据无法核验', 'warning')
+    if ($route.query.fileObservationRef === selectionRef) $page.showMessage('文件实填证据无法核验', 'warning')
   }
 }
 
@@ -220,9 +224,11 @@ function bindPaperObservation() {
 
 async function openPaperObservation() {
   if (!bindPaperObservation().visible) return
+  const selectionRef = $route.query.paperObservationRef
   try {
     const result = await $page.invokeHostCommand('content.review.readPaperObservation',
-      {selectionRef: $route.query.paperObservationRef})
+      {selectionRef})
+    if ($route.query.paperObservationRef !== selectionRef) return
     result.assertCurrent()
     const lines = [`纸件 ${result.paperRef} · 份次 ${result.copyRef}`,
       `页 ${result.pageRef} · 位置 ${result.locationRef}`,
@@ -230,6 +236,6 @@ async function openPaperObservation() {
       `原登记 ${result.registrationRef} · 观察凭据 ${result.evidenceRef}`]
     await $page.showAlert(lines.join('\n'), '纸件实填回读')
   } catch {
-    $page.showMessage('纸件实填证据无法核验', 'warning')
+    if ($route.query.paperObservationRef === selectionRef) $page.showMessage('纸件实填证据无法核验', 'warning')
   }
 }

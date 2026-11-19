@@ -30,6 +30,9 @@ it.each([
  ['openSignedRegistration','signedRegistrationRef'],
  ['openExportRegistration','exportRegistrationRef'],
  ['openProductionRecovery','productionSelectionRef'],
+ ['openObservation','platformObservationRef'],
+ ['openFileObservation','fileObservationRef'],
+ ['openPaperObservation','paperObservationRef'],
 ])('discards obsolete page results in %s',async (handler,queryKey)=>{
  const query:Record<string,string>={[queryKey]:'ORIGINAL'}
  const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()

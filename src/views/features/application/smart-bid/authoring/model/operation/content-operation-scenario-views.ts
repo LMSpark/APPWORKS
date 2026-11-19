@@ -6,6 +6,9 @@
  */
 import type {DataViewFilterTree,ViewMetadata} from '@spark-appworks/spark-data'
 
+import {tenderChangeAttemptScenarioView} from '../../../followup/tender-change-attempt-reader'
+import {tenderChangeCallScenarioView} from '../../../followup/tender-change-call-reader'
+
 const attemptScope=['projectId','runId','attemptRef','requestKey']
 const directoryScope=['projectId','directoryRef']
 const attemptFields=[...attemptScope,'targetDigest','configurationLockHash']
@@ -35,6 +38,8 @@ export function contentOperationScenarioViews(primaryKeys:Readonly<Record<'Knowl
    originalDispatch:view(attemptScope,[...attemptFields,'dispatchRef','actualInputDigest','actualInput'],{primaryKey:ContextManifest}),
   },
   GenerationRun:{
+   originalBasisAttempts:tenderChangeAttemptScenarioView(GenerationRun),
+   originalRequirementReads:tenderChangeCallScenarioView(GenerationRun),
    originalResult:view(attemptScope,[...attemptFields,'receiptRef','state','output'],{primaryKey:GenerationRun}),
    originalReworkEvidence:view(attemptScope,[...attemptFields,'inputRef','returnRef','calls','findings','priorResults'],{primaryKey:GenerationRun}),
   },

@@ -4,8 +4,7 @@ import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/vi
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
-import {tenderChangeCallScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-call-reader'
-import {tenderChangeAttemptScenarioView} from '@/views/features/application/smart-bid/followup/tender-change-attempt-reader'
+import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
@@ -70,8 +69,7 @@ it('reads the original addendum locations for the current project, lot and round
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
  const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
  const views={...chapterViews,Baseline:baselineViews,SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')},
-  GenerationRun:{originalRequirementReads:tenderChangeCallScenarioView('id'),
-  originalBasisAttempts:tenderChangeAttemptScenarioView('id')}}
+  GenerationRun:contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'}).GenerationRun}
  const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
   modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},...views[model as keyof typeof views]},

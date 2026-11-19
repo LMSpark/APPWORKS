@@ -93,7 +93,7 @@ it('withdraws dispatch, verification and input details after the selected attemp
 
 it('prepares rework from the route attempt and a confirmed reason',async()=>{
  const assertCurrent=vi.fn(),showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
- const query={runId:'R',attemptRef:'A',requestKey:'Q'}
+ const query={runId:'R',attemptRef:'A',requestKey:'Q',configurationLockHash:'LOCK'}
  const showPrompt=vi.fn<()=>Promise<string|null>>().mockResolvedValueOnce(null).mockResolvedValueOnce('撤回结果未知')
  const invokeHostCommand=vi.fn(async()=>({assertCurrent,handoffs:[{callRef:'CALL',destination:'ORIGINAL_CALL'}],
   originalOperations:[{callRef:'CALL',destination:'52',ownerRef:'REP'}],reusable:[]}))
@@ -104,10 +104,14 @@ it('prepares rework from the route attempt and a confirmed reason',async()=>{
  await prepareRework()
  expect(invokeHostCommand).not.toHaveBeenCalled()
  await prepareRework()
- expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.operation.prepareRework',{...query,reason:'撤回结果未知'})
+ expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('content.operation.prepareRework',
+  {runId:'R',attemptRef:'A',requestKey:'Q',reason:'撤回结果未知'})
  expect(assertCurrent).toHaveBeenCalledOnce()
  expect(showAlert).toHaveBeenCalledExactlyOnceWith('调用 CALL → ORIGINAL_CALL\n原办理 CALL → 52（REP）','返工交接预览')
  showPrompt.mockImplementationOnce(async()=>{query.attemptRef='OTHER';return '只属于原试次'})
+ await prepareRework()
+ expect(invokeHostCommand).toHaveBeenCalledTimes(1)
+ showPrompt.mockImplementationOnce(async()=>{query.configurationLockHash='NEW_LOCK';return '只属于原冻结配置'})
  await prepareRework()
  expect(invokeHostCommand).toHaveBeenCalledTimes(1)
  showPrompt.mockResolvedValueOnce('当前试次返工')

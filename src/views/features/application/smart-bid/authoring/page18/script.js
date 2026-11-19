@@ -3,6 +3,7 @@ let directory
 let directoryError
 let directoryIsCurrent
 let selectionGeneration = 0
+let guideReadGeneration = 0
 let dispatch
 let dispatchError
 let dispatchIsCurrent
@@ -13,6 +14,7 @@ let reworkPending = false
 
 async function __init__() {
   const generation = ++selectionGeneration
+  guideReadGeneration++
   directory = undefined
   directoryError = undefined
   dispatch = undefined
@@ -178,9 +180,13 @@ function bindRework() {
 
 async function prepareRework() {
   if (reworkPending || bindRework().disabled) return
-  const {projectId, runId, attemptRef, requestKey} = $route.query
+  const {projectId, runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
+  const generation = selectionGeneration
+  const original = dispatch
   const isCurrent = () => $route.query.projectId === projectId && $route.query.runId === runId &&
-    $route.query.attemptRef === attemptRef && $route.query.requestKey === requestKey
+    $route.query.attemptRef === attemptRef && $route.query.requestKey === requestKey &&
+    $route.query.targetDigest === targetDigest && $route.query.configurationLockHash === configurationLockHash &&
+    generation === selectionGeneration && original === dispatch && !dispatchLoading
   reworkPending = true
   try {
     const reason = await $page.showPrompt('请说明本次返工原因', '准备返工交接')
@@ -206,16 +212,16 @@ async function readGuide(row, _column, _event, control) {
   if (control) control.cancel = true
   const current = currentDirectory()
   if (!current) return
-  const generation = ++selectionGeneration
+  const generation = ++guideReadGeneration
   try {
     const rowKey = $page.resolveView(current.dataViewKey)?.getPkKey(row)
     if (rowKey === undefined) return
     const guide = await current.readGuide(rowKey, row)
-    if (generation !== selectionGeneration || currentDirectory() !== current) return
+    if (generation !== guideReadGeneration || currentDirectory() !== current) return
     guide.assertCurrent()
     await $page.showAlert(guide.guide, '动作指南')
   } catch {
-    if (generation === selectionGeneration && currentDirectory() === current) {
+    if (generation === guideReadGeneration && currentDirectory() === current) {
       $page.showMessage('当前动作指南无法核验', 'warning')
     }
   }

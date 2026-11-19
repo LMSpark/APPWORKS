@@ -223,7 +223,7 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   assertProof()
   const error='CONTENT_CANDIDATE_REVIEWED_RESPONSE'
   const {response}=reviewed
-  if(!responseId||response.projectId!==host.projectId||response.baselineId!==row['baselineId'])throw Error(error)
+  if(!snapshotReferenceIdentity(responseId)||response.projectId!==host.projectId||response.baselineId!==row['baselineId'])throw Error(error)
   const matched:string[]=[]
   visitSnapshotReferences(responses,value=>{
    const item=snapshotReferenceRecord(value,error)
@@ -239,8 +239,13 @@ export async function readCandidateContent(host:ContentRevisionReadHost,selectio
   if('chapterId' in response.body){
    const {anchorNodeId}=response.body
    const verifiedAnchor=reviewed.reviewedPositions.find(position=>position.positionRef===anchorNodeId&&position.verified)
-   const node=nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey)?.rows.find(item=>item['nodeId']===anchorNodeId):undefined
-   if(!verifiedAnchor||node?.['nodeHash']!==verifiedAnchor.contentHash)throw Error(error)
+   const anchorView=nodes.dataViewKey?host.runtime.resolveView(nodes.dataViewKey):undefined
+   const anchor=anchorView?.rows.find(item=>item['nodeId']===anchorNodeId)
+   if(!verifiedAnchor||!anchorView||anchor?.['nodeHash']!==verifiedAnchor.contentHash)throw Error(error)
+   const assertAnchor=anchorView.captureReadRow(anchor,['nodeId','nodeHash'])
+   assertAnchor()
+   return Object.freeze({responseId,reviewHash:reviewed.reviewHash,reviewRecord:reviewed.reviewRecord,
+    assertCurrent:()=>{assertProof();assertAnchor()}})
   }
   return Object.freeze({responseId,reviewHash:reviewed.reviewHash,reviewRecord:reviewed.reviewRecord,assertCurrent:assertProof})
  }

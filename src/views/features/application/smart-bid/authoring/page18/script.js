@@ -10,6 +10,7 @@ let dispatchIsCurrent
 let dispatchSelection
 let dispatchLoading = false
 let hasAttempt = false
+let validAttempt = false
 let reworkPending = false
 
 async function __init__() {
@@ -30,7 +31,10 @@ async function __init__() {
     Object.entries(attempt).every(([key, value]) => $route.query[key] === value)
   dispatchIsCurrent = isCurrent
   hasAttempt = Object.values(attempt).some(value => value != null)
-  if (hasAttempt) await refreshOriginalDispatch()
+  validAttempt = [runId, attemptRef, requestKey].every(value => typeof value === 'string' && !!value && value.trim() === value) &&
+    [targetDigest, configurationLockHash].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value))
+  if (validAttempt) await refreshOriginalDispatch()
+  else if (hasAttempt) dispatchError = '原试次参数不完整或格式不正确'
   if (generation !== selectionGeneration || !isDirectoryCurrent()) return
   if (typeof directoryRef !== 'string' || !directoryRef || directoryRef.trim() !== directoryRef) {
     if (!hasAttempt) directoryError = '请从业务目录打开本工作区'
@@ -45,7 +49,7 @@ async function __init__() {
 }
 
 function bindRefreshOriginalDispatch() {
-  return {visible: hasAttempt && dispatchIsCurrent?.() === true, disabled: dispatchLoading}
+  return {visible: validAttempt && dispatchIsCurrent?.() === true, disabled: dispatchLoading}
 }
 
 async function refreshOriginalDispatch() {

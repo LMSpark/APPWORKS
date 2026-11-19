@@ -4,6 +4,17 @@ import script from '@/views/features/application/smart-bid/authoring/page18/scri
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 
+it('does not query an original dispatch without the frozen identity',async()=>{
+ const invokeHostCommand=vi.fn()
+ const {__init__,bindOriginalDispatch,bindRefreshOriginalDispatch}=compileFunctions(script,
+  {$route:{query:{projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q'}},$page:{invokeHostCommand}} as unknown as PageContext)
+ if(!__init__||!bindOriginalDispatch||!bindRefreshOriginalDispatch)throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindOriginalDispatch()).toEqual({error:'原试次参数不完整或格式不正确'})
+ expect(bindRefreshOriginalDispatch()).toMatchObject({visible:false})
+ expect(invokeHostCommand).not.toHaveBeenCalled()
+})
+
 it('rechecks the same original dispatch without starting another attempt',async()=>{
  const query={projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),
   configurationLockHash:'b'.repeat(64),directoryRef:'DIR'}
@@ -73,7 +84,7 @@ it('binds the original directory and never displays a superseded row response',a
 })
 
 it('withdraws dispatch, verification and input details after the selected attempt changes',async()=>{
- const query={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'DIGEST',configurationLockHash:'LOCK'}
+ const query={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const assertCurrent=vi.fn(),showAlert=vi.fn(),showMessage=vi.fn()
  const readActualInput=vi.fn(async()=>{query.attemptRef='OTHER';return '{}'})
  const invokeHostCommand=vi.fn(async()=>({state:'DISPATCH_RECORDED',dispatchRef:'REC',actualInputDigest:'DIGEST',assertCurrent,

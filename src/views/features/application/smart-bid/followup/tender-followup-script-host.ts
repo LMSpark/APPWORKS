@@ -22,7 +22,7 @@ function traceCallImpacts(addendum:Addendum,calls:CallEvidence){
   const references=calls.items.filter(item=>item.lineageId===source.requirementLineageId&&item.version===source.previousRequirementVersion)
   const results=[...new Set(references.map(item=>item.resultRef))].map(resultRef=>{
    const decisions=calls.dispositions.filter(item=>item.addendumId===addendum.id&&item.changeId===source.id&&item.resultRef===resultRef)
-   return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null})
+   return Object.freeze({resultRef,disposition:decisions.length===1?decisions[0]:null,dispositionConflict:decisions.length>1})
   })
   return Object.freeze({source,references:Object.freeze(references),results:Object.freeze(results)})
  }))

@@ -136,7 +136,8 @@ it('reads the original addendum locations for the current project, lot and round
    requirementLineageId:'CLAUSE',previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
   }]})
   const showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
-  const {openChapterImpact}=compileFunctions(script,{$route:{query:{revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A'}},
+  const impactQuery={revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A'}
+  const {openChapterImpact}=compileFunctions(script,{$route:{query:impactQuery},
    $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage},
   } as unknown as PageContext)
   if(!openChapterImpact)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
@@ -145,6 +146,10 @@ it('reads the original addendum locations for the current project, lot and round
    '正式修改 A · 原正文 ORIGINAL',
    'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','已核旧版原挂接 · CHAPTER','本项的基线条款差异待核',
   ].join('\n'),'正文条款引用追查')
+  const previousImpact=openChapterImpact()
+  impactQuery.previousFrozenBaselineId='OTHER'
+  await previousImpact
+  expect(showAlert).toHaveBeenCalledTimes(1)
   expect(showMessage).not.toHaveBeenCalled()
   const calls=await page.invoke('tender.followup.traceCallReferences',
    {addendumId:'A',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'},signal)

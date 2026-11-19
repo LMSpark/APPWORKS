@@ -179,9 +179,15 @@ function bindChapterImpact() {
 async function openChapterImpact() {
   if (!bindChapterImpact().visible) return
   const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
+  const isCurrent = () => {
+    const query = $route.query
+    return query.revisionId === revisionId && query.previousFrozenBaselineId === previousFrozenBaselineId &&
+      query.frozenBaselineId === frozenBaselineId && query.addendumId === addendumId
+  }
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceChapterPins',
       {revisionId, previousId: previousFrozenBaselineId, currentId: frozenBaselineId ?? null, addendumId})
+    if (!isCurrent()) return
     result.assertCurrent()
     const lines = ['正式修改、原正文或基线证据待核']
     if (result.state === 'ADDENDUM_TRACED') {
@@ -204,7 +210,7 @@ async function openChapterImpact() {
     }
     await $page.showAlert(lines.join('\n'), '正文条款引用追查')
   } catch {
-    $page.showMessage('正文条款引用无法核验', 'warning')
+    if (isCurrent()) $page.showMessage('正文条款引用无法核验', 'warning')
   }
 }
 

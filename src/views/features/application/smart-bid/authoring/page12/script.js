@@ -106,21 +106,30 @@ async function openProductionRecovery() {
   }
 }
 
+let coverageSelection
+let coverageLoad = 0
+
 async function __init__() {
+  const load = ++coverageLoad
   const selectionRef = $route.query.reviewSelectionRef
+  coverageSelection = selectionRef
+  coverage = undefined
+  reviewError = undefined
   if (!hasRef(selectionRef)) {
     if (selectionRef === undefined && hasObservation()) return
     reviewError = '请从已固定的审定范围打开'
     return
   }
   try {
-    coverage = await $page.invokeHostCommand('content.review.readCoverage', {selectionRef})
+    const result = await $page.invokeHostCommand('content.review.readCoverage', {selectionRef})
+    if (load === coverageLoad && selectionRef === $route.query.reviewSelectionRef) coverage = result
   } catch {
-    reviewError = '无法核对本轮审核覆盖'
+    if (load === coverageLoad && selectionRef === $route.query.reviewSelectionRef) reviewError = '无法核对本轮审核覆盖'
   }
 }
 
 function currentCoverage() {
+  if (coverageSelection !== $route.query.reviewSelectionRef) return undefined
   try {coverage?.assertCurrent(); return coverage}
   catch {return undefined}
 }
@@ -128,7 +137,7 @@ function currentCoverage() {
 function bindCoverage() {
   if ($route.query.reviewSelectionRef === undefined && hasObservation()) return {visible: false}
   const current = currentCoverage()
-  if (!current) return {error: reviewError ?? '审核覆盖已失效'}
+  if (!current) return {error: (coverageSelection === $route.query.reviewSelectionRef ? reviewError : undefined) ?? '审核覆盖已失效'}
   const covered = current.items.filter(item => item.state === 'COVERED').length
   return {status: `已覆盖 ${covered} 项，共 ${current.items.length} 项`}
 }

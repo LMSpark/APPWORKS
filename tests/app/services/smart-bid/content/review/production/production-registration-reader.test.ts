@@ -9,6 +9,23 @@ import type {PageContext} from '../../../../../../../packages/spark-component/sr
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
+it('withdraws coverage when the review scope changes',async()=>{
+ const query={reviewSelectionRef:'ORIGINAL'}
+ const result={items:[{state:'COVERED'}],assertCurrent:()=>{}}
+ const invokeHostCommand=vi.fn(async()=>result)
+ const {__init__,bindCoverage,bindDetails}=compileFunctions(script,{$route:{query},$page:{invokeHostCommand}} as unknown as PageContext)
+ if(!__init__||!bindCoverage||!bindDetails)throw Error('TEST_COVERAGE_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindCoverage()).toEqual({status:'已覆盖 1 项，共 1 项'})
+ query.reviewSelectionRef='OTHER'
+ expect(bindCoverage()).toEqual({error:'审核覆盖已失效'})
+ expect(bindDetails()).toEqual({visible:false})
+ const loading=__init__()
+ query.reviewSelectionRef='THIRD'
+ await loading
+ expect(bindDetails()).toEqual({visible:false})
+})
+
 it.each([
  ['openSignedRegistration','signedRegistrationRef'],
  ['openExportRegistration','exportRegistrationRef'],

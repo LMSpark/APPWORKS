@@ -489,20 +489,30 @@
     },
     "children": [
       {
-        "id": "flowChart",
-        "type": "r-graph",
+        "id": "chartContent",
+        "type": "r-section",
         "props": {
-          "class": "flow-run-page__chart",
-          "labelField": "TITLE",
-          "edgeSourceField": "UpNodeID",
-          "edgeTargetField": "NextNodeID",
-          "backgroundPattern": "dots",
-          "disabled": true,
-          "nodeBadgeRules": [
-            {"field": "runGraphBadge", "value": "waiting", "label": "待办", "tone": "warning"},
-            {"field": "runGraphBadge", "value": "completed", "label": "已完成", "tone": "success"}
-          ]
-        }
+          "bordered": false,
+          "gridColumns": 1
+        },
+        "children": [
+          {
+            "id": "flowChart",
+            "type": "r-graph",
+            "props": {
+              "class": "flow-run-page__chart",
+              "labelField": "TITLE",
+              "edgeSourceField": "UpNodeID",
+              "edgeTargetField": "NextNodeID",
+              "backgroundPattern": "dots",
+              "disabled": true,
+              "nodeBadgeRules": [
+                {"field": "runGraphBadge", "value": "waiting", "label": "待办", "tone": "warning"},
+                {"field": "runGraphBadge", "value": "completed", "label": "已完成", "tone": "success"}
+              ]
+            }
+          }
+        ]
       }
     ]
   }

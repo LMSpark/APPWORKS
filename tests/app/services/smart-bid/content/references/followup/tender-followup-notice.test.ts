@@ -24,8 +24,11 @@ it.each([
  ['openSubmissionObligations','frozenBaselineId'],
  ['openOriginalAttempts','revisionId'],
  ['openOutboundImpact','followupKnownAt'],
+ ['openOriginalAttempts','projectId'],
+ ['openOutboundImpact','lotId'],
+ ['openTenderAddendum','roundId'],
 ])('suppresses results for a previous selection in %s',async (handler,key)=>{
- const query:Record<string,string>={frozenBaselineId:'B',revisionId:'R',addendumId:'A',followupKnownAt:'TIME'}
+ const query:Record<string,string>={projectId:'P',lotId:'L',roundId:'R',frozenBaselineId:'B',revisionId:'R',addendumId:'A',followupKnownAt:'TIME'}
  const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
  const invokeHostCommand=vi.fn(async()=>{
   query[key]='OTHER'

@@ -1,5 +1,11 @@
 /* global $page, $route */
 let originalAttemptReadGeneration = 0
+
+function captureFollowupScope() {
+  const {path, query: {projectId, lotId, roundId}} = $route
+  return () => $route.path === path && $route.query.projectId === projectId &&
+    $route.query.lotId === lotId && $route.query.roundId === roundId
+}
 function bindSubmissionObligations() {
   const {frozenBaselineId} = $route.query
   return {visible: typeof frozenBaselineId === 'string' && !!frozenBaselineId && frozenBaselineId.trim() === frozenBaselineId}
@@ -7,10 +13,11 @@ function bindSubmissionObligations() {
 
 async function openSubmissionObligations() {
   if (!bindSubmissionObligations().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {frozenBaselineId: baselineId} = $route.query
   try {
     const result = await $page.invokeHostCommand('tender.followup.readBaselineObligations', {baselineId})
-    if ($route.query.frozenBaselineId !== baselineId) return
+    if (!scopeIsCurrent() || $route.query.frozenBaselineId !== baselineId) return
     result.assertCurrent()
     const lines = ['依据基线 ' + result.baselineId]
     for (const item of result.obligations) {
@@ -20,7 +27,7 @@ async function openSubmissionObligations() {
     if (!result.obligations.length) lines.push('该基线还没有可核的递交事项登记')
     await $page.showAlert(lines.join('\n'), '应递交事项')
   } catch {
-    if ($route.query.frozenBaselineId === baselineId) $page.showMessage('基线递交事项无法核验', 'warning')
+    if (scopeIsCurrent() && $route.query.frozenBaselineId === baselineId) $page.showMessage('基线递交事项无法核验', 'warning')
   }
 }
 
@@ -31,9 +38,10 @@ function bindOriginalAttempts() {
 
 async function openOriginalAttempts() {
   if (!bindOriginalAttempts().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {revisionId, addendumId} = $route.query
   const generation = ++originalAttemptReadGeneration
-  const isCurrent = () => generation === originalAttemptReadGeneration &&
+  const isCurrent = () => scopeIsCurrent() && generation === originalAttemptReadGeneration &&
     $route.query.revisionId === revisionId && $route.query.addendumId === addendumId
   try {
     const trace = bindTenderAddendum().visible
@@ -76,8 +84,9 @@ function bindOutboundImpact() {
 
 async function openOutboundImpact() {
   if (!bindOutboundImpact().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {addendumId, followupKnownAt} = $route.query
-  const isCurrent = () => $route.query.addendumId === addendumId && $route.query.followupKnownAt === followupKnownAt
+  const isCurrent = () => scopeIsCurrent() && $route.query.addendumId === addendumId && $route.query.followupKnownAt === followupKnownAt
   try {
     const result = await $page.invokeHostCommand('tender.followup.traceOutboundBatches', {addendumId, knownAt: followupKnownAt})
     if (!isCurrent()) return
@@ -122,10 +131,11 @@ function bindCallImpact() {
 
 async function openCallImpact() {
   if (!bindCallImpact().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {addendumId, runId, attemptRef, requestKey} = $route.query
   const isCurrent = () => {
     const query = $route.query
-    return query.addendumId === addendumId && query.runId === runId &&
+    return scopeIsCurrent() && query.addendumId === addendumId && query.runId === runId &&
       query.attemptRef === attemptRef && query.requestKey === requestKey
   }
   try {
@@ -161,10 +171,11 @@ function bindTenderAddendum() {
 
 async function openTenderAddendum() {
   if (!bindTenderAddendum().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {addendumId} = $route.query
   try {
     const result = await $page.invokeHostCommand('tender.followup.readAddendum', {addendumId})
-    if ($route.query.addendumId !== addendumId) return
+    if (!scopeIsCurrent() || $route.query.addendumId !== addendumId) return
     result.assertCurrent()
     const lines = ['正式修改登记待核']
     if (result.state === 'REGISTERED') {
@@ -180,7 +191,7 @@ async function openTenderAddendum() {
     }
     await $page.showAlert(lines.join('\n'), '正式澄清与修改')
   } catch {
-    if ($route.query.addendumId === addendumId) $page.showMessage('正式修改原位无法核验', 'warning')
+    if (scopeIsCurrent() && $route.query.addendumId === addendumId) $page.showMessage('正式修改原位无法核验', 'warning')
   }
 }
 
@@ -195,10 +206,11 @@ function bindChapterImpact() {
 
 async function openChapterImpact() {
   if (!bindChapterImpact().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {revisionId, previousFrozenBaselineId, frozenBaselineId, addendumId} = $route.query
   const isCurrent = () => {
     const query = $route.query
-    return query.revisionId === revisionId && query.previousFrozenBaselineId === previousFrozenBaselineId &&
+    return scopeIsCurrent() && query.revisionId === revisionId && query.previousFrozenBaselineId === previousFrozenBaselineId &&
       query.frozenBaselineId === frozenBaselineId && query.addendumId === addendumId
   }
   try {
@@ -238,10 +250,11 @@ function bindFollowupNotices() {
 
 async function openFollowupNotices() {
   if (!bindFollowupNotices().visible) return
+  const scopeIsCurrent = captureFollowupScope()
   const {followupKnownAt: knownAt} = $route.query
   try {
     const result = await $page.invokeHostCommand('tender.followup.readNotices', {knownAt})
-    if ($route.query.followupKnownAt !== knownAt) return
+    if (!scopeIsCurrent() || $route.query.followupKnownAt !== knownAt) return
     result.assertCurrent()
     const statuses = {ACTIVE: '有效来件', SUPERSEDED: '已被更正或撤销', CANCELLED: '撤销通知',
       PENDING_LINK: '前序通知待配', PENDING_CONFLICT: '通知关系冲突'}
@@ -259,6 +272,6 @@ async function openFollowupNotices() {
     }
     await $page.showAlert(lines.join('\n'), '后续通知')
   } catch {
-    if ($route.query.followupKnownAt === knownAt) $page.showMessage('后续通知无法核验', 'warning')
+    if (scopeIsCurrent() && $route.query.followupKnownAt === knownAt) $page.showMessage('后续通知无法核验', 'warning')
   }
 }

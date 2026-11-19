@@ -46,7 +46,7 @@ onBeforeRouteLeave(()=>!pendingCreation())
 onBeforeRouteUpdate(()=>!pendingCreation())
 function validateCreation(row:Readonly<DataRow>):string|undefined{try{validatePdfRuleConfig(row['rule_config']);return undefined}catch(cause){return cause instanceof Error?cause.message:String(cause)}}
 async function createRule():Promise<void>{
-  if(adding.value||creationId.value!==undefined)return
+  if(adding.value||creationId.value!==undefined||preparing.value||pendingExecution())return
   adding.value=true
   try{
     const current=session.runtime,creation=current?.resolveView(creationKey.value)
@@ -191,7 +191,7 @@ async function submitInspection(): Promise<void> {
 async function prepareInspection(): Promise<void> {
   const current = session.runtime, ruleId = selected.value, limits = current?.resolveView(limitsKey.value)
   const dataSet = current?.getDataSet(scenarioId.value)
-  if (!current || !dataSet || !limits || !ruleId || preparing.value || pendingExecution()) return
+  if (!current || !dataSet || !limits || !ruleId || preparing.value || pendingExecution() || adding.value || creationId.value !== undefined) return
   const own = generation
   const assertCurrent = () => {
     if (!active || own !== generation || !session.isCurrent(current) || selected.value !== ruleId) {
@@ -372,7 +372,7 @@ function makeCatalogHost(runtime:PageRuntime){
 }
 function choose(row: DataRow): void {if (!pendingExecution()) view.value?.setSelectedRows([row])}
 async function refreshCatalog(): Promise<void> {
-  if (loading.value || !view.value) return
+  if (loading.value || preparing.value || pendingExecution() || !view.value) return
   try {await view.value.refresh()}
   catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }

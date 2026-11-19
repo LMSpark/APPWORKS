@@ -76,7 +76,7 @@ async function copyInspectionRecoveryLink() { await $page.invokeHostCommand('pdf
 
 function bindCreateRule() {
   const state = catalog?.actions()
-  return {visible:state?.catalogScope === false,disabled:state?.loading || state?.adding}
+  return {visible:state?.catalogScope === false,disabled:state?.loading || state?.adding || state?.preparing || state?.pending}
 }
 function bindOpenDesign() {
   const state = catalog?.actions()
@@ -84,9 +84,12 @@ function bindOpenDesign() {
 }
 function bindPrepareInspection() {
   const state = catalog?.actions()
-  return {visible:state?.executionAvailable === true,disabled:state?.loading || !state?.selected || state?.preparing || state?.pending}
+  return {visible:state?.executionAvailable === true,disabled:state?.loading || !state?.selected || state?.preparing || state?.pending || state?.adding}
 }
-function bindRefreshCatalog() { return {disabled:catalog?.actions().loading === true} }
+function bindRefreshCatalog() {
+  const state = catalog?.actions()
+  return {disabled:state?.loading || state?.preparing || state?.pending}
+}
 function bindOpenHistory() {
   const state = catalog?.actions()
   return {visible:state?.historyAvailable === true,disabled:state?.loading || state?.historyLoading}

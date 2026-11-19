@@ -193,6 +193,12 @@ describe('formal PDF rule editor', () => {
       await f.click('选择 PDF 或 ZIP')
       expect(upload).not.toHaveBeenCalled()
       expect(backend.initCalls).toHaveLength(0)
+      const readsBeforeRefresh = backend.reads.length
+      expect(f.wrapper.findAll('button').find(button => button.text() === '刷新')?.element.disabled).toBe(true)
+      await f.click('刷新')
+      expect(backend.reads).toHaveLength(readsBeforeRefresh)
+      await f.router.push('/other')
+      expect(f.router.currentRoute.value.path).toBe('/catalog')
       await f.click('开始核验')
       if (lostReply) {
         await vi.waitFor(() => expect(f.wrapper.text()).toContain('继续核验原操作'))

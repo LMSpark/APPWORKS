@@ -33,10 +33,11 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
    if(!isRecord(input))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const workspace=openContentOperationWorkspace(runtime,classModel,{...scope,signal})
    if(name==='content.operation.prepareRework'){
-    const {runId,attemptRef,requestKey,reason}=input
-    if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||typeof reason!=='string'||!reason.trim())
+    const {runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason}=input
+    if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||!identity(targetDigest)||!identity(configurationLockHash)||
+     typeof reason!=='string'||!reason.trim())
      throw Error('OPERATION_PAGE_REWORK_REQUIRED')
-    const prepared=await workspace.prepareRework({runId,attemptRef,requestKey,reason:reason.trim()})
+    const prepared=await workspace.prepareRework({runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason:reason.trim()})
     prepared.assertCurrent()
     return Object.freeze({handoffs:prepared.handoffs,originalOperations:prepared.originalOperations,
      reusable:prepared.reusable,assertCurrent:prepared.assertCurrent})

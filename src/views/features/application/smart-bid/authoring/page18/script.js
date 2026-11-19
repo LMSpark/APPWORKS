@@ -177,9 +177,10 @@ async function openVerifiedCandidate() {
 }
 
 function bindRework() {
-  const {runId, attemptRef, requestKey} = $route.query
+  const {runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
   return {disabled: dispatchLoading || reworkPending ||
-    ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value)}
+    ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value) ||
+    ![targetDigest, configurationLockHash].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value))}
 }
 
 async function prepareRework() {
@@ -195,7 +196,8 @@ async function prepareRework() {
   try {
     const reason = await $page.showPrompt('请说明本次返工原因', '准备返工交接')
     if (!isCurrent() || typeof reason !== 'string' || !reason.trim()) return
-    const prepared = await $page.invokeHostCommand('content.operation.prepareRework', {runId, attemptRef, requestKey, reason})
+    const prepared = await $page.invokeHostCommand('content.operation.prepareRework',
+      {runId, attemptRef, requestKey, targetDigest, configurationLockHash, reason})
     if (!isCurrent()) return
     prepared.assertCurrent()
     const lines = [

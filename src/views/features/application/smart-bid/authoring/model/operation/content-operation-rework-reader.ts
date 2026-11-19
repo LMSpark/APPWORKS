@@ -11,7 +11,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
 
 const keys=['projectId','runId','attemptRef','requestKey'] as const
-const evidence=[...keys,'inputRef','returnRef','calls','findings','priorResults']
+const evidence=[...keys,'targetDigest','configurationLockHash','inputRef','returnRef','calls','findings','priorResults']
 const isReworkView=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='GenerationRun'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
  keys.every(key=>hasContentScopeCondition(view,key,{Type:'GetInputParam',ParamName:key}))
@@ -28,12 +28,13 @@ function records(value:unknown){
 
 /** 正式证据包含有序逐笔调用、影响依据和可沿用依据，仅准备交接。 */
 export async function prepareRegisteredOperationStepRework(host:ContentRevisionReadHost,selection:Readonly<{
- runId:string;attemptRef:string;requestKey:string;reason:string
+ runId:string;attemptRef:string;requestKey:string;targetDigest:string;configurationLockHash:string;reason:string
 }>){
- const {runtime,scenarioId,projectId}=host,{runId,attemptRef,requestKey,reason}=selection
+ const {runtime,scenarioId,projectId}=host,{runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason}=selection
  const context={projectId,runId,attemptRef,requestKey}
  host.assertCurrent()
- if(![scenarioId,...Object.values(context)].every(identity)||!reason.trim())throw Error('OPERATION_REWORK_READ_SCOPE')
+ if(![scenarioId,...Object.values(context)].every(identity)||!reason.trim()||
+  ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error('OPERATION_REWORK_READ_SCOPE')
  const key=buildDataViewKey('GenerationRun','originalReworkEvidence',scenarioId),view=runtime.resolveView(key)
  if(!view||!isReworkView(view)||view.hasEditingChanges())throw Error('OPERATION_REWORK_VIEW_REQUIRED')
  view.queryContext={...view.queryContext,...context}
@@ -48,6 +49,7 @@ export async function prepareRegisteredOperationStepRework(host:ContentRevisionR
  if(!row||!hasCompleteSingleContentResult(view)||keys.some(field=>row[field]!==context[field]))
   throw Error('OPERATION_REWORK_READ_SCOPE')
  const assertResult=view.captureReadResult(),assertRow=view.captureReadRow(row,evidence)
+ if(row['targetDigest']!==targetDigest||row['configurationLockHash']!==configurationLockHash)throw Error('OPERATION_REWORK_READ_SCOPE')
  const assertCurrent=()=>{assertScope();assertResult();assertRow()}
  const {inputRef:attemptInputRef,returnRef:attemptReturnRef}=row
  if(!identity(attemptInputRef)||(attemptReturnRef!==null&&!identity(attemptReturnRef)))throw Error('OPERATION_REWORK_READ_EVIDENCE')

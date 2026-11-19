@@ -7,7 +7,8 @@ import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 it('prepares rework only from a visible, complete original attempt projection',async()=>{
- const scope={projectId:'P',runId:'RUN',attemptRef:'A',requestKey:'Q'}
+ const identity={projectId:'P',runId:'RUN',attemptRef:'A',requestKey:'Q'}
+ const scope={...identity,targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}
  const original={...scope,id:'ROW',inputRef:'INPUT',returnRef:null,
   calls:[{callRef:'CALL',ownerRef:'REP',effect:'WITHDRAW',state:'UNKNOWN',inputRef:'WITHDRAW-INPUT',returnRef:null}],
   findings:[{callRef:'CALL',cause:'RECOMPUTE',evidenceRef:'F',affectedRefs:[]}],priorResults:[]}
@@ -27,13 +28,15 @@ it('prepares rework only from a visible, complete original attempt projection',a
  const host={runtime:{resolveView:(key:string)=>key==='S@GenerationRun@originalReworkEvidence'?view:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  const prepare=()=>prepareRegisteredOperationStepRework(host,{...scope,reason:'撤回结果未知'})
+ await expect(prepareRegisteredOperationStepRework(host,{...scope,configurationLockHash:'c'.repeat(64),reason:'原锁不符'}))
+  .rejects.toThrow('OPERATION_REWORK_READ_SCOPE')
  try{
   const controller=new AbortController()
   const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
    {...host,rootKind:'OperationRoute',signal:controller.signal})
   const prepared=await workspace.prepareRework({...scope,reason:'撤回结果未知'})
-  expect(prepared).toMatchObject({...scope,firstCallRef:'CALL',handoffs:[{destination:'ORIGINAL_CALL'}],
+  expect(prepared).toMatchObject({...identity,firstCallRef:'CALL',handoffs:[{destination:'ORIGINAL_CALL'}],
    originalOperations:[{destination:'52',ownerRef:'REP'}]})
   controller.abort()
   expect(()=>prepared.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')

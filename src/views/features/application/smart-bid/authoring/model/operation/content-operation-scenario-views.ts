@@ -36,7 +36,7 @@ export function contentOperationScenarioViews(primaryKeys:Readonly<Record<'Knowl
   },
   GenerationRun:{
    originalResult:view(attemptScope,[...attemptFields,'receiptRef','state','output'],{primaryKey:GenerationRun}),
-   originalReworkEvidence:view(attemptScope,['inputRef','returnRef','calls','findings','priorResults'],{primaryKey:GenerationRun}),
+   originalReworkEvidence:view(attemptScope,[...attemptFields,'inputRef','returnRef','calls','findings','priorResults'],{primaryKey:GenerationRun}),
   },
  }
 }

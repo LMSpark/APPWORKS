@@ -85,10 +85,8 @@ type ConfigurationHost=Parameters<typeof createConfigurationReleaseScriptHost>
 
 /** 页19配置作用域和影响证据由当前运行实例的正式绑定提供。 */
 export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- bindScope:(runtime:PageRuntime,scope:Scope)=>Readonly<{
-  scopeId:string;assertCurrent:()=>void;readDisableImpact?:NonNullable<ConfigurationHost[2]>
-  readCandidate?:NonNullable<ConfigurationHost[3]>
-  readDisableDecision?:NonNullable<ConfigurationHost[4]>
+ bindScope:(runtime:PageRuntime,scope:Scope)=>NonNullable<ConfigurationHost[2]>&Readonly<{
+  scopeId:string;assertCurrent:()=>void
   configurationScope?:NonNullable<ConfigurationHost[1]['configurationScope']>
  }>,
 ){
@@ -99,7 +97,7 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
   if(!identity(binding.scopeId))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
   return createConfigurationReleaseScriptHost(runtime,{scenarioId:scope.scenarioId,scopeId:binding.scopeId,assertCurrent,
    ...(binding.configurationScope===undefined?{}:{configurationScope:binding.configurationScope})},
-   binding.readDisableImpact,binding.readCandidate,binding.readDisableDecision)
+   binding)
  })
  if(prepared&&Object.hasOwn(route.query,'scopeId'))throw Error('CONFIGURATION_RELEASE_PAGE_SCOPE')
  return prepared

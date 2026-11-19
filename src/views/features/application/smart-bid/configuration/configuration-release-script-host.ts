@@ -29,7 +29,9 @@ type DisableReader=(selection:Prepare[0]&Readonly<{versionId:string;decisionRef:
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
 export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,host:Omit<Read[0],'runtime'>&Readonly<{configurationScope?:ConfigurationScope}>,
- readDisableImpact?:ImpactReader,readCandidate?:CandidateReader,readDisableDecision?:DisableReader){
+ {readDisableImpact,readCandidate,readDisableDecision}:Readonly<{
+  readDisableImpact?:ImpactReader;readCandidate?:CandidateReader;readDisableDecision?:DisableReader
+ }>={}){
  return {runtime,assertCurrent:host.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   const error='CONFIGURATION_RELEASE_PAGE_REQUEST'
   if(!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)

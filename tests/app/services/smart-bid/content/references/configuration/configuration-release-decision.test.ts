@@ -153,7 +153,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
    stopScope:'NEW_SELECTION' as const}
   const readDisableDecision=vi.fn(async()=>({decision:disableDecision}))
   const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,
-   readDisableImpact,readCandidate,readDisableDecision)
+   {readDisableImpact,readCandidate,readDisableDecision})
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
   const query={
    configurationKind:scope.kind,configurationKey:scope.key,candidateRequestKey:'Q',releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,

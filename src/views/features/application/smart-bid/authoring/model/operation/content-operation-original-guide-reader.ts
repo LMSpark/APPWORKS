@@ -14,6 +14,7 @@ import type {readRegisteredFrozenOperationContext} from './content-operation-fro
 type Frozen=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>
 /** 按原调用身份读取的指南结果。 */
 type Original=Pick<Frozen,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>
+type Guide=Awaited<ReturnType<typeof readOperationActionGuide>> & Readonly<{guideVersionRef:string}>
 const keys=['projectId','guideRef','versionRef'] as const
 const fields=[...keys,'guideDigest','kind','actionName','source','publicationRef']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='KnowledgeGuide'&&
@@ -23,7 +24,7 @@ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='Knowledg
 
 /** 公共指南的历史版本须由原版本查询返回向本项目可读的发布引用。 */
 export async function readRegisteredOriginalOperationGuide(host:ContentRevisionReadHost,
- runtime:Parameters<typeof readOperationActionGuide>[0],input:Readonly<{rootKind:string;original:Original}>){
+ runtime:Parameters<typeof readOperationActionGuide>[0],input:Readonly<{rootKind:string;original:Original}>):Promise<Readonly<{guide?:Guide;assertCurrent:()=>void}>>{
  const {rootKind,original}=input
  const {scenarioId,projectId}=host,{guideRef,guideDigest,guideVersionRef:versionRef}=original
  host.assertCurrent()

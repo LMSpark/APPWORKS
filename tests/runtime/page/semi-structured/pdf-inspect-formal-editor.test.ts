@@ -3,14 +3,15 @@ import {createHash} from 'node:crypto'
 import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
-import {defineComponent, h} from 'vue'
+import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-router'
+import {computed, defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldJson, FieldText, RendererButton, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
+import {SystemPageIdentityPool} from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import PdfList from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
@@ -55,9 +56,23 @@ beforeEach(() => {
   state.catalogRuntime = new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{}})})
 })
 afterEach(() => wrappers.splice(0).forEach(wrapper => wrapper.unmount()))
+function pdfEditorRoute() {
+  const pool = new SystemPageIdentityPool()
+  const getInstance = (route: ReturnType<typeof useRoute>) => pool.get(route, {
+    scope: 'application', nodeId: PDF, pageId: PDF, path: route.path, title: 'PDF 规则设计',
+    component: PdfEditor, explicitQuery: {},
+  })
+  const component = defineComponent({setup() {
+    const route = useRoute()
+    const instance = computed(() => getInstance(route))
+    return () => h(instance.value.view)
+  }})
+  return {component, pool}
+}
 async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId?:string|string[],file?:File) {
   const path=typeof catalog==='string'?catalog:'/catalog'
-  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: PdfEditor, meta: {blueprintScenarioId: PDF}}, {path: '/other', component: {template: '<div>other</div>'}}]})
+  const editor = pdfEditorRoute()
+  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: editor.component, meta: {blueprintScenarioId: PDF}}, {path: '/other', component: {template: '<div>other</div>'}}]})
   if(catalog){
     const dynamic=createDynamicRouter({router,pageComponent:PdfList,loadNavigation:async()=>({id:'root',title:'Root',childPlacement:'header',items:[{id:PDF,title:'PDF',path,itemKind:'system-page',blueprintScenarioId:PDF}]}),componentMap:{[path]:PdfList}})
     await dynamic.registerRoutes()
@@ -74,12 +89,13 @@ async function open(ruleId = 'P1',catalog:boolean|string=false,recoveryRequestId
   }}), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
   await flushPromises()
   const click = async (label: string) => {await wrapper.findAll('button').find(button => button.text() === label)!.trigger('click'); await flushPromises()}
-  return {wrapper, click, router, copied}
+  return {wrapper, click, router, copied, editor}
 }
 describe('formal PDF rule editor', () => {
   it('disposes the rule editor when its route changes to a different application with the same rule ID',async()=>{
+    const editor = pdfEditorRoute()
     const router=createRouter({history:createMemoryHistory(),routes:[
-      {path:'/apps/:app/pdf/editor',component:PdfEditor,meta:{blueprintScenarioId:PDF}},
+      {path:'/apps/:app/pdf/editor',component:editor.component,meta:{blueprintScenarioId:PDF}},
     ]})
     const query={ruleId:'P1'}
     await router.push({path:'/apps/D99A1DCE9894698799101EFD70F8FC76/pdf/editor',query})
@@ -360,9 +376,11 @@ describe('formal PDF rule editor', () => {
     const f = await open()
     await vi.waitFor(() => expect(f.wrapper.findComponent(SparkJsonEditor).exists()).toBe(true))
     f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"pending":true}'); await flushPromises()
+    expect(() => f.editor.pool.assertClean()).toThrow('未保存')
     await f.router.push({path: '/editor', query: {ruleId: 'P2'}})
     expect(f.router.currentRoute.value.query['ruleId']).toBe('P1')
     await f.click('取消修改')
+    expect(() => f.editor.pool.assertClean()).not.toThrow()
     await f.router.push({path: '/editor', query: {ruleId: 'P2'}}); await flushPromises()
     await vi.waitFor(() => expect(f.wrapper.getComponent(SparkJsonEditor).props('modelValue')).toContain('other'))
     expect(state.http.saves).toEqual([])
@@ -401,6 +419,7 @@ describe('formal PDF rule editor', () => {
     expect(state.http.saves).toHaveLength(1)
     await f.click('核验保存结果')
     expect(state.http.saves).toHaveLength(1)
+    expect(() => f.editor.pool.assertClean()).toThrow('未保存')
     expect(f.wrapper.text()).toContain('保存结果尚未确认')
     expect(f.wrapper.text()).toContain('服务未提供原请求的权威终态')
     expect(f.wrapper.getComponent(SparkJsonEditor).props('modelValue')).toContain('committed')

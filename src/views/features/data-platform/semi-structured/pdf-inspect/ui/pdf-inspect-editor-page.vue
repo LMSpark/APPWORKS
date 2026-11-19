@@ -10,7 +10,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {type DataSet} from '@spark-appworks/spark-data'
-import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {RendererSection, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
@@ -40,6 +40,7 @@ const missing = computed(() => ready.value && !hasDefinition.value && !queryErro
 const queryError = computed(() => {revision.value; return definition.value?.loadingError?.message ?? ''})
 const unconfirmed = computed(() => {revision.value; return definition.value?.hasUnconfirmedSave === true})
 const hasPending = computed(() => {revision.value; return busy.value || pendingInput.value || unconfirmed.value || !!definition.value && (definition.value.hasEditingChanges() || definition.value.dirtyTracking.hasPendingChanges())})
+useSystemPageDirtySource({get isDirty() { return hasPending.value }})
 function validateRule(value: unknown): void {
   if (typeof value !== 'string') throw new Error('规则配置必须是JSON文本')
   parseJsonDocument(value)

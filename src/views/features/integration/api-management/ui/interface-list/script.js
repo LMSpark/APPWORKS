@@ -70,3 +70,6 @@ function bindFormAdapter() {
 }
 async function selectRequestTab(name) { await $page.invokeHostCommand('interfaces.requestTab',name) }
 async function openJsonImport() { await $page.invokeHostCommand('interfaces.importJson') }
+
+function bindDefinitionSave() { return {disabled:interfaces?.save().disabled !== false} }
+async function saveDefinition() { await $page.invokeHostCommand('interfaces.saveDefinition') }

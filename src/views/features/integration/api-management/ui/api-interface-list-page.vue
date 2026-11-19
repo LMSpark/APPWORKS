@@ -13,7 +13,7 @@
           <SparkComponentRenderer :config="region(children,'api-interface-sidebar')" />
           <RendererSection :grid-columns="1" :bordered="false" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy" retry-text="核验原保存结果" @retry="verifyOriginalSaves">
             <template v-if="selected" #header-actions>
-              <RendererButton label="保存" button-type="primary" :disabled="locked || !interfacePending" @click="saveApi" />
+              <SparkComponentRenderer :config="region(children,'api-interface-save')" />
             </template>
             <RendererTabs v-if="selected" v-model="tab" :data-view-key="INTERFACE_KEYS.interfaces">
               <RendererTabPane name="edit" label="接口编辑" :index="0" :data-view-key="INTERFACE_KEYS.interfaces">
@@ -134,6 +134,7 @@ const listHost=computed(()=>{
         return {unknown,busy:busy.value,locked:locked.value,pending:pendingCreate.value,
           hasResult:selectedId.value!==undefined&&calls?.currentRow?.['interfaceId']===selectedId.value&&!unknown}
       },
+      save:()=>({disabled:locked.value||!interfacePending.value}),
       edit:()=>({tab:requestTab.value,type:requestType(),locked:locked.value}),
       headersToolbar:()=>requestToolbar('Base_InterfaceApi_Headers',['add','remove','save','cancel']),
       parametersToolbar:()=>requestToolbar('_Base_ParamList',['add','remove','cancel','save']),
@@ -147,6 +148,10 @@ const listHost=computed(()=>{
         const removable=!!interfaces&&!!row&&id!==undefined&&(interfaces.dirtyTracking.isPendingCreate(id)||interfaces.deleteActionState(row)==='enabled')
         return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
       },
+    }
+    if(command==='interfaces.saveDefinition'&&selected.value&&!locked.value&&interfacePending.value){
+      await saveApi()
+      return undefined
     }
     if(command==='interfaces.requestTab'&&(input==='params'||input==='json'||input==='form'||input==='header'))requestTab.value=input
     if(command==='interfaces.importJson'&&!locked.value)openImport()

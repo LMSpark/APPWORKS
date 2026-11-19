@@ -8,15 +8,8 @@
     :close-disabled="!canCancel" @update:model-value="open => {if (!open) cancel()}">
     <DisplayAlert v-if="hint" alert-type="error" :closable="false" :title="hint" />
     <DisplayAlert v-if="blocked" alert-type="warning" :closable="false" :title="blocked" />
-    <RendererForm :data-view-key="infoKey" :context-row-id="infoId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-      <FieldText field="RptName" label="报表名称" :readonly="locked" />
-      <FieldSelect field="modid" label="应用系统" :option-data-view-key="appKey" :filterable="true" :readonly="locked" />
-      <FieldTextarea field="RptDesc" label="报表描述" :readonly="locked" />
-    </RendererForm>
-    <RendererForm :data-view-key="reportKey" :context-row-id="reportId" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
-      <FieldCheckbox field="isMerg" label="合并报表" true-value="1" false-value="0" :readonly="locked" />
-      <FieldCheckbox field="isDashboards" label="看板" true-value="1" false-value="0" :readonly="locked || merged" />
-    </RendererForm>
+    <SparkComponentRenderer :config="infoForm" />
+    <SparkComponentRenderer :config="versionForm" />
     <template #footer>
       <RendererButton label="取消" :disabled="!canCancel" @click="cancel" />
       <RendererButton v-if="ownUnknown && !abandonInterrupted" label="放弃核验并返回" :disabled="busy || !current" @click="abandon" />
@@ -28,11 +21,11 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {DataViewSaveNotAppliedError, getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, syncAppName, textOf} from './report-format'
-const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldSelect, FieldCheckbox, DisplayAlert, useSparkComponent, consumeRequiredPageService} = Components
-const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number}>()
+const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = Components
+const props = defineProps<{infoKey: string; reportKey: string; appKey: string; infoId: string | number; reportId: string | number; infoRule: SparkNode; versionRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: [reason?: 'abandoned']}>()
 const {sparkConsume} = useSparkComponent({type: 'report-create-dialog'})
 const pageService = consumeRequiredPageService(sparkConsume, 'report-create-dialog')
@@ -86,6 +79,16 @@ const editing = (target: DataView, id: string | number): Readonly<DataRow> | und
   return target.getEditingRow(id) ?? undefined
 }
 const merged = computed(() => isOn(editing(report, binding.reportId)?.['isMerg']))
+function bindForm(form: SparkNode | undefined, viewKey: string, id: string | number): SparkNode {
+  if (form?.type !== 'r-form' || form.props?.['dataViewKey'] !== viewKey) throw new Error('新增报表表单与原记录视图绑定不一致')
+  const children = getSparkNodeChildren(form.children).map(node => ({
+    ...node, props: {...node.props, readonly: locked.value || node.props?.['readonly'] === true
+      || node.props?.['field'] === 'isDashboards' && merged.value},
+  }))
+  return {...form, props: {...form.props, contextRowId: id}, children}
+}
+const infoForm = computed(() => bindForm(props.infoRule, binding.infoKey, binding.infoId))
+const versionForm = computed(() => bindForm(props.versionRule, binding.reportKey, binding.reportId))
 const changed = () => {revision.value++}
 const stop = dataSet.onAnyViewChange({rowsChanged: changed, editingChanged: changed, editingDiscarded: changed,
   mutatingChanged: changed, requestStateChanged: changed, editingFieldChanged: (table, viewId, event) => {

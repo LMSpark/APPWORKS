@@ -2,13 +2,18 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
 import ElementPlus, {ElMessageBox} from 'element-plus'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, PAGE_SERVICE, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {compileRule, type PageRuntime} from '@spark-appworks/spark-project-model'
+import {FieldCheckbox, PAGE_RUNTIME, PAGE_SERVICE, RendererButton, RendererDialog, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import ReportCreateDialog from '@/views/features/integration/report/ui/report-create-dialog.vue'
 import {createReportRuntime} from './report.fixture'
 import {createTestPageService} from '../../../support/helpers/page-service-host'
 
-const scenario = 'REPORT'
+import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
+
+const nodes = compileRule(rule)
+const infoRule = nodes.find(node => node.id === 'reportCreateInfo')!
+const versionRule = nodes.find(node => node.id === 'reportCreateVersion')!
+const scenario = 'FB291E325272007AEED8921C28B93CFD'
 const infoKey = `${scenario}@Base_ReportInfo@default`
 const reportKey = `${scenario}@Base_Report@default`
 const appKey = `${scenario}@Base_AppSystemList@default`
@@ -44,9 +49,9 @@ async function open() {
     const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
     sparkProvide(PAGE_RUNTIME, runtime)
     sparkProvide(PAGE_SERVICE, createTestPageService())
-    return () => h(ReportCreateDialog, {infoKey, reportKey, appKey, infoId: boundInfoId.value, reportId: 'V', onClose: closed})
+    return () => h(ReportCreateDialog, {infoKey, reportKey, appKey, infoRule, versionRule, infoId: boundInfoId.value, reportId: 'V', onClose: closed})
   }})
-  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
   wrappers.push(wrapper)
   await flushPromises()
   const button = (label: string) => {
@@ -62,6 +67,22 @@ async function open() {
 }
 
 describe('报表新增的双记录提交', () => {
+  it('从版本规则操作合并与看板，只改变原初始版本草稿', async () => {
+    const f = await open()
+    const fields = f.wrapper.findAllComponents(FieldCheckbox)
+    const dashboards = fields.find(field => field.props('field') === 'isDashboards')
+    const merged = fields.find(field => field.props('field') === 'isMerg')
+    if (!dashboards || !merged) throw new Error('新增规则缺少初始版本字段')
+    await dashboards.get('input').setValue(true)
+    expect(f.report.getEditingRow('V')?.['isDashboards']).toBe('1')
+    await merged.get('input').setValue(true)
+    await flushPromises()
+    expect(f.report.getEditingRow('V')).toMatchObject({isMerg: '1', isDashboards: '0'})
+    expect(dashboards.props('readonly')).toBe(true)
+    expect(f.info.getEditingRow('I')?.['isDashboards']).toBeUndefined()
+    expect(f.http.saves).toHaveLength(0)
+  })
+
   it('取消未提交的新增只丢弃两条本地记录', async () => {
     const f = await open()
     await f.click('取消')

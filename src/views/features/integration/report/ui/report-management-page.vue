@@ -23,10 +23,13 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
             <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
               title="编辑报表" :form-rule="node" :validate="validateEdit" @close="closeDialog" />
           </template>
-          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm'" :config="node" />
+          <template v-else-if="nodeId(node) === 'reportCreateInfo'">
+            <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch"
+              :info-key="viewKey" :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId"
+              :info-rule="node" :version-rule="children.find(child => nodeId(child) === 'reportCreateVersion')" @close="closeDialog" />
+          </template>
+          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm' && nodeId(node) !== 'reportCreateVersion'" :config="node" />
         </template>
-        <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
-          :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
       </template>
     </SparkPageRenderer>
   </RendererSection>

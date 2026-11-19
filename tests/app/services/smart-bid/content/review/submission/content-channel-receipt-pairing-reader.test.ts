@@ -63,6 +63,12 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
   await __init__()
   expect(bindOriginalReceipt()).toEqual({status:'接收凭据 REC，原批次 A'})
   expect(candidateView.queryContext).toMatchObject(scope)
+  const candidateConfig=candidateView.queryConfig
+  candidateView.queryConfig={...candidateConfig,cacheType:'page'}
+  expect(bindOriginalReceipt()).toEqual({error:'接收凭据查询已失效'})
+  await expect(page.invoke('content.submission.readReceipt',{receiptRef:'REC'},signal))
+   .rejects.toThrow('CHANNEL_RECEIPT_CANDIDATE_VIEW_REQUIRED')
+  candidateView.queryConfig=candidateConfig
   expect(bindOriginalSubmission()).toEqual({visible:false})
   await expect(readRegisteredChannelReceiptPairing(host,'REC',async()=>({
    attempts:[original,{...original,attemptRef:'OTHER'}],assertCurrent:()=>{},

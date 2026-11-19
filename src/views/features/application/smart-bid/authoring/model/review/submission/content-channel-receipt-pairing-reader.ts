@@ -17,7 +17,8 @@ type Read=Pair[1][number]
 const keys=[['projectId','projectId'],['id','receiptRef']] as const
 const fields=['id','projectId','lotId','subjectId','channelId','eventRef','eventKind','eventAt','operationRef','objectRef','sources']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ChannelReceipt'&&
- view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&keys.every(([field,ParamName])=>
+ view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&keys.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
 /** 保留原回执获得时点；候选集合须由同渠道办理记录证明完整。 */

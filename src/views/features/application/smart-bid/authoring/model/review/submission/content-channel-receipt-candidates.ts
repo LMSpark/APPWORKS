@@ -15,6 +15,7 @@ const keys=['projectId','lotId','subjectId','channelId'] as const
 const fields=['id',...keys,'operationRef','actualObjectRef','withdrawalTargetRef']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='SubmissionAttempt'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&view.queryConfig.allPages===true&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 
 /** 只查办理索引。输出必须完整，避免把截断列表中的唯一候选判成唯一原批次。 */

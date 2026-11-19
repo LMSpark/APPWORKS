@@ -7,15 +7,21 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 <template>
   <RendererSection title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取报表列表…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
-    <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
-      :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
-    <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
-      title="编辑报表" :specs="editSpecs" :validate="validateEdit" @close="closeDialog" />
-    <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" :key="dialog.epoch" :info-key="viewKey" :info-id="dialog.infoId"
-      :scenario-id="scenarioId" @close="closeDialog" />
-    <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey" :report-key="reportKey"
-      :picker-key="pickerKey" :info-id="dialog.infoId" @close="closeDialog" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
+      <template #content="{children}">
+        <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
+          <SparkComponentRenderer v-if="nodeId(node) !== 'reportVersions'" :config="node" />
+          <ReportVersionDialog v-else-if="ready && dialog?.kind === 'version'" :key="dialog.epoch" :info-key="viewKey" :info-id="dialog.infoId"
+            :table-rule="node" @close="closeDialog" />
+        </template>
+        <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
+          :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
+        <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
+          title="编辑报表" :specs="editSpecs" :validate="validateEdit" @close="closeDialog" />
+        <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey" :report-key="reportKey"
+          :picker-key="pickerKey" :info-id="dialog.infoId" @close="closeDialog" />
+      </template>
+    </SparkPageRenderer>
   </RendererSection>
 </template>
 
@@ -24,8 +30,8 @@ import {computed, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'

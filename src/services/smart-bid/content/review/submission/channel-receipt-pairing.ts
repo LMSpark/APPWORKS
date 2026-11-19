@@ -40,7 +40,8 @@ export function pairOriginalChannelReceipt(scope:Scope,receiptReads:readonly Rec
    attempt.withdrawalTargetRef!==undefined&&(!identity(attempt.withdrawalTargetRef)||attempt.withdrawalTargetRef===attempt.attemptRef)||
    [attempt.operationRef,attempt.objectRef].some(value=>value!==null&&!identity(value)))throw Error('CHANNEL_RECEIPT_SCOPE')
   seen.add(attempt.attemptRef)
-  return (first.kind!=='WITHDRAWAL_CONFIRMED'||attempt.withdrawalTargetRef!==undefined)&&
+  return (first.kind==='WITHDRAWAL_CONFIRMED'?attempt.withdrawalTargetRef!==undefined:
+   first.kind==='RECEIVED'?attempt.withdrawalTargetRef===undefined:true)&&
    (first.operationRef!==null||first.objectRef!==null)&&
    (first.operationRef===null||first.operationRef===attempt.operationRef)&&
    (first.objectRef===null||first.objectRef===attempt.objectRef)

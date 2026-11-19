@@ -52,6 +52,9 @@ it('pairs only readable receipt evidence with one exact original operation',asyn
    return {attempts:[original],assertCurrent:()=>{}}
   })
   expect(paired).toMatchObject({state:'PAIRED',attemptRef:'A',sources:[{sourceRef:'SOURCE',knownAt:time}]})
+  await expect(readRegisteredChannelReceiptPairing(host,'REC',async()=>({
+   attempts:[{...original,withdrawalTargetRef:'OLD'}],assertCurrent:()=>{},
+  }))).resolves.toMatchObject({state:'PENDING_PAIR',attemptRef:null})
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},host)
   const signal=new AbortController().signal
   const {__init__,bindOriginalReceipt,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{receiptRef:'REC'}},

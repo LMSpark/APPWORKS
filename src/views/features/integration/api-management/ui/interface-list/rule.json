@@ -282,6 +282,54 @@
                 }
               }
             ]
+          },
+          {
+            "id": "parameter-edit-help",
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "title": "确认后只修改本条参数的接口、输出名称、接口名称和访问路径，保留参数名称及说明。"
+            }
+          },
+          {
+            "id": "parameter-pending-help",
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "title": "仅处理所选参数的原待提交修改，不重新生成绑定或提交其他记录。"
+            }
+          },
+          {
+            "id": "parameter-error",
+            "type": "r-alert",
+            "props": {
+              "alertType": "error",
+              "closable": false
+            }
+          },
+          {
+            "id": "parameter-cancel",
+            "type": "r-button",
+            "props": {
+              "label": "取消参数重绑"
+            }
+          },
+          {
+            "id": "parameter-discard",
+            "type": "r-button",
+            "props": {
+              "label": "放弃原参数待提交修改"
+            }
+          },
+          {
+            "id": "parameter-confirm",
+            "type": "r-button",
+            "props": {
+              "label": "确认替换原绑定",
+              "buttonType": "primary"
+            }
           }
         ]
       }

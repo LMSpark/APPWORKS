@@ -5,23 +5,14 @@
 -->
 <template>
   <section>
-    <SparkComponentRenderer v-for="form in previewForms" :key="nodeId(form) ?? form.type" :config="form" />
-    <template v-if="mode === 'edit'">
-      <DisplayAlert alert-type="info" :closable="false" title="确认后只修改本条参数的接口、输出名称、接口名称和访问路径，保留参数名称及说明。" />
-    </template>
-    <DisplayAlert v-else alert-type="info" :closable="false" title="仅处理所选参数的原待提交修改，不重新生成绑定或提交其他记录。" />
-    <DisplayAlert v-if="message || error" alert-type="error" :closable="false" :title="message || error" />
-    <RendererButton :label="hasStaged || foreignRecovery || recoveryEnded ? '关闭并保留参数修改' : '取消参数重绑'" :disabled="busy || ownUnconfirmed" @click="cancel" />
-    <RendererButton v-if="mode === 'pending'" label="放弃原参数待提交修改" :disabled="busy || ownUnconfirmed || foreignRecovery || confirmedCreation" @click="discard" />
-    <RendererButton :label="ownUnconfirmed ? '核验原参数重绑' : mode === 'pending' ? '继续保存原参数修改' : '确认替换原绑定'" button-type="primary"
-      :disabled="busy || foreignRecovery || recoveryEnded || mode === 'edit' && hasStaged && !ownUnconfirmed" @click="confirm" />
+    <SparkComponentRenderer v-for="node in recordNodes" :key="nodeId(node) ?? node.type" :config="node" />
   </section>
 </template>
 <script setup lang="ts">
 import {computed,ref,toRaw} from 'vue'
 import {getSparkNodeChildren,nodeId,type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-const {PAGE_RUNTIME,SparkComponentRenderer,RendererButton,DisplayAlert,useSparkComponent,useDataViewRecordEditing}=Components
+const {PAGE_RUNTIME,SparkComponentRenderer,useSparkComponent,useDataViewRecordEditing}=Components
 const props=defineProps<{previewRule:SparkNode;parametersKey:string;recordId:string|number;mode:'edit'|'pending';interfaceKey:string;interfaceId:string|number;outputKey:string;outputId:string|number}>()
 const emit=defineEmits<{'finish':[result:Components.DataViewRecordEditingFinish]}>()
 const {sparkConsume}=useSparkComponent({type:'api-public-parameter-binding-record'})
@@ -30,12 +21,6 @@ const base={runtime:()=>sparkConsume(PAGE_RUNTIME),dataViewKey:()=>props.paramet
 const editing=useDataViewRecordEditing(props.mode==='edit'?{...base,mode:'edit',editableFields:fields}:{...base,mode:'pending'})
 const {view,recordId,originalRow,busy,error,ownUnconfirmed,foreignRecovery,recoveryEnded,hasStaged,confirmedCreation,cancel,discard}=editing
 const page=sparkConsume(PAGE_RUNTIME),interfaceKey=props.interfaceKey,outputKey=props.outputKey,interfaceId=props.interfaceId,outputId=props.outputId
-const previewForms=computed(()=>getSparkNodeChildren(props.previewRule.children).flatMap(form=>{
- const id=nodeId(form)
- if(id!=='parameter-original'&&props.mode!=='edit')return []
- const contextRowId=id==='parameter-original'?props.recordId:id==='parameter-interface'?interfaceId:outputId
- return [{...form,props:{...form.props,contextRowId}}]
-}))
 const inputInterfaces=page?.resolveView(interfaceKey),inputOutputs=page?.resolveView(outputKey)
 const inputInterface=inputInterfaces?.rows.find(row=>inputInterfaces.getPkKey(row)===interfaceId),inputOutput=inputOutputs?.rows.find(row=>inputOutputs.getPkKey(row)===outputId)
 if(!page||!inputInterfaces||!inputOutputs||!inputInterface||!inputOutput)throw Error('PARAMETER_BINDING_SOURCE: 缺少原正式接口或输出')
@@ -44,6 +29,30 @@ const context=JSON.stringify([interfaces.queryContext,outputs.queryContext])
 const source=[iface['ProviderID'],iface['Name'],iface['LinkUrl'],output['tblid'],output['enname']]
 const identity=[originalRow['providerId'],originalRow['paramName'],originalRow['desc']]
 const message=ref('')
+const recordNodes=computed(()=>getSparkNodeChildren(props.previewRule.children).flatMap(node=>{
+ const withProps=(runtimeProps:Record<string,unknown>)=>[{...node,props:{...node.props,...runtimeProps}}]
+ switch(nodeId(node)){
+  case 'parameter-original': return withProps({contextRowId:recordId})
+  case 'parameter-interface': return props.mode==='edit'?withProps({contextRowId:interfaceId}):[]
+  case 'parameter-output': return props.mode==='edit'?withProps({contextRowId:outputId}):[]
+  case 'parameter-edit-help': return props.mode==='edit'?[node]:[]
+  case 'parameter-pending-help': return props.mode==='pending'?[node]:[]
+  case 'parameter-error': return message.value||error.value?withProps({title:message.value||error.value}):[]
+  case 'parameter-cancel': return withProps({
+   ...(hasStaged.value||foreignRecovery.value||recoveryEnded.value?{label:'关闭并保留参数修改'}:{}),
+   disabled:busy.value||ownUnconfirmed.value,onClick:cancel,
+  })
+  case 'parameter-discard': return props.mode==='pending'?withProps({
+   disabled:busy.value||ownUnconfirmed.value||foreignRecovery.value||confirmedCreation.value,onClick:discard,
+  }):[]
+  case 'parameter-confirm': return withProps({
+   ...(ownUnconfirmed.value?{label:'核验原参数重绑'}:props.mode==='pending'?{label:'继续保存原参数修改'}:{}),
+   disabled:busy.value||foreignRecovery.value||recoveryEnded.value||props.mode==='edit'&&hasStaged.value&&!ownUnconfirmed.value,onClick:confirm,
+  })
+  default: return []
+ }
+}))
+
 function assertReadable():void{
  for(const field of ['providerId','paramName',...fields])if(view.fieldAccess(originalRow,field).read!=='visible')throw Error(`当前参数字段不可读取：${field}`)
  for(const field of ['ProviderID','Name','LinkUrl'])if(interfaces.fieldAccess(iface,field).read!=='visible')throw Error(`当前接口字段不可读取：${field}`)

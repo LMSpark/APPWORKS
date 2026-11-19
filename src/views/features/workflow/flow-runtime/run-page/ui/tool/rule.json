@@ -313,7 +313,8 @@
               "label": "撤回",
               "link": true,
               "buttonType": "primary",
-              "disabled": "$[appendRevokeDisabled]"
+              "disabled": "$[appendRevokeDisabled]",
+              "onClick": "runRevokeAppend"
             }
           }
         ]
@@ -413,14 +414,16 @@
         "type": "r-button",
         "props": {
           "label": "添加办理人",
-          "buttonType": "primary"
+          "buttonType": "primary",
+          "onClick": "runOpenAppendInput"
         }
       },
       {
         "id": "verifyAppendList",
         "type": "r-button",
         "props": {
-          "label": "核验原命令结果"
+          "label": "核验原命令结果",
+          "onClick": "runVerifyAppendList"
         }
       }
     ]
@@ -438,14 +441,16 @@
         "id": "verifyAppendInput",
         "type": "r-button",
         "props": {
-          "label": "核验原命令结果"
+          "label": "核验原命令结果",
+          "onClick": "runVerifyAppendInput"
         }
       },
       {
         "id": "cancelAppendInput",
         "type": "r-button",
         "props": {
-          "label": "取消"
+          "label": "取消",
+          "onClick": "runCancelAppendInput"
         }
       },
       {
@@ -453,7 +458,8 @@
         "type": "r-button",
         "props": {
           "label": "确认",
-          "buttonType": "primary"
+          "buttonType": "primary",
+          "onClick": "runConfirmAppendInput"
         }
       }
     ]

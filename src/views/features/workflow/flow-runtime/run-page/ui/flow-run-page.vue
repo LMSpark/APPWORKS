@@ -36,7 +36,7 @@
         </div>
 
         <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true" :close-disabled="appendCloseDisabled">
-          <FlowAppendUser v-if="appendContext && prepared" :context="appendContext" embedded
+          <FlowAppendUser v-if="appendContext && prepared" ref="appendUser" :context="appendContext" :tool-rules="children" embedded
             :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
         </SparkComponent.RendererDialog>
 
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed, useTemplateRef} from 'vue'
 import {useRoute} from 'vue-router'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
@@ -201,6 +201,7 @@ function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
   const toolbar = children.find(node => nodeId(node) === id)
   return toolbar ? [bindActions(toolbar)] : []
 }
+const appendUser = useTemplateRef<InstanceType<typeof FlowAppendUser>>('appendUser')
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
 const host = computed(() => {
   const current = runtime.value
@@ -208,8 +209,9 @@ const host = computed(() => {
   const assertCurrent = () => {
     if (!session.isCurrent(current)) throw new Error('流程办理运行实例已失效')
   }
-  return {runtime: current, assertCurrent, invoke(command: string) {
+  return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
     assertCurrent()
+    if (command.startsWith('append.') && appendOpen.value) return appendUser.value?.invoke(command.slice('append.'.length), input)
     if (!command.startsWith('workflow.')) return
     const id = command.slice('workflow.'.length)
     if (!Object.hasOwn(actions, id)) return

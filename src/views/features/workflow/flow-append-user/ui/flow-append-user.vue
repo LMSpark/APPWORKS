@@ -52,13 +52,12 @@
 import {computed} from 'vue'
 import {RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
 import {getSparkNodeChildren, isSparkNode, nodeId, type SparkNode} from '@spark-appworks/spark-data'
-import {compileRule} from '@spark-appworks/spark-project-model'
-import rule from '../../flow-runtime/run-page/ui/tool/rule.json?raw'
 import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'
 
 const props = withDefaults(defineProps<{
   context: FlowAppendUserContext
+  toolRules: readonly SparkNode[]
   embedded?: boolean
   userDirectoryViewKey?: string
   stepViewKey: string
@@ -93,41 +92,49 @@ const {
   ...(props.userDirectoryViewKey ? {userDirectoryViewKey: () => props.userDirectoryViewKey} : {}),
 })
 
-const rules = compileRule(rule)
-const listRule = rules.find(node => nodeId(node) === 'appendParticipants')
-const inputRule = rules.find(node => nodeId(node) === 'appendInput')
-const limitsRule = rules.find(node => nodeId(node) === 'appendLimits')
-const appendActionsRule = rules.find(node => nodeId(node) === 'appendActions')
-const appendInputActionsRule = rules.find(node => nodeId(node) === 'appendInputActions')
-const revokeRule = listRule?.props?.['actions']
-const revokeButton = revokeRule && typeof revokeRule === 'object' && 'children' in revokeRule && Array.isArray(revokeRule.children)
-  ? revokeRule.children.find(isSparkNode)
-  : undefined
-if (!listRule || !inputRule || !limitsRule || !revokeButton || !appendActionsRule || !appendInputActionsRule) throw new Error('流程办理工具缺少追加办理人组件')
+const rules = computed(() => {
+  const list = props.toolRules.find(node => nodeId(node) === 'appendParticipants')
+  const input = props.toolRules.find(node => nodeId(node) === 'appendInput')
+  const limits = props.toolRules.find(node => nodeId(node) === 'appendLimits')
+  const listActions = props.toolRules.find(node => nodeId(node) === 'appendActions')
+  const inputActions = props.toolRules.find(node => nodeId(node) === 'appendInputActions')
+  const actions = list?.props?.['actions']
+  const revoke = actions && typeof actions === 'object' && 'children' in actions && Array.isArray(actions.children)
+    ? actions.children.find(isSparkNode)
+    : undefined
+  if (!list || !input || !limits || !revoke || !listActions || !inputActions) throw new Error('流程办理工具缺少追加办理人组件')
+  return {list, input, limits, revoke, listActions, inputActions}
+})
+const revokeDisabled = () => pageLoading.value || revoking.value || commandLocked.value
 
-const listConfig = computed<SparkNode>(() => ({
-  ...listRule,
-  props: {...listRule.props, dataViewKey: listViewKey.value, actions: {children: [{
-    ...revokeButton,
-    props: {...revokeButton.props,
-      disabled: pageLoading.value || revoking.value || commandLocked.value ? true : revokeButton.props?.['disabled'],
-      onClick: revokeRecord,
-    },
-  }]}},
-  children: getSparkNodeChildren(listRule.children).map(field => {
-    const optionDataViewKey = field.props?.['field'] === 'StepState' ? stepStateViewKey.value
-      : field.props?.['field'] === 'STATUS' ? handleStateViewKey.value : undefined
-    return optionDataViewKey === undefined ? field : {...field, props: {...field.props, optionDataViewKey}}
-  }),
-}))
-const inputConfig = computed<SparkNode>(() => ({
-  ...inputRule,
-  props: {...inputRule.props, dataViewKey: parameterViewKey.value},
-  children: getSparkNodeChildren(inputRule.children).map(field => ({...field, props: {...field.props,
-    optionDataViewKey: candidateViewKey.value, disabled: commandLocked.value || addDialog.submitting,
-  }})),
-}))
-const limitsConfig = computed<SparkNode>(() => ({...limitsRule, props: {...limitsRule.props, dataViewKey: optionsViewKey.value}}))
+const listConfig = computed<SparkNode>(() => {
+  const {list: listRule, revoke: revokeButton} = rules.value
+  return {
+    ...listRule,
+    props: {...listRule.props, dataViewKey: listViewKey.value, actions: {children: [{
+      ...revokeButton,
+      props: {...revokeButton.props,
+        disabled: revokeDisabled() ? true : revokeButton.props?.['disabled'],
+      },
+    }]}},
+    children: getSparkNodeChildren(listRule.children).map(field => {
+      const optionDataViewKey = field.props?.['field'] === 'StepState' ? stepStateViewKey.value
+        : field.props?.['field'] === 'STATUS' ? handleStateViewKey.value : undefined
+      return optionDataViewKey === undefined ? field : {...field, props: {...field.props, optionDataViewKey}}
+    }),
+  }
+})
+const inputConfig = computed<SparkNode>(() => {
+  const {input: inputRule} = rules.value
+  return {
+    ...inputRule,
+    props: {...inputRule.props, dataViewKey: parameterViewKey.value},
+    children: getSparkNodeChildren(inputRule.children).map(field => ({...field, props: {...field.props,
+      optionDataViewKey: candidateViewKey.value, disabled: commandLocked.value || addDialog.submitting,
+    }})),
+  }
+})
+const limitsConfig = computed<SparkNode>(() => ({...rules.value.limits, props: {...rules.value.limits.props, dataViewKey: optionsViewKey.value}}))
 const inputActionsLocked = () => addDialog.loading || addDialog.submitting || commandLocked.value
 const actions: Record<string, {run: () => void | Promise<void>; disabled: () => boolean; visible?: () => boolean}> = {
   openAppendInput: {run: openAddDialog, disabled: () => pageLoading.value || !listViewKey.value || commandLocked.value},
@@ -140,12 +147,23 @@ function bindActions(toolbar: SparkNode): SparkNode {
   const children = getSparkNodeChildren(toolbar.children).flatMap(button => {
     const action = actions[nodeId(button) ?? '']
     if (!action || action.visible?.() === false) return []
-    return [{...button, props: {...button.props, onClick: action.run, disabled: action.disabled()}}]
+    return [{...button, props: {...button.props, disabled: action.disabled()}}]
   })
   return {...toolbar, children}
 }
-const appendActionsConfig = computed(() => bindActions(appendActionsRule))
-const appendInputActionsConfig = computed(() => bindActions(appendInputActionsRule))
+const appendActionsConfig = computed(() => bindActions(rules.value.listActions))
+const appendInputActionsConfig = computed(() => bindActions(rules.value.inputActions))
+function invoke(name: string, input: unknown): void | Promise<void> {
+  if (name === 'revoke') {
+    if (!revokeDisabled()) return revokeRecord(input)
+    return
+  }
+  if (!Object.hasOwn(actions, name)) return
+  const action = actions[name]
+  if (action && !action.disabled() && action.visible?.() !== false) return action.run()
+}
+
+defineExpose({invoke})
 </script>
 
 <style scoped>

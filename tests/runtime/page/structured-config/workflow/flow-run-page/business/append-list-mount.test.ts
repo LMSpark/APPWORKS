@@ -1,11 +1,11 @@
 import {expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {config, flushPromises, mount} from '@vue/test-utils'
-import {defineComponent, h, ref} from 'vue'
+import {defineComponent, h, markRaw, ref, shallowRef, type PropType} from 'vue'
 import ElementPlus from 'element-plus'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, PAGE_SERVICE, RendererTable, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type SparkNode} from '@spark-appworks/spark-data'
+import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {PAGE_RUNTIME, PAGE_SERVICE, RendererTable, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
@@ -66,12 +66,34 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
   }
   const select = vi.fn(async () => [{label: '王五', value: 'U3:王五'}])
   const save = vi.spyOn(ds, 'saveChanges')
-  const runtime = new PageRuntime({pageId: 'append-list', scenarioIds: [scene], loadScenario: async () => ds})
-  await runtime.load(); registerAllRenderers()
+  const tool = new PageTool({pageId: 'append-list'})
+  for (const filename of ['rule.json', 'script.js', 'style.css'] as const) {
+    tool.hydrateFileText(filename, readFileSync(`src/views/features/workflow/flow-runtime/run-page/ui/tool/${filename}`, 'utf8'))
+  }
+  tool.markLoaded()
+  // The shared tool also binds the history view by its formal workbench identity.
+  const runtime = markRaw(new PageRuntime({tool, scenarioIds: [scene], loadScenario: async () => ds}))
+  await runtime.load()
+  registerAllRenderers()
+  const append = shallowRef<InstanceType<typeof FlowAppendUser> | null>(null)
+  const AppendHost = defineComponent({
+    props: {toolRules: {type: Array as PropType<SparkNode[]>, required: true}},
+    setup(props) {
+      const {sparkProvide} = useSparkComponent({type: 'append-test-input'})
+      sparkProvide(PAGE_SERVICE, {...createTestPageService(), selectEntities: select})
+      return () => h(FlowAppendUser, {ref: append, toolRules: props.toolRules, context: context.value,
+        stepViewKey: `${scene}@WFOBJ_FLOW_RELATIONLINE_STEP@default`})
+    },
+  })
+  const host = {runtime, assertCurrent() {}, invoke(name: string, input: unknown) {
+    if (name.startsWith('append.')) return append.value?.invoke(name.slice('append.'.length), input)
+  }}
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'append-test'})
-    sparkProvide(PAGE_RUNTIME, runtime); sparkProvide(PAGE_SERVICE, {...createTestPageService(), selectEntities: select})
-    return () => h(FlowAppendUser, {context: context.value, stepViewKey: `${scene}@WFOBJ_FLOW_RELATIONLINE_STEP@default`})
+    sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(SparkPageRenderer, {pageRuntime: runtime, host, autoLoad: false,
+      routeSnapshot: {path: '/test', fullPath: '/test', name: null, params: {}, query: {}, hash: ''}},
+    {content: ({children}: {children: SparkNode[]}) => h(AppendHost, {toolRules: children})})
   }})
   const originalStubs = {...config.global.stubs}, stubs = {...originalStubs}
   for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column', 'el-button']) delete stubs[key]

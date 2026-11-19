@@ -1,17 +1,22 @@
 import {expect, it, vi} from 'vitest'
 import {flushPromises, mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
+import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
+import FlowRunPage from '@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue'
+import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 const {loadScenario} = vi.hoisted(() => ({loadScenario: vi.fn()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
 
-it('renders the business detail tool against the monitor and workbench scenarios', async () => {
+it.each([
+  {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page'},
+  {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page'},
+])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix}) => {
   const monitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
   const design = DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
   const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
@@ -30,15 +35,25 @@ it('renders the business detail tool against the monitor and workbench scenarios
   bind(workbench, 'WFOBJ_FLOW', instance)
   const scenarios = new Map([[FLOW_MONITOR_SCENARIO_ID, monitor], [FLOW_DESIGN_SCENARIO_ID, design], [FLOW_WORKBENCH_SCENARIO_ID, workbench]])
   loadScenario.mockImplementation(async ({scenarioId}: {scenarioId: string}) => scenarios.get(scenarioId))
-  const path = '/apps/APP-1/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page'
-  const router = createRouter({history: createMemoryHistory(), routes: [{path, component: BusFlowDetailPage,
-    meta: {nodeId: 'business-detail', blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID, systemPageIdentityState: 'resolved'}}]})
-  await router.push({path, query: {wfid: 'WF-1', flowid: 'FM-1'}})
+  const path = `/apps/APP-1/features/workflow/flow-runtime/${suffix}`
+  const router = createRouter({history: createMemoryHistory(), routes: [{path, component,
+    meta: {nodeId, blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID, systemPageIdentityState: 'resolved'}}]})
+  const query = {wfid: 'WF-1', flowid: 'FM-1'}
+  await router.push({path, query})
+  const page = new SystemPageIdentityPool().get(router.currentRoute.value, {
+    scope: 'application', nodeId, pageId: nodeId, path, title: name, component, explicitQuery: query,
+  })
   registerAllRenderers()
-  const wrapper = mount(withTestPageService(RouterView, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
+  const wrapper = mount(withTestPageService(page.view, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
   try {
     await flushPromises()
     expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
+    if (name === 'workflow run') {
+      expect(wrapper.text()).toContain('流程实例摘要')
+      expect(wrapper.text()).toContain('步骤历史')
+      expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`)
+      return
+    }
     const summary = wrapper.getComponent(RendererTable)
     expect(summary.props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@WFOBJ_FLOW@default`)
     expect(summary.props('children')).toEqual(expect.arrayContaining([expect.objectContaining({props: expect.objectContaining({field: 'TITLE', label: '流程标题'})})]))

@@ -97,6 +97,12 @@ const {
   queryContext: () => ({rowid: routeQuery().wfid, WFOBJID: routeQuery().wfid}),
 })
 
+const runtime = computed(() => {
+  const current = runtimeReady.value ? session.runtime : undefined
+  const workbench = current?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+  if (workbench) ensureFlowRunApprovalViews(workbench)
+  return current
+})
 const {
   prepared,
   pageLoading,
@@ -132,7 +138,7 @@ const {
   openFlowChart,
   revokeCurrentStep,
   stepViewKey,
-} = useFlowRunPage(routeQuery, () => runtimeReady.value, () => reloadBlocked.value)
+} = useFlowRunPage(routeQuery, () => runtime.value, () => reloadBlocked.value)
 
 function bindApprovalInput(approvalInputRule: SparkNode): SparkNode {
   return {
@@ -196,12 +202,6 @@ function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
   return toolbar ? [bindActions(toolbar)] : []
 }
 const appendUser = useTemplateRef<InstanceType<typeof FlowAppendUser>>('appendUser')
-const runtime = computed(() => {
-  const current = runtimeReady.value ? session.runtime : undefined
-  const workbench = current?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
-  if (workbench) ensureFlowRunApprovalViews(workbench)
-  return current
-})
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined

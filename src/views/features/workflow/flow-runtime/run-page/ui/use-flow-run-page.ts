@@ -6,7 +6,8 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, DataView, RequestState, type DataRow} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
+import {useDataViewState} from '@spark-appworks/spark-component'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {
   FLOW_DESIGN_SCENARIO_ID,
@@ -33,12 +34,11 @@ import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
 
-export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, runtimeReady: () => boolean, navigationBlocked: () => boolean) {
+export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, getRuntime: () => PageRuntime | undefined, navigationBlocked: () => boolean) {
   const router = useRouter()
-  const {sparkConsume} = useSparkComponent({type: 'flow-run-page'})
   const approvalWorkspace = shallowRef<FlowRunApprovalInputWorkspace>()
   function hasPendingApproval(): boolean {
-    const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand', 'default')
+    const view = getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand', 'default')
     return view !== undefined && (view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
   }
   const prepared = shallowRef<FlowRunPreparedPage>()
@@ -48,8 +48,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const handleLoading = ref(false)
   const handleError = ref('')
   const optionsView = computed(() => {
-    runtimeReady(); prepared.value
-    return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalOptions', 'default') ?? null
+    prepared.value
+    return getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalOptions', 'default') ?? null
   })
   const optionsState = useDataViewState(optionsView)
   const optionData = computed<Record<string, unknown>>(() => {
@@ -63,17 +63,17 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     catch {return {}}
   })
   const commandView = computed(() => {
-    runtimeReady(); prepared.value
-    const view = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand')
+    prepared.value
+    const view = getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('ApprovalCommand')
     return view instanceof DataView ? view : null
   })
   const commandState = useDataViewState(commandView)
-  const appendOptionsView = computed(() => {runtimeReady(); prepared.value; return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendOptions') ?? null})
+  const appendOptionsView = computed(() => {prepared.value; return getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendOptions') ?? null})
   const appendOptionsState = useDataViewState(appendOptionsView)
-  const appendInputView = computed(() => {appendOptionsState.requestState.value; return sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendInput') ?? null})
+  const appendInputView = computed(() => {appendOptionsState.requestState.value; return getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)?.getView('AppendInput') ?? null})
   const appendInputState = useDataViewState(appendInputView)
   function hasPendingAppendInput(): boolean {
-    const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID), view = ds?.getView('AppendInput')
+    const ds = getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID), view = ds?.getView('AppendInput')
     return ds?.getView('AppendOptions')?.requestState === RequestState.Loading || (view !== undefined
       && (view.mutating || view.hasUnconfirmedSave || view.rows.length > 0 || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
   }
@@ -128,7 +128,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   function readCurrentStep() {
     const stepId = prepared.value?.stepId
     if (!stepId) return undefined
-    const runtime = sparkConsume(PAGE_RUNTIME)
+    const runtime = getRuntime()
     return runtime?.resolveView(stepViewKey.value)?.rows.find(row => isRecord(row) && String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === prepared.value?.flowObjectId)
   }
 
@@ -138,7 +138,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
 
   async function executeApproval(own: number, action: string, params: Readonly<DataRow>): Promise<void> {
     assertGeneration(own)
-    const runtime = sparkConsume(PAGE_RUNTIME)
+    const runtime = getRuntime()
     const ds = runtime?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
     if (!ds) throw new Error('审批命令空间未装配')
     const {flowObjId, curStepId, ...fields} = params
@@ -166,7 +166,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     handleLoading.value = true
     handleError.value = ''
     try {
-      const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+      const ds = getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
       if (!ds) throw Error('原审批命令空间未装配')
       await verifyApprovalCommand(ds)
       assertGeneration(own)
@@ -194,9 +194,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     pageError.value = ''
     prepared.value = undefined
     try {
-      if (!runtimeReady()) throw new Error('办理页场景尚未就绪')
-      const runtime = sparkConsume(PAGE_RUNTIME)
-      if (!runtime) throw new Error('缺少页面运行实例')
+      const runtime = getRuntime()
+      if (!runtime) throw new Error('办理页场景尚未就绪')
       const query = routeQuery()
       const result = await prepareFlowRunPage({
         runtime,
@@ -233,7 +232,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       if (approvalWorkspace.value?.active) {handleOpen.value = true; return}
       const step = readCurrentStep(), prep = prepared.value
       if (!prep || !step) throw Error('未定位到当前办理步骤')
-      const ds = sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
+      const ds = getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
       if (!ds) throw Error('办理参数空间未装配')
       await queryHandleOptions(own)
       assertGeneration(own)
@@ -243,18 +242,18 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       if (workspace?.inputs.dataSet !== ds) {
         workspace = new FlowRunApprovalInputWorkspace({dataSet: ds, userDirectory: () => {
           const key = prepared.value?.userDirectoryViewKey
-          const view = key ? sparkConsume(PAGE_RUNTIME)?.resolveView(key) : undefined
+          const view = key ? getRuntime()?.resolveView(key) : undefined
           if (!view) throw Error('办理人员正式目录未装配')
           return view
         }, assertCurrent: () => {
-          if (sparkConsume(PAGE_RUNTIME)?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID) !== ds || ds.destroyed) throw Error('原办理参数实例已失效')
+          if (getRuntime()?.getDataSet(FLOW_WORKBENCH_SCENARIO_ID) !== ds || ds.destroyed) throw Error('原办理参数实例已失效')
         }})
         approvalWorkspace.value = workspace
       }
       await workspace.open({flowObjectId: prep.flowObjectId, modelId: prep.flowModelId, stepId: prep.stepId, busRowId: prep.busRowId, formid}, () => {
         assertGeneration(own)
         const currentQuery = routeQuery()
-        if (!runtimeReady() || currentQuery.wfid !== originalQuery.wfid || currentQuery.flowid !== originalQuery.flowid || currentQuery.stepid !== originalQuery.stepid) throw Error('流程办理目标已变化，请取消原参数后重新加载')
+        if (!getRuntime() || currentQuery.wfid !== originalQuery.wfid || currentQuery.flowid !== originalQuery.flowid || currentQuery.stepid !== originalQuery.stepid) throw Error('流程办理目标已变化，请取消原参数后重新加载')
         if ((activeTab.value?.tabKey ?? '') !== formid) throw Error('业务表单已变化，请取消原办理参数后重新打开')
       })
       assertGeneration(own)
@@ -358,7 +357,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     chartError.value = ''
     chartPrepared.value = null
     try {
-      const runtime = sparkConsume(PAGE_RUNTIME)
+      const runtime = getRuntime()
       if (!runtime) throw new Error('缺少页面运行实例')
       const query = routeQuery()
       const result = await prepareFlowRunDetailPage({
@@ -389,8 +388,8 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     return forceBackNodeOptions.value.length > 0
   })
 
-  watch(() => [runtimeReady(), routeQuery().wfid, routeQuery().flowid, routeQuery().stepid] as const, () => {
-    if (runtimeReady()) void loadPage()
+  watch(() => [getRuntime(), routeQuery().wfid, routeQuery().flowid, routeQuery().stepid] as const, () => {
+    if (getRuntime()) void loadPage()
   }, {immediate: true})
 
   return {

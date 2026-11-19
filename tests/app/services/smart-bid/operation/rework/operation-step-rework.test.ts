@@ -20,6 +20,11 @@ it('returns to the earliest affected call and hands external operations back to 
   assertCurrent:()=>{},
  }
  const rework=prepareOperationStepRework(request)
+ const invalidCalls=[{...request.calls[0],effect:'UNRECOGNIZED' as 'COMPUTE'},...request.calls.slice(1)]
+ expect(()=>prepareOperationStepRework({...request,calls:invalidCalls})).toThrow('OPERATION_REWORK_SCOPE')
+ const unknownCalls=[{...request.calls[0],state:'UNKNOWN' as const},...request.calls.slice(1)]
+ expect(prepareOperationStepRework({...request,calls:unknownCalls,findings:[makeFinding('RECOMPUTE','CALC')]}).handoffs)
+  .toMatchObject([{destination:'ORIGINAL_CALL',originalOwnerRef:'OPERATOR'}])
  expect(rework).toMatchObject({firstCallRef:'CALC',inputRef:'INPUT',returnRef:'RECEIPT',
   handoffs:[{destination:'03'},{destination:'06',inputRef:'SIGN-IN',returnRef:'SIGN-OUT'},{destination:'ORIGINAL_CALL'}],
   reusable:[{resultRef:'INDEPENDENT'}],originalOperations:[{destination:'46',ownerRef:'SIGNER'},

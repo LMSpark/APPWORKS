@@ -35,6 +35,8 @@ export function prepareOperationStepRework(source:Readonly<{
  const order=new Map(calls.map((call,index)=>[call.callRef,index]))
  if(![projectId,runId,attemptRef,inputRef].every(identity)||!reason.trim()||returnRef!==null&&!identity(returnRef)||
   !findings.length||order.size!==calls.length||calls.some(call=>![call.callRef,call.ownerRef].every(identity)||
+   !['COMPUTE','SIGN','SUBMIT','WITHDRAW','OTHER_EXTERNAL'].includes(call.effect)||
+   !['NOT_STARTED','COMPLETE','PARTIAL','UNKNOWN'].includes(call.state)||
    [call.inputRef,call.returnRef].some(ref=>ref!==null&&!identity(ref))))
   throw Error('OPERATION_REWORK_SCOPE')
  const affected=new Set<string>()

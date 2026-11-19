@@ -199,6 +199,9 @@
         "_parentCascadeIdx": true,
         "_fieldCascadeRuntime": true,
         "_optionFillRuntime": true,
+        "_saveJournal": true,
+        "_saveJournalPhaseIndex": true,
+        "_saveJournalBatchSequence": true,
         "_fieldCascadeListeners": true,
         "_resourceChildRelationIdx": true,
         "_resourceParentRelationIdx": true,
@@ -430,10 +433,36 @@
           "type": "object",
           "title": "(source: Readonly<{ scope?: string; tableName: string; viewId?: string; }>) => SparkData.DataView | undefined"
         },
+        "saveJournalIds": true,
+        "saveJournalPendingSignature": true,
+        "beginSaveJournal": true,
+        "currentJournalViews": true,
+        "settleSaveJournal": true,
+        "refreshSaveJournalCompletion": true,
+        "saveJournal": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "verifySaveJournal": {
+          "type": "object",
+          "title": "() => Promise<SparkData.DataSetSaveJournal>"
+        },
+        "continueSaveJournal": {
+          "type": "object",
+          "title": "() => Promise<SparkData.DataSetPhasedSaveResult>"
+        },
+        "retainSaveJournalDraft": {
+          "type": "object",
+          "title": "() => SparkData.DataSetSaveJournal"
+        },
+        "discardSaveJournalNotApplied": {
+          "type": "object",
+          "title": "() => SparkData.DataSetSaveJournal"
+        },
         "saveChanges": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
         },
+        "executeSaveChanges": true,
         "saveChangesInPhases": {
           "type": "object",
           "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => Promise<SparkData.DataSetPhasedSaveResult>"
@@ -480,6 +509,9 @@
         "_parentCascadeIdx",
         "_fieldCascadeRuntime",
         "_optionFillRuntime",
+        "_saveJournal",
+        "_saveJournalPhaseIndex",
+        "_saveJournalBatchSequence",
         "_fieldCascadeListeners",
         "_resourceChildRelationIdx",
         "_resourceParentRelationIdx",
@@ -543,7 +575,19 @@
         "_peerResolver",
         "bindPeerDataSets",
         "resolveOptionView",
+        "saveJournalIds",
+        "saveJournalPendingSignature",
+        "beginSaveJournal",
+        "currentJournalViews",
+        "settleSaveJournal",
+        "refreshSaveJournalCompletion",
+        "saveJournal",
+        "verifySaveJournal",
+        "continueSaveJournal",
+        "retainSaveJournalDraft",
+        "discardSaveJournalNotApplied",
         "saveChanges",
+        "executeSaveChanges",
         "saveChangesInPhases",
         "resolveUnconfirmedSaves",
         "abandonUnconfirmedSaves",
@@ -1107,6 +1151,21 @@
               "writable": true
             },
             {
+              "name": "_saveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_saveJournalPhaseIndex",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_saveJournalBatchSequence",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "_fieldCascadeListeners",
               "readable": true,
               "writable": true
@@ -1422,7 +1481,67 @@
               "writable": true
             },
             {
+              "name": "saveJournalIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveJournalPendingSignature",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "beginSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentJournalViews",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "settleSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "refreshSaveJournalCompletion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verifySaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "continueSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "retainSaveJournalDraft",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "discardSaveJournalNotApplied",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "saveChanges",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "executeSaveChanges",
               "readable": true,
               "writable": true
             },

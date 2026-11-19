@@ -112,9 +112,9 @@ describe('source field and formal relation migration', () => {
       const original = owner.getState()
       expect(original.status).toBe('unknown')
       expect(original.preview?.relationChanges.map(change => change.id)).toEqual(['R'])
-      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(owner.getState().status).toBe('unknown')
-      expect(owner.getState().preview?.relationChanges).toEqual(original.preview?.relationChanges)
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+      expect(owner.getState().status).toBe('idle')
+      expect(owner.getState().preview).toBeNull()
     }
     expect(writes()).toHaveLength(1)
   })

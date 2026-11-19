@@ -69,6 +69,104 @@
       },
       "additionalProperties": false
     },
+    "DataSpaceSaveRecoveryIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveRecoveryIdentity",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "DataSpaceSaveRecoveryEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveRecoveryEntry",
+      "properties": {
+        "action": {
+          "$ref": "../save/data-space-save-order.ts.json#/$defs/DataSpaceSaveAction"
+        },
+        "identity": {
+          "$ref": "#/$defs/DataSpaceSaveRecoveryIdentity"
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "changeDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "identity",
+        "changedFields",
+        "changeDigest"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceSaveRecovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveRecovery",
+      "properties": {
+        "primaryKey": {
+          "type": "string"
+        },
+        "primaryKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expectedIdentities": {
+          "type": "object",
+          "properties": {
+            "added": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSaveRecoveryIdentity"
+              }
+            },
+            "changed": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSaveRecoveryIdentity"
+              }
+            },
+            "deleted": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSaveRecoveryIdentity"
+              }
+            }
+          },
+          "required": [
+            "added",
+            "changed",
+            "deleted"
+          ],
+          "additionalProperties": false
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceSaveRecoveryEntry"
+          }
+        },
+        "changeDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primaryKey",
+        "primaryKeyFields",
+        "expectedIdentities",
+        "entries",
+        "changeDigest"
+      ],
+      "additionalProperties": false
+    },
     "DataSpaceSaveRequest": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -694,6 +792,50 @@
         "method.acceptSaveReceipt.return": {
           "$ref": "#/$defs/DataSpaceSaveAcceptedReceipt"
         },
+        "method.acceptVerifiedSaveRecovery.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "requested": {
+                  "$ref": "#/$defs/DataSpaceSaveChanges"
+                },
+                "recovery": {
+                  "$ref": "#/$defs/DataSpaceSaveRecovery"
+                },
+                "queried": {
+                  "$ref": "#/$defs/DataSpaceQueryContext"
+                }
+              },
+              "required": [
+                "requested",
+                "recovery",
+                "queried"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acceptVerifiedSaveRecovery.return": {
+          "$ref": "#/$defs/DataSpaceSaveAcceptedReceipt"
+        },
+        "method.captureSaveRecovery.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "$ref": "#/$defs/DataSpaceSaveChanges"
+            },
+            "expected": {
+              "$ref": "#/$defs/DataSpaceSaveRecovery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureSaveRecovery.return": {
+          "$ref": "#/$defs/DataSpaceSaveRecovery"
+        },
         "method.buildSaveRequest.params": {
           "type": "object",
           "properties": {
@@ -712,7 +854,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T20:19:28.329Z",
+  "generatedAt": "2026-11-19T18:39:16.956Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -801,6 +943,105 @@
             },
             {
               "name": "actionOrder",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveRecoveryIdentity": {
+      "name": "DataSpaceSaveRecoveryIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveRecoveryEntry": {
+      "name": "DataSpaceSaveRecoveryEntry",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    action: 'added' | 'changed' | 'deleted';\n    identity: DataSpaceSaveRecoveryIdentity;\n    changedFields: readonly string[];\n    changeDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    action: 'added' | 'changed' | 'deleted';\n    identity: DataSpaceSaveRecoveryIdentity;\n    changedFields: readonly string[];\n    changeDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changeDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveRecovery": {
+      "name": "DataSpaceSaveRecovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    primaryKey: string;\n    primaryKeyFields: readonly string[];\n    expectedIdentities: Readonly<{\n        added: readonly DataSpaceSaveRecoveryIdentity[];\n        changed: readonly DataSpaceSaveRecoveryIdentity[];\n        deleted: readonly DataSpaceSaveRecoveryIdentity[];\n    }>;\n    entries: readonly DataSpaceSaveRecoveryEntry[];\n    changeDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    primaryKey: string;\n    primaryKeyFields: readonly string[];\n    expectedIdentities: Readonly<{\n        added: readonly DataSpaceSaveRecoveryIdentity[];\n        changed: readonly DataSpaceSaveRecoveryIdentity[];\n        deleted: readonly DataSpaceSaveRecoveryIdentity[];\n    }>;\n    entries: readonly DataSpaceSaveRecoveryEntry[];\n    changeDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedIdentities",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changeDigest",
               "readable": true,
               "writable": false
             }
@@ -1678,6 +1919,60 @@
               "type": {
                 "type": "reference",
                 "name": "DataSpaceSaveAcceptedReceipt",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "acceptVerifiedSaveRecovery",
+              "jsdoc": "Verify one original unknown batch by exact primary-key readback and advance a private baseline.\nThe queried result is consumed only as proof; it is never treated as a replay receipt.",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        requested: DataSpaceSaveChanges;\n        recovery: DataSpaceSaveRecovery;\n        queried: DataSpaceQueryContext;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveAcceptedReceipt",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "captureSaveRecovery",
+              "jsdoc": "Capture the exact formal identities and intended changes before any save request is dispatched.",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveChanges",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                },
+                {
+                  "name": "expected",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveRecovery",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveRecovery",
                 "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
               }
             },

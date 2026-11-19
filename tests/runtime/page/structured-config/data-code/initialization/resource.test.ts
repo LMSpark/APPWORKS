@@ -80,12 +80,12 @@ describe('code initialization semantic view and formal persistence',()=>{
     expect(ds.getView('Base_CodeSerialPerform')!.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(service.http.saves).toEqual([])
   })
-  it('retains an interrupted original save even when the persisted value matches',async()=>{
+  it('confirms an interrupted original save from exact formal-key readback when the persisted value matches',async()=>{
     const {service,view,save}=await fixture(),key=view.getPkKey(view.rows[0]!)!
     view.updateEditingValue(key,'InitVal','007');service.http.failAfterWrite=true
     await expect(save()).rejects.toThrow();expect(view.hasUnconfirmedSave).toBe(true)
-    await expect(save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(service.http.saves).toHaveLength(1);expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(save()).resolves.toMatchObject({success:true,data:{savedCount:1}})
+    expect(service.http.saves).toHaveLength(1);expect(view.hasUnconfirmedSave).toBe(false)
     expect(service.http.records['Base_CodeSerialPerform']![0]?.['Code']).toBe('005')
   })
   it('does not accept a CRUD receipt when the initialization function still returns a different next value',async()=>{

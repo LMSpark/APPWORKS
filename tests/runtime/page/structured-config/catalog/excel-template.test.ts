@@ -42,12 +42,12 @@ describe('Excel template through the original scheme DataView',()=>{
  it('never repeats an upload with completely lost ACK',async()=>{const f=await fixture();f.choose();f.http.loseAck=true;await expect(saveExcelTemplate(f.ds)).rejects.toThrow();await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(()=>cancelExcelTemplate(f.ds)).toThrow();expect(f.http.files).toHaveLength(1);expect(f.http.saves).toEqual([])})
  it('rejects pending ordinary edits before uploading',async()=>{const f=await fixture();f.choose();f.list.updateEditingValue('S1','description','待保存');await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files).toEqual([])})
  it('does not overwrite a different persisted template after known DB failure',async()=>{const f=await fixture();f.choose();f.http.rejectNextSave=true;await expect(saveExcelTemplate(f.ds)).rejects.toThrow();f.http.records['Base_Import_solution']![0]!['templatePath']='/tenant/xlsxtemp/other.xlsx';await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files.filter(r=>r.url==='/api/File/UploadFile')).toHaveLength(1);expect(f.http.records['Base_Import_solution']![0]?.['templatePath']).toBe('/tenant/xlsxtemp/other.xlsx')})
- it('keeps template publication pending when the DB receipt is lost',async()=>{
+ it('confirms template publication from exact readback when the DB receipt is lost',async()=>{
   const f=await fixture();f.choose();f.http.failAfterWrite=true
   await expect(saveExcelTemplate(f.ds)).rejects.toThrow()
   const files=f.http.files.length
-  await expect(saveExcelTemplate(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(readExcelTemplate(f.ds)?.unconfirmed).toBe(true)
+  await expect(saveExcelTemplate(f.ds)).resolves.toBeUndefined()
+  expect(readExcelTemplate(f.ds)).toMatchObject({phase:'publication',unconfirmed:false})
   expect(f.http.saves).toHaveLength(1)
   expect(f.http.files).toHaveLength(files)
  })

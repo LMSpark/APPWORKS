@@ -81,7 +81,7 @@ describe('logic-view list page', () => {
     } finally {wrapper.unmount()}
   })
 
-  it('keeps an interrupted catalog save pending without replaying the insert', async () => {
+  it('confirms an interrupted catalog insert without replaying it', async () => {
     const {wrapper} = await openList()
     try {
       await wrapper.findAll('button').find(b => b.text() === '新增视图')!.trigger('click'); await flushPromises()
@@ -95,9 +95,8 @@ describe('logic-view list page', () => {
       await wrapper.findAll('button').find(b => b.text() === '核验目录保存结果')!.trigger('click'); await flushPromises()
       expect(http.saves).toHaveLength(1)
       expect(http.records['Base_DataViewList']).toHaveLength(2)
-      expect(wrapper.findComponent(RendererForm).exists()).toBe(true)
-      expect(wrapper.findAll('button').find(b => b.text() === '取消')!.attributes('disabled')).toBeDefined()
-      expect(wrapper.text()).toContain('服务未提供原请求的权威终态')
+      expect(wrapper.findComponent(RendererForm).exists()).toBe(false)
+      expect(wrapper.findAll('button').find(b => b.text() === '核验目录保存结果')).toBeUndefined()
     } finally {wrapper.unmount()}
   })
 

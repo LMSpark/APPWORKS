@@ -858,12 +858,13 @@ describe('data-space metadata DataSet', () => {
     if (failure === 'lost-response') {
       const later = '[{"Name":"later"}]'
       view.updateEditingValue('SPACE', 'inputParams', later)
-      for (const discardPending of [false, true]) {
-        await expect(session.reloadInputParameters({discardPending})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-        expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(true)
-        expect(view.getEditingPatch('SPACE')).toEqual({inputParams: later})
-      }
-      expect(session.getInputParameterState()).toMatchObject({status: 'unknown', pending: true})
+      await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow('DATA_SPACE_INPUT_PARAMETERS_PENDING')
+      expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(false)
+      expect(view.getEditingPatch('SPACE')).toEqual({inputParams: later})
+      await session.reloadInputParameters({discardPending: true})
+      expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(false)
+      expect(view.getEditingPatch('SPACE')).toBeUndefined()
+      expect(session.getInputParameterState()).toMatchObject({status: 'idle', pending: false})
       const fresh = await openMetadataSession()
       expect(fresh.view.rows[0]).toMatchObject({rowid: 'SPACE', inputParams: '[]'})
       expect(space['inputParams']).toBe('[]')
@@ -1078,7 +1079,7 @@ describe('data-space metadata DataSet', () => {
     expect(saveRequests()).toEqual([])
   })
 
-  it('preserves the original declaration capture after an independent read finds the submitted value', async () => {
+  it('confirms the original declaration capture when exact readback proves the submitted value', async () => {
     const {rows, space} = declarationRows()
     installRows(rows, {loseSaveResponse: true})
     const {session, view} = await openMetadataSession()
@@ -1092,13 +1093,13 @@ describe('data-space metadata DataSet', () => {
     expect(view.hasUnconfirmedSave).toBe(true)
     const requests = mocks.request.mock.calls.length
     await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toMatchObject({
-      state: 'unknown', views: [{tableName: 'Base_DataSet', viewId: 'default', state: 'unknown', error: {message: expect.stringContaining('SPARK_SAVE_UNVERIFIABLE')}}],
+      state: 'confirmed', views: [{tableName: 'Base_DataSet', viewId: 'default', state: 'confirmed'}],
     })
-    expect(mocks.request).toHaveBeenCalledTimes(requests)
+    expect(mocks.request.mock.calls.length).toBeGreaterThan(requests)
     const fresh = await openMetadataSession()
     expect(fresh.view.rows).toEqual([{rowid: 'SPACE', _pk: 'SPACE', inputParams: '[]'}])
-    expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(true)
-    expect(view.dirtyTracking.hasPendingChanges('SPACE') || view.hasEditingChanges('SPACE')).toBe(true)
+    expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(false)
+    expect(view.dirtyTracking.hasPendingChanges('SPACE') || view.hasEditingChanges('SPACE')).toBe(false)
     expect(saveRequests()).toHaveLength(1)
   })
 

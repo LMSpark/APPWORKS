@@ -72,7 +72,7 @@ describe('formal code-design scenario', () => {
     expect(nodes.rows).toEqual([expect.objectContaining({CodeDesignID:'NEW',NodeType:2,ParameterName:'NEW_PREFIX',CodeNodeDesignJson:'{"ConstString":"NEW_PREFIX"}'})])
     expect(http.records['Base_CodeNodeDesign']!.filter(row=>row['CodeDesignID']==='C1')).toHaveLength(1)
   })
-  it('keeps child creation blocked while the original parent receipt is unavailable', async () => {
+  it('confirms the original parent receipt before allowing child creation', async () => {
     const {ds,http}=await open('A','NEW'),main=ds.getView('Base_CodeDesign')!,nodes=ds.getView('Base_CodeNodeDesign')!
     const added=await main.addRowWithIdentity({field:'rowid',value:'NEW'},{AppID:'A',Name:'未知回执编码',BusTableRowid:'T1'})
     main.setCurrentRow(added);main.setSelectedRows([added]);await nodes.refresh()
@@ -81,10 +81,10 @@ describe('formal code-design scenario', () => {
     expect(main.hasUnconfirmedSave).toBe(true)
     await expect(addCodeSegment(ds)).rejects.toThrow('保存未确认')
     expect(http.saves).toHaveLength(1)
-    await expect(saveDataCodeDesign(ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(saveDataCodeDesign(ds)).resolves.toMatchObject({success:true})
     expect(http.saves).toHaveLength(1)
-    expect(main.hasUnconfirmedSave).toBe(true)
-    await expect(addCodeSegment(ds)).rejects.toThrow('保存未确认')
+    expect(main.hasUnconfirmedSave).toBe(false)
+    expect(await addCodeSegment(ds)).toMatchObject({CodeDesignID:'NEW'})
     expect(http.records['Base_CodeDesign']!.filter(row=>row['rowid']==='NEW')).toHaveLength(1)
   })
   it('saves an explicitly confirmed last-segment deletion without imposing the example-generation precondition', async () => {

@@ -183,7 +183,7 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
  const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,
   preparePageCall:route=>preparePublishedContentAuthoringCall(route,entry),
   loadScenario:async(input)=>{
-   expect(input).toEqual({projectId:applicationId,scenarioId})
+   expect(input).toMatchObject({projectId:applicationId,scenarioId,source:expect.any(Object)})
    return ds
   },
   readNavTree:()=>({title:'Fixture',childPlacement:'header',items:[{

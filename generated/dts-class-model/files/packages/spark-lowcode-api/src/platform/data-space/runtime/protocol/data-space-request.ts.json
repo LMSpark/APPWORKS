@@ -118,6 +118,66 @@
             }
           },
           "additionalProperties": false
+        },
+        "recovery": {
+          "type": "object",
+          "properties": {
+            "primaryKey": {
+              "type": "string"
+            },
+            "primaryKeyFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expectedIdentities": {
+              "type": "object",
+              "properties": {
+                "added": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                },
+                "changed": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                },
+                "deleted": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                }
+              },
+              "required": [
+                "added",
+                "changed",
+                "deleted"
+              ],
+              "additionalProperties": false
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "../query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryEntry"
+              }
+            },
+            "changeDigest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "primaryKey",
+            "primaryKeyFields",
+            "expectedIdentities",
+            "entries",
+            "changeDigest"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -214,7 +274,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T06:23:53.717Z",
+  "generatedAt": "2026-11-19T16:37:04.681Z",
   "models": {
     "DataSpaceSaveUnconfirmedError": {
       "name": "DataSpaceSaveUnconfirmedError",
@@ -329,11 +389,11 @@
       "jsdoc": "单模型候选变更及其原查询上下文；身份必须与上下文一致。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n}>",
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n    recovery?: ReturnType<DataSpaceQueryContext['captureSaveRecovery']>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n}>",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n    recovery?: ReturnType<DataSpaceQueryContext['captureSaveRecovery']>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -351,6 +411,11 @@
             },
             {
               "name": "changes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recovery",
               "readable": true,
               "writable": false
             }

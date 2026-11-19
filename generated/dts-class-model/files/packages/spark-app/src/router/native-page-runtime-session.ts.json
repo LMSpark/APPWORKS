@@ -49,6 +49,13 @@
         },
         "scenarioInputs": {
           "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+        },
+        "source": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeSource"
+        },
+        "resolveSource": {
+          "type": "object",
+          "title": "() => Promise<PageRuntimeSource>"
         }
       },
       "required": [
@@ -88,6 +95,13 @@
         },
         "scenarioInputs": {
           "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+        },
+        "source": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeSource"
+        },
+        "resolveSource": {
+          "type": "object",
+          "title": "() => Promise<PageRuntimeSource>"
         },
         "loadScenario": {
           "type": "object",
@@ -176,18 +190,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T15:50:42.690Z",
+  "generatedAt": "2026-11-19T17:47:30.282Z",
   "models": {
     "NativePageRuntimeIdentity": {
       "name": "NativePageRuntimeIdentity",
       "jsdoc": "原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。tool 与 pageId 二选一。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n    source?: PageRuntimeOptions['source'];\n    resolveSource?: PageRuntimeOptions['resolveSource'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+            "typeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n    source?: PageRuntimeOptions['source'];\n    resolveSource?: PageRuntimeOptions['resolveSource'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -225,6 +239,16 @@
             },
             {
               "name": "scenarioInputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolveSource",
               "readable": true,
               "writable": false
             }

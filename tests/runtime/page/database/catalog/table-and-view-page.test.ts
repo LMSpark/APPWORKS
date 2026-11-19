@@ -537,8 +537,8 @@ describe('table-and-view-page', () => {
     expect(fields!.rows.find((row: DataRow) => row['rowid'] === fields!.getPkKey(fieldRow!))?.['cnname']).toBe('由原查询捕获核验')
 
     requestOwner.executeRequest = originalExecute
-    await expect(dataSet!.saveChanges({views: [{tableName: DATABASE_CATALOG_FIELD_MODEL, viewId: 'tableFields'}]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(fields!.hasUnconfirmedSave).toBe(true)
+    await expect(dataSet!.saveChanges({views: [{tableName: DATABASE_CATALOG_FIELD_MODEL, viewId: 'tableFields'}]})).resolves.toMatchObject({success: true})
+    expect(fields!.hasUnconfirmedSave).toBe(false)
     expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(writeCountBeforeSwitch)
   })
 
@@ -2172,9 +2172,9 @@ describe('table-and-view-page', () => {
       await flushPromises()
       await flushPromises()
       expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(postsBeforeVerify)
-      expect(relationView.hasUnconfirmedSave).toBe(true)
-      expect(relationView.dirtyTracking.isPendingCreate(rowId)).toBe(true)
-      expect(wrapper.findComponent(TableRelationDialog).exists()).toBe(true)
+      expect(relationView.hasUnconfirmedSave).toBe(false)
+      expect(relationView.dirtyTracking.isPendingCreate(rowId)).toBe(false)
+      expect(wrapper.findComponent(TableRelationDialog).exists()).toBe(false)
     } finally {
       requestOwner.executeRequest = originalExecute
     }
@@ -2328,10 +2328,10 @@ describe('table-and-view-page', () => {
     const writesAfterUnknown = http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD').length
     expect(relationView.hasUnconfirmedSave).toBe(true)
     await expect(dataSet.saveChanges({views: [{tableName: DATABASE_CATALOG_RELATION_MODEL,
-      viewId: DATABASE_CATALOG_RELATION_TABLE_VIEW, ids: ['REL-UNKNOWN']}]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      viewId: DATABASE_CATALOG_RELATION_TABLE_VIEW, ids: ['REL-UNKNOWN']}]})).resolves.toMatchObject({success: true})
     expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(writesAfterUnknown)
-    expect(relationView.hasUnconfirmedSave).toBe(true)
-    expect(relationView.dirtyTracking.isPendingCreate('REL-UNKNOWN')).toBe(true)
+    expect(relationView.hasUnconfirmedSave).toBe(false)
+    expect(relationView.dirtyTracking.isPendingCreate('REL-UNKNOWN')).toBe(false)
     expect(http.rows[DATABASE_CATALOG_RELATION_MODEL]?.find(row => row['rowid'] === 'REL-UNKNOWN')?.['RelshipExp'])
       .toEqual(genericJsonPayload('unknown'))
     requestOwner.executeRequest = originalExecute

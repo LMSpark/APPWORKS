@@ -222,8 +222,8 @@ describe('formal model configuration maintenance', () => {
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')
     if (mode === 'unknown') {
-      await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(owner.getState().status).toBe('unknown')
+      await expect(owner.reload(true)).resolves.toBeUndefined()
+      expect(owner.getState().status).toBe('idle')
     } else {
       await owner.reload(owner.getState().pending)
       expect(owner.getState()).toEqual({status: 'idle', pending: false})

@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 243,
+  "consumerCount": 258,
   "directUnmatchedCount": 123,
   "consumers": [
     {
@@ -497,51 +497,87 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 207,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 215,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 225,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/DownFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 225,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 235,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 281,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/list",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 281,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
-      "sourceLine": 266,
+      "sourceLine": 303,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/DownFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 106,
+      "sourceLine": 145,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 120,
+      "sourceLine": 159,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "sourceLine": 175,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/lastModifiedTime",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 136,
+      "sourceLine": 207,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/list",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 153,
+      "sourceLine": 224,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 197,
+      "sourceLine": 268,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -551,7 +587,7 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/File/UploadFile",
+      "expression": "/api/File/v2/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
       "sourceLine": 42,
       "scope": "publishable-lowcode-api"
@@ -563,7 +599,7 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/File/UploadFile",
+      "expression": "/api/File/v2/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
       "sourceLine": 95,
       "scope": "publishable-lowcode-api"
@@ -575,13 +611,7 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/File/UploadFile",
-      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 119,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/File/UploadFile",
+      "expression": "/api/File/v2/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
       "sourceLine": 162,
       "scope": "publishable-lowcode-api"
@@ -593,21 +623,81 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 182,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 193,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 193,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/DownFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 193,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 204,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 206,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 214,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 214,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 220,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 224,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 110,
+      "sourceLine": 123,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "sourceLine": 168,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 152,
+      "sourceLine": 172,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -727,19 +817,19 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-save-parity.test.ts",
-      "sourceLine": 84,
+      "sourceLine": 85,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-save-parity.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 89,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-save-parity.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 150,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1081,7 +1171,7 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.test.ts",
-      "sourceLine": 687,
+      "sourceLine": 685,
       "scope": "publishable-lowcode-api"
     },
     {

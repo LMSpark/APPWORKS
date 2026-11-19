@@ -111,7 +111,7 @@ describe('declarative actions consume DataView query permissions', () => {
 
   it('uses addActionState for locally pending creates', async () => {
     const { dataSet, view } = await actionViewFixture(true)
-    await view.addRow({ name: 'draft' })
+    await view.addRowWithIdentity({ field: 'id', value: 2 }, { name: 'draft' })
     expect(view.addActionState()).toBe('enabled')
     expect(isDataViewSavePermitted({ view })).toBe(true)
     dataSet.destroy()

@@ -86,7 +86,7 @@ describe('original DataView transform rules workspace',()=>{
   const f=await fixture();f.rules.updateEditingValue('R1','rule_name','one');f.rules.updateEditingValue('R2','rule_name','two');f.http.failAfterWrite=true
   await expect(f.ds.saveChanges()).rejects.toThrow();f.rules.updateEditingValue('R1','rule_name','later draft');await flushPromises()
   await f.click('核验原未确认规则提交')
-  expect(f.rules.hasUnconfirmedSave).toBe(true);expect(f.http.saves).toHaveLength(1)
+  expect(f.rules.hasUnconfirmedSave).toBe(false);expect(f.http.saves).toHaveLength(1)
   expect(f.rules.getEditingRow('R1')?.['rule_name']).toBe('later draft')
  })
  it.each(['save','discard'] as const)('handles a currently selected staged row through a fresh %s interaction only',async operation=>{
@@ -162,7 +162,7 @@ describe('original DataView transform rules workspace',()=>{
   await f.click('取消删除规则')
   expect(f.rules.hasUnconfirmedSave).toBe(true)
   await f.click('核验原删除结果')
-  expect(f.rules.hasUnconfirmedSave).toBe(true)
+  expect(f.rules.hasUnconfirmedSave).toBe(false)
   expect(f.http.saves).toHaveLength(1)
  })
 })

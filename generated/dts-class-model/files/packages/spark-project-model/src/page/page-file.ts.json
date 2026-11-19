@@ -11,8 +11,8 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageToolFileName",
-      "PageToolLoadOptions",
-      "PageContentLoadResult",
+      "PageFileReadCommand",
+      "PageFileReader",
       "PageToolFileVersionSummary",
       "PageFileCreateOptions"
     ]
@@ -27,62 +27,28 @@
         "style.css"
       ]
     },
-    "PageToolLoadOptions": {
+    "PageFileReadCommand": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PageToolLoadOptions",
+      "title": "PageFileReadCommand",
       "properties": {
-        "forceReload": {
-          "enum": [
-            false,
-            true
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "PageContentLoadResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageContentLoadResult",
-      "properties": {
-        "success": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "data": true,
-        "error": {
+        "versionId": {
           "type": "string"
         },
-        "reason": {
+        "projectId": {
           "type": "string"
         },
-        "source": {
-          "const": "remote"
-        },
-        "timestamp": {
-          "type": "number"
-        },
-        "sourceTimestamp": {
+        "pageId": {
           "type": "string"
         },
-        "fromCache": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "notModified": {
-          "enum": [
-            false,
-            true
-          ]
+        "fileName": {
+          "$ref": "#/$defs/PageToolFileName"
         }
       },
       "required": [
-        "success"
+        "projectId",
+        "pageId",
+        "fileName"
       ],
       "additionalProperties": false
     },
@@ -126,7 +92,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.360Z",
+  "generatedAt": "2026-11-19T18:04:26.890Z",
   "models": {
     "PageToolFileName": {
       "name": "PageToolFileName",
@@ -137,17 +103,38 @@
         "members": {}
       }
     },
-    "PageToolLoadOptions": {
-      "name": "PageToolLoadOptions",
-      "jsdoc": "Page Tool Load Options 的调用配置。",
+    "PageFileReadCommand": {
+      "name": "PageFileReadCommand",
+      "jsdoc": "One formal page-file read, optionally pinned to a publication reference.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** force Reload 字段。 */\n    forceReload?: boolean;\n}",
+        "declarationTypeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
             {
-              "name": "forceReload",
-              "jsdoc": "force Reload 字段。",
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
               "readable": true,
               "writable": false
             }
@@ -155,70 +142,13 @@
         }
       }
     },
-    "PageContentLoadResult": {
-      "name": "PageContentLoadResult",
-      "jsdoc": "Page Content Load Result 的返回结果。",
+    "PageFileReader": {
+      "name": "PageFileReader",
+      "jsdoc": "Host-provided text reader; failures must remain explicit.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** success 字段。 */\n    success: boolean;\n    /** 业务数据载荷。 */\n    data?: T;\n    /** 错误对象或错误信息。 */\n    error?: string;\n    /** reason 字段。 */\n    reason?: string;\n    /** 来源对象。 */\n    source?: 'remote';\n    /** 事件时间戳。 */\n    timestamp?: number;\n    /** source Timestamp 字段。 */\n    sourceTimestamp?: string;\n    /** from Cache 字段。 */\n    fromCache?: boolean;\n    /** not Modified 字段。 */\n    notModified?: boolean;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "success",
-              "jsdoc": "success 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "data",
-              "jsdoc": "业务数据载荷。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "error",
-              "jsdoc": "错误对象或错误信息。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "reason",
-              "jsdoc": "reason 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "source",
-              "jsdoc": "来源对象。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "timestamp",
-              "jsdoc": "事件时间戳。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "sourceTimestamp",
-              "jsdoc": "source Timestamp 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fromCache",
-              "jsdoc": "from Cache 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "notModified",
-              "jsdoc": "not Modified 字段。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
+        "declarationTypeText": "(command: PageFileReadCommand) => Promise<string>",
+        "members": {}
       }
     },
     "PageToolFileVersionSummary": {

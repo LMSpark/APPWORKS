@@ -102,7 +102,7 @@ describe('staged design current target', () => {
     expect(page.ready.value).toBe(true)
     expect(view.getEditingPatch('P1')).toEqual({testvalue: 'Pending'})
   })
-  it('retains an unknown companion save and verifies through its original owner', async () => {
+  it('confirms a companion save by exact readback through its original owner', async () => {
     const {page, scope, http} = await setup({companion: true})
     const view = page.runtime.value!.getDataSet('PARAMETERS')!.getView('Params')!
     view.updateEditingValue('P1', 'testvalue', 'Accepted'); http.failAfterWrite = true
@@ -112,7 +112,7 @@ describe('staged design current target', () => {
     scope.value = 'A'; await flushPromises()
     await page.saveChanges({viewKey: 'PARAMETERS@Params@default'})
     expect(http.saves).toHaveLength(1)
-    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.hasUnconfirmedSave).toBe(false)
     expect(view.getEditingRow('P1')?.['testvalue']).toBe('Accepted')
   })
   it('explicitly discards the current draft and rereads without writing', async () => {

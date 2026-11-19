@@ -11,6 +11,11 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "RuntimeScenarioLoadCommand",
+      "RuntimePagePublicationPagedata",
+      "RuntimePagePublicationManifest",
+      "RuntimePagePublicationResolution",
+      "RuntimePageNavigationReceiptState",
+      "RuntimePageNavigationReceipt",
       "PageRuntimePoolOptions",
       "PageRuntimePool"
     ]
@@ -26,13 +31,192 @@
         },
         "scenarioId": {
           "type": "string"
+        },
+        "source": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeSource"
+        },
+        "pagedata": {
+          "$ref": "#/$defs/RuntimePagePublicationPagedata"
         }
       },
       "required": [
         "projectId",
-        "scenarioId"
+        "scenarioId",
+        "source"
       ],
       "additionalProperties": false
+    },
+    "RuntimePagePublicationPagedata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePagePublicationPagedata",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "version",
+        "fileName",
+        "sha256",
+        "sourceRevision",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimePagePublicationManifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePagePublicationManifest",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fileName": {
+                "$ref": "../../../spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+              },
+              "version": {
+                "type": "number"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fileName",
+              "version",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pagedata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimePagePublicationPagedata"
+          }
+        }
+      },
+      "required": [
+        "pageId",
+        "scenarioIds",
+        "sourceRevision",
+        "files",
+        "pagedata"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimePagePublicationResolution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePagePublicationResolution",
+      "properties": {
+        "publicationRef": {
+          "type": "string"
+        },
+        "manifest": {
+          "$ref": "#/$defs/RuntimePagePublicationManifest"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "RuntimePageNavigationReceiptState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimePageNavigationReceiptState",
+      "enum": [
+        "BLUEPRINT_ONLY",
+        "AUTH_MISSING",
+        "MANIFEST_MISSING",
+        "SCENARIO_MISSING",
+        "IDENTITY_CONFLICT",
+        "READY"
+      ]
+    },
+    "RuntimePageNavigationReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePageNavigationReceipt",
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/RuntimePageNavigationReceiptState"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "publication": {
+          "$ref": "#/$defs/RuntimePagePublicationResolution"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fileName": {
+                "$ref": "../../../spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+              },
+              "version": {
+                "type": "number"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fileName",
+              "version",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "PageRuntimePoolOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -67,6 +251,91 @@
         "method.readPageFiles.return": {
           "type": "object",
           "title": "Promise<readonly string[]>"
+        },
+        "method.resolvePagePublication.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "pageId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "scenarioIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "projectId",
+                "pageId",
+                "scenarioIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolvePagePublication.return": {
+          "type": "object",
+          "title": "Promise<RuntimePagePublicationResolution | undefined>"
+        },
+        "method.resolvePageNavigationReceipt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "pageId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "mainScenarioId": {
+                  "type": "string"
+                },
+                "scenarioIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "projectId",
+                "pageId",
+                "nodeId",
+                "scenarioIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolvePageNavigationReceipt.return": {
+          "type": "object",
+          "title": "Promise<RuntimePageNavigationReceipt>"
+        },
+        "method.readCurrentRoute.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readCurrentRoute.return": {
+          "type": "object",
+          "title": "RouteLocationNormalizedLoaded"
         },
         "method.preparePageCall.params": {
           "type": "object",
@@ -220,18 +489,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-19T05:44:32.590Z",
+  "generatedAt": "2026-11-19T18:07:49.254Z",
   "models": {
     "RuntimeScenarioLoadCommand": {
       "name": "RuntimeScenarioLoadCommand",
       "jsdoc": "为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -246,6 +515,232 @@
               "name": "scenarioId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagedata",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePagePublicationPagedata": {
+      "name": "RuntimePagePublicationPagedata",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sha256",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePagePublicationManifest": {
+      "name": "RuntimePagePublicationManifest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagedata",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePagePublicationResolution": {
+      "name": "RuntimePagePublicationResolution",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    publicationRef: string;\n    manifest: RuntimePagePublicationManifest;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    publicationRef: string;\n    manifest: RuntimePagePublicationManifest;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "publicationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifest",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePageNavigationReceiptState": {
+      "name": "RuntimePageNavigationReceiptState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'BLUEPRINT_ONLY' | 'AUTH_MISSING' | 'MANIFEST_MISSING' | 'SCENARIO_MISSING' | 'IDENTITY_CONFLICT' | 'READY'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'BLUEPRINT_ONLY'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'AUTH_MISSING'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'MANIFEST_MISSING'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'SCENARIO_MISSING'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'IDENTITY_CONFLICT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'READY'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimePageNavigationReceipt": {
+      "name": "RuntimePageNavigationReceipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    state: RuntimePageNavigationReceiptState;\n    reason?: string;\n    publication?: RuntimePagePublicationResolution;\n    files?: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        text: string;\n    }>>;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    state: RuntimePageNavigationReceiptState;\n    reason?: string;\n    publication?: RuntimePagePublicationResolution;\n    files?: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        text: string;\n    }>>;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publication",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -256,11 +751,11 @@
       "jsdoc": "实例池依赖：页面渲染组件、工具文件读取、场景装配、当前导航树与路由刷新。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -310,6 +805,76 @@
                     "name": "readonly string[]"
                   }
                 ]
+              }
+            },
+            {
+              "name": "resolvePagePublication",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "RuntimePagePublicationResolution",
+                      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolvePageNavigationReceipt",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RuntimePageNavigationReceipt",
+                    "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readCurrentRoute",
+              "jsdoc": "Reads the active route so retained tabs reject a route/call scope that is no longer current.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "RouteLocationNormalizedLoaded"
               }
             },
             {

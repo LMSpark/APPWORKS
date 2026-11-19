@@ -76,6 +76,66 @@
           },
           "additionalProperties": false
         },
+        "recovery": {
+          "type": "object",
+          "properties": {
+            "primaryKey": {
+              "type": "string"
+            },
+            "primaryKeyFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expectedIdentities": {
+              "type": "object",
+              "properties": {
+                "added": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                },
+                "changed": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                },
+                "deleted": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryIdentity"
+                  }
+                }
+              },
+              "required": [
+                "added",
+                "changed",
+                "deleted"
+              ],
+              "additionalProperties": false
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceSaveRecoveryEntry"
+              }
+            },
+            "changeDigest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "primaryKey",
+            "primaryKeyFields",
+            "expectedIdentities",
+            "entries",
+            "changeDigest"
+          ],
+          "additionalProperties": false
+        },
         "tableConfig": {
           "type": "object",
           "properties": {
@@ -407,7 +467,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T09:57:19.413Z",
+  "generatedAt": "2026-11-19T17:17:58.630Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",

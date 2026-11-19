@@ -125,11 +125,12 @@ it('retains an unknown original binding save without rerunning queries or replay
  api.current.state.http.failAfterWrite=true
  await expect(directSave(v)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED');expect(v.hasUnconfirmedSave).toBe(true)
  const writes=api.current.state.http.saves.length,reads=api.current.state.http.reads.length
- await expect(directSave(v)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
- expect(v.hasUnconfirmedSave).toBe(true)
+ await expect(directSave(v)).resolves.toMatchObject({success:true})
+ expect(v.hasUnconfirmedSave).toBe(false)
  expect(v.getEditingRow('Q1')?.['interfaceId']).toBe('I2')
  expect(api.current.state.http.saves).toHaveLength(writes)
- expect(api.current.state.http.reads).toHaveLength(reads)
+ expect(api.current.state.http.reads).toHaveLength(reads+1)
+ expect(api.current.state.http.reads.at(-1)?.table).toBe('Base_Interface_PublicParam')
 })
 it('does not allow CONFIG named output views to bypass the original type option contract',async()=>{
  const {v,save}=await outputs(CONFIG,true,true,true);api.current.state.http.records['Base_Interface_PublicParam']=[]

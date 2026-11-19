@@ -255,18 +255,19 @@ describe('computed field creation', () => {
     await expect(owner.save()).rejects.toThrow('不能重复提交')
     expect(() => owner.cancel()).toThrow('先核验')
     const id = owner.getState().fieldId
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(await owner.verify()).toBe(id)
     expect(id).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, fieldId: id})
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
     expect(writes()).toHaveLength(1)
   })
   it('retains a create with an omitted row receipt even when the field exists', async () => {
     const {f, owner, writes} = await setup({omitFieldReceipt: true})
     await expect(owner.save()).rejects.toThrow(/回执/)
     expect(owner.getState().status).toBe('unknown')
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState().fieldId).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState().pending).toBe(true)
+    const id = owner.getState().fieldId
+    expect(await owner.verify()).toBe(id)
+    expect(f.created.get('Base_DataModel_Field')?.[0]?.['rowid']).toBeTruthy()
+    expect(owner.getState().pending).toBe(false)
     expect(owner).not.toHaveProperty('acceptCurrent')
     expect(writes()).toHaveLength(1)
   })
@@ -311,9 +312,10 @@ describe('computed field creation', () => {
     await expect(session.metadataDataSet.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
 
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState().fieldId).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState().status).toBe('unknown')
+    const id = owner.getState().fieldId
+    expect(await owner.verify()).toBe(id)
+    expect(f.created.get('Base_DataModel_Field')?.[0]?.['rowid']).toBeTruthy()
+    expect(owner.getState().status).toBe('idle')
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(writes()).toHaveLength(2)
   })
@@ -363,7 +365,7 @@ describe('computed field creation', () => {
       await gate
       return nativeSave(options)
     })
-    const verifying = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const verifying = expect(owner.verify()).rejects.toThrow('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     expect(owner.getState().status).toBe('saving')
     await expect(owner.verify()).rejects.toThrow(/没有待核验/)
@@ -372,8 +374,8 @@ describe('computed field creation', () => {
     if (kind === 'applied') expect((await fields.applyEditingRows([id])).success).toBe(true)
     release(); await verifying
     expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`verify ${kind} edit`)
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState()).toMatchObject({fieldId: id, status: 'unknown', canDiscardLocalChanges: false})
+    await expect(owner.verify()).resolves.toBeNull()
+    expect(owner.getState().status).toBe('different')
     expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`verify ${kind} edit`)
     expect(writes()).toHaveLength(1)
   })

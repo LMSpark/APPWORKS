@@ -64,7 +64,7 @@ describe('standard cell native row save', () => {
     expect(view.getEditingPatch('P1')).toEqual({parname: ''})
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
-  it('retains the pending cell save when the written value is independently visible', async () => {
+  it('confirms the pending cell save from exact original-key readback', async () => {
     const {wrapper, view, http, edit, ds} = await fixture()
     http.failAfterWrite = true
     const input = await edit(0); await input.setValue('Accepted'); await flushPromises(); await input.trigger('focusout'); await flushPromises()
@@ -74,11 +74,11 @@ describe('standard cell native row save', () => {
     await input.trigger('focusout'); await flushPromises()
     expect(http.saves).toHaveLength(1)
     await expect(ds.saveChanges({views: [{tableName: 'Params', viewId: 'default', ids: ['P1']}]}))
-      .rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      .resolves.toMatchObject({success:true,data:{savedCount:1}})
     const reopened = await fixture(http)
     expect(reopened.view.rows.find(row => row['parid'] === 'P1')).toMatchObject({parname: 'Accepted'})
-    expect(view.hasUnconfirmedSaveFor(['P1'])).toBe(true)
-    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(view.hasUnconfirmedSaveFor(['P1'])).toBe(false)
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
     expect(http.saves).toHaveLength(1)
   })
   it('does not submit an editor whose current row changed before focus loss', async () => {

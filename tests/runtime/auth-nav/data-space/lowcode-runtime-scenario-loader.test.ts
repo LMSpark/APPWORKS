@@ -76,6 +76,39 @@ describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
 
+  it('assembles published pagedata from the verified manifest snapshot without reading the working file', async () => {
+    const scenarioId = 'PUBLISHED-SCENE'
+    const text = JSON.stringify({scenarioId, tables: {}})
+    mocks.readRequestScope.mockReturnValue(scope('published-token', 'APP-A'))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: scenarioId, name: 'Published'})
+    mocks.readModelBatch.mockResolvedValue([])
+    mocks.readRelations.mockResolvedValue([])
+    const dataSet = await loadLowcodeRuntimeScenario({
+      projectId: 'APP-A', scenarioId,
+      source:{mode:'published',sourceRevision:'manifest-proof',publicationRef:'rule=1;script=1;style=1;manifest=2',
+        scenarioIds:[scenarioId]},
+      pagedata: {
+        scenarioId, version: 4, fileName: '4__pagedata.json', sha256: 'already-proven',
+        sourceRevision: 'source-proof', text,
+      },
+    })
+    try {
+      expect(dataSet.scenarioId).toBe(scenarioId)
+      expect(mocks.readText).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects pagedata injected without a published source contract',async()=>{
+    const scenarioId='BYPASS-SCENE'
+    mocks.readRequestScope.mockReturnValue(scope('bypass-token','APP-A'))
+    await expect(loadLowcodeRuntimeScenario({
+      projectId:'APP-A',scenarioId,
+      pagedata:{scenarioId,version:1,fileName:'1__pagedata.json',sha256:'proof',
+        sourceRevision:'snapshot',text:JSON.stringify({scenarioId,tables:{}})},
+    })).rejects.toThrow('PAGE_RUNTIME_SOURCE_CONFLICT')
+    expect(mocks.readText).not.toHaveBeenCalled()
+  })
+
   it('keeps Agent Workflow creation, publication and deletion command bindings in the assembled DataSet', async () => {
     const scenarioId = agentWorkflowConfig.scenarioId
     mocks.readRequestScope.mockReturnValue(scope('workflow-token', 'APP-A'))

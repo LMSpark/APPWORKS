@@ -176,14 +176,13 @@ describe('formal model registration rename', () => {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
       await expect(operation.save()).rejects.toThrow(/预览/)
-      await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(operation.getState()).toMatchObject({status: 'unknown', pending: true})
+      expect(await operation.verify()).toBe(true)
+      expect(operation.getState()).toMatchObject({status: 'idle', pending: false})
       expect(writes(f)).toHaveLength(1)
-      expect(f.fileWrites).toHaveLength(0)
+      expect(f.fileWrites).toHaveLength(1)
       expect([fields.requestState, relations.requestState]).toEqual(initial)
-      return
     }
-    await operation.save()
+    if (!lost) await operation.save()
     expect(writes(f)).toHaveLength(1)
     expect([fields.requestState, relations.requestState]).toEqual(initial)
     const commandFields = Object.values(fields.dataTable!.views).filter(view => view.rows.length)
@@ -651,12 +650,12 @@ describe('formal model registration rename', () => {
     f.loseNextResponse()
     await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
-    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(await operation.verify()).toBe(true)
     expect(abandon).not.toHaveBeenCalled()
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(writes(f).filter(request => JSON.stringify(request.data).includes('"TableName":"Base_DataModel"'))).toHaveLength(1)
-    await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(sibling.hasUnconfirmedSave).toBe(true)
+    await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).resolves.toMatchObject({success: true})
+    expect(sibling.hasUnconfirmedSave).toBe(false)
   })
 
   it.each(['context', 'instance'] as const)('keeps an unknown batch unresolved when its original query %s changes', async change => {
@@ -749,7 +748,7 @@ describe('formal model registration rename', () => {
       }
       return save(options)
     })
-    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(operation.verify()).rejects.toThrow('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     recovery.mockRestore()
     const model = data.getView('Base_DataModel')!
     expect(model.getEditingRow('M1')?.['Description'] ?? model.rows.find(row => row['rowid'] === 'M1')?.['Description']).toBe('late applied after click')
@@ -885,10 +884,11 @@ describe('formal model registration rename', () => {
     await expect(operation.save()).rejects.toThrow()
     expect(operation.getState().pending).toBe(true)
     if (kind === 'database') {
-      await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(operation.getState().pending).toBe(true)
+      expect(await operation.verify()).toBe(true)
+      expect(operation.getState().pending).toBe(false)
       expect(writes(f)).toHaveLength(1)
-      expect(f.fileWrites).toHaveLength(0)
+      expect(f.fileWrites).toHaveLength(1)
+      expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.modelBinding.modelName).toBe('SalesOrders')
       return
     }
     await operation.verify()

@@ -58,7 +58,7 @@
         },
         "save": {
           "type": "object",
-          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; }>[]; }>) => Promise<Readonly<...."
+          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; recovery?: Readonly<...>; }>[];..."
         },
         "hasUnconfirmedSave": {
           "type": "object",

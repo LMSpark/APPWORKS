@@ -82,8 +82,8 @@
         },
         "resolution": {
           "enum": [
-            "not-applied",
             "confirmed",
+            "not-applied",
             "accepted-current"
           ]
         },

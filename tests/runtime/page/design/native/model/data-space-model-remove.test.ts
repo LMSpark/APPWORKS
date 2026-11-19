@@ -24,6 +24,11 @@ async function expectUnknownRemoval(operation: Removal) {
   await expect(operation.discardNotApplied()).rejects.toThrow(/确认未执行/)
 }
 
+async function expectConfirmedRemoval(operation: Removal) {
+  expect(await operation.verify()).toBe(true)
+  expect(operation.getState()).toMatchObject({status: 'idle', pending: false})
+}
+
 async function interruptRemovalPreflight(session: Session, operation: Removal) {
   await operation.preview()
   const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelremove:M1')!
@@ -167,9 +172,9 @@ describe('formal model removal', () => {
     if (lost) {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
-      await expectUnknownRemoval(operation)
-      expect(f.fileWrites).toHaveLength(0)
-      expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M1: {x: 1, y: 2}, M2: {x: 3, y: 4}})
+      await expectConfirmedRemoval(operation)
+      expect(f.fileWrites).toHaveLength(1)
+      expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M2: {x: 3, y: 4}})
     } else {
       expect(await operation.save()).toBe(true)
       expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M2: {x: 3, y: 4}})
@@ -200,7 +205,7 @@ describe('formal model removal', () => {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
       await expect(operation.save()).rejects.toThrow(/重复|核验/)
-      await expectUnknownRemoval(operation)
+      await expectConfirmedRemoval(operation)
     } else expect(await operation.save()).toBe(true)
     const reopened = await f.open('A')
     expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
@@ -592,15 +597,15 @@ describe('formal model removal', () => {
     expect(reopened.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
     expect(reopened.getView('Base_DataModel_Field')?.rows.map(row => row['rowid'])).toEqual(['F3', 'ORPHAN'])
     expect(reopened.getView('Base_DataModel_Relation')?.rows).toEqual([])
-    await expectUnknownRemoval(operation)
+    await expectConfirmedRemoval(operation)
     const original = session.metadataDataSet
     for (const [table, view, ids] of [
       ['Base_DataModel', 'default', ['M1']], ['Base_DataModel_Field', 'modelremove:M1', ['F1', 'F2']],
       ['Base_DataModel_Relation', 'modelremove:M1', ['R']],
     ] as const) {
       const target = original.getView(table, view)!
-      expect(target.hasUnconfirmedSave).toBe(true)
-      expect(target.dirtyTracking.pendingDeleteIds).toEqual(new Set(ids))
+      expect(target.hasUnconfirmedSave).toBe(false)
+      expect(target.dirtyTracking.pendingDeleteIds).toEqual(new Set())
     }
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
@@ -643,10 +648,10 @@ describe('formal model removal', () => {
         }
       }
     })
-    await expectUnknownRemoval(operation)
+    await expect(operation.verify()).rejects.toThrow('删除恢复范围仍有其他未确认保存')
     expect(sibling?.hasUnconfirmedSave).toBe(true)
     expect(sibling?.getEditingRow('M2')?.['description']).toBe('late native delta')
-    expect(models.hasUnconfirmedSave).toBe(true)
+    expect(models.hasUnconfirmedSave).toBe(false)
     expect(operation.getState().pending).toBe(true)
     expect(writes(f)).toHaveLength(2)
     expect(f.fileWrites).toHaveLength(0)
@@ -734,10 +739,10 @@ describe('formal model removal', () => {
         }
       }
     })
-    await expectUnknownRemoval(operation)
+    await expect(operation.verify()).rejects.toThrow('原定义核验期间出现新字段编辑')
     expect(models.getEditingPatch('M2')).toEqual({description: 'late edit during recovery'})
     expect(operation.getState().pending).toBe(true)
-    expect(models.hasUnconfirmedSave).toBe(true)
+    expect(models.hasUnconfirmedSave).toBe(false)
     expect(writes(f)).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
   })
@@ -882,7 +887,7 @@ describe('formal model removal', () => {
   it('retains incomplete receipts as unresolved and readback failures can recover without replay', async () => {
     const partial = fixture({omitDeleteReceipt: 'Base_DataModel_Field'}), first = (await partial.open('A')).getModelRemove('M1')
     await first.preview(); await expect(first.save()).rejects.toThrow(/回执/)
-    await expectUnknownRemoval(first)
+    await expectConfirmedRemoval(first)
     expect(writes(partial)).toHaveLength(1); expect(partial.fileWrites).toHaveLength(0)
     const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview()

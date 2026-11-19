@@ -45,7 +45,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T14:57:58.666Z",
+  "generatedAt": "2026-11-19T17:54:24.788Z",
   "models": {
     "DevPreviewRequest": {
       "name": "DevPreviewRequest",

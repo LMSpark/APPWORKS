@@ -154,8 +154,8 @@ describe('model filter references without SQL identity inference', () => {
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel_Field', id: 'F5.ValueFun', result: 'copied.ValueFun与预览不同，请处理差异'})
       expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
     } else {
-      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(owner.getState().status).toBe('unknown')
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+      expect(owner.getState().status).toBe('idle')
       expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field', 'default')!.rows.find(row => row['rowid'] === 'F5')).toHaveProperty('ValueFun', after)
     }
     expect(writes()).toHaveLength(1)
@@ -306,8 +306,8 @@ describe('model filter references without SQL identity inference', () => {
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState().status).toBe('unknown')
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+    expect(owner.getState().status).toBe('idle')
     expect(writes()).toHaveLength(1)
     expect(f.modelRow('M2')['JoinFilter']).toBe(wire('CustomerSource.parentId', 'NextOrders.parentCode'))
   })
@@ -418,8 +418,9 @@ describe('model filter references without SQL identity inference', () => {
       expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
     } else {
       const preview = owner.getState().preview
-      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(owner.getState()).toMatchObject({status: 'unknown', preview})
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+      expect(owner.getState()).toMatchObject({status: 'idle'})
+      expect(owner.getState().preview).toBeNull()
     }
     expect(writes()).toHaveLength(1)
   })

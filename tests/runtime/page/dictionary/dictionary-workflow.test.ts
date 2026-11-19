@@ -322,9 +322,9 @@ describe('Dictionary independent design and data pages', () => {
     expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
-    expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
-    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
-    expect((field(data, '说明').get('input').element as HTMLInputElement).value).toBe('已写但未知')
+    expect(() => dynamic.assertPageRuntimesClean()).not.toThrow()
+    expect(data.findAll('button').some(item => item.text() === '核验原提交（保留本地修改）')).toBe(false)
+    expect(data.text()).toContain('已写但未知')
     expect(http.saves).toHaveLength(1)
   })
   it('keeps the new design identity independent of an old pending save and its late error', async () => {
@@ -554,9 +554,10 @@ describe('Dictionary independent design and data pages', () => {
     expect(data.get('[role="alert"]').text()).toBeTruthy()
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
-    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
-    expect((field(data, '说明').get('input').element as HTMLInputElement).value).toBe('回执中断的数据')
-    expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
+    expect(() => hosts.get(data)!.dynamic.assertPageRuntimesClean()).not.toThrow()
+    expect(data.findAll('button').some(item => item.text() === '核验原提交（保留本地修改）')).toBe(false)
+    expect(data.text()).toContain('回执中断的数据')
+    expect(button(data, '保存数据').attributes('disabled')).toBeUndefined()
     expect(http.saves).toHaveLength(1)
   })
   it('keeps an interrupted submission unknown even when the fixture did not write', async () => {
@@ -571,7 +572,7 @@ describe('Dictionary independent design and data pages', () => {
 
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
 
-    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
+    expect(data.get('[role="alert"]').text()).toContain('SPARK_SAVE_UNVERIFIABLE')
     expect((note.element as HTMLInputElement).value).toBe('请求未到达的数据')
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     expect(button(data, '核验原提交（保留本地修改）').exists()).toBe(true)

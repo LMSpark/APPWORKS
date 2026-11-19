@@ -390,7 +390,7 @@ describe('persisted DataTable submission configuration', () => {
       expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
       expect(runtime.view.hasUnconfirmedSave).toBe(true)
       await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(runtime.http.requests).toHaveLength(2)
+      expect(runtime.http.requests).toHaveLength(3)
       const fresh = await storage.reopen(runtime)
       try {
         expect((await fresh.view.loadFromServer()).success).toBe(true)

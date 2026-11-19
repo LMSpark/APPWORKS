@@ -10,6 +10,8 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:page/runtime-page\n职责：每次页面调用的数据装配与生命周期。\n边界：实例身份固定，数据集独占，代次失效必须销毁。\nAI用途：装配明确场景、物化绑定及刷新干净实例。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "PageRuntimeMode",
+      "PageRuntimeSource",
       "PageRuntimeOptions",
       "PageRuntimeCall",
       "PageRuntime"
@@ -24,6 +26,47 @@
       "additionalProperties": {
         "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataViewQueryContext"
       }
+    },
+    "PageRuntimeMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageRuntimeMode",
+      "enum": [
+        "preview",
+        "design",
+        "published"
+      ]
+    },
+    "PageRuntimeSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimeSource",
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/PageRuntimeMode"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "publicationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "sourceRevision",
+        "publicationRef",
+        "scenarioIds"
+      ],
+      "additionalProperties": false
     },
     "PageRuntimeOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -56,6 +99,9 @@
         },
         "instanceId": {
           "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/PageRuntimeSource"
         }
       },
       "required": [
@@ -63,6 +109,15 @@
       ],
       "additionalProperties": false,
       "$defs": {
+        "method.resolveSource.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolveSource.return": {
+          "type": "object",
+          "title": "Promise<PageRuntimeSource>"
+        },
         "method.loadScenario.params": {
           "type": "object",
           "properties": {
@@ -170,6 +225,9 @@
         },
         "pageId": {
           "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/PageRuntimeSource"
         },
         "generation": {
           "type": "number"
@@ -349,7 +407,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T19:47:35.566Z",
+  "generatedAt": "2026-11-19T17:44:53.076Z",
   "models": {
     "PageScenarioInputs": {
       "name": "PageScenarioInputs",
@@ -367,12 +425,74 @@
         "members": {}
       }
     },
+    "PageRuntimeMode": {
+      "name": "PageRuntimeMode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'design' | 'preview' | 'published'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'design'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'preview'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'published'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageRuntimeSource": {
+      "name": "PageRuntimeSource",
+      "jsdoc": "Immutable source identity for one complete runtime configuration.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    mode: PageRuntimeMode;\n    sourceRevision: string;\n    publicationRef: string | null;\n    scenarioIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    mode: PageRuntimeMode;\n    sourceRevision: string;\n    publicationRef: string | null;\n    scenarioIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publicationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "PageRuntimeOptions": {
       "name": "PageRuntimeOptions",
       "jsdoc": "一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 三文件工具；与系统页pageId二选一。 */\n    tool?: PageTool;\n    /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */\n    pageId?: string;\n    scenarioIds: readonly string[];\n    /** 已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。 */\n    deferredScenarioIds?: readonly string[];\n    mainScenarioId?: string;\n    /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */\n    scenarioInputs?: PageScenarioInputs;\n    instanceId?: string;\n    loadScenario: (scenarioId: string) => Promise<DataSet>;\n    loadTool?: () => Promise<PageTool>;\n}",
+        "declarationTypeText": "{\n    /** 三文件工具；与系统页pageId二选一。 */\n    tool?: PageTool;\n    /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */\n    pageId?: string;\n    scenarioIds: readonly string[];\n    /** 已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。 */\n    deferredScenarioIds?: readonly string[];\n    mainScenarioId?: string;\n    /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */\n    scenarioInputs?: PageScenarioInputs;\n    instanceId?: string;\n    /** Static design/preview source. Published routes resolve the source before loading any file. */\n    source?: PageRuntimeSource;\n    /** Resolves a published source atomically before tool or scenario materialization. */\n    resolveSource?: () => Promise<PageRuntimeSource>;\n    loadScenario: (scenarioId: string) => Promise<DataSet>;\n    loadTool?: () => Promise<PageTool>;\n}",
         "members": {
           "attributes": [
             {
@@ -413,9 +533,31 @@
               "name": "instanceId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "Static design/preview source. Published routes resolve the source before loading any file.",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
+            {
+              "name": "resolveSource",
+              "jsdoc": "Resolves a published source atomically before tool or scenario materialization.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageRuntimeSource",
+                    "sourcePath": "packages/spark-project-model/src/page/runtime-page.ts"
+                  }
+                ]
+              }
+            },
             {
               "name": "loadScenario",
               "parameters": [
@@ -609,6 +751,11 @@
             },
             {
               "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
               "readable": true,
               "writable": false
             },

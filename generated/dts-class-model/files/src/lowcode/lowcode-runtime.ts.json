@@ -49,6 +49,38 @@
       ],
       "additionalProperties": false
     },
+    "LowcodePageNavigationReceiptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePageNavigationReceiptCommand",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "mainScenarioId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "pageId",
+        "nodeId",
+        "scenarioIds"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeRuntimeNavigationAssemblyInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -105,7 +137,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-19T05:39:24.372Z",
+  "generatedAt": "2026-11-19T18:39:38.538Z",
   "models": {
     "LowcodePrincipal": {
       "name": "LowcodePrincipal",
@@ -149,6 +181,59 @@
             }
           ]
         }
+      }
+    },
+    "LowcodePageNavigationReceiptCommand": {
+      "name": "LowcodePageNavigationReceiptCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    pageId: string;\n    nodeId: string;\n    mainScenarioId?: string;\n    scenarioIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    pageId: string;\n    nodeId: string;\n    mainScenarioId?: string;\n    scenarioIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mainScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeReceiptFileReader": {
+      "name": "LowcodeReceiptFileReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(commands: readonly ProjectModel.PageFileReadCommand[]) => Promise<string[]>",
+        "members": {}
       }
     },
     "LowcodeRuntimeNavigationAssemblyInput": {

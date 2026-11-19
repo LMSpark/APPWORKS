@@ -68,10 +68,12 @@ describe('workflow source confirmed node commit',()=>{
   const f=await fixture(),owner=f.open();f.http.failAfterWrite=true
   await expect(owner.complete()).rejects.toThrow();expect(owner.getState().complete).toBe(false)
   const writes=f.http.saves.length
-  await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(owner.getState().complete).toBe(false)
+  await owner.verify()
+  expect(owner.getState().complete).toBe(true)
   expect(owner.getState().notApplied).toBe(false)
   expect(f.http.saves).toHaveLength(writes)
+  await f.nodes.refresh()
+  expect(f.nodes.rows.find(row=>row['rowid']==='QUERY')).toMatchObject({node_config:'FORK'})
  })
  it('proves an invalid rejection not applied by explicit read and resubmits only the same node when explicitly requested',async()=>{
   const f=await fixture(),owner=f.open();vi.spyOn(f.ds,'saveChanges').mockResolvedValueOnce({success:false,message:'rejected'} as Awaited<ReturnType<typeof f.ds.saveChanges>>)

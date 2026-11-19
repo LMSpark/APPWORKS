@@ -80,6 +80,10 @@
       "DataSetSaveChangesOptions",
       "DataSetDiscardAndReloadOptions",
       "DataSetPhasedSaveResult",
+      "DataSetSaveJournalView",
+      "DataSetSaveJournalPhase",
+      "DataSetSaveRecoverableAction",
+      "DataSetSaveJournal",
       "DataSetSaveChangesViewResult",
       "DataSetSaveChangesResult",
       "CrudResult",
@@ -398,7 +402,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@299734": {
+            "__@iterator@301147": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -453,7 +457,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@299734"
+            "__@iterator@301147"
           ],
           "additionalProperties": false
         },
@@ -1030,7 +1034,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@299734": {
+            "__@iterator@301147": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1085,7 +1089,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@299734"
+            "__@iterator@301147"
           ],
           "additionalProperties": false
         },
@@ -1311,7 +1315,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@299734": {
+            "__@iterator@301147": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1366,7 +1370,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@299734"
+            "__@iterator@301147"
           ],
           "additionalProperties": false
         },
@@ -1604,7 +1608,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@299734": {
+                "__@iterator@301147": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1659,7 +1663,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@299734"
+                "__@iterator@301147"
               ],
               "additionalProperties": false
             },
@@ -1889,7 +1893,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@299734": {
+                "__@iterator@301147": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1944,7 +1948,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@299734"
+                "__@iterator@301147"
               ],
               "additionalProperties": false
             },
@@ -2880,7 +2884,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@299734": {
+                "__@iterator@301147": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2935,7 +2939,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@299734"
+                "__@iterator@301147"
               ],
               "additionalProperties": false
             },
@@ -3165,7 +3169,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@299734": {
+                "__@iterator@301147": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3220,7 +3224,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@299734"
+                "__@iterator@301147"
               ],
               "additionalProperties": false
             },
@@ -5933,6 +5937,454 @@
       ],
       "additionalProperties": false
     },
+    "DataSetSaveJournalView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveJournalView",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "resourceType": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "toString": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "charAt": {
+                  "type": "object",
+                  "title": "(pos: number) => string"
+                },
+                "charCodeAt": {
+                  "type": "object",
+                  "title": "(index: number) => number"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "(...strings: string[]) => string"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "localeCompare": {
+                  "type": "object",
+                  "title": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }"
+                },
+                "match": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }"
+                },
+                "replace": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: s..."
+                },
+                "search": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "(start?: number, end?: number) => string"
+                },
+                "split": {
+                  "type": "object",
+                  "title": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }"
+                },
+                "substring": {
+                  "type": "object",
+                  "title": "(start: number, end?: number) => string"
+                },
+                "toLowerCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleLowerCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "toUpperCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleUpperCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "trim": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "substr": {
+                  "type": "object",
+                  "title": "(from: number, length?: number) => string"
+                },
+                "valueOf": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "codePointAt": {
+                  "type": "object",
+                  "title": "(pos: number) => number | undefined"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "endsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, endPosition?: number) => boolean"
+                },
+                "normalize": {
+                  "type": "object",
+                  "title": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }"
+                },
+                "repeat": {
+                  "type": "object",
+                  "title": "(count: number) => string"
+                },
+                "startsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "title": "(name: string) => string"
+                },
+                "big": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "blink": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "bold": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fixed": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fontcolor": {
+                  "type": "object",
+                  "title": "(color: string) => string"
+                },
+                "fontsize": {
+                  "type": "object",
+                  "title": "{ (size: number): string; (size: string): string; }"
+                },
+                "italics": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "link": {
+                  "type": "object",
+                  "title": "(url: string) => string"
+                },
+                "small": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "strike": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sub": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sup": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "padStart": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "padEnd": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "trimEnd": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimStart": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimLeft": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimRight": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "matchAll": {
+                  "type": "object",
+                  "title": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>"
+                },
+                "replaceAll": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "(index: number) => string | undefined"
+                },
+                "__@iterator@301147": {
+                  "type": "object",
+                  "title": "() => StringIterator<string>"
+                }
+              },
+              "required": [
+                "toString",
+                "charAt",
+                "charCodeAt",
+                "concat",
+                "indexOf",
+                "lastIndexOf",
+                "localeCompare",
+                "match",
+                "replace",
+                "search",
+                "slice",
+                "split",
+                "substring",
+                "toLowerCase",
+                "toLocaleLowerCase",
+                "toUpperCase",
+                "toLocaleUpperCase",
+                "trim",
+                "length",
+                "substr",
+                "valueOf",
+                "codePointAt",
+                "includes",
+                "endsWith",
+                "normalize",
+                "repeat",
+                "startsWith",
+                "anchor",
+                "big",
+                "blink",
+                "bold",
+                "fixed",
+                "fontcolor",
+                "fontsize",
+                "italics",
+                "link",
+                "small",
+                "strike",
+                "sub",
+                "sup",
+                "padStart",
+                "padEnd",
+                "trimEnd",
+                "trimStart",
+                "trimLeft",
+                "trimRight",
+                "matchAll",
+                "replaceAll",
+                "at",
+                "__@iterator@301147"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "const": "database-table"
+            },
+            {
+              "const": "database-view"
+            },
+            {
+              "const": "third-party-api"
+            },
+            {
+              "const": "static-data"
+            },
+            {
+              "const": "dictionary"
+            },
+            {
+              "const": "logical-view"
+            }
+          ]
+        },
+        "owner": {
+          "enum": [
+            "command",
+            "file",
+            "database",
+            "pagedata"
+          ]
+        },
+        "completed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "state": {
+          "enum": [
+            "pending",
+            "unknown",
+            "not-applied",
+            "applied"
+          ]
+        },
+        "originalError": {
+          "type": "object",
+          "title": "ErrorDefault"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "ids",
+        "resourceType",
+        "owner",
+        "completed",
+        "state",
+        "originalError"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetSaveJournalPhase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveJournalPhase",
+      "properties": {
+        "index": {
+          "type": "number"
+        },
+        "completed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "state": {
+          "enum": [
+            "completed",
+            "pending",
+            "unknown",
+            "not-applied"
+          ]
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetSaveJournalView"
+          }
+        }
+      },
+      "required": [
+        "index",
+        "completed",
+        "state",
+        "views"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetSaveRecoverableAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSetSaveRecoverableAction",
+      "enum": [
+        "none",
+        "verify-original-receipt",
+        "continue-phase",
+        "retain-draft",
+        "discard-not-applied"
+      ]
+    },
+    "DataSetSaveJournal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveJournal",
+      "properties": {
+        "batchId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "completed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "completedPhases": {
+          "type": "number"
+        },
+        "originalError": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
+        "currentRecoverableAction": {
+          "$ref": "#/$defs/DataSetSaveRecoverableAction"
+        },
+        "retainedDraft": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetSaveJournalPhase"
+          }
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetSaveJournalView"
+          }
+        }
+      },
+      "required": [
+        "batchId",
+        "completed",
+        "completedPhases",
+        "originalError",
+        "currentRecoverableAction",
+        "retainedDraft",
+        "phases",
+        "views"
+      ],
+      "additionalProperties": false
+    },
     "DataSetSaveChangesViewResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -6442,7 +6894,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T14:02:50.950Z",
+  "generatedAt": "2026-11-19T17:51:50.054Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -10713,6 +11165,194 @@
               "jsdoc": "本次实际执行的各阶段 saveChanges 回执",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetSaveJournalView": {
+      "name": "DataSetSaveJournalView",
+      "jsdoc": "One immutable save-recovery fact in the current DataSet runtime instance.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    completed: boolean;\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    completed: boolean;\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalError",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetSaveJournalPhase": {
+      "name": "DataSetSaveJournalPhase",
+      "jsdoc": "One explicit DataSet save phase, with its original target projection retained.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    index: number;\n    completed: boolean;\n    state: 'pending' | 'completed' | 'not-applied' | 'unknown';\n    views: readonly DataSetSaveJournalView[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    index: number;\n    completed: boolean;\n    state: 'pending' | 'completed' | 'not-applied' | 'unknown';\n    views: readonly DataSetSaveJournalView[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetSaveRecoverableAction": {
+      "name": "DataSetSaveRecoverableAction",
+      "jsdoc": "The only shared action the caller may offer for the journal's current state.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'verify-original-receipt' | 'continue-phase' | 'retain-draft' | 'discard-not-applied' | 'none'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'verify-original-receipt'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'continue-phase'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'retain-draft'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'discard-not-applied'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSetSaveJournal": {
+      "name": "DataSetSaveJournal",
+      "jsdoc": "Read-only projection of the original DataSet save capture and its current recovery facts.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    batchId: string | null;\n    completed: boolean;\n    completedPhases: number;\n    originalError: Error | undefined;\n    currentRecoverableAction: DataSetSaveRecoverableAction;\n    retainedDraft: boolean;\n    phases: readonly DataSetSaveJournalPhase[];\n    views: readonly DataSetSaveJournalView[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    batchId: string | null;\n    completed: boolean;\n    completedPhases: number;\n    originalError: Error | undefined;\n    currentRecoverableAction: DataSetSaveRecoverableAction;\n    retainedDraft: boolean;\n    phases: readonly DataSetSaveJournalPhase[];\n    views: readonly DataSetSaveJournalView[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "batchId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completedPhases",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentRecoverableAction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retainedDraft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phases",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
             }
           ]
         }

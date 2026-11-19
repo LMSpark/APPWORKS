@@ -148,14 +148,16 @@ describe('workflow connector condition',()=>{
   f.http.records['Base_WorkflowConnectors']![0]!['targetID']='NX';await f.ds.getView('Base_WorkflowConnectors')!.refresh()
   await expect(WorkflowConnectorCondition.load(f.ds,'W1','E1')).rejects.toThrow();expect(f.http.saves).toEqual([])
  })
- it('keeps an unknown condition creation pending without repeating it',async()=>{
+ it('confirms a lost condition receipt by exact readback without repeating it',async()=>{
   const f=await fixture(),view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),row=await WorkflowConnectorCondition.add(f.ds,'W1','E1')
   view.updateEditingValue(view.getPkKey(row)!,'filter',filter);f.http.failAfterWrite=true
   await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow()
   expect(f.http.saves).toHaveLength(1)
-  await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(view.hasUnconfirmedSave).toBe(true)
+  expect((await WorkflowConnectorCondition.save(f.ds,'W1','E1')).success).toBe(true)
+  expect(view.hasUnconfirmedSave).toBe(false)
   expect(f.http.saves).toHaveLength(1)
+  const reopened=await WorkflowConnectorCondition.load(f.ds,'W1','E1')
+  expect(reopened.rows).toEqual([expect.objectContaining({rowid:view.getPkKey(row),filter})])
  })
  it('refuses malformed source output and malformed filters without clearing the original records',async()=>{
   const f=await fixture(),view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),row=await WorkflowConnectorCondition.add(f.ds,'W1','E1')

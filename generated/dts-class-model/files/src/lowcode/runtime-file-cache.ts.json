@@ -7,11 +7,38 @@
     "sourceFile": "src/lowcode/runtime-file-cache.ts",
     "packageName": "app",
     "modulePath": "lowcode/runtime-file-cache",
-    "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeFileCacheScope（共 1 个 symbol）。",
     "jsdocSource": "inferred",
-    "symbols": []
+    "symbols": [
+      "RuntimeFileCacheScope"
+    ]
   },
   "$defs": {
+    "RuntimeFileCacheScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeFileCacheScope",
+      "properties": {
+        "mode": {
+          "$ref": "../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeMode"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "publicationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "sourceRevision",
+        "publicationRef"
+      ],
+      "additionalProperties": false
+    },
     "ReadRuntimeFileOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -22,6 +49,9 @@
         },
         "locator": {
           "$ref": "../../packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json#/$defs/LowcodeFileLocator"
+        },
+        "scope": {
+          "$ref": "#/$defs/RuntimeFileCacheScope"
         }
       },
       "additionalProperties": false,
@@ -53,18 +83,52 @@
       }
     }
   },
-  "generatedAt": "2026-11-19T05:51:56.221Z",
+  "generatedAt": "2026-11-19T17:39:58.327Z",
   "models": {
+    "RuntimeFileCacheScope": {
+      "name": "RuntimeFileCacheScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    mode: PageRuntimeMode;\n    sourceRevision: string;\n    publicationRef: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    mode: PageRuntimeMode;\n    sourceRevision: string;\n    publicationRef: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publicationRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ReadRuntimeFileOptions": {
       "name": "ReadRuntimeFileOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
+        "declarationTypeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    scope?: RuntimeFileCacheScope;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
+            "typeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    scope?: RuntimeFileCacheScope;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -77,6 +141,11 @@
             },
             {
               "name": "locator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
               "readable": true,
               "writable": false
             }

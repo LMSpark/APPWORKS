@@ -14,6 +14,7 @@
       "LowcodeFileDirectory",
       "LowcodeFileEntry",
       "LowcodeFileVersionSummary",
+      "LowcodeFileStat",
       "LowcodeDesignApi"
     ]
   },
@@ -131,6 +132,51 @@
       ],
       "additionalProperties": false
     },
+    "LowcodeFileStat": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileStat",
+      "properties": {
+        "size": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "contentType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "lastModified": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "etag": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "size",
+        "contentType",
+        "lastModified",
+        "etag"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDesignApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -168,6 +214,32 @@
           "additionalProperties": false
         },
         "method.readTextFile.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.statFileV2.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.statFileV2.return": {
+          "type": "object",
+          "title": "Promise<LowcodeFileStat>"
+        },
+        "method.readFileHash.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileHash.return": {
           "type": "object",
           "title": "Promise<string>"
         },
@@ -226,7 +298,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-19T05:37:56.746Z",
+  "generatedAt": "2026-11-19T17:17:02.913Z",
   "models": {
     "LowcodeDesignApiOptions": {
       "name": "LowcodeDesignApiOptions",
@@ -394,6 +466,45 @@
         }
       }
     },
+    "LowcodeFileStat": {
+      "name": "LowcodeFileStat",
+      "jsdoc": "File V2 实际元数据；etag 为空时不能用它充当内容证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    size: number | null;\n    contentType: string | null;\n    lastModified: number | string | null;\n    etag: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    size: number | null;\n    contentType: string | null;\n    lastModified: number | string | null;\n    etag: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "size",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "etag",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDesignApi": {
       "name": "LowcodeDesignApi",
       "jsdoc": "设计文件读取和删除 owner；保留原字节，版本列表严格匹配同文件规范名并拒绝重复编号。",
@@ -442,6 +553,55 @@
             {
               "name": "readTextFile",
               "jsdoc": "读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "statFileV2",
+              "jsdoc": "优先读取 File V2 单文件元数据；V2 不可用或只返回非哈希 etag 时由调用方选择 V1 证明。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeFileStat",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFileHash",
+              "jsdoc": "返回文件内容的 SHA-256；优先使用 V2 stat etag，V2 明确不可用或 etag 未提供内容 hash 时只回读一次 V1 原字节。\n读取失败不创建 mutation attempt，也不会因为时间戳相同而确认文件。",
               "parameters": [
                 {
                   "name": "locator",

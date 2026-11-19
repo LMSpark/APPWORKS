@@ -51,6 +51,28 @@ describe('runtime file cache',()=>{
    expect(readText).toHaveBeenCalledTimes(2)
  })
 
+ it('does not share cache entries across design, preview and published scopes',async()=>{
+   const readText=vi.fn(async()=>`text:${readText.mock.calls.length}`)
+   const readVersion=async()=>'same-version'
+   const common={owner:'enterprise:user:APP-MODES',locator,assertCurrent:()=>{},readVersion,readText}
+   await expect(readRuntimeFile({...common,scope:{
+     mode:'design',sourceRevision:'working',publicationRef:null,
+   }})).resolves.toBe('text:1')
+   await expect(readRuntimeFile({...common,scope:{
+     mode:'preview',sourceRevision:'preview:draft-a',publicationRef:null,
+   }})).resolves.toBe('text:2')
+   await expect(readRuntimeFile({...common,scope:{
+     mode:'published',sourceRevision:'manifest-a',publicationRef:'manifest=7',
+   }})).resolves.toBe('text:3')
+   await expect(readRuntimeFile({...common,scope:{
+     mode:'published',sourceRevision:'manifest-a',publicationRef:'manifest=8',
+   }})).resolves.toBe('text:4')
+   await expect(readRuntimeFile({...common,scope:{
+     mode:'published',sourceRevision:'manifest-a',publicationRef:'manifest=7',
+   }})).resolves.toBe('text:3')
+   expect(readText).toHaveBeenCalledTimes(4)
+ })
+
  it('refreshes only the changed member of a four-file page',async()=>{
    const files=[
      {...locator,fileName:'rule.json'},

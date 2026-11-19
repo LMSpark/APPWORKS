@@ -139,8 +139,8 @@ describe('array field references follow formal field identity',()=>{
   it('verifies a lost receipt without repeating the field and reference batch',async()=>{
     const {f,owner,rename,writes}=await setup();await rename({F1:'id'});f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    await expect(owner.verify()).resolves.toBe(true)
+    expect(owner.getState()).toMatchObject({status:'idle',pending:false})
     expect(writes()).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
   })

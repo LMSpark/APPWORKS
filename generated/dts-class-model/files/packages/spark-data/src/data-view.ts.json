@@ -71,8 +71,8 @@
         "state": {
           "enum": [
             "unknown",
-            "not-applied",
-            "confirmed"
+            "confirmed",
+            "not-applied"
           ]
         },
         "error": {
@@ -96,8 +96,8 @@
           "enum": [
             "none",
             "unknown",
-            "not-applied",
             "confirmed",
+            "not-applied",
             "partial"
           ]
         },
@@ -961,6 +961,104 @@
       },
       "additionalProperties": false
     },
+    "DataViewQuerySaveRecoveryIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveRecoveryIdentity",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "DataViewQuerySaveRecoveryEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveRecoveryEntry",
+      "properties": {
+        "action": {
+          "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-order.ts.json#/$defs/DataSpaceSaveAction"
+        },
+        "identity": {
+          "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "changeDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "identity",
+        "changedFields",
+        "changeDigest"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveRecovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveRecovery",
+      "properties": {
+        "primaryKey": {
+          "type": "string"
+        },
+        "primaryKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expectedIdentities": {
+          "type": "object",
+          "properties": {
+            "added": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"
+              }
+            },
+            "changed": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"
+              }
+            },
+            "deleted": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"
+              }
+            }
+          },
+          "required": [
+            "added",
+            "changed",
+            "deleted"
+          ],
+          "additionalProperties": false
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewQuerySaveRecoveryEntry"
+          }
+        },
+        "changeDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primaryKey",
+        "primaryKeyFields",
+        "expectedIdentities",
+        "entries",
+        "changeDigest"
+      ],
+      "additionalProperties": false
+    },
     "DataViewQuerySaveChange": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -996,6 +1094,9 @@
         },
         "changes": {
           "$ref": "#/$defs/DataViewQuerySaveChanges"
+        },
+        "recovery": {
+          "$ref": "#/$defs/DataViewQuerySaveRecovery"
         }
       },
       "required": [
@@ -3316,7 +3417,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T11:31:29.010Z",
+  "generatedAt": "2026-11-19T18:39:16.945Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4661,16 +4762,115 @@
         }
       }
     },
+    "DataViewQuerySaveRecoveryIdentity": {
+      "name": "DataViewQuerySaveRecoveryIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewQuerySaveRecoveryEntry": {
+      "name": "DataViewQuerySaveRecoveryEntry",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    action: 'added' | 'changed' | 'deleted';\n    identity: DataViewQuerySaveRecoveryIdentity;\n    changedFields: readonly string[];\n    changeDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    action: 'added' | 'changed' | 'deleted';\n    identity: DataViewQuerySaveRecoveryIdentity;\n    changedFields: readonly string[];\n    changeDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changeDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveRecovery": {
+      "name": "DataViewQuerySaveRecovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    primaryKey: string;\n    primaryKeyFields: readonly string[];\n    expectedIdentities: Readonly<{\n        added: readonly DataViewQuerySaveRecoveryIdentity[];\n        changed: readonly DataViewQuerySaveRecoveryIdentity[];\n        deleted: readonly DataViewQuerySaveRecoveryIdentity[];\n    }>;\n    entries: readonly DataViewQuerySaveRecoveryEntry[];\n    changeDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    primaryKey: string;\n    primaryKeyFields: readonly string[];\n    expectedIdentities: Readonly<{\n        added: readonly DataViewQuerySaveRecoveryIdentity[];\n        changed: readonly DataViewQuerySaveRecoveryIdentity[];\n        deleted: readonly DataViewQuerySaveRecoveryIdentity[];\n    }>;\n    entries: readonly DataViewQuerySaveRecoveryEntry[];\n    changeDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedIdentities",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changeDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataViewQuerySaveChange": {
       "name": "DataViewQuerySaveChange",
       "jsdoc": "单模型保存输入，明确绑定原查询身份、私有上下文与当前变更。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n}>",
+        "declarationTypeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n    recovery?: DataViewQuerySaveRecovery;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n}>",
+            "typeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n    recovery?: DataViewQuerySaveRecovery;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -4693,6 +4893,11 @@
             },
             {
               "name": "changes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recovery",
               "readable": true,
               "writable": false
             }

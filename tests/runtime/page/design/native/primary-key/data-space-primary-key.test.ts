@@ -168,8 +168,8 @@ describe('formal primary key configuration', () => {
     if (mode === 'unknown') {
       expect(owner.requiresWorkspaceRecovery()).toBe(true)
       await expect(owner.reload(true)).rejects.toThrow(/3 字段呈现.*重新核验字段配置/)
-      await expect(owner.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(owner.getState().status).toBe('unknown')
+      expect(await owner.verifyRecovery(true)).toBe('verified')
+      expect(owner.getState().status).toBe('unsubmitted')
       expect(writes()).toHaveLength(1)
       return
     } else await owner.reload(owner.getState().pending)

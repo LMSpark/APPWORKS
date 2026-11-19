@@ -10,6 +10,11 @@
     "jsdoc": "@module app:services/project/page-tool-publication\n职责：在原浏览器保存三文件发布的恢复定位，跨工作区重开时按原节点和版本核对。\n边界：仅记录摘要、编号和已接纳回执的进度。文件内容、正式指针和数据权限均由原 DataView 读取。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "PageToolPublicationIntent",
+      "PageToolPublicationFileSource",
+      "PageToolPublicationScenarioSource",
+      "PageToolPublicationPagedataSnapshot",
+      "PageToolPublicationManifest",
       "PageToolPublication"
     ]
   },
@@ -40,10 +45,40 @@
       ],
       "additionalProperties": false
     },
-    "Publication": {
+    "ScenarioSnapshot": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "Publication",
+      "title": "ScenarioSnapshot",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "state": {
+          "$ref": "#/$defs/Progress"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "state",
+        "sha256",
+        "sourceRevision",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationIntent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationIntent",
       "properties": {
         "call": {
           "type": "string"
@@ -65,9 +100,19 @@
             },
             "style.css": {
               "$ref": "#/$defs/Snapshot"
+            },
+            "publication-manifest.json": {
+              "$ref": "#/$defs/Snapshot"
             }
           },
           "additionalProperties": false
+        },
+        "scenarioSnapshots": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "#/$defs/ScenarioSnapshot"
+          }
         },
         "pointer": {
           "type": [
@@ -94,7 +139,154 @@
         "digest",
         "baseline",
         "snapshots",
+        "scenarioSnapshots",
         "pointer"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationFileSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationFileSource",
+      "properties": {
+        "fileName": {
+          "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "version": {
+          "type": "number"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileName",
+        "version",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationScenarioSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationScenarioSource",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "version",
+        "sourceRevision",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationPagedataSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationPagedataSnapshot",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "version",
+        "fileName",
+        "sha256",
+        "sourceRevision",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationManifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationManifest",
+      "properties": {
+        "format": {
+          "const": "spark-page-tool-publication"
+        },
+        "schemaVersion": {
+          "const": 1
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fileName": {
+                "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+              },
+              "version": {
+                "type": "number"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fileName",
+              "version",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pagedata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageToolPublicationPagedataSnapshot"
+          }
+        }
+      },
+      "required": [
+        "format",
+        "schemaVersion",
+        "pageId",
+        "scenarioIds",
+        "sourceRevision",
+        "files",
+        "pagedata"
       ],
       "additionalProperties": false
     },
@@ -144,13 +336,13 @@
           "additionalProperties": false
         },
         "method.open.return": {
-          "$ref": "#/$defs/Publication"
+          "$ref": "#/$defs/PageToolPublicationIntent"
         },
         "method.write.params": {
           "type": "object",
           "properties": {
             "intent": {
-              "$ref": "#/$defs/Publication"
+              "$ref": "#/$defs/PageToolPublicationIntent"
             }
           },
           "additionalProperties": false
@@ -163,7 +355,7 @@
               "type": "object",
               "properties": {
                 "intent": {
-                  "$ref": "#/$defs/Publication"
+                  "$ref": "#/$defs/PageToolPublicationIntent"
                 },
                 "fileView": {
                   "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -190,6 +382,44 @@
           "type": "object",
           "title": "Promise<number>"
         },
+        "method.scenarioSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "intent": {
+                  "$ref": "#/$defs/PageToolPublicationIntent"
+                },
+                "scenarioId": {
+                  "type": "string"
+                },
+                "fileView": {
+                  "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "sourceRevision": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "intent",
+                "scenarioId",
+                "fileView",
+                "text",
+                "sourceRevision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scenarioSnapshot.return": {
+          "type": "object",
+          "title": "Promise<PageToolPublicationScenarioSource>"
+        },
         "method.finish.params": {
           "type": "object",
           "properties": {},
@@ -213,7 +443,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T11:53:05.304Z",
+  "generatedAt": "2026-11-19T18:39:16.961Z",
   "models": {
     "Progress": {
       "name": "Progress",
@@ -263,12 +493,51 @@
         }
       }
     },
-    "Publication": {
-      "name": "Publication",
+    "ScenarioSnapshot": {
+      "name": "ScenarioSnapshot",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<LowcodeBlueprintFileName, Snapshot>>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
+        "declarationTypeText": "Snapshot & Readonly<{\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Snapshot",
+            "targetName": "Snapshot"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sha256",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationIntent": {
+      "name": "PageToolPublicationIntent",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<LowcodeBlueprintFileName, Snapshot>>;\n    scenarioSnapshots: Record<string, ScenarioSnapshot>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
         "members": {
           "attributes": [
             {
@@ -292,9 +561,190 @@
               "writable": true
             },
             {
+              "name": "scenarioSnapshots",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "pointer",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationFileSource": {
+      "name": "PageToolPublicationFileSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fileName: 'rule.json' | 'script.js' | 'style.css';\n    version: number;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fileName: 'rule.json' | 'script.js' | 'style.css';\n    version: number;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationScenarioSource": {
+      "name": "PageToolPublicationScenarioSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    sourceRevision: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    sourceRevision: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationPagedataSnapshot": {
+      "name": "PageToolPublicationPagedataSnapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sha256",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationManifest": {
+      "name": "PageToolPublicationManifest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    schemaVersion: 1;\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    schemaVersion: 1;\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "format",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagedata",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -373,7 +823,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "Publication",
+                "name": "PageToolPublicationIntent",
                 "sourcePath": "src/services/project/page-tool-publication.ts"
               }
             },
@@ -384,7 +834,7 @@
                   "name": "intent",
                   "type": {
                     "type": "reference",
-                    "name": "Publication",
+                    "name": "PageToolPublicationIntent",
                     "sourcePath": "src/services/project/page-tool-publication.ts"
                   }
                 }
@@ -406,7 +856,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        intent: Publication;\n        fileView: DataView;\n        fileName: LowcodeBlueprintFileName;\n        text: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
+                        "name": "{\n        intent: PageToolPublicationIntent;\n        fileView: DataView;\n        fileName: LowcodeBlueprintFileName;\n        text: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
                       }
                     ]
                   }
@@ -419,6 +869,36 @@
                   {
                     "type": "intrinsic",
                     "name": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "scenarioSnapshot",
+              "jsdoc": "Creates or verifies the existing ScenarioViewFile/DataView owner's immutable pagedata snapshot.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        intent: PageToolPublicationIntent;\n        scenarioId: string;\n        fileView: DataView;\n        text: string;\n        sourceRevision: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageToolPublicationScenarioSource",
+                    "sourcePath": "src/services/project/page-tool-publication.ts"
                   }
                 ]
               }

@@ -128,8 +128,8 @@
             "idle",
             "pending",
             "unknown",
-            "not-applied",
-            "confirmed"
+            "confirmed",
+            "not-applied"
           ]
         },
         "version": {
@@ -175,8 +175,8 @@
           "enum": [
             "idle",
             "unknown",
-            "not-applied",
-            "confirmed"
+            "confirmed",
+            "not-applied"
           ]
         },
         "text": {

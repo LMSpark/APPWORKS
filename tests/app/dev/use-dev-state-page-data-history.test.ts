@@ -22,12 +22,16 @@ vi.mock('@/services/sse-events', async importOriginal => ({
   onPageConfigChange: () => () => {},
 }))
 
-const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls, savedVersions } = vi.hoisted(() => ({
+const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls, savedVersions,
+  scenarioVersions, designVersions, designWorking } = vi.hoisted(() => ({
   httpGet: vi.fn(),
   readModels: vi.fn(),
   previewLoad: vi.fn(),
   previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean; loseReceipt?: boolean}>(),
   savedVersions: new Map<string,string>(),
+  scenarioVersions: new Map<string,Map<number,string>>(),
+  designVersions: new Map<string,string>(),
+  designWorking: new Map<string,string>(),
   httpPost: vi.fn(),
   httpPut: vi.fn(),
   httpRequestFull: vi.fn(),
@@ -165,7 +169,27 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       },
     },
     blueprint: {},
-    scenarioViews: {readScope:()=> 'scope',readText:async(scenarioId:string)=>{const content=(await httpGet(`scenario:${scenarioId}`)).content;return content === null ? null : String(content)},writeText:async(scenarioId:string,text:string)=>{await httpPut(`scenario:${scenarioId}`,{content:text})}},
+    scenarioViews: {
+      readScope:()=> 'scope',
+      readText:async(scenarioId:string)=>{const content=(await httpGet(`scenario:${scenarioId}`)).content;return content === null ? null : String(content)},
+      writeText:async(scenarioId:string,text:string)=>{await httpPut(`scenario:${scenarioId}`,{content:text})},
+      listVersions:async(scenarioId:string)=>[...(scenarioVersions.get(scenarioId)?.keys()??[])].map(version=>({
+        version,fileName:`${version}__pagedata.json`,lastModified:null,
+      })),
+      readVersion:async(scenarioId:string,version:number)=>{
+        const text=scenarioVersions.get(scenarioId)?.get(version)
+        if(text===undefined)throw new Error('scenario version missing')
+        return text
+      },
+      createVersion:async(command: {scenarioId:string;version:number;text:string;
+        onAttempt(attempt: {scenarioId:string;scope:string;version:number;fileName:string;text:string;resourceId:string}):void})=>{
+        command.onAttempt({scenarioId:command.scenarioId,scope:'scope',version:command.version,
+          fileName:`${command.version}__pagedata.json`,text:command.text,resourceId:`scenario:${command.scenarioId}`})
+        const versions=scenarioVersions.get(command.scenarioId)??new Map<number,string>()
+        versions.set(command.version,command.text);scenarioVersions.set(command.scenarioId,versions)
+        return {version:command.version,fileName:`${command.version}__pagedata.json`,lastModified:null}
+      },
+    },
     projectReferences: {
       listProjects: async () => [],
       loadProjectBlueprint: async () => ({ title: 'Test Project', children: [] }),
@@ -173,19 +197,33 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   }),
   createPageToolFilesIo: () => ({
     list:async()=>['rule.json','script.js','style.css'],
-    read:async(appId:string,pageId:string,fileName:'rule.json'|'script.js'|'style.css')=>{
+    read:async(appId:string,pageId:string,fileName:string)=>{
+      if(fileName==='publication-manifest.json')return designWorking.get(`${appId}/${pageId}/${fileName}`)??null
       const result=await httpGet(`designfile:${appId}/${pageId}/${fileName}`)
       return result?.content===undefined?null:String(result.content)
     },
-    upload:async(command:{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string})=>{
+    upload:async(command:{appId:string;pageId:string;fileName:string;text:string})=>{
+      if(command.fileName==='publication-manifest.json'){
+        designWorking.set(`${command.appId}/${command.pageId}/${command.fileName}`,command.text)
+        return
+      }
       try {await httpPut(`designfile:${command.appId}/${command.pageId}/${command.fileName}`,{content:command.text})}
       catch(error) {
         if(error instanceof Error) {error.name='RequestError';Object.assign(error,{config:{url:`/api/File/UploadFile`}})}
         throw error
       }
     },
-    restoreWorkingFile:async(command:{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string})=>
+    restoreWorkingFile:async(command:{appId:string;pageId:string;fileName:string;text:string})=>
       httpPut(`designfile:${command.appId}/${command.pageId}/${command.fileName}`,{content:command.text}),
+    listVersions:async({appId,pageId,customPath,fileName}:{appId:string;pageId?:string;customPath:string;fileName:string})=>
+      [...designVersions.entries()].filter(([key])=>key.startsWith(`${appId}/${pageId??customPath}/versions/${fileName}/`)).map(([key])=>({
+        version:Number(key.split('/').at(-1)),fileName:`${key.split('/').at(-1)}__${fileName}`,lastModified:null,
+      })),
+    uploadVersion:async({appId,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:string;version:number;text:string})=>{
+      designVersions.set(`${appId}/${customPath}/versions/${fileName}/${version}`,text)
+    },
+    readVersion:async({appId,customPath,fileName,version}:{appId:string;customPath:string;fileName:string;version:number})=>
+      designVersions.get(`${appId}/${customPath}/versions/${fileName}/${version}`)??null,
     remove:async()=>{},
   }),
 }))
@@ -674,7 +712,7 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(false)
  })
  beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();sessionStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
- afterEach(()=>{vi.useRealTimers();previewCalls.clear();savedVersions.clear()})
+ afterEach(()=>{vi.useRealTimers();previewCalls.clear();savedVersions.clear();scenarioVersions.clear();designVersions.clear();designWorking.clear()})
  it('opens the active file through its DataView without loading PageTool owner text',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
   const state=createDevStateWithConfigPages()
@@ -714,8 +752,10 @@ describe('tool and shared scenario editing owners',()=>{
   const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
   try {
    await flushPromises()
-   const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as {tool:{getFileText(name:'script.js'):string}}
+   const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
    expect(runtime.tool.getFileText('script.js')).toBe('DataView draft')
+   expect(runtime.source).toMatchObject({mode:'preview',publicationRef:null,scenarioIds:[]})
+   expect(runtime.source.sourceRevision).toMatch(/^preview:/u)
   } finally {wrapper.unmount()}
  })
  it.each(['dataViewKey','optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
@@ -795,7 +835,7 @@ describe('tool and shared scenario editing owners',()=>{
    }
    await vi.waitFor(()=>expect(stage.state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
    expect(stage.save).toHaveBeenCalledTimes(1)
-   expect(stage.owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+   expect(stage.owner.row?.['VersionId']).toBe('rule=1;script=1;style=1;manifest=1')
    expect(Object.fromEntries(writes)).toEqual({'rule.json':1,'script.js':1,'style.css':1})
    expect(reads).toHaveBeenCalledWith('rule.json')
   } finally {stage.wrapper.unmount()}
@@ -840,7 +880,7 @@ describe('tool and shared scenario editing owners',()=>{
    await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain(
     kind==='cold-unknown'?'publication receipt lost':'publication readback interrupted'))
    expect(page.canVerifyPendingWrites.value).toBe(true)
-   expect(save).toHaveBeenCalledTimes(1)
+   expect(save).toHaveBeenCalledTimes(2)
    if(kind==='same'){
     page.verifyPendingWrites()
     await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
@@ -852,7 +892,7 @@ describe('tool and shared scenario editing owners',()=>{
     await ensureDevStateActivePageLoaded(reopened)
     const fresh=reopened.blueprintWorkspaceDataView.value!
     expect(fresh).not.toBe(owner)
-    expect(fresh.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+    expect(fresh.row?.['VersionId']).toBe('rule=1;script=1;style=1;manifest=1')
     const newSave=vi.spyOn(fresh.dataSet,'saveChanges')
     const files=vi.spyOn(reopened,'loadPageToolFileDataView')
     const readback=vi.spyOn(fresh,'rereadSelectedNode')
@@ -864,8 +904,8 @@ describe('tool and shared scenario editing owners',()=>{
     expect(files).not.toHaveBeenCalled()
     expect(readback).toHaveBeenCalledTimes(kind==='cold-unknown'?0:1)
    }
-   expect(save).toHaveBeenCalledTimes(1)
-   expect(savedVersions.get('orders-page-node')).toBe('rule=1;script=1;style=1')
+   expect(save).toHaveBeenCalledTimes(2)
+   expect(savedVersions.get('orders-page-node')).toBe('rule=1;script=1;style=1;manifest=1')
   } finally {wrapper.unmount()}
  })
  it('keeps the preview route snapshot aligned with the main and additional runtime spaces',async()=>{

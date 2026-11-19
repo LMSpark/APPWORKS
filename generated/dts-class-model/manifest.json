@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1494,
+  "scannedFileCount": 1493,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2087,6 +2087,11 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "RuntimeScenarioLoadCommand",
+          "RuntimePagePublicationPagedata",
+          "RuntimePagePublicationManifest",
+          "RuntimePagePublicationResolution",
+          "RuntimePageNavigationReceiptState",
+          "RuntimePageNavigationReceipt",
           "PageRuntimePoolOptions",
           "PageRuntimePool"
         ]
@@ -9373,6 +9378,7 @@
           "DataSetCommandResourceIdentity",
           "BindReadonlyCommandQueryOptions",
           "EnsureDataSetResourceViewInput",
+          "DataSetCommandRequestProof",
           "BindCommandSubmitOptions",
           "DataSetReadonlyCommandBinding"
         ]
@@ -10261,6 +10267,10 @@
           "DataSetSaveChangesOptions",
           "DataSetDiscardAndReloadOptions",
           "DataSetPhasedSaveResult",
+          "DataSetSaveJournalView",
+          "DataSetSaveJournalPhase",
+          "DataSetSaveRecoverableAction",
+          "DataSetSaveJournal",
           "DataSetSaveChangesViewResult",
           "DataSetSaveChangesResult",
           "CrudResult",
@@ -10795,6 +10805,7 @@
           "LowcodeFileDirectory",
           "LowcodeFileEntry",
           "LowcodeFileVersionSummary",
+          "LowcodeFileStat",
           "LowcodeDesignApi"
         ]
       }
@@ -11530,7 +11541,7 @@
         "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/project-blueprint/project-blueprint-file-version",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version\n职责：解析与编码工具三文件的正式发布引用。\n边界：文件名快照独立存在，裸文件是工作内容；场景文件没有三文件发布指针。\nAI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version\n职责：解析与编码工具发布文件的正式发布引用。\n边界：文件名快照独立存在，裸文件是工作内容；场景文件通过 manifest 引用各自快照。\nAI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LowcodeBlueprintFileName",
@@ -12180,24 +12191,6 @@
         "symbols": []
       }
     },
-    "packages/spark-project-model/src/io/page-content-loader.ts": {
-      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:io/page-content-loader",
-        "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
-        "sourceFile": "packages/spark-project-model/src/io/page-content-loader.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "io/page-content-loader",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：按项目与页面身份读取三文件，并维护当前前端会话内的内容缓存。\n边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。\nAI用途：经Workspace读取工具工作副本并确认缓存身份与失效规则。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "PageFileReadCommand",
-          "PageFileReader",
-          "PageContentLoaderOptions",
-          "PageContentLoader"
-        ]
-      }
-    },
     "packages/spark-project-model/src/io/project-blueprint-client.ts": {
       "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json",
       "module": {
@@ -12291,8 +12284,8 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PageToolFileName",
-          "PageToolLoadOptions",
-          "PageContentLoadResult",
+          "PageFileReadCommand",
+          "PageFileReader",
           "PageToolFileVersionSummary",
           "PageFileCreateOptions"
         ]
@@ -12327,6 +12320,8 @@
         "jsdoc": "@module @spark-appworks/spark-project-model:page/runtime-page\n职责：每次页面调用的数据装配与生命周期。\n边界：实例身份固定，数据集独占，代次失效必须销毁。\nAI用途：装配明确场景、物化绑定及刷新干净实例。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
+          "PageRuntimeMode",
+          "PageRuntimeSource",
           "PageRuntimeOptions",
           "PageRuntimeCall",
           "PageRuntime"
@@ -16777,9 +16772,11 @@
         "sourceFile": "src/lowcode/runtime-file-cache.ts",
         "packageName": "app",
         "modulePath": "lowcode/runtime-file-cache",
-        "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeFileCacheScope（共 1 个 symbol）。",
         "jsdocSource": "inferred",
-        "symbols": []
+        "symbols": [
+          "RuntimeFileCacheScope"
+        ]
       }
     },
     "src/lowcode/system-navigation.ts": {
@@ -17222,7 +17219,9 @@
         "modulePath": "services/project/page-tool-file-dataview",
         "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": []
+        "symbols": [
+          "PagePublicationFileName"
+        ]
       }
     },
     "src/services/project/page-tool-file-operations.ts": {
@@ -17251,6 +17250,11 @@
         "jsdoc": "@module app:services/project/page-tool-publication\n职责：在原浏览器保存三文件发布的恢复定位，跨工作区重开时按原节点和版本核对。\n边界：仅记录摘要、编号和已接纳回执的进度。文件内容、正式指针和数据权限均由原 DataView 读取。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "PageToolPublicationIntent",
+          "PageToolPublicationFileSource",
+          "PageToolPublicationScenarioSource",
+          "PageToolPublicationPagedataSnapshot",
+          "PageToolPublicationManifest",
           "PageToolPublication"
         ]
       }
@@ -25734,6 +25738,10 @@
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
+    "DataSetCommandRequestProof": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
     "DataSetCommandResourceIdentity": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
@@ -25826,9 +25834,25 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
+    "DataSetSaveJournal": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetSaveJournalPhase": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetSaveJournalView": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
     "DataSetSavePreflightError": {
       "sourcePath": "packages/spark-data/src/dataset.ts",
       "file": "files/packages/spark-data/src/dataset.ts.json"
+    },
+    "DataSetSaveRecoverableAction": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataSetSaveResolution": {
       "sourcePath": "packages/spark-data/src/data-view.ts",
@@ -28170,6 +28194,10 @@
       "sourcePath": "src/lowcode/resources/repository/file-resource-registry.ts",
       "file": "files/src/lowcode/resources/repository/file-resource-registry.ts.json"
     },
+    "LowcodeFileStat": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
+    },
     "LowcodeFileVersionSummary": {
       "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
       "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
@@ -28770,18 +28798,6 @@
       "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
       "file": "files/packages/spark-component/src/core/capability-keys.ts.json"
     },
-    "PageContentLoader": {
-      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
-      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
-    },
-    "PageContentLoaderOptions": {
-      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
-      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
-    },
-    "PageContentLoadResult": {
-      "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
-      "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
-    },
     "PageContentRemoteRead": {
       "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "file": "files/packages/spark-project-model/src/page/content/runtime-content.ts.json"
@@ -28899,12 +28915,12 @@
       "file": "files/src/services/project/page-tool-file-operations.ts.json"
     },
     "PageFileReadCommand": {
-      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
-      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
+      "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
+      "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
     "PageFileReader": {
-      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
-      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
+      "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
+      "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
     "PageMessageType": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
@@ -28917,6 +28933,10 @@
     "PageNodeOptions": {
       "sourcePath": "packages/spark-app/src/app/start.ts",
       "file": "files/packages/spark-app/src/app/start.ts.json"
+    },
+    "PagePublicationFileName": {
+      "sourcePath": "src/services/project/page-tool-file-dataview.ts",
+      "file": "files/src/services/project/page-tool-file-dataview.ts.json"
     },
     "PageRoute": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
@@ -28931,6 +28951,10 @@
       "file": "files/packages/spark-project-model/src/page/runtime-page.ts.json"
     },
     "PageRuntimeCall": {
+      "sourcePath": "packages/spark-project-model/src/page/runtime-page.ts",
+      "file": "files/packages/spark-project-model/src/page/runtime-page.ts.json"
+    },
+    "PageRuntimeMode": {
       "sourcePath": "packages/spark-project-model/src/page/runtime-page.ts",
       "file": "files/packages/spark-project-model/src/page/runtime-page.ts.json"
     },
@@ -28949,6 +28973,10 @@
     "PageRuntimeServicesCapability": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
       "file": "files/packages/spark-component/src/runtime/app-services.ts.json"
+    },
+    "PageRuntimeSource": {
+      "sourcePath": "packages/spark-project-model/src/page/runtime-page.ts",
+      "file": "files/packages/spark-project-model/src/page/runtime-page.ts.json"
     },
     "PageScope": {
       "sourcePath": "src/registries/vue-page-registry.ts",
@@ -28998,15 +29026,31 @@
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
-    "PageToolLoadOptions": {
-      "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
-      "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
-    },
     "PageToolOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
     },
     "PageToolPublication": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
+    "PageToolPublicationFileSource": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
+    "PageToolPublicationIntent": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
+    "PageToolPublicationManifest": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
+    "PageToolPublicationPagedataSnapshot": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
+    "PageToolPublicationScenarioSource": {
       "sourcePath": "src/services/project/page-tool-publication.ts",
       "file": "files/src/services/project/page-tool-publication.ts.json"
     },
@@ -30078,6 +30122,10 @@
       "sourcePath": "packages/spark-component/src/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.props.ts.json"
     },
+    "RuntimeFileCacheScope": {
+      "sourcePath": "src/lowcode/runtime-file-cache.ts",
+      "file": "files/src/lowcode/runtime-file-cache.ts.json"
+    },
     "RuntimeNavigation": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
       "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
@@ -30101,6 +30149,26 @@
     "RuntimeNavigationRegionVisibility": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
       "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimePageNavigationReceipt": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
+    },
+    "RuntimePageNavigationReceiptState": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
+    },
+    "RuntimePagePublicationManifest": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
+    },
+    "RuntimePagePublicationPagedata": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
+    },
+    "RuntimePagePublicationResolution": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
     },
     "RuntimeScenarioLoadCommand": {
       "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",

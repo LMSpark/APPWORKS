@@ -292,8 +292,8 @@ it('keeps catalog edits out of an open content operation',async()=>{
 })
 it('keeps a catalog save unknown when the original database receipt is lost',async()=>{
  const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存');expect(state.http.saves).toHaveLength(1)
- const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(true);expect(state.uploads).toEqual([])
- expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+ const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+ expect(f.wrapper.text()).not.toContain('SPARK_SAVE_UNVERIFIABLE')
 })
 
 async function setNewName(wrapper:VueWrapper,name:string){const field=wrapper.findAllComponents(FieldText).find(item=>item.props('field')==='name'&&item.props('dataViewKey')===`${SCENE}@Base_JsonData@default`);expect(field,'new catalog name field').toBeDefined();await field!.get('input').setValue(name);await flushPromises()}
@@ -346,8 +346,8 @@ it('cancels a new JSON before either source is written',async()=>{
 it('holds the created file and unknown catalog result without replaying either write',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'unknown');state.http.failAfterWrite=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
  expect(f.wrapper.text()).toContain('正文已保存，目录保存结果尚未确认')
- await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(true)
- expect(f.wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+ await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(false)
+ expect(f.wrapper.text()).not.toContain('SPARK_SAVE_UNVERIFIABLE')
 })
 it('verifies an unknown new file before saving metadata and never uploads it twice',async()=>{
  const f=await open();await f.click('新增');await setNewName(f.wrapper,'file unknown');state.lose=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()

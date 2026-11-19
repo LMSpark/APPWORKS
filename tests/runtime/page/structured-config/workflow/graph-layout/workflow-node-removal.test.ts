@@ -118,9 +118,10 @@ describe('original workflow node removal',()=>{
  it('verifies a lost database receipt without repeating the deletion request',async()=>{
   const f=await fixture(),owner=await f.open();await owner.stage();f.http.failAfterWrite=true
   await expect(owner.save()).rejects.toThrow();const writes=f.http.saves.length
-  await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(owner.getState()).toMatchObject({pending:true,databaseConfirmed:false})
+  await owner.verify()
+  expect(owner.getState()).toMatchObject({status:'complete',pending:false,databaseConfirmed:true})
   expect(f.http.saves).toHaveLength(writes)
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.some(row=>row['rowid']==='A')).toBe(false)
  })
  it('checks JoinFilter references in a retained shared model',async()=>{
   const f=await fixture();f.http.records['Base_DataModel']![0]!['JoinFilter']=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'value',operator:'eq',value:{Type:'GetInputParam',ParamName:'A.value'}}))

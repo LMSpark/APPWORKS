@@ -74,7 +74,7 @@ describe('merge configuration input identity and join metadata',()=>{
   http.records['Base_DataSet']![0]!['inputParams']='[]'
   await expect(validateWorkflowMergeNodeChanges({...target,nodeIds:[target.nodeId]})).resolves.toBeUndefined()
  })
- it('requires regeneration after input changes and retains an unknown save without replay',async()=>{
+ it('requires regeneration after input changes and confirms a lost save by exact readback without replay',async()=>{
   const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'result',FieldType:'varchar',Description:'结果',IsOutput:1}]}]
   const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
   await generateWorkflowMergeOutput(target);input[0]!.Fields[0]!.AsName='later';nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
@@ -83,8 +83,11 @@ describe('merge configuration input identity and join metadata',()=>{
   http.failAfterWrite=true;const scope={views:[{tableName:nodes.tableName,viewId:nodes.viewId,ids:['MERGE']}]}
   await expect(ds.saveChanges(scope)).rejects.toThrow();expect(nodes.hasUnconfirmedSave).toBe(true)
   const reads=http.reads.length;await validateWorkflowMergeNodeChanges({...target,nodeIds:[target.nodeId]});expect(http.reads).toHaveLength(reads)
-  await expect(ds.saveChanges(scope)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(nodes.hasUnconfirmedSave).toBe(true);expect(http.saves).toHaveLength(1)
+  expect((await ds.saveChanges(scope)).success).toBe(true)
+  expect(nodes.hasUnconfirmedSave).toBe(false);expect(http.saves).toHaveLength(1)
+  await nodes.refresh()
+  expect(nodes.getEditingRow('MERGE')?.['input_mapping']).toBe(JSON.stringify(input))
+  expect(JSON.parse(String(nodes.rows.find(row=>row['rowid']==='MERGE')?.['output_mapping']))).toEqual([{rowid:'A:AF',pid:null,Name:'later',Description:'结果',FieldType:'varchar',isParent:false}])
  })
  it.each([false,true])('checks fresh references before staging an existing output rename (referenced=%s)',async referenced=>{
   const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'renamed',FieldType:'varchar',Description:'新标题',IsOutput:1}]}]

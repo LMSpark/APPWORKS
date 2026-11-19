@@ -59,16 +59,19 @@ describe('workflow start parameter contract',()=>{
   const f=await fixture();f.params.updateEditingValue('W1','inputParams','[]');f.params.discardPendingChanges()
   expect(JSON.parse(String(f.params.rows[0]!['inputParams']))).toEqual([original]);expect(f.http.saves).toEqual([])
  })
- it('keeps an unknown start-parameter save pending without replaying or regenerating mappings',async()=>{
+ it('confirms a lost start-parameter receipt by exact readback without replaying or regenerating mappings',async()=>{
   const f=await fixture();f.params.updateEditingValue('W1','inputParams',JSON.stringify([{...original,Value:'changed'}]));f.http.failAfterWrite=true
   await expect(saveWorkflowStartParameters(f.ds,'W1')).rejects.toThrow()
   const count=f.http.saves.length;expect(count).toBeGreaterThan(0)
   const pendingOutput=f.start.hasEditingChanges()
-  await expect(saveWorkflowStartParameters(f.ds,'W1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect((await saveWorkflowStartParameters(f.ds,'W1')).success).toBe(true)
   expect(f.http.saves).toHaveLength(count)
-  expect(f.params.hasUnconfirmedSave).toBe(true)
+  expect(f.params.hasUnconfirmedSave).toBe(false)
   expect(f.start.hasEditingChanges()).toBe(pendingOutput)
   expect(f.http.saves.filter(save=>save.table==='Base_DataSet')).toHaveLength(1)
+  await Promise.all([f.params.refresh(),f.start.refresh()])
+  expect(JSON.parse(String(f.params.rows[0]?.['inputParams']))).toEqual([{...original,Value:'changed'}])
+  expect(JSON.parse(String(f.start.rows[0]?.['output_mapping']))[0]).toMatchObject({rowid:'P1',Name:'code'})
  })
  it('rejects mismatched targets and multiple start nodes without writes',async()=>{
   const f=await fixture();await expect(saveWorkflowStartParameters(f.ds,'W2')).rejects.toThrow();expect(f.http.saves).toEqual([])

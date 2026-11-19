@@ -793,7 +793,7 @@ describe('workflow formal design page',()=>{
   await f.click('取消节点修改');expect(name.get('input').element.value).toBe('查询订单');expect(state.http.saves).toEqual([])
   await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
  })
- it('keeps an unknown node save pending without replaying the write',async()=>{
+ it('confirms a lost node receipt by exact readback without replaying the write',async()=>{
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   const name=f.wrapper.findAllComponents(FieldText).find(field=>field.props('dataViewKey')?.includes('@Base_WorkflowNodeDefinition@')&&field.props('field')==='name')!
@@ -802,8 +802,13 @@ describe('workflow formal design page',()=>{
   expect(f.buttons().find(b=>b.text()==='取消节点修改')?.attributes('disabled')).toBeDefined()
   await f.click('核验节点保存结果')
   expect(state.http.saves).toHaveLength(1)
-  expect(state.dirty[0]?.isDirty).toBe(true)
-  expect(f.buttons().find(b=>b.text()==='取消节点修改')?.attributes('disabled')).toBeDefined()
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  expect(state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='N1')?.['name']).toBe('已提交待回读')
+  expect(f.buttons().find(b=>b.text()==='取消节点修改')).toBeDefined()
+  const nodes=f.wrapper.getComponent(WorkflowSourceEdit).props('dataSet').getView('Base_WorkflowNodeDefinition')!
+  await nodes.refresh()
+  expect(nodes.rows.find(row=>row['rowid']==='N1')?.['name']).toBe('已提交待回读')
+  expect(state.http.saves).toHaveLength(1)
  })
  it('projects layout from the bound file view and saves a drag without saving business nodes',async()=>{
   state.layoutText='{"nodes":[{"id":"N1","x":10,"y":20,"custom":false}],"edges":[],"keep":0}'

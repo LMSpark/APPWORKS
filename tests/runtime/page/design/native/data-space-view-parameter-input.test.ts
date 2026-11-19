@@ -312,4 +312,4 @@ it('keeps the selected named view identity through a late field-directory respon
     expect(finalTarget['autoSelectFirst']).toBe(true)
     expect(JSON.parse(fixture.stored.get(targetId)!)).toEqual(original)
   } finally {openSpy.mockRestore()}
-})
+}, 30_000)

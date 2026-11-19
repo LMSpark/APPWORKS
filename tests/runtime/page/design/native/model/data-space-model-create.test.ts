@@ -235,8 +235,8 @@ describe('native model creation with formal metadata ownership', () => {
     expect(() => owner.setName('Other')).toThrow('先核验')
     expect(owner.getState().preview?.name).toBe('SalesOrders')
     const modelId = owner.getState().modelId
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
     expect(writes()).toHaveLength(1)
   })
 
@@ -310,9 +310,9 @@ describe('native model creation with formal metadata ownership', () => {
     release(); await saving
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')
-    if (mode === 'unknown') await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    if (mode === 'unknown') await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
     else await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
-    expect(writes()).toHaveLength(1); expect(owner.getState().pending).toBe(mode === 'unknown')
+    expect(writes()).toHaveLength(1); expect(owner.getState().pending).toBe(false)
   })
 
   it('preserves an unrelated sibling DataView capture while verifying the model create', async () => {
@@ -329,7 +329,7 @@ describe('native model creation with formal metadata ownership', () => {
     ]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
 
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
     expect(writes()).toHaveLength(2)
     expect(sibling.hasUnconfirmedSave).toBe(true)
   })
@@ -363,14 +363,14 @@ describe('native model creation with formal metadata ownership', () => {
       await gate
       return nativeSave(options)
     })
-    const verification = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const verification = expect(owner.verify()).rejects.toThrow('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     models.updateEditingValue(modelId, 'description', `late ${kind}`)
     if (kind === 'applied') expect((await models.applyEditingRows([modelId])).success).toBe(true)
     release()
     await verification
     expect(models.getEditingRow(modelId)?.['description'] ?? models.rows.find(row => row['rowid'] === modelId)?.['description']).toBe(`late ${kind}`)
-    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
     await expect(owner.verify()).rejects.toThrow()
     expect(writes()).toHaveLength(1)
 
@@ -390,7 +390,7 @@ describe('native model creation with formal metadata ownership', () => {
       await gate
       return nativeSave(options)
     })
-    const verification = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const verification = expect(owner.verify()).rejects.toThrow('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     fields.updateEditingValue(fieldId, 'description', `late field ${kind}`)
     if (kind === 'applied') expect((await fields.applyEditingRows([fieldId])).success).toBe(true)
@@ -398,7 +398,7 @@ describe('native model creation with formal metadata ownership', () => {
     await verification
     expect(dataSet.getView('Base_DataModel_Field', fields.viewId)).toBe(fields)
     expect(fields.getEditingRow(fieldId)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === fieldId)?.['description']).toBe(`late field ${kind}`)
-    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
     await expect(owner.verify()).rejects.toThrow()
     expect(dataSet.getView('Base_DataModel_Field', fields.viewId)).toBe(fields)
     expect(fields.getEditingRow(fieldId)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === fieldId)?.['description']).toBe(`late field ${kind}`)
@@ -443,8 +443,8 @@ describe('native model creation with formal metadata ownership', () => {
     const {owner, writes} = await setup({omitFieldReceipt: true})
     await expect(owner.save()).rejects.toThrow('回执')
     const modelId = owner.getState().modelId
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
     expect(writes()).toHaveLength(1)
   })
 

@@ -86,14 +86,17 @@ describe('workflow boundaries on original node DataView',()=>{
   vi.spyOn(f.http,'request').mockImplementation(async config=>{if(config.url==='/api/DataOperation/GetData'&&f.http.saves.length&&!changed){changed=true;f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['position_type']===2)!['node_type']='query'}return original(config)})
   await expect(f.command.save()).rejects.toThrow();expect(f.command.confirmed).toBe(false);expect(f.command.submitted).toBe(true);expect(f.command.canFinishCurrent).toBe(true);f.command.finishCurrent();expect(f.command.complete).toBe(true);expect(f.command.confirmed).toBe(false)
  })
- it('verifies the original unknown boundary save without replaying either creation',async()=>{
+ it('confirms the original lost boundary receipt by exact readback without replaying either creation',async()=>{
   const f=await fixture();await f.command.stage();f.http.failAfterWrite=true
   await expect(f.command.save()).rejects.toThrow();expect(f.nodes.hasUnconfirmedSave).toBe(true)
   expect(()=>f.command.cancel()).toThrow('核验');const count=f.http.saves.length
-  await expect(f.command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  await f.command.save()
   expect(f.http.saves).toHaveLength(count)
-  expect(f.nodes.hasUnconfirmedSave).toBe(true)
+  expect(f.command.confirmed).toBe(true)
+  expect(f.nodes.hasUnconfirmedSave).toBe(false)
   expect(f.http.records['Base_WorkflowNodeDefinition']).toHaveLength(2)
+  await f.nodes.refresh()
+  expect(f.nodes.rows.map(row=>row['position_type'])).toEqual([0,2])
  })
  it('rejects node edits arriving while a fresh boundary check is pending',async()=>{
   const f=await fixture([0]);await f.command.stage()

@@ -330,7 +330,7 @@ describe('application manager restored with standard components and formal DataV
     await click('核验原提交')
     expect(relation.hasUnconfirmedSave).toBe(true)
     expect(calls).toBe(2)
-    expect(bodyText()).toContain('服务未提供原请求的权威终态')
+    expect(bodyText()).toContain('SPARK_SAVE_UNVERIFIABLE')
   })
 
   it('verifies the original application create before validating later edits or dispatching companions', async () => {
@@ -344,7 +344,7 @@ describe('application manager restored with standard components and formal DataV
     expect(main.hasUnconfirmedSave).toBe(true)
     main.updateEditingValue(appId, 'AppDesc', '')
     await click('核验原提交')
-    expect(bodyText()).toContain('服务未提供原请求的权威终态')
+    expect(bodyText()).toContain('SPARK_SAVE_UNVERIFIABLE')
     expect(main.getEditingRow(appId)?.['AppDesc']).toBe('')
     expect(main.hasUnconfirmedSave).toBe(true)
     expect(dispatch).toHaveBeenCalledTimes(1)

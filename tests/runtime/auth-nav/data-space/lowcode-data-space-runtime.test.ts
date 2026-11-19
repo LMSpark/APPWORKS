@@ -121,7 +121,7 @@ describe('host scenario file request wiring', () => {
     const contents=new Map([['script.js','existing working text']])
     const toBuffer=(text:string):ArrayBuffer=>{const bytes=new TextEncoder().encode(text),buffer=new ArrayBuffer(bytes.length);new Uint8Array(buffer).set(bytes);return buffer}
     transport.request.mockImplementation(async(config:RequestConfig)=>{
-      if(config.url==='/api/File/UploadFile'){
+      if(config.url==='/api/File/v2/UploadFile'){
         const form=config.data as FormData,fileName=String(form.get('newName')),file=form.get('file')
         if(!(file instanceof Blob))throw new Error('expected multipart file')
         const text=new TextDecoder().decode(await file.arrayBuffer()),replace=form.get('isReplace')==='true'
@@ -139,7 +139,7 @@ describe('host scenario file request wiring', () => {
     await io.restoreWorkingFile({appId:'APP-1',pageId:'orders',fileName:'script.js',text:'restored text'})
     const restoreUpload=transport.request.mock.calls[0]?.[0]
     const restoreForm=restoreUpload?.data as FormData
-    expect(restoreUpload?.url).toBe('/api/File/UploadFile')
+    expect(restoreUpload?.url).toBe('/api/File/v2/UploadFile')
     expect(restoreForm.get('customPath')).toBe('APP-1/orders')
     expect(restoreForm.get('newName')).toBe('script.js')
     expect(restoreForm.get('isReplace')).toBe('true')
@@ -256,7 +256,7 @@ describe('host scenario file request wiring', () => {
       let data: unknown = { Code: 200, Result: text }
       if (config.url === '/api/File/lastModifiedTime') {
         data={Code:200,Result:'2026-11-19 15:00:00 000'}
-      } else if (config.url === '/api/File/UploadFile') {
+      } else if (config.url === '/api/File/v2/UploadFile') {
         if (!(config.data instanceof FormData)) throw new Error('expected multipart')
         const file = config.data.get('file')
         if (!(file instanceof Blob)) throw new Error('expected file')
@@ -276,7 +276,7 @@ describe('host scenario file request wiring', () => {
     expect(file.isDirty).toBe(false)
     expect(requests.map(config => config.url)).toEqual([
       '/api/File/lastModifiedTime', '/api/File/content/text', '/api/File/lastModifiedTime',
-      '/api/File/UploadFile', '/api/File/DownFile', '/api/File/lastModifiedTime', '/api/File/content/text',
+      '/api/File/v2/UploadFile', '/api/File/DownFile', '/api/File/lastModifiedTime', '/api/File/content/text',
     ])
     for (const config of requests) {
       expect(config.headers).toMatchObject({ 'X-AppId': 'APP-1', 'tenant-id': 'fixture-tenant', Authorization: 'Bearer fixture-access' })

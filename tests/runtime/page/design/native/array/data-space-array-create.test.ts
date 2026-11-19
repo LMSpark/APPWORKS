@@ -77,8 +77,9 @@ describe('array definition creation through the formal model batch',()=>{
     await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow('先核验')
     const modelIdBeforeVerify=one.owner.getState().modelId
     expect(modelIdBeforeVerify).toBeTruthy()
-    await expect(one.owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(one.owner.getState()).toMatchObject({status:'unknown',pending:true,modelId:modelIdBeforeVerify})
+    await expect(one.owner.verify()).resolves.toMatchObject({confirmed:true})
+    expect(one.owner.getState()).toMatchObject({status:'idle',pending:false})
+    expect(one.f.created.get('Base_DataModel')?.find(row=>row['rowid']===modelIdBeforeVerify)).toBeDefined()
     expect(one.writes()).toHaveLength(1)
     const two=await setup({omitFieldWrite:true,omitFieldReceipt:true})
     await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow()

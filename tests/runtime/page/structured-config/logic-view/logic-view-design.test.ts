@@ -192,7 +192,7 @@ describe('logic-view design page', () => {
     expect(wrapper.findAll('button').some(button=>button.text()==='放弃未生效的输出修改')).toBe(false)
     expect(http.saves).toHaveLength(0)
     expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
-    expect(wrapper.text()).toContain('服务未提供原请求的权威终态')
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
   })
   it('offers explicit current-result adoption for an invalid output receipt and reports retirement rather than publication success',async()=>{
     const {wrapper,page}=await publishingPage(),metadata=await LowcodeLogicView.ensureOutputFields(page),save=metadata.saveChanges.bind(metadata)
@@ -535,14 +535,16 @@ describe('logic-view design page', () => {
     expect(wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(1)
     expect(http.saves).toHaveLength(0)
   })
-  it('keeps an accepted but unconfirmed parameter save pending without sending a second write', async () => {
-    const {wrapper} = await openDesigner(); http.failAfterWrite = true
+  it('confirms an accepted parameter save by exact readback without sending a second write', async () => {
+    const prepare=vi.spyOn(LowcodeLogicView,'prepareEditor'),{wrapper} = await openDesigner(); http.failAfterWrite = true
     await editTestValue(wrapper, 'Accepted')
     expect(http.saves).toHaveLength(1)
     await wrapper.findAll('button').find(button => button.text() === '核验参数保存结果')!.trigger('click'); await flushPromises()
     expect(http.saves).toHaveLength(1)
     expect(http.records['_Base_ParamList']?.find(row => row['parid'] === 'P1')?.['testvalue']).toBe('Accepted')
-    expect(wrapper.findAll('button').find(button => button.text() === '取消参数修改')!.attributes('disabled')).toBeDefined()
+    const page=prepare.mock.calls[0]![0],params=page.getDataSet(LowcodeLogicView.parameterScenarioId)!.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!
+    expect(params.hasUnconfirmedSave).toBe(false)
+    expect(params.hasEditingChanges()).toBe(false)
   })
   it('confirms deletion using parid and leaves the other target unchanged', async () => {
     const {wrapper} = await openDesigner()
@@ -561,7 +563,7 @@ describe('logic-view design page', () => {
     expect(wrapper.findAll('button').find(button => button.text() === '删除参数')!.attributes('disabled')).toBeDefined()
     expect(http.saves).toHaveLength(0)
   })
-  it('keeps an interrupted parameter deletion pending without deleting twice', async () => {
+  it('confirms an interrupted parameter deletion without deleting twice', async () => {
     const {wrapper} = await openDesigner(); http.failAfterWrite = true
     await wrapper.find('.el-table__body-wrapper tbody tr').trigger('click'); await flushPromises()
     await wrapper.findAll('button').find(button => button.text() === '删除参数')!.trigger('click'); await flushPromises()
@@ -569,7 +571,8 @@ describe('logic-view design page', () => {
     expect(http.saves).toHaveLength(1)
     await wrapper.findAll('button').find(button => button.text() === '核验删除结果')!.trigger('click'); await flushPromises()
     expect(http.saves).toHaveLength(1)
-    expect(wrapper.findAll('button').some(button => button.text() === '核验删除结果')).toBe(true)
+    expect(wrapper.findAll('button').some(button => button.text() === '核验删除结果')).toBe(false)
+    expect(http.records['_Base_ParamList']?.some(row => row['parid'] === 'P1')).toBe(false)
   })
   it('does not carry a pending delete confirmation into a newly loaded target', async () => {
     http.records['Base_DataViewList']!.push({rowid: 'V2', sysid: 'APP', name: 'View Two', description: '第二目标'})

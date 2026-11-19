@@ -177,6 +177,9 @@
         },
         "destroyed": {
           "type": "boolean"
+        },
+        "saveJournal": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
         }
       },
       "required": [
@@ -780,6 +783,40 @@
         "method.resolveOptionView.return": {
           "$ref": "data-view.ts.json#/$defs/DataView"
         },
+        "method.verifySaveJournal.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifySaveJournal.return": {
+          "type": "object",
+          "title": "Promise<DataSetSaveJournal>"
+        },
+        "method.continueSaveJournal.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.continueSaveJournal.return": {
+          "type": "object",
+          "title": "Promise<DataSetPhasedSaveResult>"
+        },
+        "method.retainSaveJournalDraft.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.retainSaveJournalDraft.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "method.discardSaveJournalNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardSaveJournalNotApplied.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
         "method.saveChanges.params": {
           "type": "object",
           "properties": {
@@ -870,7 +907,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T18:53:49.125Z",
+  "generatedAt": "2026-11-19T17:51:50.069Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -1097,6 +1134,12 @@
             {
               "name": "destroyed",
               "jsdoc": "数据集是否已被销毁",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveJournal",
+              "jsdoc": "Current immutable projection of the original save batch; later drafts never replace an unresolved journal.",
               "readable": true,
               "writable": false
             }
@@ -2103,6 +2146,58 @@
                   "name": "DataView",
                   "sourcePath": "packages/spark-data/src/data-view.ts"
                 }
+              }
+            },
+            {
+              "name": "verifySaveJournal",
+              "jsdoc": "Verify only the original unknown captures and retain the first error for UI diagnosis.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetSaveJournal",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "continueSaveJournal",
+              "jsdoc": "Continue the original explicit phase plan after completed recovery, never a replacement plan.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetPhasedSaveResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retainSaveJournalDraft",
+              "jsdoc": "Retain the original draft and journal without cancelling, replaying, or replacing it.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "discardSaveJournalNotApplied",
+              "jsdoc": "Discard only a still-identical draft proven not applied; late edits force retention instead.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {

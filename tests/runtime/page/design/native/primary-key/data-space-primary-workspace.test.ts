@@ -142,10 +142,12 @@ describe('reference field primary key and workspace save', () => {
     await expect(model.save(batch)).rejects.toThrow('先核验')
     expect(writes()).toHaveLength(1)
     if (mode === 'unknown') {
-      await expect(model.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(view.hasUnconfirmedSave).toBe(true)
-      expect(session.hasPendingModelEdits()).toBe(true)
-      expect(session.hasPendingFieldEdits()).toBe(true)
+      expect(await model.verifyRecovery(true)).toBe('verified')
+      expect(view.hasUnconfirmedSave).toBe(false)
+      await model.reload(false)
+      await fieldEditReloadBatch(batch, false)
+      expect(session.hasPendingModelEdits()).toBe(false)
+      expect(session.hasPendingFieldEdits()).toBe(false)
       expect(writes()).toHaveLength(1)
       return
     }

@@ -59,8 +59,8 @@ it('keeps the original deletion unknown without replaying or scanning dependenci
  const f=await fixture();await f.fields.removeRow('PF');const command=f.command('Base_ImportData_Field');f.http.failAfterWrite=true
  await expect(command.save()).rejects.toThrow();const writes=f.http.saves.length,reads=f.http.reads.length
  f.http.records['Base_ImportData_Config']![1]!['parentField']='code'
- await expect(command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
- expect(command.getState().done).toBe(false);expect(f.http.saves).toHaveLength(writes)
+ await expect(command.save()).resolves.toBeUndefined()
+ expect(command.getState().done).toBe(true);expect(f.http.saves).toHaveLength(writes)
  expect(f.http.reads.slice(reads).some(read=>read.table==='Base_ImportData_Config')).toBe(false)
 })
 

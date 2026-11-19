@@ -48,9 +48,9 @@ it('keeps a lost joint delete reply unknown without repeating any delete', async
   await expect(command.save()).rejects.toThrow()
   const count = f.http.saves.length
   expect(command.getState().canCancel).toBe(false)
-  await expect(command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  await expect(command.save()).resolves.toBeUndefined()
   expect(f.http.saves).toHaveLength(count)
-  expect(command.getState()).toMatchObject({done:false,databaseConfirmed:false,canCancel:false})
+  expect(command.getState()).toMatchObject({done:true,databaseConfirmed:true,canCancel:false})
 })
 it('retains database confirmation when refreshing the original page fails and resumes only reads', async () => {
   const f = await fixture(), command = await f.open(), fail = vi.spyOn(f.nodes, 'refresh').mockRejectedValueOnce(new Error('page refresh interrupted'))

@@ -303,14 +303,14 @@ describe('logic view two-source publication through original DataSets',()=>{
   expect(command.fileConfirmed).toBe(true);expect(command.finished).toBe(true)
   expect(file.getEditingRow('V1')?.['designJson']).toContain('later input')
  })
- it('keeps the original output capture pending after a lost receipt without replaying SaveView',async()=>{
+ it('confirms the original output capture by exact readback without replaying SaveView',async()=>{
   const {command}=await workspace();http.onFile=()=>{http.failAfterWrite=true}
   await expect(command.save()).rejects.toThrow()
   expect(command.needsVerification).toBe(true);expect(command.fileConfirmed).toBe(true)
   const dispatched=http.saves.length;http.failAfterWrite=false
-  await expect(command.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(command.finished).toBe(false);expect(http.saves).toHaveLength(dispatched)
-  expect(command.needsVerification).toBe(true);expect(command.fileConfirmed).toBe(true)
+  await expect(command.verify()).resolves.toBeUndefined()
+  expect(command.finished).toBe(true);expect(http.saves).toHaveLength(dispatched)
+  expect(command.needsVerification).toBe(false);expect(command.fileConfirmed).toBe(true)
   expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
  })
 })

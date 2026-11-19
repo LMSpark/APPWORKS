@@ -431,7 +431,10 @@ describe('flow run page mount', () => {
         expect(command.dirtyTracking.hasPendingChanges()).toBe(false)
         expect(wrapper.text()).toContain('business validation failed')
       }
-      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+      callbacks.end.mockResolvedValue(true)
+      await vi.waitFor(() => expect(wrapper.findAll('button').find(item => item.text() === '提交')?.attributes('disabled')).toBeUndefined())
+      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click')
+      await vi.waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1))
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: outcome === 'directory' ? ['U2:李四'] : []}]}))
       if (outcome === 'unknown') {

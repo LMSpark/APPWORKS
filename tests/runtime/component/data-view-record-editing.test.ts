@@ -98,16 +98,16 @@ it('refuses a field that becomes persistent after the pending operation opened',
  await e.state.save();e.state.discard()
  expect(f.http.saves).toHaveLength(0);expect(f.view.dirtyTracking.hasPendingChanges('A')).toBe(true);expect(e.finished).toEqual([])
 })
-it('keeps the delete pending when an independent read confirms absence but its receipt is missing',async()=>{
+it('finishes a lost delete receipt only after exact absence is read back',async()=>{
  const f=await fixture(),e=operation(f,'delete');f.http.failAfterWrite=true;await e.state.save()
  expect(e.state.ownUnconfirmed.value).toBe(true);e.state.cancel();expect(e.finished).toEqual([])
  await e.state.save()
- expect(e.state.error.value).toContain('SPARK_SAVE_UNVERIFIABLE')
- expect(e.finished).toEqual([])
+ expect(e.state.error.value).toBe('')
+ expect(e.finished).toEqual(['saved']);expect(e.state.saveJournal.value.completed).toBe(true)
  const reopened=await fixture(f.http)
  expect(reopened.view.rows.map(row=>row['rowid'])).toEqual(['B'])
- expect(e.state.ownUnconfirmed.value).toBe(true)
- expect(f.view.dirtyTracking.isPendingDelete('A')).toBe(true)
+ expect(e.state.ownUnconfirmed.value).toBe(false)
+ expect(f.view.dirtyTracking.isPendingDelete('A')).toBe(false)
  expect(f.http.saves).toHaveLength(1)
 })
 it('restores the original staged deletion when a known failed delete is explicitly cancelled',async()=>{
@@ -132,18 +132,35 @@ it('saves all original row changes rather than treating checkpoint fields as a w
  expect(e.finished).toEqual(['saved']);expect(f.http.saves).toHaveLength(1)
  expect(f.http.saves[0]?.changed).toMatchObject([{rowid:'A',caption:'saved',extra:'also saved'}])
 })
-it('retains the original capture and later edit when the persisted value can be read independently',async()=>{
+it('confirms the original capture and retains a later edit when the persisted value is read independently',async()=>{
  const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','once');f.http.failAfterWrite=true
  await e.state.save();expect(e.state.ownUnconfirmed.value).toBe(true);e.state.cancel();expect(e.finished).toEqual([])
  f.view.updateEditingValue('A','extra','later draft')
  await e.state.save()
- expect(e.state.error.value).toContain('SPARK_SAVE_UNVERIFIABLE')
+ expect(e.state.error.value).toBe('')
  const reopened=await fixture(f.http)
  expect(reopened.view.rows.find(row=>row['rowid']==='A')).toMatchObject({caption:'once',extra:'original'})
  expect(f.view.getEditingRow('A')?.['extra']).toBe('later draft')
- expect(e.state.ownUnconfirmed.value).toBe(true)
- expect(e.finished).toEqual([])
+ expect(e.state.ownUnconfirmed.value).toBe(false)
+ expect(e.finished).toEqual(['saved'])
  expect(f.http.saves).toHaveLength(1)
+})
+it('exposes and verifies the original DataSet journal through the shared record UX',async()=>{
+ const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','once');f.http.failAfterWrite=true
+ await e.state.save()
+ expect(e.state.saveJournal.value).toMatchObject({currentRecoverableAction:'verify-original-receipt',views:[{tableName:'Records',ids:['A'],state:'unknown'}]})
+ expect(e.state.recoverableAction.value).toBe('verify-original-receipt')
+ await e.state.verifyOriginalReceipt()
+ expect(e.state.saveJournal.value).toMatchObject({completed:true,currentRecoverableAction:'none',views:[{state:'applied'}]})
+ expect(e.finished).toEqual(['saved'])
+})
+it('retains an unknown draft without allowing an old runtime interaction to affect a new page',async()=>{
+ const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','once');f.http.failAfterWrite=true
+ await e.state.save();e.state.retainDraft()
+ expect(e.finished).toEqual(['preserved']);expect(f.view.hasUnconfirmedSave).toBe(true)
+ const reopened=await fixture(f.http),next=editor(reopened)
+ expect(()=>next.state.retainDraft()).not.toThrow()
+ expect(reopened.view.hasUnconfirmedSave).toBe(false);expect(f.view.hasUnconfirmedSave).toBe(true)
 })
 it('does not take over another ID unknown and closes preserving its own draft',async()=>{
  const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','keep');f.view.updateEditingValue('B','caption','other once');f.http.failAfterWrite=true

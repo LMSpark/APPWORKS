@@ -41,10 +41,10 @@ describe('Excel scheme creation through declared native views',()=>{
   expect(f.http.allocations).toHaveLength(1);expect(f.http.allocations[0]?.url).toContain(`/${id}/A3A38857F7584319844A826EF9AAA881`)
   expect(f.target.rows[0]).toMatchObject({rowid:id,coding:'EXCEL-002'});expect(readExcelSchemeCreation(f.ds)?.phase).toBe('complete')
  })
- it('blocks code allocation while the original Added receipt is unknown',async()=>{
+ it('confirms the original Added receipt by exact readback before any code allocation',async()=>{
   const f=await fixture(),id=await f.start();f.http.failAfterWrite=true
   await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow()
-  await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  await expect(saveExcelSchemeCreation(f.ds)).resolves.toBeUndefined()
   expect(readExcelSchemeCreation(f.ds)?.id).toBe(id)
   expect(f.http.allocations).toHaveLength(0)
   expect(f.http.saves).toHaveLength(1)
@@ -76,13 +76,13 @@ describe('Excel scheme creation through declared native views',()=>{
   f.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)!['coding']='EXTERNAL'
   await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('冲突');expect(f.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)?.['coding']).toBe('EXTERNAL');expect(f.http.allocations).toHaveLength(1)
  })
- it('keeps unknown coding writeback pending without allocating again',async()=>{
+ it('confirms unknown coding writeback by exact readback without allocating again',async()=>{
   const f=await fixture();await f.start();f.http.beforeSave=async()=>{if(f.http.allocations.length){delete f.http.beforeSave;f.http.failAfterWrite=true}}
   await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow();expect(f.http.saves).toHaveLength(2)
-  await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  await expect(saveExcelSchemeCreation(f.ds)).resolves.toBeUndefined()
   expect(f.http.saves).toHaveLength(2)
   expect(f.http.allocations).toHaveLength(1)
-  expect(readExcelSchemeCreation(f.ds)?.phase).not.toBe('complete')
+  expect(readExcelSchemeCreation(f.ds)).toMatchObject({phase:'writeback',unconfirmed:false})
  })
  it('independently reopens the persisted result without minting a new creation proof',async()=>{
   const f=await fixture(),id=await f.start();await saveExcelSchemeCreation(f.ds);const reopened=await fixture(f.http)

@@ -49,11 +49,11 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
   it('keeps the original rename pending and the scene unchanged after a lost database receipt',async()=>{
     const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
-    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(true)
-    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    await expect(owner.verify()).resolves.toBe(true)
+    expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(false)
+    expect(owner.getState()).toMatchObject({status:'idle',pending:false})
     expect(f.modelRow().Name).toBe('LocalOrders')
-    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
   })
   it('keeps a late captured-target draft while dependency readback is awaiting',async()=>{
     const {owner,f,session,writes}=await setup({allowDelete:true,sourceFields:[
@@ -212,26 +212,20 @@ describe('array compound changes after overview loading',()=>{
     expect(view.getEditingRow('M1')?.['Name']).toBe('LocalOrders')
     if(lost){
       f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
-      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-      expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(true)
-      expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+      await expect(owner.verify()).resolves.toBe(true)
+      expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(false)
+      expect(owner.getState()).toMatchObject({status:'idle',pending:false})
     }
     else await owner.save()
-    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(lost?0:1)
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
     expect(session.metadataDataSet.getView('Base_DataModel_Field')!.rows).toEqual([])
     expect(session.metadataDataSet.getView('Base_DataModel_Relation')!.rows).toEqual([])
     const fresh=await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')).toMatchObject({Name:'LocalOrders',PrimaryKeyFields:'code',items:'[{"code":"a"}]'})
     expect((await fresh.loadModelFields('M1')).rows.find(r=>r['rowid']==='F1')).toMatchObject({Name:'code'})
     expect((await fresh.loadModelFields('M2')).rows.find(r=>r['rowid']==='F2')?.['ValueFun']).toContain('LocalOrders.code')
-    if(lost){
-      session.releaseArrayEdit('M1','modelFields')
-      expect(session.getArrayEdit('M1','modelFields')).toBe(owner)
-      await expect(owner.save()).rejects.toThrow('数组模型注册名或来源已变化')
-      expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
-      expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
-      return
-    }
+    session.releaseArrayEdit('M1','modelFields')
+    expect(session.getArrayEdit('M1','modelFields')).not.toBe(owner)
     await fresh.loadDefinition()
     const result=fresh.definitionDataSet!.getView('OrdersAlias','shared')!
     expect((await result.loadFromServer()).success).toBe(true);expect(result.rows).toMatchObject([{code:'a'}])

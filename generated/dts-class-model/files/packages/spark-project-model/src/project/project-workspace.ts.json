@@ -63,8 +63,8 @@
             "idle",
             "pending",
             "unknown",
-            "not-applied",
-            "confirmed"
+            "confirmed",
+            "not-applied"
           ]
         },
         "version": {

@@ -236,14 +236,14 @@ describe('classification selection through original views', () => {
     expect(f.catalog.dirtyTracking.pendingDeleteIds.size).toBe(0)
     expect(f.service.http.saves).toEqual([])
   })
-  it('keeps an unknown directory deletion pending without replaying the delete request', async () => {
+  it('confirms a directory deletion by exact readback without replaying the request', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
     f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('删除')
     f.service.http.failAfterWrite = true; await f.click('保存目录')
     expect(f.catalog.hasUnconfirmedSave).toBe(true)
     await f.click('核验目录保存结果')
-    expect(f.catalog.hasUnconfirmedSave).toBe(true)
+    expect(f.catalog.hasUnconfirmedSave).toBe(false)
     expect(f.service.http.saves).toHaveLength(1)
     expect(f.service.http.records['Base_CodeClassTable']).toEqual([])
   })
@@ -340,7 +340,7 @@ describe('classification selection through original views', () => {
     expect(f.dialog.emitted('close')).toHaveLength(1)
     expect(f.service.http.saves).toEqual([])
   })
-  it('offers verification after an unknown visible directory save without submitting it twice', async () => {
+  it('confirms a visible directory save without submitting it twice', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
     f.catalog.updateEditingValue('K1', 'description', '目录新说明'); f.service.http.failAfterWrite = true
@@ -348,7 +348,7 @@ describe('classification selection through original views', () => {
     expect(f.catalog.hasUnconfirmedSave).toBe(true)
     expect(f.wrapper.findAll('button').find(button => button.text() === '取消')?.attributes('disabled')).toBeDefined()
     await f.click('核验目录保存结果')
-    expect(f.catalog.hasUnconfirmedSave).toBe(true)
+    expect(f.catalog.hasUnconfirmedSave).toBe(false)
     expect(f.service.http.saves).toHaveLength(1)
     expect(f.main.hasEditingChanges()).toBe(true)
   })
@@ -371,15 +371,15 @@ describe('classification selection through original views', () => {
     expect(f.catalog.hasEditingChanges()).toBe(true)
     expect(f.service.http.saves).toEqual([])
   })
-  it('preserves an unknown directory save in the original view without replaying the write', async () => {
+  it('confirms an original directory save without replaying the write', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
     f.catalog.updateEditingValue('K1', 'description', '新说明')
     f.service.http.failAfterWrite = true
     await expect(CodeDesignOps.saveCodeClasses(f.ds)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
     expect(f.catalog.hasUnconfirmedSave).toBe(true)
-    await expect(CodeDesignOps.saveCodeClasses(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-    expect(f.catalog.hasUnconfirmedSave).toBe(true)
+    await expect(CodeDesignOps.saveCodeClasses(f.ds)).resolves.toMatchObject({success:true,data:{savedCount:1}})
+    expect(f.catalog.hasUnconfirmedSave).toBe(false)
     expect(f.service.http.saves).toHaveLength(1)
     expect(f.service.http.records['Base_CodeClassTable']![0]?.['description']).toBe('新说明')
     expect(f.main.hasEditingChanges()).toBe(true)

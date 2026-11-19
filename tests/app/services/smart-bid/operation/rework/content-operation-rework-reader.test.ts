@@ -1,7 +1,7 @@
 import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareRegisteredOperationStepRework} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader'
-import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace'
+import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
 import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -32,15 +32,16 @@ it('prepares rework only from a visible, complete original attempt projection',a
   .rejects.toThrow('OPERATION_REWORK_READ_SCOPE')
  try{
   const controller=new AbortController()
-  const workspace=openContentOperationWorkspace({...host.runtime,generation:1,destroyed:false,isLoaded:true},
+  const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    {executeTool:async()=>{throw Error('UNEXPECTED_CLASS_MODEL_CALL')}},
-   {...host,rootKind:'OperationRoute',signal:controller.signal})
-  const prepared=await workspace.prepareRework({...scope,reason:'撤回结果未知'})
+   {...host,rootKind:'OperationRoute'})
+  const prepareFromPage=()=>scriptHost.invoke('content.operation.prepareRework',{...scope,reason:'撤回结果未知'},controller.signal)
+  const prepared=await prepareFromPage()
   expect(prepared).toMatchObject({...scope,firstCallRef:'CALL',handoffs:[{destination:'ORIGINAL_CALL'}],
    originalOperations:[{destination:'52',ownerRef:'REP'}]})
   controller.abort()
-  expect(()=>prepared.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
-  await expect(workspace.prepareRework({...scope,reason:'撤回结果未知'})).rejects.toThrow('OPERATION_WORKSPACE_STALE')
+  expect(()=>prepared?.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
+  await expect(prepareFromPage()).rejects.toThrow('OPERATION_WORKSPACE_STALE')
   const originalPrepared=await prepare()
   hidden=['findings']
   await expect(prepare()).rejects.toThrow('DATA_VIEW_READ_ROW')

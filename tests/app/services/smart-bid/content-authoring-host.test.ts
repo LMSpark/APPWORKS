@@ -205,6 +205,9 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
     receipt.state='SAVED'
     const refresh=wrapper.findAll('button').find(item=>item.text()==='重查原保存结果')
     if(!refresh)throw Error('TEST_REFRESH_RECEIPT_BUTTON_REQUIRED')
+    queries.mockRejectedValueOnce(Error('RECEIPT_QUERY_TEMPORARILY_UNAVAILABLE'))
+    await refresh.trigger('click')
+    await vi.waitFor(()=>expect(wrapper?.text()).toContain('原保存结果无法核验'))
     await refresh.trigger('click')
    }
    await vi.waitFor(()=>expect(wrapper?.text()).toContain('原请求已保存草稿版 V2，回执 RC'),{timeout:4000})
@@ -212,7 +215,7 @@ it.each([false,true])('loads the actual authoring page and original receipt (pen
    else expect(wrapper.text()).toContain('当前草稿与原保存内容一致')
   }finally{saveState.mockRestore()}
   if(savePending){
-   expect(queries).toHaveBeenCalledTimes(4)
+   expect(queries).toHaveBeenCalledTimes(5)
    expect(queries.mock.calls.at(-1)?.[1].context).toMatchObject({projectId:'P',draftId:'D',authorId:'U',requestKey:'Q',requestDigest})
    expect(save).not.toHaveBeenCalled()
    return

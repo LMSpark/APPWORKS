@@ -174,7 +174,7 @@ it('reads the original addendum locations for the current project, lot and round
    identity:attemptTable.identity,scope:'rework',readScope:()=> 'rework',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   })})
-  if(!('items' in history)||history.state!=='HISTORY_TRACED')throw Error('TEST_ATTEMPT_TRACE_REQUIRED')
+  if(!('state' in history)||history.state!=='HISTORY_TRACED')throw Error('TEST_ATTEMPT_TRACE_REQUIRED')
   const operationAttempt=history.items[0]?.operationAttempt
   if(!operationAttempt)throw Error('TEST_FROZEN_IDENTITY_REQUIRED')
   const rework=await prepareRegisteredOperationStepRework({runtime,scenarioId:'S',projectId:operationAttempt.projectId,

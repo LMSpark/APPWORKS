@@ -49,4 +49,12 @@ it('uses a registered SPARK Agent input contract and rejects another runtime ins
  await expect(dispatchOperationRouteAgentTask(options,{...source,turn,manifest,claimOriginalTurn,runtimeInstanceId:'OTHER'}))
   .rejects.toThrow('OPERATION_ROUTE_AGENT_SCOPE')
  expect(executeTurn).toHaveBeenCalledOnce()
+ const failedTurn={...turn,turnId:crypto.randomUUID()}
+ const start=vi.spyOn(registration.sessionStore,'startSession').mockImplementationOnce(()=>{throw Error('START_UNCERTAIN')})
+ claimOriginalTurn.mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:()=>{}}))
+ try{
+  await expect(dispatchOperationRouteAgentTask(options,{...source,turn:failedTurn,manifest,claimOriginalTurn}))
+   .resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'START_UNKNOWN',turnId:failedTurn.turnId})
+  expect(executeTurn).toHaveBeenCalledOnce()
+ }finally{start.mockRestore()}
 })

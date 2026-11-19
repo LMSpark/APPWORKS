@@ -64,6 +64,7 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  if(session.scope.businessInstanceId!==prepared.task.scope.businessInstanceId||
   session.scope.runtimeInstanceId!==prepared.task.scope.runtimeInstanceId||
   session.scope.instanceId!==prepared.task.scope.instanceId)throw Error('OPERATION_ROUTE_AGENT_SCOPE')
+ const request=prepared.task.toChatRequest({turn:fixedTurn})
  const dispatch=Object.freeze({...manifest.scope,manifestDigest:manifest.manifestDigest,inputDigest:manifest.inputDigest,
   publishedVersionRef:prepared.publishedVersionRef,guideRef:manifest.guideRef,guideVersionRef:manifest.guideVersionRef,guideDigest:manifest.guideDigest,
   registrationId:source.registrationId,businessInstanceId:source.businessInstanceId,runtimeInstanceId:source.runtimeInstanceId,turnId:fixedTurn.turnId})
@@ -73,11 +74,14 @@ export async function dispatchOperationRouteAgentTask(options:Parameters<typeof 
  if(Object.keys(dispatchIdentityFields).some(key=>isDispatchIdentityField(key)&&claim[key]!==dispatch[key]))
   throw Error('OPERATION_ROUTE_AGENT_SCOPE')
  if(claim.state!=='CLAIMED')return Object.freeze({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNAVAILABLE' as const,turnId:fixedTurn.turnId})
- await session.start()
+ const original={state:'CHECK_ORIGINAL' as const,session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef}
+ try{
+  await session.start()
+ }catch{
+  return Object.freeze({...original,observation:'START_UNKNOWN' as const})
+ }
  prepared.assertCurrent()
  claim.assertCurrent()
- const request=prepared.task.toChatRequest({turn:fixedTurn})
- const original={state:'CHECK_ORIGINAL' as const,session,turnId:fixedTurn.turnId,publishedVersionRef:prepared.publishedVersionRef}
  try{
   await session.send(request)
  }catch{

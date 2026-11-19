@@ -330,6 +330,12 @@ describe('flow run page mount', () => {
     dialog?.vm.$emit('update:modelValue', false)
     await flushPromises()
     expect(dialog?.props('modelValue')).toBe(false)
+    await wrapper.findAll('button').find(button => button.text() === '流程图')!.trigger('click')
+    await flushPromises()
+    expect(dialog?.props('modelValue')).toBe(true)
+    routeState.query.stepid = 'missing-step'
+    await flushPromises()
+    expect(dialog?.props('modelValue')).toBe(false)
   })
   it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input'])('uses original parameter views through the %s outcome', async outcome => {
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})

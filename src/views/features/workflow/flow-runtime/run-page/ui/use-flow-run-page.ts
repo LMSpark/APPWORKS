@@ -180,6 +180,13 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
     if (approvalWorkspace.value?.dirty) {handleError.value = '请先确认或取消原办理参数'; return}
     if (approvalWorkspace.value?.active) approvalWorkspace.value.close()
     const own = ++generation
+    handleOpen.value = false
+    appendOpen.value = false
+    appendContext.value = null
+    chartOpen.value = false
+    chartLoading.value = false
+    chartError.value = ''
+    chartPrepared.value = null
     pageLoading.value = true
     pageError.value = ''
     prepared.value = undefined
@@ -351,12 +358,14 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
       const runtime = sparkConsume(PAGE_RUNTIME)
       if (!runtime) throw new Error('缺少页面运行实例')
       const query = routeQuery()
-      chartPrepared.value = await prepareFlowRunDetailPage({
+      const result = await prepareFlowRunDetailPage({
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
         assertCurrent: () => assertGeneration(own),
       })
+      assertGeneration(own)
+      chartPrepared.value = result
     } catch (error) {
       if (own === generation) chartError.value = error instanceof Error ? error.message : '加载流程图失败'
     } finally {

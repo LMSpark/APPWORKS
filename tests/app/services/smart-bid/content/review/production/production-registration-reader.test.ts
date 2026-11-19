@@ -30,6 +30,11 @@ it('reads the original registration, rejects a different hash and keeps an empty
  try{
   const original=await read()
   expect(original).toMatchObject({state:'REGISTERED',producedFileId:'ORIGINAL',resourceVersionId:'V1'})
+  const queryConfig=view.queryConfig
+  view.queryConfig={...queryConfig,cacheType:'page'}
+  expect(()=>original.assertCurrent()).toThrow('BID_EXPORT_REGISTRATION_STALE')
+  await expect(read()).rejects.toThrow('BID_EXPORT_REGISTRATION_VIEW_REQUIRED')
+  view.queryConfig=queryConfig
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
   const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readSelection:unused,openFile:unused,readField:unused,readDecision:unused,readCompleted:unused,

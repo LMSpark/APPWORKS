@@ -39,6 +39,7 @@ async function readRegistration(host:ContentRevisionReadHost,
  const keys=Object.keys(context),fields=[...keys,...Object.keys(match),'id','fileHash','resourceVersionId',...(signing?['signing']:[])]
  const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ProducedFile'&&
   view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+  (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
  const key=buildDataViewKey('ProducedFile',viewName,scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('BID_EXPORT_REGISTRATION_VIEW_REQUIRED')
@@ -55,6 +56,7 @@ async function readRegistration(host:ContentRevisionReadHost,
  const assertResult=view.captureReadResult(),row=view.rows[0]
  if(!row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:()=>{assertScope();assertResult()}})
  const assertRow=view.captureReadRow(row,fields)
+ assertRow()
  const {id,resourceVersionId}=row
  if(Object.entries({...context,...match}).some(([field,value])=>row[field]!==value)||!identity(id)||!identity(resourceVersionId))
   throw Error('BID_EXPORT_REGISTRATION_SCOPE')

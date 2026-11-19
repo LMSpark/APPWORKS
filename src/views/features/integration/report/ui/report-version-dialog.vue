@@ -91,10 +91,29 @@ function captureVersion(versions: DataView, row: DataRow, fields: readonly strin
   if (textOf(row, 'RptID') !== String(props.infoId)) throw new Error('版本与当前报表不一致')
   return idOf(versions, row)
 }
+function assertCompleteVersions(versions: DataView): void {
+  versions.captureReadResult()()
+  if (versions.nextPageAvailable === true || versions.countReported === true && versions.total !== versions.rows.length) {
+    throw new Error('报表版本未完整读取')
+  }
+}
 const add = () => guarded(async () => {
   assertSettled()
-  const versions = view(versionKey)
-  const active = versions.rows.find(row => isOn(row['State']))
+  const versions = view(versionKey), info = view(props.infoKey)
+  const head = info.rows.find(row => info.getPkKey(row) === props.infoId)
+  if (!head) throw new Error('该报表缺少当前正式记录')
+  info.captureReadRow(head, ['version_id'])()
+  assertCompleteVersions(versions)
+  const activeId = textOf(head, 'version_id')
+  const activeRows = versions.rows.filter(row => {
+    captureVersion(versions, row, ['State'])
+    return isOn(row['State'])
+  })
+  const active = activeRows[0]
+  if (activeRows.length > 1 || (active ? String(idOf(versions, active)) : '') !== activeId) {
+    throw new Error('报表头与启用版本不一致')
+  }
+  if (active) captureVersion(versions, active, ['isMerg', 'isDashboards'])
   const created = await versions.addRow({RptID: String(props.infoId), Version: '', State: '0',
     isMerg: isOn(active?.['isMerg']) ? '1' : '0', isDashboards: isOn(active?.['isDashboards']) ? '1' : '0'})
   editor.value = {id: idOf(versions, created), created: true, epoch: ++epoch}
@@ -128,9 +147,7 @@ const remove = (row: DataRow) => guarded(async () => {
 const activate = (row: DataRow) => guarded(async () => {
   assertSettled()
   const versions = view(versionKey), info = view(props.infoKey)
-  if (versions.nextPageAvailable === true || versions.countReported === true && versions.total !== versions.rows.length) {
-    throw new Error('报表版本未完整读取，不能启动版本')
-  }
+  assertCompleteVersions(versions)
   const id = captureVersion(versions, row, ['State', 'DataFormID'])
   for (const version of versions.rows) captureVersion(versions, version, ['State'])
   const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''

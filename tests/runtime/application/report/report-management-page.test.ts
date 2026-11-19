@@ -283,6 +283,34 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.instance.isDirty).toBe(false)
   })
 
+  it.each(['confirmed', 'mismatch'] as const)('新增版本核对启用版本配置 (%s)', async mode => {
+    const f = await open()
+    await seed(f)
+    f.http.records['Base_Report']![0]!['isMerg'] = '1'
+    f.http.records['Base_Report']![0]!['isDashboards'] = '1'
+    if (mode === 'mismatch') {
+      f.http.records['Base_ReportInfo']![0]!['version_id'] = 'V2'
+      await f.info.refresh()
+    }
+    await rowAction(f, '历史版本', infoRow(f))
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)!
+    await vi.waitFor(() => expect(versions.rows).toHaveLength(2))
+    const dialog = [...document.querySelectorAll('.el-dialog')].find(item => item.textContent?.includes('报表设计'))
+    const add = [...dialog?.querySelectorAll('button') ?? []].find(item => item.textContent?.trim() === '新增')
+    if (!add) throw new Error('缺少新增版本入口')
+    add.click()
+    await flushPromises()
+    if (mode === 'confirmed') {
+      const id = [...versions.dirtyTracking.pendingCreateIds][0]
+      if (id === undefined) throw new Error('缺少新版本草稿')
+      expect(versions.getEditingRow(id)).toMatchObject({RptID: 'R1', State: '0', isMerg: '1', isDashboards: '1'})
+    } else {
+      expect(dialog?.textContent).toContain('报表头与启用版本不一致')
+      expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
+    }
+    expect(f.http.saves).toHaveLength(0)
+  })
+
   it('历史版本刷新后拒绝编辑或删除同主键旧行', async () => {
     const f = await open()
     await seed(f)

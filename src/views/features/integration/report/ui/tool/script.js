@@ -14,3 +14,6 @@ async function editReportVersion(row) { await $page.invokeHostCommand('reports.v
 async function removeReportVersion(row) { await $page.invokeHostCommand('reports.version.remove', row) }
 async function activateReportVersion(row) { await $page.invokeHostCommand('reports.version.activate', row) }
 async function chooseReportModel(row) { await $page.invokeHostCommand('reports.model.choose', row) }
+async function addReportVersion() { await $page.invokeHostCommand('reports.version.add') }
+async function cancelReportModel() { await $page.invokeHostCommand('reports.model.cancel') }
+async function submitReportModel() { await $page.invokeHostCommand('reports.model.submit') }

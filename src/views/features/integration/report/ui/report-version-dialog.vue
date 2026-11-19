@@ -8,7 +8,7 @@
     @update:model-value="close">
     <DisplayAlert v-if="loading" alert-type="info" :closable="false" title="正在读取版本…" />
     <DisplayAlert v-if="message" alert-type="error" :closable="false" :title="message" />
-    <RendererButton v-if="ready" label="新增" button-type="primary" :disabled="busy || !!editor" @click="add" />
+    <SparkComponentRenderer v-if="ready" :config="toolbarConfig" />
     <SparkComponentRenderer v-if="ready" :config="tableConfig" />
     <FeatureRecordDialog v-if="editor" :key="editor.epoch" :data-view-key="versionKey" :record-id="editor.id" :created="editor.created"
       :title="editor.created ? '新增版本' : '编辑版本'" :specs="specs" @close="closeEditor" />
@@ -23,8 +23,8 @@ import FeatureRecordDialog from '@/views/features/shared/record/feature-record-d
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 import {isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
-const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent} = Components
-const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode}>()
+const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
+const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode; toolbarRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-version-dialog'})
 const binding = props.tableRule.props?.['dataViewKey']
@@ -63,6 +63,14 @@ onMounted(() => void guarded(async () => {
 }))
 
 const specs: readonly FeatureFieldSpec[] = [{field: 'Version', label: '版本名称', required: true}]
+const toolbarConfig = computed<SparkNode>(() => {
+  const toolbar = props.toolbarRule
+  if (!toolbar) throw new Error('报表版本缺少新增操作规则')
+  return {...toolbar, children: getSparkNodeChildren(toolbar.children).map(node => ({
+    ...node, props: {...node.props, disabled: busy.value || !!editor.value},
+  }))}
+})
+
 const tableConfig = computed<SparkNode>(() => {
   const actions = props.tableRule.props?.['actions']
   if (!actions || typeof actions !== 'object' || !('children' in actions) || !Array.isArray(actions.children)) {
@@ -163,8 +171,10 @@ const activate = (row: DataRow) => guarded(async () => {
   }
   message.value = label ? `已启动版本 ${label}` : '已启动版本'
 })
-function invoke(command: string, row: DataRow): void | Promise<void> {
-  if (busy.value || editor.value) return
+function invoke(command: string, row?: DataRow): void | Promise<void> {
+  if (busy.value || editor.value || !ready.value) return
+  if (command === 'add') return add()
+  if (!row) return
   if (command === 'edit') return edit(row)
   if (command === 'remove') return remove(row)
   if (command === 'activate') return activate(row)

@@ -12,13 +12,13 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
         <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
           <template v-if="nodeId(node) === 'reportVersions'">
             <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" ref="versionDialogs" :key="dialog.epoch" :info-key="viewKey"
-              :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
+              :info-id="dialog.infoId" :table-rule="node" :toolbar-rule="children.find(child => nodeId(child) === 'reportVersionToolbar')" @close="closeDialog" />
           </template>
           <template v-else-if="nodeId(node) === 'reportModelPicker'">
             <ReportModelDialog v-if="ready && dialog?.kind === 'model'" ref="modelDialogs" :key="dialog.epoch" :info-key="viewKey"
-              :report-key="reportKey" :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
+              :report-key="reportKey" :info-id="dialog.infoId" :table-rule="node" :footer-rule="children.find(child => nodeId(child) === 'reportModelFooter')" @close="closeDialog" />
           </template>
-          <SparkComponentRenderer v-else :config="node" />
+          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter'" :config="node" />
         </template>
         <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
           :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
@@ -145,14 +145,12 @@ const host = computed(() => {
       if (!busy.value && !dialog.value && !unconfirmed.value) await create()
       return undefined
     }
-    if (input && typeof input === 'object') {
-      const row = input as DataRow
-      if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {
-        return versionDialogs.value?.[0]?.invoke(command.slice('reports.version.'.length), row)
-      }
-      if (dialog.value?.kind === 'model' && command === 'reports.model.choose') {
-        return modelDialogs.value?.[0]?.choose(row)
-      }
+    const actionRow = input && typeof input === 'object' ? input as DataRow : undefined
+    if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {
+      return versionDialogs.value?.[0]?.invoke(command.slice('reports.version.'.length), actionRow)
+    }
+    if (dialog.value?.kind === 'model' && command.startsWith('reports.model.')) {
+      return modelDialogs.value?.[0]?.invoke(command.slice('reports.model.'.length), actionRow)
     }
     if (busy.value || dialog.value || unconfirmed.value || !input || typeof input !== 'object') return undefined
     const row = input as DataRow

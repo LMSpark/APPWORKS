@@ -10,20 +10,19 @@
     <DisplayAlert v-if="selectedName" alert-type="success" :closable="false" :title="`已选择：${selectedName}`" />
     <SparkComponentRenderer v-if="ready" :config="tableRule" />
     <template #footer>
-      <RendererButton label="取消" :disabled="busy" @click="close" />
-      <RendererButton label="确定" button-type="primary" :disabled="busy || !selectedId" @click="submit" />
+      <SparkComponentRenderer :config="footerConfig" />
     </template>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
-import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
+import {computed, onMounted, ref} from 'vue'
+import {getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
-const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent} = Components
-const props = defineProps<{infoKey: string; reportKey: string; tableRule: SparkNode; infoId: string | number}>()
+const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
+const props = defineProps<{infoKey: string; reportKey: string; tableRule: SparkNode; footerRule: SparkNode | undefined; infoId: string | number}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-model-dialog'})
 const busy = ref(false), ready = ref(false), message = ref(''), selectedId = ref(''), selectedName = ref('')
@@ -35,6 +34,13 @@ if (!pickerKey) throw new Error('模型候选列表缺少正式视图绑定')
 let originalVersion: {id: string; assertCurrent: () => void} | undefined
 let assertSelection: (() => void) | undefined
 
+const footerConfig = computed<SparkNode>(() => {
+  const footer = props.footerRule
+  if (!footer) throw new Error('模型选择缺少确认操作规则')
+  return {...footer, children: getSparkNodeChildren(footer.children).map(node => ({
+    ...node, props: {...node.props, disabled: busy.value || nodeId(node) === 'submitReportModel' && !selectedId.value},
+  }))}
+})
 function view(key: string): DataView {
   const found = sparkConsume(PAGE_RUNTIME)?.resolveView(key)
   if (!found) throw new Error(`选择模型缺少正式视图 ${key}`)
@@ -102,7 +108,12 @@ async function submit(): Promise<void> {
     }
   } finally { busy.value = false }
 }
-defineExpose({choose})
+function invoke(command: string, row?: DataRow): void | Promise<void> {
+  if (command === 'choose' && row && ready.value) return choose(row)
+  if (command === 'submit') return submit()
+  if (command === 'cancel') return close()
+}
+defineExpose({invoke})
 function close(): void {
   if (!busy.value) emit('close')
 }

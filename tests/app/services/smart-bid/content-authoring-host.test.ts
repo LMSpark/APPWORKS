@@ -287,6 +287,17 @@ it('revokes the opened draft binding when the returned author changes under the 
   expect(f.save).not.toHaveBeenCalled()
  }finally{host.close()}
 })
+it('revokes the editing binding after a formal refresh fails',async()=>{
+ const f=fixture(),host=new ContentAuthoringHost(),binding=await host.open(target)
+ try{
+  const view=f.ds.getView('WorkingDraft','personalDraft')!
+  f.queries.mockRejectedValueOnce(Error('DRAFT_QUERY_FAILED'))
+  await view.refresh()
+  expect(view.loadingError).toBeTruthy()
+  expect(()=>binding.assertCurrent()).toThrow('CONTENT_AUTHORING_STALE')
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{host.close()}
+})
 it('rejects OR scope and a route-supplied author cannot replace the authenticated author',async()=>{
  const f=fixture(),view=f.ds.getView('WorkingDraft','personalDraft')!
  view.configure({scopeFilter:{logic:'or',filters:[projectScope,{field:'userId',operator:'eq',value:param('currentUserId')}]}})

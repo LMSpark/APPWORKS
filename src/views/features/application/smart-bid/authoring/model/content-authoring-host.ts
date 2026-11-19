@@ -142,7 +142,8 @@ export class ContentAuthoringHost {
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
      ||views.length>0 && (!project||!draft||runtime.resolveView(projectKey)!==project
       ||runtime.resolveView(draftKey)!==draft||!validScope(project,draft))
-     ||loaded && (!project||!draft||!readableProject(project,target.projectId)||!readableOwnDraft(draft,target,actorUserId)))
+     ||loaded && (!project||!draft||project.loadingError||draft.loadingError||
+      !readableProject(project,target.projectId)||!readableOwnDraft(draft,target,actorUserId)))
      throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
    }
    assertCurrent()

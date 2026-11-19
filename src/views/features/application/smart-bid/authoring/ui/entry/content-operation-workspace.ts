@@ -17,7 +17,7 @@ import {recoverRegisteredOperationRouteAttempt} from '../../model/operation/cont
 import {prepareRegisteredOperationStepRework} from '../../model/operation/content-operation-rework-reader'
 
 /** 待回查试次固定的原调用清单。 */
-type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
+type OriginalManifest=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>
 /** 回查原试次使用的同一版本指南。 */
 type RecoveryGuide=Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]
 /** 按原调用证据定位精确指南版本的函数。 */
@@ -97,9 +97,10 @@ export function openContentOperationWorkspace(
    return recoverRegisteredOperationRouteAttempt(host,manifest,guide)
   },
   async recoverOriginal(attempt:Freeze[0],resolveGuide:ResolveOriginalGuide){
-   const manifest=await readRegisteredFrozenOperationContext(host,attempt)
+   const frozen=await readRegisteredFrozenOperationContext(host,attempt)
+   const {manifest}=frozen
    assertCurrent()
-   if(!manifest)return Object.freeze({state:'FROZEN_CONTEXT_REQUIRED' as const,assertCurrent})
+   if(!manifest?.usable)return Object.freeze({state:'FROZEN_CONTEXT_REQUIRED' as const,assertCurrent:frozen.assertCurrent})
    const {scope:originalScope,guideRef,guideVersionRef,guideDigest}=manifest
    const original=Object.freeze({scope:originalScope,guideRef,guideVersionRef,guideDigest})
    const guide=await readRegisteredOriginalOperationGuide(host,classModel,{rootKind,original})

@@ -11,7 +11,7 @@ import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-
 import type {readRegisteredFrozenOperationContext} from './content-operation-frozen-reader'
 
 /** 原调用冻结的工艺证据。 */
-type Frozen=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>
+type Frozen=NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>
 /** 按原调用身份读取的指南结果。 */
 type Original=Pick<Frozen,'scope'|'guideRef'|'guideVersionRef'|'guideDigest'>
 const keys=['projectId','guideRef','versionRef'] as const

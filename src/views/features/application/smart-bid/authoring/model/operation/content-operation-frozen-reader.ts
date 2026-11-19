@@ -21,7 +21,7 @@ const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ContextM
  keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
 
 /** 只读原待发摘要；不恢复发起能力，也不读取待发载荷。 */
-export async function readRegisteredFrozenOperationContext(host:ContentRevisionReadHost,input:Manifest['scope']):Promise<Manifest|undefined>{
+export async function readRegisteredFrozenOperationContext(host:ContentRevisionReadHost,input:Manifest['scope']):Promise<Readonly<{manifest?:Manifest;assertCurrent:()=>void}>>{
  const {runtime,scenarioId,projectId}=host
  host.assertCurrent()
  const scope=Object.freeze({...input})
@@ -41,7 +41,7 @@ export async function readRegisteredFrozenOperationContext(host:ContentRevisionR
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
   throw Error('OPERATION_FROZEN_READ_INCOMPLETE')
  const assertRead=view.captureReadResult(),row=view.rows[0]
- if(!row)return undefined
+ if(!row)return Object.freeze({assertCurrent:()=>{assertScope();assertRead()}})
  const rawReads=row['requirementReads']
  const hasReads=rawReads!==null&&rawReads!==undefined
  const assertRow=view.captureReadRow(row,hasReads?[...fields,'requirementReads']:fields)
@@ -58,6 +58,7 @@ export async function readRegisteredFrozenOperationContext(host:ContentRevisionR
   seen.add(fieldPath)
   requirementReads.push(Object.freeze({fieldPath,lineageId,version}))
  },'OPERATION_FROZEN_REQUIREMENT_READS')
- return Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,
+ const manifest=Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,
   requirementReads:Object.freeze(requirementReads),assertCurrent})
+ return Object.freeze({manifest,assertCurrent})
 }

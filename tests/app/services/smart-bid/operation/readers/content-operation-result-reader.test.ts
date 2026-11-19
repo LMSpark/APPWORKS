@@ -148,6 +148,11 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(withoutFrozen).toMatchObject({verification:{state:'FROZEN_CONTEXT_REQUIRED'}})
   expect(resolveGuide).toHaveBeenCalledTimes(beforeMissingFrozen)
   hasFrozen=true
+  await frozenView.refresh()
+  withoutFrozen.assertCurrent()
+  if(!('verification' in withoutFrozen)||!withoutFrozen.verification)throw Error('TEST_MISSING_CONTEXT_STATUS_REQUIRED')
+  const missingContext=withoutFrozen.verification
+  expect(()=>missingContext.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const withoutRules=createContentOperationScriptHost(scriptHost.runtime,tools,
    {...host,rootKind:'OperationRoute',resolveOriginalGuide:async()=>undefined})
   expect(await withoutRules.invoke('content.operation.readDispatch',scope,signal))

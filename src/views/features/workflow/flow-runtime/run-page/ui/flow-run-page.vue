@@ -35,12 +35,12 @@
           </aside>
         </div>
 
-        <SparkComponent.RendererDialog v-model="appendOpen" title="追加办理人" width="92vw" :append-to-body="true" :destroy-on-close="true" :close-disabled="appendCloseDisabled">
+        <SparkComponent.RendererDialog v-model="appendOpen" v-bind="dialogRule(children, 'appendDialog')?.props" :close-disabled="appendCloseDisabled">
           <FlowAppendUser v-if="appendContext && prepared" ref="appendUser" :context="appendContext" :tool-rules="children" embedded
             :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
         </SparkComponent.RendererDialog>
 
-        <SparkComponent.RendererDialog v-model="chartOpen" title="流程图" width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true">
+        <SparkComponent.RendererDialog v-model="chartOpen" v-bind="dialogRule(children, 'chartDialog')?.props">
           <SparkComponent.RendererSection :status="chartLoading ? '正在加载流程图…' : ''" :error="chartError" :bordered="false" :grid-columns="1">
             <SparkComponent.RendererGraph v-if="chartPrepared && chartRule(children)" v-bind="chartRule(children)?.props"
               :data-view-key="chartPrepared.nodeViewKey" :edge-data-view-key="chartPrepared.edgeViewKey"
@@ -231,8 +231,12 @@ function retryShell(): void {
   void retryPage(reloadFeatureRuntime)
 }
 
+function dialogRule(children: readonly SparkNode[], id: string): SparkNode | undefined {
+  return children.find(node => nodeId(node) === id && node.type === 'r-dialog')
+}
+
 function chartRule(children: readonly SparkNode[]): SparkNode | undefined {
-  return children.find(node => nodeId(node) === 'flowChart' && node.type === 'r-graph')
+  return getSparkNodeChildren(dialogRule(children, 'chartDialog')?.children).find(node => nodeId(node) === 'flowChart' && node.type === 'r-graph')
 }
 </script>
 

@@ -468,19 +468,42 @@
     ]
   },
   {
-    "id": "flowChart",
-    "type": "r-graph",
+    "id": "appendDialog",
+    "type": "r-dialog",
     "props": {
-      "class": "flow-run-page__chart",
-      "labelField": "TITLE",
-      "edgeSourceField": "UpNodeID",
-      "edgeTargetField": "NextNodeID",
-      "backgroundPattern": "dots",
-      "disabled": true,
-      "nodeBadgeRules": [
-        {"field": "runGraphBadge", "value": "waiting", "label": "待办", "tone": "warning"},
-        {"field": "runGraphBadge", "value": "completed", "label": "已完成", "tone": "success"}
-      ]
+      "title": "追加办理人",
+      "width": "92vw",
+      "appendToBody": true,
+      "destroyOnClose": true
     }
+  },
+  {
+    "id": "chartDialog",
+    "type": "r-dialog",
+    "props": {
+      "title": "流程图",
+      "width": "94vw",
+      "top": "3vh",
+      "appendToBody": true,
+      "destroyOnClose": true
+    },
+    "children": [
+      {
+        "id": "flowChart",
+        "type": "r-graph",
+        "props": {
+          "class": "flow-run-page__chart",
+          "labelField": "TITLE",
+          "edgeSourceField": "UpNodeID",
+          "edgeTargetField": "NextNodeID",
+          "backgroundPattern": "dots",
+          "disabled": true,
+          "nodeBadgeRules": [
+            {"field": "runGraphBadge", "value": "waiting", "label": "待办", "tone": "warning"},
+            {"field": "runGraphBadge", "value": "completed", "label": "已完成", "tone": "success"}
+          ]
+        }
+      }
+    ]
   }
 ]

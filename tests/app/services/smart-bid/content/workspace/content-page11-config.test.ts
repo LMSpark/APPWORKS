@@ -154,9 +154,9 @@ it('shows the original save receipt without modifying the current editor',async(
  const invokeHostCommand=vi.fn(async()=>({readOriginalSave}))
  const query={projectId:'P',draftId:'D',saveRequestKey:'Q',saveRequestDigest:'a'.repeat(64),
   saveContentDigest:'b'.repeat(64),saveExpectedDraftVersion:null}
- const {__init__,bindOriginalSave}=compileFunctions(script,{$route:{query},
+ const {__init__,bindOriginalSave,refreshOriginalSave,bindRefreshOriginalSave}=compileFunctions(script,{$route:{query},
   $page:{invokeHostCommand,resolveView}} as unknown as PageContext)
- if(!__init__||!bindOriginalSave)throw Error('TEST_PAGE11_HANDLERS_REQUIRED')
+ if(!__init__||!bindOriginalSave||!refreshOriginalSave||!bindRefreshOriginalSave)throw Error('TEST_PAGE11_HANDLERS_REQUIRED')
  const initialization=__init__()
  expect(bindOriginalSave()).toEqual({status:'正在核验原保存结果'})
  resolveReceipt()
@@ -165,6 +165,12 @@ it('shows the original save receipt without modifying the current editor',async(
  expect(readOriginalSave).toHaveBeenCalledExactlyOnceWith({requestKey:'Q',requestDigest:query.saveRequestDigest,
   contentDigest:query.saveContentDigest,expectedDraftVersion:null})
  expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC。当前草稿与原保存内容不同。'})
+ const retry=refreshOriginalSave()
+ expect(bindRefreshOriginalSave()).toEqual({visible:true,disabled:true})
+ await refreshOriginalSave()
+ await retry
+ expect(readOriginalSave).toHaveBeenCalledTimes(2)
+ expect(invokeHostCommand).toHaveBeenCalledOnce()
  receipt.comparison.localChanges=true
  expect(bindOriginalSave()).toEqual({status:'原请求已保存草稿版 V2，回执 RC。当前编辑仍有本地未保存改动。'})
  assertComparison.mockImplementation(()=>{throw Error('DRAFT_CHANGED')})

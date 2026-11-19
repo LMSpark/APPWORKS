@@ -357,6 +357,23 @@ async function __init__() {
     saveReceiptLoading = false
     return
   }
+  await readOriginalSave(query, isCurrent, generation)
+}
+
+function bindRefreshOriginalSave() {
+  return {visible: saveReceiptRequested && saveReceiptSelection?.() === true,
+    disabled: !editorSession || saveReceiptLoading}
+}
+
+async function refreshOriginalSave() {
+  const {visible, disabled} = bindRefreshOriginalSave()
+  if (!visible || disabled) return
+  saveReceiptLoading = true
+  saveReceiptError = false
+  await readOriginalSave($route.query, saveReceiptSelection, initialization)
+}
+
+async function readOriginalSave(query, isCurrent, generation) {
   const {saveRequestKey, saveRequestDigest, saveContentDigest, saveExpectedDraftVersion} = query
   try {
     const receipt = await editorSession.readOriginalSave({requestKey: saveRequestKey, requestDigest: saveRequestDigest,

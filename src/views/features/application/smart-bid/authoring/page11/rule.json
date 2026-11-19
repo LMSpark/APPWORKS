@@ -64,6 +64,9 @@
   {
     "id": "original-draft-save",
     "type": "r-section",
-    "props": {"title": "原保存结果", "onBeforeRender": "bindOriginalSave"}
+    "props": {"title": "原保存结果", "onBeforeRender": "bindOriginalSave"},
+    "children": [
+      {"type": "r-button", "props": {"label": "重查原保存结果", "onBeforeRender": "bindRefreshOriginalSave", "onClick": "refreshOriginalSave"}}
+    ]
   }
 ]

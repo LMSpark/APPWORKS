@@ -15,6 +15,11 @@ import {withTestPageService} from '../../../../../support/helpers/page-service-h
 
 const {loadScenario} = vi.hoisted(() => ({loadScenario: vi.fn()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
+// Vitest strips CSS imports by default. Pass the actual tool text to the runtime.
+vi.mock('@/views/features/workflow/flow-runtime/detail/ui/tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/workflow/flow-runtime/detail/ui/tool/style.css', 'utf8')}
+})
 
 beforeEach(() => {
   loadScenario.mockClear()
@@ -66,6 +71,10 @@ it.each([
     await flushPromises()
     expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
     if (name === 'runtime detail') {
+      const pageRoot = wrapper.get('.spark-page-container')
+      const instanceId = pageRoot.attributes('data-page')
+      expect(instanceId).toBeTruthy()
+      expect(wrapper.get('style').element.textContent).toContain(`[data-page="${instanceId}"].spark-page-container .flow-run-detail-page__graph`)
       expect(wrapper.text()).toContain('运行轨迹')
       const graph = wrapper.getComponent({name: 'RendererGraph'})
       expect(graph.props('disabled')).toBe(true)

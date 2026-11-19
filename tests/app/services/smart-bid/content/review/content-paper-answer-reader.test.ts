@@ -53,6 +53,11 @@ it('requires the exact registered copy and page before returning the original ob
    .rejects.toThrow('CONTENT_PAPER_ANSWER_SCOPE')
   const observed=await page.invoke('content.review.readPaperObservation',{selectionRef:'OBS'},controller.signal)
   expect(observed).toMatchObject({copyRef:'COPY',pageRef:'P01',observedValueJson:'"0.00"',unit:'元',evidenceRef:'SCAN'})
+  const registrationQueryConfig=paperView.queryConfig
+  paperView.queryConfig={...registrationQueryConfig,cacheType:'page'}
+  expect(()=>observed.assertCurrent()).toThrow('CONTENT_PAPER_REGISTRATION_STALE')
+  await expect(readRegisteredPaperAnswer(host,'OBS')).rejects.toThrow('CONTENT_PAPER_REGISTRATION_VIEW_REQUIRED')
+  paperView.queryConfig=registrationQueryConfig
   const showAlert=vi.fn(async()=>{})
   const invokeHostCommand=vi.fn((name:string,params:unknown)=>page.invoke(name,params,controller.signal))
   const {__init__,bindCoverage,bindObservations,openPaperObservation}=compileFunctions(script,

@@ -27,7 +27,7 @@ export function paperObservationView():ViewMetadata{
   }))}}
 }
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='AnswerLocation'&&
- view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&keys.every(([field,ParamName])=>
+ view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&view.queryConfig.cacheType==='none'&&keys.every(([field,ParamName])=>
   hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName}))
 
 /** 从正式纸件登记中取观察指定的份次和页标识。 */
@@ -42,7 +42,7 @@ export async function readPaperRegistration(host:ContentRevisionReadHost,scope:O
  const key=buildDataViewKey('ProducedFile','selectedPaperRegistration',host.scenarioId)
  const view=host.runtime.resolveView(key)
  const validRegistration=(target:DataView)=>target.dataTable?.modelBinding?.modelName==='ProducedFile'&&
-  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&Object.keys(context).every(field=>
+  target.commitMode==='staged'&&target.queryConfig.autoQuery===false&&target.queryConfig.cacheType==='none'&&Object.keys(context).every(field=>
    hasContentScopeCondition(target,field,{Type:'GetInputParam',ParamName:field}))
  if(!view||!validRegistration(view)||view.hasEditingChanges())throw Error('CONTENT_PAPER_REGISTRATION_VIEW_REQUIRED')
  view.queryContext={...view.queryContext,...context}

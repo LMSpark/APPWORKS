@@ -37,7 +37,7 @@ import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
-import {DisplayEmpty, PAGE_RUNTIME, RendererSection, SparkComponentRenderer, SparkPageRenderer, RendererTabs, RendererTabPane, useSparkComponent} from '@spark-appworks/spark-component'
+import {DisplayEmpty, RendererSection, SparkComponentRenderer, SparkPageRenderer, RendererTabs, RendererTabPane} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
@@ -65,7 +65,6 @@ const routeSnapshot = computed(() => {
   return {path, fullPath, name: name ?? null, params, query, hash}
 })
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
-const {sparkConsume} = useSparkComponent({type: 'bus-flow-detail-page'})
 const prepared = shallowRef<FlowRunPreparedPage>()
 const loading = ref(false)
 const error = ref('')
@@ -120,14 +119,14 @@ async function loadPage(): Promise<void> {
   prepared.value = undefined
   try {
     if (!runtimeReady.value) throw new Error('业务详情场景尚未就绪')
-    const runtime = sparkConsume(PAGE_RUNTIME)
+    const runtime = session.runtime
     if (!runtime) throw new Error('缺少页面运行实例')
     const query = routeQuery()
     const next = await prepareFlowRunPage({
       runtime,
       wfid: query.wfid,
       flowid: query.flowid,
-      assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原业务流程读取已失效')},
+      assertCurrent: () => {const current = routeQuery(); if (own !== generation || current.wfid !== query.wfid || current.flowid !== query.flowid || !session.isCurrent(runtime)) throw Error('原业务流程读取已失效')},
     })
     if (own !== generation) return
     prepared.value = next

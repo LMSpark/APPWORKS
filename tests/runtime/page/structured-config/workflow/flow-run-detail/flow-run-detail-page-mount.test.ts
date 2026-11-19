@@ -2,7 +2,6 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h} from 'vue'
-import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {fixture} from '../flow-design/flow-design-data.fixture'
 import type {DataSet} from '@spark-appworks/spark-data'
@@ -14,7 +13,7 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
   const {ref} = await import('vue')
   return {
     useFeaturePageRuntime: () => ({
-      session: {runtime: currentRuntime},
+      session: {runtime: currentRuntime, isCurrent: (runtime: PageRuntime) => runtime === currentRuntime},
       viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
       ready: ref(true),
       loading: ref(false),
@@ -37,7 +36,7 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   return {
     ...actual,
     RendererGraph: {name: 'RendererGraph', template: '<div data-testid="run-graph">运行图</div>', emits: ['select']},
-    RendererTable: {name: 'RendererTable', props: ['dataViewKey', 'children'], template: '<div data-testid="run-summary">摘要</div>'},
+    SparkPageRenderer: {template: '<slot name="content" :children="[]" />'},
   }
 })
 
@@ -113,7 +112,7 @@ afterEach(() => {
 })
 
 describe('flow run detail page mount', () => {
-  it('renders summary and read-only run graph when route query is provided', async () => {
+  it('renders the read-only run graph when route query is provided', async () => {
     const wrapper = mount(defineComponent({
       setup: () => () => h(withTestPageService(Host)),
     }), {
@@ -126,24 +125,5 @@ describe('flow run detail page mount', () => {
     expect(wrapper.text()).toContain('流程运行详情')
     expect(wrapper.text()).toContain('运行轨迹')
     expect(wrapper.find('[data-testid="run-graph"]').exists()).toBe(true)
-  })
-  it('header 前往办理 navigates to run page route', async () => {
-    routerPush.mockClear()
-    const wrapper = mount(defineComponent({
-      setup: () => () => h(withTestPageService(Host)),
-    }), {
-      attachTo: document.body,
-      global: {plugins: [ElementPlus, Spark.createPlugin()]},
-    })
-    wrappers.push(wrapper)
-    await flushPromises()
-    await flushPromises()
-    const button = wrapper.findAll('button').find(item => item.text().includes('前往办理'))
-    expect(button).toBeDefined()
-    await button!.trigger('click')
-    expect(routerPush).toHaveBeenCalledWith({
-      path: '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page',
-      query: {wfid: 'WF-1', flowid: 'FM-1', [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: MONITOR_SCENARIO_ID},
-    })
   })
 })

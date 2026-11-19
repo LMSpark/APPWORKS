@@ -1,0 +1,60 @@
+[
+  {
+    "id": "summary",
+    "type": "r-table",
+    "props": {
+      "class": "flow-run-detail-summary",
+      "dataViewKey": "E328FBBF518141973C575D612CD75151@View_FlowObjList@default",
+      "stripe": true,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-text",
+        "props": {
+          "field": "TITLE",
+          "label": "流程标题",
+          "readonly": true,
+          "minWidth": 220
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "AppDesc",
+          "label": "应用名称",
+          "readonly": true,
+          "minWidth": 160
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "status",
+          "label": "状态",
+          "readonly": true,
+          "minWidth": 120,
+          "optionDataViewKey": "E328FBBF518141973C575D612CD75151@Dict_state@default"
+        }
+      },
+      {
+        "type": "r-text",
+        "props": {
+          "field": "handleInfo",
+          "label": "办理信息",
+          "readonly": true,
+          "minWidth": 200
+        }
+      }
+    ]
+  },
+  {
+    "id": "openRun",
+    "type": "r-button",
+    "props": {
+      "label": "前往办理",
+      "buttonType": "primary",
+      "onClick": "openRun"
+    }
+  }
+]

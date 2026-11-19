@@ -4,73 +4,85 @@
 边界：消费监控场景与伙伴设计场景；不含强退与办理写入。
 -->
 <template>
-  <RendererSection class="flow-run-detail-page" title="流程运行详情" :bordered="false" :grid-columns="1" :grid-gap="12"
-    :status="loading || graphLoading ? '正在读取运行详情…' : ''"
-    :error="error || graphError" :retryable="!loading && !graphLoading && (!ready || !graphReady)" @retry="retryLoad">
-    <template v-if="ready && canOpenRun" #header-actions>
-      <RendererButton label="前往办理" button-type="primary" @click="openRunPage" />
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
+    <template #content="{children}">
+      <RendererSection class="flow-run-detail-page" title="流程运行详情" :bordered="false" :grid-columns="1" :grid-gap="12"
+        :status="loading || graphLoading ? '正在读取运行详情…' : ''"
+        :error="error || graphError" :retryable="!loading && !graphLoading && (!ready || !graphReady)" @retry="retryLoad">
+        <template v-if="ready && canOpenRun" #header-actions>
+          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'openRun')" key="openRun" :config="node" />
+        </template>
+        <DisplayAlert v-if="ready" alert-type="info" :closable="false" :show-icon="true"
+          :title="`实例 ${routeQuery.wfid} · 模型 ${routeQuery.flowid}`" />
+        <template v-if="ready">
+          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'summary')" key="summary" :config="node" />
+        </template>
+        <RendererSection v-if="ready" title="运行轨迹" :bordered="true" :grid-columns="1" :grid-gap="8">
+          <div class="flow-run-detail-page__legend">
+            <DisplayText text="已完成（绿徽标）· 待办（橙徽标）· 只读预览" />
+          </div>
+          <RendererGraph v-if="graphReady && prepared" class="flow-run-detail-page__graph"
+            :data-view-key="prepared.nodeViewKey" :edge-data-view-key="prepared.edgeViewKey"
+            label-field="TITLE" description-field="MEMO" node-caption-field="TYPEID"
+            edge-source-field="UpNodeID" edge-target-field="NextNodeID"
+            :node-positions="prepared.graphLayout.nodePositions" :edge-paths="prepared.graphLayout.edgePaths"
+            :node-badge-rules="nodeBadgeRules" background-pattern="dots" node-appearance="card"
+            :viewport-controls="true" :disabled="true" @select="onGraphSelect" />
+          <DisplayAlert v-else-if="ready && !graphLoading" alert-type="info" :closable="false" :show-icon="true"
+            title="运行图尚未加载。" />
+        </RendererSection>
+        <RendererDialog v-model="nodeDialogOpen" :title="nodeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
+          <FieldCheckbox v-model="nodeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
+          <RendererTabs v-model="nodeActiveTab">
+            <RendererTabPane name="received" label="提交到当前节点" :index="0" lazy>
+              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :received-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
+            </RendererTabPane>
+            <RendererTabPane name="sent" label="当前节点提交的" :index="1" lazy>
+              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
+            </RendererTabPane>
+            <RendererTabPane name="all" label="所有信息" :index="2" lazy>
+              <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="nodeShowVoided" />
+            </RendererTabPane>
+          </RendererTabs>
+        </RendererDialog>
+        <RendererDialog v-model="edgeDialogOpen" :title="edgeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
+          <FieldCheckbox v-model="edgeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
+          <RendererTabs v-model="edgeActiveTab">
+            <RendererTabPane name="edge" label="连线步骤" :index="0" lazy>
+              <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="edgeSourceId" :received-node-id="edgeTargetId" :show-voided="edgeShowVoided" />
+            </RendererTabPane>
+            <RendererTabPane name="all" label="所有信息" :index="1" lazy>
+              <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="edgeShowVoided" />
+            </RendererTabPane>
+          </RendererTabs>
+        </RendererDialog>
+      </RendererSection>
     </template>
-    <DisplayAlert v-if="ready" alert-type="info" :closable="false" :show-icon="true"
-      :title="`实例 ${routeQuery.wfid} · 模型 ${routeQuery.flowid}`" />
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="columns" :stripe="true" :show-data-view-meta="false" />
-    <RendererSection v-if="ready" title="运行轨迹" :bordered="true" :grid-columns="1" :grid-gap="8">
-      <div class="flow-run-detail-page__legend">
-        <DisplayText text="已完成（绿徽标）· 待办（橙徽标）· 只读预览" />
-      </div>
-      <RendererGraph v-if="graphReady && prepared" class="flow-run-detail-page__graph"
-        :data-view-key="prepared.nodeViewKey" :edge-data-view-key="prepared.edgeViewKey"
-        label-field="TITLE" description-field="MEMO" node-caption-field="TYPEID"
-        edge-source-field="UpNodeID" edge-target-field="NextNodeID"
-        :node-positions="prepared.graphLayout.nodePositions" :edge-paths="prepared.graphLayout.edgePaths"
-        :node-badge-rules="nodeBadgeRules" background-pattern="dots" node-appearance="card"
-        :viewport-controls="true" :disabled="true" @select="onGraphSelect" />
-      <DisplayAlert v-else-if="ready && !graphLoading" alert-type="info" :closable="false" :show-icon="true"
-        title="运行图尚未加载。" />
-    </RendererSection>
-    <RendererDialog v-model="nodeDialogOpen" :title="nodeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-      <FieldCheckbox v-model="nodeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
-      <RendererTabs v-model="nodeActiveTab">
-        <RendererTabPane name="received" label="提交到当前节点" :index="0" lazy>
-          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :received-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
-        </RendererTabPane>
-        <RendererTabPane name="sent" label="当前节点提交的" :index="1" lazy>
-          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="selectedNodeId" :show-voided="nodeShowVoided" />
-        </RendererTabPane>
-        <RendererTabPane name="all" label="所有信息" :index="2" lazy>
-          <FlowRunDetailStepTable v-if="nodeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="nodeShowVoided" />
-        </RendererTabPane>
-      </RendererTabs>
-    </RendererDialog>
-    <RendererDialog v-model="edgeDialogOpen" :title="edgeDialogTitle" :width="960" :append-to-body="true" :destroy-on-close="true">
-      <FieldCheckbox v-model="edgeShowVoided" checkbox-text="显示作废信息" class="flow-run-detail-page__voided" />
-      <RendererTabs v-model="edgeActiveTab">
-        <RendererTabPane name="edge" label="连线步骤" :index="0" lazy>
-          <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :sent-node-id="edgeSourceId" :received-node-id="edgeTargetId" :show-voided="edgeShowVoided" />
-        </RendererTabPane>
-        <RendererTabPane name="all" label="所有信息" :index="1" lazy>
-          <FlowRunDetailStepTable v-if="edgeDialogOpen && prepared" :view-key="prepared.stepViewKey" :show-voided="edgeShowVoided" />
-        </RendererTabPane>
-      </RendererTabs>
-    </RendererDialog>
-  </RendererSection>
+  </SparkPageRenderer>
+  <RendererSection v-else title="流程运行详情" :bordered="false" :status="loading ? '正在读取运行详情…' : ''"
+    :error="error" :retryable="!loading" @retry="retryLoad" />
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
+import {nodeId} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import rule from './tool/rule.json?raw'
+import script from './tool/script.js?raw'
+import style from './tool/style.css?raw'
 import * as SparkComponent from '@spark-appworks/spark-component'
 
 const {
   DisplayAlert,
   DisplayText,
   FieldCheckbox,
-  RendererButton,
   RendererDialog,
   RendererGraph,
   RendererSection,
   RendererTabPane,
-  RendererTable,
+  SparkComponentRenderer,
+  SparkPageRenderer,
   RendererTabs,
   consumeRequiredPageService,
   useSparkComponent,
@@ -87,9 +99,13 @@ import {parseApplicationPathScope} from '@/services/application-scope'
 import FlowRunDetailStepTable from './flow-run-detail-step-table.vue'
 import {useFlowRunDetailPage} from './use-flow-run-detail-page'
 
-const scenarioId = 'E328FBBF518141973C575D612CD75151'
+const scenarioId = FLOW_MONITOR_SCENARIO_ID
 const route = useRoute()
 const router = useRouter()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
 const {sparkConsume} = useSparkComponent({type: 'flow-run-detail-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'flow-run-detail-page')
 const routeQuery = computed(() => readFlowRuntimeRouteQuery(route.query))
@@ -111,8 +127,16 @@ function openRunPage(): void {
     void pageService.showMessage(message, 'warning')
   }
 }
-const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
+const {session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   navigationId: FLOW_MONITOR_SCENARIO_ID,
   modelName: 'View_FlowObjList',
   componentType: 'flow-run-detail-page',
@@ -127,13 +151,18 @@ const {
   selectedNodeId, edgeSourceId, edgeTargetId, onGraphSelect, reloadGraph,
 } = useFlowRunDetailPage(() => routeQuery.value, () => ready.value ? session.runtime : undefined)
 
-const stateKey = buildDataViewKey('Dict_state', 'default', scenarioId)
-const columns: SparkNode[] = [
-  {type: 'r-text', props: {field: 'TITLE', label: '流程标题', readonly: true, minWidth: 220}},
-  {type: 'r-text', props: {field: 'AppDesc', label: '应用名称', readonly: true, minWidth: 160}},
-  {type: 'r-select', props: {field: 'status', label: '状态', readonly: true, minWidth: 120, optionDataViewKey: stateKey}},
-  {type: 'r-text', props: {field: 'handleInfo', label: '办理信息', readonly: true, minWidth: 200}},
-]
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(current)) throw Error('流程运行详情实例已失效')
+  }
+  return {runtime: current, assertCurrent, invoke(command: string) {
+    assertCurrent()
+    if (command === 'workflow.openRun' && canOpenRun.value) openRunPage()
+  }}
+})
 
 async function retryLoad(): Promise<void> {
   await loadCurrentRoute()

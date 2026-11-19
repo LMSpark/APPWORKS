@@ -1,7 +1,7 @@
 import {afterEach, expect, it, vi} from 'vitest'
 import {flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
-import {PAGE_RUNTIME, Spark, useSparkComponent} from '@spark-appworks/spark-component'
+import {Spark} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSet} from '@spark-appworks/spark-data'
 import {prepareFlowRunDetailPage, type FlowRunDetailPreparedPage} from '@/lowcode/resources/system/workflow/manage'
@@ -27,9 +27,11 @@ it.each([
   const available = ref(true), runtime = new PageRuntime({pageId: 'pending-detail', scenarioIds: [],
     loadScenario: async () => DataSet.fromJson({scenarioId: 'unused', tables: {}})})
   let state!: ReturnType<typeof useFlowRunDetailPage>
-  const Probe = defineComponent({setup() {state = useFlowRunDetailPage(() => ({wfid: 'WF', flowid: 'FM'}), () => available.value); return () => h('div')}})
-  const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'pending-detail-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(Probe)}})
-  const wrapper = mount(Host, {global: {plugins: [Spark.createPlugin()]}})
+  const Probe = defineComponent({setup() {
+    state = useFlowRunDetailPage(() => ({wfid: 'WF', flowid: 'FM'}), () => available.value ? runtime : undefined)
+    return () => h('div')
+  }})
+  const wrapper = mount(Probe, {global: {plugins: [Spark.createPlugin()]}})
   try {
     expect(state.graphLoading.value).toBe(true)
     state.nodeDialogOpen.value = true

@@ -65,6 +65,15 @@ it.each([
       const graph = wrapper.getComponent({name: 'RendererGraph'})
       expect(graph.props('dataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_FLOW_NODE@default`)
       expect(graph.props('edgeDataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_NODE_REALATION@default`)
+      expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@View_FlowObjList@default`)
+      const destination = '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'
+      router.addRoute({path: destination, component: {render: () => null}})
+      const button = wrapper.findAll('button').find(item => item.text() === '前往办理')
+      expect(button).toBeDefined()
+      await button!.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.path).toBe(destination)
+      expect(router.currentRoute.value.query).toMatchObject({...query, [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: FLOW_MONITOR_SCENARIO_ID})
       return
     }
     if (name === 'workflow run') {

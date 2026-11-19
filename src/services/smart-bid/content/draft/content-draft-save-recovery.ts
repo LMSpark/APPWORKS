@@ -23,14 +23,14 @@ export async function readOriginalContentDraftSave(input:Request,source:Readonly
  const {projectId,draftId,authorId,requestKey,requestDigest,expectedDraftVersion,contentDigest}=input
  const error='CONTENT_DRAFT_SAVE_RECEIPT_SCOPE'
  if(![projectId,draftId,authorId,requestKey].every(identity)||expectedDraftVersion!==null&&!identity(expectedDraftVersion)||
-  ![requestDigest,contentDigest].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error(error)
+  ![requestDigest,contentDigest].every(value=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)))throw Error(error)
  const request=Object.freeze({projectId,draftId,authorId,requestKey,requestDigest,expectedDraftVersion,contentDigest})
  const receipt=await source.lookup(request)
  const assertCurrent=()=>{source.assertCurrent();receipt?.assertCurrent()}
  assertCurrent()
  if(!receipt)return Object.freeze({state:'UNKNOWN' as const,assertCurrent})
  const fields=['projectId','draftId','authorId','requestKey','requestDigest','expectedDraftVersion','contentDigest'] as const
- if(fields.some(field=>receipt[field]!==request[field]))throw Error(error)
+ if(!['SAVED','NOT_SAVED','UNKNOWN'].includes(receipt.state)||fields.some(field=>receipt[field]!==request[field]))throw Error(error)
  if(receipt.state==='UNKNOWN')return Object.freeze({state:receipt.state,assertCurrent})
  if(receipt.state==='NOT_SAVED'){
   if(!identity(receipt.terminalRef))throw Error(error)

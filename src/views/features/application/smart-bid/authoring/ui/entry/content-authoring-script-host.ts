@@ -107,7 +107,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
    }
    return Object.freeze({assertCurrent,
     get canLeave(){return commands.canLeave},
-    get canCancel(){return commands.canCancel},
+    get canCancel(){return !signal.aborted&&commands.canCancel},
     get canEditDraft(){
      assertCurrent()
      const view=binding.runtime.resolveView(binding.dataViewKey)

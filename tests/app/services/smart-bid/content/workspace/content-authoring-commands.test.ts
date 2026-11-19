@@ -217,8 +217,11 @@ it('connects the script only to original actions and rejects expired render call
   expect(f.runtime.isDirty).toBe(true);expect(()=>addDocument.onClick()).toThrow('CONTENT_COMMAND_STALE')
   session.cancel();expect(f.runtime.isDirty).toBe(false)
   const next=session.actionProps('新增逻辑册',null)
+  next.onClick();expect(session.canCancel).toBe(true)
   controller.abort();expect(()=>next.onClick()).toThrow('CONTENT_PAGE_RENDER_STALE')
-  expect(f.view.hasEditingChanges()).toBe(false);expect(f.save).not.toHaveBeenCalled()
+  expect(session.canCancel).toBe(false)
+  expect(()=>session.cancel()).toThrow('CONTENT_PAGE_RENDER_STALE')
+  expect(f.view.hasEditingChanges()).toBe(true);expect(f.save).not.toHaveBeenCalled()
  }finally{f.runtime.dispose()}
 })
 it('keeps the original pending input dirty and rejects selection until explicit cancellation',async()=>{

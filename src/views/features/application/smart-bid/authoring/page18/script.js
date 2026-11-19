@@ -180,7 +180,7 @@ async function openVerifiedCandidate() {
 
 function bindRework() {
   const {runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
-  return {disabled: dispatchLoading || reworkPending ||
+  return {disabled: dispatchIsCurrent?.() !== true || dispatchLoading || reworkPending ||
     ![runId, attemptRef, requestKey].every(value => typeof value === 'string' && value && value.trim() === value) ||
     ![targetDigest, configurationLockHash].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value))}
 }

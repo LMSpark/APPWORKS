@@ -45,6 +45,9 @@ it('rechecks the same original dispatch without starting another attempt',async(
  expect(showAlert).toHaveBeenCalledWith('原指南','动作指南')
  expect(invokeHostCommand).toHaveBeenCalledTimes(3)
  expect(invokeHostCommand.mock.calls[2]).toEqual(invokeHostCommand.mock.calls[0])
+ expect(bindRework()).toEqual({disabled:false})
+ query.projectId='OTHER'
+ expect(bindRework()).toEqual({disabled:true})
 })
 
 it('binds the original directory and never displays a superseded row response',async()=>{
@@ -117,9 +120,12 @@ it('prepares rework from the route attempt and a confirmed reason',async()=>{
  const showPrompt=vi.fn<()=>Promise<string|null>>().mockResolvedValueOnce(null).mockResolvedValueOnce('撤回结果未知')
  const invokeHostCommand=vi.fn(async()=>({assertCurrent,handoffs:[{callRef:'CALL',destination:'ORIGINAL_CALL'}],
   originalOperations:[{callRef:'CALL',destination:'52',ownerRef:'REP'}],reusable:[]}))
- const {prepareRework,bindRework}=compileFunctions(script,{$route:{query},
+ const {__init__,prepareRework,bindRework}=compileFunctions(script,{$route:{query},
   $page:{showPrompt,invokeHostCommand,showAlert,showMessage}} as unknown as PageContext)
- if(!prepareRework||!bindRework)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
+ if(!__init__||!prepareRework||!bindRework)throw Error('TEST_PAGE18_HANDLERS_REQUIRED')
+ expect(bindRework()).toEqual({disabled:true})
+ await __init__()
+ invokeHostCommand.mockClear()
  expect(bindRework()).toEqual({disabled:false})
  await prepareRework()
  expect(invokeHostCommand).not.toHaveBeenCalled()
@@ -131,9 +137,12 @@ it('prepares rework from the route attempt and a confirmed reason',async()=>{
  showPrompt.mockImplementationOnce(async()=>{query.attemptRef='OTHER';return '只属于原试次'})
  await prepareRework()
  expect(invokeHostCommand).toHaveBeenCalledTimes(1)
+ expect(bindRework()).toEqual({disabled:true})
+ query.attemptRef='A'
  showPrompt.mockImplementationOnce(async()=>{query.configurationLockHash='c'.repeat(64);return '只属于原冻结配置'})
  await prepareRework()
  expect(invokeHostCommand).toHaveBeenCalledTimes(1)
+ query.configurationLockHash='b'.repeat(64)
  showPrompt.mockResolvedValueOnce('当前试次返工')
  invokeHostCommand.mockImplementationOnce(async()=>{query.runId='OTHER';throw Error('OLD_REWORK')})
  await prepareRework()

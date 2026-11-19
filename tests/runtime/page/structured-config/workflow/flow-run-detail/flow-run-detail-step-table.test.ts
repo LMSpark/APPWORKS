@@ -97,3 +97,28 @@ it('queries sent, edge and all-step scopes through the same original source', as
   expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
   expect(wrapper.text()).toContain('scenarioId@modelName@viewId')
 })
+
+it('keeps the current drilldown after an older node query completes late', async () => {
+  const {runtime, source, http, wrapper, options} = await fixture()
+  let releaseOldQuery!: () => void
+  const pending = new Promise<void>(resolve => { releaseOldQuery = resolve })
+  http.beforeDefinitionRead = async () => {
+    delete http.beforeDefinitionRead
+    await pending
+  }
+  const reads = http.reads.length
+  options.showVoided = true
+  await flushPromises()
+  expect(http.reads).toHaveLength(reads + 1)
+  delete options.receivedNodeId
+  options.sentNodeId = 'N1'
+  await flushPromises()
+  const key = wrapper.getComponent(RendererTable).props('dataViewKey') as string
+  const current = runtime.resolveView(key)
+  expect(current?.rows.map(row => row['rowid'])).toEqual(['C'])
+  releaseOldQuery()
+  await flushPromises()
+  expect(runtime.resolveView(key)).toBe(current)
+  expect(current?.rows.map(row => row['rowid'])).toEqual(['C'])
+  expect(source.rows.map(row => row['rowid'])).toEqual(['A', 'B', 'C'])
+})

@@ -23,6 +23,8 @@ it('keeps actual input hidden behind field access while the original digest rema
  const host={runtime:{resolveView:(key:string)=>key==='S@ContextManifest@originalDispatch'?view:undefined},
   scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
+  await expect(readRegisteredOperationDispatch(host,{...scope,configurationLockHash:''})).rejects.toThrow('OPERATION_DISPATCH_READ_SCOPE')
+  expect(view.queryContext).not.toHaveProperty('requestKey')
   expect((await readRegisteredOperationDispatch(host,scope)).state).toBe('UNKNOWN')
   rows=[original]
   const result=await readRegisteredOperationDispatch(host,scope)

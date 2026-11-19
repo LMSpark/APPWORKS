@@ -28,7 +28,7 @@
           </section>
           <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
           <aside v-if="handleOpen" class="flow-run-page__handle">
-            <SparkComponentRenderer v-for="node in approvalSections(children)" :key="nodeId(node)" :config="node" />
+            <SparkComponentRenderer v-for="node in approvalSections(children)" key="approvalSection" :config="node" />
           </aside>
         </div>
 
@@ -37,7 +37,7 @@
             :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
         </SparkComponent.RendererDialog>
 
-        <SparkComponentRenderer v-for="node in chartDialogs(children)" :key="nodeId(node)" :config="node" />
+        <SparkComponentRenderer v-for="node in chartDialogs(children)" key="chartDialog" :config="node" />
       </SparkComponent.RendererSection>
     </template>
   </SparkPageRenderer>

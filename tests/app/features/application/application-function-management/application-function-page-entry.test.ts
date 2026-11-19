@@ -309,7 +309,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     blueprintWorkspaceDataView: shallowRef(owner), blueprintPageRuntime: shallowRef(runtime),
     selectedNode, externalDataViewRevision: revision,
     activePageId: ref(''), projectRevision: ref(0), aiToolApprovalPending: ref([]),
-    hasPendingBlueprintWrite: () => false, allSaving: ref(false), pageIoBusy: ref(false),
+    hasPendingBlueprintWrite: () => false, hasUnconfirmedBlueprintWrite: () => false, allSaving: ref(false), pageIoBusy: ref(false),
     persistedDataSpaceId: computed(() => conidOf(field => owner.row?.[field]) ?? ''),
     sceneBindingPending: computed(() => {
       const raw = conidOf(field => owner.row?.[field])
@@ -491,6 +491,14 @@ describe('application function page entry', () => {
     const tree = owner.treeProjection()
     expect(tree.nodeId).toBe('NODE-1')
     expect(JSON.stringify(tree)).not.toContain('NODE-ORPHAN')
+  })
+
+  it('appends a moved node under another parent without renumbering the published sibling', async () => {
+    fixtureState.patchRows = rows => {rows[1]!['FunOrderValue'] = 10}
+    const {owner, view} = await setup()
+    await owner.moveNodeRelative({nodeId:'NODE-3', targetNodeId:'NODE-2', position:'after'})
+    expect(view.getEditingPatch('NODE-2')).toBeUndefined()
+    expect(view.getEditingPatch('NODE-3')).toEqual({prowid:'NODE-1', FunOrderValue:11})
   })
 
   it('queues a structural refresh behind an in-flight lazy expand so expanded children survive', async () => {

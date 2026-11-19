@@ -206,7 +206,7 @@ describe('data-code list page', () => {
     wrapper.unmount()
   })
 
-  it('keeps an unknown save open until formal readback confirms it without replaying the write', async () => {
+  it('keeps the editor open when the original save receipt is unavailable', async () => {
     const {wrapper} = await openList()
     await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
     await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click'); await flushPromises()
@@ -222,10 +222,10 @@ describe('data-code list page', () => {
     expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true)
     expect(http.saves).toHaveLength(1)
     await editor.findAll('button').find(b => b.text() === '核验保存结果')!.trigger('click')
-    await vi.waitFor(() => expect(editor.find('[role="alert"]').exists() ? editor.find('[role="alert"]').text() : '').toBe(''))
-    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    await vi.waitFor(() => expect(editor.find('[role="alert"]').text()).toContain('SPARK_SAVE_UNVERIFIABLE'))
+    expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true)
     expect(http.saves).toHaveLength(1)
-    expect(wrapper.getComponent(RendererTable).text()).toContain('待核实名称')
+    expect((name.get('input').element as HTMLInputElement).value).toBe('待核实名称')
     wrapper.unmount()
   })
 

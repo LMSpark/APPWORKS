@@ -1,5 +1,5 @@
 import {expect, it, vi} from 'vitest'
-import {DataSet, ensureDataSetResourceView, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
+import {DataSet, RequestState, ensureDataSetResourceView, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
 import {createFlowRunOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/options-binding'
 it('queries options through a readonly view without widening an empty candidate list', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})
@@ -20,7 +20,12 @@ it('queries options through a readonly view without widening an empty candidate 
     view.queryContext = {...view.queryContext, stepId: 'S2'}
     release?.()
     await pending
-    expect(view.loadingError?.message).toContain('输入已变化')
+    expect(view.requestState).toBe(RequestState.Idle)
+    expect(view.loadingError).toBeNull()
     expect(view.rows[0]?.['payload']).not.toMatchObject({nextNodes: [{rowid: 'OLD'}]})
+    await view.refresh()
+    expect(view.requestState).toBe(RequestState.Loaded)
+    expect(read).toHaveBeenLastCalledWith({modelId: 'FM1', stepId: 'S2', busRowId: 'B1', formid: 'F1'})
+    expect(view.rows[0]?.['payload']).toMatchObject({execUser: [{userList: []}]})
   } finally {ds.destroy()}
 })

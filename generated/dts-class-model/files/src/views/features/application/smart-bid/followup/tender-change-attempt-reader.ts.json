@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-change-attempt-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-change-attempt-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：按原正文基版枚举有记录的工艺试次，供动作23逐次追查。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T02:09:43.333Z",
+  "models": {}
+}

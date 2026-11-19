@@ -139,7 +139,10 @@ describe('array field references follow formal field identity',()=>{
   it('verifies a lost receipt without repeating the field and reference batch',async()=>{
     const {f,owner,rename,writes}=await setup();await rename({F1:'id'});f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toBe(true);expect(writes()).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
   })
   it('keeps partial field writes unresolved and does not repair references by replaying',async()=>{
     const {f,owner,rename,writes}=await setup({omitFieldProperties:['Name']});await rename({F1:'id'})

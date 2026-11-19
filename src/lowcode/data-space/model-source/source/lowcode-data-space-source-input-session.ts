@@ -297,7 +297,11 @@ export function sourceInputPrepareReloadBatch(owners: readonly SourceInputHandle
       hosts.forEach(owner => {delete owner.recoveryCapture})
       await readbackHost(first)
       hosts.forEach(owner => {owner.baseline = sourceInputRow(owner, false)['ValueFun']; owner.flow.status = 'idle'})
-    } catch (cause) {hosts.forEach(owner => {owner.flow.status = 'readback'}); throw cause}
+    } catch (cause) {
+      const status = capture?.targets.some(target => target.view.hasUnconfirmedSave) ? 'unknown' : 'readback'
+      hosts.forEach(owner => {owner.flow.status = status})
+      throw cause
+    }
   }
 }
 

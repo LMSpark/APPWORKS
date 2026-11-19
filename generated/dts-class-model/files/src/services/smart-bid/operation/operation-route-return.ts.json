@@ -98,9 +98,17 @@
         "targetDigest",
         "configurationLockHash"
       ]
+    },
+    "CandidateIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CandidateIssue",
+      "enum": [
+        "DISPATCH_CATALOG_REQUIRED",
+        "OUTSIDE_DISPATCH_CATALOG"
+      ]
     }
   },
-  "generatedAt": "2026-11-18T06:42:36.855Z",
+  "generatedAt": "2026-11-19T02:24:04.313Z",
   "models": {
     "Scope": {
       "name": "Scope",
@@ -197,6 +205,25 @@
             }
           ]
         }
+      }
+    },
+    "CandidateIssue": {
+      "name": "CandidateIssue",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'DISPATCH_CATALOG_REQUIRED' | 'OUTSIDE_DISPATCH_CATALOG'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'DISPATCH_CATALOG_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'OUTSIDE_DISPATCH_CATALOG'"
+          }
+        ],
+        "members": {}
       }
     }
   }

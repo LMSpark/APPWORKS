@@ -247,11 +247,12 @@ export function useDevState() {
   }
   function hasPendingPageFileViews(dataSet:DataSet):boolean{return pendingPageToolFileTargets(dataSet).length>0}
   function hasUnconfirmedPageFileViews(dataSet:DataSet):boolean{return dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.viewId!=='default'&&view.hasUnconfirmedSave)===true}
-  async function savePendingPageFiles(dataSet:DataSet):Promise<void>{
+  async function savePendingPageFiles(dataSet:DataSet, verifyOnly = false):Promise<void>{
     const table=dataSet.getTable(PAGE_FILE_TABLE)
     if(!table)throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile DataTable 缺失')
     for(const view of table.viewList){
-      if(view.viewId==='default'||!view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave)continue
+      if(view.viewId==='default'||(verifyOnly ? !view.hasUnconfirmedSave
+        : !view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave))continue
       const result=await dataSet.saveChanges({views:[{tableName:PAGE_FILE_TABLE,viewId:view.viewId}]})
       if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存失败')
       if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
@@ -1072,6 +1073,33 @@ export function useDevState() {
       || activeOwnerBundle?.workspace.hasPendingScenarioVersionAttempt === true
       || hasUnknownScenarioHistoryAttempt()
   }
+  function hasUnconfirmedBlueprintWrite(): boolean {
+    const owner = blueprintWorkspaceDataView.value
+    return !!pendingMountedPageDelete || !!pendingPageBindingCreate || owner?.hasPendingBlueprintCommand === true
+      || (owner !== undefined && hasUnconfirmedPageFileViews(owner.dataSet))
+  }
+
+  /** 只核验已捕获的提交或续办原命令。普通编辑仍由其保存入口处理。 */
+  async function verifyUnconfirmedBlueprintWrites(): Promise<void> {
+    const owner = blueprintWorkspaceDataView.value
+    if (!owner || allSaving.value || pageIoBusy.value || blueprintSaving.value || !hasUnconfirmedBlueprintWrite()) return
+    allSaving.value = true
+    try {
+      if (pendingMountedPageDelete) await completePendingMountedPageDelete()
+      else if (pendingPageBindingCreate) await resumePendingPageBindingCreate()
+      else if (owner.hasPendingBlueprintCommand) await owner.save()
+      else await savePendingPageFiles(owner.dataSet, true)
+      if (blueprintWorkspaceDataView.value === owner) {
+        refreshBlueprintTreeProjection()
+        addStatus('原提交已确认', 'success')
+      }
+    } catch (error) {
+      addStatus(`原提交仍待核验：${String(error)}`, 'error')
+    } finally {
+      allSaving.value = false
+      notifyExternalDataViewChanged()
+    }
+  }
 
   const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
   const scenarioDefinitionRevision = ref(0)
@@ -1713,7 +1741,7 @@ export function useDevState() {
       const tree=await owner.loadProjectTree()
       if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建期间项目或节点已切换')
       const targetExists=(items:readonly ProjectBlueprintDomain.ProjectBlueprintTreeNodeData[]):boolean=>items.some(item=>
-        item.navigation?.target===`cfg:${pageId}`||item.children!==undefined&&targetExists(item.children))
+        resolvePageNodePageId(item)===pageId||item.children!==undefined&&targetExists(item.children))
       if(targetExists(tree.children)||project.findPageTool(pageId))throw new Error(`工具页面 ${pageId} 已存在，不能重复创建`)
       if(owner.nodeId!==selected.nodeId)await owner.load(selected.nodeId)
       if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建期间项目或节点已切换')
@@ -2079,6 +2107,8 @@ export function useDevState() {
     isPageToolFileDirty,
     hasAnyDirty,
     hasPendingBlueprintWrite,
+    hasUnconfirmedBlueprintWrite,
+    verifyUnconfirmedBlueprintWrites,
     registerExternalDataViewSession,
     notifyExternalDataViewChanged,
     moveBlueprintNodeInDataView,

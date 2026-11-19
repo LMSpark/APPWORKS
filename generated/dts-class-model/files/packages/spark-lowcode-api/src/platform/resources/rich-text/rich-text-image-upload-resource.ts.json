@@ -68,8 +68,7 @@
           "type": "object",
           "properties": {
             "file": {
-              "type": "object",
-              "title": "File"
+              "$ref": "../../../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
             }
           },
           "additionalProperties": false

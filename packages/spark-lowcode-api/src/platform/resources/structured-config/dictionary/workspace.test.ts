@@ -520,9 +520,17 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.requiresVerification).toBe(true)
     await expect(workspace.saveData()).rejects.toThrow()
     expect(http.saves).toHaveLength(1)
-    await workspace.load(true)
-    expect(workspace.entries.rows[0]!['exVal_4']).toBe('已写但回执丢失')
-    expect(workspace.pending).toBe(false)
+    const reads = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(http.reads).toHaveLength(reads)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    expect(workspace.pending).toBe(true)
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows).toMatchObject([{...initialEntry, exVal_4: '已写但回执丢失'}])
+    } finally {reopened.dataSet.destroy()}
+    expect(http.saves).toHaveLength(1)
     dataSet.destroy()
   })
   it('does not let an ordinary discard-and-reload erase a partially applied original capture', async () => {
@@ -536,14 +544,21 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.hasUnconfirmedSave).toBe(true)
     http.failAfterWrite = false
 
-    await expect(workspace.load(true)).rejects.toThrow(/部分生效|无法按主键核验/)
+    const reads = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
 
     expect(http.saves).toHaveLength(1)
     expect(workspace.entries.hasUnconfirmedSave).toBe(true)
     expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
-    expect(http.reads).toHaveLength(3)
+    expect(http.reads).toHaveLength(reads)
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows).toMatchObject([{rowid: 'E1', exVal_1: '新值一', exVal_2: '基础'}])
+      expect(workspace.entries.getEditingRow('E1')).toMatchObject({exVal_1: '新值一', exVal_2: '新值二'})
+    } finally {reopened.dataSet.destroy()}
     dataSet.destroy()
   })
   it('fails closed on dictionary deletion without complete global reference coverage', async () => {
@@ -585,7 +600,7 @@ describe('Dictionary resource through formal DataViews', () => {
         expect(http.saves).toHaveLength(0)
       } finally {dataSet.destroy()}
     })
-  it('does not discard the original capture or draft when recovery verification reads fail', async () => {
+  it('retains the original capture and draft when the independent reader is unavailable', async () => {
     const {workspace, http, dataSet} = fixture()
     await workspace.load()
     workspace.entries.updateEditingValue('E1', 'exVal_4', '已写但回执丢失')
@@ -595,7 +610,12 @@ describe('Dictionary resource through formal DataViews', () => {
     http.failAfterWrite = false
     http.failReads = true
 
-    await expect(workspace.load(true)).rejects.toThrow('读取失败')
+    const reads = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(http.reads).toHaveLength(reads)
+    const reopened = fixture(http)
+    try { await expect(reopened.workspace.load()).rejects.toThrow('读取失败') }
+    finally {reopened.dataSet.destroy()}
 
     expect(http.saves).toHaveLength(1)
     expect(workspace.entries.hasUnconfirmedSave).toBe(true)
@@ -603,18 +623,61 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.rows[0]!['exVal_4']).toBe('已写但回执丢失')
     expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
-    expect(http.reads).toHaveLength(3)
+    expect(http.reads).toHaveLength(reads + 1)
     dataSet.destroy()
   })
-  it('preserves an edit made while the explicit reload is awaiting its first query', async () => {
+  it.each([false, true])('keeps verification locked when the original capture disappears before explicit reload (pending sibling=%s)', async sibling => {
+    const {workspace, http, dataSet} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '待核草稿')
+      http.failBeforeWrite = true
+      await expect(workspace.saveData()).rejects.toThrow()
+      expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+      dataSet.abandonUnconfirmedSaves()
+      if (sibling) {
+        workspace.definition.updateEditingValue('D1', 'TypeName', '单独的设计草稿')
+        await expect(dataSet.saveChanges({views: [{tableName: '_Base_DictType', viewId: 'default'}]})).rejects.toThrow()
+      }
+      const reads = http.reads.length
+      await expect(workspace.load(true)).rejects.toThrow(/原捕获/)
+      expect(workspace.requiresVerification).toBe(true)
+      expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('待核草稿')
+      expect(http.reads).toHaveLength(reads)
+      expect(workspace.definition.hasUnconfirmedSave).toBe(sibling)
+      expect(http.saves).toHaveLength(sibling ? 2 : 1)
+    } finally {dataSet.destroy()}
+  })
+  it.each(['原待核值', '另一次待核值'])('does not verify a replacement capture on the same view and row when its submitted value is %s', async value => {
+    const {workspace, http, dataSet} = fixture()
+    try {
+      await workspace.load()
+      const entries = workspace.entries
+      entries.updateEditingValue('E1', 'exVal_4', '原待核值')
+      http.failBeforeWrite = true
+      await expect(workspace.saveData()).rejects.toThrow()
+      await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+      const original = entries.mutatingError!
+      expect(entries.hasUnconfirmedSaveFor(['E1'], original)).toBe(true)
+      expect(entries.abandonUnconfirmedSave()).toBe(true)
+      entries.updateEditingValue('E1', 'exVal_4', value)
+      await expect(dataSet.saveChanges({views: [{tableName: entries.tableName, viewId: entries.viewId, ids: ['E1']}]})).rejects.toThrow()
+      const replacement = entries.mutatingError!
+      expect(entries.hasUnconfirmedSaveFor(['E1'], original)).toBe(false)
+      expect(entries.hasUnconfirmedSaveFor(['E1'], replacement)).toBe(true)
+      const reads = http.reads.length
+      await expect(workspace.load(true)).rejects.toThrow(/原捕获/)
+      expect(entries.hasUnconfirmedSaveFor(['E1'], replacement)).toBe(true)
+      expect(entries.getEditingRow('E1')?.['exVal_4']).toBe(value)
+      expect(workspace.requiresVerification).toBe(true)
+      expect(http.saves).toHaveLength(2)
+      expect(http.reads).toHaveLength(reads)
+    } finally {dataSet.destroy()}
+  })
+  it('preserves edits made while a confirmed save is awaiting its first readback query', async () => {
     const {workspace, http, dataSet} = fixture()
     await workspace.load()
     workspace.entries.updateEditingValue('E1', 'exVal_4', '原草稿')
-    await workspace.saveData()
-    http.failAfterWrite = true
-    workspace.entries.updateEditingValue('E1', 'exVal_4', '不确定草稿')
-    await expect(workspace.saveData()).rejects.toThrow()
-    http.failAfterWrite = false
 
     let entered!: () => void, release!: () => void
     const waiting = new Promise<void>(resolve => {entered = resolve})
@@ -623,25 +686,30 @@ describe('Dictionary resource through formal DataViews', () => {
     http.beforeRead = async config => {
       if (config.url === '/api/DataOperation/GetData' && firstRead) {firstRead = false; entered(); await gate}
     }
-    const reload = workspace.load(true)
+    const reload = workspace.saveData()
     await waiting
     workspace.entries.updateEditingValue('E1', 'exVal_3', '等待期间应用的新编辑')
     expect((await workspace.entries.applyEditingRows()).success).toBe(true)
     workspace.entries.updateEditingValue('E1', 'txt', '等待期间的新编辑')
     release()
 
-    await expect(reload).rejects.toThrow('原提交已确认，仍有随后发生的编辑')
+    await expect(reload).rejects.toThrow(/DATA_VIEW_UNSAVED_CHANGES/)
 
-    expect(http.saves).toHaveLength(2)
+    expect(http.saves).toHaveLength(1)
     expect(workspace.entries.getEditingRow('E1')?.['txt']).toBe('等待期间的新编辑')
     expect(workspace.entries.rows[0]!['exVal_3']).toBe('等待期间应用的新编辑')
     expect(workspace.entries.hasEditingChanges()).toBe(true)
     expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(workspace.entries.hasUnconfirmedSave).toBe(false)
-    expect(http.reads).toHaveLength(5)
+    expect(http.reads).toHaveLength(3)
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows).toMatchObject([{rowid: 'E1', txt: '白', exVal_3: '', exVal_4: '原草稿'}])
+    } finally {reopened.dataSet.destroy()}
     dataSet.destroy()
   })
-  it('keeps an authoritative not-applied draft until a separate explicit cancellation', async () => {
+  it('keeps the original draft locked when transport failed after dispatch and the stored row is unchanged', async () => {
     const {workspace, http, dataSet} = fixture()
     await workspace.load()
     workspace.entries.updateEditingValue('E1', 'exVal_4', '尚未写入的草稿')
@@ -650,19 +718,23 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.hasUnconfirmedSave).toBe(true)
     http.failBeforeWrite = false
 
-    await expect(workspace.load(true)).rejects.toThrow('原提交未生效')
+    const reads = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
 
     expect(http.saves).toHaveLength(1)
-    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
     expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(workspace.entries.rows[0]!['exVal_4']).toBe('尚未写入的草稿')
-    expect(workspace.requiresVerification).toBe(false)
+    expect(workspace.requiresVerification).toBe(true)
     expect(workspace.pending).toBe(true)
-    await workspace.load(true)
-    expect(workspace.entries.rows[0]!['exVal_4']).toBeNull()
-    expect(workspace.pending).toBe(false)
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(http.reads).toHaveLength(reads)
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows).toMatchObject([{rowid: 'E1', exVal_4: null}])
+    } finally {reopened.dataSet.destroy()}
     expect(http.saves).toHaveLength(1)
-    expect(http.reads).toHaveLength(5)
     dataSet.destroy()
   })
   it('keeps an explicit server rejection editable and allows a later deliberate retry', async () => {
@@ -704,7 +776,7 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(http.records['_Base_DictData']![0]!['exVal_4']).toBe('修正后的值')
     dataSet.destroy()
   })
-  it('clears the creating state after a lost new-design receipt is confirmed', async () => {
+  it('keeps a lost creation receipt pending when the new design is readable in another workspace', async () => {
     const http = new DictionaryHttp()
     http.records = {_Base_DictType: [], _Base_DictData: []}
     const {workspace, dataSet} = fixture(http, true)
@@ -717,15 +789,23 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.definition.hasUnconfirmedSave).toBe(true)
     http.failAfterWrite = false
 
-    await workspace.load(true)
-
-    expect(workspace.requiresVerification).toBe(false)
-    expect(workspace.pending).toBe(false)
-    await workspace.addEntry()
-    const id = workspace.entries.getPkKey(workspace.entries.currentRow!)!
-    workspace.entries.updateEditingValue(id, 'val', 'A')
-    workspace.entries.updateEditingValue(id, 'txt', '新条目')
-    await workspace.saveData()
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(workspace.requiresVerification).toBe(true)
+    expect(workspace.pending).toBe(true)
+    await expect(workspace.addEntry()).rejects.toThrow()
+    await expect(workspace.saveData()).rejects.toThrow()
+    expect(http.saves).toHaveLength(1)
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.definition.rows).toMatchObject([{rowid: 'D1', AppId: 'APP', TypeName: '新字典', functiondesc: '新字典用途'}])
+      await reopened.workspace.addEntry()
+      const entries = reopened.workspace.entries, id = entries.getPkKey(entries.currentRow!)!
+      entries.updateEditingValue(id, 'val', 'A')
+      entries.updateEditingValue(id, 'txt', '新条目')
+      await reopened.workspace.saveData()
+    } finally {reopened.dataSet.destroy()}
+    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
     expect(http.saves).toHaveLength(2)
     expect(http.saves[1]!.data).toMatchObject([{TableName: '_Base_DictData'}])
     expect(http.records['_Base_DictData']).toMatchObject([{typeid: 'D1', val: 'A', txt: '新条目'}])

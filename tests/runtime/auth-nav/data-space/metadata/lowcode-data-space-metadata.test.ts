@@ -855,13 +855,27 @@ describe('data-space metadata DataSet', () => {
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/response lost|server rejected/)
     expect(session.getInputParameterState()).toMatchObject({status: failure === 'lost-response' ? 'unknown' : 'unsubmitted', pending: true})
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验|PENDING/)
-    if (failure === 'lost-response') await expect(session.reloadInputParameters({discardPending: false})).resolves.toEqual([])
-    else await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow('DATA_SPACE_INPUT_PARAMETERS_PENDING')
+    if (failure === 'lost-response') {
+      const later = '[{"Name":"later"}]'
+      view.updateEditingValue('SPACE', 'inputParams', later)
+      for (const discardPending of [false, true]) {
+        await expect(session.reloadInputParameters({discardPending})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(true)
+        expect(view.getEditingPatch('SPACE')).toEqual({inputParams: later})
+      }
+      expect(session.getInputParameterState()).toMatchObject({status: 'unknown', pending: true})
+      const fresh = await openMetadataSession()
+      expect(fresh.view.rows[0]).toMatchObject({rowid: 'SPACE', inputParams: '[]'})
+      expect(space['inputParams']).toBe('[]')
+      expect(saveRequests()).toHaveLength(1)
+      return
+    }
+    await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow('DATA_SPACE_INPUT_PARAMETERS_PENDING')
     expect(saveRequests()).toHaveLength(1)
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     await session.reloadInputParameters({discardPending: true})
     expect(session.getInputParameterState()).toMatchObject({status: 'idle', pending: false})
-    expect(view.rows[0]?.['inputParams']).toBe(failure === 'lost-response' ? '[]' : raw)
+    expect(view.rows[0]?.['inputParams']).toBe(raw)
     expect(space['inputParams']).toBe(view.rows[0]?.['inputParams'])
     expect(saveRequests()).toHaveLength(1)
   })
@@ -1064,7 +1078,7 @@ describe('data-space metadata DataSet', () => {
     expect(saveRequests()).toEqual([])
   })
 
-  it('recovers a lost declaration save response by explicit read without replaying the write', async () => {
+  it('preserves the original declaration capture after an independent read finds the submitted value', async () => {
     const {rows, space} = declarationRows()
     installRows(rows, {loseSaveResponse: true})
     const {session, view} = await openMetadataSession()
@@ -1076,13 +1090,15 @@ describe('data-space metadata DataSet', () => {
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(true)
     expect(view.hasUnconfirmedSave).toBe(true)
-    await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toMatchObject({state:'confirmed',views:[{tableName:'Base_DataSet',viewId:'default',state:'confirmed'}]})
-    expect(view.hasUnconfirmedSave).toBe(false)
-    expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(false)
-    await view.loadFromServer({allPages: true})
-    expect(view.rows).toEqual([{rowid: 'SPACE', _pk: 'SPACE', inputParams: '[]'}])
+    const requests = mocks.request.mock.calls.length
+    await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toMatchObject({
+      state: 'unknown', views: [{tableName: 'Base_DataSet', viewId: 'default', state: 'unknown', error: {message: expect.stringContaining('SPARK_SAVE_UNVERIFIABLE')}}],
+    })
+    expect(mocks.request).toHaveBeenCalledTimes(requests)
     const fresh = await openMetadataSession()
-    expect(fresh.view.rows).toEqual(view.rows)
+    expect(fresh.view.rows).toEqual([{rowid: 'SPACE', _pk: 'SPACE', inputParams: '[]'}])
+    expect(view.hasUnconfirmedSaveFor(['SPACE'])).toBe(true)
+    expect(view.dirtyTracking.hasPendingChanges('SPACE') || view.hasEditingChanges('SPACE')).toBe(true)
     expect(saveRequests()).toHaveLength(1)
   })
 

@@ -4,8 +4,8 @@
  * 边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
-import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
+import {buildDataViewKey, DataSetSavePreflightError, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',
@@ -19,6 +19,8 @@ const VIEW_NAME = 'default'
 const MAX_BLUEPRINT_ROWS = 50_000
 const MAX_BLUEPRINT_DEPTH = 64
 const LAZY_PARENT_BATCH = 100
+/** 单节点交付进度。accepted 只在一条更新的回执已核对后通知，随后仍需正式回读。 */
+type SelectedNodeSaveProgress = Readonly<{beforeSubmit(): void; accepted(): void; rejected(): void}>
 /** addModuleNode 可由调用方覆盖的内容字段。 */
 const BLUEPRINT_MODULE_OVERRIDE_FIELDS: ReadonlySet<string> = new Set(['name', 'FunName', 'memo', 'status', 'conType'])
 
@@ -629,6 +631,20 @@ export class BlueprintWorkspaceDataView {
     const source=siblings(sourceParent).filter(row=>row!==moving)
     const destination=sourceParent===targetParent?source:siblings(targetParent).filter(row=>row!==moving)
     if(index>destination.length)throw new Error('蓝图节点位置超出目标范围')
+    if (sourceParent !== targetParent && index === destination.length) {
+      // 追加到另一父节点时，仅移动目标行，保留原组和目标组已发布的排序。
+      const last = destination.at(-1)
+      const order = last ? Number(last['FunOrderValue'] ?? 0) + 1 : 0
+      const id = this.view.getPkKey(moving)
+      if (!Number.isSafeInteger(order) || id === undefined || this.view.editActionState(moving) !== 'enabled'
+        || this.view.fieldAccess(moving,'prowid').write !== 'allowed' || this.view.fieldAccess(moving,'FunOrderValue').write !== 'allowed') {
+        throw new Error(`蓝图 DataView 权限或排序合同拒绝移动行 ${nodeKey}`)
+      }
+      this.view.updateEditingValue(id,'prowid',targetParent)
+      this.view.updateEditingValue(id,'FunOrderValue',this.orderValue(order))
+      this.synchronizeCurrentRow()
+      return
+    }
     destination.splice(index,0,moving)
     const patches=new Map<DataRow,Record<string,unknown>>()
     const groups=sourceParent===targetParent?[[targetParent,destination] as const]:[[sourceParent,source] as const,[targetParent,destination] as const]
@@ -1521,22 +1537,33 @@ export class BlueprintWorkspaceDataView {
     await this.saveIds()
   }
 
+  /** 已确认的发布在新实例只刷新原视图并重新定位节点，保留已有工作区的懒加载范围。 */
+  public async rereadSelectedNode():Promise<void>{
+    this.assertUsable()
+    if (this.dirty || this.isBusy) throw new Error('蓝图 DataView 存在未完成操作，不能刷新当前节点')
+    const revision=this.#revision, nodeId=this.#nodeId
+    await this.refreshView()
+    this.assertTarget(revision,nodeId)
+    this.synchronizeCurrentRow()
+    this.currentRow()
+  }
+
   /** Save only the selected node; any staged changes on other rows remain untouched. */
-  public async saveSelectedNode():Promise<void>{
+  public async saveSelectedNode(progress?:SelectedNodeSaveProgress):Promise<void>{
     this.assertWritable()
     if(this.hasUnconfirmedSave||this.#unconfirmedIds.length>0){
       if(this.#unconfirmedIds.length!==1||this.#unconfirmedIds[0]!==this.#nodeId)throw new Error('蓝图 DataView 核验须包含原提交全部节点')
-      await this.saveIds([this.#nodeId])
+      await this.saveIds([this.#nodeId],progress ? 1 : undefined,progress)
       return
     }
     const id=this.requireRowKey(this.currentRow())
     const dirtyIds=this.view.rows.map(row=>this.view.getPkKey(row)).filter((key):key is string|number=>key!==undefined)
       .filter(key=>this.view.hasEditingChanges(key)||this.view.dirtyTracking.hasPendingChanges(key))
     if(dirtyIds.some(key=>key!==id))throw new Error('蓝图 DataView 存在其他节点的待保存修改，请先单独保存或取消')
-    await this.saveIds([id])
+    await this.saveIds([id],progress ? 1 : undefined,progress)
   }
 
-  private async saveIds(targetIds?:Array<string|number>,expectedSavedCount?:number): Promise<void> {
+  private async saveIds(targetIds?:Array<string|number>,expectedSavedCount?:number,progress?:SelectedNodeSaveProgress): Promise<void> {
     this.assertWritable()
     await this.lazyIdle()
     if(this.#batchStageBlocked)throw new Error('蓝图 DataView 批量暂存回滚未确认，保存已阻断')
@@ -1548,9 +1575,11 @@ export class BlueprintWorkspaceDataView {
         const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
         this.assertTarget(revision, targetNodeId)
         if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
+        if (progress) this.assertBatchSaveCounts(recovered,0,1)
         this.#acceptedReceiptPending=true
       }
       if (!this.#acceptedReceiptPending) throw new Error('蓝图原提交缺少权威保存回执，不能用当前查询代替核验')
+      progress?.accepted()
       await this.refreshView()
       this.assertTarget(revision, targetNodeId)
       this.synchronizeCurrentRow()
@@ -1573,12 +1602,23 @@ export class BlueprintWorkspaceDataView {
       if (!applied.success || !applied.data || applied.data.failedCount > 0) throw new Error(Object.values(applied.data?.failedErrors ?? {})[0] ?? '蓝图 DataView 编辑应用失败')
     }
     const changedIds=ids.filter(key=>this.view.dirtyTracking.hasPendingChanges(key))
-    if (changedIds.length===0) return
+    if (changedIds.length===0) {
+      if (progress) throw new Error('发布指针缺少本次节点更新')
+      return
+    }
+    progress?.beforeSubmit()
     this.#unconfirmedIds=[...changedIds]
     this.#unconfirmedPatches=new Map([...patches].filter(([key])=>changedIds.includes(key)))
-    const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]})
+    const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]}).catch(error => {
+      if (progress && !this.hasUnconfirmedSave && (error instanceof DataSetSavePreflightError || (error instanceof LowcodeApiError && error.code !== 0))) {
+        this.#unconfirmedIds=[]
+        this.#unconfirmedPatches.clear()
+        progress.rejected()
+      }
+      throw error
+    })
     this.assertTarget(revision, targetNodeId)
-    if(result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0)this.#acceptedReceiptPending=true
+    if(!progress && (result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0))this.#acceptedReceiptPending=true
     if (!result.success) {
       if (!this.view.hasUnconfirmedSave && !this.#acceptedReceiptPending) {
         this.#unconfirmedIds=[]
@@ -1587,6 +1627,10 @@ export class BlueprintWorkspaceDataView {
       throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
     }
     if(expectedSavedCount!==undefined)this.assertBatchSaveCounts(result,0,expectedSavedCount)
+    if (progress) {
+      this.#acceptedReceiptPending=true
+      progress.accepted()
+    }
     await this.refreshView()
     this.assertTarget(revision, targetNodeId)
     this.synchronizeCurrentRow()

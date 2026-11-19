@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/fixed-fact-use",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/fixed-fact-use\n职责：动作31保留原事实版本，独立核该版在目标用途和时点的准用证据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "scopeRef": true,
+        "purposeRef": {
+          "type": "string"
+        },
+        "useAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "factId",
+        "version",
+        "scopeRef",
+        "purposeRef",
+        "useAt"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "FixedFact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FixedFact",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "scopeRef": true,
+        "baselineId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "decisionRefs": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "required": [
+        "version",
+        "projectId",
+        "scopeRef",
+        "baselineId",
+        "factId",
+        "assertCurrent",
+        "decisionRefs"
+      ],
+      "additionalProperties": false
+    },
+    "UseCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseCheck",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "scopeRef": true,
+        "purposeRef": {
+          "type": "string"
+        },
+        "useAt": {
+          "type": "number"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "useCheckRef": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "PENDING",
+            "USABLE",
+            "RESTRICTED"
+          ]
+        },
+        "decisionRefs": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "factId",
+        "version",
+        "scopeRef",
+        "purposeRef",
+        "useAt",
+        "assertCurrent",
+        "useCheckRef",
+        "state",
+        "decisionRefs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:34:24.522Z",
+  "models": {
+    "Target": {
+      "name": "Target",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    factId: string;\n    version: number;\n    scopeRef: unknown;\n    purposeRef: string;\n    useAt: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    factId: string;\n    version: number;\n    scopeRef: unknown;\n    purposeRef: string;\n    useAt: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "useAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FixedFact": {
+      "name": "FixedFact",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Target, 'projectId' | 'baselineId' | 'factId' | 'version' | 'scopeRef'> & Proof & Readonly<{\n    decisionRefs: readonly unknown[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Target, 'projectId' | 'baselineId' | 'factId' | 'version' | 'scopeRef'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    decisionRefs: readonly unknown[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "decisionRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UseCheck": {
+      "name": "UseCheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Proof & Readonly<{\n    useCheckRef: string;\n    state: 'USABLE' | 'RESTRICTED' | 'PENDING';\n    decisionRefs: readonly unknown[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    useCheckRef: string;\n    state: 'USABLE' | 'RESTRICTED' | 'PENDING';\n    decisionRefs: readonly unknown[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "useCheckRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

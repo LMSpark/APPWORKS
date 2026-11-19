@@ -135,16 +135,30 @@
           "title": "RegExp"
         }
       },
-      "required": [
-        "rootNodeId",
-        "nodes",
-        "deliveryResources",
-        "targetPattern"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.deliveredTool.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deliveredTool.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-11-12T17:19:56.522Z",
+  "generatedAt": "2026-11-19T05:55:04.508Z",
   "models": {
     "BlueprintNodeVerifyIssueCode": {
       "name": "BlueprintNodeVerifyIssueCode",
@@ -299,11 +313,11 @@
       "jsdoc": "targetPattern 取自导航地址列在场景中声明的规范，核验与保存使用同一规则。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n}>",
+        "declarationTypeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n    deliveredTool?: (nodeId: string, pageId: string, path: string) => boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n}>",
+            "typeText": "Readonly<{\n    rootNodeId: string;\n    nodes: readonly BlueprintVerifyNode[];\n    deliveryResources: readonly string[];\n    targetPattern: RegExp;\n    deliveredTool?: (nodeId: string, pageId: string, path: string) => boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -328,6 +342,38 @@
               "name": "targetPattern",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "deliveredTool",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
             }
           ]
         }

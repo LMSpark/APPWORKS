@@ -29,7 +29,7 @@ describe('维度规则删除回执', () => {
     expect(f.result.rows).toHaveLength(0)
   })
 
-  it('子项回执中断后只核验原阶段，用户明确继续后才删除规则', async () => {
+  it('子项删除已写入但回执中断时保留原阶段，不派发规则删除', async () => {
     const f = await prepare()
     f.http.failAfterWrite = true
     await submitRuleDeletion(f.state)
@@ -37,28 +37,35 @@ describe('维度规则删除回执', () => {
     expect(f.http.saves).toHaveLength(2)
     expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(1)
     await verifyRuleDeletion(f.state)
-    expect(f.state.phase).toBe('continue')
+    expect(f.state.phase).toBe('verify')
+    expect(f.state.message).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.condition.hasUnconfirmedSave).toBe(true)
+    expect(f.result.hasUnconfirmedSave).toBe(true)
+    expect(f.rule.hasUnconfirmedSave).toBe(false)
+    await expect(submitRuleDeletion(f.state)).rejects.toThrow('当前不能提交规则删除')
     expect(f.http.saves).toHaveLength(2)
-    expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(1)
-    await submitRuleDeletion(f.state)
-    expect(f.state.phase).toBe('done')
-    expect(f.http.saves).toHaveLength(3)
-    expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(0)
+    expect(f.http.records['Bil_Dimension_Rule_Condition']).toEqual([])
+    expect(f.http.records['Bil_Dimension_Rule_Result']).toEqual([])
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1'}])
   })
 
-  it('证明原删除未生效前不重发，证明后才可显式继续', async () => {
+  it('子项仍在且原请求没有回执时保持待核，不能重新提交', async () => {
     const f = await prepare()
-    let interrupted = true
-    f.http.beforeSave = async () => {if (interrupted) {interrupted = false; throw new Error('派发后连接中断')}}
+    let dispatches = 0
+    f.http.beforeSave = async () => {dispatches++; throw new Error('派发后连接中断')}
     await submitRuleDeletion(f.state)
-    expect(f.state.phase).toBe('verify')
-    await verifyRuleDeletion(f.state)
-    expect(f.state.phase).toBe('continue')
-    expect(f.state.message).toContain('原删除未生效')
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await verifyRuleDeletion(f.state)
+      expect(f.state.phase).toBe('verify')
+      expect(f.state.message).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(f.condition.hasUnconfirmedSave).toBe(true)
+      expect(f.result.hasUnconfirmedSave).toBe(true)
+    }
+    await expect(submitRuleDeletion(f.state)).rejects.toThrow('当前不能提交规则删除')
+    expect(dispatches).toBe(1)
     expect(f.http.saves).toHaveLength(0)
-    await submitRuleDeletion(f.state)
-    expect(f.state.phase).toBe('done')
-    expect(f.http.saves).toHaveLength(3)
+    expect(f.http.records['Bil_Dimension_Rule_Condition']).toMatchObject([{rowid: 'COND1'}])
+    expect(f.http.records['Bil_Dimension_Rule_Result']).toMatchObject([{rowid: 'RESULT1'}])
   })
 
   it('规则阶段回执中断后只核验该阶段，不重复删除子项', async () => {
@@ -70,11 +77,17 @@ describe('维度规则删除回执', () => {
     expect(f.http.saves).toHaveLength(3)
     expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(0)
     await verifyRuleDeletion(f.state)
-    expect(f.state.phase).toBe('done')
+    expect(f.state.phase).toBe('verify')
+    expect(f.state.message).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.condition.hasUnconfirmedSave).toBe(false)
+    expect(f.result.hasUnconfirmedSave).toBe(false)
+    await expect(submitRuleDeletion(f.state)).rejects.toThrow('当前不能提交规则删除')
+    expect(requests).toBe(2)
     expect(f.http.saves).toHaveLength(3)
   })
 
-  it('规则阶段未生效后显式继续只删除剩余规则', async () => {
+  it('规则仍在且回执中断时保留原规则捕获，已确认的子项不重发', async () => {
     const f = await prepare()
     let requests = 0
     f.http.beforeSave = async () => {if (++requests === 2) throw new Error('派发后连接中断')}
@@ -82,12 +95,14 @@ describe('维度规则删除回执', () => {
     expect(f.state.phase).toBe('verify')
     expect(f.http.saves).toHaveLength(2)
     await verifyRuleDeletion(f.state)
-    expect(f.state.phase).toBe('continue')
-    await submitRuleDeletion(f.state)
-    expect(f.state.phase).toBe('done')
-    expect(f.http.saves.map(item => item.table)).toEqual([
-      'Bil_Dimension_Rule_Condition', 'Bil_Dimension_Rule_Result', 'Bil_Dimension_Rule',
-    ])
+    expect(f.state.phase).toBe('verify')
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.condition.hasUnconfirmedSave).toBe(false)
+    expect(f.result.hasUnconfirmedSave).toBe(false)
+    await expect(submitRuleDeletion(f.state)).rejects.toThrow('当前不能提交规则删除')
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1'}])
+    expect(requests).toBe(2)
+    expect(f.http.saves.map(item => item.table)).toEqual(['Bil_Dimension_Rule_Condition', 'Bil_Dimension_Rule_Result'])
   })
 
   it('子项已删除而规则被拒绝时，放弃剩余本地修改并如实回读', async () => {
@@ -114,10 +129,13 @@ describe('维度规则删除回执', () => {
       account_set_id: 'GLOBAL', sort_no: 1, field_code: 'kind', operator: 'equal', value_source: 'CONST', compare_value: 'x'}]
     await verifyRuleDeletion(f.state)
     expect(f.state.phase).toBe('verify')
-    expect(f.state.message).toContain('部分生效')
+    expect(f.state.message).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.condition.hasUnconfirmedSave).toBe(true)
+    expect(f.result.hasUnconfirmedSave).toBe(true)
     expect(f.http.saves).toHaveLength(2)
     await abandonRuleDeletion(f.state)
     expect(f.state.phase).toBe('done')
+    expect(f.state.message).toContain('请核对规则 R1 的实际结果')
     expect(f.rule.rows).toHaveLength(1)
     expect(f.condition.rows).toHaveLength(1)
     expect(f.result.rows).toHaveLength(0)

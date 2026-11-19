@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader\n职责：批读固定目标及检查器版本的原 CheckFinding 记录。\n边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {
@@ -59,9 +59,9 @@
         },
         "status": {
           "enum": [
+            "WAIVED",
             "OPEN",
             "RESOLVED",
-            "WAIVED",
             "STALE"
           ]
         }
@@ -138,7 +138,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T02:06:53.012Z",
+  "generatedAt": "2026-11-18T19:46:06.094Z",
   "models": {
     "FindingSelection": {
       "name": "FindingSelection",

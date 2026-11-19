@@ -378,8 +378,9 @@ describe('persisted DataTable submission configuration', () => {
     } finally {first.dataSet.destroy(); second.dataSet.destroy()}
   })
 
-  it('keeps dirty changes after an invalid receipt and uses table configuration on a subsequent accepted baseline', async () => {
-    const runtime = await fixture().save({api: {update: {url: '/api/orders/save'}}, crudConfig: {retryCount: 0, validateData: true}})
+  it('keeps the original capture after an invalid receipt even if a fresh query returns the old value', async () => {
+    const storage = fixture()
+    const runtime = await storage.save({api: {update: {url: '/api/orders/save'}}, crudConfig: {retryCount: 0, validateData: true}})
     try {
       await runtime.view.loadFromServer()
       await runtime.view.editRowById('A', {title: 'Changed'})
@@ -388,12 +389,29 @@ describe('persisted DataTable submission configuration', () => {
       expect(runtime.http.requests).toHaveLength(2)
       expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
       expect(runtime.view.hasUnconfirmedSave).toBe(true)
-      const writes = runtime.http.requests.filter(request => request.url === '/api/orders/save').length
-      await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
-      expect(runtime.http.requests.filter(request => request.url === '/api/orders/save')).toHaveLength(writes)
+      await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(runtime.http.requests).toHaveLength(2)
+      const fresh = await storage.reopen(runtime)
+      try {
+        expect((await fresh.view.loadFromServer()).success).toBe(true)
+        expect(fresh.view.rows[0]).toMatchObject({id: 'A', title: 'Before'})
+      } finally {fresh.dataSet.destroy()}
+      expect(runtime.view.hasUnconfirmedSaveFor(['A'])).toBe(true)
       expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
+      expect(runtime.view.rows[0]).toMatchObject({id: 'A', title: 'Changed'})
+      expect(runtime.http.requests.filter(request => request.url === '/api/orders/save')).toHaveLength(1)
+    } finally {runtime.dataSet.destroy()}
+  })
+
+  it('uses the updated table route for the next edit after a confirmed receipt', async () => {
+    const runtime = await fixture().save({api: {update: {url: '/api/orders/save'}}, crudConfig: {retryCount: 0, validateData: true}})
+    try {
+      await runtime.view.loadFromServer()
+      await runtime.view.editRowById('A', {title: 'Changed'})
       runtime.http.receipt = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
       await runtime.view.saveChanges()
+      expect(runtime.http.requests.at(-1)?.url).toBe('/api/orders/save')
+      expect(runtime.view.rows[0]?.['title']).toBe('Accepted')
       runtime.table.setApi({update: {url: '/api/next'}})
       await runtime.view.editRowById('A', {title: 'Next'})
       runtime.http.receipt = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Next'}]}]}

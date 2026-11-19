@@ -25,6 +25,16 @@ describe('application path helpers', () => {
     expect(buildConfigPageNavigationPath('NODE / 1', 'SPACE & 2')).toBe('/__page/NODE%20%2F%201?scenarioId=SPACE+%26+2')
   })
 
+  it.each([
+    'additionalScenarioIds=MAIN',
+    'additionalScenarioIds=LOOKUP&additionalScenarioIds=LOOKUP',
+    'additionalScenarioIds=',
+    'scenarioInputs=%7B%22OTHER%22%3A%7B%7D%7D',
+    'scenarioInputs=%7B%7D&scenarioInputs=%7B%7D',
+  ])('rejects a conflicting or undeclared configuration tool call (%s)', query => {
+    expect(() => buildConfigPageNavigationPath('NODE', 'MAIN', `cfg:tool?${query}`)).toThrow()
+  })
+
   it('strips one application path segment', () => {
     expect(stripApplicationPath('/apps/homepage/app-list')).toBe('/app-list')
     expect(stripApplicationPath('/apps/homepage')).toBe('')

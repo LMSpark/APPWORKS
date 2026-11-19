@@ -59,13 +59,15 @@ describe('workflow start parameter contract',()=>{
   const f=await fixture();f.params.updateEditingValue('W1','inputParams','[]');f.params.discardPendingChanges()
   expect(JSON.parse(String(f.params.rows[0]!['inputParams']))).toEqual([original]);expect(f.http.saves).toEqual([])
  })
- it('recovers an unknown save through its original owner without replaying or regenerating mappings',async()=>{
+ it('keeps an unknown start-parameter save pending without replaying or regenerating mappings',async()=>{
   const f=await fixture();f.params.updateEditingValue('W1','inputParams',JSON.stringify([{...original,Value:'changed'}]));f.http.failAfterWrite=true
   await expect(saveWorkflowStartParameters(f.ds,'W1')).rejects.toThrow()
   const count=f.http.saves.length;expect(count).toBeGreaterThan(0)
-  await saveWorkflowStartParameters(f.ds,'W1');expect(f.http.saves).toHaveLength(count)
-  // Recovery confirms only the original captured submission; remaining output edits need an explicit subsequent save.
-  if(f.start.hasEditingChanges())await saveWorkflowStartParameters(f.ds,'W1')
+  const pendingOutput=f.start.hasEditingChanges()
+  await expect(saveWorkflowStartParameters(f.ds,'W1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(count)
+  expect(f.params.hasUnconfirmedSave).toBe(true)
+  expect(f.start.hasEditingChanges()).toBe(pendingOutput)
   expect(f.http.saves.filter(save=>save.table==='Base_DataSet')).toHaveLength(1)
  })
  it('rejects mismatched targets and multiple start nodes without writes',async()=>{

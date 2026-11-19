@@ -247,24 +247,26 @@ describe('computed field creation', () => {
     expect(fields.dirtyTracking.pendingCreateIds.size).toBe(0)
     expect(writes()).toEqual([])
   })
-  it('verifies an unknown create without replay', async () => {
+  it('keeps the generated field identity pending when the create response is lost', async () => {
     const {f, owner, writes} = await setup()
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
     await expect(owner.save()).rejects.toThrow('不能重复提交')
     expect(() => owner.cancel()).toThrow('先核验')
-    const id = await owner.verify()
+    const id = owner.getState().fieldId
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(id).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState().status).toBe('idle')
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, fieldId: id})
     expect(writes()).toHaveLength(1)
   })
-  it('recovers an omitted receipt through a complete native confirmation before domain readback', async () => {
+  it('retains a create with an omitted row receipt even when the field exists', async () => {
     const {f, owner, writes} = await setup({omitFieldReceipt: true})
     await expect(owner.save()).rejects.toThrow(/回执/)
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState().pending).toBe(false)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().fieldId).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
+    expect(owner.getState().pending).toBe(true)
     expect(owner).not.toHaveProperty('acceptCurrent')
     expect(writes()).toHaveLength(1)
   })
@@ -309,9 +311,9 @@ describe('computed field creation', () => {
     await expect(session.metadataDataSet.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
 
-    const id = await owner.verify()
-    expect(id).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
-    expect(owner.getState().status).toBe('idle')
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().fieldId).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
+    expect(owner.getState().status).toBe('unknown')
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(writes()).toHaveLength(2)
   })
@@ -358,20 +360,21 @@ describe('computed field creation', () => {
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve})
     const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
-      const result = await nativeSave(options); await gate; return result
+      await gate
+      return nativeSave(options)
     })
-    const verifying = owner.verify()
+    const verifying = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     expect(owner.getState().status).toBe('saving')
     await expect(owner.verify()).rejects.toThrow(/没有待核验/)
     const id = owner.getState().fieldId!
     fields.updateEditingValue(id, 'description', `verify ${kind} edit`)
     if (kind === 'applied') expect((await fields.applyEditingRows([id])).success).toBe(true)
-    release(); await expect(verifying).rejects.toThrow()
+    release(); await verifying
     expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`verify ${kind} edit`)
-    expect(await owner.verify()).toBeNull()
-    expect(owner.getState().canDiscardLocalChanges).toBe(true)
-    expect(await owner.discardLocalChangesAndVerify()).toBe(id)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({fieldId: id, status: 'unknown', canDiscardLocalChanges: false})
+    expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`verify ${kind} edit`)
     expect(writes()).toHaveLength(1)
   })
   it('keeps a later edit while an unknown field creation remains unverifiable', async () => {

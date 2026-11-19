@@ -1,0 +1,716 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/ui/entry/response-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/ui/entry/response-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/response-script-host\n职责：在同一页10运行实例提供报价、担保及固定事实读取。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Commitment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Commitment",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Field"
+          }
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../services/smart-bid/content/references/commercial/commitment-approval-coverage.ts.json#/$defs/Approval"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "scopeRef",
+        "purposeRef",
+        "fields",
+        "approvals",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "CommitmentSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CommitmentSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "claimId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "scopeRef",
+        "sourceIds",
+        "claimId",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Appointment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Appointment",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "personId": {
+              "type": "string"
+            },
+            "employerId": {
+              "type": "string"
+            },
+            "enterpriseId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "positionRef": {
+              "type": "string"
+            },
+            "scopeRef": {
+              "type": "string"
+            },
+            "purposeRef": {
+              "type": "string"
+            },
+            "start": {
+              "type": "number"
+            },
+            "end": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "personId",
+            "employerId",
+            "enterpriseId",
+            "projectId",
+            "positionRef",
+            "scopeRef",
+            "purposeRef",
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "material": {
+              "type": "object",
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "employerId": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "versionRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "personId",
+                "employerId",
+                "assertCurrent",
+                "versionRef"
+              ],
+              "additionalProperties": false
+            },
+            "appointment": {
+              "type": "object",
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "employerId": {
+                  "type": "string"
+                },
+                "enterpriseId": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "positionRef": {
+                  "type": "string"
+                },
+                "scopeRef": {
+                  "type": "string"
+                },
+                "purposeRef": {
+                  "type": "string"
+                },
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "decisionRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "personId",
+                "employerId",
+                "enterpriseId",
+                "projectId",
+                "positionRef",
+                "scopeRef",
+                "purposeRef",
+                "start",
+                "end",
+                "assertCurrent",
+                "decisionRef"
+              ],
+              "additionalProperties": false
+            },
+            "availability": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "number"
+                    },
+                    "end": {
+                      "type": "number"
+                    },
+                    "assertCurrent": {
+                      "type": "object",
+                      "title": "() => void"
+                    },
+                    "restricted": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end",
+                    "assertCurrent",
+                    "restricted"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "number"
+                    },
+                    "end": {
+                      "type": "number"
+                    },
+                    "assertCurrent": {
+                      "type": "object",
+                      "title": "() => void"
+                    },
+                    "restricted": {
+                      "const": true
+                    },
+                    "allocation": {
+                      "type": "object",
+                      "properties": {
+                        "personId": {
+                          "type": "string"
+                        },
+                        "employerId": {
+                          "type": "string"
+                        },
+                        "enterpriseId": {
+                          "type": "string"
+                        },
+                        "projectId": {
+                          "type": "string"
+                        },
+                        "positionRef": {
+                          "type": "string"
+                        },
+                        "scopeRef": {
+                          "type": "string"
+                        },
+                        "purposeRef": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "number"
+                        },
+                        "end": {
+                          "type": "number"
+                        },
+                        "assertCurrent": {
+                          "type": "object",
+                          "title": "() => void"
+                        },
+                        "decisionRef": {
+                          "type": "string"
+                        },
+                        "intent": {
+                          "enum": [
+                            "ASSIGN",
+                            "ADJUST",
+                            "RELEASE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "personId",
+                        "employerId",
+                        "enterpriseId",
+                        "projectId",
+                        "positionRef",
+                        "scopeRef",
+                        "purposeRef",
+                        "start",
+                        "end",
+                        "assertCurrent",
+                        "decisionRef",
+                        "intent"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end",
+                    "assertCurrent",
+                    "restricted"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "material",
+            "appointment",
+            "availability"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "rateOnly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "asOf": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "scenarioId",
+        "scopeRef",
+        "purposeRef",
+        "rateOnly",
+        "asOf"
+      ],
+      "additionalProperties": false
+    },
+    "Sources": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Sources",
+      "properties": {
+        "readPriceEvidence": {
+          "type": "object",
+          "title": "(request: Readonly<{ scopeRef: string; approvalRef: string; version: string; }> & Readonly<{ purposeRef: string; rateOnly: boolean; }>, approval: NonNullable<Price | undefined>) => Promise<ReviewEvidence>"
+        },
+        "readSecurityReceipts": {
+          "type": "object",
+          "title": "(requirement: Requirement, asOf: number) => Promise<readonly Receipt[]>"
+        },
+        "appointmentBasis": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "enterpriseId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "read": {
+              "type": "object",
+              "title": "(appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{ appointmentRef: string; request: Appointment[0]; evidence: Appointment[1]; }>>"
+            }
+          },
+          "required": [
+            "projectId",
+            "enterpriseId",
+            "assertCurrent",
+            "read"
+          ],
+          "additionalProperties": false
+        },
+        "commitmentBasis": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "read": {
+              "type": "object",
+              "title": "(commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{ commitmentRef: string; coverage: Commitment; source: CommitmentSource; }>>"
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "read"
+          ],
+          "additionalProperties": false
+        },
+        "assignmentBasis": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "baselineId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "baselineId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        "fixedFacts": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "object",
+              "properties": {
+                "scopeRef": true,
+                "baselineId": {
+                  "type": "string"
+                },
+                "stageRef": true
+              },
+              "required": [
+                "scopeRef",
+                "baselineId",
+                "stageRef"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "readUse": {
+              "type": "object",
+              "title": "(target: Parameters<typeof checkFixedFactUse>[0], fact: Parameters<typeof checkFixedFactUse>[1]) => Promise<Parameters<typeof checkFixedFactUse>[2]>"
+            }
+          },
+          "required": [
+            "projectId",
+            "basis",
+            "assertCurrent",
+            "readUse"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "readPriceEvidence",
+        "readSecurityReceipts"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T20:29:37.647Z",
+  "models": {
+    "Commitment": {
+      "name": "Commitment",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof checkCommitmentApprovalCoverage>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approvals",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CommitmentSource": {
+      "name": "CommitmentSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareApprovedCommitmentFacts>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "claimId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Appointment": {
+      "name": "Appointment",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewPersonAppointment>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof reviewPersonAppointment>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createApprovedPriceScriptHost>[1] & Parameters<typeof createBidSecurityScriptHost>[1]",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Parameters<typeof createApprovedPriceScriptHost>[1]"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Parameters<typeof createBidSecurityScriptHost>[1]"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rateOnly",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "asOf",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Sources": {
+      "name": "Sources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "readPriceEvidence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readSecurityReceipts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appointmentBasis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commitmentBasis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentBasis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fixedFacts",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

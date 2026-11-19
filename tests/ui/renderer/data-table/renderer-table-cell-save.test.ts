@@ -10,13 +10,17 @@ import {ApiBackend} from '../../../runtime/page/api-provider/api-provider.fixtur
 
 const originalStubs = config.global.stubs, cleanups: Array<() => void> = []
 afterEach(() => {cleanups.splice(0).reverse().forEach(fn => fn()); config.global.stubs = originalStubs; vi.unstubAllGlobals()})
-async function fixture() {
+function paramsBackend() {
+  const http = new ApiBackend()
+  http.primaryKeys['Params'] = 'parid'
+  http.records = {Params: [{parid: 'P1', parname: 'First'}, {parid: 'P2', parname: 'Second'}]}
+  return http
+}
+async function fixture(http = paramsBackend()) {
   const stubs = {...config.global.stubs}
   for (const name of ['el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
   config.global.stubs = stubs
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
-  const http = new ApiBackend(); http.primaryKeys['Params'] = 'parid'
-  http.records = {Params: [{parid: 'P1', parname: 'First'}, {parid: 'P2', parname: 'Second'}]}
   const owner = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
   const ds = DataSet.fromJson({scenarioId: 'SPACE', tables: {Params: {modelBinding: {modelId: 'PARAMS', modelName: 'Params'},
     columns: [{name: 'parid', type: 'string', isPrimaryKey: true}, {name: 'parname', type: 'string', required: true}],
@@ -60,7 +64,7 @@ describe('standard cell native row save', () => {
     expect(view.getEditingPatch('P1')).toEqual({parname: ''})
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
-  it('retains the original unknown save and verifies it without replaying the write', async () => {
+  it('retains the pending cell save when the written value is independently visible', async () => {
     const {wrapper, view, http, edit, ds} = await fixture()
     http.failAfterWrite = true
     const input = await edit(0); await input.setValue('Accepted'); await flushPromises(); await input.trigger('focusout'); await flushPromises()
@@ -69,10 +73,13 @@ describe('standard cell native row save', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     await input.trigger('focusout'); await flushPromises()
     expect(http.saves).toHaveLength(1)
-    const result = await ds.saveChanges({views: [{tableName: 'Params', viewId: 'default', ids: ['P1']}]})
-    expect(result.success).toBe(true)
+    await expect(ds.saveChanges({views: [{tableName: 'Params', viewId: 'default', ids: ['P1']}]}))
+      .rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const reopened = await fixture(http)
+    expect(reopened.view.rows.find(row => row['parid'] === 'P1')).toMatchObject({parname: 'Accepted'})
+    expect(view.hasUnconfirmedSaveFor(['P1'])).toBe(true)
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     expect(http.saves).toHaveLength(1)
-    expect(view.hasUnconfirmedSave).toBe(false)
   })
   it('does not submit an editor whose current row changed before focus loss', async () => {
     const {view, http, edit} = await fixture()

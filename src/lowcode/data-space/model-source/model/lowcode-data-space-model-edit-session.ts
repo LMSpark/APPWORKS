@@ -447,9 +447,8 @@ export class ModelEditSession {
   /** 显式处理待提交或未知状态，只读取正式结果，绝不自动重放写入。 */
   async reload(discardPending: boolean): Promise<void> {
     const capture = this.#recoveryCapture
+    if (this.requiresWorkspaceRecovery()) throw new Error('原联合批次包含字段目标；请切换到“3 字段呈现”并使用“重新核验字段配置”核验完整批次')
     if (capture && (capture.receiptInvalid || capture.targets.some(target => target.view.hasUnconfirmedSave))) {
-      if (capture.targets.some(target => target.tableName !== this.#view.tableName || target.viewId !== this.#view.viewId
-        || target.ids.length !== 1 || target.ids[0] !== this.modelId)) throw new Error('原联合批次包含字段目标；请切换到“3 字段呈现”并使用“重新核验字段配置”核验完整批次')
       await this.verifyRecovery(discardPending)
     }
     await this.prepareReload(discardPending)()
@@ -459,8 +458,16 @@ export class ModelEditSession {
   hasRecoveryCapture(): boolean {return this.#recoveryCapture !== undefined}
   getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined {return this.#recoveryCapture}
   hasInvalidReceipt(): boolean {return this.#recoveryCapture?.receiptInvalid === true}
-  requiresWorkspaceRecovery(): boolean {return this.#recoveryCapture?.targets.some(target => target.tableName !== this.#view.tableName
-    || target.viewId !== this.#view.viewId || target.ids.length !== 1 || target.ids[0] !== this.modelId) === true}
+  requiresWorkspaceRecovery(): boolean {
+    const capture = this.#recoveryCapture
+    if (!capture) return false
+    // A standalone primary-key change rereads its own field markers with the model after confirmation.
+    const primary = capture.resolution === 'confirmed' && !this.#primaryWorkspace ? this.#primary : undefined
+    return capture.targets.some(target => {
+      if (target.view === this.#view) return target.ids.length !== 1 || target.ids[0] !== this.modelId
+      return target.view !== primary?.fields || !target.ids.every(id => primary.changes.some(change => change.id === id))
+    })
+  }
 
   async verifyRecovery(discardPending: boolean): Promise<'adopted-current' | 'verified'> {
     this.assertOwner()

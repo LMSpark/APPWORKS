@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/model/approved-price-reader",
+    "sourcePath": "src/views/features/application/smart-bid/response/model/approved-price-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/model/approved-price-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/model/approved-price-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/model/approved-price-reader\n职责：从命名视图读取原批准版，并将同次读取证明交动作29。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ReviewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewInput",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "rateOnly": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version",
+        "purposeRef",
+        "rateOnly"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewSource",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "approval": {
+          "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Price"
+        },
+        "detail": {
+          "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Detail"
+        },
+        "use": {
+          "type": "object",
+          "title": "Use"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Finding"
+          }
+        }
+      },
+      "required": [
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewEvidence",
+      "properties": {
+        "use": {
+          "type": "object",
+          "title": "Use"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Finding"
+          }
+        }
+      },
+      "required": [
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.493Z",
+  "models": {
+    "ReviewInput": {
+      "name": "ReviewInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewApprovedPrice>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approvalRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rateOnly",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ReviewSource": {
+      "name": "ReviewSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewApprovedPrice>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approval",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "detail",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "use",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "findings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewEvidence": {
+      "name": "ReviewEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ReviewSource, 'approval' | 'detail'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<ReviewSource, 'approval' | 'detail'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "use",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "findings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

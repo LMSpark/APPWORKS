@@ -11,7 +11,41 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-11-11T14:23:40.504Z",
-  "models": {}
+  "$defs": {
+    "Kind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Kind",
+      "enum": [
+        "Table",
+        "View",
+        "Dict"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T20:39:47.972Z",
+  "models": {
+    "Kind": {
+      "name": "Kind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'Table' | 'View' | 'Dict'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'Table'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'View'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'Dict'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

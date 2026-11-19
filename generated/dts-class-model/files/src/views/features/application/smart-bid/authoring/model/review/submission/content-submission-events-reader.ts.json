@@ -82,7 +82,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T08:49:59.718Z",
+  "generatedAt": "2026-11-19T00:44:15.322Z",
   "models": {
     "Recovery": {
       "name": "Recovery",

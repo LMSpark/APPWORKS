@@ -67,7 +67,11 @@ describe('workflow source confirmed node commit',()=>{
  it('does not repeat node or model writes after a lost node receipt',async()=>{
   const f=await fixture(),owner=f.open();f.http.failAfterWrite=true
   await expect(owner.complete()).rejects.toThrow();expect(owner.getState().complete).toBe(false)
-  const writes=f.http.saves.length;await owner.verify();expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(writes)
+  const writes=f.http.saves.length
+  await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(owner.getState().complete).toBe(false)
+  expect(owner.getState().notApplied).toBe(false)
+  expect(f.http.saves).toHaveLength(writes)
  })
  it('proves an invalid rejection not applied by explicit read and resubmits only the same node when explicitly requested',async()=>{
   const f=await fixture(),owner=f.open();vi.spyOn(f.ds,'saveChanges').mockResolvedValueOnce({success:false,message:'rejected'} as Awaited<ReturnType<typeof f.ds.saveChanges>>)

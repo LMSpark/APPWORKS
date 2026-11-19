@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {RequestState} from '@spark-appworks/spark-data'
+import {DataSetSavePreflightError, RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -15,6 +15,31 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   fixtures.push(result); return result
 }
 const writes = (fixture: ReturnType<typeof dataSpacePageFixture>) => fixture.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+type Session = Awaited<ReturnType<ReturnType<typeof fixture>['open']>>
+type Removal = ReturnType<Session['getModelRemove']>
+
+async function expectUnknownRemoval(operation: Removal) {
+  await expect(operation.verify()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+  expect(operation.getState()).toMatchObject({status: 'unknown', pending: true, canDiscardNotApplied: false})
+  await expect(operation.discardNotApplied()).rejects.toThrow(/确认未执行/)
+}
+
+async function interruptRemovalPreflight(session: Session, operation: Removal) {
+  await operation.preview()
+  const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelremove:M1')!
+  const previous = fields.requestState
+  // A busy participant also prevents the command from discarding its staged rows in the failure handler.
+  vi.spyOn(fields, 'prepareQuerySave').mockImplementationOnce(() => {
+    fields.requestState = RequestState.Loading
+    throw new Error('field preflight interrupted')
+  })
+  try {
+    await expect(operation.save()).rejects.toBeInstanceOf(DataSetSavePreflightError)
+    expect(fields.dirtyTracking.pendingDeleteIds.has('F1')).toBe(true)
+  } finally { fields.requestState = previous }
+  expect(await operation.verify()).toBe(false)
+  expect(operation.getState()).toMatchObject({status: 'different', pending: true, canDiscardNotApplied: true})
+}
 
 describe('formal model removal', () => {
   it('protects a parent referenced by its registered name before deleting anything', async () => {
@@ -142,8 +167,9 @@ describe('formal model removal', () => {
     if (lost) {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
-      expect(await operation.verify()).toBe(true)
-      expect(f.fileWrites).toHaveLength(1)
+      await expectUnknownRemoval(operation)
+      expect(f.fileWrites).toHaveLength(0)
+      expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M1: {x: 1, y: 2}, M2: {x: 3, y: 4}})
     } else {
       expect(await operation.save()).toBe(true)
       expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M2: {x: 3, y: 4}})
@@ -174,8 +200,7 @@ describe('formal model removal', () => {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
       await expect(operation.save()).rejects.toThrow(/重复|核验/)
-      // SPARK's original native capture returns the recovery receipt; the command still rechecks the domain readback.
-      expect(await operation.verify()).toBe(true)
+      await expectUnknownRemoval(operation)
     } else expect(await operation.save()).toBe(true)
     const reopened = await f.open('A')
     expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
@@ -289,11 +314,8 @@ describe('formal model removal', () => {
   })
 
   it.each(['editing overlay', 'native dirty delta'])('does not restamp a late %s during explicit not-applied refresh', async kind => {
-    const f = fixture({omitDeleteWrite: '*', allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
-    await operation.preview(); f.loseNextResponse()
-    await expect(operation.save()).rejects.toThrow()
-    expect(await operation.verify()).toBe(false)
-    expect(operation.getState().canDiscardNotApplied).toBe(true)
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await interruptRemovalPreflight(session, operation)
     const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!, load = models.loadFromServer.bind(models)
     let injected = false
     vi.spyOn(models, 'loadFromServer').mockImplementation(async options => {
@@ -312,14 +334,14 @@ describe('formal model removal', () => {
     expect(operation.getState().pending).toBe(true)
     await expect(operation.verify()).rejects.toThrow(/草稿|变化|新草稿/)
     expect(operation.getState().canDiscardNotApplied).toBe(false)
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
     models.discardPendingChanges(['M2'])
     expect(await operation.verify()).toBe(false)
     expect(operation.getState().pending).toBe(false)
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it.each(['editing overlay', 'native dirty delta'])('preserves the pre-verify baseline for a late %s during first native verification', async kind => {
+  it.each(['editing overlay', 'native dirty delta'])('preserves the unconfirmed batch and a late %s during first native verification', async kind => {
     const f = fixture({omitDeleteWrite: '*', allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
@@ -336,26 +358,26 @@ describe('formal model removal', () => {
         throw error
       }
     })
-    await expect(operation.verify()).rejects.toThrow(/新草稿|变化|编辑/)
+    await expectUnknownRemoval(operation)
     expect(injected).toBe(true)
     expect(operation.getState().pending).toBe(true)
     expect(operation.getState().canDiscardNotApplied).toBe(false)
-    expect(writes(f).length).toBeGreaterThanOrEqual(1)
+    expect(writes(f)).toHaveLength(1)
     if (kind === 'editing overlay') expect(models.getEditingPatch('M2')).toEqual({description: `late verify ${kind}`})
     else expect(models.getEditingRow('M2')?.['description']).toBe(`late verify ${kind}`)
-    await expect(operation.verify()).rejects.toThrow(/新草稿|变化|编辑/)
+    await expectUnknownRemoval(operation)
     expect(operation.getState().canDiscardNotApplied).toBe(false)
     expect(operation.getState().pending).toBe(true)
     if (kind === 'editing overlay') expect(models.getEditingPatch('M2')).toEqual({description: `late verify ${kind}`})
     else expect(models.getEditingRow('M2')?.['description']).toBe(`late verify ${kind}`)
+    expect(models.hasUnconfirmedSave).toBe(true)
+    expect(models.dirtyTracking.pendingDeleteIds.has('M1')).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
 
   it('preflights every not-applied target before discarding any intent when a later view is busy', async () => {
-    const f = fixture({omitDeleteWrite: '*'}), session = await f.open('A'), operation = session.getModelRemove('M1')
-    await operation.preview(); f.loseNextResponse()
-    await expect(operation.save()).rejects.toThrow()
-    expect(await operation.verify()).toBe(false)
-    expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true, pending: true})
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await interruptRemovalPreflight(session, operation)
     const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelremove:M1')!
     fields.requestState = RequestState.Loading
@@ -364,7 +386,7 @@ describe('formal model removal', () => {
     expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true, pending: true})
     expect(models.dirtyTracking.pendingDeleteIds.has('M1')).toBe(true)
     expect(fields.dirtyTracking.pendingDeleteIds.has('F1')).toBe(true)
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
   })
 
   it('rechecks database completion when resuming a layout failure', async () => {
@@ -404,15 +426,26 @@ describe('formal model removal', () => {
     if (provenance) expect(reopened.definitionDataSet?.resourceRelations).toEqual(resourceRelations)
   })
 
-  it('recovers database deletion through SPARK before completing its separate layout plan', async () => {
+  it('resumes a confirmed database deletion after a failed dependency read before completing its separate layout plan', async () => {
     const f = fixture()
-    const text = JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}})
+    const text = JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}, M2: {x: 3, y: 4}}}})
     f.stored.set('A', text)
-    const operation = (await f.open('A')).getModelRemove('M1')
-    await operation.preview(); f.loseNextResponse()
-    await expect(operation.save()).rejects.toThrow()
+    const session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview()
+    const save = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)
+    vi.spyOn(session.metadataDataSet, 'saveChanges').mockImplementationOnce(async args => {
+      const receipt = await save(args)
+      f.failNextFieldRead()
+      return receipt
+    })
+    await expect(operation.save()).rejects.toThrow('field read unavailable')
+    expect(operation.getState()).toMatchObject({status: 'readback', pending: true})
+    expect(f.fileWrites).toHaveLength(0)
     expect(await operation.verify()).toBe(true)
-    expect(f.stored.get('A')).not.toBe(text); expect(f.fileWrites).toHaveLength(1)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    const reopened = await f.open('A')
+    expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
+    expect(reopened.definitionDataSet?.layout?.modelPositions).toEqual({M2: {x: 3, y: 4}})
   })
 
   it('verifies a lost file receipt without replaying the confirmed database delete or file write', async () => {
@@ -550,21 +583,36 @@ describe('formal model removal', () => {
     expect(writes(f)).toHaveLength(0)
   })
 
-  it('recovers an applied deletion from the original SPARK capture and does not replay writes', async () => {
+  it('retains the original SPARK capture when all rows are gone but the deletion receipt is missing', async () => {
     const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
     expect(operation.getState().status).toBe('unknown')
-    const count = writes(f).length
-    expect(await operation.verify()).toBe(true)
-    expect(operation.getState().pending).toBe(false)
-    expect(writes(f)).toHaveLength(count)
+    const reopened = (await f.open('A')).metadataDataSet
+    expect(reopened.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
+    expect(reopened.getView('Base_DataModel_Field')?.rows.map(row => row['rowid'])).toEqual(['F3', 'ORPHAN'])
+    expect(reopened.getView('Base_DataModel_Relation')?.rows).toEqual([])
+    await expectUnknownRemoval(operation)
+    const original = session.metadataDataSet
+    for (const [table, view, ids] of [
+      ['Base_DataModel', 'default', ['M1']], ['Base_DataModel_Field', 'modelremove:M1', ['F1', 'F2']],
+      ['Base_DataModel_Relation', 'modelremove:M1', ['R']],
+    ] as const) {
+      const target = original.getView(table, view)!
+      expect(target.hasUnconfirmedSave).toBe(true)
+      expect(target.dirtyTracking.pendingDeleteIds).toEqual(new Set(ids))
+    }
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('does not abandon a sibling native save capture while recovering model removal', async () => {
+  it('does not abandon a sibling native save capture while reading back a confirmed model removal', async () => {
     const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
-    await operation.preview(); f.loseNextResponse()
-    await expect(operation.save()).rejects.toThrow()
+    await operation.preview()
+    const save = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)
+    vi.spyOn(session.metadataDataSet, 'saveChanges').mockImplementationOnce(async args => {
+      const receipt = await save(args); f.failNextFieldRead(); return receipt
+    })
+    await expect(operation.save()).rejects.toThrow('field read unavailable')
     const models = session.metadataDataSet.getView('Base_DataModel')!
     const sibling = models.createQueryView('model-remove-sibling')
     await sibling.refresh()
@@ -575,6 +623,7 @@ describe('formal model removal', () => {
     await expect(operation.verify()).rejects.toThrow(/未确认保存/)
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(2); expect(f.fileWrites).toHaveLength(0)
   })
 
   it('preserves a sibling native delta created during original capture recovery', async () => {
@@ -584,18 +633,20 @@ describe('formal model removal', () => {
     const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel')!, save = dataSet.saveChanges.bind(dataSet)
     let sibling: ReturnType<typeof models.createQueryView> | undefined
     vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
-      const result = await save(args)
-      if (!sibling && args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
-        sibling = models.createQueryView('model-remove-late-sibling')
-        await sibling.refresh()
-        sibling.updateEditingValue('M2', 'description', 'late native delta')
-        f.loseNextResponse()
-        await expect(dataSet.saveChanges({views: [{tableName: 'Base_DataModel', viewId: sibling.viewId, ids: ['M2']}]})).rejects.toThrow()
+      try { return await save(args) } finally {
+        if (!sibling && args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
+          sibling = models.createQueryView('model-remove-late-sibling')
+          await sibling.refresh()
+          sibling.updateEditingValue('M2', 'description', 'late native delta')
+          f.loseNextResponse()
+          await expect(dataSet.saveChanges({views: [{tableName: 'Base_DataModel', viewId: sibling.viewId, ids: ['M2']}]})).rejects.toThrow()
+        }
       }
-      return result
     })
-    await expect(operation.verify()).rejects.toThrow(/未确认保存/)
+    await expectUnknownRemoval(operation)
     expect(sibling?.hasUnconfirmedSave).toBe(true)
+    expect(sibling?.getEditingRow('M2')?.['description']).toBe('late native delta')
+    expect(models.hasUnconfirmedSave).toBe(true)
     expect(operation.getState().pending).toBe(true)
     expect(writes(f)).toHaveLength(2)
     expect(f.fileWrites).toHaveLength(0)
@@ -636,46 +687,58 @@ describe('formal model removal', () => {
     expect(operation.getState().pending).toBe(false)
   })
 
-  it('requires an explicit exact discard after SPARK confirms the original deletion was not applied', async () => {
+  it('requires an explicit exact discard after SPARK rejects the original deletion at preflight', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await interruptRemovalPreflight(session, operation)
+    await operation.discardNotApplied()
+    expect(operation.getState().pending).toBe(false)
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
+    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
+  })
+
+  it('keeps a dispatched deletion unresolved when every original row survives', async () => {
     const f = fixture({omitDeleteWrite: '*'}), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
-    expect(await operation.verify()).toBe(false)
-    expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true})
-    expect(operation.getState().pending).toBe(true)
+    await expectUnknownRemoval(operation)
+    expect(session.metadataDataSet.getView('Base_DataModel')?.dirtyTracking.pendingDeleteIds.has('M1')).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    await operation.discardNotApplied()
-    expect(operation.getState().pending).toBe(false)
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
+    const reopened = (await f.open('A')).metadataDataSet
+    expect(reopened.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
+    expect(reopened.getView('Base_DataModel_Field')?.rows.map(row => row['rowid'])).toEqual(['F1', 'F2', 'F3', 'ORPHAN'])
+    expect(reopened.getView('Base_DataModel_Relation')?.rows.map(row => row['rowid'])).toEqual(['R'])
   })
 
   it('keeps a partially applied original batch pending when SPARK cannot issue a complete receipt', async () => {
     const f = fixture({omitDeleteWrite: 'Base_DataModel_Field'}), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
-    await expect(operation.verify()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
-    expect(operation.getState().pending).toBe(true)
-    expect(operation.getState().canDiscardNotApplied).toBe(false)
+    await expectUnknownRemoval(operation)
+    const reopened = (await f.open('A')).metadataDataSet
+    expect(reopened.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
+    expect(reopened.getView('Base_DataModel_Field')?.rows.map(row => row['rowid'])).toEqual(['F1', 'F2', 'F3', 'ORPHAN'])
+    expect(reopened.getView('Base_DataModel_Relation')?.rows).toEqual([])
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('retains target edits made during native capture recovery', async () => {
+  it('retains edits on the original model view made during native capture recovery', async () => {
     const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
     const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!
     const save = dataSet.saveChanges.bind(dataSet)
     vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
-      const result = await save(args)
-      if (args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
-        models.updateEditingValue('M2', 'description', 'late edit during recovery')
+      try { return await save(args) } finally {
+        if (args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
+          models.updateEditingValue('M2', 'description', 'late edit during recovery')
+        }
       }
-      return result
     })
-    await expect(operation.verify()).rejects.toThrow(/新字段编辑/)
+    await expectUnknownRemoval(operation)
     expect(models.getEditingPatch('M2')).toEqual({description: 'late edit during recovery'})
     expect(operation.getState().pending).toBe(true)
+    expect(models.hasUnconfirmedSave).toBe(true)
+    expect(writes(f)).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
   })
 
@@ -819,7 +882,8 @@ describe('formal model removal', () => {
   it('retains incomplete receipts as unresolved and readback failures can recover without replay', async () => {
     const partial = fixture({omitDeleteReceipt: 'Base_DataModel_Field'}), first = (await partial.open('A')).getModelRemove('M1')
     await first.preview(); await expect(first.save()).rejects.toThrow(/回执/)
-    expect(await first.verify()).toBe(true)
+    await expectUnknownRemoval(first)
+    expect(writes(partial)).toHaveLength(1); expect(partial.fileWrites).toHaveLength(0)
     const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview()
     const save = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)

@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/model/response-assignment-reader",
+    "sourcePath": "src/views/features/application/smart-bid/response/model/response-assignment-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/model/response-assignment-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/model/response-assignment-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/model/response-assignment-reader\n职责：按固定编制范围回读原答复分工及各落点职责。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DraftInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DraftInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "authorRef": {
+          "type": "string"
+        },
+        "at": {
+          "type": "number"
+        },
+        "body": {
+          "$ref": "../../../../../../services/smart-bid/content/references/response/response-draft.ts.json#/$defs/Body"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "lineageId",
+        "version",
+        "targetRef",
+        "authorRef",
+        "at",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "DraftSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DraftSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "task": {
+          "$ref": "../../../../../../services/smart-bid/content/references/response/response-task.ts.json#/$defs/Task"
+        },
+        "chapterId": {
+          "type": "string"
+        },
+        "allowedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredEvidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ref": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "MATERIAL",
+                  "FACT",
+                  "QUALIFICATION"
+                ]
+              }
+            },
+            "required": [
+              "ref",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Evidence"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "lineageId",
+        "version",
+        "targetRef",
+        "assertCurrent",
+        "task",
+        "allowedNodeIds",
+        "requiredEvidence",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredAssignment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredAssignment",
+      "properties": {
+        "state": {
+          "const": "READ"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Duty"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "state",
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "lineageId",
+        "version",
+        "assignments",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Duty": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Duty",
+      "properties": {
+        "targetRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "DOCUMENT",
+            "FORM_CELL",
+            "PLATFORM_FIELD"
+          ]
+        },
+        "duty": {
+          "enum": [
+            "LEAD",
+            "SEPARATE",
+            "EVIDENCE"
+          ]
+        },
+        "assigneeRef": {
+          "type": "string"
+        },
+        "dueAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "targetRef",
+        "kind",
+        "duty",
+        "assigneeRef",
+        "dueAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T15:46:02.474Z",
+  "models": {
+    "DraftInput": {
+      "name": "DraftInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareResponseDraft>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "authorRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "at",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "body",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DraftSource": {
+      "name": "DraftSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareResponseDraft>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "task",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "chapterId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedNodeIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requiredEvidence",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "evidence",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredAssignment": {
+      "name": "RegisteredAssignment",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<Awaited<ReturnType<typeof readRegisteredResponseAssignment>>, {\n    state: 'READ';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Extract<Awaited<ReturnType<typeof readRegisteredResponseAssignment>>, {\n    state: 'READ';\n}>",
+            "targetName": "Extract"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignments",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Duty": {
+      "name": "Duty",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RegisteredAssignment['assignments'][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "duty",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assigneeRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dueAt",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

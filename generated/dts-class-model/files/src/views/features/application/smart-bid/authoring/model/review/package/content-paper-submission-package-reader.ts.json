@@ -73,7 +73,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T09:18:39.292Z",
+  "generatedAt": "2026-11-18T17:43:16.248Z",
   "models": {
     "Review": {
       "name": "Review",

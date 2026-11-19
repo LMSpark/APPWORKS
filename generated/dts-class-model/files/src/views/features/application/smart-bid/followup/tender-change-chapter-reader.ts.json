@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-change-chapter-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-change-chapter-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-chapter-reader\n职责：以原已采用正文的固定快照核对两版基线要求差异涉及的章节挂接。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Host": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Host",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "runtime": {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(key: string) => DataView | undefined"
+            }
+          },
+          "required": [
+            "resolveView"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "runtime",
+        "assertCurrent",
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T21:21:06.089Z",
+  "models": {
+    "Host": {
+      "name": "Host",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof compareBidFrozenBaselines>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

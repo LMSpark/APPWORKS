@@ -152,7 +152,7 @@ describe('formal primary key configuration', () => {
     await expect(owner.save()).rejects.toThrow('不可写')
     expect(fields.hasEditingChanges()).toBe(false); expect(writes()).toHaveLength(0)
   })
-  it.each(['unknown', 'readback'])('reads back %s and never repeats a dispatched write', async mode => {
+  it.each(['unknown', 'readback'])('handles %s without repeating a dispatched write', async mode => {
     const {f, owner, fields, writes} = await setup()
     owner.stage('PrimaryKeyFields', 'code')
     if (mode === 'unknown') f.loseNextResponse(); else {
@@ -165,10 +165,13 @@ describe('formal primary key configuration', () => {
     expect(writes()).toHaveLength(1)
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')
-    if (mode === 'unknown' && owner.requiresWorkspaceRecovery()) {
+    if (mode === 'unknown') {
+      expect(owner.requiresWorkspaceRecovery()).toBe(true)
       await expect(owner.reload(true)).rejects.toThrow(/3 字段呈现.*重新核验字段配置/)
-      await owner.verifyRecovery(true)
-      await owner.reload(false)
+      await expect(owner.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+      expect(writes()).toHaveLength(1)
+      return
     } else await owner.reload(owner.getState().pending)
     expect(fields.rows.find(row => row['rowid'] === 'F2')?.['IsPKey']).toBe(1)
     expect(writes()).toHaveLength(1)

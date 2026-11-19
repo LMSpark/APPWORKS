@@ -23,12 +23,15 @@
         },
         "basisChecks": true
       },
-      "required": [
-        "stageRef",
-        "baselineId",
-        "basisChecks"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "AdoptionPreflight": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -44,12 +47,17 @@
               "type": "string"
             },
             "basisChecks": true,
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
             "selection": true
           },
           "required": [
             "stageRef",
             "baselineId",
             "basisChecks",
+            "assertCurrent",
             "selection"
           ],
           "additionalProperties": false
@@ -62,6 +70,10 @@
               "type": "string"
             },
             "basisChecks": true,
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
             "projectId": {
               "type": "string"
             },
@@ -76,6 +88,7 @@
             "stageRef",
             "baselineId",
             "basisChecks",
+            "assertCurrent",
             "projectId",
             "headRevisionId"
           ],
@@ -100,18 +113,18 @@
       ]
     }
   },
-  "generatedAt": "2026-11-17T22:24:10.973Z",
+  "generatedAt": "2026-11-18T22:11:59.351Z",
   "models": {
     "AdoptionBasis": {
       "name": "AdoptionBasis",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n}>",
+        "declarationTypeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n}>",
+            "typeText": "Readonly<{\n    stageRef: unknown;\n    baselineId: string;\n    basisChecks: unknown;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -131,6 +144,16 @@
               "name": "basisChecks",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

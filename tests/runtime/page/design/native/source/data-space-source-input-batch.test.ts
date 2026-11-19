@@ -103,7 +103,7 @@ describe('source parameters in the model workspace batch', () => {
     expect(model.getState().pending).toBe(true); expect(writes()).toHaveLength(0)
   })
 
-  it('keeps all owners recoverable after an uncertain receipt without replay', async () => {
+  it('keeps all owners tied to the original capture after an uncertain receipt without replay', async () => {
     const {f, inputs, model, writes} = await setup()
     inputs[0]!.stage(reference); inputs[1]!.stage(constant); model.stage('description', '写入')
     f.loseNextResponse()
@@ -113,9 +113,9 @@ describe('source parameters in the model workspace batch', () => {
     const capture = inputs[0]!.getRecoveryCapture()
     expect(capture).toBeDefined(); expect(model.getRecoveryCapture()).toBe(capture)
     await expect(model.reload(true)).rejects.toThrow('3 字段呈现')
-    expect(await verifyAndDiscardDataSpaceDefinitionCapture(f.sessions[0]!.metadataDataSet, capture!)).toBe('confirmed')
-    await model.reload(true); await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
-    expect(inputs.every(owner => owner.getState().status === 'idle')).toBe(true)
+    await expect(verifyAndDiscardDataSpaceDefinitionCapture(f.sessions[0]!.metadataDataSet, capture!)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(model.getRecoveryCapture()).toBe(capture)
+    expect(inputs.every(owner => owner.getRecoveryCapture() === capture && owner.getState().status === 'unknown')).toBe(true)
     expect(writes()).toHaveLength(1)
   })
   it('rejects a cross-space batch and late changed drafts without losing the edit', async () => {
@@ -196,7 +196,7 @@ describe('source input sibling views and scoped readback', () => {
     expect(inputs[0]!.getState().status).toBe('unsubmitted')
   })
 
-  it('recovers an unknown input write while preserving an unrelated directory draft and never replays it', async () => {
+  it('keeps an unknown input write and an unrelated directory draft without replay', async () => {
     const {f, session, inputs, view, model, writes} = await setup()
     inputs[0]!.stage(reference)
     const directory = session.metadataDataSet.getView('Base_DataModel_Field', 'default')!
@@ -204,8 +204,8 @@ describe('source input sibling views and scoped readback', () => {
     f.loseNextResponse()
     await expect(model.save([], inputs)).rejects.toThrow()
     expect(inputs[0]!.getState().status).toBe('unknown')
-    await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
-    expect(inputs[0]!.getState().status).toBe('idle')
+    await expect(LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(inputs[0]!.getState().status).toBe('unknown')
     expect(view.getEditingRow('I1')?.['ValueFun']).toBe(reference)
     expect(directory.getEditingRow('OTHER')?.['ValueFun']).toBe(constant)
     expect(directory.hasEditingChanges('OTHER')).toBe(true)

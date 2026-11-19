@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+    "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+    "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+    "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-allocation-conflict\n职责：按同一资源的时段核对限额占用及排他冲突，为主管的调配决定提供依据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Occupancy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Occupancy",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "units": {
+          "type": "number"
+        },
+        "exclusive": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "units",
+        "exclusive"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredOccupancy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredOccupancy",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "units": {
+          "type": "number"
+        },
+        "exclusive": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "allocationRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "units",
+        "exclusive",
+        "allocationRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T20:22:56.195Z",
+  "models": {
+    "Occupancy": {
+      "name": "Occupancy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    start: number;\n    end: number;\n    units: number;\n    exclusive: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    start: number;\n    end: number;\n    units: number;\n    exclusive: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "units",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exclusive",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredOccupancy": {
+      "name": "RegisteredOccupancy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Occupancy & Readonly<{\n    allocationRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Occupancy",
+            "targetName": "Occupancy"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    allocationRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "allocationRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

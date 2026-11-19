@@ -221,8 +221,13 @@ describe('formal model configuration maintenance', () => {
     }
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    if (mode === 'unknown') {
+      await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else {
+      await owner.reload(owner.getState().pending)
+      expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    }
     expect(f.modelRow().description).toBe(mode); expect(writes()).toHaveLength(1)
   })
 

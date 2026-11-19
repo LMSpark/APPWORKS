@@ -151,23 +151,26 @@ export class LowcodeDesignFileUpload {
     data.append('file', new Blob([bytes]), fileName)
     const result = await this.requestUpload({ url: '/api/File/UploadFile', method: 'POST', data,
       headers: { ...scope.headers } })
-    this.assertScope(scope)
-    if (!Array.isArray(result) || result.length !== 1 || !isRecord(result[0])) {
-      throw new LowcodeApiError(0, '文件上传 Result 不是单文件信息数组')
+    try {
+      this.assertScope(scope)
+      if (!Array.isArray(result) || result.length !== 1 || !isRecord(result[0])) {
+        throw new LowcodeApiError(0, '文件上传 Result 不是单文件信息数组')
+      }
+      const receipt = Object.freeze({ ...result[0] })
+      const actualPath = receipt['filePath']
+      if (receipt['state'] !== 'success' || typeof actualPath !== 'string'
+        || !matchesFileUploadPath(actualPath, {customPath, fileName, appType})) {
+        throw new LowcodeApiError(0, '文件名与预定目标不一致，不能确认文件')
+      }
+      const readback = await this.design.readFileBytes({ appType, customPath, fileName })
+      this.assertScope(scope)
+      if (readback.length !== bytes.length || bytes.some((value, index) => readback[index] !== value)) {
+        throw new LowcodeApiError(0, `${fileName} 写入后回读不一致`)
+      }
+      return receipt
+    } catch (cause) {
+      throw Object.assign(cause instanceof Error ? cause : new Error(String(cause)), {fileResourceMutationMayHaveApplied:true})
     }
-    const receipt = Object.freeze({ ...result[0] })
-    const actualPath = receipt['filePath']
-    // 覆盖和快照都核对ACK实际落盘名称，旧目标字节相同不能替另一个落点确认成功。
-    if (receipt['state'] !== 'success' || typeof actualPath !== 'string'
-      || !matchesFileUploadPath(actualPath, {customPath, fileName, appType})) {
-      throw new LowcodeApiError(0, '文件名与预定目标不一致，不能确认文件')
-    }
-    const readback = await this.design.readFileBytes({ appType, customPath, fileName })
-    this.assertScope(scope)
-    if (readback.length !== bytes.length || bytes.some((value, index) => readback[index] !== value)) {
-      throw new LowcodeApiError(0, `${fileName} 写入后回读不一致`)
-    }
-    return receipt
   }
 
   private assertScope(scope: DataSpaceRequestScope): void {
@@ -187,7 +190,7 @@ export class LowcodeDesignFileUpload {
       response = error.response
     }
     if (!isRecord(response) || typeof response['Code'] !== 'number') {
-      throw new LowcodeApiError(0, '文件上传响应不是 AjaxResult 对象')
+      throw Object.assign(new LowcodeApiError(0, '文件上传响应不是 AjaxResult 对象'), {fileResourceMutationMayHaveApplied:true})
     }
     if (response['Code'] !== 200) {
       const message = response['Message']

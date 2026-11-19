@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/resource-use/resource-original-file",
+    "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+    "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/resource-use/resource-original-file",
+    "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-original-file\n职责：核对企业资料原版登记的文件身份、容量和字节摘要。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "OriginalFileIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalFileIdentity",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId",
+        "resourceVersionId",
+        "fileVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "OriginalFileRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalFileRegistration",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "byteLength": {
+          "type": "number"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "resourceId",
+        "resourceVersionId",
+        "fileVersionId"
+      ]
+    },
+    "AuthorizedOriginalFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AuthorizedOriginalFile",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "object",
+          "title": "ArrayBuffer"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "resourceId",
+        "resourceVersionId",
+        "fileVersionId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T12:39:21.129Z",
+  "models": {
+    "OriginalFileIdentity": {
+      "name": "OriginalFileIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    resourceVersionId: string;\n    fileVersionId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    resourceVersionId: string;\n    fileVersionId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OriginalFileRegistration": {
+      "name": "OriginalFileRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "OriginalFileIdentity & Readonly<{\n    byteLength: number;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "OriginalFileIdentity",
+            "targetName": "OriginalFileIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    byteLength: number;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "byteLength",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AuthorizedOriginalFile": {
+      "name": "AuthorizedOriginalFile",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "OriginalFileIdentity & Readonly<{\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "OriginalFileIdentity",
+            "targetName": "OriginalFileIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "bytes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

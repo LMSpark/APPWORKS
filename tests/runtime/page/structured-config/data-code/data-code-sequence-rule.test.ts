@@ -130,7 +130,7 @@ describe('sequence directory and node selection', () => {
     expect(f.service.http.saves.map(save => save.table)).toEqual(['Base_CodingSequence', 'Base_CodingSequence'])
   })
 
-  it('recovers an unknown directory save by readback without replaying the write', async () => {
+  it('keeps an unknown directory save open and blocks paging without replay', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.sequences.requestState).toBe(RequestState.Loaded))
     f.sequences.updateEditingValue('S1', 'Name', '已落库待核验'); await flushPromises()
@@ -142,9 +142,8 @@ describe('sequence directory and node selection', () => {
     const discard = f.wrapper.findAll('button').find(button => button.text() === '放弃修改并关闭')!
     expect(discard.attributes('disabled')).toBeDefined()
     await f.click('核验保存结果')
-    expect(f.sequences.hasUnconfirmedSave).toBe(false)
-    expect(f.sequences.hasEditingChanges()).toBe(false)
-    expect(f.wrapper.getComponent(ElPagination).props('disabled')).toBe(false)
+    expect(f.sequences.hasUnconfirmedSave).toBe(true)
+    expect(f.wrapper.getComponent(ElPagination).props('disabled')).toBe(true)
     expect(f.service.http.saves).toHaveLength(1)
     expect(f.dialog.emitted('close')).toBeUndefined()
   })

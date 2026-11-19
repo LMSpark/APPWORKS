@@ -217,9 +217,10 @@ describe('formal field configuration maintenance', () => {
     expect(await saving).toBeInstanceOf(Error)
     expect(owner.getState().status).toBe('unknown')
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
-    expect(session.metadataDataSet.getView('Base_DataModel_Field')?.rows.find(row => row['rowid'] === 'AMOUNT')?.[field]).toBeNull()
+    await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
+    const fresh = (await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.[field]).toBeNull()
     expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
 
@@ -433,15 +434,17 @@ describe('formal field configuration maintenance', () => {
     expect(fields.hasEditingChanges('AMOUNT')).toBe(true); expect(writes()).toHaveLength(0)
   })
 
-  it('recovers a lost computed rename response without repeating the write', async () => {
+  it('keeps a lost rename unresolved while a fresh session can edit the persisted name', async () => {
     const {f, owner, fields, writes} = await setup({editableFieldProperties: ['Name'], sourceFields: computedFields('stable')})
     fields.updateEditingValue('AMOUNT', 'Name', 'subtotal'); f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    await owner.reload(owner.getState().pending)
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
-    expect(fields.rows.find(row => row['rowid'] === 'AMOUNT')?.['Name']).toBe('subtotal')
-    fields.updateEditingValue('AMOUNT', 'Name', 'total'); await owner.save()
+    await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(writes()).toHaveLength(1)
+    const reopened = await f.open('A'), fresh = reopened.metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.['Name']).toBe('subtotal')
+    fresh.updateEditingValue('AMOUNT', 'Name', 'total'); await reopened.getFieldEdit('AMOUNT').save()
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(2)
   })
 
@@ -548,15 +551,17 @@ describe('formal field configuration maintenance', () => {
     expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('verifies a lost type-save reply without resubmission and allows a subsequent edit', async () => {
+  it('preserves a lost type-save reply while a fresh session submits a subsequent edit', async () => {
     const {f, owner, fields, writes} = await setup({editableFieldProperties: ['FieldType']})
     fields.updateEditingValue('AMOUNT', 'FieldType', 'decimal'); f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    await owner.reload(owner.getState().pending)
-    expect(fields.rows.find(row => row['rowid'] === 'AMOUNT')?.['FieldType']).toBe('decimal')
-    fields.updateEditingValue('AMOUNT', 'FieldType', 'number'); await owner.save()
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(writes()).toHaveLength(1)
+    const reopened = await f.open('A'), fresh = reopened.metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.['FieldType']).toBe('decimal')
+    fresh.updateEditingValue('AMOUNT', 'FieldType', 'number'); await reopened.getFieldEdit('AMOUNT').save()
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(2)
   })
 
@@ -701,10 +706,10 @@ describe('formal field configuration maintenance', () => {
     f.loseNextResponse()
     await expect(fieldEditSaveBatch(owners)).rejects.toThrow(/response lost/)
     await expect(fieldEditStageOutputBatch(owners, 'all')).rejects.toThrow('未决')
-    await fieldEditReloadBatch(owners, true)
+    await expect(fieldEditReloadBatch(owners, true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(writes()).toHaveLength(1); expect(fields.getEditingRow('PK')?.['IsOutput']).toBe(1)
     expect(fields.getEditingRow('AMOUNT')?.['IsOutput']).toBe(0)
-    expect(owners.every(owner => owner.getState().status === 'idle')).toBe(true)
+    expect(fields.hasUnconfirmedSave).toBe(true)
   })
 
   it.each([false, 0, [], {}])('does not save a non-text constant into the database field expression path: %j', async value => {
@@ -807,9 +812,16 @@ describe('formal field configuration maintenance', () => {
     if (kind === 'lost') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
-    expect(writes()).toHaveLength(1); expect(owner.getState()).toEqual({status: 'idle', pending: false})
-    expect(fields.rows.find(row => row['rowid'] === 'AMOUNT')?.['ValueFun']).toBe(kind === 'lost' ? '{"Type":"GetConstValue","Value":"false"}' : originalFields[2]!.ValueFun)
+    if (kind === 'lost') {
+      await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else {
+      await owner.reload(owner.getState().pending)
+      expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    }
+    const fresh = (await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.['ValueFun']).toBe(kind === 'lost' ? '{"Type":"GetConstValue","Value":"false"}' : originalFields[2]!.ValueFun)
+    expect(writes()).toHaveLength(1)
   })
 
   it('keeps an open function dialog in page dirty protection and rejects its stale callback', async () => {
@@ -994,9 +1006,15 @@ describe('formal field configuration maintenance', () => {
     await expect(owner.save()).rejects.toThrow()
     expect(session.hasPendingFieldEdits()).toBe(true)
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
-    expect(fields.rows.find(row => row['rowid'] === 'AMOUNT')?.['Order']).toBe(mode === 'mismatch' ? 0 : 3)
+    if (mode === 'lost' || mode === 'receipt') {
+      await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(fields.hasUnconfirmedSave).toBe(true)
+    } else {
+      await owner.reload(owner.getState().pending)
+      expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    }
+    const fresh = (await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.['Order']).toBe(mode === 'mismatch' ? 0 : 3)
     expect(writes()).toHaveLength(1)
   })
 
@@ -1113,9 +1131,9 @@ describe('formal field configuration maintenance', () => {
     expect(control.get('input').element.disabled).toBe(true)
     expect(f.sessions[0]?.hasPendingFieldEdits()).toBe(true)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(f.sessions[0]?.hasPendingFieldEdits()).toBe(false)
+    expect(f.sessions[0]?.hasPendingFieldEdits()).toBe(true)
     const restored = wrapper.findAllComponents(FieldText).find(item => item.props('field') === 'description')!
-    expect(restored.get('input').element.disabled).toBe(false)
+    expect(restored.get('input').element.disabled).toBe(true)
     expect(restored.get('input').element.value).toBe('保存后核验')
     expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
@@ -1187,9 +1205,15 @@ describe('formal field configuration maintenance', () => {
     if (mode === 'lost') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
-    expect(fields.rows.find(row => row['rowid'] === 'AMOUNT')?.['AsName']).toBe(mode === 'lost' ? 'renamed' : undefined)
+    if (mode === 'lost') {
+      await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(fields.hasUnconfirmedSave).toBe(true)
+    } else {
+      await owner.reload(owner.getState().pending)
+      expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    }
+    const fresh = (await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fresh.rows.find(row => row['rowid'] === 'AMOUNT')?.['AsName']).toBe(mode === 'lost' ? 'renamed' : undefined)
     expect(writes()).toHaveLength(1)
   })
 

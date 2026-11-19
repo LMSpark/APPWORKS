@@ -1,10 +1,10 @@
 import { computed, onBeforeUnmount, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
-import { NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource } from '@spark-appworks/spark-app'
+import { getNavTree, NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { buildDataViewKey, DataViewFilter, ensureDataSetStaticInputTable, isDataRow, type DataRow, type DataSet, type DataView } from '@spark-appworks/spark-data'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import { parseConfigToolPageId, type PageRuntime } from '@spark-appworks/spark-project-model'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, parseLowcodeBlueprintFileVersions, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { submitBlueprintDocument } from '@/lowcode/resources/application/project-blueprint-document'
@@ -406,8 +406,27 @@ export function useApplicationFunctionPage() {
       if (!pattern) throw new Error('导航地址列未声明规范')
       const nodes = await context.owner.readSavedProjectNodes(BLUEPRINT_VERIFY_FIELDS, assertCurrent)
       assertCurrent()
+      const menu = new Map<string, RuntimeNavigationItem>()
+      function index(items: readonly RuntimeNavigationItem[]) {
+        for (const item of items) {
+          if (item.disabled || item.hidden) continue
+          menu.set(item.id, item)
+          index(item.children ?? [])
+        }
+      }
+      index(getNavTree()?.items ?? [])
       verifyResult.value = verifyBlueprintNodeTree({rootNodeId: nodeId, nodes, targetPattern: new RegExp(pattern),
-        deliveryResources: getVuePageOptions().map(page => `vue:${page.path}`)})
+        deliveryResources: getVuePageOptions().map(page => `vue:${page.path}`),
+        deliveredTool: (id, pageId, path) => {
+          const item = menu.get(id)
+          if (item?.itemKind !== 'page' || item.path !== path || item.tool?.projectId !== context.projectId
+            || item.tool.pageId !== pageId) return false
+          const saved=nodes.find(node=>node.row['rowid']===id)
+          const publishedVersion=saved?.row['VersionId']
+          if(saved?.hidden.includes('VersionId') || typeof publishedVersion !== 'string' || !publishedVersion.trim()) return false
+          const versions = parseLowcodeBlueprintFileVersions(publishedVersion.trim())
+          return versions.rule !== null && versions.script !== null && versions.style !== null
+        }})
     } catch (cause) {
       if (current === verifyGeneration) verifyError.value = `核验失败：${cause instanceof Error ? cause.message : String(cause)}`
     } finally {
@@ -467,15 +486,17 @@ export function useApplicationFunctionPage() {
     return true
   }
 
-  /** 新增位置对应的父节点：root→null；sibling→选中节点的父级（根层同级即根模块）；child→选中节点。 */
+  /** 已开通应用的顶层业务节点挂到正式授权导航根下。 */
   function createParent(position: CreatePosition, context: BlueprintTreeContext): string | null | undefined {
-    if (position === 'root') return null
+    const menu = getNavTree()
+    const navigationRoot = menu?.projectId === context.projectId ? menu.id : undefined
+    if (position === 'root') return navigationRoot ?? null
     const nodeId = selectedNodeId.value
     if (!nodeId) return undefined
     const row = context.owner.view.rows.find(candidate => readText(candidate, 'rowid') === nodeId && candidate['SysId'] === context.projectId)
     if (!row) return undefined
     if (position === 'child') return nodeId
-    return isRootParent(row['prowid']) ? null : readText(row, 'prowid')
+    return isRootParent(row['prowid']) ? navigationRoot ?? null : readText(row, 'prowid')
   }
 
   function canCreateAt(position: CreatePosition): boolean {
@@ -804,6 +825,8 @@ export function useApplicationFunctionPage() {
       const rowId = row && context.owner.view.getPkKey(row)
       const patch = rowId === undefined ? undefined : context.owner.view.getEditingPatch(rowId)
       const changedTarget = patch?.['NavigationUrl']
+      const menuChanged = changedTarget !== undefined || patch?.['conid'] !== undefined || patch?.['prowid'] !== undefined
+        || patch?.['IsShowAtNav'] !== undefined || patch?.['FunOrderValue'] !== undefined
       if (typeof changedTarget === 'string' && changedTarget.startsWith('cfg:')) {
         if (!parseConfigToolPageId(changedTarget)) throw new Error('配置工具导航地址不符合调用合同')
         if (!context.owner.canRead('conid')) throw new Error('主场景字段不可读，无法核对工具调用')
@@ -813,7 +836,7 @@ export function useApplicationFunctionPage() {
       if (!isCurrentContext(context.key)) throw new Error('保存期间蓝图项目或运行时身份已变化')
       state.refreshBlueprintTreeProjection()
       error.value = ''
-      if (changedTarget !== undefined) {
+      if (menuChanged) {
         try {
           if (readLowcodeExecutionProject().projectId === context.projectId) await reloadAndSyncNavigation()
         } catch (cause) {error.value = `蓝图已保存，菜单刷新失败：${String(cause)}`}

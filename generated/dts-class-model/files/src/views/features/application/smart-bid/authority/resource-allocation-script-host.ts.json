@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/resource-allocation-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/resource-allocation-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-allocation-script-host\n职责：页07在正式占用快照上核指定项目的时段和份额。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Allocation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Allocation",
+      "properties": {
+        "limit": {
+          "type": "number"
+        },
+        "requested": {
+          "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts.json#/$defs/Occupancy"
+        },
+        "occupancies": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts.json#/$defs/RegisteredOccupancy"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "replacesAllocationRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "limit",
+        "requested",
+        "occupancies",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Selection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Selection",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "requestRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "projectId",
+        "resourceVersionId",
+        "requestRef"
+      ],
+      "additionalProperties": false
+    },
+    "Snapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Snapshot",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "requestRef": {
+          "type": "string"
+        },
+        "requested": {
+          "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts.json#/$defs/Occupancy"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "limit": {
+          "type": "number"
+        },
+        "occupancies": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts.json#/$defs/RegisteredOccupancy"
+          }
+        },
+        "complete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "previous": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "resourceVersionId": {
+              "type": "string"
+            },
+            "enterpriseId": {
+              "type": "string"
+            },
+            "allocationRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "resourceVersionId",
+            "enterpriseId",
+            "allocationRef",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "projectId",
+        "resourceVersionId",
+        "requestRef",
+        "requested",
+        "assertCurrent",
+        "limit",
+        "occupancies",
+        "complete"
+      ],
+      "additionalProperties": false
+    },
+    "Release": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Release",
+      "properties": {
+        "allocation": {
+          "$ref": "#/$defs/Allocation"
+        },
+        "obligationRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "effectiveAt": {
+          "type": "number"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-release.ts.json#/$defs/ObligationEnd"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "allocation",
+        "obligationRefs",
+        "effectiveAt",
+        "evidence",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:37:07.183Z",
+  "models": {
+    "Allocation": {
+      "name": "Allocation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof checkResourceAllocationConflict>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "limit",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requested",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "occupancies",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "replacesAllocationRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Selection": {
+      "name": "Selection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    resourceVersionId: string;\n    requestRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    resourceVersionId: string;\n    requestRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Snapshot": {
+      "name": "Snapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Selection & Omit<Allocation, 'replacesAllocationRef'> & Readonly<{\n    complete: boolean;\n    previous?: Pick<Selection, 'enterpriseId' | 'projectId' | 'resourceVersionId'> & Readonly<{\n        allocationRef: string;\n        assertCurrent: () => void;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Selection",
+            "targetName": "Selection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Allocation, 'replacesAllocationRef'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    complete: boolean;\n    previous?: Pick<Selection, 'enterpriseId' | 'projectId' | 'resourceVersionId'> & Readonly<{\n        allocationRef: string;\n        assertCurrent: () => void;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "complete",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previous",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Release": {
+      "name": "Release",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof checkResourceAllocationRelease>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "allocation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "obligationRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "evidence",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ReleaseReader": {
+      "name": "ReleaseReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(allocation: Release['allocation'], signal: AbortSignal) => Promise<Release & Readonly<{\n    complete: boolean;\n}>>",
+        "members": {}
+      }
+    }
+  }
+}

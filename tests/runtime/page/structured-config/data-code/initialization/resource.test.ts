@@ -41,17 +41,15 @@ async function fixture(policy:Readonly<{denyAdd?:boolean;denyCode?:boolean;maskC
   return {service,ds,view,save,setTarget:(value:typeof target)=>{target=value},setResponse:(rows:Array<Record<string,unknown>>)=>{responseOverride=rows}}
 }
 describe('code initialization semantic view and formal persistence',()=>{
-  it('translates a physical not-applied proof to the original semantic change and permits a fresh explicit save',async()=>{
+  it('keeps the original change unknown when the physical row shows a third value',async()=>{
     const f=await fixture(),key=f.view.getPkKey(f.view.rows[0]!)!
     f.view.updateEditingValue(key,'InitVal','007');f.service.http.failAfterWrite=true
     await expect(f.save()).rejects.toThrow()
     f.service.http.records['Base_CodeSerialPerform']![0]!['Code']='003'
-    expect(await f.ds.resolveUnconfirmedSaves()).toMatchObject({state:'not-applied',views:[{tableName:'CodeInitialization',state:'not-applied'}]})
+    expect(await f.ds.resolveUnconfirmedSaves()).toMatchObject({state:'unknown',views:[{tableName:'CodeInitialization',state:'unknown'}]})
     expect(f.service.http.saves).toHaveLength(1)
-    f.view.updateEditingValue(key,'InitVal','009')
-    expect((await f.save()).success).toBe(true)
-    expect(f.service.http.saves).toHaveLength(2)
-    expect(f.service.http.records['Base_CodeSerialPerform']![0]?.['Code']).toBe('007')
+    expect(f.view.hasUnconfirmedSave).toBe(true)
+    expect(f.service.http.records['Base_CodeSerialPerform']![0]?.['Code']).toBe('003')
   })
 
   it('edits a legacy function-selected row using its original permission and preserves its null node owner',async()=>{
@@ -82,13 +80,13 @@ describe('code initialization semantic view and formal persistence',()=>{
     expect(ds.getView('Base_CodeSerialPerform')!.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(service.http.saves).toEqual([])
   })
-  it('retains an interrupted original save, verifies without replay, then checks service readback',async()=>{
+  it('retains an interrupted original save even when the persisted value matches',async()=>{
     const {service,view,save}=await fixture(),key=view.getPkKey(view.rows[0]!)!
     view.updateEditingValue(key,'InitVal','007');service.http.failAfterWrite=true
     await expect(save()).rejects.toThrow();expect(view.hasUnconfirmedSave).toBe(true)
-    expect((await save()).success).toBe(true)
-    expect(service.http.saves).toHaveLength(1);expect(view.hasUnconfirmedSave).toBe(false)
-    expect(view.rows[0]?.['InitVal']).toBe('007')
+    await expect(save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(service.http.saves).toHaveLength(1);expect(view.hasUnconfirmedSave).toBe(true)
+    expect(service.http.records['Base_CodeSerialPerform']![0]?.['Code']).toBe('005')
   })
   it('does not accept a CRUD receipt when the initialization function still returns a different next value',async()=>{
     const f=await fixture(),key=f.view.getPkKey(f.view.rows[0]!)!

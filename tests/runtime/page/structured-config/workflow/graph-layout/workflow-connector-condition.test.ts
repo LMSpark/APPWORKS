@@ -148,12 +148,14 @@ describe('workflow connector condition',()=>{
   f.http.records['Base_WorkflowConnectors']![0]!['targetID']='NX';await f.ds.getView('Base_WorkflowConnectors')!.refresh()
   await expect(WorkflowConnectorCondition.load(f.ds,'W1','E1')).rejects.toThrow();expect(f.http.saves).toEqual([])
  })
- it('recovers an unknown condition creation without repeating it',async()=>{
+ it('keeps an unknown condition creation pending without repeating it',async()=>{
   const f=await fixture(),view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),row=await WorkflowConnectorCondition.add(f.ds,'W1','E1')
   view.updateEditingValue(view.getPkKey(row)!,'filter',filter);f.http.failAfterWrite=true
   await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow()
   expect(f.http.saves).toHaveLength(1)
-  await WorkflowConnectorCondition.save(f.ds,'W1','E1');expect(f.http.saves).toHaveLength(1)
+  await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(view.hasUnconfirmedSave).toBe(true)
+  expect(f.http.saves).toHaveLength(1)
  })
  it('refuses malformed source output and malformed filters without clearing the original records',async()=>{
   const f=await fixture(),view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),row=await WorkflowConnectorCondition.add(f.ds,'W1','E1')

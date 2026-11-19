@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/configuration/configuration-channel-reader",
+    "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/configuration/configuration-channel-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-channel-reader\n职责：读取正式配置指针和不可变版本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ConfigurationScope"
+    ]
+  },
+  "$defs": {
+    "ConfigurationScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ConfigurationScope",
+      "enum": [
+        "PLATFORM",
+        "ENTERPRISE",
+        "PROJECT"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T00:11:54.074Z",
+  "models": {
+    "ConfigurationScope": {
+      "name": "ConfigurationScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'PLATFORM' | 'ENTERPRISE' | 'PROJECT'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'PLATFORM'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ENTERPRISE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PROJECT'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

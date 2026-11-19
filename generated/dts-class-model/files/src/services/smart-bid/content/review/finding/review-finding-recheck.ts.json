@@ -1,0 +1,443 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/finding/review-finding-recheck",
+    "sourcePath": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+    "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/finding/review-finding-recheck",
+    "jsdoc": "@module app:services/smart-bid/content/review/finding/review-finding-recheck\n职责：第44项按原问题版本、整改证据和复核权限固定本次复验决定。\n边界：只生成待登记决定，不关闭原问题或代写整改结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ReviewFindingTarget"
+    ]
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "findingId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "findingId"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewFindingTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewFindingTarget",
+      "properties": {
+        "kind": {
+          "enum": [
+            "CONTENT",
+            "FILE",
+            "PACKAGE",
+            "FIELD",
+            "SUBMISSION",
+            "VALIDATION"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "versionRef",
+        "effectiveHash"
+      ],
+      "additionalProperties": false
+    },
+    "Finding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Finding",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "findingId": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/ReviewFindingTarget"
+        },
+        "remediatorId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "findingId"
+      ]
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "findingId": {
+          "type": "string"
+        },
+        "findingVersionRef": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/ReviewFindingTarget"
+        },
+        "evidenceRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "findingId"
+      ]
+    },
+    "Decision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Decision",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "findingId": {
+          "type": "string"
+        },
+        "findingVersionRef": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/ReviewFindingTarget"
+        },
+        "reviewerId": {
+          "type": "string"
+        },
+        "authorityRef": {
+          "type": "string"
+        },
+        "ruleRef": {
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "UNRESOLVED",
+            "CORRECTED",
+            "FALSE_POSITIVE",
+            "WAIVED"
+          ]
+        },
+        "waiverRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "independenceRequired": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "findingId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T11:35:21.689Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    findingId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    findingId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "findingId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewFindingTarget": {
+      "name": "ReviewFindingTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'CONTENT' | 'FILE' | 'FIELD' | 'PACKAGE' | 'SUBMISSION' | 'VALIDATION';\n    targetId: string;\n    versionRef: string;\n    effectiveHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'CONTENT' | 'FILE' | 'FIELD' | 'PACKAGE' | 'SUBMISSION' | 'VALIDATION';\n    targetId: string;\n    versionRef: string;\n    effectiveHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Finding": {
+      "name": "Finding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    versionRef: string;\n    target: ReviewFindingTarget;\n    remediatorId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    versionRef: string;\n    target: ReviewFindingTarget;\n    remediatorId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "remediatorId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    findingVersionRef: string;\n    target: ReviewFindingTarget;\n    evidenceRef: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    findingVersionRef: string;\n    target: ReviewFindingTarget;\n    evidenceRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "findingVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Decision": {
+      "name": "Decision",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    findingVersionRef: string;\n    target: ReviewFindingTarget;\n    reviewerId: string;\n    authorityRef: string;\n    ruleRef: string;\n    outcome: 'UNRESOLVED' | 'CORRECTED' | 'FALSE_POSITIVE' | 'WAIVED';\n    waiverRef: string | null;\n    independenceRequired: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    findingVersionRef: string;\n    target: ReviewFindingTarget;\n    reviewerId: string;\n    authorityRef: string;\n    ruleRef: string;\n    outcome: 'UNRESOLVED' | 'CORRECTED' | 'FALSE_POSITIVE' | 'WAIVED';\n    waiverRef: string | null;\n    independenceRequired: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "findingVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reviewerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authorityRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "waiverRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "independenceRequired",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

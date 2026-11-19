@@ -115,7 +115,7 @@
           "type": "object",
           "properties": {
             "selection": {
-              "$ref": "content-snapshot-reader.ts.json#/$defs/ContentSnapshotSelection"
+              "$ref": "hashes/content-snapshot-reader.ts.json#/$defs/ContentSnapshotSelection"
             }
           },
           "additionalProperties": false
@@ -128,7 +128,7 @@
           "type": "object",
           "properties": {
             "snapshot": {
-              "$ref": "content-snapshot-reader.ts.json#/$defs/ContentSnapshotIndexBinding"
+              "$ref": "hashes/content-snapshot-reader.ts.json#/$defs/ContentSnapshotIndexBinding"
             }
           },
           "additionalProperties": false
@@ -239,7 +239,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T08:08:50.368Z",
+  "generatedAt": "2026-11-19T00:56:36.676Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -410,7 +410,7 @@
                   "type": {
                     "type": "reference",
                     "name": "ContentSnapshotSelection",
-                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
                   }
                 }
               ],
@@ -421,7 +421,7 @@
                   {
                     "type": "reference",
                     "name": "ContentSnapshotIndexBinding",
-                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
                   }
                 ]
               }
@@ -435,7 +435,7 @@
                   "type": {
                     "type": "reference",
                     "name": "ContentSnapshotIndexBinding",
-                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts"
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
                   }
                 }
               ],

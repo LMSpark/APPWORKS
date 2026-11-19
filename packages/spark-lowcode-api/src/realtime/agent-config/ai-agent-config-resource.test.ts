@@ -134,8 +134,9 @@ describe('AiAgentConfigResource native DataSet contract', () => {
       view.queryContext = {agentId: 'A'}
       f.http.respond(agentReadback('B'))
       view.validateQueryResult = () => {view.queryContext = {agentId: 'C'}}
-      await view.loadFromServer({context: {agentId: 'B'}}).catch(() => undefined)
-      expect(view.loadingError).toBeInstanceOf(Error)
+      await expect(view.loadFromServer({context: {agentId: 'B'}})).resolves.toEqual({success: false, message: 'Request superseded'})
+      expect(view.loadingError).toBeNull()
+      expect(view.queryContext).toEqual({agentId: 'C'})
       expect(view.rows).toEqual([])
       expect(f.http.requests.at(-1)?.params).toEqual({id: 'B'})
     } finally { f.dataSet.destroy() }
@@ -184,7 +185,7 @@ describe('AiAgentConfigResource native DataSet contract', () => {
     } finally { f.dataSet.destroy() }
   })
 
-  it('does not accept or emit rows from an Agent GET that becomes stale while requestRefresh is deferred', async () => {
+  it('refreshes the new Agent immediately and never emits the superseded response', async () => {
     const f = await fixture()
     let releaseFirst: ((value: unknown) => void) | undefined
     const rowChanges: string[][] = []
@@ -199,9 +200,10 @@ describe('AiAgentConfigResource native DataSet contract', () => {
       await vi.waitFor(() => expect(f.http.requests).toHaveLength(1))
 
       f.resource.configuration.queryContext = {agentId: 'AGENT-2'}
-      const deferredRefresh = await f.resource.configuration.requestRefresh()
-      expect(deferredRefresh.success).toBe(true)
-      expect(f.resource.configuration.refreshPending).toBe(true)
+      const newRefresh = await f.resource.configuration.requestRefresh()
+      expect(newRefresh.success).toBe(true)
+      expect(f.resource.configuration.refreshPending).toBe(false)
+      expect(f.resource.configuration.rows.map(row => row['id'])).toEqual(['AGENT-2'])
 
       const release = releaseFirst
       if (release === undefined) throw new Error('Expected pending Agent-1 configuration response')
@@ -226,18 +228,17 @@ describe('AiAgentConfigResource native DataSet contract', () => {
     f.resource.configuration.queryContext = {agentId: 'AGENT-1'}
     f.http.respondAsync(() => new Promise(resolve => { releaseFirst = resolve }))
     try {
-      const load = f.resource.configuration.refresh()
+      const load = f.resource.configuration.loadFromServer()
       await vi.waitFor(() => expect(f.http.requests).toHaveLength(1))
 
       f.resource.configuration.queryContext = {agentId: 'AGENT-2'}
       const release = releaseFirst
       if (release === undefined) throw new Error('Expected pending Agent-1 configuration response')
       release(agentReadback('AGENT-1'))
-      await load
+      await expect(load).resolves.toEqual({success: false, message: 'Request superseded'})
 
       expect(f.http.requests).toHaveLength(1)
-      expect(f.resource.configuration.loadingError).toBeInstanceOf(Error)
-      expect(f.resource.configuration.loadingError?.message).toContain('目标已改变')
+      expect(f.resource.configuration.loadingError).toBeNull()
       expect(f.resource.configuration.rows).toEqual([])
       expect(rowChanges).not.toContainEqual(['AGENT-1'])
     } finally { f.dataSet.destroy() }

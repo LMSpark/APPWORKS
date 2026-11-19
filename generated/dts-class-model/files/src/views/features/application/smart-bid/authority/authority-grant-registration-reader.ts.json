@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/authority-grant-registration-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/authority-grant-registration-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/authority-grant-registration-reader\n职责：页04以正式命名视图回查原委托登记结果。\n边界：只读当前实例可见的原登记，不写入或重发委托决定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T20:49:47.301Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readOriginalAuthorityGrantRegistration>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

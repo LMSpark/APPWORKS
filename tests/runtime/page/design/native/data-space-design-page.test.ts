@@ -1770,6 +1770,16 @@ async function openModelFieldsTab(wrapper: ReturnType<typeof mount>) {
 function writes(f: ReturnType<typeof dataSpacePageFixture>) {
   return f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
 }
+function afterMetadataSave(f: ReturnType<typeof dataSpacePageFixture>, onReceipt: () => void) {
+  const dataSet = f.sessions[0]!.metadataDataSet
+  const save = dataSet.saveChanges.bind(dataSet)
+  vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+    const result = await save(options)
+    expect(result.success).toBe(true)
+    onReceipt()
+    return result
+  })
+}
 async function createDirectoryNode(wrapper: VueWrapper) {
   await select(wrapper, '模型（2）')
   await sourceButton(wrapper, 'add-directory-model').trigger('click'); await flushPromises()
@@ -1972,6 +1982,12 @@ describe('native graph layout persistence', () => {
       expect(flow.props('nodes')!.some(item => item.data?.title === '待配置模型')).toBe(true)
       expect(sourceButton(editor, 'create-model').attributes('disabled')).toBeDefined()
       await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+      expect(instance.isDirty).toBe(true)
+      expect(writes(f)).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+      expect(flow.props('nodes')!.some(item => item.data?.title === '待配置模型')).toBe(true)
+      expect(flow.props('edges')).toHaveLength(1)
+      return
     }
     expect(writes(f), wrapper.text()).toHaveLength(1)
     expect(f.fileWrites, wrapper.text()).toHaveLength(saved ? 2 : 1)
@@ -2212,7 +2228,7 @@ describe('native graph layout persistence', () => {
     expect(firstSession.metadataDataSet.destroyed).toBe(false)
   }, 15_000)
 
-  it.each(['database', 'definition'] as const)('recovers model rename at the real %s failure boundary without replaying confirmed sources', async failure => {
+  it.each(['database', 'definition'] as const)('handles model rename at the real %s failure boundary without replaying confirmed sources', async failure => {
     const f = fixture({overviewOnly: true, allowModelRename: true, sourceFields: [
       {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
     ]})
@@ -2234,6 +2250,13 @@ describe('native graph layout persistence', () => {
     await sourceButton(editor, 'verify-rename-model').trigger('click'); await flushPromises()
     expect(f.sessions).toHaveLength(1)
     expect(firstSession.metadataDataSet.destroyed).toBe(false)
+    if (failure === 'database') {
+      expect(instance.isDirty).toBe(true)
+      expect(wrapper.get('.design-detail h2').text()).toBe(selectedTitle)
+      expect(wrapper.get('[data-action="close-definition"]').attributes('disabled')).toBeDefined()
+      expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+      return
+    }
     expect(instance.isDirty).toBe(false)
     expect(wrapper.get('.design-detail h2').text()).toBe('SalesOrders')
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
@@ -2290,7 +2313,7 @@ describe('native graph layout persistence', () => {
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
   })
 
-  it('closes an explicitly abandoned not-applied rename and requires a fresh UI edit', async () => {
+  it('keeps a rename pending when unchanged rows cannot prove failure', async () => {
     const f = fixture({overviewOnly: true, allowModelRename: true, omitModelWrite: true})
     const {wrapper, instance} = await page()
     await select(wrapper, 'Orders')
@@ -2301,20 +2324,13 @@ describe('native graph layout persistence', () => {
     await sourceButton(editor, 'save-rename-model').trigger('click'); await flushPromises()
     await sourceButton(editor, 'verify-rename-model').trigger('click'); await flushPromises()
     const dialog = () => new DOMWrapper(document.body).findAll('[role="dialog"]').find(item => item.text().includes('修改模型注册名'))!
-    expect(dialog().find('[data-action="abandon-not-applied-rename-model"]').exists()).toBe(true)
-    await sourceButton(dialog(), 'abandon-not-applied-rename-model').trigger('click'); await flushPromises()
-    expect(editor.find('[data-action="abandon-not-applied-rename-model"]').exists()).toBe(false)
-    expect(editor.find('[data-action="save-rename-model"]').exists()).toBe(false)
-    expect(editor.find('[data-action="preview-rename-model"]').exists()).toBe(false)
-    expect(editor.text()).toContain('已放弃本地注册名修改')
-    expect(instance.isDirty).toBe(false)
+    expect(dialog().find('[data-action="abandon-not-applied-rename-model"]').exists()).toBe(false)
+    expect(dialog().text()).toContain('服务未提供原请求的权威终态')
+    expect(instance.isDirty).toBe(true)
+    expect(f.modelRow().Name).toBe('Orders')
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    await parameterInput(editor, '节点名称:').setValue('FreshSalesOrders'); await flushPromises()
-    await sourceButton(editor, 'preview-rename-model').trigger('click'); await flushPromises()
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    await sourceButton(editor, 'save-rename-model').trigger('click'); await flushPromises()
-    expect(writes(f)).toHaveLength(2); expect(f.fileWrites).toHaveLength(0)
   })
+
 
   it('keeps drag local, cancels it, then saves native model coordinates and reopens', async () => {
     const f = fixture()
@@ -2903,19 +2919,22 @@ describe('native data-space design entry', () => {
     await wrapper.get('[data-action="add-array"]').trigger('click');await flushPromises()
     const editor=wrapper.findComponent({name:'DataSpaceArrayCreate'}),owner=f.sessions[0]!.getModelCreate()
     await parameterInput(editor,'名称').setValue('ConfirmedArray');await flushPromises()
-    f.loseNextResponse()
+    const refresh=DataView.prototype.refresh
+    let injected=false
+    const readback=vi.spyOn(DataView.prototype,'refresh').mockImplementation(async function(this:DataView,...args){
+      if(!injected&&writes(f).length===1&&this.tableName==='Base_DataModel_Field'&&this.viewId.startsWith('createModel:')){
+        injected=true;f.failNextFieldRead()
+      }
+      return refresh.apply(this,args)
+    })
     await body.get('[data-action="save-new-array"]').trigger('click');await flushPromises()
-    expect(writes(f)).toHaveLength(1);expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
-
-    const dataSet=f.sessions[0]!.metadataDataSet,nativeSave=dataSet.saveChanges.bind(dataSet)
-    let release!:()=>void
-    const gate=new Promise<void>(resolve=>{release=resolve})
-    const held=vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(async options=>{const result=await nativeSave(options);await gate;return result})
-    await body.get('[data-action="verify-new-array"]').trigger('click')
-    await vi.waitFor(()=>expect(held).toHaveBeenCalledTimes(1))
+    readback.mockRestore()
+    expect(writes(f)).toHaveLength(1);expect(owner.getState()).toMatchObject({status:'readback',pending:true})
+    const dataSet=f.sessions[0]!.metadataDataSet
     const modelId=owner.getState().modelId!,models=dataSet.getView('Base_DataModel','default')!
     models.updateEditingValue(modelId,'description','late array description')
-    release();await flushPromises()
+    await body.get('[data-action="verify-new-array"]').trigger('click');await flushPromises()
+    expect(models.getEditingRow(modelId)?.['description']).toBe('late array description')
     expect(owner.getState()).toMatchObject({status:'readback',pending:true,modelId,canDiscardLocalChanges:true})
     expect(body.get('[data-action="discard-confirmed-array-edits"]').text()).toBe('放弃模型及字段后续修改并继续核验')
 
@@ -2965,7 +2984,7 @@ describe('native data-space design entry', () => {
     const fresh=await f.open('A');expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['items']).toBe('[{"name":"after","count":2}]')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['description']).toBe('数组保存后的模型编辑')
   }, 15_000)
-  it('labels unknown array recovery with its not-applied discard consequence and completes through the same UI action', async () => {
+  it('keeps the array editor open after verifying a submission with no receipt', async () => {
     const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[
       {rowid:'F1',dataModelId:'M1',Name:'code',description:'编码',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:1},
       {rowid:'F2',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0},
@@ -2981,30 +3000,36 @@ describe('native data-space design entry', () => {
     await rows.get('[data-json-save-row]').trigger('click');await flushPromises();f.loseNextResponse()
     await body.get('[data-action="save-array"]').trigger('click');await flushPromises()
     expect(writes(f)).toHaveLength(1)
-    expect(body.get('[data-action="verify-array"]').text()).toContain('未生效时放弃本次草稿')
+    expect(body.get('[data-action="verify-array"]').text()).toBe('核验原提交')
     await body.get('[data-action="verify-array"]').trigger('click');await flushPromises()
     expect(writes(f)).toHaveLength(1)
-    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组'&&dialog.props('modelValue'))).toBe(false)
+    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组'&&dialog.props('modelValue'))).toBe(true)
+    expect(body.text()).toContain('服务未提供原请求的权威终态')
     expect((f.modelRow() as Record<string,unknown>)['items']).toBe('[{"code":"after","name":"one"}]')
   }, 15_000)
   it('requires a separate explicit UI action to discard drafts after confirmed array recovery', async () => {
-    const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[
-      {rowid:'F1',dataModelId:'M1',Name:'code',description:'编码',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:1},
-      {rowid:'F2',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0},
+    const f=fixture({overviewOnly:true,formalProjection:true,allowArrayEdit:true,allowFieldEdit:true,allowFieldAdd:true,editableFieldProperties:['IsPKey'],sourceFields:[
+      {rowid:'F1',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:1,Order:0,allowAIAdd:1},
     ]})
-    f.setModelValues({Type:'数组',PrimaryKeyFields:'code',items:'[{"code":"before","name":"one"}]'})
-    const {wrapper}=await page('?scenarioId=A',true);await select(wrapper,'Orders')
+    f.setModelValues({Type:'数组',PrimaryKeyFields:'name',items:'[{"name":"before","memo":"原有值"}]'})
+    f.stored.set('A',JSON.stringify({scenarioId:'A',tables:{OrdersAlias:{modelBinding:{modelId:'M1',modelName:'Orders'},views:{default:{},shared:{valueField:'name'}}}}}))
+    const {wrapper}=await page();await select(wrapper,'Orders')
     await wrapper.get('[data-action="edit-array"]').trigger('click');await flushPromises()
-    const body=new DOMWrapper(document.body),models=f.sessions[0]!.metadataDataSet.getView('Base_DataModel')!
-    vi.spyOn(models,'loadFromServer').mockImplementationOnce(async()=>{throw new Error('array readback unavailable')})
-    const rows=wrapper.getComponent({name:'DataSpaceArrayEditor'}).getComponent({name:'JsonArrayRows'})
-    await rows.get('tbody tr').trigger('click');await flushPromises();await rows.get('[data-json-edit]').trigger('click');await flushPromises()
-    const input=rows.getComponent(FieldText).get('input')
-    await input.setValue('after');await input.trigger('change');await flushPromises()
-    await rows.get('[data-json-save-row]').trigger('click');await flushPromises();f.loseNextResponse()
+    const body=new DOMWrapper(document.body),dataSet=f.sessions[0]!.metadataDataSet,models=dataSet.getView('Base_DataModel')!
+    await body.get('[data-action="array-headers"]').trigger('click');await flushPromises()
+    const key=wrapper.getComponent({name:'DataSpaceArrayHeaders'}).getComponent(RendererForm).props('dataViewKey')
+    const draft=resolveDataViewKey(key,dataSet)!
+    draft.updateEditingValue('array','headerDraft',JSON.stringify([{id:'F1',name:'name',label:'名称',order:0,primary:false},{name:'memo',label:'备注',order:1,primary:true}]))
+    await body.get('[data-action="save-array-headers"]').trigger('click');await flushPromises()
+    const load=models.loadFromServer.bind(models)
+    let injected=false
+    const spy=vi.spyOn(models,'loadFromServer').mockImplementation(async options=>{
+      if(!injected&&writes(f).length===1){injected=true;throw new Error('array readback unavailable')}
+      return load(options)
+    })
     await body.get('[data-action="save-array"]').trigger('click');await flushPromises()
+    spy.mockRestore()
     expect(writes(f)).toHaveLength(1)
-    await body.get('[data-action="verify-array"]').trigger('click');await flushPromises()
     expect(body.text()).toContain('array readback unavailable')
     models.updateEditingValue('M1','description','点击前的本地新修改');await flushPromises()
     expect(body.get('[data-action="discard-local-array-changes"]').text()).toBe('放弃本地新修改并核验')
@@ -3015,7 +3040,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组'&&dialog.props('modelValue'))).toBe(false)
     const fresh=await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['description']).not.toBe('点击前的本地新修改')
-    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['items']).toBe('[{"code":"after","name":"one"}]')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['PrimaryKeyFields']).toBe('memo')
   }, 15_000)
   it('keeps a later bound array draft available after the earlier save completes',async()=>{
     const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[{rowid:'F1',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0}]})
@@ -3305,6 +3330,8 @@ describe('native data-space design entry', () => {
     models.queryContext = {dataSpaceId: 'OTHER'}
     await expect(other.readApiInfo()).rejects.toThrow('未完整确认')
     models.queryContext = {dataSpaceId: 'A'}
+    expect(() => models.updateEditingValue('M1', 'description', 'stale')).toThrow('DATA_VIEW_RESULT_STALE')
+    await models.refresh()
     models.updateEditingValue('M1', 'description', 'unsaved')
     await expect(other.readApiInfo()).rejects.toThrow(/未提交|未完整确认/)
     expect(models.getEditingRow('M1')?.['description']).toBe('unsaved')
@@ -3573,7 +3600,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.findAll('[role="alert"]').map(item => item.text()).join('\n')).toMatch(/SPARK_SAVE_UNVERIFIABLE|未能确认|无法确认/)
   }, 30_000)
 
-  it('offers explicit discard only after the original primary workspace batch is not applied', async () => {
+  it('keeps the original primary workspace batch pending when the database rows did not change', async () => {
     const f = fixture({omitModelWrite: true, omitAllFieldChanges: true, allowSourceEdit: true, allowFieldEdit: true,
       editableFieldProperties: ['IsPKey', 'IsOutput'], sourceFields: [
         {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', AsName: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
@@ -3598,10 +3625,11 @@ describe('native data-space design entry', () => {
     expect(wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toContain('3 字段呈现')
     expect(view.hasUnconfirmedSave).toBe(true); expect(modelView.hasUnconfirmedSave).toBe(true)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(view.hasUnconfirmedSave).toBe(false); expect(modelView.hasUnconfirmedSave).toBe(false)
-    expect(view.rows.find(row => row['rowid'] === 'F1')?.['IsPKey']).toBe(0)
-    expect(modelView.rows.find(row => row['rowid'] === 'M1')?.['PrimaryKeyFields']).toBe('rowid')
-    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false); expect(writes(f)).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true); expect(modelView.hasUnconfirmedSave).toBe(true)
+    expect(view.getEditingRow('F1')?.['IsPKey']).toBe(1)
+    expect(f.modelRow()).toMatchObject({PrimaryKeyFields: 'rowid'})
+    expect(wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(' ')).toContain('服务未提供原请求的权威终态')
+    expect(instance.isDirty).toBe(true); expect(writes(f)).toHaveLength(1)
   }, 30_000)
 
   it('recovers an invalid native receipt from the field workspace by adopting current formal rows', async () => {
@@ -3947,7 +3975,7 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1)
   })
 
-  it('keeps a combined native capture unknown when source-tab save loses its response and recovers it once from fields', async () => {
+  it('keeps the combined source-tab submission unknown after verification from fields', async () => {
     const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
       {rowid: 'F1', dataModelId: 'M1', Name: 'ordIdx', type: 'dataModel', FieldType: 'int', IsOutput: 1, description: '排序字段'},
     ]})
@@ -3977,11 +4005,12 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     await tabs.get('#tab-fields').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(modelView.hasUnconfirmedSave).toBe(false)
-    expect(fieldView.hasUnconfirmedSave).toBe(false)
-    expect(modelView.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('unknown联合模型')
-    expect(fieldView.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('unknown联合字段')
-    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toBe(false)
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+    expect(fieldView.hasUnconfirmedSave).toBe(true)
+    expect(instance.isDirty).toBe(true)
+    const fresh = await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('unknown联合模型')
+    expect((await fresh.loadModelFields('M1')).rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('unknown联合字段')
     expect(writes(f)).toHaveLength(1)
   }, 30_000)
 
@@ -4024,8 +4053,10 @@ describe('native data-space design entry', () => {
     model['Name'] = originalName
     await tabs.get('#tab-fields').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(fieldView.hasUnconfirmedSave).toBe(false)
-    expect(modelView.hasUnconfirmedSave).toBe(false)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(fieldView.hasUnconfirmedSave).toBe(true)
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+    expect(modelOwner.requiresWorkspaceRecovery()).toBe(true)
     expect(writes(f)).toHaveLength(1)
   }, 30_000)
 
@@ -4098,7 +4129,13 @@ describe('native data-space design entry', () => {
       await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
       expect(writes(f)).toHaveLength(1)
     }
-    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toBe(false)
+    expect(instance.isDirty).toBe(action === 'unknown')
+    if (action === 'unknown') {
+      expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSave).toBe(true)
+      expect(session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!.hasUnconfirmedSave).toBe(true)
+    }
     const fresh = await f.open('A'), reopened = await fresh.loadSourceInputFields('M1')
     expect(reopened.rows.map(row => row['ValueFun'])).toEqual(['{"Type":"GetInputParam","ParamName":"customer"}', '{"Type":"GetConstValue","Value":false}'])
   }, 30_000)
@@ -4120,17 +4157,26 @@ describe('native data-space design entry', () => {
     const original = '{"Type":"GetInputParam","ParamName":"customer"}', later = '{"Type":"GetConstValue","Value":"later"}'
     inputs.updateEditingValue('I1', 'ValueFun', original)
     await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', '已提交模型')
-    f.loseNextResponse()
+    const directory = session.metadataDataSet.getView('Base_DataModel_Field')!
+    afterMetadataSave(f, () => {
+      vi.spyOn(directory, 'loadFromServer').mockRejectedValueOnce(new Error('来源参数确认后目录回读中断'))
+    })
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(1)
+    expect(session.getModelEdit('M1').getState().status).toBe('readback')
+    expect(session.getModelSourceInputs('M1')[0]!.getState().status).toBe('readback')
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve}), load = models.loadFromServer.bind(models)
     const held = vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
       const result = await load(options); await gate; return result
     })
     if (button === 'verify-model') {
+      const capture = session.getModelEdit('M1').getRecoveryCapture()
+      expect(capture?.resolution).toBe('confirmed')
       await wrapper.get('[data-action="verify-model"]').trigger('click'); await flushPromises()
       expect(wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toContain('3 字段呈现')
+      expect(held).not.toHaveBeenCalled()
+      expect(session.getModelEdit('M1').getRecoveryCapture()).toBe(capture)
       await openModelFieldsTab(wrapper)
     } else await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
@@ -4159,7 +4205,7 @@ describe('native data-space design entry', () => {
     expect(fresh.getModelEdit('M1').read().fields.find(field => field.name === 'description')?.value).toBe('已提交模型')
   }, 15_000)
 
-  it.each(['field-only', 'source-input-only'] as const)('recovers a %s capture without a model owner capture', async participant => {
+  it.each(['field-only', 'source-input-only'] as const)('retains the original %s capture when the model has no capture and the receipt is lost', async participant => {
     const f = fixture({allowFieldEdit: true, allowSourceEdit: true, editableFieldProperties: ['description'], sourceFields: [
       {rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1, description: ''},
       {rowid: 'I1', dataModelId: 'M1', Name: 'customerArg', type: 'inputParams', FieldType: 'string', ValueFun: ''},
@@ -4186,10 +4232,15 @@ describe('native data-space design entry', () => {
     expect(capture).toBeDefined(); expect(capture!.targets.some(target => target.tableName === 'Base_DataModel')).toBe(false)
     expect(writes(f)).toHaveLength(1)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
+    expect(instance.isDirty).toBe(true)
+    expect(capture!.targets.every(target => target.view.hasUnconfirmedSave)).toBe(true)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(wrapper.find('[data-action="verify-field"]').exists()).toBe(true)
     expect(writes(f)).toHaveLength(1)
-    if (participant === 'field-only') expect(dataSet.getView('Base_DataModel_Field', 'modelFields')?.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('字段单独保存')
-    else expect(dataSet.getView('Base_DataModel_Field', 'sourceInputFields')?.rows.find(row => row['rowid'] === 'I1')?.['ValueFun']).toContain('参数单独保存')
+    const reopened = await f.open('A')
+    expect(reopened.metadataDataSet).not.toBe(dataSet)
+    if (participant === 'field-only') expect((await reopened.loadModelFields('M1')).rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('字段单独保存')
+    else expect((await reopened.loadSourceInputFields('M1')).rows.find(row => row['rowid'] === 'I1')?.['ValueFun']).toContain('参数单独保存')
   })
 
   it('keeps a lost combined receipt locked and verifies both parts without another write', async () => {
@@ -4208,9 +4259,9 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false); expect(writes(f)).toHaveLength(1)
-    expect(session.getModelEdit('M1').getState()).toEqual({pending: false, status: 'idle'})
-    expect(session.getFieldEdit('F1', 'modelFields').getState()).toEqual({pending: false, status: 'idle'})
+    expect(instance.isDirty).toBe(true); expect(writes(f)).toHaveLength(1)
+    expect(session.getModelEdit('M1').getState()).toEqual({pending: true, status: 'unknown'})
+    expect(session.getFieldEdit('F1', 'modelFields').getState()).toEqual({pending: true, status: 'unknown'})
   })
 
   it('edits fields within their model workspace while request settings remain available', async () => {
@@ -4263,6 +4314,11 @@ describe('native data-space design entry', () => {
         expect(wrapper.find('[data-action="verify-remove-model"]').exists()).toBe(true)
         await sourceButton(wrapper,'verify-remove-model').trigger('click');await flushPromises()
         expect(writes(f)).toHaveLength(1)
+        expect(f.fileWrites).toHaveLength(0)
+        expect(instance.isDirty).toBe(true)
+        expect(wrapper.find('[data-action="verify-remove-model"]').exists()).toBe(true)
+        expect(wrapper.get('[data-action="close-definition"]').attributes('disabled')).toBeDefined()
+        return
       }
       expect(instance.isDirty).toBe(false);expect(wrapper.find('.design-detail').exists()).toBe(false)
       expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')!.rows.map(row=>row['rowid'])).toEqual(['M2'])
@@ -4397,12 +4453,13 @@ describe('native data-space design entry', () => {
     expect(instance.isDirty).toBe(true)
     const count = writes(f).length
     await wrapper.get('[data-action="verify-remove-model"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
+    expect(instance.isDirty).toBe(true)
     expect(writes(f)).toHaveLength(count)
-    expect(wrapper.findAll('[data-design-node]').some(node => node.text() === 'Orders')).toBe(false)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(wrapper.find('[data-action="verify-remove-model"]').exists()).toBe(true)
   })
 
-  it('offers an explicit discard only after SPARK confirms the whole deletion was not applied', async () => {
+  it('does not offer discard when unchanged rows cannot prove the original deletion failed', async () => {
     const f = fixture({missing: true, allowDelete: true, omitDeleteWrite: '*', sourceFields: [{rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel'}]})
     const {wrapper, instance} = await page()
     await select(wrapper, 'Orders')
@@ -4410,11 +4467,9 @@ describe('native data-space design entry', () => {
     f.loseNextResponse()
     await wrapper.get('[data-action="confirm-remove-model"]').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="verify-remove-model"]').trigger('click'); await flushPromises()
-    expect(wrapper.find('[data-action="discard-not-applied-remove-model"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('SPARK 确认原批次未执行')
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    await wrapper.get('[data-action="discard-not-applied-remove-model"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
+    expect(wrapper.find('[data-action="discard-not-applied-remove-model"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('服务未提供原请求的权威终态')
+    expect(instance.isDirty).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')!.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
   })
@@ -5507,7 +5562,7 @@ describe('native data-space design entry', () => {
     expect(resolveDataViewKey('A@Orders@shared', independent.definitionDataSet!)?.columns.find(column => column.name === 'rowid')?.type).toBe('int')
   }, 10_000)
 
-  it.each([false, true])('confirms a newly introduced source primary through bound standard views and independently reopens it (lost=%s)', async lost => {
+  it.each([false, true])('keeps a newly introduced source primary pending until its receipt is confirmed through bound standard views and independently reopens it (lost=%s)', async lost => {
     const source = {type: 'databaseView' as const, id: 'RESOURCE', name: 'OrderSource', description: '当前来源', dbid: 'DB', databaseName: 'old-database', providerId: ''}
     const field = {type: 'dataModel' as const, Name: 'rowid', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
       AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
@@ -5534,7 +5589,16 @@ describe('native data-space design entry', () => {
       expect(instance.isDirty).toBe(true); expect(writes(f)).toHaveLength(1)
       await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
     }
-    expect(writes(f)).toHaveLength(1); expect(instance.isDirty).toBe(false); expect(active.metadataDataSet.destroyed).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(instance.isDirty).toBe(lost); expect(active.metadataDataSet.destroyed).toBe(false)
+    if (lost) {
+      expect(sourcePreviewDom().text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(active.getModelSourceEdit('M1').getState().status).toBe('unknown')
+      expect(f.fileWrites).toHaveLength(0)
+      const independent = await f.open('A')
+      expect(independent.getModelEdit('M1').read().fields.find(item => item.name === 'PrimaryKeyFields')?.value).toBe('newKey')
+      expect((await independent.loadModelFields('M1')).rows).toContainEqual(expect.objectContaining({Name: 'newKey', IsPKey: 1}))
+      return
+    }
     const reopened = f.sessions.at(-1)!; await reopened.loadDefinition()
     const view = resolveDataViewKey('A@Orders@shared', reopened.definitionDataSet!)!
     expect(view.primaryKey).toBe('newKey'); expect(view.columns.some(column => column.name === 'rowid')).toBe(false)
@@ -5612,7 +5676,7 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1); expect(instance.isDirty).toBe(false)
   })
 
-  it.each([false, true])('replaces a compatible model source and can verify a lost receipt: lost=%s', async lost => {
+  it.each([false, true])('replaces a compatible model source and retains an unconfirmed replacement: lost=%s', async lost => {
     const source = {type: 'dict' as const, id: 'NEXT', name: 'NextChoices', description: '新字典', dbid: '', databaseName: '', providerId: ''}
     const f = fixture({allowSourceEdit: true, sourceFields: [], modelSources: {
       query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
@@ -5640,6 +5704,14 @@ describe('native data-space design entry', () => {
     expect(f.sessions).toHaveLength(1)
     expect(f.sessions[0]!.metadataDataSet.destroyed).toBe(false)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    if (lost) {
+      expect(instance.isDirty).toBe(true)
+      expect(sourcePreviewDom().text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(f.sessions[0]!.getModelSourceEdit('M1').getState().status).toBe('unknown')
+      const independent = await f.open('A')
+      expect(independent.metadataDataSet.getView('Base_DataModel')!.rows).toContainEqual(expect.objectContaining({rowid: 'M1', MetaName: 'NextChoices'}))
+      return
+    }
     expect(wrapper.text()).not.toContain('模型注册名或来源身份已变化')
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     expect(instance.isDirty).toBe(false)
@@ -5661,8 +5733,9 @@ describe('native data-space design entry', () => {
     await select(wrapper, 'Orders')
     const editor = wrapper.getComponent(DataSpaceModelSource), original = f.sessions[0]!
     await openSourcePicker(editor); await previewSource(editor, original.metadataDataSet)
-    f.loseNextResponse()
+    afterMetadataSave(f, () => f.failNextModelRead())
     await sourceButton(editor, 'replace-source').trigger('click'); await flushPromises()
+    expect(original.getModelSourceEdit('M1').getState().status).toBe('readback')
     f.setModelValues({description: '正式描述另有修改'})
     await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(true)
@@ -5706,6 +5779,19 @@ describe('native data-space design entry', () => {
       expect(sourceTypeDisabled(editor)).toBe(true)
       expect(editor.findAllComponents(FieldText).find(field => field.props('field') === 'name' && field.find('input').exists())!.get('input').attributes('disabled')).toBeDefined()
       await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+    }
+    if (lost) {
+      const owner = f.sessions[0]!.getModelCreate(), modelId = owner.getState().modelId!
+      expect(owner.getState()).toMatchObject({status: 'unknown', pending: true})
+      expect(sourcePreviewDom().text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(wrapper.get('.design-detail h2').text()).toBe('待配置模型')
+      expect(instance.isDirty).toBe(true)
+      expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+      const reopened = await f.open('A')
+      expect(reopened.metadataDataSet.getView('Base_DataModel')!.rows).toContainEqual(expect.objectContaining({rowid: modelId, Name: 'Choices'}))
+      expect((await reopened.loadModelFields(modelId)).rows).toHaveLength(2)
+      expect(reopened.definitionDataSet?.layout?.modelPositions?.[modelId]).toBeUndefined()
+      return
     }
     expect(wrapper.get('.design-detail h2').text()).toBe('Choices')
     expect(wrapper.text()).toContain('模型（3）'); expect(instance.isDirty).toBe(false)
@@ -5873,22 +5959,26 @@ describe('native data-space design entry', () => {
     const view = resolveDataViewKey(table.props('dataViewKey'), f.sessions[0]!.metadataDataSet)!
     table.getComponent(SourceTable).vm.$emit('current-change', view.rows[0]); await flushPromises()
     await select(wrapper, 'Orders')
-    f.loseNextResponse()
+    afterMetadataSave(f, () => f.failNextFieldRead())
     await sourceButton(editor, 'preview-source').trigger('click'); await flushPromises()
     expect(sourceButton(editor, 'verify-create').text()).toBe('核验原模型及字段批次（保留本地修改）')
     const session = f.sessions[0]!, owner = session.getModelCreate(), modelId = owner.getState().modelId!
     const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
-    const nativeSave = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    const load = models.loadFromServer.bind(models)
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve})
-    const held = vi.spyOn(session.metadataDataSet, 'saveChanges').mockImplementationOnce(async options => {
-      const result = await nativeSave(options); await gate; return result
+    const loaded = vi.fn()
+    vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
+      const result = await load(options)
+      loaded(); await gate; return result
     })
     await sourceButton(editor, 'verify-create').trigger('click')
-    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(loaded).toHaveBeenCalledTimes(1))
     models.updateEditingValue(modelId, 'description', 'late description')
     release(); await flushPromises()
     expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    expect(models.getEditingRow(modelId)?.['description']).toBe('late description')
     expect(sourcePreviewDom().text()).toContain('后续本地修改')
     expect(sourceButton(editor, 'discard-confirmed-create-edits').text()).toBe('放弃模型及字段后续修改并继续核验')
 
@@ -6368,7 +6458,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.text()).toContain('模型配置已保存并回读')
   })
 
-  it('keeps unknown model writes dirty until explicit readback without a second write', async () => {
+  it('keeps unknown model writes dirty after explicit verification without a second write', async () => {
     const f = fixture()
     const {wrapper, instance} = await page()
     await select(wrapper, 'Orders')
@@ -6381,8 +6471,9 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     expect(editor.find('[data-action="verify-model"]').exists()).toBe(true)
     await editor.get('[data-action="verify-model"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
-    expect(editor.text()).toContain('未重复提交'); expect(writes(f)).toHaveLength(1)
+    expect(instance.isDirty).toBe(true)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(writes(f)).toHaveLength(1)
   })
 
   it('keeps a known pending model write locked without showing the unknown-result warning', async () => {
@@ -6467,7 +6558,8 @@ describe('native data-space design entry', () => {
     view.queryContext = {dataSpaceId: 'OTHER'}
 
     release(); await flushPromises()
-    expect(editor.text()).toContain('DATA_SPACE_MODEL_CONTEXT')
+    expect(editor.text()).toContain('DATA_VIEW_RESULT_STALE')
+    expect(view.queryContext['dataSpaceId']).toBe('OTHER')
     expect(editor.text()).not.toContain('模型配置已保存并回读')
     expect(writes(f)).toHaveLength(1)
   })
@@ -6642,7 +6734,7 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(0)
   })
 
-  it('recovers an unknown source write without replay and preserves the whole field collection', async () => {
+  it('keeps an unknown source write pending without replay and preserves the whole field collection', async () => {
     const f = fixture({sourceInput: true}); f.loseNextResponse()
     const {wrapper, instance} = await page()
     await select(wrapper, 'customerArg'); await chooseSourceParameter(wrapper)
@@ -6651,9 +6743,9 @@ describe('native data-space design entry', () => {
     expect(instance.isDirty).toBe(true)
     await wrapper.get('[data-action="verify-source-input"]').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(1)
-    expect(instance.isDirty).toBe(false)
+    expect(instance.isDirty).toBe(true)
     expect(f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!.rows).toHaveLength(2)
-    expect(wrapper.text()).toContain('已重新读取来源入参')
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
   })
 
   it.each([{readOnly: true}, {hidden: true}])('enforces current source field permissions in the page: %j', async options => {
@@ -7412,9 +7504,10 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('.design-workbench__hero h2').text()).toBe('空间 A')
     expect(wrapper.get('.design-workbench__title-block p').text()).toBe('空间说明 A')
     await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '来源引用声明')
-    if (action === 'verify') f.loseNextResponse()
+    if (action === 'verify') afterMetadataSave(f, () => f.failNextQuery())
     await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     if (action === 'verify') {
+      expect(f.sessions[0]!.getInputParameterState().status).toBe('readback')
       await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
     }
     expect(f.sessions[0]!.metadataDataSet.getView('Base_DataSet')).toBe(view)
@@ -7434,9 +7527,10 @@ describe('native data-space design entry', () => {
     const f = fixture({missing: true}), {wrapper, instance} = await page('?scenarioId=A', true)
     await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '原提交')
     if (action === 'verify') {
-      f.loseNextResponse()
+      afterMetadataSave(f, () => f.failNextQuery())
       await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     }
+    if (action === 'verify') expect(f.sessions[0]!.getInputParameterState().status).toBe('readback')
     const view = f.sessions[0]!.metadataDataSet.getView('Base_DataSet')!
     const createQueryView = view.createQueryView.bind(view)
     let release!: () => void
@@ -7532,7 +7626,7 @@ describe('native data-space design entry', () => {
     expect(fresh.metadataDataSet.getView('Base_DataSet')!.rows[0]?.['inputParams']).toContain(next === 'save' ? '后续编辑' : '已确认声明')
   })
 
-  it('recovers an unknown write by explicit readback without replaying it', async () => {
+  it('keeps an unknown parameter write pending after verification without replaying it', async () => {
     const f = fixture({missing: true}); f.loseNextResponse()
     const {wrapper, instance} = await page('?scenarioId=A', true)
     await select(wrapper, '输入参数')
@@ -7547,8 +7641,12 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1)
     await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(1)
-    expect(instance.isDirty).toBe(false)
-    expect(wrapper.text()).toContain('已重新读取')
+    expect(instance.isDirty).toBe(true)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(dialog.props('modelValue')).toBe(true)
+    expect(f.sessions[0]!.getInputParameterState()).toEqual({status: 'unknown', pending: true})
+    const fresh = await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataSet')!.rows[0]?.['inputParams']).toContain('已写但丢回执')
   })
 
   it('keeps an unknown save in another Base_DataSet view isolated from parameter reload', async () => {
@@ -7571,7 +7669,7 @@ describe('native data-space design entry', () => {
     wrapper.unmount()
   })
 
-  it.each(['not-applied', 'still-unknown'] as const)('uses the original capture receipt for %s parameter recovery', async outcome => {
+  it.each(['unchanged', 'third-value'] as const)('retains the original parameter capture when persisted data is %s', async outcome => {
     const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
     const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataSet', 'default')!
     const original = f.parameters
@@ -7580,28 +7678,19 @@ describe('native data-space design entry', () => {
     await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     expect(view.hasUnconfirmedSave).toBe(true)
     expect(writes(f)).toHaveLength(1)
-    if (outcome === 'not-applied') f.setParameters(original)
-    else f.failNextQuery()
+    if (outcome === 'unchanged') f.setParameters(original)
+    else f.setParameters('[{"rowid":"P9","Name":"独立修改"}]')
 
-    await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
-
-    if (outcome === 'not-applied') {
-      expect(view.hasUnconfirmedSave).toBe(false)
-      expect(session.getInputParameterState().status).toBe('unsubmitted')
+    for (let attempt = 0; attempt < 2; attempt++) {
       await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
-      expect(session.getInputParameterState().status).toBe('idle')
-      expect(view.rows[0]?.['inputParams']).toBe(original)
-      expect(view.hasEditingChanges('A')).toBe(false)
-    } else {
       expect(view.hasUnconfirmedSave).toBe(true)
-      expect(session.getInputParameterState().status).toBe('unknown')
+      expect(session.getInputParameterState()).toEqual({status: 'unknown', pending: true})
       expect(view.getEditingRow('A')?.['inputParams']).toContain('待核验值')
-      await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
-      expect(view.hasUnconfirmedSave).toBe(false)
-      expect(session.getInputParameterState().status).toBe('idle')
-      expect(view.rows[0]?.['inputParams']).toContain('待核验值')
+      expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(writes(f)).toHaveLength(1)
     }
-    expect(writes(f)).toHaveLength(1)
+    const fresh = await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataSet')!.rows[0]?.['inputParams']).toBe(f.parameters)
     wrapper.unmount()
   })
 
@@ -7624,14 +7713,20 @@ describe('native data-space design entry', () => {
     f.loseNextResponse()
     await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     f.setParameters(original)
-    const previousQueries = f.requests.filter(request => request.url === '/api/DataOperation/GetData').length
-    const release = f.holdNextQuery()
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const save = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)
+    const held = vi.spyOn(session.metadataDataSet, 'saveChanges').mockImplementationOnce(async options => {
+      await gate
+      return save(options)
+    })
     const reload = session.reloadInputParameters({discardPending: true})
-    await vi.waitFor(() => expect(f.requests.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(previousQueries + 1))
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     view.updateEditingValue('A', 'inputParams', '[{"rowid":"P1","Name":"稍后编辑"}]')
     release()
-    await expect(reload).rejects.toThrow(/草稿已变化|DATA_VIEW_UNSAVED_CHANGES/)
-    expect(view.hasUnconfirmedSave).toBe(false)
+    await expect(reload).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(writes(f)).toHaveLength(1)
     expect(view.getEditingRow('A')?.['inputParams']).toContain('稍后编辑')
     expect(session.getInputParameterState().pending).toBe(true)
     wrapper.unmount()
@@ -7661,28 +7756,29 @@ describe('native data-space design entry', () => {
     wrapper.unmount()
   })
 
-  it('keeps native capture recovery with an invalid receipt in verification state', async () => {
+  it('retains the original parameter capture when verification returns an incomplete receipt in verification state', async () => {
     const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
     const session = f.sessions[0]!, dataSet = session.metadataDataSet
     const view = dataSet.getView('Base_DataSet', 'default')!
+    const emptyReceipt = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: ['A']}]})
+    expect(emptyReceipt.data?.savedCount).toBe(0)
     await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '恢复回执待核验')
     f.loseNextResponse()
     await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     expect(view.hasUnconfirmedSave).toBe(true)
-    const nativeSave = dataSet.saveChanges.bind(dataSet)
-    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async (...args) => {
-      const result = await nativeSave(...args)
-      if (!result.data || !args[0]?.views?.some(item => item.tableName === 'Base_DataSet')) return result
-      return {...result, data: {...result.data, viewResults: []}}
+    const nativeSave = vi.spyOn(dataSet, 'saveChanges').mockResolvedValueOnce({
+      ...emptyReceipt, data: {...emptyReceipt.data!, viewResults: []},
     })
-
     await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
-
-    expect(view.hasUnconfirmedSave).toBe(false)
-    expect(session.getInputParameterState().status).toBe('readback')
+    expect(nativeSave).toHaveBeenCalledWith({applyEditingRows: false,
+      views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(session.getInputParameterState().status).toBe('unknown')
+    expect(wrapper.text()).toContain('原提交仍未核验')
     await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
-    expect(session.getInputParameterState().status).toBe('idle')
-    expect(view.rows[0]?.['inputParams']).toContain('恢复回执待核验')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.getEditingRow('A')?.['inputParams']).toContain('恢复回执待核验')
     expect(writes(f)).toHaveLength(1)
     wrapper.unmount()
   })

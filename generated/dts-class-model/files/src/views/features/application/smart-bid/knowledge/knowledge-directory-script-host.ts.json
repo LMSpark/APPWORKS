@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/knowledge/knowledge-directory-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/knowledge/knowledge-directory-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/knowledge/knowledge-directory-script-host\n职责：页16复用已核知识目录及同版指南读取。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "OperationHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "OperationHost",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
+            },
+            "generation": {
+              "type": "number"
+            },
+            "destroyed": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "isLoaded": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "resolveView",
+            "generation",
+            "destroyed",
+            "isLoaded"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "executeTool": {
+              "type": "object",
+              "title": "(toolName: string, rawArgs: ClassModelToolArgs, host?: unknown) => Promise<ClassModelToolResult>"
+            }
+          },
+          "required": [
+            "executeTool"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "rootKind": {
+              "type": "string"
+            },
+            "resolveOriginalGuide": {
+              "type": "object",
+              "title": "ResolveOriginalGuide"
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "scenarioId",
+            "rootKind"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T11:52:14.966Z",
+  "models": {
+    "OperationHost": {
+      "name": "OperationHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createContentOperationScriptHost>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof createContentOperationScriptHost>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

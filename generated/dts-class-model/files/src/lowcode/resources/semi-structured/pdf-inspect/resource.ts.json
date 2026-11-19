@@ -34,6 +34,9 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "expectedProjectId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -47,6 +50,9 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "expectedProjectId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -58,7 +64,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T08:45:45.767Z",
+  "generatedAt": "2026-11-18T21:25:58.783Z",
   "models": {
     "LowcodePdfInspect": {
       "name": "LowcodePdfInspect",
@@ -92,6 +98,16 @@
                     "type": "intrinsic",
                     "name": "string"
                   }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -113,6 +129,16 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

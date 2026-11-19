@@ -83,24 +83,26 @@ describe('workflow query model creation in the original DataSet',()=>{
   await owner.model.preview(source);saved.node_config='CONCURRENT'
   await expect(owner.save()).rejects.toThrow('正式节点已绑定');expect(http.saves).toHaveLength(0)
  })
- it('recovers an unknown original node batch after explicitly discarding later node edits without replay',async()=>{
+ it('keeps an unknown original node batch pending after explicitly discarding later node edits',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
   const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
   http.beforeSave=async()=>{if(http.saves.length===2)http.failAfterWrite=true}
   await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
   await expect(owner.save()).rejects.toThrow('原创建意图');expect(owner.canDiscardNodeLocalChanges).toBe(true)
-  await expect(owner.discardNodeLocalChanges()).rejects.toThrow('重新选择')
+  await expect(owner.discardNodeLocalChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称')
-  expect(await owner.discardNodeLocalChanges()).toBe(owner.nodeId)
-  expect(http.saves).toHaveLength(3);expect(owner.pending).toBe(false);expect(nodes.hasEditingChanges()).toBe(false)
+  await expect(owner.discardNodeLocalChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(http.saves).toHaveLength(3);expect(owner.pending).toBe(true);expect(nodes.hasUnconfirmedSave).toBe(true)
  })
- it('resolves an unknown model batch before explicitly restoring the initial node intent',async()=>{
+ it('blocks restoration of initial node intent while the original model batch is unknown',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
   const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
   http.beforeSave=async()=>{if(http.saves.length===0)http.failAfterWrite=true}
   await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
-  await expect(owner.save()).rejects.toThrow('原草稿已变化');expect(owner.modelId).toEqual(expect.any(String));expect(owner.canDiscardNodeLocalChanges).toBe(true)
-  expect(await owner.discardNodeLocalChanges()).toBe(owner.nodeId);expect(http.saves).toHaveLength(3);expect(owner.pending).toBe(false)
+  const writes=http.saves.length
+  await expect(owner.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称')
+  expect(http.saves).toHaveLength(writes);expect(owner.pending).toBe(true)
  })
  it('reopens a saved empty node, cancels source preview without deleting it, and binds its original identity',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
@@ -404,10 +406,10 @@ describe('workflow query model creation in the original DataSet',()=>{
   http.failAfterWrite=true;await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
   const writes=http.saves.length
   await expect(cancelWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('核验')
-  http.failAfterWrite=false;await saveWorkflowQueryFields(ds,'W1','N1')
+  http.failAfterWrite=false;await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   expect(http.saves).toHaveLength(writes);expect(http.records['Base_DataModel_Field']).toHaveLength(1)
   expect(http.records['Base_DataModel_Field']![0]?.['rowid']).toBe(id)
-  expect(fields.hasUnconfirmedSave).toBe(false)
+  expect(fields.hasUnconfirmedSave).toBe(true)
  })
  it('allows unreferenced ordinary output changes with downstream edges and synchronizes shared query nodes',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
@@ -499,10 +501,7 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(edges.dirtyTracking.isPendingCreate(cancelled)).toBe(true);expect(http.saves).toEqual([])
   edges.discardPendingChanges([cancelled]);expect(edges.rows).toEqual([])
   const id=await WorkflowConnectors.add(ds,'W1',{source:'START',target:'A'})
-  http.failAfterWrite=true
-  await expect(WorkflowConnectors.save(ds,'W1',id)).rejects.toThrow()
-  expect(edges.hasUnconfirmedSave).toBe(true);expect(http.saves).toHaveLength(1)
-  await WorkflowConnectors.save(ds,'W1',id);expect(http.saves).toHaveLength(1)
+  await WorkflowConnectors.save(ds,'W1',id)
   await expect(WorkflowConnectors.add(ds,'W1',{source:'START',target:'A'})).rejects.toThrow('重复')
   await expect(WorkflowConnectors.add(ds,'W1',{source:'A',target:'A'})).rejects.toThrow('自身')
   await expect(WorkflowConnectors.add(ds,'W1',{source:'A',target:'START'})).rejects.toThrow('开始')
@@ -510,6 +509,11 @@ describe('workflow query model creation in the original DataSet',()=>{
   await edges.refresh()
   await expect(WorkflowConnectors.add(ds,'W1',{source:'B',target:'A'})).rejects.toThrow('环')
   await expect(WorkflowConnectors.add(ds,'W1',{source:'OTHER',target:'B'})).rejects.toThrow('归属')
+  const pending=await WorkflowConnectors.add(ds,'W1',{source:'START',target:'B'})
+  http.failAfterWrite=true
+  await expect(WorkflowConnectors.save(ds,'W1',pending)).rejects.toThrow()
+  await expect(WorkflowConnectors.save(ds,'W1',pending)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(edges.hasUnconfirmedSave).toBe(true);expect(http.saves).toHaveLength(2)
  })
  it('preserves undeclared source parameter types during query model planning instead of assuming varchar',async()=>{
   const {ds,reader,http}=await fixture()
@@ -519,7 +523,7 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(http.saves).toEqual([])
   command.discard()
  })
- it('saves source ValueFun and model Filter together, recovers the original unknown batch before changed ancestor validation, and cancels both scopes',async()=>{
+ it.each([false,true])('saves source ValueFun and model Filter together and guards cancellation when receipt is unknown (%s)',async unknown=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',node_config:'',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},
    {rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:JSON.stringify([{rowid:'ITEMS',pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false},{rowid:'F1',pid:'ITEMS',Name:'code',Description:'编码',FieldType:'varchar',isParent:false}]),input_mapping:'keep input',config:'keep config'}]
@@ -529,13 +533,20 @@ describe('workflow query model creation in the original DataSet',()=>{
   models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
   const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:{Type:'GetInputParam',ParamName:'START.code'}}))
   fields.updateEditingValue('INPUT','ValueFun',JSON.stringify({Type:'GetConstValue',Value:0}));models.updateEditingValue('M1','Filter',filter)
-  http.failAfterWrite=true;await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  http.failAfterWrite=unknown
+  if(unknown)await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  else await saveWorkflowQueryFields(ds,'W1','N1')
   const writes=http.saves.length;expect(writes).toBe(2)
   http.failAfterWrite=false;edges.replaceRows([]);edges.total=0
-  await saveWorkflowQueryFields(ds,'W1','N1');expect(http.saves).toHaveLength(writes)
+  if(unknown)await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(http.saves).toHaveLength(writes)
   expect(http.records['Base_DataModel']![0]?.['Filter']).toBe(filter)
   expect(http.records['Base_DataModel_Field']!.find(row=>row['rowid']==='INPUT')?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
   expect(http.records['Base_WorkflowNodeDefinition']![1]).toMatchObject({input_mapping:'keep input',config:'keep config'})
+  if(unknown){
+   await expect(cancelWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('核验')
+   return
+  }
   models.updateEditingValue('M1','Filter','');fields.updateEditingValue('INPUT','ValueFun',JSON.stringify({Type:'GetConstValue',Value:false}))
   await cancelWorkflowQueryFields(ds,'W1','N1');expect(models.hasEditingChanges()).toBe(false);expect(fields.hasEditingChanges()).toBe(false)
  })
@@ -565,18 +576,7 @@ describe('workflow query model creation in the original DataSet',()=>{
   await saveWorkflowQueryFields(ds,'W1','N1')
   expect(http.saves.at(-1)?.table).toBe('Base_DataModel_Field')
   nodeAccess.mockRestore()
-  fields.updateEditingValue('F1','description','changed description')
-  http.failAfterWrite=true
-  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
   const writes=http.saves.length
-  http.failAfterWrite=false
-  http.records['Base_DataModel_Field']![0]!['description']='名称'
-  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
-  expect(http.saves).toHaveLength(writes)
-  http.records['Base_DataModel_Field']![0]!['description']='changed description'
-  await saveWorkflowQueryFields(ds,'W1','N1')
-  expect(http.saves).toHaveLength(writes)
-  expect(fields.hasEditingChanges()||fields.dirtyTracking.hasPendingChanges()).toBe(false)
   expect(nodes.getEditingRow('N3')?.['name']).toBe('other draft')
   fields.updateEditingValue('F1','description','cancel derived output')
   vi.spyOn(ds,'saveChanges').mockRejectedValueOnce(Error('before dispatch'))
@@ -595,6 +595,18 @@ describe('workflow query model creation in the original DataSet',()=>{
   await cancelWorkflowQueryFields(ds,'W1','N1')
   expect(fields.hasEditingChanges()).toBe(false)
   expect(nodes.getEditingRow('N2')?.['name']).toBe('affected draft')
+  nodes.discardPendingChanges(['N2'])
+  fields.updateEditingValue('F1','description','changed description')
+  http.failAfterWrite=true
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  const dispatched=http.saves.length
+  http.failAfterWrite=false
+  for(const value of ['名称','changed description']){
+   http.records['Base_DataModel_Field']![0]!['description']=value
+   await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+   expect(http.saves).toHaveLength(dispatched)
+  }
+  expect(fields.hasUnconfirmedSave).toBe(true)
  })
  it('creates a query node with its confirmed model and output identities, without saving an unrelated node draft',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
@@ -615,7 +627,7 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(owner.pending).toBe(false)
   await owner.save();expect(http.saves).toHaveLength(3)
  })
- it('verifies an unknown node creation without creating another model, field or node',async()=>{
+ it('keeps unknown node creation pending without creating another model, field or node',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
   const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
@@ -624,8 +636,8 @@ describe('workflow query model creation in the original DataSet',()=>{
   await expect(owner.save()).rejects.toThrow()
   expect(owner.modelId).toEqual(expect.any(String));expect(owner.nodeId).toEqual(expect.any(String))
   expect(owner.pending).toBe(true);expect(nodes.hasUnconfirmedSave).toBe(true)
-  const id=await owner.save()
-  expect(id).toBe(owner.nodeId);expect(owner.pending).toBe(false)
+  await expect(owner.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(owner.pending).toBe(true)
   expect(http.saves).toHaveLength(3);expect(http.records['Base_WorkflowNodeDefinition']).toHaveLength(1)
  })
  it('keeps the original node locked when a missing temporary key cannot resolve an unknown submission',async()=>{
@@ -904,7 +916,7 @@ it.each(['edit','delete'] as const)('blocks filtered %s from overriding the phys
  expect(http.saves).toHaveLength(0)
 })
 
-it('verifies an unknown operation save before revalidating changed ancestors',async()=>{
+it('keeps an unknown operation save pending before revalidating changed ancestors',async()=>{
  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'edit',dataOperateModId:'M1'}]
  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'N1'}]
@@ -914,7 +926,8 @@ it('verifies an unknown operation save before revalidating changed ancestors',as
  fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetInputParam',ParamName:'START.code'}))
  http.failAfterWrite=true;await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow()
  const writes=http.saves.length;http.failAfterWrite=false;edges.replaceRows([]);edges.total=0
- await saveWorkflowOperationFields(ds,'W1','N1');expect(http.saves).toHaveLength(writes);expect(fields.hasUnconfirmedSave).toBe(false)
+ await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+ expect(http.saves).toHaveLength(writes);expect(fields.hasUnconfirmedSave).toBe(true)
 })
 
 it('checks actual single-node ancestor rows and primary keys before accepting an operation command',async()=>{

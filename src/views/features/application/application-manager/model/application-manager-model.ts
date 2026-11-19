@@ -146,6 +146,13 @@ export class ApplicationManagerRecord {
   get owner(): DataView { return requireView(this.dataSet, OWNER) }
   get root(): DataView { return requireView(this.dataSet, NAVIGATION) }
 
+  private get saveViews(): DataView[] {
+    return this.created ? [this.main, this.relation, this.owner, this.root] : [this.main, this.owner]
+  }
+
+  /** 当前弹窗原提交仍有待核回执，关闭会丢失本次办理入口。 */
+  get hasUnconfirmedSave(): boolean { return this.saveViews.some(view => view.hasUnconfirmedSave) }
+
   static async openCreate(dataSet: DataSet, appType: string): Promise<ApplicationManagerRecord> {
     const main = requireView(dataSet, MAIN, 'form'), relation = requireView(dataSet, RELATION)
     const owner = requireView(dataSet, OWNER), root = requireView(dataSet, NAVIGATION)
@@ -240,6 +247,19 @@ export class ApplicationManagerRecord {
   }
 
   async save(): Promise<ApplicationManagerSaveOutcome> {
+    const pending = this.saveViews.filter(view => view.hasUnconfirmedSave)
+    if (pending.length) {
+      try {
+        const result = await this.dataSet.saveChanges({views: pending.map(view => ({tableName: view.tableName, viewId: view.viewId})), applyEditingRows: false})
+        if (!result.success || this.hasUnconfirmedSave) throw new Error(result.message ?? '原提交仍待核验')
+        if (this.created && pending.includes(this.main)) this.mainConfirmed = true
+        const remaining = this.saveViews.some(view => view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+        return {success: !remaining, mainSaved: this.created ? this.mainConfirmed : !remaining,
+          message: remaining ? '原提交已确认，仍有未提交的修改，可继续保存' : '原提交已确认'}
+      } catch (cause) {
+        return {success: false, mainSaved: this.mainConfirmed, message: `原提交核验：${failure(cause)}`}
+      }
+    }
     let problem = ''
     try { problem = this.validate() } catch (cause) { problem = failure(cause) }
     if (problem) return {success: false, mainSaved: this.mainConfirmed, message: problem}
@@ -269,7 +289,7 @@ export class ApplicationManagerRecord {
       if (!this.created || !this.mainConfirmed) return {success: false, mainSaved: this.mainConfirmed, message: failure(cause)}
       const unknown = [this.relation, owner, this.root].some(view => view.hasUnconfirmedSave)
       return {success: false, mainSaved: true, message: unknown
-        ? `应用系统已创建，默认数据库、负责人或导航根保存结果未确认：${failure(cause)}；请刷新列表核验后再操作`
+        ? `应用系统已创建，默认数据库、负责人或导航根保存结果未确认：${failure(cause)}；请核验原提交`
         : `应用系统已创建，默认数据库、负责人或导航根未写入：${failure(cause)}；可再次保存补写`}
     }
   }
@@ -277,7 +297,7 @@ export class ApplicationManagerRecord {
   /** 放弃本窗未提交的修改；已确认的主表不回滚，未确认保存原样保留由原保存入口核验。 */
   cancel(): void {
     const views = [this.relation, this.owner, this.root, this.main]
-    if (views.some(view => view.hasUnconfirmedSave || view.mutating)) return
+    if (this.hasUnconfirmedSave || this.saveViews.some(view => view.mutating)) throw new Error('原提交尚未完成，当前记录需保留')
     if (!this.created) {
       this.main.discardEditingRows([this.appId])
       if (this.ownerId !== undefined) this.owner.discardPendingChanges([this.ownerId])

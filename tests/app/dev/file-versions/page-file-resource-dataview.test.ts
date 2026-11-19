@@ -245,6 +245,7 @@ describe('formal ProjectToolFile DataView',()=>{
       const row=view.rows[0]!,id=view.getPkKey(row)!
       await view.editRowById(id,{text:'{"type":"r-table","props":{},"children":[]}'})
       expect((await dataSet.saveChanges({views:[{tableName:'ProjectToolFile',viewId:view.viewId,ids:[id]}]})).success).toBe(true)
+      expect(io.upload).toHaveBeenCalledWith(expect.objectContaining({fileName:'rule.json',replace:true}))
       expect(page.rule.children[0]?.type).toBe('r-table')
       expect(page.getFileText('rule.json')).toContain('r-table')
       expect(page.isDirty()).toBe(false)

@@ -19,8 +19,11 @@ class Backend extends ApiBackend{
 }
 const dispose:Array<()=>void>=[]
 afterEach(()=>dispose.splice(0).reverse().forEach(fn=>fn()))
-async function fixture(){
+function recordsBackend(){
  const http=new Backend();http.records={Records:[{rowid:'A',caption:'base',extra:'original'},{rowid:'B',caption:'other',extra:'other'}]}
+ return http
+}
+async function fixture(http = recordsBackend()){
  const models=buildFormalModels({Records:['rowid','caption','extra']})
  const config=new ScenarioViewConfig('EDIT',JSON.stringify({scenarioId:'EDIT',tables:{Records:{modelBinding:{modelId:'Records-model',modelName:'Records'},views:{default:{commitMode:'staged',queryConfig:{fields:['rowid','caption','extra'],allPages:true}}}}}}))
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
@@ -95,10 +98,17 @@ it('refuses a field that becomes persistent after the pending operation opened',
  await e.state.save();e.state.discard()
  expect(f.http.saves).toHaveLength(0);expect(f.view.dirtyTracking.hasPendingChanges('A')).toBe(true);expect(e.finished).toEqual([])
 })
-it('verifies its original delete once without replaying the deletion',async()=>{
+it('keeps the delete pending when an independent read confirms absence but its receipt is missing',async()=>{
  const f=await fixture(),e=operation(f,'delete');f.http.failAfterWrite=true;await e.state.save()
  expect(e.state.ownUnconfirmed.value).toBe(true);e.state.cancel();expect(e.finished).toEqual([])
- await e.state.save();expect(e.finished).toEqual(['saved']);expect(f.http.saves).toHaveLength(1)
+ await e.state.save()
+ expect(e.state.error.value).toContain('SPARK_SAVE_UNVERIFIABLE')
+ expect(e.finished).toEqual([])
+ const reopened=await fixture(f.http)
+ expect(reopened.view.rows.map(row=>row['rowid'])).toEqual(['B'])
+ expect(e.state.ownUnconfirmed.value).toBe(true)
+ expect(f.view.dirtyTracking.isPendingDelete('A')).toBe(true)
+ expect(f.http.saves).toHaveLength(1)
 })
 it('restores the original staged deletion when a known failed delete is explicitly cancelled',async()=>{
  const f=await fixture(),e=operation(f,'delete');f.http.rejectNext=true;await e.state.save();e.state.cancel()
@@ -122,10 +132,18 @@ it('saves all original row changes rather than treating checkpoint fields as a w
  expect(e.finished).toEqual(['saved']);expect(f.http.saves).toHaveLength(1)
  expect(f.http.saves[0]?.changed).toMatchObject([{rowid:'A',caption:'saved',extra:'also saved'}])
 })
-it('verifies its own unknown capture without applying later edits or replaying writes',async()=>{
+it('retains the original capture and later edit when the persisted value can be read independently',async()=>{
  const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','once');f.http.failAfterWrite=true
  await e.state.save();expect(e.state.ownUnconfirmed.value).toBe(true);e.state.cancel();expect(e.finished).toEqual([])
- await e.state.save();expect(f.http.saves).toHaveLength(1);expect(e.finished).toEqual(['saved'])
+ f.view.updateEditingValue('A','extra','later draft')
+ await e.state.save()
+ expect(e.state.error.value).toContain('SPARK_SAVE_UNVERIFIABLE')
+ const reopened=await fixture(f.http)
+ expect(reopened.view.rows.find(row=>row['rowid']==='A')).toMatchObject({caption:'once',extra:'original'})
+ expect(f.view.getEditingRow('A')?.['extra']).toBe('later draft')
+ expect(e.state.ownUnconfirmed.value).toBe(true)
+ expect(e.finished).toEqual([])
+ expect(f.http.saves).toHaveLength(1)
 })
 it('does not take over another ID unknown and closes preserving its own draft',async()=>{
  const f=await fixture(),e=editor(f);f.view.updateEditingValue('A','caption','keep');f.view.updateEditingValue('B','caption','other once');f.http.failAfterWrite=true

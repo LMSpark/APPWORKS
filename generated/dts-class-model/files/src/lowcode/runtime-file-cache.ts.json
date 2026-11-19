@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/runtime-file-cache",
+    "sourcePath": "src/lowcode/runtime-file-cache.ts",
+    "sourceFile": "src/lowcode/runtime-file-cache.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/runtime-file-cache",
+    "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "ReadRuntimeFileOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReadRuntimeFileOptions",
+      "properties": {
+        "owner": {
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "../../packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json#/$defs/LowcodeFileLocator"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.readVersion.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.readText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readText.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T05:51:56.221Z",
+  "models": {
+    "ReadRuntimeFileOptions": {
+      "name": "ReadRuntimeFileOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    owner: string | undefined;\n    locator: LowcodeFileLocator;\n    assertCurrent: () => void;\n    readVersion: () => Promise<string>;\n    readText: () => Promise<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "locator",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readVersion",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readText",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

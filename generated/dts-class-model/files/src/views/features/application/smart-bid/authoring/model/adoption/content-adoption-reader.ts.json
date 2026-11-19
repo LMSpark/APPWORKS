@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T22:35:52.458Z",
+  "generatedAt": "2026-11-19T00:21:05.166Z",
   "models": {
     "ContentAdoptionSelection": {
       "name": "ContentAdoptionSelection",

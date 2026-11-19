@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/production/production-registration-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/production/production-registration-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/production/production-registration-reader\n职责：动作41从制作文件视图核对原登记，同输出异摘要交制作人核查。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T00:29:42.270Z",
+  "models": {}
+}

@@ -72,13 +72,14 @@ describe('original DataView transform rule dialog',()=>{
   expect(f.wrapper.getComponent(RuleDialog).emitted('close')).toHaveLength(1)
   expect(f.rules.getEditingRow('R1')?.['rule_name']).toBe('keep this dialog draft')
   expect(f.rules.hasUnconfirmedSaveFor(['R2'])).toBe(true);expect(f.http.saves).toHaveLength(1)
-  await f.ds.saveChanges({applyEditingRows:false,views:[{tableName:f.rules.tableName,viewId:f.rules.viewId,ids:['R2']}]})
-  expect(f.rules.hasUnconfirmedSave).toBe(false);expect(f.http.saves).toHaveLength(1)
+  await expect(f.ds.saveChanges({applyEditingRows:false,views:[{tableName:f.rules.tableName,viewId:f.rules.viewId,ids:['R2']}]}))
+   .rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.rules.hasUnconfirmedSave).toBe(true);expect(f.http.saves).toHaveLength(1)
  })
- it('does not turn a stale verification click into a new write after another caller resolved its capture',async()=>{
+ it('does not turn a stale verification click into a write after explicit abandonment',async()=>{
   const f=await fixture();f.http.failAfterWrite=true;await f.click('保存')
   const verify=f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='核验原保存结果');if(!verify)throw Error('Missing verify button')
-  await f.ds.saveChanges({applyEditingRows:false,views:[{tableName:f.rules.tableName,viewId:f.rules.viewId,ids:['R1']}]})
+  expect(f.rules.abandonUnconfirmedSave()).toBe(true)
   await f.rules.editRowById('R1',{rule_name:'later unrelated staged change'})
   verify.vm.$emit('click');await flushPromises()
   expect(f.http.saves).toHaveLength(1);expect(f.rules.dirtyTracking.hasPendingChanges('R1')).toBe(true)
@@ -175,7 +176,7 @@ describe('original DataView transform rule dialog',()=>{
   expect(f.wrapper.getComponent(RuleDialog).emitted('close')).toHaveLength(1)
   expect(f.http.saves).toEqual([])
  })
- it('verifies a lost receipt through the original capture without dispatching the write twice',async()=>{
+ it('keeps a lost receipt pending without closing or dispatching the write twice',async()=>{
   const f=await fixture();f.rules.updateEditingValue('R1','rule_name','saved once');f.http.failAfterWrite=true
   await f.click('保存')
   expect(f.http.saves).toHaveLength(1)
@@ -184,7 +185,7 @@ describe('original DataView transform rule dialog',()=>{
   expect(f.wrapper.getComponent(RuleDialog).emitted('close')).toBeUndefined()
   await f.click('核验原保存结果')
   expect(f.http.saves).toHaveLength(1)
-  expect(f.rules.hasUnconfirmedSave).toBe(false)
-  expect(f.wrapper.getComponent(RuleDialog).emitted('close')).toHaveLength(1)
+  expect(f.rules.hasUnconfirmedSave).toBe(true)
+  expect(f.wrapper.getComponent(RuleDialog).emitted('close')).toBeUndefined()
  })
 })

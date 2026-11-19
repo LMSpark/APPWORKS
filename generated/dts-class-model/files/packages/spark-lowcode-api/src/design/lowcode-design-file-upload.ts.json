@@ -134,8 +134,7 @@
       "title": "LowcodeBinaryFileUploadCommand",
       "properties": {
         "file": {
-          "type": "object",
-          "title": "File"
+          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
         },
         "scenarioId": {
           "type": "string"
@@ -235,8 +234,7 @@
                   "$ref": "#/$defs/LowcodeBinaryFileUploadReceipt"
                 },
                 "file": {
-                  "type": "object",
-                  "title": "File"
+                  "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
                 }
               },
               "required": [
@@ -255,7 +253,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T06:08:30.540Z",
+  "generatedAt": "2026-11-18T10:47:04.352Z",
   "models": {
     "LowcodeDesignFileUploadOptions": {
       "name": "LowcodeDesignFileUploadOptions",

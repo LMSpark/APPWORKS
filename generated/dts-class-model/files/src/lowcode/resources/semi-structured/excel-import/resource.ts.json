@@ -31,10 +31,25 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.designProject.params": {
+          "type": "object",
+          "properties": {
+            "expectedProjectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.designProject.return": {
+          "type": "string"
+        },
         "method.loadCatalog.params": {
           "type": "object",
           "properties": {
             "scenarioId": {
+              "type": "string"
+            },
+            "expectedProjectId": {
               "type": "string"
             }
           },
@@ -91,7 +106,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T22:13:36.620Z",
+  "generatedAt": "2026-11-18T19:37:18.797Z",
   "models": {
     "LowcodeExcelImport": {
       "name": "LowcodeExcelImport",
@@ -128,6 +143,26 @@
           ],
           "methods": [
             {
+              "name": "designProject",
+              "jsdoc": "Captures or checks the active application for a single design session.",
+              "parameters": [
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
               "name": "loadCatalog",
               "jsdoc": "按本次执行应用装配正式方案目录，身份不匹配时拒绝，不使用备用目录。",
               "parameters": [
@@ -136,6 +171,16 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

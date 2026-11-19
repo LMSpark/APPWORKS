@@ -1,0 +1,484 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/signature-request",
+    "sourcePath": "src/services/smart-bid/content/review/submission/signature-request.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/signature-request.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/signature-request",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/signature-request\n职责：动作46核同版待签对象、签署位置及代表权，生成待办理请求。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "objectKind": {
+          "enum": [
+            "FILE",
+            "PACKAGE"
+          ]
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "objectHash": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "objectKind",
+        "objectRef",
+        "objectVersion",
+        "objectHash",
+        "positionRef"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "objectKind": {
+          "enum": [
+            "FILE",
+            "PACKAGE"
+          ]
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "objectHash": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "enterpriseId": {
+          "type": "string"
+        },
+        "signerRef": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "actionAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "objectKind",
+        "objectRef",
+        "objectVersion",
+        "objectHash",
+        "positionRef",
+        "requestKey",
+        "enterpriseId",
+        "signerRef",
+        "grantId",
+        "actionAt",
+        "knownAt"
+      ],
+      "additionalProperties": false
+    },
+    "Basis": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Basis",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "objectKind": {
+          "enum": [
+            "FILE",
+            "PACKAGE"
+          ]
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "objectHash": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "requirementRef": {
+          "type": "string"
+        },
+        "coverageRef": {
+          "type": "string"
+        },
+        "approved": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "objectKind",
+        "objectRef",
+        "objectVersion",
+        "objectHash",
+        "positionRef"
+      ]
+    },
+    "OriginalSignature": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalSignature",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "objectKind": {
+          "enum": [
+            "FILE",
+            "PACKAGE"
+          ]
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "objectHash": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "signerRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "objectKind",
+        "objectRef",
+        "objectVersion",
+        "objectHash",
+        "positionRef",
+        "signerRef",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "SignatureResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SignatureResult",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/OriginalSignature"
+        },
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "IN_PROGRESS",
+            "NOT_EFFECTIVE",
+            "SIGNED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T18:06:46.296Z",
+  "models": {
+    "Target": {
+      "name": "Target",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    objectKind: 'FILE' | 'PACKAGE';\n    objectRef: string;\n    objectVersion: string;\n    objectHash: string;\n    positionRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    objectKind: 'FILE' | 'PACKAGE';\n    objectRef: string;\n    objectVersion: string;\n    objectHash: string;\n    positionRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "positionRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    requestKey: string;\n    enterpriseId: string;\n    signerRef: string;\n    grantId: string;\n    actionAt: string;\n    knownAt: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requestKey: string;\n    enterpriseId: string;\n    signerRef: string;\n    grantId: string;\n    actionAt: string;\n    knownAt: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Basis": {
+      "name": "Basis",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    requirementRef: string;\n    coverageRef: string;\n    approved: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requirementRef: string;\n    coverageRef: string;\n    approved: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requirementRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "coverageRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "approved",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "OriginalSignature": {
+      "name": "OriginalSignature",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    signerRef: string;\n    requestKey: string;\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    signerRef: string;\n    requestKey: string;\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "signerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SignatureResult": {
+      "name": "SignatureResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    request: OriginalSignature;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'UNKNOWN' | 'IN_PROGRESS';\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'SIGNED';\n    operationRef: string;\n    signatureRecordId: string;\n    signedObjectRef: string;\n    signedObjectHash: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    request: OriginalSignature;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'UNKNOWN' | 'IN_PROGRESS';\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'SIGNED';\n    operationRef: string;\n    signatureRecordId: string;\n    signedObjectRef: string;\n    signedObjectHash: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

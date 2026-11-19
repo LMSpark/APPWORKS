@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-target",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-target",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-target\n职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。\n边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。\nAI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentAuthoringRoute",
+      "ContentAuthoringPublishedEntry"
+    ]
+  },
+  "$defs": {
+    "ContentAuthoringRoute": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringRoute",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "query": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "path",
+        "meta",
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "ContentAuthoringPublishedEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringPublishedEntry",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "receiptDataViewKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "pageId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T05:59:49.008Z",
+  "models": {
+    "ContentAuthoringRoute": {
+      "name": "ContentAuthoringRoute",
+      "jsdoc": "消费正式工具导航元信息；调用场景由正式工具运行时同样读取的query明确声明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    path: string;\n    meta: Readonly<Record<string, unknown>>;\n    query: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    path: string;\n    meta: Readonly<Record<string, unknown>>;\n    query: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringPublishedEntry": {
+      "name": "ContentAuthoringPublishedEntry",
+      "jsdoc": "Optional explicit IDs used by isolated fixtures; production derives both from the authorized route.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n    receiptDataViewKey?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n    receiptDataViewKey?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiptDataViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

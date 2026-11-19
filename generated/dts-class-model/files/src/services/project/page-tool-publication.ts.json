@@ -1,0 +1,478 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/page-tool-publication",
+    "sourcePath": "src/services/project/page-tool-publication.ts",
+    "sourceFile": "src/services/project/page-tool-publication.ts",
+    "packageName": "app",
+    "modulePath": "services/project/page-tool-publication",
+    "jsdoc": "@module app:services/project/page-tool-publication\n职责：在原浏览器保存三文件发布的恢复定位，跨工作区重开时按原节点和版本核对。\n边界：仅记录摘要、编号和已接纳回执的进度。文件内容、正式指针和数据权限均由原 DataView 读取。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageToolPublication"
+    ]
+  },
+  "$defs": {
+    "Progress": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Progress",
+      "enum": [
+        "pending",
+        "confirmed"
+      ]
+    },
+    "Snapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Snapshot",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "state": {
+          "$ref": "#/$defs/Progress"
+        }
+      },
+      "required": [
+        "version",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "Publication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Publication",
+      "properties": {
+        "call": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "snapshots": {
+          "type": "object",
+          "properties": {
+            "rule.json": {
+              "$ref": "#/$defs/Snapshot"
+            },
+            "script.js": {
+              "$ref": "#/$defs/Snapshot"
+            },
+            "style.css": {
+              "$ref": "#/$defs/Snapshot"
+            }
+          },
+          "additionalProperties": false
+        },
+        "pointer": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "state": {
+              "$ref": "#/$defs/Progress"
+            }
+          },
+          "required": [
+            "value",
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "call",
+        "digest",
+        "baseline",
+        "snapshots",
+        "pointer"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublication",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "storage": {
+              "type": "object",
+              "title": "Storage"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmedPointer.params": {
+          "type": "object",
+          "properties": {
+            "call": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmedPointer.return": {
+          "type": "string"
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "call": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            },
+            "baseline": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "$ref": "#/$defs/Publication"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "intent": {
+              "$ref": "#/$defs/Publication"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": true,
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "intent": {
+                  "$ref": "#/$defs/Publication"
+                },
+                "fileView": {
+                  "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "fileName": {
+                  "$ref": "../../../packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts.json#/$defs/LowcodeBlueprintFileName"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "intent",
+                "fileView",
+                "fileName",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "type": "object",
+          "title": "Promise<number>"
+        },
+        "method.finish.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.finish.return": true,
+        "method.resume.params": {
+          "type": "object",
+          "properties": {
+            "run": {
+              "type": "object",
+              "title": "() => Promise<void>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resume.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T11:53:05.304Z",
+  "models": {
+    "Progress": {
+      "name": "Progress",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'pending' | 'confirmed'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'confirmed'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Snapshot": {
+      "name": "Snapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: number;\n    state: Progress;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: number;\n    state: Progress;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Publication": {
+      "name": "Publication",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<LowcodeBlueprintFileName, Snapshot>>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "call",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "digest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "snapshots",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pointer",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublication": {
+      "name": "PageToolPublication",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(storage: Storage, key: string)",
+          "parameters": [
+            {
+              "name": "storage",
+              "type": {
+                "type": "reference",
+                "name": "Storage"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "confirmedPointer",
+              "jsdoc": "指针有正式回执后只需原调用与蓝图行，工作文件可已进入下一次编辑。",
+              "parameters": [
+                {
+                  "name": "call",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "open",
+              "parameters": [
+                {
+                  "name": "call",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "digest",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "baseline",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Publication",
+                "sourcePath": "src/services/project/page-tool-publication.ts"
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "intent",
+                  "type": {
+                    "type": "reference",
+                    "name": "Publication",
+                    "sourcePath": "src/services/project/page-tool-publication.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "snapshot",
+              "jsdoc": "核对原版本或追加并记录新版本；后续工作区只沿原文件 DataView 读取。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        intent: Publication;\n        fileView: DataView;\n        fileName: LowcodeBlueprintFileName;\n        text: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "finish",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resume",
+              "jsdoc": "原工作区的回读重试也取得同一节点的发布锁，核对期间不能接管新意图。",
+              "parameters": [
+                {
+                  "name": "run",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "Promise",
+                            "typeArguments": [
+                              {
+                                "type": "intrinsic",
+                                "name": "void"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -41,10 +41,13 @@ describe('Excel scheme creation through declared native views',()=>{
   expect(f.http.allocations).toHaveLength(1);expect(f.http.allocations[0]?.url).toContain(`/${id}/A3A38857F7584319844A826EF9AAA881`)
   expect(f.target.rows[0]).toMatchObject({rowid:id,coding:'EXCEL-002'});expect(readExcelSchemeCreation(f.ds)?.phase).toBe('complete')
  })
- it('recovers only the original unknown Added before allowing a later allocation',async()=>{
-  const f=await fixture();await f.start();f.http.failAfterWrite=true;await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow();expect(f.http.allocations).toHaveLength(0)
-  await saveExcelSchemeCreation(f.ds);expect(f.http.allocations).toHaveLength(0);expect(f.http.saves).toHaveLength(1)
-  await saveExcelSchemeCreation(f.ds);expect(f.http.allocations).toHaveLength(1);expect(f.http.saves).toHaveLength(2)
+ it('blocks code allocation while the original Added receipt is unknown',async()=>{
+  const f=await fixture(),id=await f.start();f.http.failAfterWrite=true
+  await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow()
+  await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(readExcelSchemeCreation(f.ds)?.id).toBe(id)
+  expect(f.http.allocations).toHaveLength(0)
+  expect(f.http.saves).toHaveLength(1)
  })
  it('retains the confirmed code after failed writeback and command refresh without allocating again',async()=>{
   const f=await fixture(),id=await f.start();f.http.rejectWriteback=true
@@ -73,11 +76,13 @@ describe('Excel scheme creation through declared native views',()=>{
   f.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)!['coding']='EXTERNAL'
   await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('冲突');expect(f.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)?.['coding']).toBe('EXTERNAL');expect(f.http.allocations).toHaveLength(1)
  })
- it('only verifies an unknown coding writeback before independently confirming it',async()=>{
+ it('keeps unknown coding writeback pending without allocating again',async()=>{
   const f=await fixture();await f.start();f.http.beforeSave=async()=>{if(f.http.allocations.length){delete f.http.beforeSave;f.http.failAfterWrite=true}}
   await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow();expect(f.http.saves).toHaveLength(2)
-  await saveExcelSchemeCreation(f.ds);expect(f.http.saves).toHaveLength(2);expect(f.http.allocations).toHaveLength(1);expect(readExcelSchemeCreation(f.ds)?.phase).toBe('writeback')
-  await saveExcelSchemeCreation(f.ds);expect(readExcelSchemeCreation(f.ds)?.phase).toBe('complete');expect(f.http.saves).toHaveLength(2)
+  await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(2)
+  expect(f.http.allocations).toHaveLength(1)
+  expect(readExcelSchemeCreation(f.ds)?.phase).not.toBe('complete')
  })
  it('independently reopens the persisted result without minting a new creation proof',async()=>{
   const f=await fixture(),id=await f.start();await saveExcelSchemeCreation(f.ds);const reopened=await fixture(f.http)

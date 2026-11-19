@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/approved-price-review",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/approved-price-review",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/approved-price-review\n职责：动作29分别返回原商务批准、本次用途结论及其版本依据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "Price": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Price",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "approverRef": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "detailRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "rateOnly": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version",
+        "assertCurrent",
+        "approverRef",
+        "value",
+        "unit",
+        "detailRef",
+        "rateOnly"
+      ],
+      "additionalProperties": false
+    },
+    "Detail": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Detail",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "detailRef": {
+          "type": "string"
+        },
+        "matchesApproval": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version",
+        "assertCurrent",
+        "detailRef",
+        "matchesApproval"
+      ],
+      "additionalProperties": false
+    },
+    "Use": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Use",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "decisionRef": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "USABLE",
+            "RESTRICTED"
+          ]
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version",
+        "assertCurrent",
+        "purposeRef",
+        "decisionRef",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "Finding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Finding",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "findingRef": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "blocksUse": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "scopeRef",
+        "approvalRef",
+        "version",
+        "assertCurrent",
+        "findingRef",
+        "evidenceRef",
+        "targetRef",
+        "blocksUse"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.537Z",
+  "models": {
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Target": {
+      "name": "Target",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scopeRef: string;\n    approvalRef: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scopeRef: string;\n    approvalRef: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "approvalRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Price": {
+      "name": "Price",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Proof & Readonly<{\n    approverRef: string;\n    value: string;\n    unit: string;\n    detailRef: string | null;\n    rateOnly: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    approverRef: string;\n    value: string;\n    unit: string;\n    detailRef: string | null;\n    rateOnly: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "approverRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "detailRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rateOnly",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Detail": {
+      "name": "Detail",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Proof & Readonly<{\n    detailRef: string;\n    matchesApproval: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    detailRef: string;\n    matchesApproval: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "detailRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "matchesApproval",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Use": {
+      "name": "Use",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Proof & Readonly<{\n    purposeRef: string;\n    decisionRef: string;\n    state: 'USABLE' | 'RESTRICTED';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    purposeRef: string;\n    decisionRef: string;\n    state: 'USABLE' | 'RESTRICTED';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Finding": {
+      "name": "Finding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Proof & Readonly<{\n    findingRef: string;\n    evidenceRef: string;\n    targetRef: string;\n    blocksUse: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    findingRef: string;\n    evidenceRef: string;\n    targetRef: string;\n    blocksUse: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "findingRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blocksUse",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

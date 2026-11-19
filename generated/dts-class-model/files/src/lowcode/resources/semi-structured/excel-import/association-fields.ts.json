@@ -26,15 +26,6 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ExcelAssociationFields",
-      "properties": {
-        "parentKey": {
-          "type": "string"
-        },
-        "foreignKey": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -72,7 +63,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T05:06:56.710Z",
+  "generatedAt": "2026-11-18T19:53:53.231Z",
   "models": {
     "Kind": {
       "name": "Kind",
@@ -112,20 +103,6 @@
           ]
         },
         "members": {
-          "attributes": [
-            {
-              "name": "parentKey",
-              "jsdoc": "标准父字段选择器的完整视图键。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "foreignKey",
-              "jsdoc": "标准本节点外键选择器的完整视图键。",
-              "readable": true,
-              "writable": false
-            }
-          ],
           "methods": [
             {
               "name": "select",

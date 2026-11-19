@@ -41,7 +41,10 @@ describe('reference layout native resource', () => {
 
   it.each(['scope', 'target', 'dispose'] as const)('rejects %s changes while reading without publishing the old source', async change => {
     let release!: (value: string) => void
-    const {ds, view, expire} = fixture(() => new Promise(resolve => {release = resolve}))
+    const read = vi.fn<(target: string) => Promise<string | null>>()
+      .mockImplementationOnce(() => new Promise(resolve => {release = resolve}))
+      .mockResolvedValueOnce('current')
+    const {ds, view, expire} = fixture(read)
     try {
       const query = view.refresh(); await vi.waitFor(() => expect(release).toBeTypeOf('function'))
       if (change === 'scope') expire()
@@ -49,7 +52,15 @@ describe('reference layout native resource', () => {
       else ds.destroy()
       release('old'); await query
       expect(view.rows).toEqual([])
-      if (change !== 'dispose') expect(view.loadingError).not.toBeNull()
+      if (change === 'scope') expect(view.loadingError?.message).toContain('scope expired')
+      if (change === 'target') {
+        expect(view.requestState).toBe(RequestState.Idle)
+        expect(view.loadingError).toBeNull()
+        expect(read.mock.calls).toEqual([['TARGET']])
+        await view.refresh()
+        expect(read.mock.calls).toEqual([['TARGET'], ['OTHER']])
+        expect(view.rows).toMatchObject([{dataSetId: 'OTHER', content: 'current'}])
+      }
     } finally {ds.destroy()}
   })
 

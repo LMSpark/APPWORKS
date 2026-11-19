@@ -293,6 +293,20 @@
           "type": "object",
           "title": "Promise<DataSet>"
         },
+        "method.onDeferredScenarioLoaded.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "(dataSet: DataSet) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDeferredScenarioLoaded.return": {
+          "type": "object",
+          "title": "() => void"
+        },
         "method.getDataSet.params": {
           "type": "object",
           "properties": {
@@ -335,7 +349,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-17T18:16:57.544Z",
+  "generatedAt": "2026-11-18T19:47:35.566Z",
   "models": {
     "PageScenarioInputs": {
       "name": "PageScenarioInputs",
@@ -788,6 +802,51 @@
                     "name": "DataSet"
                   }
                 ]
+              }
+            },
+            {
+              "name": "onDeferredScenarioLoaded",
+              "jsdoc": "Observes deferred scenarios after the runtime has registered their identities and peers.",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "dataSet",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataSet"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
               }
             },
             {

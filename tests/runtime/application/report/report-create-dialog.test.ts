@@ -5,7 +5,7 @@ import ElementPlus, {ElMessageBox} from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldCheckbox, PAGE_SERVICE, RendererButton, RendererDialog, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import ReportCreateDialog from '@/views/features/integration/report/ui/report-create-dialog.vue'
-import {createReportRuntime} from './report.fixture'
+import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {createTestPageService} from '../../../support/helpers/page-service-host'
 
 import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
@@ -117,6 +117,7 @@ describe('报表新增的双记录提交', () => {
 
   it('回执中断后不能取消，核验原批次不会重发新增', async () => {
     const f = await open()
+    f.http.beforeSave = vi.fn()
     f.http.failAfterWrite = true
     await f.click('确定')
     await vi.waitFor(() => {
@@ -131,11 +132,19 @@ describe('报表新增的双记录提交', () => {
     expect(f.closed).not.toHaveBeenCalled()
     expect(f.info.dirtyTracking.isPendingCreate('I')).toBe(true)
     expect(f.report.dirtyTracking.isPendingCreate('V')).toBe(true)
+    f.report.updateEditingValue('V', 'Version', '核验前的新版本名')
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledOnce())
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(f.button('取消').props('disabled')).toBe(true)
+    expect(f.info.hasUnconfirmedSave).toBe(true)
+    expect(f.report.hasUnconfirmedSave).toBe(true)
+    expect(f.report.getEditingPatch('V')).toMatchObject({Version: '核验前的新版本名'})
+    const persisted = await readPersistedReport(scenario, f.http)
     expect(f.http.saves).toHaveLength(2)
-    expect(f.http.records['Base_ReportInfo']).toMatchObject([{rowid: 'I', version_id: 'V'}])
-    expect(f.http.records['Base_Report']).toMatchObject([{rowid: 'V', RptID: 'I'}])
+    expect(f.http.beforeSave).toHaveBeenCalledOnce()
+    expect(persisted.info.rows).toMatchObject([{rowid: 'I', version_id: 'V'}])
+    expect(persisted.versions.rows).toMatchObject([{rowid: 'V', RptID: 'I', Version: '0'}])
   })
 
   it('明确拒绝后仍可取消，不向服务端写入', async () => {
@@ -152,12 +161,9 @@ describe('报表新增的双记录提交', () => {
     expect(f.http.saves).toHaveLength(0)
   })
 
-  it('新增原批次缺失时保留未知，不把空回读当成可以重新提交', async () => {
+  it('新增已派发但未收到回执，独立重开为空时仍锁定两条原草稿', async () => {
     const f = await open()
-    let interrupted = true
-    f.http.beforeSave = async () => {
-      if (interrupted) {interrupted = false; throw new Error('派发后连接中断')}
-    }
+    f.http.beforeSave = vi.fn<() => Promise<void>>().mockRejectedValueOnce(new Error('派发后连接中断'))
     await f.click('确定')
     await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(true))
     expect(f.http.saves).toHaveLength(0)
@@ -171,6 +177,12 @@ describe('报表新增的双记录提交', () => {
     await f.click('核验原保存结果')
     expect(f.info.hasUnconfirmedSave).toBe(true)
     expect(f.closed).not.toHaveBeenCalled()
+    const persisted = await readPersistedReport(scenario, f.http)
+    expect(persisted.info).toMatchObject({rows: [], total: 0})
+    expect(persisted.versions).toMatchObject({rows: [], total: 0})
+    expect(f.info.dirtyTracking.isPendingCreate('I')).toBe(true)
+    expect(f.report.dirtyTracking.isPendingCreate('V')).toBe(true)
+    expect(f.http.beforeSave).toHaveBeenCalledOnce()
     expect(f.http.saves).toHaveLength(0)
   })
 
@@ -181,11 +193,14 @@ describe('报表新增的双记录提交', () => {
     await vi.waitFor(() => expect(f.info.hasUnconfirmedSave).toBe(true))
     f.http.records['Base_Report'] = []
     await f.click('核验原保存结果')
-    expect(document.body.textContent).toContain('部分生效')
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
     expect(f.info.hasUnconfirmedSave).toBe(true)
     expect(f.report.hasUnconfirmedSave).toBe(true)
     expect(f.button('取消').props('disabled')).toBe(true)
     expect(f.closed).not.toHaveBeenCalled()
+    const persisted = await readPersistedReport(scenario, f.http)
+    expect(persisted.info.rows).toMatchObject([{rowid: 'I', version_id: 'V'}])
+    expect(persisted.versions).toMatchObject({rows: [], total: 0})
     expect(f.http.saves).toHaveLength(2)
   })
 

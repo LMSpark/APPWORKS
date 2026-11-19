@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/response-assignment",
+    "sourcePath": "src/services/smart-bid/content/references/response/response-assignment.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/response-assignment",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/response-assignment\n职责：动作34对照固定基线及应交清单核全答复分工。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "Destination": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Destination",
+      "properties": {
+        "kind": {
+          "enum": [
+            "DOCUMENT",
+            "FORM_CELL",
+            "PLATFORM_FIELD"
+          ]
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "duty": {
+          "enum": [
+            "LEAD",
+            "SEPARATE",
+            "EVIDENCE"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "targetRef",
+        "duty"
+      ],
+      "additionalProperties": false
+    },
+    "Assignment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Assignment",
+      "properties": {
+        "kind": {
+          "enum": [
+            "DOCUMENT",
+            "FORM_CELL",
+            "PLATFORM_FIELD"
+          ]
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "duty": {
+          "enum": [
+            "LEAD",
+            "SEPARATE",
+            "EVIDENCE"
+          ]
+        },
+        "assigneeRef": {
+          "type": "string"
+        },
+        "dueAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "targetRef",
+        "duty",
+        "assigneeRef",
+        "dueAt"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T15:36:17.249Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Destination": {
+      "name": "Destination",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'DOCUMENT' | 'FORM_CELL' | 'PLATFORM_FIELD';\n    targetRef: string;\n    duty: 'LEAD' | 'SEPARATE' | 'EVIDENCE';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'DOCUMENT' | 'FORM_CELL' | 'PLATFORM_FIELD';\n    targetRef: string;\n    duty: 'LEAD' | 'SEPARATE' | 'EVIDENCE';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "duty",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Assignment": {
+      "name": "Assignment",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Destination & Readonly<{\n    assigneeRef: string;\n    dueAt: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Destination",
+            "targetName": "Destination"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assigneeRef: string;\n    dueAt: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assigneeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dueAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

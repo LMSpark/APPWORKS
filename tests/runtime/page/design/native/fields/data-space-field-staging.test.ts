@@ -120,7 +120,8 @@ describe('reference computed field confirmation and workspace save', () => {
       await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
       await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
       expect(writes()).toHaveLength(1)
-      await fieldEditReloadBatch(batch, true)
+      await expect(fieldEditReloadBatch(batch, true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(view.hasUnconfirmedSave).toBe(true)
     } else await session.getModelEdit('M1').save(batch)
     expect(writes()).toHaveLength(mode === 'cancel' ? 0 : 1)
     const reopened = await f.open('A'), fields = await reopened.loadModelFields('M1')
@@ -440,16 +441,18 @@ describe('reference computed field confirmation and workspace save', () => {
     expect(view.getEditingRow(id)?.['AsName']).toBe('totalOutput')
     expect(writes()).toEqual([])
   })
-  it('does not replay a lost create receipt and preserves recovery until an explicit reread', async () => {
+  it('keeps the original create unresolved after an independent reread and never replays it', async () => {
     const {f, session, view, owners, add, writes} = await setup()
     const id = await add('total'), batch = owners(); f.loseNextResponse()
     await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
     expect(session.hasPendingFieldEdits()).toBe(true)
     await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
     expect(writes()).toHaveLength(1)
-    await fieldEditReloadBatch(batch, true)
-    expect(view.rows.some(row => row['rowid'] === id)).toBe(true)
-    expect(session.hasPendingFieldEdits()).toBe(false); expect(writes()).toHaveLength(1)
+    await expect(fieldEditReloadBatch(batch, true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    const fresh = await (await f.open('A')).loadModelFields('M1')
+    expect(fresh.rows.find(row => row['rowid'] === id)?.['Name']).toBe('total')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(session.hasPendingFieldEdits()).toBe(true); expect(writes()).toHaveLength(1)
   })
 
   it('keeps an omitted creation recoverable after readback, then explicitly accepts its absence without replay', async () => {

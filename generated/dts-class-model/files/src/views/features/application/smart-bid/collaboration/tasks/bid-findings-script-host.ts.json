@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host\n职责：页15回查当前任务固定目标的原检查问题。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Read",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Host"
+        },
+        {
+          "$ref": "../../authoring/model/review/content-review-coverage-reader.ts.json#/$defs/CompletedCoverageSource"
+        }
+      ]
+    },
+    "Recheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Recheck",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(key: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scenarioId",
+            "runtime",
+            "assertCurrent",
+            "projectId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "findingId": {
+              "type": "string"
+            },
+            "expectedFindingVersion": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "findingId",
+            "expectedFindingVersion",
+            "requestKey"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "(finding: Finding) => Promise<EvidenceSource>"
+        }
+      ]
+    },
+    "Registration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Registration",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(key: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scenarioId",
+            "runtime",
+            "assertCurrent",
+            "projectId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "checkRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "checkRef",
+            "requestKey"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "(check: RecordInput) => Promise<Pick<Readonly<{ projectId: string; target: ReviewFindingTarget; checkRef: string; ruleRef: string; ... 5 more ...; assertCurrent: () => void; }>, \"finding\" | \"observations\" | \"assertCurrent\">>"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T19:43:47.202Z",
+  "models": {
+    "Read": {
+      "name": "Read",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readFindingsForCompletedCoverage>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readFindingsForCompletedCoverage>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Recheck": {
+      "name": "Recheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareRegisteredBidFindingRecheck>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareRegisteredBidFindingRecheck>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Registration": {
+      "name": "Registration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareRegisteredBidFinding>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareRegisteredBidFinding>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

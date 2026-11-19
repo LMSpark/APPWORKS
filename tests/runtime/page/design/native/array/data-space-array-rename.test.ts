@@ -12,6 +12,16 @@ async function setupForView(options:Parameters<typeof dataSpacePageFixture>[0],f
   const owner=session.getArrayEdit('M1',fieldViewId),view=session.metadataDataSet.getView('Base_DataModel')!
   return{f,session,owner,view,writes:()=>f.requests.filter(r=>r.url?.includes('BatchTableOperate'))}
 }
+async function interruptConfirmedReadback(f:ReturnType<typeof dataSpacePageFixture>,owner:Awaited<ReturnType<typeof setupForView>>['owner'],writes:()=>unknown[]) {
+  const release=f.holdModelResponse(),saving=owner.save()
+  try {
+    await vi.waitFor(()=>expect(writes()).toHaveLength(1))
+    f.failNextModelRead()
+  } finally { release() }
+  await expect(saving).rejects.toThrow()
+  expect(owner.getState()).toMatchObject({status:'readback',pending:true})
+}
+
 describe.each(['default','modelFields'] as const)('array dialog registered name and definition transaction using %s',fieldViewId=>{
   const setup=(options:Parameters<typeof dataSpacePageFixture>[0]={})=>setupForView(options,fieldViewId)
   it('saves name, values, headers and qualified references in one database batch before updating pagedata',async()=>{
@@ -36,10 +46,14 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
     await expect(owner.save()).rejects.toThrow('已存在');expect(writes()).toHaveLength(0)
     owner.discard();expect(owner.getState().pending).toBe(false);expect(view.getEditingRow('M1')?.['Name']).toBe('Orders')
   })
-  it('verifies a lost database receipt then completes original file writes without replaying the batch',async()=>{
+  it('keeps the original rename pending and the scene unchanged after a lost database receipt',async()=>{
     const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toBe(true);expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    expect(f.modelRow().Name).toBe('LocalOrders')
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
   })
   it('keeps a late captured-target draft while dependency readback is awaiting',async()=>{
     const {owner,f,session,writes}=await setup({allowDelete:true,sourceFields:[
@@ -66,8 +80,8 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
       })
       return query
     })
-    f.loseNextResponse()
-    await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    await interruptConfirmedReadback(f,owner,writes)
+    expect(fields.hasUnconfirmedSave).toBe(false)
     expect(capturedTargets).toContainEqual(expect.objectContaining({tableName:'Base_DataModel_Field',viewId:fieldViewId,ids:expect.arrayContaining(['F2','F3'])}))
     hold=true
     const verifying=owner.verify()
@@ -90,8 +104,8 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
     const draft=owner.beginHeaders();draft.beginHeaders()
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().filter(header=>header.id!=='F3').map(header=>({...header,label:header.id==='F2'?'新名称':header.label}))))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
-    f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
-    expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    await interruptConfirmedReadback(f,owner,writes)
+    expect(fields.hasUnconfirmedSave).toBe(false)
     const load=fields.loadFromServer.bind(fields)
     let release!:()=>void,entered!:()=>void
     const gate=new Promise<void>(resolve=>{release=resolve}),waiting=new Promise<void>(resolve=>{entered=resolve})
@@ -107,8 +121,8 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
     expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
   })
   it('keeps confirmed recovery open when a captured target changes during file completion',async()=>{
-    const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextResponse()
-    await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders')
+    await interruptConfirmedReadback(f,owner,writes)
     const release=f.holdFileResponse(),verifying=owner.verify()
     await vi.waitFor(()=>expect(f.fileWrites).toHaveLength(1))
     view.updateEditingValue('M1','description','文件完成等待期间的新草稿')
@@ -196,15 +210,28 @@ describe('array compound changes after overview loading',()=>{
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(h=>({...h,name:'code',label:'编码'}))))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
     expect(view.getEditingRow('M1')?.['Name']).toBe('LocalOrders')
-    if(lost){f.loseNextResponse();await expect(owner.save()).rejects.toThrow();expect(await owner.verify()).toBe(true)}
+    if(lost){
+      f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(view.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+      expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    }
     else await owner.save()
-    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(lost?0:1)
     expect(session.metadataDataSet.getView('Base_DataModel_Field')!.rows).toEqual([])
     expect(session.metadataDataSet.getView('Base_DataModel_Relation')!.rows).toEqual([])
     const fresh=await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')).toMatchObject({Name:'LocalOrders',PrimaryKeyFields:'code',items:'[{"code":"a"}]'})
     expect((await fresh.loadModelFields('M1')).rows.find(r=>r['rowid']==='F1')).toMatchObject({Name:'code'})
     expect((await fresh.loadModelFields('M2')).rows.find(r=>r['rowid']==='F2')?.['ValueFun']).toContain('LocalOrders.code')
+    if(lost){
+      session.releaseArrayEdit('M1','modelFields')
+      expect(session.getArrayEdit('M1','modelFields')).toBe(owner)
+      await expect(owner.save()).rejects.toThrow('数组模型注册名或来源已变化')
+      expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+      expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
+      return
+    }
     await fresh.loadDefinition()
     const result=fresh.definitionDataSet!.getView('OrdersAlias','shared')!
     expect((await result.loadFromServer()).success).toBe(true);expect(result.rows).toMatchObject([{code:'a'}])

@@ -35,6 +35,14 @@ describe('导航地址列规范', () => {
     for (const value of ['vue:/features/a/b-page', 'vue:/features/a?x=1', 'vue:/a#Top']) expect(targetPattern.test(value)).toBe(true)
   })
 
+  it('accepts a configuration tool and declared call parameters in the production column', () => {
+    expect(targetPattern.test('cfg:orders')).toBe(true)
+    expect(targetPattern.test('cfg:orders?additionalScenarioIds=LOOKUP')).toBe(true)
+    for (const value of ['cfg:../orders', 'cfg:.', 'cfg:..', 'cfg:orders/', 'cfg:orders#preview']) {
+      expect(targetPattern.test(value)).toBe(false)
+    }
+  })
+
   it.each(['/features/a', 'vue:/', 'vue:/Features/a', 'vue:/a\\b', 'vue:/a//b', 'vue:/a/', 'vue:/a/b.vue', 'vue:/a b'])('rejects %j', value => {
     expect(targetPattern.test(value)).toBe(false)
   })
@@ -51,6 +59,15 @@ describe('verifyBlueprintNodeTree', () => {
 
   it('fails when the hung vue address is missing from delivery', () => {
     expect(codes('page', [page('page', '', 'vue:/missing')], ['vue:/orders'])).toEqual(['TARGET_NOT_IN_DELIVERY'])
+  })
+
+  it('checks the declared tool call against the authorized published menu', () => {
+    const nodes = [page('p', '', 'cfg:orders?additionalScenarioIds=LOOKUP')]
+    expect(verify('p', nodes).issues[0]?.code).toBe('TARGET_NOT_IN_DELIVERY')
+    expect(verifyBlueprintNodeTree({rootNodeId:'p', nodes, deliveryResources:[], targetPattern,
+      deliveredTool:(id, tool, path)=>id==='p' && tool==='orders' && path==='/__page/p?additionalScenarioIds=LOOKUP',
+    }).ok).toBe(true)
+    expect(verify('p', [page('p', '', 'cfg:orders?mode=preview')]).issues[0]?.code).toBe('TARGET_INVALID')
   })
 
   it('bubbles a child failure to the current-node verify', () => {

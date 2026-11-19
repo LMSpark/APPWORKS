@@ -22,11 +22,12 @@ vi.mock('@/services/sse-events', async importOriginal => ({
   onPageConfigChange: () => () => {},
 }))
 
-const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls } = vi.hoisted(() => ({
+const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls, savedVersions } = vi.hoisted(() => ({
   httpGet: vi.fn(),
   readModels: vi.fn(),
   previewLoad: vi.fn(),
-  previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean}>(),
+  previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean; loseReceipt?: boolean}>(),
+  savedVersions: new Map<string,string>(),
   httpPost: vi.fn(),
   httpPut: vi.fn(),
   httpRequestFull: vi.fn(),
@@ -66,7 +67,6 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
     const view = dataSet.getView('Base_NavigationInfo')!
     const rows = ['orders-page-node', 'orders-page-v2-node', 'demo-node'].map(rowid => ({rowid, SysId: projectId,
       prowid: '000000', FunOrderValue: '0', name: rowid, FunName: rowid, conType: 'Model',conid:rowid==='orders-page-node'?'scene':''}))
-    const savedVersions = new Map<string,string>()
     let failReadback = false
     const result = (matching: typeof rows) => ({
       rows: matching.map(row => {
@@ -110,6 +110,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
           const id = String(row['rowid'])
           if (!previewCalls.get(id)?.publish || typeof row['VersionId'] !== 'string') throw new Error('unexpected pointer save')
           savedVersions.set(id, row['VersionId'])
+          if (previewCalls.get(id)?.loseReceipt) throw new Error('publication receipt lost')
           if (previewCalls.get(id)?.failReadback) failReadback = true
         }
         return {metaName:change.identity.metaName, added:[], deleted:[], changed,
@@ -150,6 +151,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
   lowcodeApi: {
+    session:{get:()=>({enterprise:{id:'ent',shortName:'tenant'},identity:{userId:'user'}})},
     readRequestScope:()=>({token:'scope',headers:{'X-AppId':'homepage'}}),
     dataSpace:{design:{readModels}},
     platform: {},
@@ -549,10 +551,16 @@ describe('tool and shared scenario editing owners',()=>{
   await state.writeScenarioViewText(fixtureText(77))
   const wrapper=mountDesigner({state,stubs:{SparkJsonEditor:true}})
   try {
+   await state.verifyUnconfirmedBlueprintWrites()
+   expect(httpPut).not.toHaveBeenCalled()
    await state.saveAll();await flushPromises()
    expect(httpPut).toHaveBeenCalledOnce()
    expect(state.statusMessages.value[0]?.text).toContain('后续场景定义尚未提交')
    expect(state.statusMessages.value[0]?.text).toContain('再次保存先核验原工具提交')
+   await state.verifyUnconfirmedBlueprintWrites()
+   expect(httpPut).toHaveBeenCalledOnce()
+   expect(state.statusMessages.value[0]?.text).toContain('原提交已确认')
+   expect(state.pageDataDirty.value).toBe(true)
    const label=action==='save'?'保存场景视图':'撤销'
    const button=wrapper.findAll('button').find(item=>item.text()===label)!
    expect(button.attributes('disabled')).toBeUndefined()
@@ -665,8 +673,8 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.activePageId.value).toBe('orders-page')
   expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(false)
  })
- beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
- afterEach(()=>{vi.useRealTimers();previewCalls.clear()})
+ beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();sessionStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
+ afterEach(()=>{vi.useRealTimers();previewCalls.clear();savedVersions.clear()})
  it('opens the active file through its DataView without loading PageTool owner text',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
   const state=createDevStateWithConfigPages()
@@ -733,64 +741,131 @@ describe('tool and shared scenario editing owners',()=>{
    } finally {wrapper.unmount()}
   },
  )
- it('resumes a partial publication with the original confirmed snapshot',async()=>{
+ it.each(['same','cold','cold-missing','cold-mismatch','cold-recovered'] as const)('resumes a partial publication with the original confirmed snapshot, %s workspace',async kind=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
-  const state=createDevStateWithConfigPages()
-  await selectPreviewNode(state,undefined,true)
-  await ensureDevStateActivePageLoaded(state)
-  const owner=state.blueprintWorkspaceDataView.value!
-  const fileViews=await Promise.all(state.pageFileNames.map(fileName=>state.loadPageToolFileDataView({pageId:'orders-page',fileName})))
-  const statuses=state.pageFileNames.map(fileName=>({state:'confirmed' as const,version:1,fileName:`1__${fileName}`,message:null}))
-  const [rule,script,style]=fileViews.map((view,index)=>{
-   vi.spyOn(view,'acknowledgeSourceHistoryAttempt').mockImplementation(()=>{})
-   return vi.spyOn(view,'createSourceVersion').mockResolvedValue(statuses[index]!)
-  })
-  script!.mockRejectedValueOnce(new Error('script upload rejected'))
-  const readSnapshot=vi.spyOn(fileViews[0]!,'previewSourceVersion').mockResolvedValue('[]')
-  const save=vi.spyOn(owner,'save')
-  let page!:ReturnType<typeof usePageDesign>
-  const wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
+  const writes = new Map<string, number>()
+  const reads = vi.fn(async (name: string) => name === 'rule.json' ? '[]' : (name === 'script.js' && kind === 'cold-mismatch' ? 'different bytes' : ''))
+  let rejectScript = true
+  async function open() {
+   const state=createDevStateWithConfigPages()
+   await selectPreviewNode(state,undefined,true)
+   await ensureDevStateActivePageLoaded(state)
+   const owner=state.blueprintWorkspaceDataView.value!
+   const save=vi.spyOn(owner,'saveSelectedNode')
+   for (const fileName of state.pageFileNames) {
+    const view=await state.loadPageToolFileDataView({pageId:'orders-page',fileName})
+    vi.spyOn(view,'acknowledgeSourceHistoryAttempt').mockImplementation(()=>{})
+    vi.spyOn(view,'previewSourceVersion').mockImplementation(()=>reads(fileName))
+    vi.spyOn(view,'listSourceVersions').mockImplementation(async()=>kind === 'cold-missing' ? [] : [{version:1,label:`1__${fileName}`,lastModified:null}])
+    vi.spyOn(view,'createSourceVersion').mockImplementation(async notify=>{
+     if (fileName==='script.js' && rejectScript && (kind==='same'||kind==='cold')) {rejectScript=false;throw new Error('script upload rejected')}
+     const version=(writes.get(fileName)??0)+1
+     const result={version,fileName:`${version}__${fileName}`,message:null}
+     notify?.({...result,state:'pending'})
+     writes.set(fileName,version)
+     if (fileName==='script.js' && rejectScript) {rejectScript=false;throw new Error('script receipt lost')}
+     return {...result,state:'confirmed'}
+    })
+   }
+   let page!:ReturnType<typeof usePageDesign>
+   const wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
+   return {wrapper,state,page,save,owner}
+  }
+  let stage=await open()
   try {
-   expect(owner.canWrite('VersionId')).toBe(true)
-   page.actions.value.saveDelivery()
-   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('script upload rejected'))
-   expect(save).not.toHaveBeenCalled()
-   expect(owner.value('VersionId')).toBe('')
-   expect(style).not.toHaveBeenCalled()
-   page.actions.value.saveDelivery()
-   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
-   expect(save).toHaveBeenCalledTimes(1)
-   expect(owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
-   expect(rule).toHaveBeenCalledTimes(1)
-   expect(readSnapshot).toHaveBeenCalledWith(1)
-   expect(script).toHaveBeenCalledTimes(2)
-   expect(style).toHaveBeenCalledTimes(1)
+   stage.page.actions.value.saveDelivery()
+   const dispatched = kind !== 'same' && kind !== 'cold'
+   await vi.waitFor(()=>expect(stage.state.statusMessages.value.map(status=>status.text).join('\n')).toContain(dispatched?'script receipt lost':'script upload rejected'))
+   expect(stage.save).not.toHaveBeenCalled()
+   expect(stage.owner.value('VersionId')).toBe('')
+   expect(Object.fromEntries(writes)).toEqual(dispatched ? {'rule.json':1,'script.js':1} : {'rule.json':1})
+   if (kind!=='same') {
+    const original=stage.owner
+    stage.wrapper.unmount()
+    stage=await open()
+    expect(stage.owner).not.toBe(original)
+   }
+   stage.page.actions.value.saveDelivery()
+   if (kind==='cold-missing' || kind==='cold-mismatch') {
+    await vi.waitFor(()=>expect(stage.state.statusMessages.value.map(status=>status.text).join('\n')).toContain(
+     kind==='cold-missing'?'原快照仍待核验':'原快照与本次发布内容不符'))
+    expect(Object.fromEntries(writes)).toEqual({'rule.json':1,'script.js':1})
+    expect(stage.save).not.toHaveBeenCalled()
+    return
+   }
+   await vi.waitFor(()=>expect(stage.state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
+   expect(stage.save).toHaveBeenCalledTimes(1)
+   expect(stage.owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+   expect(Object.fromEntries(writes)).toEqual({'rule.json':1,'script.js':1,'style.css':1})
+   expect(reads).toHaveBeenCalledWith('rule.json')
+  } finally {stage.wrapper.unmount()}
+ })
+ it('rejects an undeclared rule binding before loading any preview scenario',async()=>{
+  const rule=JSON.stringify([{type:'r-select',props:{optionDataViewKey:'extra@Orders@default'}}])
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?rule:''}))
+  const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state)
+  await ensureDevStateActivePageLoaded(state)
+  const wrapper=shallowMount(DevPreviewTab,{props:{state}})
+  try {
+   await flushPromises()
+   expect(wrapper.findAllComponents({name:'DisplayAlert'}).some(alert=>
+    String(alert.props('description')).includes('引用了未声明的数据空间'))).toBe(true)
+   expect(previewLoad).not.toHaveBeenCalled()
   } finally {wrapper.unmount()}
  })
- it('recovers a confirmed pointer with an interrupted readback without writing again',async()=>{
+ it.each(['same','cold','cold-unknown'] as const)('recovers a publication pointer according to its original receipt, %s workspace',async kind=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
   const state=createDevStateWithConfigPages()
   await selectPreviewNode(state,undefined,true)
-  previewCalls.get('orders-page-node')!.failReadback=true
+  const call=previewCalls.get('orders-page-node')!
+  if(kind==='cold-unknown') call.loseReceipt=true
+  else call.failReadback=true
   await ensureDevStateActivePageLoaded(state)
   const owner=state.blueprintWorkspaceDataView.value!
   for (const fileName of state.pageFileNames) {
    const view=await state.loadPageToolFileDataView({pageId:'orders-page',fileName})
    vi.spyOn(view,'acknowledgeSourceHistoryAttempt').mockImplementation(()=>{})
-   vi.spyOn(view,'createSourceVersion').mockResolvedValue({state:'confirmed',version:1,fileName:`1__${fileName}`,message:null})
+   vi.spyOn(view,'createSourceVersion').mockImplementation(async notify => {
+    const attempt={version:1,fileName:`1__${fileName}`,message:null}
+    notify?.({...attempt,state:'pending'})
+    return {...attempt,state:'confirmed'}
+   })
   }
   const save=vi.spyOn(owner.dataSet,'saveChanges')
   let page!:ReturnType<typeof usePageDesign>
-  const wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
+  let wrapper=mount(defineComponent({setup(){page=usePageDesign(state);return ()=>h('div')}}))
   try {
    page.actions.value.saveDelivery()
-   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('publication readback interrupted'))
+   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain(
+    kind==='cold-unknown'?'publication receipt lost':'publication readback interrupted'))
    expect(page.canVerifyPendingWrites.value).toBe(true)
    expect(save).toHaveBeenCalledTimes(1)
-   page.verifyPendingWrites()
-   await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
+   if(kind==='same'){
+    page.verifyPendingWrites()
+    await vi.waitFor(()=>expect(state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
+   }else{
+    wrapper.unmount()
+    httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':'working content changed since publication'}))
+    const reopened=createDevStateWithConfigPages()
+    await selectPreviewNode(reopened,undefined,true)
+    await ensureDevStateActivePageLoaded(reopened)
+    const fresh=reopened.blueprintWorkspaceDataView.value!
+    expect(fresh).not.toBe(owner)
+    expect(fresh.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+    const newSave=vi.spyOn(fresh.dataSet,'saveChanges')
+    const files=vi.spyOn(reopened,'loadPageToolFileDataView')
+    const readback=vi.spyOn(fresh,'rereadSelectedNode')
+    wrapper=mount(defineComponent({setup(){page=usePageDesign(reopened);return ()=>h('div')}}))
+    page.actions.value.saveDelivery()
+    await vi.waitFor(()=>expect(reopened.statusMessages.value.map(status=>status.text).join('\n')).toContain(
+     kind==='cold-unknown'?'尚无权威回执':'发布指针已一次切换并读回'))
+    expect(newSave).not.toHaveBeenCalled()
+    expect(files).not.toHaveBeenCalled()
+    expect(readback).toHaveBeenCalledTimes(kind==='cold-unknown'?0:1)
+   }
    expect(save).toHaveBeenCalledTimes(1)
-   expect(owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
+   expect(savedVersions.get('orders-page-node')).toBe('rule=1;script=1;style=1')
   } finally {wrapper.unmount()}
  })
  it('keeps the preview route snapshot aligned with the main and additional runtime spaces',async()=>{

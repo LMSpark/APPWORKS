@@ -15,6 +15,15 @@ async function setup(options:Parameters<typeof dataSpacePageFixture>[0]={}) {
   const session=await f.open('A'),owner=session.getArrayEdit('M1')
   return{f,session,owner,writes:()=>f.requests.filter(r=>r.url?.includes('BatchTableOperate'))}
 }
+async function interruptConfirmedReadback(f:ReturnType<typeof dataSpacePageFixture>,owner:Awaited<ReturnType<typeof setup>>['owner'],writes:()=>unknown[]) {
+  const release=f.holdModelResponse(),saving=owner.save()
+  try {
+    await vi.waitFor(()=>expect(writes()).toHaveLength(1))
+    f.failNextModelRead()
+  } finally { release() }
+  await expect(saving).rejects.toThrow()
+  expect(owner.getState()).toMatchObject({status:'readback',pending:true})
+}
 describe('existing array headers use the formal definition batch',()=>{
   it('does not create edits for unchanged nullable or numeric-string header metadata',async()=>{
     const {owner,session,writes}=await setup({sourceFields:[
@@ -97,11 +106,13 @@ describe('existing array headers use the formal definition batch',()=>{
     if(lost) {
       f.loseNextResponse();await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
       await expect(owner.save()).rejects.toThrow(/未决|草稿/);expect(writes()).toHaveLength(1)
-      expect(await owner.verify()).toBe(true)
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      const target=ordinary?models:session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!
+      expect(target.hasUnconfirmedSaveFor([ordinary?'M2':'M2F2'])).toBe(true)
     } else await owner.save()
     expect(models.rows.map(row=>row['rowid'])).toEqual(['M2'])
     expect({page:models.page,total:models.total,filter:models.filterExpression}).toEqual(before)
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false});expect(writes()).toHaveLength(1)
+    expect(owner.getState()).toMatchObject({status:lost?'unknown':'idle',pending:lost});expect(writes()).toHaveLength(1)
     const fresh=await f.open('A');await fresh.loadModelFields('M2')
     expect(fresh.getArrayEdit('M2','modelFields').headers().find(header=>header.id==='M2F2')?.label).toBe(ordinary?'名称':'目标数组新名称')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M2')).toMatchObject({
@@ -193,7 +204,7 @@ describe('existing array headers use the formal definition batch',()=>{
     const fresh=await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')).toMatchObject({items:'[]',description:'仅改说明'})
   })
-  it('verifies an ordinary lost array receipt without replaying or expanding the model page',async()=>{
+  it('retains an ordinary lost array receipt without replaying or expanding the model page',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true})
     await session.loadModelFields('M1')
     const models=session.metadataDataSet.getView('Base_DataModel')!;await models.setPageSize(1)
@@ -202,12 +213,15 @@ describe('existing array headers use the formal definition batch',()=>{
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown');expect(f.requests).toHaveLength(before+1)
     await expect(owner.save()).rejects.toThrow('未决')
-    expect(await owner.verify()).toBe(true)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(models.rows.map(row=>row['rowid'])).toEqual(['M1']);expect(models.total).toBe(2)
-    expect(models.rows[0]?.['items']).toBe('[]');expect(writes()).toHaveLength(1)
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false})
+    expect(models.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+    const fresh=await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['items']).toBe('[]')
+    expect(writes()).toHaveLength(1)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
   })
-  it('recovers the exact array batch from its native capture and preserves a sibling capture',async()=>{
+  it('checks only the exact native array batch and preserves every unresolved capture',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true})
     await session.loadModelFields('M1')
     const owner=session.getArrayEdit('M1','modelFields')
@@ -229,21 +243,22 @@ describe('existing array headers use the formal definition batch',()=>{
     sibling.updateEditingValue('A','inputParams','[]')
     f.loseNextResponse()
     await expect(dataSet.saveChanges({views:[{tableName:'Base_DataSet',viewId:'default',ids:['A']}]})).rejects.toThrow()
-    expect(sibling.hasUnconfirmedSave).toBe(true)
-    expect(await owner.verify()).toBe(true)
+    expect(sibling.hasUnconfirmedSaveFor(['A'])).toBe(true)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
 
     expect(spy).toHaveBeenCalledTimes(3)
     expect(spy.mock.calls[2]?.[0]?.views).toEqual(original)
-    expect(models.hasUnconfirmedSave).toBe(false)
-    expect(fields.hasUnconfirmedSave).toBe(false)
-    expect(sibling.hasUnconfirmedSave).toBe(true)
+    expect(models.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+    expect(fields.hasUnconfirmedSaveFor(['F2'])).toBe(true)
+    expect(sibling.hasUnconfirmedSaveFor(['A'])).toBe(true)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
     expect(writes().filter(request=>JSON.stringify(request.data).includes('"TableName":"Base_DataModel"'))).toHaveLength(1)
     expect(f.modelRow()).toMatchObject({items:'[]'})
     const fresh=await f.open('A')
     const freshFields=await fresh.loadModelFields('M1')
     expect(freshFields.rows.find(row=>row['rowid']==='F2')?.['description']).toBe('原始数组字段草稿')
   })
-  it('keeps an exact not-applied result separate and discards only after that proof',async()=>{
+  it('preserves both captures when the original receipt is lost and current rows are unchanged',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true,omitModelWrite:true,omitAllFieldChanges:true,allowFieldEdit:true})
     await session.loadModelFields('M1');const owner=session.getArrayEdit('M1','modelFields'),models=session.metadataDataSet.getView('Base_DataModel')!
     models.updateEditingValue('M1','items','[]')
@@ -252,12 +267,15 @@ describe('existing array headers use the formal definition batch',()=>{
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose();f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(models.hasUnconfirmedSave).toBe(true);expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toBe(false)
-    expect(models.hasUnconfirmedSave).toBe(false)
-    expect(owner.getState().status).toBe('different');expect(owner.getState().pending).toBe(true)
-    expect(writes()).toHaveLength(1);expect((f.modelRow() as Record<string,unknown>)['items']).not.toBe('[]')
-    expect(()=>owner.acceptCurrent()).not.toThrow()
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false});expect(writes()).toHaveLength(1)
+    await expect(owner.verify({discardLocalChanges:true})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(models.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+    expect(session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!.hasUnconfirmedSaveFor(['F2'])).toBe(true)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true,discardLocalChanges:false})
+    const fresh=await f.open('A'),rows=(await fresh.loadModelFields('M1')).rows
+    expect(rows.find(row=>row['rowid']==='F2')?.['description']).toBe('名称')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['items']).not.toBe('[]')
+    expect(()=>owner.acceptCurrent()).toThrow()
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
   })
   it('keeps a genuinely partial lost receipt unknown and refuses adoption or replay',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true,partialFieldWriteId:'F1',allowFieldEdit:true})
@@ -289,27 +307,33 @@ describe('existing array headers use the formal definition batch',()=>{
     owner.discard();expect(owner.getState().pending).toBe(false)
     expect(models.rows.find(row=>row['rowid']==='M1')?.['items']).toBe('[]')
   })
-  it('keeps a late draft while native recovery confirms the original batch without replay',async()=>{
+  it('keeps a late draft when the original model batch still lacks a receipt',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true})
     await session.loadModelFields('M1')
     const owner=session.getArrayEdit('M1','modelFields'),models=session.metadataDataSet.getView('Base_DataModel')!
     models.updateEditingValue('M1','items','[]');f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
-    const before=f.requests.length,release=f.holdModelResponse(),verifying=owner.verify()
-    await vi.waitFor(()=>expect(f.requests.length).toBeGreaterThan(before))
-    models.updateEditingValue('M1','description','核验期间的后续草稿');release()
-    expect(await verifying).toBe(true)
-    expect(models.hasUnconfirmedSave).toBe(false)
+    const before=f.requests.length
+    const verifying=expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    models.updateEditingValue('M1','description','核验期间的后续草稿')
+    await verifying
+    expect(models.hasUnconfirmedSaveFor(['M1'])).toBe(true)
     expect(models.getEditingPatch('M1')).toEqual({description:'核验期间的后续草稿'})
-    expect(owner.getState()).toMatchObject({status:'idle',pending:true});expect(writes()).toHaveLength(1)
-    expect(models.rows.find(row=>row['rowid']==='M1')?.['items']).toBe('[]');expect(writes()).toHaveLength(1)
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true,discardLocalChanges:false})
+    expect(f.requests).toHaveLength(before)
+    const fresh=await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')).toMatchObject({items:'[]',description:''})
+    expect(writes()).toHaveLength(1)
   })
   it('retains native confirmation when domain readback fails and retries only readback',async()=>{
     const {f,session,writes}=await setup({overviewOnly:true})
     await session.loadModelFields('M1')
     const owner=session.getArrayEdit('M1','modelFields'),models=session.metadataDataSet.getView('Base_DataModel')!
-    models.updateEditingValue('M1','items','[]');f.loseNextResponse()
-    await expect(owner.save()).rejects.toThrow()
+    models.updateEditingValue('M1','items','[]')
+    const draft=owner.beginHeaders();draft.beginHeaders()
+    draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(h=>({...h,label:h.id==='F2'?'已保存标题':h.label}))))
+    draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
+    await interruptConfirmedReadback(f,owner,writes)
     const dataSet=session.metadataDataSet,save=dataSet.saveChanges.bind(dataSet),saveSpy=vi.spyOn(dataSet,'saveChanges').mockImplementation(options=>save(options))
     const read=vi.spyOn(models,'loadFromServer').mockImplementationOnce(async()=>{throw new Error('array readback unavailable')})
     await expect(owner.verify()).rejects.toThrow('array readback unavailable')
@@ -340,7 +364,7 @@ describe('existing array headers use the formal definition batch',()=>{
     const {f,session,owner,writes}=await setup(),draft=owner.beginHeaders();draft.beginHeaders()
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(h=>({...h,label:h.id==='F2'?'已写标题':h.label}))))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
-    f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
+    await interruptConfirmedReadback(f,owner,writes)
     const models=session.metadataDataSet.getView('Base_DataModel')!,fields=session.metadataDataSet.getView('Base_DataModel_Field')!
     const load=models.loadFromServer.bind(models)
     let release!:()=>void
@@ -365,8 +389,8 @@ describe('existing array headers use the formal definition batch',()=>{
     const models=session.metadataDataSet.getView('Base_DataModel')!,fields=session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!
     const draft=owner.beginHeaders();draft.beginHeaders()
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(header=>({...header,label:header.id==='F2'?'已保存标题':header.label}))))
-    draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose();f.loseNextResponse()
-    await expect(owner.save()).rejects.toThrow()
+    draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
+    await interruptConfirmedReadback(f,owner,writes)
     const load=fields.loadFromServer.bind(fields),fieldLoad=vi.spyOn(fields,'loadFromServer').mockImplementationOnce(async()=>{throw new Error('array readback unavailable')})
     await expect(owner.verify()).rejects.toThrow('array readback unavailable')
     expect(owner.getState().status).toBe('readback');expect(models.hasUnconfirmedSave).toBe(false)
@@ -409,11 +433,17 @@ describe('existing array headers use the formal definition batch',()=>{
     if(mode==='lost-file')f.loseNextFileResponse()
     if(mode==='lost-db'||mode==='lost-file'){
       await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe(mode==='lost-db'?'unknown':'configuration')
-      await expect(owner.save()).rejects.toThrow('先核验');expect(await owner.verify()).toBe(true)
+      await expect(owner.save()).rejects.toThrow('先核验')
+      if(mode==='lost-db'){
+        await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+        expect(session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!.hasUnconfirmedSaveFor(['F1','F2'])).toBe(true)
+      }else expect(await owner.verify()).toBe(true)
     }else await owner.save()
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false});expect(writes()).toHaveLength(1);expect(toolReads).toBe(0)
-    expect(f.fileWrites).toHaveLength(mode==='plain'?0:1)
-    if(mode==='plain')expect(f.stored.get('A')).toBe(config)
+    expect(owner.getState()).toMatchObject({status:mode==='lost-db'?'unknown':'idle',pending:mode==='lost-db'})
+    expect(writes()).toHaveLength(1);expect(toolReads).toBe(0)
+    expect(f.fileWrites).toHaveLength(mode==='plain'||mode==='lost-db'?0:1)
+    if(mode==='plain'||mode==='lost-db')expect(f.stored.get('A')).toBe(config)
     for(const name of ['Base_DataModel_Field','Base_DataModel_Relation'])expect(session.metadataDataSet.getView(name)!.requestState).toBe(RequestState.Idle)
     for(const request of f.requests.filter(r=>r.url.includes('GetData')&&JSON.stringify(r.data).includes('Base_DataModel_Field'))){
       expect(JSON.stringify(request.data)).toContain('dataModelId');expect(JSON.stringify(request.data)).toContain('M1')
@@ -423,6 +453,7 @@ describe('existing array headers use the formal definition batch',()=>{
     const fields=fresh.metadataDataSet.getView('Base_DataModel_Field','modelFields')!.rows
     expect(fields.filter(r=>r['IsPKey']===1).map(r=>r['rowid'])).toEqual(id?[id]:[])
     if(id)expect(fields.find(r=>r['rowid']===id)?.['IsOutput']).toBe(1)
+    if(mode==='lost-db')return
     const implicit=fresh.definitionDataSet!.getView('ArrayRows','implicit')!,explicit=fresh.definitionDataSet!.getView('ArrayRows','explicit')!
     for(const view of [implicit,explicit]){expect(view.primaryKey).toBe(key);expect((await view.loadFromServer()).success).toBe(true)}
     if(key){implicit.setSelectedRows(implicit.rows);explicit.setSelectedRows(explicit.rows)
@@ -476,9 +507,15 @@ describe('existing array headers use the formal definition batch',()=>{
     await addHeader();owner.discard()
     expect(owner.headers().map(h=>h.id)).toEqual(['F1','F2','F3']);expect(writes()).toHaveLength(0)
     await addHeader();session.metadataDataSet.getView('Base_DataModel')!.updateEditingValue('M1','items','[{"code":"a","name":"A","obsolete":7,"extra":false,"memo":"保存备注"}]')
-    if(configured){f.loseNextResponse();await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(await owner.verify()).toBe(true)}
-    else await owner.save()
-    expect(owner.getState()).toMatchObject({pending:false,status:'idle'});expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
+    if(configured){
+      const id=owner.headers().find(h=>h.name==='memo')!.id
+      f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!.hasUnconfirmedSaveFor([id])).toBe(true)
+      expect(session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+    }else await owner.save()
+    expect(owner.getState()).toMatchObject({pending:configured,status:configured?'unknown':'idle'})
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
     if(configured)expect(f.stored.get('A')).toBe(config)
     for(const name of ['Base_DataModel_Field','Base_DataModel_Relation'])expect(session.metadataDataSet.getView(name)!.requestState).toBe(RequestState.Idle)
     for(const request of f.requests.filter(r=>r.url.includes('GetData')&&JSON.stringify(r.data).includes('Base_DataModel_Field'))){
@@ -523,10 +560,14 @@ describe('existing array headers use the formal definition batch',()=>{
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(h=>({...h,label:'新的标题'}))))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
     models.updateEditingValue('M1','items','[{"code":"b","name":"B","extra":false}]')
-    if(lost){f.loseNextResponse();await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(await owner.verify()).toBe(true)}
-    else await owner.save()
+    if(lost){
+      f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(models.hasUnconfirmedSaveFor(['M1'])).toBe(true)
+      expect(session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!.hasUnconfirmedSaveFor(['F1','F2','F3'])).toBe(true)
+    }else await owner.save()
     expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
-    expect(owner.getState()).toMatchObject({pending:false,status:'idle'})
+    expect(owner.getState()).toMatchObject({pending:lost,status:lost?'unknown':'idle'})
     for(const name of ['Base_DataModel_Field','Base_DataModel_Relation'])expect(session.metadataDataSet.getView(name)!.requestState).toBe(RequestState.Idle)
     const fieldReads=f.requests.filter(request=>request.url.includes('GetData')&&JSON.stringify(request.data).includes('Base_DataModel_Field'))
     expect(fieldReads.length).toBeGreaterThan(0)
@@ -581,7 +622,12 @@ describe('existing array headers use the formal definition batch',()=>{
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(h=>({...h,label:'changed'}))))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose();f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
-    await expect(owner.save()).rejects.toThrow();expect(await owner.verify()).toBe(true);expect(writes()).toHaveLength(1)
+    await expect(owner.save()).rejects.toThrow()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    const fresh=await f.open('A'),fields=fresh.metadataDataSet.getView('Base_DataModel_Field')!
+    for(const id of ['F1','F2','F3'])expect(fields.rows.find(row=>row['rowid']===id)?.['description']).toBe('changed')
+    expect(writes()).toHaveLength(1)
   })
   it.each([{readOnly:true},{denyDeleteIds:['F3']}])('enforces formal access %j',async options=>{
     const {owner,writes}=await setup(options)
@@ -650,24 +696,28 @@ describe('existing array headers use the formal definition batch',()=>{
     fresh.metadataDataSet.getView('Base_DataModel')!.updateEditingValue('M1','description','edit description only')
     await expect(owner.save()).rejects.toThrow('主键声明与表头不一致');expect(writes()).toHaveLength(0)
   })
-  it('confirms a lost pure deletion from its original native capture receipt',async()=>{
+  it('keeps a lost deletion pending even when the missing row is independently confirmed',async()=>{
     const {owner,f,writes}=await setup(),draft=owner.beginHeaders();draft.beginHeaders()
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().filter(h=>h.id!=='F3')))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose();f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
-    expect(await owner.verify()).toBe(true)
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false});expect(writes()).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true});expect(writes()).toHaveLength(1)
+    expect(f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field')!.hasUnconfirmedSaveFor(['F3'])).toBe(true)
     expect(f.fileWrites).toHaveLength(0);expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!.rows.some(row=>row['rowid']==='F3')).toBe(false)
   })
-  it('confirms a deletion only after native recovery produces its original receipt',async()=>{
+  it('keeps the deleted row capture when the original response lacks its deletion receipt',async()=>{
     const {owner,f,writes}=await setup({omitDeleteReceipt:'Base_DataModel_Field'}),draft=owner.beginHeaders();draft.beginHeaders()
     draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().filter(h=>h.id!=='F3')))
     draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
     await expect(owner.save()).rejects.toThrow()
     const fields=f.sessions[0]?.metadataDataSet.getView('Base_DataModel_Field')
     expect(owner.getState().status).toBe('unknown');expect(fields?.hasUnconfirmedSave).toBe(true)
-    expect(await owner.verify()).toBe(true)
-    expect(owner.getState()).toMatchObject({status:'idle',pending:false});expect(fields?.hasUnconfirmedSave).toBe(false)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status:'unknown',pending:true})
+    expect(fields?.hasUnconfirmedSaveFor(['F3'])).toBe(true)
+    const fresh=await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel_Field')!.rows.some(row=>row['rowid']==='F3')).toBe(false)
     expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
   })
   it.each(['add','remove'] as const)('confirms a batch with only a header %s and changed visible row count',async operation=>{

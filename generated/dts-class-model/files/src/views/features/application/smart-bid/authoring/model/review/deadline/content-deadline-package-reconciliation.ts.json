@@ -211,7 +211,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T04:05:16.427Z",
+  "generatedAt": "2026-11-18T19:27:40.702Z",
   "models": {
     "Deadline": {
       "name": "Deadline",

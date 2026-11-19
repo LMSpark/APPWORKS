@@ -58,7 +58,7 @@ const toolbar=computed<RToolbarProps>(()=>({dataViewKey,children:[{type:'r-butto
 const footer=computed<SparkNode[]>(()=>[
   {type:'r-button',props:{label:'取消','data-action':'cancel-array',disabled:locked.value||rowEditing.value,onClick:cancel}},
   {type:'r-button',props:{label:'保存',buttonType:'primary','data-action':'save-array',disabled:locked.value||rowEditing.value||!state.value.pending,onClick:save}},
-    ...state.value.status!=='idle'?[{type:'r-button',props:{label:state.value.status==='different'?'重新核验':'核验原提交（未生效时放弃本次草稿）','data-action':'verify-array',disabled:busy.value||rowEditing.value,onClick:verify}}]:[],
+    ...state.value.status!=='idle'?[{type:'r-button',props:{label:state.value.status==='different'?'重新核验':'核验原提交','data-action':'verify-array',disabled:busy.value||rowEditing.value,onClick:verify}}]:[],
   ...state.value.discardLocalChanges?[{type:'r-button',props:{label:'放弃本地新修改并核验','data-action':'discard-local-array-changes',disabled:busy.value||rowEditing.value,onClick:()=>verify({discardLocalChanges:true})}}]:[],
   ...state.value.status==='different'?[{type:'r-button',props:{label:'接受当前正式结果，结束本次操作','data-action':'accept-array',disabled:busy.value,onClick:accept}}]:[],
 ])

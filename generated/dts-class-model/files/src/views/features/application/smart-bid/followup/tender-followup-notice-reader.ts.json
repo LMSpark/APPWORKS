@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-followup-notice-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-followup-notice-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-followup-notice-reader\n职责：第57项从原通知 DataView 形成指定获知时点的通知链。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "subjectId",
+        "stageId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:50:05.687Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof projectTenderFollowupNotices>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

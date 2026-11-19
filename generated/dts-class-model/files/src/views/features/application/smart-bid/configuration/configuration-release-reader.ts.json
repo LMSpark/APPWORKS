@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/configuration/configuration-release-reader",
+    "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-release-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/configuration/configuration-release-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-release-reader\n职责：页19通过原启停请求回查历史结果，保留同次指针版。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "versionId": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "versionId",
+                "digest"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedPointerVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "scopeId",
+        "kind",
+        "key",
+        "requestKey",
+        "expectedPointerVersion",
+        "action",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T20:15:06.407Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readOriginalConfigurationRelease>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedPointerVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "action",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

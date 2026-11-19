@@ -37,5 +37,9 @@ it('does not turn lookahead failure into a false last-page claim',async()=>{
 })
 it('rejects a changed query input before accepting either page',async()=>{
  const f=fixture();f.http.before=index=>{if(index===1)f.view.queryContext={prefix:'CHANGED'}}
- await expect(f.view.loadFromServer()).rejects.toThrow('CACHE_PAGE_STALE');expect(f.http.requests).toHaveLength(1);expect(f.view.rows).toEqual([])
+ await expect(f.view.loadFromServer()).resolves.toEqual({success:false,message:'Request superseded'})
+ expect(f.http.requests).toHaveLength(1)
+ expect(f.view.rows).toEqual([])
+ expect(f.view.nextPageAvailable).toBeUndefined()
+ expect(f.view.loadingError).toBeNull()
 })

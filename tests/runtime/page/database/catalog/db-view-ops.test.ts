@@ -431,18 +431,12 @@ describe('database/catalog/db-view-ops', () => {
       await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow()
       expect(view.hasUnconfirmedSave).toBe(true)
       expect(http.rows[DATABASE_CATALOG_DB_MODEL]?.filter(row => row['Name'] === 'lost-receipt')).toHaveLength(1)
-      if (reassigned) {
-        for (let attempt = 0; attempt < 2; attempt++) {
-          await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow()
-          expect(view.hasUnconfirmedSave).toBe(true)
-          expect(() => databaseCatalogDbCancelEdit(view, edit)).toThrow('请先核验')
-        }
-        expect(edit.savedId).toBeUndefined()
-      } else {
-        await expect(databaseCatalogDbSaveEdit(ds, view, edit)).resolves.toBeUndefined()
-        expect(view.hasUnconfirmedSave).toBe(false)
-        expect(edit.savedId).toBe(edit.id)
+      for (let attempt = 0; attempt < 2; attempt++) {
+        await expect(databaseCatalogDbSaveEdit(ds, view, edit)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(view.hasUnconfirmedSave).toBe(true)
+        expect(() => databaseCatalogDbCancelEdit(view, edit)).toThrow('请先核验')
       }
+      expect(edit.savedId).toBeUndefined()
       expect(http.requests.filter(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
     } finally {remove()}
   })

@@ -42,7 +42,15 @@ describe('Excel template through the original scheme DataView',()=>{
  it('never repeats an upload with completely lost ACK',async()=>{const f=await fixture();f.choose();f.http.loseAck=true;await expect(saveExcelTemplate(f.ds)).rejects.toThrow();await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(()=>cancelExcelTemplate(f.ds)).toThrow();expect(f.http.files).toHaveLength(1);expect(f.http.saves).toEqual([])})
  it('rejects pending ordinary edits before uploading',async()=>{const f=await fixture();f.choose();f.list.updateEditingValue('S1','description','待保存');await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files).toEqual([])})
  it('does not overwrite a different persisted template after known DB failure',async()=>{const f=await fixture();f.choose();f.http.rejectNextSave=true;await expect(saveExcelTemplate(f.ds)).rejects.toThrow();f.http.records['Base_Import_solution']![0]!['templatePath']='/tenant/xlsxtemp/other.xlsx';await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files.filter(r=>r.url==='/api/File/UploadFile')).toHaveLength(1);expect(f.http.records['Base_Import_solution']![0]?.['templatePath']).toBe('/tenant/xlsxtemp/other.xlsx')})
- it('only verifies an unknown DB write before the final independent read',async()=>{const f=await fixture();f.choose();f.http.failAfterWrite=true;await expect(saveExcelTemplate(f.ds)).rejects.toThrow();await saveExcelTemplate(f.ds);expect(readExcelTemplate(f.ds)?.phase).toBe('publication');expect(f.http.saves).toHaveLength(1);await saveExcelTemplate(f.ds);expect(readExcelTemplate(f.ds)?.phase).toBe('complete');expect(f.http.saves).toHaveLength(1)})
+ it('keeps template publication pending when the DB receipt is lost',async()=>{
+  const f=await fixture();f.choose();f.http.failAfterWrite=true
+  await expect(saveExcelTemplate(f.ds)).rejects.toThrow()
+  const files=f.http.files.length
+  await expect(saveExcelTemplate(f.ds)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(readExcelTemplate(f.ds)?.unconfirmed).toBe(true)
+  expect(f.http.saves).toHaveLength(1)
+  expect(f.http.files).toHaveLength(files)
+ })
  it('rejects a late unrelated draft without discarding it or writing it with the path',async()=>{const f=await fixture();f.choose();let injected=false;const off=f.ds.onAnyViewChange({editingFieldChanged:()=>{if(!injected&&f.target.getEditingRow('S1')?.['templatePath']==='/tenant/xlsxtemp/renamed.xlsx'){injected=true;f.target.updateEditingValue('S1','description','late')}}});await expect(saveExcelTemplate(f.ds)).rejects.toThrow('不能夹带');off();expect(f.http.saves).toEqual([]);expect(f.target.getEditingRow('S1')?.['description']).toBe('late')})
  it('rejects an application switch before file dispatch',async()=>{const f=await fixture();f.choose();f.scope.headers['X-AppId']='OTHER';await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files).toEqual([])})
  it('does not upload while the original Added is unknown',async()=>{const f=await fixture(),id=await startExcelSchemeCreation(f.ds);f.list.updateEditingValue(id,'solutionName','新增');selectExcelTemplate(f.ds,id,new File([bytes],'new.xlsx'));f.http.failAfterWrite=true;await expect(saveExcelSchemeCreation(f.ds)).rejects.toThrow();await expect(saveExcelTemplate(f.ds)).rejects.toThrow();expect(f.http.files).toEqual([]);expect(f.http.saves).toHaveLength(1)})

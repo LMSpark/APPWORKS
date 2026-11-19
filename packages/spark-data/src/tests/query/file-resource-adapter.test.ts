@@ -781,6 +781,19 @@ describe('DataView file resource adapter',()=>{
     } finally {f.dataSet.destroy()}
   })
 
+  it('leaves the original source available when a pre-dispatch history callback refuses the upload', async () => {
+    const f=fixture()
+    try {
+      await f.view.refresh()
+      const quota = new Error('journal not saved')
+      await expect(f.view.createSourceVersion(() => { throw quota })).rejects.toBe(quota)
+      expect(f.versions.size).toBe(0)
+      expect(f.view.getSourceHistoryStatus().state).toBe('idle')
+      await expect(f.view.createSourceVersion()).rejects.toThrow('timeout')
+      expect([...f.versions.keys()]).toEqual([1])
+    } finally {f.dataSet.destroy()}
+  })
+
   it('retains an uploaded snapshot as unknown when local readback fails and only retries its original receipt',async()=>{
     const f=fixture()
     try {

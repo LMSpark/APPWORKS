@@ -94,10 +94,10 @@ describe('reference model workspace save', () => {
     expect([owner.getState().status, field.getState().status]).toEqual(['unknown', 'unknown'])
     await expect(owner.save([field])).rejects.toThrow()
     await expect(owner.reload(true)).rejects.toThrow(/3 字段呈现.*重新核验字段配置/)
-    await owner.verifyRecovery(true)
-    await owner.reload(false); await field.reload(false)
+    await expect(owner.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(writes()).toHaveLength(1)
-    expect([owner.getState().status, field.getState().status]).toEqual(['idle', 'idle'])
+    expect([owner.getState().status, field.getState().status]).toEqual(['unknown', 'unknown'])
+    expect(fields.getEditingRow('F1')?.['description']).toBe('已写字段')
   })
   it('validates output changes together with the request draft before dispatch', async () => {
     const {fields, owner, field, writes} = await setup()

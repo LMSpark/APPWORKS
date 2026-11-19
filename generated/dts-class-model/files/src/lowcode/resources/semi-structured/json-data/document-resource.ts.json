@@ -89,7 +89,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T09:10:45.808Z",
+  "generatedAt": "2026-11-18T21:05:04.221Z",
   "models": {
     "DocumentTransport": {
       "name": "DocumentTransport",

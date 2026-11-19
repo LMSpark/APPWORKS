@@ -132,8 +132,7 @@
           "type": "number"
         },
         "file": {
-          "type": "object",
-          "title": "File"
+          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
         }
       },
       "required": [
@@ -209,8 +208,7 @@
         "files": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "File"
+            "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
           }
         }
       },
@@ -237,8 +235,7 @@
           "type": "number"
         },
         "file": {
-          "type": "object",
-          "title": "File"
+          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
         },
         "response": true,
         "url": {

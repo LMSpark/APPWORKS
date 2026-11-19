@@ -67,6 +67,24 @@
       ],
       "additionalProperties": false
     },
+    "RequirementRead": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequirementRead",
+      "properties": {
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
     "Source": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -95,7 +113,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T08:28:10.387Z",
+  "generatedAt": "2026-11-19T01:47:29.729Z",
   "models": {
     "Scope": {
       "name": "Scope",
@@ -168,12 +186,41 @@
         }
       }
     },
+    "RequirementRead": {
+      "name": "RequirementRead",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "Source": {
       "name": "Source",
       "jsdoc": "参与工艺上下文计算的来源证据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    slotId: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)",
+        "declarationTypeText": "Readonly<{\n    slotId: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n    requirementRead?: RequirementRead;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -182,7 +229,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "(Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)"
+            "typeText": "(Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n    requirementRead?: RequirementRead;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)"
           }
         ],
         "members": {

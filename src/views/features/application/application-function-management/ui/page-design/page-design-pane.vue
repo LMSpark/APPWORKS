@@ -43,7 +43,7 @@ AI用途：调整页面设计页签布局时定位本组件；动作与 saga 在
     <DisplayAlert v-if="!state.activePageId.value" alert-type="info"
       description="当前节点没有绑定配置工具：可在“导航配置”选择已登记页面或工具，或在下方创建并绑定新工具。" />
 
-    <RendererForm v-if="commandInputViewKey" :key="targetScopeKey" :data-view-key="commandInputViewKey" :auto-columns="false"
+    <RendererForm v-if="commandInputViewKey && !state.activePageId.value" :key="targetScopeKey" :data-view-key="commandInputViewKey" :auto-columns="false"
       :show-data-view-meta="false" context-data-member="currentRow" :grid-columns="1" label-width="120px">
       <FieldText :data-view-key="commandInputViewKey" data-member="currentRow" data-field="newToolId" label="新工具 ID"
         placeholder="输入未登记的工具 ID" @update:model-value="onToolIdChanged" />

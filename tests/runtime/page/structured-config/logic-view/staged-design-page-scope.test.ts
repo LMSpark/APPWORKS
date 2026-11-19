@@ -112,7 +112,8 @@ describe('staged design current target', () => {
     scope.value = 'A'; await flushPromises()
     await page.saveChanges({viewKey: 'PARAMETERS@Params@default'})
     expect(http.saves).toHaveLength(1)
-    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.getEditingRow('P1')?.['testvalue']).toBe('Accepted')
   })
   it('explicitly discards the current draft and rereads without writing', async () => {
     const {page, writes, reads} = await setup()

@@ -55,8 +55,7 @@
           "type": "string"
         },
         "file": {
-          "type": "object",
-          "title": "File"
+          "$ref": "../smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
         }
       },
       "required": [

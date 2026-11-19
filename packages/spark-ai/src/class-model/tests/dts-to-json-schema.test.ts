@@ -1,21 +1,14 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { auditDraft2020Schema, type StandardJsonSchemaObject } from '@spark-appworks/spark-json-document'
 
 import { projectDtsRootFilesToJsonSchemas } from '../class-model/schema/class-model-to-json-schema'
 
-const TMP_DIR = resolve(__dirname, '__tmp_dts_to_schema__')
-
-function setup(): string {
-  mkdirSync(TMP_DIR, { recursive: true })
-  return TMP_DIR
-}
-
-function teardown(): void {
-  rmSync(TMP_DIR, { recursive: true, force: true })
-}
+const cacheDir = resolve(__dirname, '../../../../../cache')
+mkdirSync(cacheDir, { recursive: true })
+const TMP_DIR = mkdtempSync(resolve(cacheDir, 'dts-to-schema-'))
 
 function writeDts(name: string, content: string): string {
   const path = resolve(TMP_DIR, name)
@@ -36,11 +29,10 @@ function findSchema(
 
 describe('projectDtsRootFilesToJsonSchemas', () => {
   afterAll(() => {
-    teardown()
+    rmSync(TMP_DIR, { recursive: true, force: true })
   })
 
   it('maps a class with required and optional properties', () => {
-    setup()
     const filePath = writeDts('demo.d.ts', `
       export declare class Demo {
         id: string
@@ -67,7 +59,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('maps an interface with properties', () => {
-    setup()
     const filePath = writeDts('iface.d.ts', `
       export interface Config {
         host: string
@@ -88,7 +79,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('maps a type alias with string literal union', () => {
-    setup()
     const filePath = writeDts('enum.d.ts', `
       export declare type Status = 'active' | 'inactive' | 'pending'
     `)
@@ -103,7 +93,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('maps Readonly object property string literal union to a single enum', () => {
-    setup()
     const filePath = writeDts('diag.d.ts', `
       export declare type Diagnostic = Readonly<{
         level: 'error' | 'warn' | 'info'
@@ -121,7 +110,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('maps a numeric enum', () => {
-    setup()
     const filePath = writeDts('numenum.d.ts', `
       export declare enum Direction {
         Up = 0,
@@ -141,7 +129,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('skips non-exported declarations when exportedOnly is true', () => {
-    setup()
     const filePath = writeDts('nonexported.d.ts', `
       declare class Internal {}
       export declare class Public {}
@@ -154,7 +141,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('includes non-exported declarations when exportedOnly is false', () => {
-    setup()
     const filePath = writeDts('nonexported2.d.ts', `
       declare class Internal {}
       export declare class Public {}
@@ -167,7 +153,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('every output passes auditDraft2020Schema', () => {
-    setup()
     const filePath = writeDts('audit.d.ts', `
       export declare class AuditClass {
         id: string
@@ -196,7 +181,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('handles array properties', () => {
-    setup()
     const filePath = writeDts('array.d.ts', `
       export interface WithArray {
         items: string[]
@@ -216,7 +200,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('handles nullable properties', () => {
-    setup()
     const filePath = writeDts('nullable.d.ts', `
       export interface WithNullable {
         name: string | null
@@ -235,7 +218,6 @@ describe('projectDtsRootFilesToJsonSchemas', () => {
   })
 
   it('processes multiple root files', () => {
-    setup()
     const fileA = writeDts('a.d.ts', `export declare class A { x: number }`)
     const fileB = writeDts('b.d.ts', `export declare class B { y: string }`)
 

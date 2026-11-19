@@ -321,6 +321,34 @@ describe('application manager restored with standard components and formal DataV
     await click('保存')
     expect(bodyText()).toContain('应用系统已创建，默认数据库、负责人或导航根保存结果未确认')
     expect(bodyText()).toContain('新增应用系统')
+    const relation = view('Base_AppAndSource_Relation')
+    expect(relation.hasUnconfirmedSave).toBe(true)
+    expect(button('取消').disabled).toBe(true)
+    await click('取消')
+    expect(bodyText()).toContain('新增应用系统')
+    expect(bodyText()).toContain('原提交')
+    await click('核验原提交')
+    expect(relation.hasUnconfirmedSave).toBe(true)
+    expect(calls).toBe(2)
+    expect(bodyText()).toContain('服务未提供原请求的权威终态')
+  })
+
+  it('verifies the original application create before validating later edits or dispatching companions', async () => {
+    const {view} = await open()
+    await fillCreate(view)
+    const main = view('Base_AppSystemList', 'form')
+    const appId = main.getPkKey(main.rows[0]!)!
+    const dispatch = vi.fn(async () => { throw new Error('main receipt lost') })
+    http.beforeSave = dispatch
+    await click('保存')
+    expect(main.hasUnconfirmedSave).toBe(true)
+    main.updateEditingValue(appId, 'AppDesc', '')
+    await click('核验原提交')
+    expect(bodyText()).toContain('服务未提供原请求的权威终态')
+    expect(main.getEditingRow(appId)?.['AppDesc']).toBe('')
+    expect(main.hasUnconfirmedSave).toBe(true)
+    expect(dispatch).toHaveBeenCalledTimes(1)
+    expect(view('Base_AppAndSource_Relation').hasUnconfirmedSave).toBe(false)
   })
 
   it('reports a confirmed main record with rejected companions and completes them on the next save', async () => {

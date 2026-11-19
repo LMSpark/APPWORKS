@@ -602,7 +602,7 @@ describe('request panel model input fields', () => {
       vi.spyOn(relations, 'fieldAccess').mockImplementation((row, key) => key === 'parentModId' ? {...access(row, key), read: 'invisible'} : access(row, key))
     }
     const inputs = vi.spyOn(session.metadataDataSet.getView('Base_DataModel_Field', 'modelInputFields')!, 'loadFromServer')
-    await expect(session.loadModelInputFields('M1')).rejects.toThrow(problem === 'hidden' ? '不可读' : problem === 'duplicate' ? 'DATA_SPACE_METADATA_SCOPE' : /JSON|json/)
+    await expect(session.loadModelInputFields('M1')).rejects.toThrow(problem === 'hidden' ? '不可读' : problem === 'duplicate' ? 'SPARK 批量查询记录主键重复' : /JSON|json/)
     expect(inputs).not.toHaveBeenCalled(); expect(f.fileWrites).toEqual([])
   })
 

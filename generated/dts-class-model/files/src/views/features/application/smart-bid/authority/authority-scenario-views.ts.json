@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/authority-scenario-views",
+    "sourcePath": "src/views/features/application/smart-bid/authority/authority-scenario-views.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/authority-scenario-views.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/authority-scenario-views",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/authority-scenario-views\n职责：按已登记模型组装企业委托、资料原版和用途决定的命名视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T20:51:46.646Z",
+  "models": {}
+}

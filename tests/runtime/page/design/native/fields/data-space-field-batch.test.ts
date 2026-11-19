@@ -158,10 +158,12 @@ describe('model field batch maintenance', () => {
     await expect(fieldEditSaveBatch(owners)).rejects.toThrow()
     expect(owners.map(owner => owner.getState().status)).toEqual(['unknown', 'unknown'])
     await expect(owners[0]!.save()).rejects.toThrow()
-    await fieldEditReloadBatch(owners, true)
+    await expect(fieldEditReloadBatch(owners, true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owners.map(owner => owner.getState().status)).toEqual(['unknown', 'unknown'])
+    expect(fields.hasUnconfirmedSave).toBe(true)
+    const fresh = (await f.open('A')).metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    expect(fresh.rows.filter(row => ['F1', 'F3'].includes(String(row['rowid']))).map(row => row['description'])).toEqual(['first', 'second'])
     expect(writes()).toHaveLength(1)
-    expect(owners.map(owner => owner.getState().status)).toEqual(['idle', 'idle'])
-    expect(fields.rows.filter(row => ['F1', 'F3'].includes(String(row['rowid']))).map(row => row['description'])).toEqual(['first', 'second'])
   })
 
   it('rechecks every changed field permission and sends none when one target is denied', async () => {
@@ -274,6 +276,9 @@ describe('model field batch maintenance', () => {
     await selectField('F1'); expect(fields.currentRow?.['rowid']).toBe(previous)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
     expect(writes()).toHaveLength(2)
-    await selectField('F1'); expect(fields.currentRow?.['rowid']).toBe('F1')
+    await selectField('F1'); expect(fields.currentRow?.['rowid']).toBe(previous)
+    expect(fields.hasUnconfirmedSave).toBe(true)
+    expect(wrapper.find('[data-action="verify-field"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
   })
 })

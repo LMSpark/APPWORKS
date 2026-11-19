@@ -21,7 +21,8 @@
         "dataSpace",
         "prototype",
         "basic",
-        "navAttr"
+        "navAttr",
+        "pageDesign"
       ]
     },
     "NodeOption": {
@@ -69,14 +70,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T19:35:56.133Z",
+  "generatedAt": "2026-11-19T05:55:04.498Z",
   "models": {
     "BlueprintTab": {
       "name": "BlueprintTab",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'basic' | 'navAttr' | 'dataSpace' | 'prototype'",
+        "declarationTypeText": "'basic' | 'navAttr' | 'dataSpace' | 'prototype' | 'pageDesign'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -93,6 +94,10 @@
           {
             "kind": "union",
             "typeText": "'prototype'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pageDesign'"
           }
         ],
         "members": {}

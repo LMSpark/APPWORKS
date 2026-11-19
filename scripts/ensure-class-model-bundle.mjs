@@ -13,8 +13,9 @@ const manifestPath = resolve(bundleRoot, 'manifest.json')
 
 buildDebugBreak('ensure-class-model-bundle:start', { manifestPath, exists: existsSync(manifestPath) })
 
-if (!existsSync(manifestPath)) {
-  buildDebugBreak('ensure-class-model-bundle:generate-missing-manifest')
+const isCi = /^(?:true|1)$/i.test(process.env.CI ?? '')
+if (isCi || !existsSync(manifestPath)) {
+  buildDebugBreak('ensure-class-model-bundle:generate', {isCi})
   const child = spawnSync('pnpm', ['run', 'generate:class-model-surface'], {
     cwd: repoRoot,
     stdio: 'inherit',

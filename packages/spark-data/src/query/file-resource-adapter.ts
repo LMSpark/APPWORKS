@@ -254,7 +254,9 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
       }
       let captured:FileResourceHistoryAttempt|undefined
       try{await transport.create(target,snapshot.text,attempt=>{hooks.assertCurrent();assertCurrent(view,target,bound);if(captured)throw new Error('FILE_RESOURCE_ATTEMPT_INVALID: attempt重复捕获')
-        captured=attempt;stateFor(view).historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null,deliveryPending:true});hooks.onAttempt(attempt)})
+        hooks.onAttempt(attempt)
+        captured=attempt
+        stateFor(view).historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null,deliveryPending:true})})
         if(!captured)throw new Error('FILE_RESOURCE_ATTEMPT_MISSING: 创建来源历史未捕获attempt')
         stateFor(view).historyAttempts.set(target.key,{target,attempt:captured,text:snapshot.text,state:'confirmed',message:null,deliveryPending:true})
       }catch(error){if(captured){const state=stateFor(view),storedAttempt=state.historyAttempts.get(target.key)

@@ -176,8 +176,14 @@ describe('formal model registration rename', () => {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
       await expect(operation.save()).rejects.toThrow(/预览/)
-      expect(await operation.verify()).toBe(true)
-    } else await operation.save()
+      await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(operation.getState()).toMatchObject({status: 'unknown', pending: true})
+      expect(writes(f)).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+      expect([fields.requestState, relations.requestState]).toEqual(initial)
+      return
+    }
+    await operation.save()
     expect(writes(f)).toHaveLength(1)
     expect([fields.requestState, relations.requestState]).toEqual(initial)
     const commandFields = Object.values(fields.dataTable!.views).filter(view => view.rows.length)
@@ -463,36 +469,25 @@ describe('formal model registration rename', () => {
     expect(f.modelRow().Name).toBe('Orders')
   })
 
-  it('requires an explicit abandon after the original SPARK batch proves not-applied', async () => {
+  it('blocks abandon when unchanged database rows cannot prove the original rename failed', async () => {
     const f = fixture({omitModelWrite: true}), session = await f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
     expect(session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSave).toBe(true)
     expect(f.modelRow().Name).toBe('Orders')
-    expect(await operation.verify()).toBe(false)
-    expect(operation.getState()).toMatchObject({status: 'different', pending: true, canAbandonNotApplied: true})
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    operation.abandonNotApplied()
-    expect(operation.getState()).toMatchObject({status: 'idle', pending: false, changes: [], tables: [], tools: [], canAbandonNotApplied: false})
-    expect(operation.input.rows[0]?.['name']).toBe('Orders')
-    await expect(operation.save()).rejects.toThrow(/预览改名/)
-    for (const name of ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation']) {
-      const view = session.metadataDataSet.getView(name)
-      if (view) {expect(view.editingRows).toEqual([]); expect(view.dirtyTracking.dirtyRowIds.size).toBe(0)}
-    }
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    operation.input.updateEditingValue('rename', 'name', 'FreshSalesOrders'); await operation.preview()
-    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    await expect(operation.save()).rejects.toThrow(/回读/)
-    expect(writes(f)).toHaveLength(2); expect(f.fileWrites).toHaveLength(0)
+    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(operation.getState()).toMatchObject({status: 'unknown', pending: true, canAbandonNotApplied: false})
+    expect(() => operation.abandonNotApplied()).toThrow()
+    expect(writes(f)).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('keeps an unrelated source-input owner tracked when abandoning a not-applied rename', async () => {
+  it('keeps an unrelated source-input owner tracked when an unknown rename cannot be abandoned', async () => {
     const f = fixture({sourceInput: true, omitModelWrite: true}), session = await f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
-    expect(await operation.verify()).toBe(false)
+    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     const owner = session.getSourceInput('F2')
     const stagedValue = '{"Type":"GetConstValue","Value":"sibling draft"}'
     owner.stage(stagedValue)
@@ -500,7 +495,7 @@ describe('formal model registration rename', () => {
     expect(fields.getEditingRow('F2')?.['ValueFun']).toBe(stagedValue)
     expect(session.hasPendingSourceInputs()).toBe(true)
 
-    operation.abandonNotApplied()
+    expect(() => operation.abandonNotApplied()).toThrow('只有原SPARK批次确认未执行')
 
     const trackedBeforeReacquiringOwner = session.hasPendingSourceInputs()
     const reacquiredOwner = session.getSourceInput('F2')
@@ -513,7 +508,7 @@ describe('formal model registration rename', () => {
       databaseWrites: writes(f).length,
       fileWrites: f.fileWrites.length,
     }).toMatchObject({
-      rename: {status: 'idle', pending: false, changes: [], tables: [], tools: []},
+      rename: {status: 'unknown', pending: true, canAbandonNotApplied: false},
       sameOwner: true,
       sessionPending: true,
       ownerPending: true,
@@ -523,15 +518,15 @@ describe('formal model registration rename', () => {
     })
   })
 
-  it('does not resign not-applied intent after a later edit', async () => {
+  it('keeps a later edit without declaring an unknown rename not applied', async () => {
     const f = fixture(), session = await f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
     f.setModelValues({Name: 'Orders'})
-    expect(await operation.verify()).toBe(false)
+    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     const model = session.metadataDataSet.getView('Base_DataModel')!
     model.updateEditingValue('M1', 'Description', 'later intent')
-    await expect(operation.verify()).rejects.toThrow(/新修改|不能放弃/)
+    await expect(operation.verify()).rejects.toThrow()
     expect(model.getEditingRow('M1')?.['Description']).toBe('later intent')
     expect(() => operation.abandonNotApplied()).toThrow(/意图未变化/)
     expect(operation.getState().pending).toBe(true)
@@ -584,11 +579,10 @@ describe('formal model registration rename', () => {
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
     const save = data.saveChanges.bind(data), recovery = vi.spyOn(data, 'saveChanges').mockImplementation(async options => {
-      const result = await save(options)
       if (options?.views?.some(view => view.tableName === 'Base_DataModel')) {
         data.getView('Base_DataModel')!.updateEditingValue('M1', 'Description', 'keep after native click')
       }
-      return result
+      return save(options)
     })
     const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
     await expect(verify({discardLocalChanges: true})).rejects.toThrow()
@@ -657,12 +651,12 @@ describe('formal model registration rename', () => {
     f.loseNextResponse()
     await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
-    expect(await operation.verify()).toBe(true)
+    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(abandon).not.toHaveBeenCalled()
     expect(sibling.hasUnconfirmedSave).toBe(true)
     expect(writes(f).filter(request => JSON.stringify(request.data).includes('"TableName":"Base_DataModel"'))).toHaveLength(1)
-    await data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})
-    expect(sibling.hasUnconfirmedSave).toBe(false)
+    await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(sibling.hasUnconfirmedSave).toBe(true)
   })
 
   it.each(['context', 'instance'] as const)('keeps an unknown batch unresolved when its original query %s changes', async change => {
@@ -748,17 +742,17 @@ describe('formal model registration rename', () => {
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
     const save = data.saveChanges.bind(data), recovery = vi.spyOn(data, 'saveChanges').mockImplementation(async options => {
-      const result = await save(options)
       if (options?.views?.some(view => view.tableName === 'Base_DataModel')) {
         const target = data.getView('Base_DataModel')!
         target.updateEditingValue('M1', 'Description', 'late applied after click')
+        expect((await target.applyEditingRows(['M1'])).success).toBe(true)
       }
-      return result
+      return save(options)
     })
-    await expect(operation.verify()).rejects.toThrow(/新字段编辑/)
+    await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     recovery.mockRestore()
     const model = data.getView('Base_DataModel')!
-    expect(model.getEditingRow('M1')?.['Description']).toBe('late applied after click')
+    expect(model.getEditingRow('M1')?.['Description'] ?? model.rows.find(row => row['rowid'] === 'M1')?.['Description']).toBe('late applied after click')
     expect(operation.getState().pending).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
@@ -884,12 +878,19 @@ describe('formal model registration rename', () => {
     expect(writes(f)).toHaveLength(0)
   })
 
-  it.each(['database', 'file'])('recovers a lost %s reply by readback without replaying the database change', async kind => {
+  it.each(['database', 'file'])('handles a lost %s reply without replaying the database change', async kind => {
     const f = fixture(), operation = (await f.open('A')).getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     if (kind === 'database') f.loseNextResponse(); else f.loseNextFileResponse()
     await expect(operation.save()).rejects.toThrow()
     expect(operation.getState().pending).toBe(true)
+    if (kind === 'database') {
+      await expect(operation.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(operation.getState().pending).toBe(true)
+      expect(writes(f)).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+      return
+    }
     await operation.verify()
     expect(operation.getState().pending).toBe(false)
     expect(writes(f)).toHaveLength(1)

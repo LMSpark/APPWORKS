@@ -6,13 +6,13 @@
 -->
 <template>
   <RendererDialog :model-value="true" :title="record.created ? '新增应用系统' : '编辑应用系统'" width="min(980px, 94vw)"
-    :append-to-body="true" :close-disabled="busy" @update:model-value="cancel">
+    :append-to-body="true" :close-disabled="busy || pendingSave" @update:model-value="cancel">
     <p v-if="message" role="alert">{{ message }}</p>
     <RendererForm :data-view-key="mainKey" :context-row-id="record.appId" :children="children" :auto-columns="false"
       :show-data-view-meta="false" :grid-gap="16" :form-props="{labelPosition: 'top'}" />
     <template #footer>
-      <RendererButton label="取消" :disabled="busy" @click="cancel" />
-      <RendererButton label="保存" button-type="primary" :disabled="busy" @click="submit" />
+      <RendererButton label="取消" :disabled="busy || pendingSave" @click="cancel" />
+      <RendererButton :label="pendingSave ? '核验原提交' : '保存'" button-type="primary" :disabled="busy" @click="submit" />
     </template>
   </RendererDialog>
   <ApplicationDatabaseDialog v-if="choosing" @close="choosing = false" @choose="chooseDatabase" />
@@ -35,6 +35,7 @@ const ownerKey = buildDataViewKey('Base_MainBody_RoleUser', 'default', APPLICATI
 const statusKey = buildDataViewKey('应用系统状态', 'default', APPLICATION_MANAGER_SCENARIO)
 const userKey = buildDataViewKey('Base_UserInfo', 'default', PERSON_SCENARIO)
 const busy = ref(false), choosing = ref(false), message = ref(''), revision = ref(0)
+const pendingSave = computed(() => { void revision.value; return props.record.hasUnconfirmedSave })
 const portalInitial = !props.record.created && props.portal?.applicationId === props.record.appId
 const portalChecked = ref(portalInitial)
 const portalEditable = !props.record.created && Boolean(props.portal?.writable)
@@ -84,8 +85,10 @@ async function chooseDatabase(row: Readonly<DataRow>): Promise<void> {
 
 function cancel(): void {
   if (busy.value) return
-  props.record.cancel()
-  emit('close')
+  try {
+    props.record.cancel()
+    emit('close')
+  } catch (cause) { message.value = failure(cause) }
 }
 
 async function submit(): Promise<void> {

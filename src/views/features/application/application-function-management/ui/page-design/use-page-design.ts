@@ -18,16 +18,12 @@ import {
 import { buildConfigPageNavigationPath, readConfigPageScenarioCall } from '@/services/application-scope'
 import { onPageConfigChange } from '@/services/sse-events'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
+import { withPageToolPublication, type PageToolPublication } from '@/services/project/page-tool-publication'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
 const DELIVERY_FILES = ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]
-type DeliveryIntent = {
-  digest: string
-  snapshots: Map<LowcodeBlueprintFileName, {version: number; fileName: string}>
-}
-const deliveryIntents = new WeakMap<DevState, Map<string, DeliveryIntent>>()
 
 export function resolvePageToolCall(tool: PageTool, target: string, mainScenarioId?: string) {
   if (parseConfigToolPageId(target) !== tool.pageId) throw new Error('配置工具调用目标与页面身份不符')
@@ -269,7 +265,7 @@ export function usePageDesign(state: DevState) {
   const canVerifyPendingWrites = computed(() => {
     void state.externalDataViewRevision.value
     void state.projectRevision.value
-    return state.hasPendingBlueprintWrite() && !delivering.value && !state.allSaving.value && !state.pageIoBusy.value && !state.blueprintSaving.value
+    return state.hasUnconfirmedBlueprintWrite() && !delivering.value && !state.allSaving.value && !state.pageIoBusy.value && !state.blueprintSaving.value
   })
   function verifyPendingWrites(): void {
     if (hasPendingPreview()) {
@@ -277,7 +273,7 @@ export function usePageDesign(state: DevState) {
       return
     }
     if (recoverPublication) void recoverPublication()
-    else void state.saveAll()
+    else void state.verifyUnconfirmedBlueprintWrites()
   }
 
   const canSaveDelivery = computed(() => {
@@ -288,6 +284,20 @@ export function usePageDesign(state: DevState) {
 
   /** 三文件交付：逐文件追加正式快照，再写回 VersionId 指针并回读；任一步失败即停止并如实报告已确认部分。 */
   async function saveDelivery(captured:NonNullable<typeof actionScope.value>): Promise<void> {
+    try {
+      const session = lowcodeApi.session.get()
+      if (!session?.identity.userId || !session.enterprise.shortName) throw new Error('发布需要当前登录身份和企业标识')
+      const scope = lowcodeApi.readRequestScope().token
+      const owner = [JSON.stringify([session.enterprise.id, session.identity.enterpriseId]), session.enterprise.shortName,
+        session.identity.userId, captured.projectId, captured.nodeId]
+      await withPageToolPublication(owner, async journal => {
+        if (scope !== lowcodeApi.readRequestScope().token) throw new Error('发布请求所属会话已变化')
+        await publish(captured, journal)
+      })
+    } catch (error) { state.addStatus(`发布未完成：${String(error)}`, 'error') }
+  }
+
+  async function publish(captured:NonNullable<typeof actionScope.value>, journal:PageToolPublication): Promise<void> {
     if (!isCurrentScope(captured) || delivering.value) return
     const {owner:current,runtime,nodeId,pageId,projectId}=captured
     if (!pageId) {state.addStatus('交付工具身份必须与当前项目及页面一致', 'error'); return}
@@ -351,8 +361,36 @@ export function usePageDesign(state: DevState) {
         throw new Error('交付期间 DataView 出现未保存修改，后续交付已停止')
       }
     }
+    const finishPublication = async () => {
+      assertTarget()
+      const readbackVersions = String(current.value('VersionId') ?? '').trim()
+      if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) {
+        throw new Error('三文件发布指针回读不一致')
+      }
+      recoverPublication = undefined
+      confirmed.push(...written)
+      journal.finish()
+      state.refreshBlueprintTreeProjection()
+      state.addStatus('三个交付文件快照均已确认，发布指针已一次切换并读回', 'success')
+      try {await reloadAndSyncNavigation()} catch (error) {
+        state.addStatus(`发布已确认，运行菜单刷新失败：${String(error)}`, 'warning')
+      }
+    }
     delivering.value = true
     try {
+      const digestOf = async (text: string) => {
+        const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+        return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('')
+      }
+      const call = await digestOf(JSON.stringify([pageId, originalNavigationUrl, mainScenarioId]))
+      assertTarget()
+      const pointer = journal.confirmedPointer(call)
+      if (pointer !== undefined) {
+        expectedVersionId = pointer
+        await current.rereadSelectedNode()
+        await finishPublication()
+        return
+      }
       fileViews=new Map(await Promise.all(DELIVERY_FILES.map(async fileName=>[fileName,await state.loadPageToolFileDataView({pageId,fileName})] as const)))
       assertTarget()
       const texts = new Map(DELIVERY_FILES.map(name=>[name,readFileText(name)]))
@@ -364,15 +402,9 @@ export function usePageDesign(state: DevState) {
       if (ruleText === undefined) throw new Error('交付规则文本缺失')
       tool.hydrateFileText('rule.json', ruleText)
       resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
-      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify([...texts])))
+      const digest = await digestOf(JSON.stringify([...texts]))
       assertTarget()
-      const digest = JSON.stringify(Array.from(new Uint8Array(hash)))
-      const intentKey = JSON.stringify([scopeToken, projectId, nodeId, pageId, originalNavigationUrl, mainScenarioId, expectedVersionId])
-      const intents = deliveryIntents.get(state) ?? new Map<string, DeliveryIntent>()
-      deliveryIntents.set(state, intents)
-      const previousIntent = intents.get(intentKey)
-      const intent: DeliveryIntent = previousIntent?.digest === digest ? previousIntent : {digest, snapshots: new Map()}
-      intents.set(intentKey, intent)
+      const intent = journal.open(call, digest, originalVersionId)
       let versions = parseLowcodeBlueprintFileVersions(expectedVersionId.trim())
       for (const fileName of DELIVERY_FILES) {
         assertTarget()
@@ -381,56 +413,36 @@ export function usePageDesign(state: DevState) {
         const fileView=await state.loadPageToolFileDataView({pageId,fileName})
         assertTarget()
         if(readFileText(fileName)!==text)throw new Error(`${fileName} 交付期间 DataView 已修改`)
-        let snapshot = intent.snapshots.get(fileName)
-        if (snapshot) {
-          if (await fileView.previewSourceVersion(snapshot.version) !== text) {
-            intent.snapshots.delete(fileName)
-            throw new Error(`${fileName} 已确认版本与原发布意图不符，请重新发布`)
-          }
-          assertTarget()
-        }
-        if (!snapshot) {
-          const history=await fileView.createSourceVersion(attempt=>{
-            if(typeof attempt.fileName==='string'&&!attemptedSnapshots.includes(attempt.fileName))attemptedSnapshots.push(attempt.fileName)
-          })
-          if(history.state!=='confirmed'||typeof history.version!=='number'||typeof history.fileName!=='string') {
-            throw new Error(`${fileName} 文件 DataView 未确认快照回执`)
-          }
-          assertTarget()
-          fileView.acknowledgeSourceHistoryAttempt()
-          snapshot = {version: history.version, fileName: history.fileName}
-          intent.snapshots.set(fileName, snapshot)
-        }
-        written.push(snapshot.fileName)
+        const version = await journal.snapshot({intent, fileView, fileName, text, assertTarget,
+          onAttempt: name => attemptedSnapshots.push(name)})
+        assertTarget()
+        written.push(`${version}__${fileName}`)
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
-        versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: snapshot.version })
+        versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       }
       assertTarget()
       for (const fileName of DELIVERY_FILES) {
         if (readFileText(fileName) !== texts.get(fileName)) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
       }
       expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
-      const finishPublication = async () => {
-        assertTarget()
-        const readbackVersions = String(current.value('VersionId') ?? '').trim()
-        if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) {
-          throw new Error('三文件发布指针回读不一致')
-        }
-        recoverPublication = undefined
-        confirmed.push(...written)
-        intents.delete(intentKey)
-        state.refreshBlueprintTreeProjection()
-        state.addStatus('三个交付文件快照均已确认，发布指针已一次切换并读回', 'success')
-        try {await reloadAndSyncNavigation()} catch (error) {
-          state.addStatus(`发布已确认，运行菜单刷新失败：${String(error)}`, 'warning')
-        }
-      }
       current.update('VersionId', expectedVersionId)
       state.notifyExternalDataViewChanged()
       assertTarget(true)
-      attemptedReferences.push(...written)
+      const progress = {
+        beforeSubmit() {
+          assertTarget(true)
+          for (const file of DELIVERY_FILES) {
+            if (readFileText(file) !== texts.get(file)) throw new Error(`${file} 在提交发布指针前已修改`)
+          }
+          intent.pointer = {value: expectedVersionId, state: 'pending'}
+          journal.write(intent)
+          attemptedReferences.push(...written)
+        },
+        accepted() { intent.pointer = {value: expectedVersionId, state: 'confirmed'}; journal.write(intent) },
+        rejected() { intent.pointer = null; journal.write(intent) },
+      }
       try {
-        await current.save()
+        await current.saveSelectedNode(progress)
       } catch (error) {
         if (isCurrentScope(captured) && current.hasPendingBlueprintCommand) {
           recoverPublication = async () => {
@@ -440,8 +452,11 @@ export function usePageDesign(state: DevState) {
               if (lowcodeApi.readRequestScope().token !== scopeToken || !current.hasPendingBlueprintCommand) {
                 throw new Error('原发布指针的核验范围已失效')
               }
-              await current.saveSelectedNode()
-              await finishPublication()
+              await journal.resume(async () => {
+                if (!isCurrentScope(captured) || lowcodeApi.readRequestScope().token !== scopeToken) throw new Error('原发布核验目标已变化')
+                await current.saveSelectedNode(progress)
+                await finishPublication()
+              })
             } catch (cause) {
               state.addStatus(`发布指针仍待核验：${String(cause)}`, 'error')
             } finally {

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-change-call-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-call-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-call-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-change-call-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-call-reader\n职责：动作23按原试次回查明确登记的条款读取记录。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "runId",
+        "attemptRef",
+        "requestKey"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T21:35:17.106Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    runId: string;\n    attemptRef: string;\n    requestKey: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    runId: string;\n    attemptRef: string;\n    requestKey: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -83,8 +83,8 @@
         "stage": {
           "enum": [
             "SAVED",
-            "SUBMITTED",
-            "DRAFT"
+            "DRAFT",
+            "SUBMITTED"
           ]
         },
         "attemptRef": {
@@ -223,9 +223,388 @@
         "savedReadbackRequired"
       ],
       "additionalProperties": false
+    },
+    "AttemptProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AttemptProof",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "NOT_EXECUTED"
+            },
+            "evidenceRef": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "eventRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef",
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId",
+            "attemptRef",
+            "requestDigest",
+            "eventRefs",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "UNKNOWN"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "eventRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "status",
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId",
+            "attemptRef",
+            "requestDigest",
+            "eventRefs",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "UNKNOWN",
+                "PARTIAL",
+                "COMBINED_SENT"
+              ]
+            },
+            "newDelivery": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "evidenceRef": {
+                  "type": "string"
+                },
+                "actualObjectRef": {
+                  "type": "string"
+                },
+                "uploadedFileVersionId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              },
+              "required": [
+                "evidenceRef",
+                "actualObjectRef",
+                "uploadedFileVersionId"
+              ],
+              "additionalProperties": false
+            },
+            "oldWithdrawal": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "evidenceRef": {
+                  "type": "string"
+                },
+                "targetAttemptRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "evidenceRef",
+                "targetAttemptRef"
+              ],
+              "additionalProperties": false
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "eventRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "status",
+            "newDelivery",
+            "oldWithdrawal",
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId",
+            "attemptRef",
+            "requestDigest",
+            "eventRefs",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "WITHDRAWAL_SENT"
+            },
+            "evidenceRef": {
+              "type": "string"
+            },
+            "targetAttemptRef": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "eventRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef",
+            "targetAttemptRef",
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId",
+            "attemptRef",
+            "requestDigest",
+            "eventRefs",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "DISPATCHED"
+            },
+            "evidenceRef": {
+              "type": "string"
+            },
+            "actualObjectRef": {
+              "type": "string"
+            },
+            "uploadedFileVersionId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "lotId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "eventRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef",
+            "actualObjectRef",
+            "uploadedFileVersionId",
+            "projectId",
+            "lotId",
+            "subjectId",
+            "channelId",
+            "attemptRef",
+            "requestDigest",
+            "eventRefs",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "CombinedWithdrawal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CombinedWithdrawal",
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/AttemptProof"
+        },
+        "ruleRef": {
+          "type": "string"
+        },
+        "allowed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "authority": {
+          "type": "object",
+          "properties": {
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Version"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "versions",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-18T04:39:31.163Z",
+  "generatedAt": "2026-11-18T10:08:47.446Z",
   "models": {
     "ApprovedField": {
       "name": "ApprovedField",
@@ -439,6 +818,81 @@
               "name": "savedReadbackRequired",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttemptProof": {
+      "name": "AttemptProof",
+      "jsdoc": "同一次原办理回查所得的撤换目标证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof recoverSubmissionAttempt>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof recoverSubmissionAttempt>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "CombinedWithdrawal": {
+      "name": "CombinedWithdrawal",
+      "jsdoc": "仅由同一事项的原规则、原批次及撤回授权提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    target: AttemptProof;\n    ruleRef: string;\n    allowed: boolean;\n    grantId: string;\n    knownAt: string;\n    authority: Parameters<typeof checkRegisteredAuthorityGrant>[1];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    target: AttemptProof;\n    ruleRef: string;\n    allowed: boolean;\n    grantId: string;\n    knownAt: string;\n    authority: Parameters<typeof checkRegisteredAuthorityGrant>[1];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authority",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

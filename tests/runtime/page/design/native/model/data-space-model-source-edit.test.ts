@@ -141,7 +141,7 @@ describe('source edit capture recovery A3.3', () => {
     ]})).rejects.toThrow()
     expect(sibling.hasUnconfirmedSave).toBe(true)
 
-    await expect(owner.verify()).resolves.toMatchObject({confirmed: true, modelId: 'M1'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(writes()).toHaveLength(2)
     expect(sibling.hasUnconfirmedSave).toBe(true)
   })
@@ -172,19 +172,18 @@ describe('source edit capture recovery A3.3', () => {
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve})
     const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
-      const result = await nativeSave(options)
       await gate
-      return result
+      return nativeSave(options)
     })
-    const verification = owner.verify()
+    const verification = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     const fields = dataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!
     fields.updateEditingValue('F2', 'AsName', 'late edit')
     release()
-    await expect(verification).rejects.toThrow(/新字段编辑|草稿发生变化|本地新修改/)
+    await verification
 
     expect(fields.getEditingRow('F2')?.['AsName']).toBe('late edit')
-    await expect(owner.verify()).rejects.toThrow(/新字段编辑|草稿发生变化|本地新修改/)
+    await expect(owner.verify()).rejects.toThrow('原来源目标草稿在核验前已改变')
     expect(fields.getEditingRow('F2')?.['AsName']).toBe('late edit')
     expect(writes()).toHaveLength(1)
   })
@@ -264,13 +263,16 @@ describe('explicit replacement field contracts', () => {
     expect((await view.loadFromServer()).success).toBe(true); expect(view.rows[0]?.['rowid']).toBe(11)
   })
 
-  it.each(['database', 'file'] as const)('recovers the %s phase without repeating the replacement batch', async phase => {
+  it.each(['database', 'file'] as const)('handles the %s phase without repeating the replacement batch', async phase => {
     const {f, owner, writes} = await replacement(true); await mapAndConfirm(owner)
     if (phase === 'database') f.loseNextResponse(); else f.loseNextFileResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe(phase === 'database' ? 'unknown' : 'configuration')
-    expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
-    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    if (phase === 'database') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else await expect(owner.verify()).resolves.toEqual({confirmed: true, modelId: 'M1'})
+    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(phase === 'database' ? 0 : 1)
   })
 
   it('clears a mapped field confirmation when its source changes and rejects duplicate mappings', async () => {
@@ -405,12 +407,13 @@ describe('explicit source field contract synchronization', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it('verifies a lost migration receipt without replaying the batch', async () => {
+  it('keeps a lost migration receipt pending without replaying the batch', async () => {
     const {f, owner, writes} = await contractSync()
     owner.confirmFieldContract({fieldId: 'F1', accepted: true}); owner.confirmFieldContract({fieldId: 'F2', accepted: true})
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(1)
   })
 
@@ -464,11 +467,12 @@ describe('explicit source field contract synchronization', () => {
     expect(f.stored.get('A')).not.toContain('new:')
   })
 
-  it.each([false, true])('recovers an unknown new primary batch without repeating additions or deletions (removeOld=%s)', async removeOld => {
+  it.each([false, true])('keeps an unknown new primary batch pending without repeating additions or deletions (removeOld=%s)', async removeOld => {
     const {f, owner, writes} = await newPrimarySync(removeOld)
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(1)
     expect(f.created.get('Base_DataModel_Field')?.filter(row => row['Name'] === 'newKey')).toHaveLength(1)
   })
@@ -573,7 +577,7 @@ describe('explicit source field contract synchronization', () => {
     for (const change of owner.getState().preview?.contractChanges ?? []) owner.confirmFieldContract({fieldId: change.id, accepted: true})
   }
 
-  it('verifies authoritative not-applied through native save, repeats verification, then abandons only the unchanged captured selectors', async () => {
+  it('keeps unchanged captured selectors pending when the original receipt is lost', async () => {
     const {f, session, owner, writes} = await contractSync('databaseView', 'varchar', {omitModelWrite: true, omitAllFieldChanges: true})
     acceptCurrentSourceContracts(owner)
     const fileBefore = f.stored.get('A')
@@ -588,19 +592,19 @@ describe('explicit source field contract synchronization', () => {
 
     const sibling = dataSet.getView('Base_DataSet', 'default')!
     sibling.updateEditingValue('A', 'inputParams', '[{"Name":"keep-sibling"}]')
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
-    expect(owner.getState().status).toBe('different')
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(batches).toHaveLength(2)
     expect(batches[1]?.views).toEqual(batches[0]?.views)
     expect(writes()).toHaveLength(1)
     expect(f.modelRow()).toEqual(modelBefore)
     expect(f.fileWrites).toHaveLength(0)
 
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
-    expect(batches).toHaveLength(2)
-    await owner.verify({abandonNotApplied: true})
-    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
-    expect(batches).toHaveLength(2)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(batches).toHaveLength(3)
+    expect(batches[2]?.views).toEqual(batches[0]?.views)
+    await expect(owner.verify({abandonNotApplied: true})).rejects.toThrow()
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true})
     expect(writes()).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
     expect(f.stored.get('A')).toBe(fileBefore)
@@ -797,12 +801,18 @@ describe('explicit source field contract synchronization', () => {
     expect(view.rows[0]?.['businessCode']).toBe(41)
   })
 
-  it.each(['database', 'file'] as const)('recovers a lost %s receipt without replaying the database phase', async phase => {
+  it.each(['database', 'file'] as const)('handles a lost %s receipt without replaying the database phase', async phase => {
     const {f, owner, writes} = await projectedSync()
     if (phase === 'database') f.loseNextResponse(); else f.loseNextFileResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe(phase === 'database' ? 'unknown' : 'configuration')
-    expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+    if (phase === 'database') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+      expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+      return
+    }
+    await expect(owner.verify()).resolves.toEqual({confirmed: true, modelId: 'M1'})
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
     expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.views.shared.fieldProjection[0]).toMatchObject({type: 'int', primaryKey: false})
   })
@@ -991,7 +1001,10 @@ describe('source resource transitions', () => {
     if (receipt === 'lost') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(writes()).toHaveLength(1)
-    expect((await owner.verify()).confirmed).toBe(receipt === 'lost')
+    if (receipt === 'lost') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
     await expect(owner.save()).rejects.toThrow()
     expect(writes()).toHaveLength(1)
   })
@@ -1015,7 +1028,8 @@ describe('same-contract source replacement', () => {
     expect(owner.getState().preview?.problems).toEqual([])
     if (lost) {
       f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-      expect((await owner.verify()).confirmed).toBe(true)
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
     } else await owner.save()
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     const reopened = await f.open('A'), rows = (await reopened.loadModelFields('M1')).rows
@@ -1046,7 +1060,7 @@ describe('same-contract source replacement', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it.each(['constant', 'parameter'])('requires an explicit new source input %s and preserves it after lost receipt and reopen', async kind => {
+  it.each(['constant', 'parameter'])('requires an explicit new source input %s and preserves it on reopen', async kind => {
     const {owner, f, session, reader, writes} = await setup({allowFieldAdd: true, overviewOnly: true})
     const input = {...field, type: 'inputParams' as const, Name: 'customerArg', IsPKey: 0, IsOutput: 0}
     f.setModelValues({Type: '接口'})
@@ -1060,8 +1074,7 @@ describe('same-contract source replacement', () => {
     expect(() => owner.configureInput({sourceName: input.Name, value: '{"Type":"GetInputParam","ParamName":"missing"}'})).toThrow()
     owner.configureInput({sourceName: input.Name, value})
     expect(owner.getState().preview?.problems).toEqual([])
-    f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-    expect((await owner.verify()).confirmed).toBe(true)
+    await owner.save()
     expect(writes()).toHaveLength(1)
     const rows = (await (await f.open('A')).loadSourceInputFields('M1')).rows
     expect(rows).toContainEqual(expect.objectContaining({type: 'inputParams', Name: 'customerArg', IsOutput: 0, ValueFun: value}))
@@ -1131,8 +1144,7 @@ describe('same-contract source replacement', () => {
     expect(owner.getState().preview?.problems).toEqual([])
     expect(owner.getState().preview?.fieldChoices.some(item => item.id === 'C1')).toBe(false)
     expect(owner.getState().preview?.differences).toContainEqual({name: 'display', result: '保留计算字段及配置；取值引用按原合同核验'})
-    f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-    expect((await owner.verify()).confirmed).toBe(true)
+    await owner.save()
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     const fresh = await f.open('A'), fields = await fresh.loadModelFields('M1')
     expect(fields.rows.find(row => row['rowid'] === 'C1')).toMatchObject({...computed,
@@ -1167,7 +1179,8 @@ describe('same-contract source replacement', () => {
     expect(other.requestState).toBe(RequestState.Loaded)
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     f.setModelValues({description: '正式结果另有修改'})
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(fields.requestState).toBe(RequestState.Loaded)
     expect(() => owner.acceptCurrent()).toThrow()
     expect(fields.requestState).toBe(RequestState.Loaded)
@@ -1185,12 +1198,12 @@ describe('same-contract source replacement', () => {
     const fields = await session.loadModelFields('M1')
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     f.setModelValues({description: '正式结果另有修改'})
-    await owner.verify()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     fields.updateEditingValue('F1', 'description', '核验后草稿')
     expect(() => owner.acceptCurrent()).toThrow('其他元数据草稿')
     expect(fields.requestState).toBe(RequestState.Loaded)
     expect(fields.getEditingRow('F1')?.['description']).toBe('核验后草稿')
-    expect(owner.getState().status).toBe('different'); expect(writes()).toHaveLength(1)
+    expect(owner.getState().status).toBe('unknown'); expect(writes()).toHaveLength(1)
   })
 
   it('does not clear field or relation consumers when a synchronization batch remains unresolved', async () => {
@@ -1199,17 +1212,18 @@ describe('same-contract source replacement', () => {
     await owner.previewBoundSource()
     const fields = await session.loadModelFields('M1'), relations = session.metadataDataSet.getView('Base_DataModel_Relation')!
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-    f.setModelValues({description: '正式结果另有修改'}); await owner.verify()
+    f.setModelValues({description: '正式结果另有修改'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     f.created.set('Base_DataModel_Relation', [{rowid: 'R', dataSetId: 'A', parentModId: 'M1', childModId: 'M2', filter: '', cascadeDel: 0}])
     await relations.loadFromServer({allPages: true})
     relations.updateEditingValue('R', 'cascadeDel', 1)
-    expect(() => owner.acceptCurrent()).toThrow('原来源批次未确认')
+    expect(() => owner.acceptCurrent()).toThrow('请先处理其他元数据草稿')
     expect(fields.requestState).toBe(RequestState.Loaded)
     expect(relations.getEditingRow('R')?.['cascadeDel']).toBe(1)
-    expect(owner.getState().status).toBe('different'); expect(writes()).toHaveLength(1)
+    expect(owner.getState().status).toBe('unknown'); expect(writes()).toHaveLength(1)
   })
 
-  it('reloads adopted source parameters through their own DataView without losing the original ValueFun', async () => {
+  it('keeps loaded source parameters and their ValueFun when the original batch is unknown', async () => {
     const raw = ' { "Type": "SystemData", "ParamName": "customer", "Extra": 7 } '
     const parameter = {...field, type: 'inputParams' as const, Name: 'customerArg', IsPKey: 0, IsOutput: 0}
     const {reader, owner, f, session, writes} = await setup({allowFieldEdit: true, sourceFields: [
@@ -1223,7 +1237,8 @@ describe('same-contract source replacement', () => {
     const inputs = await session.loadSourceInputFields('M1')
     expect(inputs.rows[0]?.['Name']).toBe('customerArg')
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-    f.setModelValues({description: '正式结果另有修改'}); await owner.verify()
+    f.setModelValues({description: '正式结果另有修改'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(() => owner.acceptCurrent()).toThrow()
     expect(inputs.requestState).toBe(RequestState.Loaded)
     expect(inputs.rows).toContainEqual(expect.objectContaining({rowid: 'F2', Name: 'customerArg', ValueFun: raw}))
@@ -1237,7 +1252,8 @@ describe('same-contract source replacement', () => {
     if (lost) {
       f.loseNextResponse()
       await expect(owner.save()).rejects.toThrow()
-      expect((await owner.verify()).confirmed).toBe(true)
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
     } else await owner.save()
     expect(writes()).toHaveLength(1)
     expect(fields.rows).toEqual([]); expect(relations.rows).toEqual([])
@@ -1272,7 +1288,8 @@ describe('same-contract source replacement', () => {
       f.loseNextResponse()
       await expect(owner.save()).rejects.toThrow()
       await expect(owner.save()).rejects.toThrow('先核验')
-      expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
     } else await owner.save()
     expect(writes()).toHaveLength(1)
     for (const table of ['Base_DataModel_Field', 'Base_DataModel_Relation']) {
@@ -1306,7 +1323,8 @@ describe('same-contract source replacement', () => {
       f.loseNextResponse()
       await expect(owner.save()).rejects.toThrow()
       await expect(owner.save()).rejects.toThrow('先核验')
-      expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
     } else await owner.save()
     expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
     for (const name of ['Base_DataModel_Field', 'Base_DataModel_Relation']) {
@@ -1423,8 +1441,7 @@ describe('same-contract source replacement', () => {
     expect(() => owner.configureInput({sourceName: 'newArg', value: '{"Type":"SystemData","ParamName":"customer"}'})).toThrow()
     owner.configureInput({sourceName: 'newArg', value})
     expect(owner.getState().preview?.problems).toEqual([])
-    if (type === 'interface') {f.loseNextResponse(); await expect(owner.save()).rejects.toThrow(); expect((await owner.verify()).confirmed).toBe(true)}
-    else await owner.save()
+    await owner.save()
     expect(writes()).toHaveLength(1)
     expect(session.metadataDataSet.getView('Base_DataModel_Field')!.requestState).toBe(RequestState.Idle)
     const reopened = await f.open('A')
@@ -1532,12 +1549,13 @@ describe('same-contract source replacement', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it('verifies a lost synchronization receipt without resending mixed additions and removals', async () => {
+  it('keeps a lost synchronization receipt pending without resending mixed additions and removals', async () => {
     const {owner, f, writes} = await synchronize()
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
-    expect(await owner.verify()).toMatchObject({confirmed: true, modelId: 'M1'})
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(1)
   })
 
@@ -1608,14 +1626,17 @@ describe('same-contract source replacement', () => {
     expect(f.stored.get('A')).toBe(originalFile); expect(f.fileWrites).toHaveLength(0)
   })
 
-  it.each(['unknown', 'partial'])('verifies mixed field writes without replay after %s results', async kind => {
+  it.each(['unknown', 'partial'])('handles mixed field writes without replay after %s results', async kind => {
     const {owner, f, writes} = await setup({allowFieldAdd: true, omitFieldWrite: kind === 'partial'})
     await owner.includeField({sourceName: 'extra', included: true})
     if (kind === 'unknown') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     const before = writes().length
     await expect(owner.save()).rejects.toThrow('先核验')
-    expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
+    if (kind === 'unknown') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
     expect(writes()).toHaveLength(before)
     if (kind === 'partial') {
       expect(owner.getState().verification.some(item => item.result.includes('未读取'))).toBe(true)
@@ -1694,19 +1715,19 @@ describe('same-contract source replacement', () => {
     const gate = new Promise<void>(resolve => {release = resolve})
     const dataSet = session.metadataDataSet, save = dataSet.saveChanges.bind(dataSet)
     const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
-      const result = await save(options); await gate; return result
+      await gate
+      return save(options)
     })
-    const verifying = expect(owner.verify()).rejects.toThrow(/草稿|编辑/)
+    const verifying = expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
     const id = String(fields.rows.find(row => row['Name'] === 'extra')!['rowid'])
     fields.updateEditingValue(id, 'AsName', 'laterExtra')
     if (staged) expect((await fields.applyEditingRows([id])).success).toBe(true)
     release(); await verifying
     expect(fields.getEditingRow(id)?.['AsName']).toBe('laterExtra')
-    await expect(owner.verify()).rejects.toThrow(/草稿|编辑/)
+    await expect(owner.verify()).rejects.toThrow(staged ? 'SPARK_SAVE_UNVERIFIABLE' : '原来源目标草稿在核验前已改变')
     expect(fields.getEditingRow(id)?.['AsName']).toBe('laterExtra'); expect(writes()).toHaveLength(1)
-    fields.discardPendingChanges([id])
-    expect((await owner.verify()).confirmed).toBe(true); expect(writes()).toHaveLength(1)
+    expect(owner.getState().status).toBe('unknown')
     const fresh = await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel_Field')!.rows.find(row => row['rowid'] === id)?.['AsName']).toBe('')
   })
@@ -1818,7 +1839,10 @@ describe('same-contract source replacement', () => {
     await owner.preview(source); await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
     if (kind === 'unknown') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
-    expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
+    if (kind === 'unknown') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
     if (kind === 'partial') {
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel', id: 'M1.parentField', result: 'parentField引用与预览不同，请处理差异'})
       expect(() => owner.acceptCurrent()).toThrow()
@@ -1943,7 +1967,7 @@ describe('same-contract source replacement', () => {
     await expect(owner.save()).rejects.toThrow('重新预览'); expect(writes()).toHaveLength(0)
   })
 
-  it.each(['unknown', 'readback'])('recovers a %s result using reads only', async kind => {
+  it.each(['unknown', 'readback'])('handles a %s result without replaying the write', async kind => {
     const {owner, f, writes} = await setup()
     if (kind === 'unknown') f.loseNextResponse()
     else {
@@ -1956,23 +1980,26 @@ describe('same-contract source replacement', () => {
     if (kind === 'unknown') await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe(kind)
     await expect(owner.save()).rejects.toThrow('先核验')
-    expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
+    if (kind === 'unknown') {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+    } else await expect(owner.verify()).resolves.toEqual({confirmed: true, modelId: 'M1'})
     expect(writes()).toHaveLength(1)
   })
 
-  it('preserves another draft during an unknown result and requires explicit adoption of a differing formal state', async () => {
+  it('preserves another draft during an unknown result and blocks adoption of a differing formal state', async () => {
     const {owner, f, session, writes} = await setup()
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
     models.updateEditingValue('M2', 'description', 'other draft')
-    await expect(owner.verify()).rejects.toThrow('其他元数据草稿')
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     expect(models.getEditingRow('M2')?.['description']).toBe('other draft')
     models.discardEditingRows(['M2']); f.setModelValues({MetaName: 'remotely changed'})
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
-    expect(owner.getState().status).toBe('different')
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     await expect(owner.save()).rejects.toThrow('先核验')
-    if (owner.getState().abandonNotApplied) await owner.verify({abandonNotApplied: true})
-    else expect(() => owner.acceptCurrent()).toThrow()
+    expect(owner.getState().abandonNotApplied).toBe(false)
+    expect(() => owner.acceptCurrent()).toThrow()
     expect(writes()).toHaveLength(1)
   })
 

@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader\n职责：第59项读原移交清单，并沿原任务来源核当前版签收。\n边界：原任务签收由正式任务来源提供；移交视图只持有清单及可追溯的事项身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Item"
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Receipt"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "items",
+        "receipts",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Item": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Item",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "originalAssigneeId": {
+          "type": "string"
+        },
+        "receiverId": {
+          "type": "string"
+        },
+        "openIssueRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "followupRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "nextDueAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "versionRef",
+        "originalAssigneeId",
+        "receiverId",
+        "openIssueRefs",
+        "followupRef",
+        "nextDueAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:36:04.214Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof assessBidHandoff>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Source": {
+      "name": "Source",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof assessBidHandoff>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receipts",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Item": {
+      "name": "Item",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Source['items'][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "originalAssigneeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receiverId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "openIssueRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "followupRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nextDueAt",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

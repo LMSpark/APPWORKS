@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1418,
+  "scannedFileCount": 1494,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -15083,6 +15083,32 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/pdf-inspect/execution-rule.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/execution-rule.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/execution-rule",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/execution-rule.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/execution-rule.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/execution-rule",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/execution-rule\n职责：从本次 DataSet 读取唯一启用的正式核验规则。\n边界：只验证正式字段与读取证明，规则执行由原任务服务完成。\nAI用途：在选取 PDF 文件和派发任务前捕获同一规则的可读证据。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/pdf-inspect/init-command.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/init-command.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/init-command",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/init-command.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/init-command.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/init-command",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/init-command\n职责：在同一 DataSet 核实上传回执并暂存原任务命令。\n边界：由原命令适配记录恢复定位、区分首次派发与未知回查，页面只按原行保存。\nAI用途：以正式配置和已确认文件发起核验，保留原请求身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/resource.ts.json",
       "module": {
@@ -15120,6 +15146,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/semi-structured/pdf-inspect/runtime-bindings",
         "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/runtime-bindings\n职责：把正式 PDF 场景的限制、历史、结果与恢复投影接入 SPARK Data。\n边界：沿当前应用作用域读取原任务，运行时只读绑定不创建任务。\nAI用途：核对 PDF 查询视图的授权、资源身份和生命周期。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/pdf-inspect/upload-command.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/upload-command.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/upload-command",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/upload-command.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/upload-command.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/upload-command",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/upload-command\n职责：把当前用户选择的原 File 暂存到正式 PDF 上传命令。\n边界：只有原 DataSet 保存会派发上传；原文件和回执由资源适配保留。\nAI用途：沿正式命令暂存文件，或读取已验证字节的上传输入证明。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -16730,6 +16769,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/runtime-file-cache.ts": {
+      "file": "files/src/lowcode/runtime-file-cache.ts.json",
+      "module": {
+        "name": "app:lowcode/runtime-file-cache",
+        "sourcePath": "src/lowcode/runtime-file-cache.ts",
+        "sourceFile": "src/lowcode/runtime-file-cache.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/runtime-file-cache",
+        "jsdoc": "app 的 lowcode/runtime-file-cache 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
     "src/lowcode/system-navigation.ts": {
       "file": "files/src/lowcode/system-navigation.ts.json",
       "module": {
@@ -16848,8 +16900,8 @@
         "sourceFile": "src/services/application-scope.ts",
         "packageName": "app",
         "modulePath": "services/application-scope",
-        "jsdoc": "Application Path Scope 的语义模型。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "app 的 services/application-scope 模块。\n导出 DtsTypeDeclarationModel symbol: ApplicationPathScope（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
         "symbols": [
           "ApplicationPathScope"
         ]
@@ -17119,6 +17171,19 @@
         ]
       }
     },
+    "src/services/project/navigation/page-unload-protection.ts": {
+      "file": "files/src/services/project/navigation/page-unload-protection.ts.json",
+      "module": {
+        "name": "app:services/project/navigation/page-unload-protection",
+        "sourcePath": "src/services/project/navigation/page-unload-protection.ts",
+        "sourceFile": "src/services/project/navigation/page-unload-protection.ts",
+        "packageName": "app",
+        "modulePath": "services/project/navigation/page-unload-protection",
+        "jsdoc": "@module app:services/project/navigation/page-unload-protection\n职责：浏览器离页前复用当前路由管理器的运行实例检查。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/project/navigation/project-management-target.ts": {
       "file": "files/src/services/project/navigation/project-management-target.ts.json",
       "module": {
@@ -17172,6 +17237,21 @@
         "jsdocSource": "inferred",
         "symbols": [
           "PageFileOperationScope"
+        ]
+      }
+    },
+    "src/services/project/page-tool-publication.ts": {
+      "file": "files/src/services/project/page-tool-publication.ts.json",
+      "module": {
+        "name": "app:services/project/page-tool-publication",
+        "sourcePath": "src/services/project/page-tool-publication.ts",
+        "sourceFile": "src/services/project/page-tool-publication.ts",
+        "packageName": "app",
+        "modulePath": "services/project/page-tool-publication",
+        "jsdoc": "@module app:services/project/page-tool-publication\n职责：在原浏览器保存三文件发布的恢复定位，跨工作区重开时按原节点和版本核对。\n边界：仅记录摘要、编号和已接纳回执的进度。文件内容、正式指针和数据权限均由原 DataView 读取。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PageToolPublication"
         ]
       }
     },
@@ -17592,6 +17672,19 @@
         ]
       }
     },
+    "src/services/smart-bid/content/draft/content-draft-candidate-request.ts": {
+      "file": "files/src/services/smart-bid/content/draft/content-draft-candidate-request.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/draft/content-draft-candidate-request",
+        "sourcePath": "src/services/smart-bid/content/draft/content-draft-candidate-request.ts",
+        "sourceFile": "src/services/smart-bid/content/draft/content-draft-candidate-request.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/draft/content-draft-candidate-request",
+        "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-candidate-request\n职责：将已保存草稿和已核编制范围形成确定的候选生成请求。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/draft/content-draft-save-recovery.ts": {
       "file": "files/src/services/smart-bid/content/draft/content-draft-save-recovery.ts.json",
       "module": {
@@ -17779,21 +17872,6 @@
         "symbols": []
       }
     },
-    "src/services/smart-bid/content/references/baseline-fact-members.ts": {
-      "file": "files/src/services/smart-bid/content/references/baseline-fact-members.ts.json",
-      "module": {
-        "name": "app:services/smart-bid/content/references/baseline-fact-members",
-        "sourcePath": "src/services/smart-bid/content/references/baseline-fact-members.ts",
-        "sourceFile": "src/services/smart-bid/content/references/baseline-fact-members.ts",
-        "packageName": "app",
-        "modulePath": "services/smart-bid/content/references/baseline-fact-members",
-        "jsdoc": "@module app:services/smart-bid/content/references/baseline-fact-members\n职责：核固定基线事实成员的确定JSON合同及精确选版。\n边界：不查询最新版本、不确认冻结/采纳或当前用途许可、不存事实值。\nAI用途：基线原记录读取后核成员，再沿原事实视图读取固定版本。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "BaselineFactMember"
-        ]
-      }
-    },
     "src/services/smart-bid/content/references/baseline-requirement-members.ts": {
       "file": "files/src/services/smart-bid/content/references/baseline-requirement-members.ts.json",
       "module": {
@@ -17823,6 +17901,21 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/references/baseline/baseline-fact-members.ts": {
+      "file": "files/src/services/smart-bid/content/references/baseline/baseline-fact-members.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/baseline/baseline-fact-members",
+        "sourcePath": "src/services/smart-bid/content/references/baseline/baseline-fact-members.ts",
+        "sourceFile": "src/services/smart-bid/content/references/baseline/baseline-fact-members.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/baseline/baseline-fact-members",
+        "jsdoc": "@module app:services/smart-bid/content/references/baseline/baseline-fact-members\n职责：核固定基线事实成员的确定JSON合同及精确选版。\n边界：不查询最新版本、不确认冻结/采纳或当前用途许可、不存事实值。\nAI用途：基线原记录读取后核成员，再沿原事实视图读取固定版本。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "BaselineFactMember"
+        ]
+      }
+    },
     "src/services/smart-bid/content/references/calculation-table-generator.ts": {
       "file": "files/src/services/smart-bid/content/references/calculation-table-generator.ts.json",
       "module": {
@@ -17832,6 +17925,97 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/references/calculation-table-generator",
         "jsdoc": "@module app:services/smart-bid/content/references/calculation-table-generator\n职责：按固定模板类解析计算表的显式生成器键。\n边界：调用方负责提供节点所属逻辑册的原模板类；生成器版本与可用性由注册表核验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/approved-price-review.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/approved-price-review.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/approved-price-review",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/approved-price-review",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/approved-price-review\n职责：动作29分别返回原商务批准、本次用途结论及其版本依据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/bid-security-review.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/bid-security-review.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/bid-security-review",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/bid-security-review",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/bid-security-review\n职责：动作26按本标担保条款及截至所问时点的凭据核办理进度。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/commitment-approval-coverage",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/commitment-approval-coverage",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/commitment-approval-coverage\n职责：动作30逐字段核同范围、同用途的批准依据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/commitment-fact-registration",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/commitment-fact-registration",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/commitment-fact-registration\n职责：动作30固定待追加请求，并按原请求核对版本登记结果。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/fixed-fact-use.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/fixed-fact-use",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/fixed-fact-use\n职责：动作31保留原事实版本，独立核该版在目标用途和时点的准用证据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/person-appointment-review.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/person-appointment-review.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/person-appointment-review",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/person-appointment-review",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/person-appointment-review\n职责：动作25按已核人员材料、企业用人决定和调配证明确认同一拟任关系。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts": {
+      "file": "files/src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
+        "sourcePath": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+        "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/commercial/price-sheet-recalculation",
+        "jsdoc": "@module app:services/smart-bid/content/references/commercial/price-sheet-recalculation\n职责：动作28按已核计价规则复算数量乘单价及分项差异。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17914,6 +18098,45 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts": {
+      "file": "files/src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+        "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+        "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+        "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-allocation-conflict\n职责：按同一资源的时段核对限额占用及排他冲突，为主管的调配决定提供依据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts": {
+      "file": "files/src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/resource-use/resource-allocation-release",
+        "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts",
+        "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/resource-use/resource-allocation-release",
+        "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-allocation-release\n职责：按原调配记录核准释放所需的义务终止证据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/resource-use/resource-original-file.ts": {
+      "file": "files/src/services/smart-bid/content/references/resource-use/resource-original-file.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/resource-use/resource-original-file",
+        "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+        "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/resource-use/resource-original-file",
+        "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-original-file\n职责：核对企业资料原版登记的文件身份、容量和字节摘要。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts": {
       "file": "files/src/services/smart-bid/content/references/resource-use/resource-use-coverage.ts.json",
       "module": {
@@ -17936,6 +18159,97 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/references/resource-use/resource-use-decision",
         "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-use-decision\n职责：第56项绑定来源企业的决定、原件版本和接收方的逐项用途。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/bid-volume-plan.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/bid-volume-plan.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/bid-volume-plan",
+        "sourcePath": "src/services/smart-bid/content/references/response/bid-volume-plan.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/bid-volume-plan.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/bid-volume-plan",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/bid-volume-plan\n职责：动作32按原应交义务策划分册、独立落点及披露范围。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/original-form-mapping.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/original-form-mapping.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/original-form-mapping",
+        "sourcePath": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/original-form-mapping",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/original-form-mapping\n职责：动作33核原表版本、填写方与业务字段到行栏的映射。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/qualification-review.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/qualification-review.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/qualification-review",
+        "sourcePath": "src/services/smart-bid/content/references/response/qualification-review.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/qualification-review",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/qualification-review\n职责：动作35对已选合法路径逐项核资格依据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/response-assignment.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/response-assignment.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/response-assignment",
+        "sourcePath": "src/services/smart-bid/content/references/response/response-assignment.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/response-assignment",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/response-assignment\n职责：动作34对照固定基线及应交清单核全答复分工。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/response-draft.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/response-draft.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/response-draft",
+        "sourcePath": "src/services/smart-bid/content/references/response/response-draft.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/response-draft.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/response-draft",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/response-draft\n职责：动作36核当前承办任务及引用后生成待核答复。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/response-review.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/response-review.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/response-review",
+        "sourcePath": "src/services/smart-bid/content/references/response/response-review.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/response-review.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/response-review",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/response-review\n职责：动作37核对原拟答、本次复核位置及其证明和验证引用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/references/response/response-task.ts": {
+      "file": "files/src/services/smart-bid/content/references/response/response-task.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/response/response-task",
+        "sourcePath": "src/services/smart-bid/content/references/response/response-task.ts",
+        "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/response/response-task",
+        "jsdoc": "@module app:services/smart-bid/content/references/response/response-task\n职责：从同目标的原任务现行版确认拟答资格。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18010,6 +18324,19 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/references/tender-change-requirement-impact.ts": {
+      "file": "files/src/services/smart-bid/content/references/tender-change-requirement-impact.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/references/tender-change-requirement-impact",
+        "sourcePath": "src/services/smart-bid/content/references/tender-change-requirement-impact.ts",
+        "sourceFile": "src/services/smart-bid/content/references/tender-change-requirement-impact.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/references/tender-change-requirement-impact",
+        "jsdoc": "@module app:services/smart-bid/content/references/tender-change-requirement-impact\n职责：动作23正文侧，按精确旧版挂接追查受招标变更影响的责任章。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/delivery-freeze-recovery.ts": {
       "file": "files/src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json",
       "module": {
@@ -18049,6 +18376,34 @@
         "symbols": []
       }
     },
+    "src/services/smart-bid/content/review/finding/review-finding-recheck.ts": {
+      "file": "files/src/services/smart-bid/content/review/finding/review-finding-recheck.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/finding/review-finding-recheck",
+        "sourcePath": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+        "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/finding/review-finding-recheck",
+        "jsdoc": "@module app:services/smart-bid/content/review/finding/review-finding-recheck\n职责：第44项按原问题版本、整改证据和复核权限固定本次复验决定。\n边界：只生成待登记决定，不关闭原问题或代写整改结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ReviewFindingTarget"
+        ]
+      }
+    },
+    "src/services/smart-bid/content/review/finding/review-finding-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/finding/review-finding-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/finding/review-finding-registration",
+        "sourcePath": "src/services/smart-bid/content/review/finding/review-finding-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/finding/review-finding-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/finding/review-finding-registration\n职责：第43项固定原对象、检查覆盖和多份问题观察。\n边界：构造待登记 JSON，未执行检查与空查询不产生检查覆盖。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/content/review/paper-submission-package.ts": {
       "file": "files/src/services/smart-bid/content/review/paper-submission-package.ts.json",
       "module": {
@@ -18058,6 +18413,97 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/paper-submission-package",
         "jsdoc": "@module app:services/smart-bid/content/review/paper-submission-package\n职责：第50项核同一纸件封装的应装、实装和独立清点。\n边界：按正式来源证明比较，实际装封和见证由各自办理方提供。\nAI用途：定位纸件的版次、份数或位置差异，并判断缺项是否仍待清点。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/disclosed-output-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/disclosed-output-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/disclosed-output-registration",
+        "sourcePath": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/disclosed-output-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/disclosed-output-registration\n职责：动作41按原发布记录与实际包成员准备披露件只读登记。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/native-price-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/native-price-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/native-price-registration",
+        "sourcePath": "src/services/smart-bid/content/review/production/native-price-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/native-price-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/native-price-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/native-price-registration\n职责：动作41按商务原导入及批准明细准备原生计价件登记。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/paper-output-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/paper-output-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/paper-output-registration",
+        "sourcePath": "src/services/smart-bid/content/review/production/paper-output-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/paper-output-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/paper-output-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/paper-output-registration\n职责：动作41核原印制请求及独立清点所得的纸件页份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/production-output-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/production-output-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/production-output-registration",
+        "sourcePath": "src/services/smart-bid/content/review/production/production-output-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/production-output-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/production-output-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/production-output-registration\n职责：动作41核验工具导出实件，固定原制作及输出的待登记数据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/production-recovery.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/production-recovery.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/production-recovery",
+        "sourcePath": "src/services/smart-bid/content/review/production/production-recovery.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/production-recovery.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/production-recovery",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/production-recovery\n职责：按原制作请求复核完成、在办或未知结果。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/production-request.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/production-request.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/production-request",
+        "sourcePath": "src/services/smart-bid/content/review/production/production-request.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/production-request",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/production-request\n职责：动作40固定制件用途、修订和可追溯输入，形成待登记的制作请求。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/production/signed-output-registration.ts": {
+      "file": "files/src/services/smart-bid/content/review/production/signed-output-registration.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/production/signed-output-registration",
+        "sourcePath": "src/services/smart-bid/content/review/production/signed-output-registration.ts",
+        "sourceFile": "src/services/smart-bid/content/review/production/signed-output-registration.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/production/signed-output-registration",
+        "jsdoc": "@module app:services/smart-bid/content/review/production/signed-output-registration\n职责：动作41按原签署回执关联签前件与实际签后文件。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -18188,6 +18634,19 @@
         "packageName": "app",
         "modulePath": "services/smart-bid/content/review/submission/channel-receipt-pairing",
         "jsdoc": "@module app:services/smart-bid/content/review/submission/channel-receipt-pairing\n职责：第53项将接收方回执配回原办理，保留原事件与各取得来源。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/services/smart-bid/content/review/submission/signature-request.ts": {
+      "file": "files/src/services/smart-bid/content/review/submission/signature-request.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/content/review/submission/signature-request",
+        "sourcePath": "src/services/smart-bid/content/review/submission/signature-request.ts",
+        "sourceFile": "src/services/smart-bid/content/review/submission/signature-request.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/content/review/submission/signature-request",
+        "jsdoc": "@module app:services/smart-bid/content/review/submission/signature-request\n职责：动作46核同版待签对象、签署位置及代表权，生成待办理请求。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19337,128 +19796,16 @@
         "symbols": []
       }
     },
-    "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts.json",
+    "src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts.json",
       "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-authoring-commands",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts",
+        "name": "app:views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts",
         "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-authoring-commands",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-authoring-commands\n职责：为页11同次宿主编排原草稿编辑命令及未保存输入守卫。\n边界：不另存草稿、不查询/保存、不建立全局命令注册或权限规则。\nAI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。",
+        "modulePath": "views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader\n职责：以原采用及同版内容根证明准备正式制件输入。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ContentAuthoringCommand",
-          "ContentAuthoringCommands"
-        ]
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-authoring-script-host",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-authoring-script-host",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-authoring-script-host\n职责：将同次正文宿主的业务能力交页11脚本消费。\n边界：不创建运行实例、不查询/保存、不持有业务草稿或全局命令表。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ContentAuthoringScriptSession"
-        ]
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-authoring-target",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-authoring-target",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-authoring-target\n职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。\n边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。\nAI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ContentAuthoringRoute",
-          "ContentAuthoringPublishedEntry"
-        ]
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-script-host",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-script-host.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-script-host",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-script-host\n职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。\n边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。\nAI用途：核对页18脚本能够调用哪些当前实例能力。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-target",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-target.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-target",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-operation-workspace",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-operation-workspace.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-operation-workspace",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-operation-workspace\n职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。\n边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。\nAI用途：追踪页18从目录发现到原试次回查的操作顺序。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-review-script-host",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-review-script-host.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-review-script-host",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-review-script-host\n职责：为页12同次运行实例提供实填观察和审定覆盖证据。\n边界：只读取原选择与证据，批准及写入仍由正式办理方负责。\nAI用途：核对页12脚本命令、审定范围和证据失效条件。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/content-submission-script-host",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/content-submission-script-host.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/content-submission-script-host",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/content-submission-script-host\n职责：页14按原请求查办理及回执配对，供页13递交辅助共用。\n边界：仅查当前 PageRuntime 的原办理，正式递交和撤回由原服务执行。\nAI用途：核对查询命令是否保留原请求和渠道身份。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/entry/use-content-authoring-departure",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/entry/use-content-authoring-departure.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/entry/use-content-authoring-departure",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/entry/use-content-authoring-departure\n职责：将页11原宿主/命令的脏状态交现有路由及系统页关闭保护。\n边界：只注册原owner的只读守卫，不保存草稿、不自动丢弃、不新建页面实例池。\nAI用途：薄宿主setup内调用；正式工具宿主关闭机制仍须公共层挂接。",
-        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -19635,23 +19982,6 @@
         ]
       }
     },
-    "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/content-snapshot-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/content-snapshot-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-snapshot-reader\n职责：从正文宿主原RevisionSnapshot视图读取固定清单、复核同版摘要并取得节点版本索引。\n边界：不写入或缓存快照，不把摘要和索引通过等同业务闭包/rootHash或采用通过。\nAI用途：先取得原清单读取证明，再按完整成员集合装配节点及其它固定业务记录。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "ContentSnapshotSelection",
-          "ContentSnapshotRole",
-          "ContentSnapshotIndexBinding"
-        ]
-      }
-    },
     "src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-tender-record-reader.ts.json",
       "module": {
@@ -19662,6 +19992,32 @@
         "modulePath": "views/features/application/smart-bid/authoring/model/content-tender-record-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-tender-record-reader\n职责：按固定引用读取同项目已核定的原文解析记录。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis\n职责：沿草稿基版回读不可变的正文和分工身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/draft/content-draft-response-versions\n职责：一次精确读取草稿引用的新独立答复版本及其事实占位。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -19676,6 +20032,23 @@
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/content-revision-root-reader\n职责：沿原修订和快照证明读取同版基线，复核根摘要。\n边界：调用方须确认编码合同；只读，不修改原摘要或判定采用许可。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader\n职责：从正文宿主原RevisionSnapshot视图读取固定清单、复核同版摘要并取得节点版本索引。\n边界：不写入或缓存快照，不把摘要和索引通过等同业务闭包/rootHash或采用通过。\nAI用途：先取得原清单读取证明，再按完整成员集合装配节点及其它固定业务记录。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ContentSnapshotSelection",
+          "ContentSnapshotRole",
+          "ContentSnapshotIndexBinding"
+        ]
       }
     },
     "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts": {
@@ -19817,20 +20190,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-file-answer-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-file-answer-reader\n职责：第42项以实际文件字节和同版 AnswerLocation 回读原填报位置。\n边界：沿原 DataView 和实件读取证据；批准事实独立核对，保存归原办理方。\nAI用途：核对电子实件的回读位置、文件哈希与批准版本是否一致。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/review/content-package-release",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-package-release.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-package-release",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-package-release\n职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -19843,7 +20203,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader\n职责：第42项回读原纸件、份次及页栏；封装归属及截止另核。\n边界：纸件登记提供份次与页标识，SPARK Data 提供原填报位置及可读值。\nAI用途：核对纸件观察是否对应实际登记份次和页栏。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -19895,7 +20255,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-findings-reader",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-findings-reader\n职责：批读固定目标及检查器版本的原 CheckFinding 记录。\n边界：零问题只证明查询结果为零；已完成检查及用途许可仍由独立原记录证明。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -19921,19 +20281,6 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-workspace",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-workspace\n职责：按动作45固定清单读取实件、拟填栏、原批准及检查结果。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-submission-receipt-reader\n职责：按原办理与回执身份读取渠道接收证据。\n边界：仅消费已核接收范围；拒收、撤回与待配对记录不能证明栏位提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -20016,6 +20363,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-package-release",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-package-release",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-package-release\n职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/package/content-package-review.ts.json",
       "module": {
@@ -20055,6 +20415,45 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader\n职责：动作40从固定候选及原册节点准备供审稿制作请求。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/production/production-registration-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/production/production-registration-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/production/production-registration-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/production/production-registration-reader\n职责：动作41从制作文件视图核对原登记，同输出异摘要交制作人核查。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/production/production-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/production/production-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/production/production-scenario-views\n职责：为正式共享场景提供 ProducedFile 原登记及实件核验视图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-candidates.ts.json",
       "module": {
@@ -20081,6 +20480,19 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader\n职责：经原签署命名视图读取动作46的原请求结果。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts.json",
       "module": {
@@ -20103,6 +20515,19 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight\n职责：第51项固定待发送包与平台栏，交发送前的原办理检查。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-receipt-reader\n职责：按原办理与回执身份读取渠道接收证据。\n边界：仅消费已核接收范围；拒收、撤回与待配对记录不能证明栏位提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -20169,6 +20594,614 @@
         "modulePath": "views/features/application/smart-bid/authoring/ui/content-draft-workspace",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/content-draft-workspace\n职责：在宿主本次运行实例内呈现个人内容草稿与正文，并取消指定草稿的本地编辑。\n边界：宿主提供当前会话作者及有效性核验；不加载空间、不复制草稿、不执行通用远端保存或正式采用。\nAI用途：业务宿主已加载正式空间时，绑定本次个人草稿并消费pending事件保护离页及目标切换。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands\n职责：为页11同次宿主编排原草稿编辑命令及未保存输入守卫。\n边界：不另存草稿、不查询/保存、不建立全局命令注册或权限规则。\nAI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentAuthoringCommand",
+          "ContentAuthoringCommands"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host\n职责：将同次正文宿主的业务能力交页11脚本消费。\n边界：不创建运行实例、不查询/保存、不持有业务草稿或全局命令表。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentAuthoringScriptSession"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-target",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-target",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-target\n职责：从正式导航解析结果和明确项目草稿参数确定正文入口目标。\n边界：不授予权限、不查询、不从URL取得作者、不选择活动项目或默认草稿。\nAI用途：真实原生入口在打开原ContentAuthoringHost前核对绑定身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ContentAuthoringRoute",
+          "ContentAuthoringPublishedEntry"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host\n职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。\n边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。\nAI用途：核对页18脚本能够调用哪些当前实例能力。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace\n职责：页18在当前 PageRuntime 和 ClassModel 根中办理发现、回读、验证与退回准备。\n边界：组织工艺工作区调用和原证据，按本次运行实例检查会话有效性。\nAI用途：追踪页18从目录发现到原试次回查的操作顺序。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-review-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-review-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-review-script-host\n职责：为页12同次运行实例提供实填观察和审定覆盖证据。\n边界：只读取原选择与证据，批准及写入仍由正式办理方负责。\nAI用途：核对页12脚本命令、审定范围和证据失效条件。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-review-target",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-review-target",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target\n职责：按正式发布身份为审定、知识和配置业务页准备业务宿主。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host\n职责：页14按原请求查办理及回执配对，供页13递交辅助共用。\n边界：仅查当前 PageRuntime 的原办理，正式递交和撤回由原服务执行。\nAI用途：核对查询命令是否保留原请求和渠道身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure\n职责：将页11原宿主/命令的脏状态交现有路由及系统页关闭保护。\n边界：只注册原owner的只读守卫，不保存草稿、不自动丢弃、不新建页面实例池。\nAI用途：薄宿主setup内调用；正式工具宿主关闭机制仍须公共层挂接。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/authority-grant-registration-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/authority-grant-registration-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/authority-grant-registration-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/authority-grant-registration-reader\n职责：页04以正式命名视图回查原委托登记结果。\n边界：只读当前实例可见的原登记，不写入或重发委托决定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/authority-grant-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/authority-grant-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/authority-grant-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authority/authority-grant-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/authority-grant-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/authority-grant-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/authority-grant-script-host\n职责：页04宿主在当前企业和页面实例内回查原代表委托登记。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/authority-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/authority-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/authority-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/authority/authority-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/authority-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/authority-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/authority-scenario-views\n职责：按已登记模型组装企业委托、资料原版和用途决定的命名视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/original-registration-view.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/original-registration-view.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/original-registration-view",
+        "sourcePath": "src/views/features/application/smart-bid/authority/original-registration-view.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/original-registration-view.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/original-registration-view",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/original-registration-view\n职责：按固定请求从授权登记命名视图捕获可读原行。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/resource-allocation-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/resource-allocation-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-allocation-script-host\n职责：页07在正式占用快照上核指定项目的时段和份额。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/resource-use-registration-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/resource-use-registration-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-use-registration-reader\n职责：页06按原资料版本、申请和决定链回查使用决定。\n边界：当前企业必须属于原申请，字段可读性由正式查询证据决定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/resource-use-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/resource-use-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/resource-use-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/authority/resource-use-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/resource-use-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/resource-use-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-use-script-host\n职责：页06在当前项目及企业上下文回查原资料使用决定。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/resource-version-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/resource-version-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/resource-version-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/resource-version-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-version-reader\n职责：页05读取固定编号的企业资料原版及出处。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader\n职责：第59项读原移交清单，并沿原任务来源核当前版签收。\n边界：原任务签收由正式任务来源提供；移交视图只持有清单及可追溯的事项身份。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host\n职责：页08按当前项目与轮次回查原移交清单及原任务签收。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader\n职责：动作20回读原编制项目现行的阶段引用、正文头及激活基线。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader\n职责：第44项先按项目与预期版本读取原问题，再核其整改和复核证据。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader\n职责：第43项只以同项目已完成原检查办理固定登记输入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views\n职责：为页15的正式共享场景装配 CheckFinding 数据视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host\n职责：页15回查当前任务固定目标的原检查问题。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/configuration/configuration-channel-reader",
+        "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/configuration/configuration-channel-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-channel-reader\n职责：读取正式配置指针和不可变版本。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ConfigurationScope"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/configuration/configuration-release-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/configuration/configuration-release-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/configuration/configuration-release-reader",
+        "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-release-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/configuration/configuration-release-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-release-reader\n职责：页19通过原启停请求回查历史结果，保留同次指针版。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/configuration/configuration-release-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/configuration/configuration-release-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-release-script-host\n职责：页19按已绑定作用域回查配置启停的原请求。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/submission-obligation-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/submission-obligation-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/submission-obligation-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/submission-obligation-reader\n职责：从已选依据基线读取原递交事项，供页09及分册策划使用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-addendum-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-addendum-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-addendum-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-addendum-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-addendum-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-addendum-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-addendum-reader\n职责：动作14回读本标段本轮次的正式变动及新旧原件位置，供动作23继续取证。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-change-attempt-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-change-attempt-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：按原正文基版枚举有记录的工艺试次，供动作23逐次追查。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-change-call-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-change-call-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-change-call-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-call-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-call-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-change-call-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-call-reader\n职责：动作23按原试次回查明确登记的条款读取记录。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-change-chapter-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-chapter-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-change-chapter-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-chapter-reader\n职责：以原已采用正文的固定快照核对两版基线要求差异涉及的章节挂接。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-followup-notice-reader",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-followup-notice-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-followup-notice-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-followup-notice-reader\n职责：第57项从原通知 DataView 形成指定获知时点的通知链。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/followup/tender-followup-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/followup/tender-followup-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/followup/tender-followup-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-followup-script-host\n职责：页09以当前招标范围读取原通知时间线。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/knowledge/class-model-catalog-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/knowledge/class-model-catalog-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/knowledge/class-model-catalog-script-host\n职责：页17读取当前授权 ClassModel 根实例的定义目录。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/knowledge/knowledge-directory-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/knowledge/knowledge-directory-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/knowledge/knowledge-directory-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/knowledge/knowledge-directory-script-host\n职责：页16复用已核知识目录及同版指南读取。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/approved-price-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/approved-price-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/approved-price-reader",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/approved-price-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/approved-price-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/approved-price-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/approved-price-reader\n职责：从命名视图读取原批准版，并将同次读取证明交动作29。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/bid-security-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/bid-security-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/bid-security-reader",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/bid-security-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/bid-security-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/bid-security-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/bid-security-reader\n职责：动作26从原担保要求行取得财务凭据的核验范围。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/original-form-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/original-form-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/original-form-reader",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/original-form-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/original-form-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/original-form-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/original-form-reader\n职责：动作33在原基线固定招标记录上读取原表映射依据。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/price-sheet-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/price-sheet-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/price-sheet-reader",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/price-sheet-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/price-sheet-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/price-sheet-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/price-sheet-reader\n职责：从原批准所指范围和计价版读取复算输入。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/response-assignment-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/response-assignment-reader.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/response-assignment-reader",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/response-assignment-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/response-assignment-reader.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/response-assignment-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/response-assignment-reader\n职责：按固定编制范围回读原答复分工及各落点职责。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/model/response-scenario-views.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/model/response-scenario-views.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/model/response-scenario-views",
+        "sourcePath": "src/views/features/application/smart-bid/response/model/response-scenario-views.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/model/response-scenario-views.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/model/response-scenario-views",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/model/response-scenario-views\n职责：按正式模型组织页10原报价、分项、担保和答复分工视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/ui/entry/approved-price-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/ui/entry/approved-price-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/approved-price-script-host\n职责：页10按已核编制范围查指定批准价。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/ui/entry/bid-security-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/ui/entry/bid-security-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/bid-security-script-host\n职责：在页10可信编制范围及观察时点核担保。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts": {
+      "file": "files/src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/response/ui/entry/response-script-host",
+        "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts",
+        "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/response/ui/entry/response-script-host",
+        "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/response-script-host\n职责：在同一页10运行实例提供报价、担保及固定事实读取。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -21013,8 +22046,21 @@
         "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
         "packageName": "app",
         "modulePath": "views/features/data-platform/semi-structured/json-data/ui/json-data-page",
-        "jsdoc": "@module app:views/features/data-platform/semi-structured/json-data/ui/json-data-page",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "app 的 views/features/data-platform/semi-structured/json-data/ui/json-data-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts": {
+      "file": "files/src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts.json",
+      "module": {
+        "name": "app:views/features/data-platform/semi-structured/json-data/ui/json-data-script-host",
+        "sourcePath": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+        "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/semi-structured/json-data/ui/json-data-script-host",
+        "jsdoc": "app 的 views/features/data-platform/semi-structured/json-data/ui/json-data-script-host 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
         "symbols": []
       }
     },
@@ -21550,7 +22596,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-config-page.props",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page.props\n职责：声明服务商请求方案设计页的目标身份输入。\n边界：只接收服务商rowid，配置空间由宿主封装，不接收行副本或权限。\nAI用途：从服务商目录打开原路径配置页时传递同一正式身份。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page.props\n职责：声明服务商请求方案设计页的目标身份输入。\n边界：宿主传入服务商 rowid 和已编译的工具配置，场景由原运行实例提供。\nAI用途：从服务商目录打开原路径配置页时传递同一正式身份。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ApiConfigPageProps"
@@ -21611,32 +22657,6 @@
         "symbols": []
       }
     },
-    "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue": {
-      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue.json",
-      "module": {
-        "name": "app:views/features/integration/api-management/ui/interface-list/interface-edit-panel",
-        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue",
-        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-edit-panel.vue",
-        "packageName": "app",
-        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-edit-panel",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-edit-panel\n职责：按原“接口编辑”页签恢复接口基础信息、请求参数（Params/Body/Json/Body/FormData/Header）和右侧输入参数。\n边界：接口字段写当前接口行的编辑覆盖，由页面头部“保存”提交；请求头与输入参数各自经所属DataView的staged保存提交。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue": {
-      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue.json",
-      "module": {
-        "name": "app:views/features/integration/api-management/ui/interface-list/interface-invoke-panel",
-        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue",
-        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-invoke-panel.vue",
-        "packageName": "app",
-        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-invoke-panel",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-invoke-panel\n职责：按原“调用输出”页签填写结果过滤并调用接口，展示本接口最近一次调用结果。\n边界：调用经InterfaceCallRequest命令资源提交；结果过滤写当前接口resultPath编辑覆盖，由接口“保存”持久；结果未知只可放弃，不重发。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue": {
       "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue.json",
       "module": {
@@ -21645,7 +22665,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-json-import-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/interface-list/interface-json-import-dialog",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-json-import-dialog\n职责：按原“JSON输入”对话框整体替换当前接口的请求体：Body/Json直接替换；Body/FormData接受对象数组并规范为原四成员行。\n边界：编辑当前接口行BodyParamJsonStr的编辑覆盖，取消恢复打开前的值；由接口“保存”统一提交，不另存草稿。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-json-import-dialog\n职责：按原“JSON输入”对话框整体替换当前接口的请求体：Body/Json直接替换；Body/FormData接受对象数组并规范为原四成员行。\n边界：输入文本验证通过后才写入当前接口的编辑覆盖，由接口“保存”统一提交。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -21658,26 +22678,12 @@
         "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/interface-list/interface-list-workspace",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-list-workspace\n职责：接口列表工作区的场景视图键、子面板共享上下文，以及原页“路径参数随地址同步”“按调用结果生成输出字段”的业务推导。\n边界：只做值推导，写入仍由页面经DataView编辑覆盖和staged保存提交；不发送请求、不持有第二份草稿。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-list-workspace\n职责：接口列表工作区的场景视图键，以及原页“路径参数随地址同步”“按调用结果生成输出字段”的业务推导。\n边界：只做值推导，写入仍由页面经DataView编辑覆盖和staged保存提交；不发送请求、不持有第二份草稿。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "InterfaceWorkspace",
           "InterfaceCallViews",
           "InterfaceOutputField"
         ]
-      }
-    },
-    "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue": {
-      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue.json",
-      "module": {
-        "name": "app:views/features/integration/api-management/ui/interface-list/interface-output-panel",
-        "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue",
-        "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-output-panel.vue",
-        "packageName": "app",
-        "modulePath": "views/features/integration/api-management/ui/interface-list/interface-output-panel",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-output-panel\n职责：按原“输出内容”页签按调用结果重新设置输出字段，维护描述，并为输出设置公共参数。\n边界：重新设置经调用命令取得结果后，在Base_TblField视图同名保留、类型更新、多余删除、缺少新增，由“保存”经staged提交；已绑定公共参数的字段拒绝移除。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
       }
     },
     "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-dialog.vue": {
@@ -22190,19 +23196,6 @@
         ]
       }
     },
-    "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts": {
-      "file": "files/src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts.json",
-      "module": {
-        "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
-        "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
-        "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields.ts",
-        "packageName": "app",
-        "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields",
-        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-input-fields\n职责：用标准字段子组件声明办理参数与节点人员选择。\n边界：只编排绑定，不持有参数或候选值，不执行查询和保存。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue": {
       "file": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue.json",
       "module": {
@@ -22211,7 +23204,7 @@
         "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
         "packageName": "app",
         "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
-        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile\n职责：流程办理移动端布局占位，与桌面页共用运行 query 合同。",
+        "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile\n职责：流程办理移动端入口，按本次导航身份复用办理工具和数据视图。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22302,7 +23295,7 @@
         "sourceFile": "src/views/FileDataManager/FileManager/index.vue",
         "packageName": "app",
         "modulePath": "views/FileDataManager/FileManager/index",
-        "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、选择本地文件上传、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，失败后丢弃本地草稿并按实际目录重读。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
+        "jsdoc": "@module app:views/FileDataManager/FileManager/index\n职责：恢复文件管理：按文件名称查询 filedata 文件区、选择本地文件上传、确认后删除文件。\n边界：列表、上传与删除都经同一PageRuntime的FileDataCatalog视图提交；上传核原字节、删除回列确认，未知提交保留原捕获，只读核验。\nAI用途：迁移参考仓 FileDataManager/FileManager 时，核对文件区、导航身份(dataSpaceId)与保存回执。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -23600,8 +24593,8 @@
       "file": "files/packages/spark-component/src/components/containers/support/crud/base-container-api.ts.json"
     },
     "BaselineFactMember": {
-      "sourcePath": "src/services/smart-bid/content/references/baseline-fact-members.ts",
-      "file": "files/src/services/smart-bid/content/references/baseline-fact-members.ts.json"
+      "sourcePath": "src/services/smart-bid/content/references/baseline/baseline-fact-members.ts",
+      "file": "files/src/services/smart-bid/content/references/baseline/baseline-fact-members.ts.json"
     },
     "BaselineRequirementMember": {
       "sourcePath": "src/services/smart-bid/content/references/baseline-requirement-members.ts",
@@ -24175,6 +25168,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
+    "ConfigurationScope": {
+      "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts.json"
+    },
     "ConfirmationInput": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
@@ -24208,28 +25205,28 @@
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json"
     },
     "ContentAuthoringCommand": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts.json"
     },
     "ContentAuthoringCommands": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-commands.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts.json"
     },
     "ContentAuthoringHost": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json"
     },
     "ContentAuthoringPublishedEntry": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts.json"
     },
     "ContentAuthoringRoute": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-target.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts.json"
     },
     "ContentAuthoringScriptSession": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/entry/content-authoring-script-host.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts.json"
     },
     "ContentAuthoringTarget": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
@@ -24356,20 +25353,20 @@
       "file": "files/src/services/smart-bid/content-sibling-order.ts.json"
     },
     "ContentSnapshotIndexBinding": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts.json"
     },
     "ContentSnapshotNodesBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts.json"
     },
     "ContentSnapshotRole": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts.json"
     },
     "ContentSnapshotSelection": {
-      "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts",
-      "file": "files/src/views/features/application/smart-bid/authoring/model/content-snapshot-reader.ts.json"
+      "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts.json"
     },
     "ContentStructureNode": {
       "sourcePath": "src/services/smart-bid/content-tree-structure.ts",
@@ -26655,10 +27652,6 @@
       "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
       "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json"
     },
-    "InterfaceWorkspace": {
-      "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts",
-      "file": "files/src/views/features/integration/api-management/ui/interface-list/interface-list-workspace.ts.json"
-    },
     "InterpretAgentWorkflowDefinitionCommand": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts",
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts.json"
@@ -28007,6 +29000,10 @@
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
     },
+    "PageToolPublication": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
     "PageUploadedFile": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
       "file": "files/packages/spark-component/src/runtime/app-services.ts.json"
@@ -28798,6 +29795,10 @@
     "RetrieveRecordOptions": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "ReviewFindingTarget": {
+      "sourcePath": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+      "file": "files/src/services/smart-bid/content/review/finding/review-finding-recheck.ts.json"
     },
     "RevisionRequirementPin": {
       "sourcePath": "src/services/smart-bid/content/references/revision-requirement-pins.ts",

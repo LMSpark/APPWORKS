@@ -79,8 +79,9 @@ describe('AiTurnResource native DataSet contract', () => {
       view.queryContext = {turnId: 'A'}
       f.http.responses.push({id: 'B', conversationId: 'C1', agentId: 'A1', status: 'RUNNING', assistantDraft: null, errorCode: null, errorMessage: null})
       view.validateQueryResult = () => {view.queryContext = {turnId: 'C'}}
-      await view.loadFromServer({context: {turnId: 'B'}}).catch(() => undefined)
-      expect(view.loadingError).toBeInstanceOf(Error)
+      await expect(view.loadFromServer({context: {turnId: 'B'}})).resolves.toEqual({success: false, message: 'Request superseded'})
+      expect(view.loadingError).toBeNull()
+      expect(view.queryContext).toEqual({turnId: 'C'})
       expect(view.rows).toEqual([])
       expect(f.http.requests.at(-1)?.url).toBe('/api/ai/v1/turns/B')
     } finally { f.dataSet.destroy() }

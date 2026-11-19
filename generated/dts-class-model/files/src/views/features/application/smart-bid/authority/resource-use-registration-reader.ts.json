@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/resource-use-registration-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/resource-use-registration-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/resource-use-registration-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-use-registration-reader\n职责：页06按原资料版本、申请和决定链回查使用决定。\n边界：当前企业必须属于原申请，字段可读性由正式查询证据决定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "sourceEnterpriseId": {
+          "type": "string"
+        },
+        "recipientEnterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "applicationRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "decisionChainId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourceEnterpriseId",
+        "recipientEnterpriseId",
+        "projectId",
+        "applicationRef",
+        "resourceVersionId",
+        "decisionChainId",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T20:49:47.301Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readOriginalResourceUseRegistration>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recipientEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "applicationRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionChainId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

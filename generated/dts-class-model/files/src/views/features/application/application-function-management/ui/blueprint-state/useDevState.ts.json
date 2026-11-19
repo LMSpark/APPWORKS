@@ -736,6 +736,14 @@
           "type": "object",
           "title": "() => boolean"
         },
+        "hasUnconfirmedBlueprintWrite": {
+          "type": "object",
+          "title": "() => boolean"
+        },
+        "verifyUnconfirmedBlueprintWrites": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
         "registerExternalDataViewSession": {
           "type": "object",
           "title": "(session: ExternalDataViewSession) => () => void"
@@ -1003,6 +1011,8 @@
         "isPageToolFileDirty",
         "hasAnyDirty",
         "hasPendingBlueprintWrite",
+        "hasUnconfirmedBlueprintWrite",
+        "verifyUnconfirmedBlueprintWrites",
         "registerExternalDataViewSession",
         "notifyExternalDataViewChanged",
         "moveBlueprintNodeInDataView",
@@ -1062,7 +1072,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T19:47:17.028Z",
+  "generatedAt": "2026-11-18T11:21:13.976Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",
@@ -1560,6 +1570,16 @@
             },
             {
               "name": "hasPendingBlueprintWrite",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasUnconfirmedBlueprintWrite",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verifyUnconfirmedBlueprintWrites",
               "readable": true,
               "writable": true
             },

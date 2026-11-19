@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/configuration/configuration-release-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/configuration/configuration-release-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/configuration/configuration-release-script-host\n职责：页19按已绑定作用域回查配置启停的原请求。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Read",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(key: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "scopeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scenarioId",
+            "runtime",
+            "assertCurrent",
+            "scopeId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Request"
+        }
+      ]
+    },
+    "Impact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Impact",
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "../../../../../services/smart-bid/content/references/configuration/configuration-disable-impact.ts.json#/$defs/Stop"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "uses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Use"
+              }
+            },
+            "complete": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "uses",
+            "complete",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Prepare": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Prepare",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "scopeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "key",
+            "scopeId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "requestKey": {
+              "type": "string"
+            },
+            "expectedPointerVersion": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "requestKey",
+            "expectedPointerVersion"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Decision"
+        }
+      ]
+    },
+    "Pointer": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Pointer",
+      "properties": {
+        "pointerVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "versionId": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "versionId",
+            "digest"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:33:03.400Z",
+  "models": {
+    "Read": {
+      "name": "Read",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredConfigurationRelease>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredConfigurationRelease>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Impact": {
+      "name": "Impact",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof assessConfigurationDisableImpact>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof assessConfigurationDisableImpact>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ImpactReader": {
+      "name": "ImpactReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(original: Readonly<Pick<Impact[0], 'kind' | 'key' | 'scopeId' | 'versionId' | 'digest' | 'releaseRef'>>, signal: AbortSignal) => Promise<Readonly<{\n    stop: Impact[0];\n    uses: Impact[1];\n}>>",
+        "members": {}
+      }
+    },
+    "Prepare": {
+      "name": "Prepare",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareConfigurationRelease>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareConfigurationRelease>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Pointer": {
+      "name": "Pointer",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Prepare[0] & Readonly<{\n    pointerVersion: string | null;\n    version: Readonly<{\n        versionId: string;\n        digest: string;\n    }> | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Prepare[0]"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    pointerVersion: string | null;\n    version: Readonly<{\n        versionId: string;\n        digest: string;\n    }> | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pointerVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CandidateReader": {
+      "name": "CandidateReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(selection: Prepare[0] & Readonly<{\n    versionId: string;\n}>, signal: AbortSignal) => Promise<Readonly<{\n    decision: Extract<Prepare[2], {\n        action: 'ENABLE';\n    }>;\n    pointer: Pointer;\n}>>",
+        "members": {}
+      }
+    },
+    "DisableReader": {
+      "name": "DisableReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(selection: Prepare[0] & Readonly<{\n    versionId: string;\n    decisionRef: string;\n}>, signal: AbortSignal) => Promise<Readonly<{\n    decision: Extract<Prepare[2], {\n        action: 'DISABLE';\n    }>;\n}>>",
+        "members": {}
+      }
+    }
+  }
+}

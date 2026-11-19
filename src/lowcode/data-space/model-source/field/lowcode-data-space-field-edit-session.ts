@@ -544,7 +544,12 @@ export class FieldEditSession {
           if (!owner.#created || view.rows.some(row => row['rowid'] === owner.fieldId)) owner.#baseline = owner.snapshot(owner.current())
           owner.#created = false; owner.#status = 'idle'
         })
-      } catch (cause) {owners.forEach(owner => {owner.#status = 'readback'}); throw cause}
+      } catch (cause) {
+        const unresolved = capture && !capture.verified
+          && (capture.receiptInvalid === true || capture.targets.some(target => target.view.hasUnconfirmedSave))
+        for (const owner of owners) owner.#status = unresolved ? 'unknown' : 'readback'
+        throw cause
+      }
     }
   }
 }

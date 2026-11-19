@@ -365,39 +365,51 @@ describe('维度规则整组编辑', () => {
     expect(f.wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
     expect(f.http.saves).toHaveLength(2)
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith('规则已保存并回读确认'))
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.result.hasUnconfirmedSave).toBe(true)
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1'}])
+    expect(f.http.records['Bil_Dimension_Rule_Result']).toMatchObject([{rule_id: 'R1', dim_code: 'cost'}])
     expect(f.http.saves).toHaveLength(2)
   })
 
-  it('确认原批次未生效后，只有显式操作才重新提交', async () => {
+  it('更新未取得回执且仍是原值时不允许重提，保留原规则修改', async () => {
     const f = await open(true)
     f.rule.updateEditingValue('R1', 'rule_name', '已修改规则')
-    let interrupted = true
-    f.http.beforeSave = async () => {if (interrupted) {interrupted = false; throw new Error('派发后连接中断')}}
+    let dispatches = 0
+    f.http.beforeSave = async () => {dispatches++; throw new Error('派发后连接中断')}
     await f.click('保存规则')
     await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(true))
     await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(false))
-    expect(document.body.textContent).toContain('原提交未生效')
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.rule.getEditingRow('R1')?.['rule_name']).toBe('已修改规则')
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1', rule_name: '原规则'}])
+    expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '重新保存原修改')).toBe(false)
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(dispatches).toBe(1)
     expect(f.http.saves).toHaveLength(0)
-    await f.click('重新保存原修改')
-    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledOnce())
-    expect(f.http.saves).toHaveLength(1)
   })
 
-  it('原批次未生效后重试前重新核验锚点，不使用过期条件', async () => {
+  it('原回执待核时锚点过期，核验保留原规则且不派发新的启用请求', async () => {
     const f = await open(true)
     f.http.records['Bil_Dimension_Source_Binding'] = [anchor()]
     f.rule.updateEditingValue('R1', 'status', true)
-    let interrupted = true
-    f.http.beforeSave = async () => {if (interrupted) {interrupted = false; throw new Error('派发后连接中断')}}
+    let dispatches = 0
+    f.http.beforeSave = async () => {dispatches++; throw new Error('派发后连接中断')}
     await f.click('保存规则')
     await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(true))
-    await f.click('核验原保存结果')
-    await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(false))
+    const priorReads = f.http.reads.length
     f.http.records['Bil_Dimension_Source_Binding'] = [anchor({effective_to: '2000-01-01T00:00:00Z'})]
-    await f.click('重新保存原修改')
-    expect(document.body.textContent).toContain('身份完整且在有效期内的已启用来源锚点')
+    await f.click('核验原保存结果')
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.rule.getEditingRow('R1')?.['status']).toBe(true)
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1', status: false}])
+    expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '重新保存原修改')).toBe(false)
+    expect(f.http.reads).toHaveLength(priorReads)
+    expect(dispatches).toBe(1)
     expect(f.http.saves).toHaveLength(0)
     expect(f.closed).not.toHaveBeenCalled()
   })
@@ -426,7 +438,8 @@ describe('维度规则整组编辑', () => {
     await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(true))
     f.http.records['Bil_Dimension_Rule_Result'] = []
     await f.click('核验原保存结果')
-    expect(document.body.textContent).toContain('部分生效')
+    expect(document.body.textContent).toContain('SPARK_SAVE_UNVERIFIABLE')
+    expect(f.result.hasUnconfirmedSave).toBe(true)
     expect(f.rule.hasUnconfirmedSave).toBe(true)
     expect(f.http.saves).toHaveLength(2)
     await f.click('放弃核验并返回')

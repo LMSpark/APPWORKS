@@ -80,6 +80,9 @@
         "root": {
           "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
         "defaultDatabase": {
           "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
         },
@@ -159,7 +162,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-13T19:30:29.488Z",
+  "generatedAt": "2026-11-18T11:34:47.537Z",
   "models": {
     "ApplicationManagerSaveOutcome": {
       "name": "ApplicationManagerSaveOutcome",
@@ -243,6 +246,12 @@
             },
             {
               "name": "root",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "当前弹窗原提交仍有待核回执，关闭会丢失本次办理入口。",
               "readable": true,
               "writable": false
             },

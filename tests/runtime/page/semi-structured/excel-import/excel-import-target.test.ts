@@ -117,7 +117,7 @@ it('commits target and mappings through one native multi-view batch and never re
   expect(command.getState().done).toBe(true)
   await command.save(); expect(save).toHaveBeenCalledTimes(1)
 })
-it('uses the original joint capture to verify a lost reply without resubmitting either model', async () => {
+it('keeps the original joint capture unknown without resubmitting either model', async () => {
   const s = await source(), f = await target()
   const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   f.http.failAfterWrite = true
@@ -125,9 +125,9 @@ it('uses the original joint capture to verify a lost reply without resubmitting 
   const writes = f.http.saves.length
   expect(command.getState().canCancel).toBe(false)
   expect(() => command.cancel()).toThrow('核验')
-  await command.save()
+  await expect(command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   expect(f.http.saves).toHaveLength(writes)
-  expect(command.getState().done).toBe(true)
+  expect(command.getState().done).toBe(false)
 })
 it('rejects a late direct child without refreshing the original reference contract or dispatching writes', async () => {
   const s = await source(), f = await target()

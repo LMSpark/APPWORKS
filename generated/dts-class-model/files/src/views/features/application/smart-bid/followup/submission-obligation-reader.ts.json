@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/submission-obligation-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/submission-obligation-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/submission-obligation-reader\n职责：从已选依据基线读取原递交事项，供页09及分册策划使用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T00:53:23.799Z",
+  "models": {}
+}

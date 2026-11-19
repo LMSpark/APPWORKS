@@ -311,7 +311,7 @@ describe('Dictionary independent design and data pages', () => {
     expect(http.reads).toHaveLength(4)
     expect(http.saves).toHaveLength(1)
   })
-  it('keeps a lost in-flight receipt guarded until reread without replaying the submission', async () => {
+  it('keeps a lost in-flight receipt guarded after verification without replaying the submission', async () => {
     const data = await open('data')
     await selectEntry(data)
     await field(data, '说明').get('input').setValue('已写但未知')
@@ -322,8 +322,9 @@ describe('Dictionary independent design and data pages', () => {
     expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
-    expect(() => dynamic.assertPageRuntimesClean()).not.toThrow()
-    expect(data.findComponent(RendererTable).text()).toContain('已写但未知')
+    expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
+    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
+    expect((field(data, '说明').get('input').element as HTMLInputElement).value).toBe('已写但未知')
     expect(http.saves).toHaveLength(1)
   })
   it('keeps the new design identity independent of an old pending save and its late error', async () => {
@@ -544,7 +545,7 @@ describe('Dictionary independent design and data pages', () => {
     expect(protectedField.find('input:not([disabled]):not([readonly])').exists()).toBe(false)
     expect(http.saves).toHaveLength(0)
   })
-  it('requires reread after a lost save receipt and does not repeat the write', async () => {
+  it('retains a written draft after a lost receipt without repeating the write', async () => {
     const data = await open('data')
     await selectEntry(data)
     await field(data, '说明').get('input').setValue('回执中断的数据')
@@ -553,11 +554,12 @@ describe('Dictionary independent design and data pages', () => {
     expect(data.get('[role="alert"]').text()).toBeTruthy()
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
-    expect(data.findComponent(RendererTable).text()).toContain('回执中断的数据')
-    expect(button(data, '保存数据').attributes('disabled')).toBeUndefined()
+    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
+    expect((field(data, '说明').get('input').element as HTMLInputElement).value).toBe('回执中断的数据')
+    expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
     expect(http.saves).toHaveLength(1)
   })
-  it('keeps a not-applied draft through verification and labels cancellation separately', async () => {
+  it('keeps an interrupted submission unknown even when the fixture did not write', async () => {
     const data = await open('data')
     await selectEntry(data)
     const note = field(data, '说明').get('input')
@@ -569,15 +571,10 @@ describe('Dictionary independent design and data pages', () => {
 
     await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
 
-    expect(data.get('[role="alert"]').text()).toContain('原提交未生效')
-    expect(data.text()).toContain('请求未到达的数据')
-    expect(button(data, '取消数据修改并重读').exists()).toBe(true)
-    expect(data.findAll('button').some(node => node.text() === '核验原提交（保留本地修改）')).toBe(false)
-    expect(http.saves).toHaveLength(1)
-
-    await button(data, '取消数据修改并重读').trigger('click'); await flushPromises()
-
-    expect(data.findComponent(RendererTable).text()).not.toContain('请求未到达的数据')
+    expect(data.get('[role="alert"]').text()).toContain('服务未提供原请求的权威终态')
+    expect((note.element as HTMLInputElement).value).toBe('请求未到达的数据')
+    expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
+    expect(button(data, '核验原提交（保留本地修改）').exists()).toBe(true)
     expect(http.saves).toHaveLength(1)
   })
   it.each(['design', 'data'] as const)('%s page labels a formal business rejection as an editable draft', async kind => {

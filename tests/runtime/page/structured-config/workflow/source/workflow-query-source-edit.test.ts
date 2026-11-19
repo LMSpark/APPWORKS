@@ -171,7 +171,7 @@ describe('workflow query source edit composition',()=>{
   await expect(owner.isolate('Forbidden Copy')).rejects.toThrow('不允许')
   expect(f.http.saves).toHaveLength(0);owner.cancel()
  })
- it.each(['source','node'] as const)('recovers the same operation %s capture without repeating target or node writes',async phase=>{
+ it.each(['source','node'] as const)('keeps the same operation %s capture pending without writing again',async phase=>{
   const f=await fixture(phase==='node');f.owner.cancel()
   for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'delete',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
   f.http.records['Base_DataModel']![0]!['requestType']='delete';Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
@@ -182,11 +182,14 @@ describe('workflow query source edit composition',()=>{
   if(phase==='source')f.http.failAfterWrite=true
   else f.http.beforeSave=async()=>{if(f.http.saves.length>baseline)f.http.failAfterWrite=true}
   await expect(owner.source.save()).rejects.toThrow();delete f.http.beforeSave;f.http.failAfterWrite=false
-  const writes=f.http.saves.length;await owner.source.verify()
-  expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(writes+(phase==='source'?1:0))
-  const confirmedWrites=f.http.saves.length;await owner.source.verify();expect(f.http.saves).toHaveLength(confirmedWrites)
-  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({dataOperateModId:target,node_config:'',output_mapping:expect.stringContaining('"pid":null')})
-  owner.close()
+  const writes=f.http.saves.length
+  await expect(owner.source.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  await expect(owner.source.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(owner.getState().complete).toBe(false)
+  expect(f.http.saves).toHaveLength(writes)
+  const node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')
+  if(phase==='node')expect(node).toMatchObject({dataOperateModId:target,node_config:'',output_mapping:expect.stringContaining('"pid":null')})
+  else expect(node?.['output_mapping']).toBe('[]')
  })
  it('keeps a shared operation filter resolvable while removing an obsolete field from its isolated target',async()=>{
   const f=await fixture(true);f.owner.cancel()
@@ -351,8 +354,9 @@ describe('workflow query source edit composition',()=>{
   const f=await componentFixture();f.http.failAfterWrite=true
   await expect(f.owner.isolate('Copy')).rejects.toThrow();const captured=f.owner.getState().isolation?.fork,writes=f.http.saves.length
   expect(writes).toBe(3);expect(captured?.modelId).toBeTruthy()
-  await f.owner.verifyIsolation();expect(f.http.saves).toHaveLength(writes)
-  expect(f.owner.getState().isolation?.fork).toMatchObject({...captured,confirmed:true});expect(f.owner.getState().source).toBeDefined()
+  await expect(f.owner.verifyIsolation()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(writes)
+  expect(f.owner.getState().isolation?.fork).toEqual(captured)
  })
  it('does not abandon a partially applied component when a copied relation is absent after a lost receipt',async()=>{
   const f=await componentFixture();f.http.failAfterWrite=true
@@ -437,19 +441,24 @@ describe('workflow query source edit composition',()=>{
   const f=await fixture();f.http.failAfterWrite=true
   await expect(f.owner.isolate('IsolatedQuery')).rejects.toThrow();const fork=f.owner.getState().isolation?.fork,writes=f.http.saves.length
   expect(fork?.modelId).toBeTruthy();expect(()=>f.owner.source).toThrow('隔离模型')
-  await f.owner.verifyIsolation();expect(f.http.saves).toHaveLength(writes);expect(f.owner.getState().modelId).toBe(fork?.modelId)
+  await expect(f.owner.verifyIsolation()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(writes)
+  expect(f.owner.getState().isolation?.fork).toEqual(fork)
   expect(()=>f.owner.cancel()).toThrow('须继续核验')
  })
  it('can correct an isolation name rejected before any dispatch',async()=>{
   const f=await fixture();await expect(f.owner.isolate('Orders')).rejects.toThrow();expect(f.http.saves).toHaveLength(0)
   const id=await f.owner.isolate('IsolatedQuery');expect(id).not.toBe('MODEL')
  })
- it('verifies the original source batch and continues the node without replaying the source update',async()=>{
+ it('keeps the original source batch pending before switching the node',async()=>{
   const f=await fixture(false);await f.owner.source.preview(source);f.http.failAfterWrite=true
   await expect(f.owner.source.save()).rejects.toThrow()
   expect(f.http.saves.filter(save=>save.table==='Base_DataModel')).toHaveLength(1)
-  await f.owner.source.verify();expect(f.owner.getState().complete).toBe(true)
-  expect(f.http.saves.filter(save=>save.table==='Base_DataModel')).toHaveLength(1)
+  const writes=f.http.saves.length
+  await expect(f.owner.source.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.owner.getState().complete).toBe(false)
+  expect(f.http.saves).toHaveLength(writes)
+  expect(f.http.saves.some(save=>save.table==='Base_WorkflowNodeDefinition')).toBe(false)
  })
  it('separates existing node conditions from model relationships and diagnoses orphan endpoints',async()=>{
   const f=await fixture(false);f.owner.cancel()
@@ -460,12 +469,15 @@ describe('workflow query source edit composition',()=>{
   await expect(openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',sources:f.reader,assertCurrent(){}})).rejects.toThrow('孤立关系')
   expect(f.http.saves).toHaveLength(0)
  })
- it('continues only the original node capture after its receipt is lost',async()=>{
+ it('keeps the original node capture pending after its receipt is lost',async()=>{
   const f=await fixture(false);await f.owner.source.preview(source)
   f.http.beforeSave=async()=>{if(f.http.saves.some(save=>save.table==='Base_DataModel'))f.http.failAfterWrite=true}
   await expect(f.owner.source.save()).rejects.toThrow();delete f.http.beforeSave
   const writes=f.http.saves.length;expect(f.owner.getState().node?.dispatched).toBe(true)
-  await f.owner.source.verify();expect(f.owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(writes)
+  await expect(f.owner.source.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.owner.getState().complete).toBe(false)
+  expect(f.owner.getState().node?.notApplied).toBe(false)
+  expect(f.http.saves).toHaveLength(writes)
  })
  it('carries explicitly accepted field types through the source save and formal node output',async()=>{
   const f=await fixture(false)

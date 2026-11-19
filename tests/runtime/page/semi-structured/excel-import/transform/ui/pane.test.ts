@@ -82,11 +82,11 @@ describe('original DataView transform rules workspace',()=>{
   expect(f.http.saves[0]?.added[0]).not.toHaveProperty('rowid')
   expect(f.wrapper.findComponent(RuleDialog).exists()).toBe(false)
  })
- it('verifies only the original mixed-row capture from its recovery entry without saving a later draft',async()=>{
+ it('keeps the original mixed-row capture pending without saving a later draft',async()=>{
   const f=await fixture();f.rules.updateEditingValue('R1','rule_name','one');f.rules.updateEditingValue('R2','rule_name','two');f.http.failAfterWrite=true
   await expect(f.ds.saveChanges()).rejects.toThrow();f.rules.updateEditingValue('R1','rule_name','later draft');await flushPromises()
   await f.click('核验原未确认规则提交')
-  expect(f.rules.hasUnconfirmedSave).toBe(false);expect(f.http.saves).toHaveLength(1)
+  expect(f.rules.hasUnconfirmedSave).toBe(true);expect(f.http.saves).toHaveLength(1)
   expect(f.rules.getEditingRow('R1')?.['rule_name']).toBe('later draft')
  })
  it.each(['save','discard'] as const)('handles a currently selected staged row through a fresh %s interaction only',async operation=>{
@@ -151,7 +151,7 @@ describe('original DataView transform rules workspace',()=>{
   expect(f.rules.getEditingRow('R2')?.['config_json']).toBe('{bad')
   expect(f.http.records['Base_Import_Transform_Rule']?.map(row=>row['id'])).toEqual(['R2'])
  })
- it('verifies an unknown delete without replay and forbids cancel before its receipt is resolved',async()=>{
+ it('keeps an unknown delete pending and forbids cancel or replay',async()=>{
   const f=await fixture()
   const actions=getSparkNodeChildren(f.wrapper.getComponent(RendererTable).props('actions')?.children).map(nodeInputProps)
   const remove=actions.find(action=>action['label']==='删除')?.['onClick']
@@ -162,7 +162,7 @@ describe('original DataView transform rules workspace',()=>{
   await f.click('取消删除规则')
   expect(f.rules.hasUnconfirmedSave).toBe(true)
   await f.click('核验原删除结果')
-  expect(f.rules.hasUnconfirmedSave).toBe(false)
+  expect(f.rules.hasUnconfirmedSave).toBe(true)
   expect(f.http.saves).toHaveLength(1)
  })
 })

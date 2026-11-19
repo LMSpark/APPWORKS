@@ -53,6 +53,12 @@
           "type": "object",
           "title": "() => void"
         },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "guideVersionRef": {
           "type": "string"
         },
@@ -68,21 +74,38 @@
             true
           ]
         },
-        "inputDigest": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "requirementReads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lineageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "fieldPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lineageId",
+              "version",
+              "fieldPath"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
         "scope",
         "assertCurrent",
+        "inputDigest",
         "guideVersionRef",
         "guideRef",
         "guideDigest",
-        "usable",
-        "inputDigest"
+        "usable"
       ],
       "additionalProperties": false
     },
@@ -286,19 +309,24 @@
       ]
     }
   },
-  "generatedAt": "2026-11-18T08:28:10.387Z",
+  "generatedAt": "2026-11-19T02:20:38.663Z",
   "models": {
     "Manifest": {
       "name": "Manifest",
       "jsdoc": "原调用固定的输入、工具版本和证据清单。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'usable' | 'inputDigest' | 'assertCurrent'>",
+        "declarationTypeText": "Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'usable' | 'inputDigest' | 'assertCurrent'> & Partial<Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'requirementReads'>>",
         "declarationRelations": [
           {
-            "kind": "alias",
+            "kind": "intersection",
             "typeText": "Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest' | 'usable' | 'inputDigest' | 'assertCurrent'>",
             "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Partial<Pick<Awaited<ReturnType<typeof freezeOperationRouteContext>>, 'requirementReads'>>",
+            "targetName": "Partial"
           }
         ],
         "members": {
@@ -310,6 +338,11 @@
             },
             {
               "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
               "readable": true,
               "writable": true
             },
@@ -334,9 +367,9 @@
               "writable": true
             },
             {
-              "name": "inputDigest",
+              "name": "requirementReads",
               "readable": true,
-              "writable": true
+              "writable": false
             }
           ]
         }

@@ -50,8 +50,8 @@
         "state": {
           "enum": [
             "UNKNOWN",
-            "COMPLETE",
             "PARTIAL",
+            "COMPLETE",
             "NOT_STARTED"
           ]
         },
@@ -132,7 +132,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T08:28:10.388Z",
+  "generatedAt": "2026-11-19T02:14:42.825Z",
   "models": {
     "Cause": {
       "name": "Cause",

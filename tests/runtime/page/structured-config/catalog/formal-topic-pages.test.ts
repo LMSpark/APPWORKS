@@ -223,7 +223,7 @@ describe('formal topic catalog pages', () => {
     const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
     if(outcome==='cancel'){await click('取消修改');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_Import_solution']![0]?.['solutionName']).toBe('订单导入')}
     else{if(outcome==='unknown')state.http.failAfterWrite=true;await click('保存方案');expect(state.http.saves).toHaveLength(1);if(outcome==='unknown'){expect(wrapper.findAll('button').find(button=>button.text()==='取消修改')?.attributes('disabled')).toBeDefined();await click('核验保存结果');expect(state.http.saves).toHaveLength(1)}expect(state.http.records['Base_Import_solution']![0]).toMatchObject({rowid:'E1',solutionName:'修改后的方案',coding:'EXCEL1',templatePath:'keep-template.xlsx'});expect(state.http.records['Base_Import_solution']![1]?.['solutionName']).toBe('另一个方案')}
-    expect(wrapper.findComponent(RendererForm).exists()).toBe(false)
+    expect(wrapper.findComponent(RendererForm).exists()).toBe(outcome==='unknown')
   })
   it.each(['cancel','save'])('binds trigger conditions to the original definition and guards unapplied input before %s',async outcome=>{
     const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
@@ -362,12 +362,14 @@ describe('formal topic catalog pages', () => {
       expect(wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消定义修改')!.props('disabled')).toBe(true)
       await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')
       await click('核验定义保存结果')
+      expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+      expect(wrapper.text()).toContain('服务未提供原请求的权威终态')
     }
     expect(state.http.saves).toHaveLength(1)
     expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',name:'正式修改'})])
     expect(state.http.records['Base_WorkflowDefinition']!.find(row=>row['rowid']==='W2')?.['name']).toBe('另一个流程')
     expect(state.http.records['Base_WorkflowDefinition']!.find(row=>row['rowid']==='W1')?.['status']).toBe(outcome==='status-selection'?'1':2)
-    expect(wrapper.getComponent(RendererTable).text()).toContain('正式修改')
+    if(outcome!=='lost-receipt')expect(wrapper.getComponent(RendererTable).text()).toContain('正式修改')
   })
   it('does not open a nonexistent workflow or allocate a random identity for unsupported creation',async()=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})

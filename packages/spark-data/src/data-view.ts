@@ -3839,8 +3839,6 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
               throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
             }
           }
-          batch.forEach(({view})=>dispatched.add(view))
-          if(!recovering)batch.forEach(({view})=>{view.#unconfirmedQuerySaveBatch=batch})
           const changes = batch.map(({ capture }) => ({ identity: structuredClone(capture.identity),
             ...(capture.tableConfig === undefined ? {} : {tableConfig: {
               ...(capture.tableConfig.api === undefined ? {} : {api: structuredClone(capture.tableConfig.api)}),
@@ -3853,6 +3851,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             if(!change)throw new Error('DATA_VIEW_SAVE_CAPTURE: 缺少本次派发输入')
             dispatchedChanges.set(view,change)
           })
+          for (const {view} of batch) {
+            dispatched.add(view)
+            if (!recovering) view.#unconfirmedQuerySaveBatch = batch
+          }
           const receipts = await save.call(executor,{changes})
           batch.forEach(({view})=>returned.add(view))
           if (receipts.length !== batch.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
@@ -3904,7 +3906,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           if(notApplied){view.#unconfirmedQuerySaveBatch=undefined
             resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'not-applied',error:notApplied})}
         }
-        view._trackMutating(-1,results.has(view)?null:recovering&&!dispatched.has(view)?previousErrors.get(view):failure)
+        const sourceError = dispatched.has(view) ? failure : previousErrors.get(view)
+        view._trackMutating(-1, results.has(view) ? null : sourceError)
       })
     }
   }

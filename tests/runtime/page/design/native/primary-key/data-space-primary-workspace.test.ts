@@ -141,6 +141,14 @@ describe('reference field primary key and workspace save', () => {
     expect(session.hasPendingModelEdits()).toBe(true); expect(session.hasPendingFieldEdits()).toBe(true)
     await expect(model.save(batch)).rejects.toThrow('先核验')
     expect(writes()).toHaveLength(1)
+    if (mode === 'unknown') {
+      await expect(model.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(session.hasPendingModelEdits()).toBe(true)
+      expect(session.hasPendingFieldEdits()).toBe(true)
+      expect(writes()).toHaveLength(1)
+      return
+    }
     await model.verifyRecovery(true)
     await model.reload(false); await fieldEditReloadBatch(batch, false)
     expect(model.getState().status).toBe('idle'); expect(session.hasPendingFieldEdits()).toBe(false)
@@ -163,7 +171,7 @@ describe('reference field primary key and workspace save', () => {
     expect(session.metadataDataSet.getView('Base_DataModel')?.hasUnconfirmedSave).toBe(true)
     expect(writes()).toHaveLength(1)
   })
-  it('discards only after the complete original batch is natively confirmed not applied', async () => {
+  it('blocks discard when unchanged model and field rows do not prove the original batch failed', async () => {
     const {f, session, view, model, owners, confirm, writes} = await setup({omitModelWrite: true, omitAllFieldChanges: true})
     confirm('PK', 0); confirm('CODE', 1)
     const batch = owners()
@@ -171,13 +179,12 @@ describe('reference field primary key and workspace save', () => {
     await expect(model.save(batch)).rejects.toThrow()
     expect(view.hasUnconfirmedSave).toBe(true)
     expect(session.metadataDataSet.getView('Base_DataModel')?.hasUnconfirmedSave).toBe(true)
-    await model.verifyRecovery(true)
-    expect(view.hasUnconfirmedSave).toBe(false)
-    expect(session.metadataDataSet.getView('Base_DataModel')?.hasUnconfirmedSave).toBe(false)
-    await model.reload(false); await fieldEditReloadBatch(batch, false)
+    await expect(model.verifyRecovery(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(session.metadataDataSet.getView('Base_DataModel')?.hasUnconfirmedSave).toBe(true)
     expect(f.modelRow()).toMatchObject({PrimaryKeyFields: 'rowid'})
-    expect(view.rows.find(row => row['rowid'] === 'CODE')?.['IsPKey']).toBe(0)
-    expect(model.getState().status).toBe('idle')
+    expect(view.getEditingRow('CODE')?.['IsPKey']).toBe(1)
+    expect(model.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(1)
   })
   it('keeps the workspace in verification state when native capture clears but the receipt omits its target', async () => {

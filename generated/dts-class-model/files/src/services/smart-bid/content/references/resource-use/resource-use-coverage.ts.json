@@ -149,9 +149,91 @@
         "decisionChainId"
       ],
       "additionalProperties": false
+    },
+    "AllocationRequirement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AllocationRequirement",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "units": {
+          "type": "number"
+        },
+        "decision": {
+          "type": "object",
+          "properties": {
+            "enterpriseId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "resourceVersionId": {
+              "type": "string"
+            },
+            "allocationRef": {
+              "type": "string"
+            },
+            "intent": {
+              "enum": [
+                "ASSIGN",
+                "ADJUST",
+                "RELEASE"
+              ]
+            },
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "units": {
+              "type": "number"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "enterpriseId",
+            "projectId",
+            "resourceVersionId",
+            "allocationRef",
+            "intent",
+            "start",
+            "end",
+            "effectiveAt",
+            "knownAt",
+            "units",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-18T04:49:57.886Z",
+  "generatedAt": "2026-11-18T13:09:38.033Z",
   "models": {
     "Decision": {
       "name": "Decision",
@@ -289,6 +371,55 @@
               "name": "decisionChainId",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "AllocationRequirement": {
+      "name": "AllocationRequirement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    start: string;\n    end: string;\n    units: number;\n    assertCurrent: () => void;\n    decision?: Readonly<{\n        enterpriseId: string;\n        projectId: string;\n        resourceVersionId: string;\n        allocationRef: string;\n        intent: 'ASSIGN' | 'ADJUST' | 'RELEASE';\n        start: string;\n        end: string;\n        effectiveAt: string;\n        knownAt: string;\n        units: number;\n        assertCurrent: () => void;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    start: string;\n    end: string;\n    units: number;\n    assertCurrent: () => void;\n    decision?: Readonly<{\n        enterpriseId: string;\n        projectId: string;\n        resourceVersionId: string;\n        allocationRef: string;\n        intent: 'ASSIGN' | 'ADJUST' | 'RELEASE';\n        start: string;\n        end: string;\n        effectiveAt: string;\n        knownAt: string;\n        units: number;\n        assertCurrent: () => void;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "units",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decision",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

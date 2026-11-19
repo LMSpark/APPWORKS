@@ -21,6 +21,31 @@
     ]
   },
   "$defs": {
+    "SelectedNodeSaveProgress": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectedNodeSaveProgress",
+      "$defs": {
+        "method.beforeSubmit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeSubmit.return": true,
+        "method.accepted.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.accepted.return": true,
+        "method.rejected.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rejected.return": true
+      }
+    },
     "OptionalFormFields": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -852,9 +877,22 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.saveSelectedNode.params": {
+        "method.rereadSelectedNode.params": {
           "type": "object",
           "properties": {},
+          "additionalProperties": false
+        },
+        "method.rereadSelectedNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveSelectedNode.params": {
+          "type": "object",
+          "properties": {
+            "progress": {
+              "$ref": "#/$defs/SelectedNodeSaveProgress"
+            }
+          },
           "additionalProperties": false
         },
         "method.saveSelectedNode.return": {
@@ -890,8 +928,51 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T20:00:51.256Z",
+  "generatedAt": "2026-11-18T11:52:25.364Z",
   "models": {
+    "SelectedNodeSaveProgress": {
+      "name": "SelectedNodeSaveProgress",
+      "jsdoc": "单节点交付进度。accepted 只在一条更新的回执已核对后通知，随后仍需正式回读。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    beforeSubmit(): void;\n    accepted(): void;\n    rejected(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    beforeSubmit(): void;\n    accepted(): void;\n    rejected(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "beforeSubmit",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "accepted",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "rejected",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "OptionalFormFields": {
       "name": "OptionalFormFields",
       "jsdoc": "Permission-filtered form projection; unreadable wire members are absent.",
@@ -2278,9 +2359,36 @@
               }
             },
             {
+              "name": "rereadSelectedNode",
+              "jsdoc": "已确认的发布在新实例只刷新原视图并重新定位节点，保留已有工作区的懒加载范围。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
               "name": "saveSelectedNode",
               "jsdoc": "Save only the selected node; any staged changes on other rows remain untouched.",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "progress",
+                  "type": {
+                    "type": "reference",
+                    "name": "SelectedNodeSaveProgress",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

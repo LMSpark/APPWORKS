@@ -62,15 +62,20 @@ describe('original save recovery after post-dispatch invalidation', () => {
       expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([true, true])
       expect(queries).toBe(4)
       scope = 'original'
-      const verified = await api.save({changes})
-      expect(verified.map(receipt => receipt.context.hasPendingSavedRowPermissions)).toEqual([false, false])
-      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([false, false])
+      await expect(api.save({changes})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(queries).toBe(4)
+      const current = await Promise.all(identities.map(identity => api.query(identity, {fields: ['rowid', 'salary']})))
       expect(queries).toBe(6)
+      expect(current.map(context => context.rows)).toEqual([
+        [{rowid: 'NEW-A', salary: 120}], [{rowid: 'NEW-B', salary: 120}],
+      ])
+      expect(contexts.map(context => api.hasUnconfirmedSave(context))).toEqual([true, true])
+      await expect(api.save({changes: [changes[0]!]})).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
     }
     expect(writes).toBe(1)
   })
 
-  it.each(['abort', 'late-scope'] as const)('retains the original %s outcome and verifies without a second write', async mode => {
+  it.each(['abort', 'late-scope'] as const)('retains the unconfirmed %s submission after independently reading the current row', async mode => {
     const controller = new AbortController()
     let scope = 'original', writes = 0, queries = 0, stored = 100
     class AppliedSaveHttp extends HttpClientBase {
@@ -107,10 +112,14 @@ describe('original save recovery after post-dispatch invalidation', () => {
     expect(api.hasUnconfirmedSave(context)).toBe(true)
     expect(writes).toBe(1)
     scope = 'original'
-    await api.save({changes})
-    expect(writes).toBe(1)
+    await expect(api.save({changes})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(queries).toBe(1)
+    const current = await api.query(identity)
     expect(queries).toBe(2)
-    expect(api.hasUnconfirmedSave(context)).toBe(false)
+    expect(current.rows).toEqual([{rowid: 'ROW-1', salary: 120}])
+    expect(context.rows).toEqual([{rowid: 'ROW-1', salary: 100}])
+    expect(api.hasUnconfirmedSave(context)).toBe(true)
+    expect(writes).toBe(1)
   })
 })
 

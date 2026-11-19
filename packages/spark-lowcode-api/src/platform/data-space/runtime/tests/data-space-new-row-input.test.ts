@@ -82,7 +82,7 @@ describe('formal new-row inputs separate from query output', () => {
     } finally {ds.destroy()}
   })
 
-  it('verifies the original child after local cancellation without replaying the write or losing the cancellation intent', async () => {
+  it('retains the original child capture and local cancellation when a fresh query finds the child', async () => {
     const {ds, view, http} = fixture(['caption'], true)
     try {
       http.allowAdd = false
@@ -100,10 +100,20 @@ describe('formal new-row inputs separate from query output', () => {
       http.saveError = undefined
       http.lateRows = [{id: row['rowid'], caption: row['title'], parentId: row['parent_id'],
         lingma_sys_key: 'CHILD-SIGNED', lingma_sys_params: {e: ['caption'], d: true}}]
-      expect((await ds.saveChanges({views: [view]})).success).toBe(true)
-      expect(view.hasUnconfirmedSave).toBe(false)
+      const reads = http.queries.length
+      await expect(ds.saveChanges({views: [view]})).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(http.queries).toHaveLength(reads)
+      const fresh = view.createQueryView('childReadback')
+      try {
+        await fresh.refresh()
+        expect(http.queries).toHaveLength(reads + 1)
+        expect(fresh.rows).toMatchObject([{id: row['rowid'], caption: 'child', parentId: 'A'}])
+      } finally {fresh.destroy()}
+      expect(view.hasUnconfirmedSaveFor([row['rowid']])).toBe(true)
+      expect(view.rows.some(child => child['id'] === row['rowid'])).toBe(false)
       expect(http.saves).toHaveLength(1)
-      expect(view.dirtyTracking.pendingDeleteIds.has(row['rowid'])).toBe(true)
+      expect(view.dirtyTracking.pendingCreateIds.has(row['rowid'])).toBe(false)
+      expect(view.dirtyTracking.pendingDeleteIds.has(row['rowid'])).toBe(false)
     } finally {ds.destroy()}
   })
   it('submits an explicitly declared non-output input through the original DataSet without granting existing-row access', async () => {

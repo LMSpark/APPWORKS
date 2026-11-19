@@ -665,24 +665,34 @@ describe('formal query-save column validation', () => {
     } finally {release(); f.dataSet.destroy()}
   })
 
-  it('accepts confirmed sources and stops dispatch after a middle owner fails', async () => {
+  it.each([false, true])('keeps an undispatched file’s own error when a middle owner fails (previous failure: %s)', async previousFailure => {
     const f = await resourceOwners(undefined, true), failure = new Error('order receipt unknown')
+    const fileError = previousFailure ? new Error('file write rejected') : null
     try {
+      if (fileError) {
+        f.file.updateEditingValue('1', 'title', 'Earlier file edit')
+        f.fileOwner.save.mockRejectedValueOnce(fileError)
+        await expect(f.dataSet.saveChanges()).rejects.toBe(fileError)
+        expect(f.file.mutatingError).toBe(fileError)
+      }
       f.orderOwner.save.mockRejectedValueOnce(failure)
+      f.orderOwner.hasUnconfirmedSave.mockReturnValue(true)
       for (const view of [f.items, f.orders, f.file]) view.updateEditingValue('1', 'title', 'Submitted')
       await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
       expect(f.database.save).toHaveBeenCalledTimes(1)
       expect(f.orderOwner.save).toHaveBeenCalledTimes(1)
-      expect(f.fileOwner.save).not.toHaveBeenCalled()
+      expect(f.fileOwner.save).toHaveBeenCalledTimes(previousFailure ? 1 : 0)
       expect(f.items.dirtyTracking.hasPendingChanges()).toBe(false)
       expect(f.items.mutatingError).toBeNull()
       expect(f.stored.get('Items')).toEqual([{id: '1', title: 'Submitted'}])
       for (const view of [f.orders, f.file]) {
-        // The shared error is not evidence that this source dispatched; only the executor call establishes that here.
         expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
-        expect(view.mutatingError).toBe(failure)
         expect(view.mutating).toBe(false)
       }
+      expect(f.orders.hasUnconfirmedSave).toBe(true)
+      expect(f.orders.mutatingError).toBe(failure)
+      expect(f.file.hasUnconfirmedSave).toBe(false)
+      expect(f.file.mutatingError).toBe(fileError)
       expect(f.stored.get('File')).toEqual([{id: '1', title: 'Before'}])
       // A rejected batch has no aggregate success result; the owner must verify an unknown receipt before retrying.
     } finally {f.dataSet.destroy()}

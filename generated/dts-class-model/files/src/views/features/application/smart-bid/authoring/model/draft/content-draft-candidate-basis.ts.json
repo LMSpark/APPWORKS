@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/draft/content-draft-candidate-basis\n职责：沿草稿基版回读不可变的正文和分工身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T00:31:03.769Z",
+  "models": {}
+}

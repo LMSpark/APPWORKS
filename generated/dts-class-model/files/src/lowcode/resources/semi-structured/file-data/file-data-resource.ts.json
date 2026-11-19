@@ -300,6 +300,10 @@
               "type": "object",
               "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
             },
+            "readFileBytes": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
+            },
             "removeFile": {
               "type": "object",
               "title": "(locator: LowcodeFileLocator) => Promise<void>"
@@ -307,6 +311,7 @@
           },
           "required": [
             "listFiles",
+            "readFileBytes",
             "removeFile"
           ],
           "additionalProperties": false
@@ -382,11 +387,33 @@
         "method.save.return": {
           "type": "object",
           "title": "Promise<SaveReceipt[]>"
-        }
+        },
+        "method.hasUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/QueryResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedSave.return": {
+          "type": "boolean"
+        },
+        "method.acknowledgeSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/QueryResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acknowledgeSave.return": true
       }
     }
   },
-  "generatedAt": "2026-11-11T10:25:15.551Z",
+  "generatedAt": "2026-11-18T21:33:41.538Z",
   "models": {
     "Executor": {
       "name": "Executor",
@@ -683,11 +710,11 @@
       "jsdoc": "文件区执行器依赖：目录/删除接口、二进制上传核验链及会话校验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile' | 'readFileBytes'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'listFiles' | 'removeFile' | 'readFileBytes'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadBinaryVersion' | 'verifyBinaryVersion'>;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -792,6 +819,40 @@
                     }
                   }
                 ]
+              }
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryResult",
+                    "sourcePath": "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "acknowledgeSave",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryResult",
+                    "sourcePath": "src/lowcode/resources/semi-structured/file-data/file-data-resource.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "undefined"
               }
             }
           ]

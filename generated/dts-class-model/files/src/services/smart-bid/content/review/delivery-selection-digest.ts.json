@@ -140,9 +140,52 @@
         "checkedStateRefs"
       ],
       "additionalProperties": false
+    },
+    "FreezeUse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FreezeUse",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "usage": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "allowed": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-18T03:48:27.227Z",
+  "generatedAt": "2026-11-18T17:09:02.542Z",
   "models": {
     "GroupScope": {
       "name": "GroupScope",
@@ -301,6 +344,70 @@
               "name": "checkedStateRefs",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FreezeUse": {
+      "name": "FreezeUse",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n    evidenceRef: string;\n    usage: string | null;\n    allowed: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n    evidenceRef: string;\n    usage: string | null;\n    allowed: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowed",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

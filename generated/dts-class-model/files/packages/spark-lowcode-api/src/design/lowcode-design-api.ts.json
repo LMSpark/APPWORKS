@@ -171,6 +171,19 @@
           "type": "object",
           "title": "Promise<string>"
         },
+        "method.readFileLastModified.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileLastModified.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
         "method.listFiles.params": {
           "type": "object",
           "properties": {
@@ -213,7 +226,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T03:11:26.025Z",
+  "generatedAt": "2026-11-19T05:37:56.746Z",
   "models": {
     "LowcodeDesignApiOptions": {
       "name": "LowcodeDesignApiOptions",
@@ -429,6 +442,30 @@
             {
               "name": "readTextFile",
               "jsdoc": "读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFileLastModified",
+              "jsdoc": "读取正式文件最后修改时间；该时间仅作为文件缓存版本，不是业务记录版本。",
               "parameters": [
                 {
                   "name": "locator",

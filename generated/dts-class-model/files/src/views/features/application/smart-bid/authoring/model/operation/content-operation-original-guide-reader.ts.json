@@ -53,6 +53,12 @@
           "type": "object",
           "title": "() => void"
         },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "guideVersionRef": {
           "type": "string"
         },
@@ -68,21 +74,38 @@
             true
           ]
         },
-        "inputDigest": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "requirementReads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lineageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "fieldPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lineageId",
+              "version",
+              "fieldPath"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
         "scope",
         "assertCurrent",
+        "inputDigest",
         "guideVersionRef",
         "guideRef",
         "guideDigest",
-        "usable",
-        "inputDigest"
+        "usable"
       ],
       "additionalProperties": false
     },
@@ -140,20 +163,63 @@
         "guideDigest"
       ],
       "additionalProperties": false
+    },
+    "Guide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Guide",
+      "properties": {
+        "rootKind": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "guide": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rootKind",
+        "kind",
+        "actionName",
+        "guideRef",
+        "guideDigest",
+        "guide",
+        "assertCurrent",
+        "guideVersionRef"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T08:28:10.393Z",
+  "generatedAt": "2026-11-19T01:44:53.848Z",
   "models": {
     "Frozen": {
       "name": "Frozen",
       "jsdoc": "原调用冻结的工艺证据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>",
+        "declarationTypeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>>",
+            "typeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>",
             "targetName": "NonNullable"
           }
         ],
@@ -166,6 +232,11 @@
             },
             {
               "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
               "readable": true,
               "writable": true
             },
@@ -190,9 +261,9 @@
               "writable": true
             },
             {
-              "name": "inputDigest",
+              "name": "requirementReads",
               "readable": true,
-              "writable": true
+              "writable": false
             }
           ]
         }
@@ -232,6 +303,35 @@
               "name": "guideDigest",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Guide": {
+      "name": "Guide",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readOperationActionGuide>> & Readonly<{\n    guideVersionRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Awaited<ReturnType<typeof readOperationActionGuide>>",
+            "targetName": "Awaited"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    guideVersionRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": false
             }
           ]
         }

@@ -85,7 +85,7 @@ describe('workflow formal design page',()=>{
   backend.records['Base_WorkflowConnectors']=[{rowid:'SN',workflow_id:'W1',sourceID:'START',targetID:'N1',params:'[]'},{rowid:'NE',workflow_id:'W1',sourceID:'N1',targetID:'END',params:'[]'}]
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));await f.click('测试')
   const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),params=ds.getView('Base_DataSet')!;params.queryContext={...params.queryContext,contractVersion:'changed'}
-  await f.click('执行测试');expect(backend.executions).toHaveLength(0);expect(document.body.textContent).toContain('测试参数查询上下文已变化');await f.click('取消测试输入')
+  await f.click('执行测试');expect(backend.executions).toHaveLength(0);expect(document.body.textContent).toContain('测试参数正式定义未完整读取或仍有修改');await f.click('取消测试输入')
  })
  it('rejects replacing the captured command target through direct DataSet saving',async()=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend;state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
@@ -793,14 +793,17 @@ describe('workflow formal design page',()=>{
   await f.click('取消节点修改');expect(name.get('input').element.value).toBe('查询订单');expect(state.http.saves).toEqual([])
   await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
  })
- it('recovers an unknown node save without replaying the write',async()=>{
+ it('keeps an unknown node save pending without replaying the write',async()=>{
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   const name=f.wrapper.findAllComponents(FieldText).find(field=>field.props('dataViewKey')?.includes('@Base_WorkflowNodeDefinition@')&&field.props('field')==='name')!
   await name.get('input').setValue('已提交待回读');await flushPromises();state.http.failAfterWrite=true;await f.click('保存节点')
   expect(state.http.saves).toHaveLength(1)
   expect(f.buttons().find(b=>b.text()==='取消节点修改')?.attributes('disabled')).toBeDefined()
-  await f.click('核验节点保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('核验节点保存结果')
+  expect(state.http.saves).toHaveLength(1)
+  expect(state.dirty[0]?.isDirty).toBe(true)
+  expect(f.buttons().find(b=>b.text()==='取消节点修改')?.attributes('disabled')).toBeDefined()
  })
  it('projects layout from the bound file view and saves a drag without saving business nodes',async()=>{
   state.layoutText='{"nodes":[{"id":"N1","x":10,"y":20,"custom":false}],"edges":[],"keep":0}'

@@ -50,12 +50,12 @@
       "title": "OperationNodeType",
       "enum": [
         "route",
+        "task",
         "phase",
         "sequence",
         "parallel",
         "choice",
-        "call",
-        "task"
+        "call"
       ]
     },
     "OperationTreeStructureInput": {

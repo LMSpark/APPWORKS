@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/resource-version-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/resource-version-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/resource-version-reader\n职责：页05读取固定编号的企业资料原版及出处。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T20:44:46.448Z",
+  "models": {}
+}

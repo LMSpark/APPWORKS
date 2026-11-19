@@ -1,0 +1,1046 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands\n职责：为页11同次宿主编排原草稿编辑命令及未保存输入守卫。\n边界：不另存草稿、不查询/保存、不建立全局命令注册或权限规则。\nAI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentAuthoringCommand",
+      "ContentAuthoringCommands"
+    ]
+  },
+  "$defs": {
+    "Binding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Binding",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "runtime": {
+          "type": "object",
+          "title": "import(\"../../../../../../../../packages/spark-project-model/src\").PageRuntime"
+        },
+        "actorUserId": {
+          "type": "string"
+        },
+        "setPending": {
+          "type": "object",
+          "title": "(value: boolean) => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "dataViewKey",
+        "assertCurrent",
+        "draftId",
+        "runtime",
+        "actorUserId",
+        "setPending"
+      ],
+      "additionalProperties": false
+    },
+    "Action": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Action",
+      "enum": [
+        "move",
+        "addDocument",
+        "addChapter",
+        "addParagraph",
+        "addList",
+        "addListItem",
+        "addQuote",
+        "addTableOfContents",
+        "addTable",
+        "updateTable",
+        "updateText",
+        "remove"
+      ]
+    },
+    "ContentAuthoringCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentAuthoringCommand",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "move"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addDocument"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "chapterId": {
+                      "type": "string"
+                    },
+                    "headingId": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "chapterId",
+                    "headingId",
+                    "title",
+                    "documentId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addChapter"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "chapterId": {
+                      "type": "string"
+                    },
+                    "headingId": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "chapterId",
+                    "headingId",
+                    "title"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addParagraph"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "nodeId": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "nodeId",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addList"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "paragraphId": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true
+                    },
+                    "listId": {
+                      "type": "string"
+                    },
+                    "itemId": {
+                      "type": "string"
+                    },
+                    "ordered": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "paragraphId",
+                    "value",
+                    "listId",
+                    "itemId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addListItem"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "paragraphId": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true
+                    },
+                    "itemId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "paragraphId",
+                    "value",
+                    "itemId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addQuote"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "paragraphId": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true
+                    },
+                    "quoteId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "paragraphId",
+                    "value",
+                    "quoteId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addTableOfContents"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "addTable"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "../../../../../../../services/smart-bid/content-tree-draft-editor.ts.json#/$defs/ContentTableInput"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "updateTable"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string"
+                            },
+                            "data": {
+                              "type": "object",
+                              "properties": {},
+                              "additionalProperties": true
+                            }
+                          },
+                          "required": [
+                            "value",
+                            "data"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "header",
+                    "rows"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "updateText"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "const": "remove"
+            },
+            "args": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "args"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ContentAuthoringCommands": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringCommands",
+      "properties": {
+        "epoch": {
+          "type": "number"
+        },
+        "hasPendingInput": {
+          "type": "boolean"
+        },
+        "canLeave": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "$ref": "#/$defs/Binding"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertInputCurrent.params": {
+          "type": "object",
+          "properties": {
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertInputCurrent.return": true,
+        "method.captureCandidateDraft.params": {
+          "type": "object",
+          "properties": {
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureCandidateDraft.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        projectId: string;\n        draftId: string;\n        actorUserId: string;\n        draftVersion: string;\n        baseRevisionId: string | null;\n        draftJson: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.prepareSave.params": {
+          "type": "object",
+          "properties": {
+            "requestKey": {
+              "type": "string"
+            },
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSave.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        projectId: string;\n        draftId: string;\n        baseRevisionId: string | null;\n        expectedDraftVersion: string | null;\n        requestKey: string;\n        requestJson: string;\n        requestDigest: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.selectionChanged.params": {
+          "type": "object",
+          "properties": {
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectionChanged.return": true,
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ContentAuthoringCommand"
+            },
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": true,
+        "method.setInputPending.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setInputPending.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {
+            "epoch": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T01:56:28.422Z",
+  "models": {
+    "Binding": {
+      "name": "Binding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ContentAuthoringBinding, 'runtime' | 'dataViewKey' | 'projectId' | 'draftId' | 'actorUserId' | 'assertCurrent' | 'setPending'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<ContentAuthoringBinding, 'runtime' | 'dataViewKey' | 'projectId' | 'draftId' | 'actorUserId' | 'assertCurrent' | 'setPending'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "actorUserId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setPending",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Action": {
+      "name": "Action",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'addDocument' | 'addChapter' | 'addParagraph' | 'addList' | 'addListItem' | 'addQuote' | 'addTableOfContents' | 'addTable' | 'updateTable' | 'updateText' | 'move' | 'remove'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'addDocument'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addChapter'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addParagraph'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addList'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addListItem'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addQuote'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addTableOfContents'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addTable'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'updateTable'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'updateText'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'move'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'remove'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContentAuthoringCommand": {
+      "name": "ContentAuthoringCommand",
+      "jsdoc": "命令参数沿既有领域方法类型，不另造节点或持久化合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [K in Action]: Readonly<{\n        action: K;\n        args: Parameters<ContentTreeDraftEditor[K]>;\n    }>;\n}[Action]",
+        "members": {}
+      }
+    },
+    "ContentAuthoringCommands": {
+      "name": "ContentAuthoringCommands",
+      "jsdoc": "本次调用拥有的业务命令；未确认文本只记编辑器标识，不保存其内容。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(binding: Binding)",
+          "parameters": [
+            {
+              "name": "binding",
+              "type": {
+                "type": "reference",
+                "name": "Binding",
+                "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "epoch",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingInput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canLeave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertInputCurrent",
+              "jsdoc": "输入编辑只核本次原身份，不在开始输入时改写草稿。",
+              "parameters": [
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "captureCandidateDraft",
+              "jsdoc": "固定用于生成候选的已保存个人草稿，避免将本地编辑覆盖层当作持久证据。",
+              "parameters": [
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        draftId: string;\n        actorUserId: string;\n        draftVersion: string;\n        baseRevisionId: string | null;\n        draftJson: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareSave",
+              "jsdoc": "只捕获本行确认为编辑的内容和原查询所见的并发版本。",
+              "parameters": [
+                {
+                  "name": "requestKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        draftId: string;\n        baseRevisionId: string | null;\n        expectedDraftVersion: string | null;\n        requestKey: string;\n        requestJson: string;\n        requestDigest: string;\n        contentDigest: string;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectionChanged",
+              "jsdoc": "选择元信息仍归标准组件；只撤销旧选择产生的按钮回调，不保存节点副本。",
+              "parameters": [
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "run",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAuthoringCommand",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands.ts"
+                  }
+                },
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setInputPending",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                },
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [
+                {
+                  "name": "epoch",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

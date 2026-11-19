@@ -286,7 +286,7 @@ export function useNodeTargetResources(state: DevState) {
       for (const event of sourceEvents) owner.view.events.on(event, refreshOptions)
       removeSourceListeners = () => {for (const event of sourceEvents) owner.view.events.off(event, refreshOptions)}
       void created.refreshOptions().catch(error => {
-        if (resources.value === created) state.addStatus(`导航目标候选加载失败: ${String(error)}`, 'error')
+        if (created && isCurrent(created)) state.addStatus(`导航目标候选加载失败: ${String(error)}`, 'error')
       })
     } catch (error) {
       state.addStatus(`导航目标资源装配失败: ${String(error)}`, 'error')

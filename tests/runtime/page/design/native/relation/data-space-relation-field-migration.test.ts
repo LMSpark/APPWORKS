@@ -98,19 +98,25 @@ describe('source field and formal relation migration', () => {
     ]})
   })
 
-  it.each(['unknown', 'partial', 'missing-receipt'])('verifies %s relation writes without replaying the batch', async kind => {
+  it.each(['unknown', 'partial', 'missing-receipt'])('handles %s relation writes without replaying the batch', async kind => {
     const {owner, f, writes} = await setup({omitRelationWrite: kind === 'partial', omitRelationReceipt: kind === 'missing-receipt'})
     if (kind === 'unknown') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    const result = await owner.verify()
-    expect(result.confirmed).toBe(kind !== 'partial'); expect(writes()).toHaveLength(1)
     if (kind === 'partial') {
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
       expect(owner.getState().status).toBe('different')
       expect(owner.getState().verification.some(item => item.table === 'Base_DataModel_Relation' && item.result.includes('不同'))).toBe(true)
       expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
-      expect(writes()).toHaveLength(1)
+    } else {
+      const original = owner.getState()
+      expect(original.status).toBe('unknown')
+      expect(original.preview?.relationChanges.map(change => change.id)).toEqual(['R'])
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+      expect(owner.getState().preview?.relationChanges).toEqual(original.preview?.relationChanges)
     }
+    expect(writes()).toHaveLength(1)
   })
 
   it('rechecks relation permissions before staging the model or field', async () => {

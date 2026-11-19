@@ -34,6 +34,9 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "expectedProjectId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -70,7 +73,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T09:04:32.158Z",
+  "generatedAt": "2026-11-18T21:36:39.231Z",
   "models": {
     "LowcodeJsonData": {
       "name": "LowcodeJsonData",
@@ -103,6 +106,16 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

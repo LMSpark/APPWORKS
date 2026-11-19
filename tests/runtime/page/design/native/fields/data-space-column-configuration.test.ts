@@ -51,8 +51,11 @@ describe('unified model column configuration workflow', () => {
     const owner = session.getFieldEdit('F1', 'modelFields')
     view.updateEditingValue('F1', 'allowAIAdd', 1); f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow(); expect(owner.getState().status).toBe('unknown')
-    await owner.reload(true)
-    expect(view.rows[0]?.['allowAIAdd']).toBe(1); expect(writes(f)).toHaveLength(1)
+    await expect(owner.reload(true)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    const fresh = await (await f.open('A')).loadModelFields('M1')
+    expect(fresh.rows.find(row => row['rowid'] === 'F1')?.['allowAIAdd']).toBe(1)
+    expect(writes(f)).toHaveLength(1)
   })
   it('retains an old missing rule while changing another property and allows explicit clearing', async () => {
     const f = fixture({sourceFields: [{rowid: 'F1', dataModelId: 'M1', Name: 'amount', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1, Expression: 'OLD_RULE', allowAIAdd: 0}]}),

@@ -142,9 +142,99 @@
         "enterpriseId",
         "grantId"
       ]
+    },
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "record": {
+          "$ref": "authority-grant-coverage.ts.json#/$defs/Grant"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "record",
+        "requestDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "RegistrationIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegistrationIdentity",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "RegistrationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegistrationResult",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "REGISTERED",
+            "REJECTED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "requestDigest"
+      ]
     }
   },
-  "generatedAt": "2026-11-18T04:29:16.494Z",
+  "generatedAt": "2026-11-18T10:08:26.161Z",
   "models": {
     "GrantScope": {
       "name": "GrantScope",
@@ -291,6 +381,117 @@
             },
             {
               "name": "knownAt",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "record",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RegistrationIdentity": {
+      "name": "RegistrationIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "GrantScope & Readonly<{\n    requestKey: string;\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "GrantScope",
+            "targetName": "GrantScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requestKey: string;\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegistrationResult": {
+      "name": "RegistrationResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RegistrationIdentity & Readonly<{\n    assertCurrent: () => void;\n}> & (Readonly<{\n    status: 'REGISTERED';\n    versionId: string;\n    record: Prepared['record'];\n}> | Readonly<{\n    status: 'REJECTED';\n    decisionRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RegistrationIdentity",
+            "targetName": "RegistrationIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    status: 'REGISTERED';\n    versionId: string;\n    record: Prepared['record'];\n}> | Readonly<{\n    status: 'REJECTED';\n    decisionRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
               "readable": true,
               "writable": false
             }

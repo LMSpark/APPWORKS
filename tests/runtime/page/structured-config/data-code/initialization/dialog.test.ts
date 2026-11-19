@@ -51,14 +51,15 @@ describe('initialization original-path standard-component dialog',()=>{
     expect(f.workspace.view.rows[0]?.['prefix']).toBe('A202612')
     expect(f.service.http.saves).toEqual([])
   })
-  it('retains an unknown original submission and verifies it without replay or date switching',async()=>{
+  it('keeps the original submission unknown without replay or date switching',async()=>{
     const f=await open();await f.value().get('input').setValue('007');await flushPromises()
     f.service.http.failAfterWrite=true;await f.click('保存')
     await vi.waitFor(()=>expect(f.workspace.view.hasUnconfirmedSave).toBe(true))
     expect(f.wrapper.getComponent(FieldDate).props('readonly')).toBe(true)
-    await f.click('核验保存结果');expect(f.workspace.view.hasUnconfirmedSave).toBe(false)
+    await f.click('核验保存结果');expect(f.workspace.view.hasUnconfirmedSave).toBe(true)
     expect(f.service.http.saves).toHaveLength(1)
-    await f.click('确定');expect(f.closed).toHaveBeenCalledOnce()
+    expect(f.wrapper.getComponent(FieldDate).props('readonly')).toBe(true)
+    expect(f.closed).not.toHaveBeenCalled()
   })
   it('does not clear the candidate result for an unchanged date value',async()=>{
     const f=await open(),count=f.calls.length

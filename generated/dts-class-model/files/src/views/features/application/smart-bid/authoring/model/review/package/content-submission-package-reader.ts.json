@@ -113,9 +113,90 @@
         "resourceVersionId"
       ],
       "additionalProperties": false
+    },
+    "PackingEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PackingEvidence",
+      "properties": {
+        "candidate": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "selectionId": {
+              "type": "string"
+            },
+            "selectionVersion": {
+              "type": "string"
+            },
+            "selectionHash": {
+              "type": "string"
+            },
+            "packageHash": {
+              "type": "string"
+            },
+            "packed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "manifestId": {
+                    "type": "string"
+                  },
+                  "manifestVersion": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "string"
+                  },
+                  "fileVersionId": {
+                    "type": "string"
+                  },
+                  "fileHash": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "manifestId",
+                  "manifestVersion",
+                  "position",
+                  "fileVersionId",
+                  "fileHash"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "selectionId",
+            "selectionVersion",
+            "selectionHash",
+            "packageHash",
+            "packed"
+          ],
+          "additionalProperties": false
+        },
+        "openAuthorized": {
+          "type": "object",
+          "title": "(scope: ResourceScope) => Promise<Readonly<{ projectId: string; resourceVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+        }
+      },
+      "required": [
+        "candidate",
+        "openAuthorized"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T04:05:16.414Z",
+  "generatedAt": "2026-11-19T00:40:36.253Z",
   "models": {
     "Source": {
       "name": "Source",
@@ -235,6 +316,35 @@
             },
             {
               "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PackingEvidence": {
+      "name": "PackingEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidate: Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>, 'bytes'>;\n    openAuthorized: Parameters<typeof readRegisteredSubmissionZipSource>[2];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidate: Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>, 'bytes'>;\n    openAuthorized: Parameters<typeof readRegisteredSubmissionZipSource>[2];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "openAuthorized",
               "readable": true,
               "writable": false
             }

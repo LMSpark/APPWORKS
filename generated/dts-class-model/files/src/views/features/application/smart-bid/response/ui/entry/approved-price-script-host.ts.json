@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/ui/entry/approved-price-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/approved-price-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/ui/entry/approved-price-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/approved-price-script-host\n职责：页10按已核编制范围查指定批准价。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "rateOnly": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "scenarioId",
+        "scopeRef",
+        "purposeRef",
+        "rateOnly"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.504Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Parameters<typeof readRegisteredApprovedPrice>[0], 'runtime'> & Readonly<{\n    purposeRef: string;\n    rateOnly: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Parameters<typeof readRegisteredApprovedPrice>[0], 'runtime'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    purposeRef: string;\n    rateOnly: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rateOnly",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

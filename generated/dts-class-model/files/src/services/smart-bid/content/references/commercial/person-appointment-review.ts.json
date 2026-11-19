@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/person-appointment-review",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/person-appointment-review",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/person-appointment-review\n职责：动作25按已核人员材料、企业用人决定和调配证明确认同一拟任关系。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "PersonScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PersonScope",
+      "properties": {
+        "personId": {
+          "type": "string"
+        },
+        "employerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "personId",
+        "employerId"
+      ],
+      "additionalProperties": false
+    },
+    "AppointmentScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppointmentScope",
+      "properties": {
+        "personId": {
+          "type": "string"
+        },
+        "employerId": {
+          "type": "string"
+        },
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "personId",
+        "employerId",
+        "enterpriseId",
+        "projectId",
+        "positionRef",
+        "scopeRef",
+        "purposeRef"
+      ],
+      "additionalProperties": false
+    },
+    "Period": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Period",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "AppointmentEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppointmentEvidence",
+      "properties": {
+        "material": {
+          "type": "object",
+          "properties": {
+            "personId": {
+              "type": "string"
+            },
+            "employerId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "versionRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "personId",
+            "employerId",
+            "assertCurrent",
+            "versionRef"
+          ],
+          "additionalProperties": false
+        },
+        "appointment": {
+          "type": "object",
+          "properties": {
+            "personId": {
+              "type": "string"
+            },
+            "employerId": {
+              "type": "string"
+            },
+            "enterpriseId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "positionRef": {
+              "type": "string"
+            },
+            "scopeRef": {
+              "type": "string"
+            },
+            "purposeRef": {
+              "type": "string"
+            },
+            "start": {
+              "type": "number"
+            },
+            "end": {
+              "type": "number"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "decisionRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "personId",
+            "employerId",
+            "enterpriseId",
+            "projectId",
+            "positionRef",
+            "scopeRef",
+            "purposeRef",
+            "start",
+            "end",
+            "assertCurrent",
+            "decisionRef"
+          ],
+          "additionalProperties": false
+        },
+        "availability": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "restricted": {
+                  "const": false
+                }
+              },
+              "required": [
+                "start",
+                "end",
+                "assertCurrent",
+                "restricted"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "restricted": {
+                  "const": true
+                },
+                "allocation": {
+                  "type": "object",
+                  "properties": {
+                    "personId": {
+                      "type": "string"
+                    },
+                    "employerId": {
+                      "type": "string"
+                    },
+                    "enterpriseId": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": "string"
+                    },
+                    "positionRef": {
+                      "type": "string"
+                    },
+                    "scopeRef": {
+                      "type": "string"
+                    },
+                    "purposeRef": {
+                      "type": "string"
+                    },
+                    "start": {
+                      "type": "number"
+                    },
+                    "end": {
+                      "type": "number"
+                    },
+                    "assertCurrent": {
+                      "type": "object",
+                      "title": "() => void"
+                    },
+                    "decisionRef": {
+                      "type": "string"
+                    },
+                    "intent": {
+                      "enum": [
+                        "ASSIGN",
+                        "ADJUST",
+                        "RELEASE"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "personId",
+                    "employerId",
+                    "enterpriseId",
+                    "projectId",
+                    "positionRef",
+                    "scopeRef",
+                    "purposeRef",
+                    "start",
+                    "end",
+                    "assertCurrent",
+                    "decisionRef",
+                    "intent"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "start",
+                "end",
+                "assertCurrent",
+                "restricted"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "material",
+        "appointment",
+        "availability"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.545Z",
+  "models": {
+    "PersonScope": {
+      "name": "PersonScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    personId: string;\n    employerId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    personId: string;\n    employerId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "personId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "employerId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AppointmentScope": {
+      "name": "AppointmentScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PersonScope & Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    positionRef: string;\n    scopeRef: string;\n    purposeRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PersonScope",
+            "targetName": "PersonScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    positionRef: string;\n    scopeRef: string;\n    purposeRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "positionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Period": {
+      "name": "Period",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    start: number;\n    end: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    start: number;\n    end: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AppointmentEvidence": {
+      "name": "AppointmentEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    material: PersonScope & Proof & Readonly<{\n        versionRef: string;\n    }>;\n    appointment: AppointmentScope & Period & Proof & Readonly<{\n        decisionRef: string;\n    }>;\n    availability: (Period & Proof & Readonly<{\n        restricted: false;\n    }>) | (Period & Proof & Readonly<{\n        restricted: true;\n        allocation?: AppointmentScope & Period & Proof & Readonly<{\n            decisionRef: string;\n            intent: 'ASSIGN' | 'ADJUST' | 'RELEASE';\n        }>;\n    }>);\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    material: PersonScope & Proof & Readonly<{\n        versionRef: string;\n    }>;\n    appointment: AppointmentScope & Period & Proof & Readonly<{\n        decisionRef: string;\n    }>;\n    availability: (Period & Proof & Readonly<{\n        restricted: false;\n    }>) | (Period & Proof & Readonly<{\n        restricted: true;\n        allocation?: AppointmentScope & Period & Proof & Readonly<{\n            decisionRef: string;\n            intent: 'ASSIGN' | 'ADJUST' | 'RELEASE';\n        }>;\n    }>);\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "material",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appointment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "availability",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

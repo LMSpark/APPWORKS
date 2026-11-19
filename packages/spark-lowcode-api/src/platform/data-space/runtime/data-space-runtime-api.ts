@@ -46,13 +46,6 @@ type DataSpaceQueryWithConfigInput = Readonly<{
   accept?: (context: DataSpaceQueryContext) => void
   definition?: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 }>
-/** 未确认批次的核验输入：当前 scope、本次再提交的批次及其签名。 */
-type DataSpaceRuntimeVerifyCommand = Readonly<{scope: string; changes: readonly DataSpaceRuntimeSaveChange[]
-  pending: DataSpaceRuntimeUnconfirmed; signature: string; proofChanges: readonly DataSpaceRuntimeSaveChange[]}>
-/** 单模型核验结论；applied 时 receipt 为回读行，可交原上下文接纳。 */
-type DataSpaceRuntimeVerifyOutcome = Readonly<{state: 'applied' | 'absent' | 'unknown'
-  requested: ReturnType<DataSpaceQueryContext['prepareSaveChanges']>
-  receipt: Parameters<DataSpaceQueryContext['acceptSaveReceipt']>[0]['receipt']; queried?: DataSpaceQueryContext}>
 type DataSpaceRuntimeQueryFlight = Promise<DataSpaceQueryContext>
 type DataSpaceRuntimeQueryFlights = Set<DataSpaceRuntimeQueryFlight>
 /** 来源类型改变时须仍成立的查询特征；由运行请求或持久视图配置提供。 */
@@ -521,8 +514,17 @@ export class DataSpaceRuntimeApi {
     const changes = command.changes.map(change => ({ ...change,
       identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
     const signature = JSON.stringify(changes.map(change => ({identity: change.identity, changes: change.changes})))
-    const pending = changes.map(change => this.#unconfirmed.get(change.context)).find(item => item !== undefined)
-    if (pending) return this.verifyUnconfirmed({scope, changes, pending, signature,proofChanges:command.changes})
+    const assertNoPending = () => {
+      const pending = changes.map(change => this.#unconfirmed.get(change.context)).find(item => item !== undefined)
+      if (!pending) return
+      if (signature !== pending.signature || changes.length !== pending.contexts.size
+        || changes.some(change => !pending.contexts.has(change.context))) {
+        throw new Error('SPARK_SAVE_UNCONFIRMED: 请先核验原提交，不能夹带另一批修改')
+      }
+      changes.forEach(change => this.assertContextOwner(scope, change))
+      throw new Error('SPARK_SAVE_UNVERIFIABLE: 服务未提供原请求的权威终态，原提交仍待核验')
+    }
+    assertNoPending()
     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
     changes.forEach(change => this.assertContextOwner(scope, change))
     const config = DataSpaceRequestConfig.resolveSave(changes)
@@ -535,6 +537,7 @@ export class DataSpaceRuntimeApi {
         if (flights !== undefined) await Promise.allSettled([...flights])
       }))
       this.assertScope(scope)
+      assertNoPending()
       changes.forEach(change => this.assertContextOwner(scope, change))
       this.invalidateQueryCache()
       let receipts: DataSpaceRuntimeSaveResult
@@ -582,99 +585,7 @@ export class DataSpaceRuntimeApi {
     })
   }
 
-  /**
-   * 核验未确认的原批次：按正式主键回读，新增须存在、修改字段须一致、删除须不存在。
-   * 全部生效以回读行形成回执；修改/删除全部明确未生效才解除待核验并保留草稿。
-   * 新增查不到提交键仍保持未知：服务端可能重分配主键，缺少原回执不能据此证明未生效。
-   */
-  private async verifyUnconfirmed(command: DataSpaceRuntimeVerifyCommand): Promise<DataSpaceRuntimeSaveResult> {
-    const {scope, changes, pending, signature} = command
-    if (signature !== pending.signature || changes.length !== pending.contexts.size || changes.some(change => !pending.contexts.has(change.context))) {
-      throw new Error('SPARK_SAVE_UNCONFIRMED: 请先核验原提交，不能夹带另一批修改')
-    }
-    changes.forEach(change => this.assertContextOwner(scope, change))
-    const outcomes = await Promise.all(changes.map(change => this.verifyChange(change)))
-    this.assertScope(scope)
-    if (outcomes.every(outcome => outcome.state === 'applied')) {
-      this.invalidateQueryCache()
-      const receipts = changes.map((change, index) => {
-        const outcome = outcomes[index]
-        if (!outcome) throw new Error('save outcome missing for change')
-        let receipt = change.context.acceptSaveReceipt({requested: outcome.requested, receipt: outcome.receipt})
-        if (outcome.queried && receipt.added.length) {
-          try {
-            const context = receipt.context.withSavedRowPermissions(outcome.queried, receipt.added.map(row => receipt.context.rowKey(row)))
-            receipt = {...receipt, context}
-          } catch {this.assertScope(scope)}
-        }
-        return receipt
-      })
-      receipts.forEach((receipt,index)=>{
-        const change=changes[index]
-        if(!change)throw new Error('save outcome missing original change')
-        this.#contexts.delete(change.context)
-        this.#contexts.set(receipt.context,this.resourceKey(scope,change.identity))
-        const origin=this.#queryOrigins.get(change.context)
-        if(origin)this.#queryOrigins.set(receipt.context,origin)
-      })
-      for (const context of pending.contexts) this.#unconfirmed.delete(context)
-      return receipts
-    }
-    if (outcomes.every(outcome => outcome.state === 'absent')) {
-      for (const context of pending.contexts) this.#unconfirmed.delete(context)
-      throw new SparkData.DataViewSaveNotAppliedError(command.proofChanges, 'SPARK_SAVE_NOT_APPLIED: 原提交未生效，草稿已保留；可显式重新保存')
-    }
-    throw new Error('SPARK_SAVE_UNVERIFIABLE: 原提交部分生效或无法按主键核验，不能重新提交；请重新打开页面后查询实际结果')
-  }
-
-  private async verifyChange(change: DataSpaceRuntimeSaveChange): Promise<DataSpaceRuntimeVerifyOutcome> {
-    const requested = change.context.prepareSaveChanges(structuredClone(change.changes))
-    const keyField = change.context.resultPrimaryKey
-    const key = (row: Readonly<Record<string, unknown>>): string => {
-      const value = row[keyField]
-      return value === undefined || value === null ? '' : String(value).trim()
-    }
-    const added = (requested.added ?? []).map(key), changed = requested.changed ?? [], deleted = (requested.deleted ?? []).map(key)
-    const unknown = {state: 'unknown' as const, requested, receipt: {metaName: change.identity.metaName, added: [], changed: [], deleted: []}}
-    if (!keyField || keyField === '_pk' || added.some(item => !item) || deleted.some(item => !item)) return unknown
-    const keys = [...new Set([...added, ...changed.map(key), ...deleted])]
-    if (keys.some(item => !item)) return unknown
-    const origin = this.#queryOrigins.get(change.context)
-    const {sort, tree, ...base}: DataSpaceQueryOptions = origin?.options ?? {}
-    const requestKey = origin?.definition?.fields.find(field => field.canonicalName === keyField)?.name ?? keyField
-    const fields = base.fields === undefined || base.fields.some(field => (typeof field === 'string' ? field : field.name) === requestKey)
-      ? base.fields : [...base.fields, requestKey]
-    void sort; void tree
-    const context = await this.queryWithConfig({
-      identity: change.identity,
-      options: {...base, ...(fields === undefined ? {} : {fields}), filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: keys}),
-        pagination: 'paged', page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
-      config: origin?.config ?? DataSpaceRequestConfig.resolveQuery(),
-      ...(origin?.accept === undefined ? {} : {accept: origin.accept}),
-      ...(origin?.definition === undefined ? {} : {definition: origin.definition}),
-    })
-    if (context.rows.some(row => !keys.includes(key(row)))) return unknown
-    const found = new Map(context.rows.map(row => [String(context.rowKey(row) ?? '').trim(), row]))
-    if (found.size !== context.rows.length || context.total !== context.rows.length) return unknown
-    const same = (left: unknown, right: unknown) => Object.is(left, right) || JSON.stringify(left) === JSON.stringify(right)
-    const states = [
-      ...added.map(item => found.has(item) ? 'applied' : 'unknown'),
-      ...changed.map(row => {
-        const actual = found.get(key(row))
-        const changedFields = Object.keys(row).filter(field => field !== keyField)
-        if (!actual || changedFields.some(field => !Object.hasOwn(actual, field))) return 'unknown'
-        const equal = changedFields.filter(field => same(actual[field], row[field])).length
-        return equal === changedFields.length ? 'applied' : equal === 0 ? 'absent' : 'unknown'
-      }),
-      ...deleted.map(item => found.has(item) ? 'absent' : 'applied'),
-    ]
-    const state = states.every(item => item === 'applied') ? 'applied' : states.every(item => item === 'absent') ? 'absent' : 'unknown'
-    return {state, requested, queried: context, receipt: {metaName: change.identity.metaName,
-      added: added.map(item => found.get(item) ?? {}), changed: changed.map(row => found.get(key(row)) ?? {}),
-      deleted: [...(requested.deleted ?? [])]}}
-  }
-
-  private async refreshSavedPermissions(parameters:Readonly<{context:DataSpaceQueryContext;identity:DataSpaceQueryIdentity;scope:string;heldMutationKeys?:ReadonlySet<string>|undefined;targetIds?:readonly unknown[]|undefined}>): Promise<DataSpaceQueryContext> {
+    private async refreshSavedPermissions(parameters:Readonly<{context:DataSpaceQueryContext;identity:DataSpaceQueryIdentity;scope:string;heldMutationKeys?:ReadonlySet<string>|undefined;targetIds?:readonly unknown[]|undefined}>): Promise<DataSpaceQueryContext> {
  const {context,identity,scope,heldMutationKeys,targetIds}=parameters
 
     this.assertContextOwner(scope, {identity, context, changes: {}})

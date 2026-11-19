@@ -55,12 +55,12 @@ it('clears a stale association without demanding that its old mapping still exis
  await f.command('Base_ImportData_Config').save()
  expect(f.http.records['Base_ImportData_Config']![1]).toMatchObject({parentField:'',parentFieldDesc:''})
 })
-it('verifies the original deletion capture without replaying or starting a new dependency scan after reply loss',async()=>{
+it('keeps the original deletion unknown without replaying or scanning dependencies again',async()=>{
  const f=await fixture();await f.fields.removeRow('PF');const command=f.command('Base_ImportData_Field');f.http.failAfterWrite=true
  await expect(command.save()).rejects.toThrow();const writes=f.http.saves.length,reads=f.http.reads.length
  f.http.records['Base_ImportData_Config']![1]!['parentField']='code'
- await command.save()
- expect(command.getState().done).toBe(true);expect(f.http.saves).toHaveLength(writes)
+ await expect(command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+ expect(command.getState().done).toBe(false);expect(f.http.saves).toHaveLength(writes)
  expect(f.http.reads.slice(reads).some(read=>read.table==='Base_ImportData_Config')).toBe(false)
 })
 

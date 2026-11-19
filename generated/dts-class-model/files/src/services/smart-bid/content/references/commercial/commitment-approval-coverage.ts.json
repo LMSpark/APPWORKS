@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/commitment-approval-coverage",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/commitment-approval-coverage.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/commitment-approval-coverage",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/commitment-approval-coverage\n职责：动作30逐字段核同范围、同用途的批准依据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Field": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Field",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "PRICE",
+            "PERSON",
+            "OTHER"
+          ]
+        },
+        "value": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "key",
+        "kind",
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "Approval": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Approval",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "PERSON",
+            "PRICE",
+            "OTHER"
+          ]
+        },
+        "value": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "purposeRef": {
+          "type": "string"
+        },
+        "decisionRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "sourceVersion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "key",
+        "kind",
+        "value",
+        "unit"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T20:27:38.238Z",
+  "models": {
+    "Field": {
+      "name": "Field",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    key: string;\n    kind: 'PRICE' | 'PERSON' | 'OTHER';\n    value: string;\n    unit: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    key: string;\n    kind: 'PRICE' | 'PERSON' | 'OTHER';\n    value: string;\n    unit: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unit",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Approval": {
+      "name": "Approval",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Field & Readonly<{\n    scopeRef: string;\n    purposeRef: string;\n    decisionRefs: readonly string[];\n    usable: boolean;\n    sourceVersion?: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    kind: 'PERSON';\n    projectId: string;\n}> | Readonly<{\n    kind: 'PRICE' | 'OTHER';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Field",
+            "targetName": "Field"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    scopeRef: string;\n    purposeRef: string;\n    decisionRefs: readonly string[];\n    usable: boolean;\n    sourceVersion?: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'PERSON';\n    projectId: string;\n}> | Readonly<{\n    kind: 'PRICE' | 'OTHER';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purposeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ import {RendererTable, registerAllRenderers, Spark} from '@spark-appworks/spark-
 import {resolveDataViewKey} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {fieldEditPrepareReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
 import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references'
 import {LowcodeDataSpaceModelDependencies} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session'
@@ -258,19 +258,33 @@ describe('computed field removal', () => {
       expect(writes(f)).toHaveLength(1)
       const capture = removal.getRecoveryCapture()
       expect(capture).toBeDefined(); expect(model.getRecoveryCapture()).toBe(capture)
-      if (outcome !== 'readback') await expect(model.reload(true)).rejects.toThrow('3 字段呈现')
-      expect(await verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, capture!)).toMatch(/confirmed|already-confirmed/)
-      await model.reload(true)
-      await fieldEditReloadBatch(owners, true)
-      await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
-      expect(await removal.verify()).toBe(outcome === 'readback')
-      if (outcome === 'lost') removal.acceptCurrent()
+      await expect(model.reload(true)).rejects.toThrow('3 字段呈现')
+      expect(model.getRecoveryCapture()).toBe(capture)
+      if (outcome === 'lost') {
+        await expect(verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, capture!)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(removal.getRecoveryCapture()).toBe(capture)
+      } else {
+        expect(await verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, capture!)).toBe('already-confirmed')
+        const reloadModel = model.prepareReload(true)
+        const reloadFields = fieldEditPrepareReloadBatch(owners, true)
+        const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, true)
+        await reloadModel()
+        await reloadFields()
+        await reloadInputs()
+        expect(await removal.verify()).toBe(true)
+      }
     }
     expect(writes(f)).toHaveLength(1)
     expect(inputView.getEditingRow('I1')?.['ValueFun']).toBe(value)
-    expect(inputs[0]!.getState()).toEqual({status: 'idle', pending: false})
-    expect(removal.getState().pending).toBe(false)
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    if (outcome === 'lost') {
+      expect(inputView.hasUnconfirmedSave).toBe(true)
+      expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
+      expect(removal.getState().pending).toBe(true)
+    } else {
+      expect(inputs[0]!.getState()).toEqual({status: 'idle', pending: false})
+      expect(removal.getState().pending).toBe(false)
+      expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    }
     const reopened = await f.open('A'), loaded = await reopened.loadModelFields('M1'), freshInputs = await reopened.loadSourceInputFields('M1')
     expect(loaded.rows.some(row => row['rowid'] === 'CALC')).toBe(false)
     expect(loaded.getEditingRow(createdId)?.['Name']).toBe('extra')
@@ -331,9 +345,9 @@ describe('computed field removal', () => {
     await owner.preview()
     if (lost) {
       f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-      expect(await owner.verify()).toBe(false)
-      expect(owner.getState().verification).toContain('缺少完整删除回执')
-      owner.acceptCurrent()
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(source.hasUnconfirmedSave).toBe(true)
+      expect(() => owner.acceptCurrent()).toThrow()
     } else expect(await owner.save()).toBe(true)
     expect(writes(f)).toHaveLength(1)
     expect(defaults.every(view => view.rows.length === 0)).toBe(true)
@@ -513,7 +527,16 @@ describe('computed field removal', () => {
     await wrapper.get('[data-action="save-field"]').trigger('click'); await flushPromises()
     expect(session.hasPendingFieldEdits()).toBe(true); expect(writes(f)).toHaveLength(1)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    if (outcome !== 'readback') {
+    if (outcome === 'lost') {
+      expect(session.hasPendingFieldEdits()).toBe(true)
+      expect(original.hasUnconfirmedSave).toBe(true)
+      expect(wrapper.find('[data-action="accept-field-removals"]').exists()).toBe(false)
+      const fresh = await (await f.open('A')).loadModelFields('M1')
+      expect(fresh.rows.some(row => row['rowid'] === 'CALC')).toBe(false)
+      expect(writes(f)).toHaveLength(1)
+      return
+    }
+    if (outcome === 'surviving') {
       expect(session.hasPendingFieldEdits()).toBe(true)
       expect(wrapper.find('[data-action="accept-field-removals"]').exists()).toBe(true)
       await wrapper.get('[data-action="accept-field-removals"]').trigger('click'); await flushPromises()
@@ -547,19 +570,21 @@ describe('computed field removal', () => {
     expect(view.hasUnconfirmedSave).toBe(true); expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
     expect(writes(f)).toHaveLength(1)
 
-    f.failNextQuery()
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
     expect(removal.getRecoveryCapture()).toBe(capture)
     expect(view.hasUnconfirmedSave).toBe(true); expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
     expect(writes(f)).toHaveLength(1)
 
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(view.hasUnconfirmedSave).toBe(false)
-    expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(false)
-    expect(view.rows.some(row => row['rowid'] === 'CALC')).toBe(true)
-    expect(wrapper.find('[data-action="accept-field-removals"]').exists()).toBe(true)
-    await wrapper.get('[data-action="accept-field-removals"]').trigger('click'); await flushPromises()
-    expect(writes(f)).toHaveLength(1); expect(removal.getState().status).toBe('idle')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
+    expect(removal.getRecoveryCapture()).toBe(capture)
+    expect(wrapper.find('[data-action="accept-field-removals"]').exists()).toBe(false)
+    f.failNextQuery()
+    await expect(f.open('A')).rejects.toThrow('query unavailable')
+    const fresh = await (await f.open('A')).loadModelFields('M1')
+    expect(fresh.rows.some(row => row['rowid'] === 'CALC')).toBe(true)
+    expect(writes(f)).toHaveLength(1)
   })
 
   it('preserves a later field patch when delete-only native verification is delayed', async () => {
@@ -588,6 +613,7 @@ describe('computed field removal', () => {
     const session = await f.open('A'); await session.loadModelFields('M1')
     const view = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     const field = session.getFieldEdit('CALC', 'modelFields')
+    const baseline = view.getEditingRow('CALC')?.['ValueFun']
     view.updateEditingValue('CALC', 'ValueFun', '{"Type":"GetConstValue","Value":7}')
     f.loseNextResponse(); await expect(session.getModelEdit('M1').save([field])).rejects.toThrow()
     const batch = field.getRecoveryCapture()!
@@ -597,9 +623,9 @@ describe('computed field removal', () => {
     await vi.waitFor(() => expect(view.requestState).toBe(3))
     expect(await view.editRowById('CALC', {ValueFun: '{"Type":"GetConstValue","Value":8}'})).toBe(true)
     release()
-    await expect(verification).rejects.toThrow('原目标出现新草稿')
-    expect(view.hasUnconfirmedSave).toBe(false)
-    expect(view.getDirtyChanges('CALC')).toMatchObject({ValueFun: {from: '{"Type":"GetConstValue","Value":7}', to: '{"Type":"GetConstValue","Value":8}'}})
+    await expect(verification).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.getDirtyChanges('CALC')).toMatchObject({ValueFun: {from: baseline, to: '{"Type":"GetConstValue","Value":8}'}})
     expect(view.rows.find(row => row['rowid'] === 'CALC')?.['ValueFun']).toBe('{"Type":"GetConstValue","Value":8}')
     expect(writes(f)).toHaveLength(1)
   })
@@ -611,10 +637,9 @@ describe('computed field removal', () => {
     f.loseNextResponse()
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(wrapper.find('[data-action="accept-field-removals"]').exists(), wrapper.text()).toBe(true)
+    expect(wrapper.find('[data-action="accept-field-removals"]').exists(), wrapper.text()).toBe(false)
     expect(f.sessions[0]!.hasPendingFieldEdits()).toBe(true)
-    await wrapper.get('[data-action="accept-field-removals"]').trigger('click'); await flushPromises()
-    expect(f.sessions.at(-1)!.hasPendingFieldEdits()).toBe(false)
+    expect(wrapper.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
     expect(writes(f)).toHaveLength(1)
     expect(f.sessions).toHaveLength(1)
   })
@@ -711,9 +736,11 @@ describe('computed field removal', () => {
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
     await expect(owner.save()).rejects.toThrow('重复提交')
-    expect(await owner.verify()).toBe(false)
-    expect(owner.getState().verification).toContain('缺少')
-    owner.acceptCurrent()
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().pending).toBe(true)
+    expect(() => owner.acceptCurrent()).toThrow()
+    const fresh = await (await f.open('A')).loadModelFields('M1')
+    expect(fresh.rows.some(row => row['rowid'] === 'CALC')).toBe(false)
     expect(writes(f)).toHaveLength(1)
   })
   it('keeps a confirmed but failed readback pending, then retries only reading', async () => {

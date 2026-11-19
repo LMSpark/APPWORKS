@@ -20,6 +20,21 @@
         "record": {
           "type": "object",
           "properties": {
+            "combinedWithdrawalTarget": {
+              "type": "string"
+            },
+            "withdrawalEvidenceRef": {
+              "type": "string"
+            },
+            "withdrawalRuleRef": {
+              "type": "string"
+            },
+            "withdrawalAuthorityVersionId": {
+              "type": "string"
+            },
+            "withdrawalAuthorityDecisionRef": {
+              "type": "string"
+            },
             "requestKey": {
               "type": "string"
             },
@@ -151,7 +166,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T08:42:58.456Z",
+  "generatedAt": "2026-11-19T00:44:15.319Z",
   "models": {
     "Prepared": {
       "name": "Prepared",

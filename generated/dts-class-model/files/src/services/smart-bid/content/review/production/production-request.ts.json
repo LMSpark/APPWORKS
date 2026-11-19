@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/production-request",
+    "sourcePath": "src/services/smart-bid/content/review/production/production-request.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/production-request",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/production-request\n职责：动作40固定制件用途、修订和可追溯输入，形成待登记的制作请求。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "documentId",
+        "revisionId",
+        "baselineId"
+      ],
+      "additionalProperties": false
+    },
+    "Version": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Version",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "CANDIDATE",
+            "ADOPTED"
+          ]
+        },
+        "rootHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "documentId",
+        "revisionId",
+        "baselineId"
+      ]
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "templateVersionRef": {
+          "type": "string"
+        },
+        "ruleVersionRef": {
+          "type": "string"
+        },
+        "factRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formRequired": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "formVersionRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requiredAttachmentRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attachmentRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "documentId",
+        "revisionId",
+        "baselineId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T16:10:42.242Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    documentId: string;\n    revisionId: string;\n    baselineId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    documentId: string;\n    revisionId: string;\n    baselineId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Version": {
+      "name": "Version",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    state: 'CANDIDATE' | 'ADOPTED';\n    rootHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    state: 'CANDIDATE' | 'ADOPTED';\n    rootHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    templateVersionRef: string;\n    ruleVersionRef: string;\n    factRefs: readonly string[];\n    formRequired: boolean;\n    formVersionRef: string | null;\n    requiredAttachmentRefs: readonly string[];\n    attachmentRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    templateVersionRef: string;\n    ruleVersionRef: string;\n    factRefs: readonly string[];\n    formRequired: boolean;\n    formVersionRef: string | null;\n    requiredAttachmentRefs: readonly string[];\n    attachmentRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "templateVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formRequired",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formVersionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiredAttachmentRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attachmentRefs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

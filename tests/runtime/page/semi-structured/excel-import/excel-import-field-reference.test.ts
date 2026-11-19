@@ -131,7 +131,7 @@ it('proves a table database with exact queries when the same connection name bel
  const command=await stored(f,{isDict:0,refDataid:'T1',refTable:'数据库一@table_one',textField:'name',valueField:'id',filterField:'',filterValue:''})
  expect((await command.restoreStored({loadSource:loadSource(f),assertCurrent:()=>{}}))?.databaseId).toBe('D1')
  f.source.http.records['_Base_TblList']!.push({rowid:'T1',dbid:'D3',tblname:'table_one'})
- await expect(command.restoreStored({loadSource:loadSource(f),assertCurrent:()=>{}})).rejects.toThrow('身份不唯一')
+ await expect(command.restoreStored({loadSource:loadSource(f),assertCurrent:()=>{}})).rejects.toThrow('SPARK 批量查询记录主键重复')
  expect(f.target.fields.hasEditingChanges()).toBe(false)
 })
 it('refuses masked saved identities before querying metadata and keeps a changed draft after a late response',async()=>{

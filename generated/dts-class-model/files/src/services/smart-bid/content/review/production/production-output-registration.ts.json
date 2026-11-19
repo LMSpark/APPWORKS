@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/production-output-registration",
+    "sourcePath": "src/services/smart-bid/content/review/production/production-output-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/production-output-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/production-output-registration",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/production-output-registration\n职责：动作41核验工具导出实件，固定原制作及输出的待登记数据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "inputDigest": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "baselineId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "purpose": {
+              "enum": [
+                "REVIEW",
+                "FORMAL"
+              ]
+            },
+            "toolVersionRef": {
+              "type": "string"
+            },
+            "outputOptions": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "rootHash": {
+              "type": "string"
+            },
+            "templateVersionRef": {
+              "type": "string"
+            },
+            "ruleVersionRef": {
+              "type": "string"
+            },
+            "formVersionRef": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "factRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "attachmentRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "inputDigest",
+            "projectId",
+            "documentId",
+            "revisionId",
+            "baselineId",
+            "requestKey",
+            "purpose",
+            "toolVersionRef",
+            "outputOptions",
+            "rootHash",
+            "templateVersionRef",
+            "ruleVersionRef",
+            "formVersionRef",
+            "factRefs",
+            "attachmentRefs"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "request",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Origin": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Origin",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "requestKey",
+        "documentId",
+        "inputDigest"
+      ],
+      "additionalProperties": false
+    },
+    "ExportReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExportReceipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        },
+        "outputRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "requestKey",
+        "documentId",
+        "inputDigest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T16:41:29.481Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareProductionRequest>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareProductionRequest>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Origin": {
+      "name": "Origin",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Prepared['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Prepared['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ExportReceipt": {
+      "name": "ExportReceipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Origin & Readonly<{\n    productionRequestRef: string;\n    outputRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Origin",
+            "targetName": "Origin"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    productionRequestRef: string;\n    outputRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -30,6 +30,18 @@ type DictionaryWorkspaceInput = Readonly<{
   create?: boolean
 }>
 
+type DictionarySaveCapture = {view: DataView; ids: Array<string | number>; failure: Error | undefined}
+
+function dictionaryDraftIds(view: DataView): Array<string | number> {
+  const tracking = view.dirtyTracking
+  const ids = new Set([...tracking.pendingCreateIds, ...tracking.dirtyRowIds, ...tracking.pendingDeleteIds])
+  for (const row of view.rows) {
+    const id = view.getPkKey(row)
+    if (id !== undefined && view.hasEditingChanges(id)) ids.add(id)
+  }
+  return [...ids]
+}
+
 /** 定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。 */
 export class DictionaryWorkspace {
   /** 方案设计定义视图；数据页只消费其已保存配置。 */
@@ -39,8 +51,7 @@ export class DictionaryWorkspace {
   readonly #input: DictionaryWorkspaceInput
   readonly #purpose: DictionaryWorkspaceInput['purpose']
   #busy = false
-  #uncertain = false
-  #verificationCaptureLost = false
+  #unconfirmed: DictionarySaveCapture[] = []
   #entriesLoaded = false
   #creating: boolean
 
@@ -66,11 +77,11 @@ export class DictionaryWorkspace {
 
   /** 是否有本地编辑或结果待核验；宿主以此阻止误关和目标切换。 */
   get pending(): boolean {
-    return this.#uncertain || [this.definition, this.entries].some(view => view.hasEditingChanges()
+    return this.requiresVerification || [this.definition, this.entries].some(view => view.hasEditingChanges()
       || view.dirtyTracking.hasPendingChanges())
   }
   /** 提交回执不确定时，禁用再次保存并提供显式重读入口。 */
-  get requiresVerification(): boolean { return this.#uncertain }
+  get requiresVerification(): boolean { return this.#unconfirmed.length > 0 }
   /** 删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。 */
   get removed(): boolean { return false }
 
@@ -80,22 +91,25 @@ export class DictionaryWorkspace {
     this.#busy = true
     try {
       const recoveryViews = this.#entriesLoaded ? [this.entries, this.definition] : [this.definition]
-      const hasUnknown = recoveryViews.some(view => view.hasUnconfirmedSave)
-      if (!hasUnknown && this.#verificationCaptureLost) throw new Error('字典提交结果缺少可核验的原捕获，不能安全重读')
-      if (hasUnknown) {
-        try {
-          const receipts = await DataView.saveQueryViews(recoveryViews.map(view => ({view})))
-          if (recoveryViews.some(view => view.hasUnconfirmedSave) || receipts.some(receipt => !receipt.success)) {
-            throw new Error('字典原提交仍未能核验')
-          }
-        } catch (error) {
-          const notApplied = error instanceof Error && error.message.startsWith('SPARK_SAVE_NOT_APPLIED:')
-          this.#uncertain = !notApplied
-          this.#verificationCaptureLost = !notApplied && !recoveryViews.some(view => view.hasUnconfirmedSave)
-          throw error
+      if (!this.requiresVerification) this.#unconfirmed = recoveryViews.filter(view => view.hasUnconfirmedSave)
+        .map(view => ({view, ids: dictionaryDraftIds(view), failure: view.mutatingError ?? undefined}))
+      if (this.#unconfirmed.length) {
+        if (this.#unconfirmed.some(({view, ids, failure}) => !failure || !view.hasUnconfirmedSaveFor(ids, failure))) {
+          throw new Error('字典提交结果缺少可核验的原捕获，不能安全重读')
         }
-        this.#uncertain = false
-        this.#verificationCaptureLost = false
+        const resolution = await DataView.resolveQuerySaves(this.#unconfirmed.map(item => item.view))
+        this.#unconfirmed = this.#unconfirmed.filter(capture => {
+          const result = resolution.views.find(item => item.tableName === capture.view.tableName && item.viewId === capture.view.viewId)
+          if (result?.state === 'unknown' && result.error && capture.view.hasUnconfirmedSaveFor(capture.ids, result.error)) {
+            capture.failure = result.error
+          }
+          return !result || result.state === 'unknown'
+        })
+        if (this.requiresVerification) {
+          throw resolution.views.find(view => view.state === 'unknown')?.error ?? new Error('字典原提交仍未能核验')
+        }
+        const notApplied = resolution.views.find(view => view.state === 'not-applied')
+        if (notApplied) throw notApplied.error ?? new Error('字典原提交未执行，原草稿保留')
         this.#creating = false
         if (this.pending) throw new Error('原提交已确认，仍有随后发生的编辑，请保留并处理')
       } else if (discard) {
@@ -115,8 +129,6 @@ export class DictionaryWorkspace {
       }
       this.assertScope()
       this.definition.setCurrentRow(this.definition.rows[0] ?? null)
-      this.#uncertain = false
-      this.#verificationCaptureLost = false
     } finally { this.#busy = false }
   }
 
@@ -187,7 +199,7 @@ export class DictionaryWorkspace {
    * @returns 当前可移除该条目或取消其新增草稿时为true。
    */
   canRemoveEntry(id: string | number): boolean {
-    if (this.#busy || this.#uncertain) return false
+    if (this.#busy || this.requiresVerification) return false
     const row = this.entries.rows.find(item => this.entries.getPkKey(item) === id)
     return !!row && (this.entries.dirtyTracking.pendingCreateIds.has(id) || this.entries.deleteActionState(row) === 'enabled')
   }
@@ -219,7 +231,7 @@ export class DictionaryWorkspace {
   /** 显示可用性与执行共用的无副作用检查；不查询、不修改或保存数据。 */
   private displayedOrderTargets(): Array<{id: string | number; order: number}> | undefined {
     try {
-      if (this.#busy || this.#uncertain || this.#creating
+      if (this.#busy || this.requiresVerification || this.#creating
         || this.#input.dataSet.destroyed || this.definition.destroyed || this.entries.destroyed
         || this.definition.hasUnconfirmedSave || this.entries.hasUnconfirmedSave
         || this.definition.mutating || this.entries.mutating
@@ -260,7 +272,7 @@ export class DictionaryWorkspace {
   }
 
   private async save(target: DataView): Promise<void> {
-    if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
+    if (this.#busy || this.requiresVerification) throw new Error('字典提交或结果核验尚未结束')
     const other = target === this.definition ? this.entries : this.definition
     if (other.hasEditingChanges() || other.dirtyTracking.hasPendingChanges()) throw new Error('设计配置与业务数据必须分别维护和保存，请先取消另一类修改')
     const row = this.definition.getEditingRow(this.#input.dictionaryId)
@@ -312,17 +324,18 @@ export class DictionaryWorkspace {
   }
 
   private async commit(target: DataView): Promise<void> {
+    const ids = dictionaryDraftIds(target)
     this.#busy = true
     try {
-      const saved = await this.#input.dataSet.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
+      const saved = await this.#input.dataSet.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId, ids}]})
       if (!saved.success) throw new Error(saved.message ?? '字典保存未完整确认')
     } catch (error) {
-      const hasNativeCapture = [this.definition, this.entries].some(view => view.hasUnconfirmedSave)
-      this.#uncertain = hasNativeCapture
-      this.#verificationCaptureLost = false
+      if (target.hasUnconfirmedSave) {
+        const originalIds = ids.filter(id => target.dirtyTracking.hasPendingChanges(id))
+        this.#unconfirmed = [{view: target, ids: originalIds, failure: error instanceof Error ? error : undefined}]
+      }
       throw error
-    }
-    finally { this.#busy = false }
+    } finally { this.#busy = false }
   }
 
   private async loadEntries(requireComplete: boolean): Promise<void> {
@@ -349,7 +362,7 @@ export class DictionaryWorkspace {
   }
 
   private assertEditable(): void {
-    if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
+    if (this.#busy || this.requiresVerification) throw new Error('字典提交或结果核验尚未结束')
     this.assertScope()
   }
 
@@ -357,7 +370,7 @@ export class DictionaryWorkspace {
     if (!Array.isArray(values)) throw new Error('候选条目必须是数组')
     if (values.length === 0) return []
     this.assertEntryAppendContext()
-    if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
+    if (this.#busy || this.requiresVerification) throw new Error('字典提交或结果核验尚未结束')
     if (this.#creating) throw new Error('当前字典状态不允许新增条目')
     if (this.definition.hasEditingChanges() || this.definition.dirtyTracking.hasPendingChanges()) {
       throw new Error('字典定义有未保存修改，不能确认候选条目')

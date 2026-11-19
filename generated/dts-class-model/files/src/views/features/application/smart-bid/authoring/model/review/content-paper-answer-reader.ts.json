@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader\n职责：第42项回读原纸件、份次及页栏；封装归属及截止另核。\n边界：纸件登记提供份次与页标识，SPARK Data 提供原填报位置及可读值。\nAI用途：核对纸件观察是否对应实际登记份次和页栏。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {
@@ -82,7 +82,7 @@
       ]
     }
   },
-  "generatedAt": "2026-11-18T08:41:43.990Z",
+  "generatedAt": "2026-11-19T00:29:42.268Z",
   "models": {
     "PaperScope": {
       "name": "PaperScope",

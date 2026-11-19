@@ -7,8 +7,8 @@
     "sourceFile": "src/services/application-scope.ts",
     "packageName": "app",
     "modulePath": "services/application-scope",
-    "jsdoc": "Application Path Scope 的语义模型。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "app 的 services/application-scope 模块。\n导出 DtsTypeDeclarationModel symbol: ApplicationPathScope（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
     "symbols": [
       "ApplicationPathScope"
     ]
@@ -29,7 +29,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T20:50:07.248Z",
+  "generatedAt": "2026-11-18T10:02:10.561Z",
   "models": {
     "ApplicationPathScope": {
       "name": "ApplicationPathScope",

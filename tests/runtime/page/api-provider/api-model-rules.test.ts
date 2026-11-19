@@ -119,15 +119,17 @@ it.each([API,CONFIG])('allows two distinct public parameter names to reference t
  expect((await directSave(v)).success).toBe(true)
  expect(api.current.state.http.records['Base_Interface_PublicParam']!.filter(r=>r['providerId']==='P1'&&r['interfaceId']==='I1'&&r['outputfield']==='token')).toHaveLength(2)
 })
-it('verifies an unknown original binding save without rerunning reference queries or replaying writes',async()=>{
+it('retains an unknown original binding save without rerunning queries or replaying writes',async()=>{
  const {v}=await parameters(API)
  for(const [field,value]of Object.entries({interfaceId:'I2',outputfield:'data',interfaceName:'查询',accessPath:'/query'}))v.updateEditingValue('Q1',field,value)
  api.current.state.http.failAfterWrite=true
  await expect(directSave(v)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED');expect(v.hasUnconfirmedSave).toBe(true)
  const writes=api.current.state.http.saves.length,reads=api.current.state.http.reads.length
- expect((await directSave(v)).success).toBe(true);expect(v.hasUnconfirmedSave).toBe(false)
+ await expect(directSave(v)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+ expect(v.hasUnconfirmedSave).toBe(true)
+ expect(v.getEditingRow('Q1')?.['interfaceId']).toBe('I2')
  expect(api.current.state.http.saves).toHaveLength(writes)
- expect(api.current.state.http.reads.slice(reads).every(r=>r.table==='Base_Interface_PublicParam')).toBe(true)
+ expect(api.current.state.http.reads).toHaveLength(reads)
 })
 it('does not allow CONFIG named output views to bypass the original type option contract',async()=>{
  const {v,save}=await outputs(CONFIG,true,true,true);api.current.state.http.records['Base_Interface_PublicParam']=[]

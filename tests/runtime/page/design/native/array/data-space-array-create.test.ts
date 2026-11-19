@@ -71,14 +71,18 @@ describe('array definition creation through the formal model batch',()=>{
     expect(writes()).toHaveLength(0)
     expect(session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.hasPendingChanges()).toBe(false)
   })
-  it('verifies a lost complete receipt without replay and preserves partial array creation for recovery',async()=>{
+  it('keeps the original array creation pending whether all or only some rows were stored',async()=>{
     const one=await setup();one.f.loseNextResponse()
     await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow()
     await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow('先核验')
-    expect(await one.owner.verify()).toMatchObject({confirmed:true});expect(one.writes()).toHaveLength(1)
+    const modelIdBeforeVerify=one.owner.getState().modelId
+    expect(modelIdBeforeVerify).toBeTruthy()
+    await expect(one.owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(one.owner.getState()).toMatchObject({status:'unknown',pending:true,modelId:modelIdBeforeVerify})
+    expect(one.writes()).toHaveLength(1)
     const two=await setup({omitFieldWrite:true,omitFieldReceipt:true})
     await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow()
-    await expect(two.owner.verify()).rejects.toThrow()
+    await expect(two.owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
     const modelId=two.owner.getState().modelId!
     expect(two.owner.getState()).toMatchObject({status:'unknown',pending:true,modelId})
     expect(two.session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.isPendingCreate(modelId)).toBe(true)

@@ -395,7 +395,10 @@ export async function modelRemoveVerify(host: ModelRemoveHost): Promise<boolean>
       } else {host.flow.databaseComplete = false; host.flow.status = 'different'}
       return confirmed
     } finally {readbackGuard.dispose()}
-  } catch (error) {host.flow.status = host.flow.databaseComplete ? 'configuration' : 'readback'; throw error}
+  } catch (error) {
+    host.flow.status = capture.resolution === undefined ? 'unknown' : host.flow.databaseComplete ? 'configuration' : 'readback'
+    throw error
+  }
   finally {nativeGuard.dispose()}
 }
 

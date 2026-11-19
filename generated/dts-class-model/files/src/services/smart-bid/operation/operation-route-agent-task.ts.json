@@ -97,6 +97,29 @@
             "string"
           ]
         },
+        "requirementReads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lineageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "fieldPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lineageId",
+              "version",
+              "fieldPath"
+            ],
+            "additionalProperties": false
+          }
+        },
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
@@ -112,6 +135,7 @@
         "manifestDigest",
         "inputJson",
         "inputDigest",
+        "requirementReads",
         "assertCurrent"
       ],
       "additionalProperties": false
@@ -280,7 +304,7 @@
       ]
     }
   },
-  "generatedAt": "2026-11-18T08:26:57.245Z",
+  "generatedAt": "2026-11-19T01:37:23.745Z",
   "models": {
     "Registry": {
       "name": "Registry",
@@ -356,6 +380,11 @@
             },
             {
               "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requirementReads",
               "readable": true,
               "writable": true
             },

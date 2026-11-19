@@ -154,7 +154,12 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       const version=Math.max(0,...versions.map(item=>item.version))+1,versionedFileName=`${version}__${fileName}`
       if(!Number.isSafeInteger(version)||version<1||versions.some(item=>item.version===version&&item.fileName===versionedFileName))throw new Error('FILE_RESOURCE_VERSION: 快照版本无效或冲突')
       onAttempt({version,fileName:versionedFileName});assertCurrent()
-      try{await io.uploadVersion({appId,customPath,fileName,version,text})}catch(error){if(error instanceof LowcodeApiError&&error.code!==0){const rejection=new Error(error.message);Object.assign(rejection,{definiteNotApplied:true});throw rejection}throw error}
+      try{await io.uploadVersion({appId,customPath,fileName,version,text})}catch(error){
+        if(error instanceof LowcodeApiError&&error.code!==0&&!('fileResourceMutationMayHaveApplied'in error)){
+          const rejection=new Error(error.message);Object.assign(rejection,{definiteNotApplied:true});throw rejection
+        }
+        throw error
+      }
       assertCurrent();const [after,readback]=await Promise.all([io.listVersions({appId,customPath,fileName}),io.readVersion({appId,customPath,fileName,version})]);assertCurrent()
       if(!after.some(item=>item.version===version&&item.fileName===versionedFileName)||readback!==text)throw new Error(`FILE_RESOURCE_VERSION_UNCONFIRMED: ${versionedFileName} 目录或原文回读不一致`)},
     verify:async(resource,attempt,text)=>{const {pageId:filePage,fileName}=knownPageFileResourceIdentity(resource),customPath=`${appId}/${filePage}`,version=Number(attempt.version)
@@ -170,12 +175,14 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
         const versions=LowcodePlatform.parseLowcodeBlueprintFileVersions(versionId)
         const key=fileName==='rule.json'?'rule':fileName==='script.js'?'script':'style',version=versions[key]
         if(version===null)throw new Error(`发布指针缺少 ${fileName}`)
-        text=await io.readVersion({appId,customPath:`${appId}/${filePage}`,fileName,version})
-      }else text=await io.read(appId,filePage,fileName)
-      assertCurrent()
-      if(text===null&&input.requireExisting){
-        if(typeof versionId==='string'&&versionId)throw new Error(`FILE_RESOURCE_VERSION_MISSING: ${fileName} 发布快照不存在`)
-        throw new Error(`FILE_RESOURCE_MISSING: 工具文件 ${filePage}/${fileName} 不存在`)
+        const customPath = `${appId}/${filePage}`
+        text = await io.readVersion({appId, customPath, fileName, version})
+        assertCurrent()
+        if (text === null) throw new Error(`FILE_RESOURCE_VERSION_MISSING: 发布快照 ${customPath}/${version}__${fileName} 不存在`)
+      } else {
+        text = await io.read(appId, filePage, fileName)
+        assertCurrent()
+        if (text === null && input.requireExisting) throw new Error(`FILE_RESOURCE_MISSING: 工具文件 ${filePage}/${fileName} 不存在`)
       }
       const page=workspace?.project.findPageTool(filePage)
       const localDirty=page?.isDirty()??false
@@ -186,13 +193,13 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       }
       return text===null?null:{text,revision:typeof versionId==='string'&&versionId?versionId:'0',
         fields:{localDirty,localText}}},
-    write:async({target:resource,text})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
+    write:async({target:resource,text,baseline})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_WRITE_SCOPE: 只有工作三文件允许写入')
       if(fileName==='rule.json')new PageTool({pageId:filePage}).hydrateFileText(fileName,text)
       const page=workspace?.project.findPageTool(filePage),localText=page?.getFileText(fileName)
       const localDirty=page?.getDirtyFileNames().includes(fileName)??false
       if(input.rejectLocalDirty&&localDirty)throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑')
-      await io.upload({appId,pageId:filePage,fileName,text})
+      await io.upload({appId,pageId:filePage,fileName,text,...(baseline === null ? {} : {replace:true as const})})
       try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}
       if(input.rejectLocalDirty&&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(fileName)!==localText
         ||page?.getDirtyFileNames().includes(fileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},

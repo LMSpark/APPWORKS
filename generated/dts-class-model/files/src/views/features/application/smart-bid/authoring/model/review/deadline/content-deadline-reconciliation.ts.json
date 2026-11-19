@@ -27,7 +27,8 @@
         "requiredFields": {
           "type": "array",
           "items": {
-            "$ref": "content-deadline-field-reconciliation.ts.json#/$defs/Field"
+            "type": "object",
+            "title": "Field"
           }
         },
         "assertCurrent": {
@@ -82,7 +83,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T04:26:37.333Z",
+  "generatedAt": "2026-11-18T10:30:49.891Z",
   "models": {
     "FieldSource": {
       "name": "FieldSource",

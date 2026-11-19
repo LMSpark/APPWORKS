@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/production/candidate-production-reader\n职责：动作40从固定候选及原册节点准备供审稿制作请求。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Production": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Production",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "baselineId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "purpose": {
+              "enum": [
+                "REVIEW",
+                "FORMAL"
+              ]
+            },
+            "toolVersionRef": {
+              "type": "string"
+            },
+            "outputOptions": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "projectId",
+            "documentId",
+            "revisionId",
+            "baselineId",
+            "requestKey",
+            "purpose",
+            "toolVersionRef",
+            "outputOptions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Version"
+        },
+        {
+          "type": "object",
+          "title": "Evidence"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T16:21:21.510Z",
+  "models": {
+    "Production": {
+      "name": "Production",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareProductionRequest>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareProductionRequest>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

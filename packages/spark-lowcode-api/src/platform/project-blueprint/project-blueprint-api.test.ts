@@ -207,7 +207,7 @@ describe('LowcodeProjectBlueprintApi', () => {
     })
 
     await expect(activeApi(http).blueprint.readRecords('P1'))
-      .rejects.toEqual(new LowcodeApiError(0, '蓝图节点 id 重复：ROOT'))
+      .rejects.toThrow('SPARK 批量查询记录主键重复')
   })
 
   it('preserves multiple top-level records as one flat project blueprint', async () => {

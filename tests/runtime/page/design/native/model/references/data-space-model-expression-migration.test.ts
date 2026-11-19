@@ -144,17 +144,20 @@ describe('model filter references without SQL identity inference', () => {
     expect(session.metadataDataSet.getView('Base_DataModel_Field', 'default')!.dirtyTracking.hasPendingChanges()).toBe(false)
   })
 
-  it.each(['unknown', 'partial'])('verifies field value definitions after %s results without replay', async kind => {
+  it.each(['unknown', 'partial'])('handles field value definitions after %s results without replay', async kind => {
     const {owner, f, writes, after} = await fieldReferenceSetup(kind === 'partial' ? {omitFieldProperties: ['ValueFun']} : {})
     if (kind === 'unknown') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
     if (kind === 'partial') {
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel_Field', id: 'F5.ValueFun', result: 'copied.ValueFun与预览不同，请处理差异'})
       expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
+    } else {
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState().status).toBe('unknown')
+      expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field', 'default')!.rows.find(row => row['rowid'] === 'F5')).toHaveProperty('ValueFun', after)
     }
-    else expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field', 'default')!.rows.find(row => row['rowid'] === 'F5')).toHaveProperty('ValueFun', after)
     expect(writes()).toHaveLength(1)
   })
 
@@ -298,12 +301,13 @@ describe('model filter references without SQL identity inference', () => {
     expect(f.modelRow('M2')['JoinFilter']).toBe(before)
   })
 
-  it('verifies a lost Join migration response without replaying the native batch', async () => {
+  it('keeps a lost Join migration response pending without replaying the native batch', async () => {
     const {owner, f, writes} = await setup({}, {PId: 'Orders', JoinFilter: wire('CustomerSource.parentId', 'OrderSource.parentId')})
     f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    expect((await owner.verify()).confirmed).toBe(true)
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState().status).toBe('unknown')
     expect(writes()).toHaveLength(1)
     expect(f.modelRow('M2')['JoinFilter']).toBe(wire('CustomerSource.parentId', 'NextOrders.parentCode'))
   })
@@ -403,15 +407,19 @@ describe('model filter references without SQL identity inference', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it.each(['partial', 'unknown'])('rereads both models after %s results without replaying a write', async kind => {
+  it.each(['partial', 'unknown'])('handles %s results for both models without replaying a write', async kind => {
     const {owner, f, writes} = await setup({}, {Filter: wire('parentId', 'Orders.parentId')}, kind === 'partial' ? {omitModelProperties: ['Filter']} : {})
     if (kind === 'unknown') f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     await expect(owner.save()).rejects.toThrow('先核验')
-    expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
     if (kind === 'partial') {
+      await expect(owner.verify()).resolves.toMatchObject({confirmed: false})
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel', id: 'M2.Filter', result: 'Customers.Filter与预览不同，请处理差异'})
       expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
+    } else {
+      const preview = owner.getState().preview
+      await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+      expect(owner.getState()).toMatchObject({status: 'unknown', preview})
     }
     expect(writes()).toHaveLength(1)
   })

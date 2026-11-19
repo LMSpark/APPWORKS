@@ -90,7 +90,10 @@ describe('workflow boundaries on original node DataView',()=>{
   const f=await fixture();await f.command.stage();f.http.failAfterWrite=true
   await expect(f.command.save()).rejects.toThrow();expect(f.nodes.hasUnconfirmedSave).toBe(true)
   expect(()=>f.command.cancel()).toThrow('核验');const count=f.http.saves.length
-  await f.command.save();expect(f.http.saves).toHaveLength(count);expect(f.nodes.hasUnconfirmedSave).toBe(false);expect(f.http.records['Base_WorkflowNodeDefinition']).toHaveLength(2)
+  await expect(f.command.save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(count)
+  expect(f.nodes.hasUnconfirmedSave).toBe(true)
+  expect(f.http.records['Base_WorkflowNodeDefinition']).toHaveLength(2)
  })
  it('rejects node edits arriving while a fresh boundary check is pending',async()=>{
   const f=await fixture([0]);await f.command.stage()

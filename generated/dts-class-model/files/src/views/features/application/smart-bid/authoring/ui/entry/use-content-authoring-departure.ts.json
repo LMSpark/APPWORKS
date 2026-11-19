@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure\n职责：将页11原宿主/命令的脏状态交现有路由及系统页关闭保护。\n边界：只注册原owner的只读守卫，不保存草稿、不自动丢弃、不新建页面实例池。\nAI用途：薄宿主setup内调用；正式工具宿主关闭机制仍须公共层挂接。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T10:02:25.682Z",
+  "models": {}
+}

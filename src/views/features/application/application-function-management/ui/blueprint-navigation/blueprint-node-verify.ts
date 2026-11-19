@@ -5,6 +5,8 @@
  * AI用途：问题码沿参考 blueprint-node-verify；本仓交付清单为 Vue 页面注册表全部页面（单一 SPA，不比对目标 APP 包身份）。
  */
 import {blueprintConTypeToAiKind} from '../application-function-page-contract'
+import {parseConfigToolPageId} from '@spark-appworks/spark-project-model'
+import {buildConfigPageNavigationPath} from '@/services/application-scope'
 
 export type BlueprintNodeVerifyIssueCode =
   | 'NODE_MISSING'
@@ -23,10 +25,11 @@ export type BlueprintNodeVerifyResult = Readonly<{ok: boolean; visitedNodeIds: r
 /** 一条完整回读的已保存节点行及其不可读字段。 */
 export type BlueprintVerifyNode = Readonly<{row: Readonly<Record<string, unknown>>; hidden: readonly string[]}>
 /** targetPattern 取自导航地址列在场景中声明的规范，核验与保存使用同一规则。 */
-export type BlueprintNodeVerifyInput = Readonly<{rootNodeId: string; nodes: readonly BlueprintVerifyNode[]; deliveryResources: readonly string[]; targetPattern: RegExp}>
+export type BlueprintNodeVerifyInput = Readonly<{rootNodeId: string; nodes: readonly BlueprintVerifyNode[]; deliveryResources: readonly string[]; targetPattern: RegExp;
+  deliveredTool?: (nodeId: string, pageId: string, path: string) => boolean}>
 
 /** 核验需要读取的正式字段。 */
-export const BLUEPRINT_VERIFY_FIELDS = Object.freeze(['rowid', 'prowid', 'name', 'conid', 'conType', 'NavigationUrl', 'IsShowAtNav', 'hasChild'])
+export const BLUEPRINT_VERIFY_FIELDS = Object.freeze(['rowid', 'prowid', 'name', 'conid', 'conType', 'NavigationUrl', 'IsShowAtNav', 'hasChild', 'VersionId'])
 const REQUIRED_READABLE = Object.freeze(['name', 'conid', 'conType', 'NavigationUrl', 'IsShowAtNav'])
 
 function text(value: unknown): string {
@@ -83,9 +86,21 @@ export function verifyBlueprintNodeTree(input: BlueprintNodeVerifyInput): Bluepr
 
     const target = text(node.row['NavigationUrl'])
     const pageDuty = blueprintConTypeToAiKind(text(node.row['conType'])) === 'page' && flag(node.row['IsShowAtNav'])
-    if (pageDuty && !target) push(nodeId, 'PAGE_TARGET_REQUIRED', `发布到菜单的页面节点未挂接 vue:/...：${nodeId}`)
+    if (pageDuty && !target) push(nodeId, 'PAGE_TARGET_REQUIRED', `发布到菜单的页面节点缺少导航地址：${nodeId}`)
     else if (target) {
-      if (!input.targetPattern.test(target)) push(nodeId, 'TARGET_INVALID', `导航地址不是规范 vue:/...：${nodeId}`)
+      if (!input.targetPattern.test(target)) push(nodeId, 'TARGET_INVALID', `导航地址不符合交付合同：${nodeId}`)
+      else if (target.startsWith('cfg:')) {
+        try {
+          const tool = parseConfigToolPageId(target)
+          if (!tool) throw new Error('配置工具身份无效')
+          const path = buildConfigPageNavigationPath(nodeId, text(conid), target)
+          if (!input.deliveredTool?.(nodeId, tool, path)) {
+            push(nodeId, 'TARGET_NOT_IN_DELIVERY', `授权菜单缺少匹配的工具及三文件发布指针：${target}`)
+          }
+        } catch {
+          push(nodeId, 'TARGET_INVALID', `配置工具的导航调用无效：${nodeId}`)
+        }
+      }
       else {
         const hits = deliveryCounts.get(target) ?? 0
         if (hits === 0) push(nodeId, 'TARGET_NOT_IN_DELIVERY', `目标 APP 当前交付中不存在该 Vue 资源：${target}`)

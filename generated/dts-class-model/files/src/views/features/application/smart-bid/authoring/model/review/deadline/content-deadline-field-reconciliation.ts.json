@@ -105,6 +105,31 @@
                   "observationRef": {
                     "type": "string"
                   },
+                  "attemptRef": {
+                    "type": "string"
+                  },
+                  "observedStage": {
+                    "enum": [
+                      "SAVED",
+                      "DRAFT",
+                      "SUBMITTED"
+                    ]
+                  },
+                  "expectedStage": {
+                    "enum": [
+                      "SAVED",
+                      "SUBMITTED"
+                    ]
+                  },
+                  "observedValueJson": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
                   "assertCurrent": {
                     "type": "object",
                     "title": "() => void"
@@ -115,6 +140,11 @@
                   "fieldId",
                   "state",
                   "observationRef",
+                  "attemptRef",
+                  "observedStage",
+                  "expectedStage",
+                  "observedValueJson",
+                  "unit",
                   "assertCurrent"
                 ],
                 "additionalProperties": false
@@ -134,6 +164,31 @@
                   "observationRef": {
                     "type": "string"
                   },
+                  "attemptRef": {
+                    "type": "string"
+                  },
+                  "observedStage": {
+                    "enum": [
+                      "SAVED",
+                      "DRAFT",
+                      "SUBMITTED"
+                    ]
+                  },
+                  "expectedStage": {
+                    "enum": [
+                      "SAVED",
+                      "SUBMITTED"
+                    ]
+                  },
+                  "observedValueJson": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
                   "assertCurrent": {
                     "type": "object",
                     "title": "() => void"
@@ -144,6 +199,11 @@
                   "fieldId",
                   "state",
                   "observationRef",
+                  "attemptRef",
+                  "observedStage",
+                  "expectedStage",
+                  "observedValueJson",
+                  "unit",
                   "assertCurrent"
                 ],
                 "additionalProperties": false
@@ -157,10 +217,6 @@
                   "fieldId": {
                     "type": "string"
                   },
-                  "assertCurrent": {
-                    "type": "object",
-                    "title": "() => void"
-                  },
                   "receiptRef": {
                     "type": "string"
                   },
@@ -170,11 +226,30 @@
                       "MISMATCHED"
                     ]
                   },
+                  "observedValueHash": {
+                    "type": "string"
+                  },
+                  "approvalRef": {
+                    "type": "string"
+                  },
                   "observationRef": {
                     "type": "string"
                   },
-                  "observedValueHash": {
+                  "attemptRef": {
                     "type": "string"
+                  },
+                  "observedStage": {
+                    "enum": [
+                      "SAVED",
+                      "DRAFT",
+                      "SUBMITTED"
+                    ]
+                  },
+                  "expectedStage": {
+                    "enum": [
+                      "SAVED",
+                      "SUBMITTED"
+                    ]
                   },
                   "observedValueJson": {
                     "type": "string"
@@ -184,17 +259,25 @@
                       "null",
                       "string"
                     ]
+                  },
+                  "assertCurrent": {
+                    "type": "object",
+                    "title": "() => void"
                   }
                 },
                 "required": [
                   "assignmentId",
                   "fieldId",
-                  "assertCurrent",
                   "state",
-                  "observationRef",
                   "observedValueHash",
+                  "approvalRef",
+                  "observationRef",
+                  "attemptRef",
+                  "observedStage",
+                  "expectedStage",
                   "observedValueJson",
-                  "unit"
+                  "unit",
+                  "assertCurrent"
                 ],
                 "additionalProperties": false
               }
@@ -246,7 +329,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:24:18.591Z",
+  "generatedAt": "2026-11-18T19:25:13.433Z",
   "models": {
     "Deadline": {
       "name": "Deadline",

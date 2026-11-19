@@ -173,9 +173,6 @@
             },
             "pageId": {
               "type": "string"
-            },
-            "versionId": {
-              "type": "string"
             }
           },
           "required": [
@@ -327,7 +324,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T06:40:29.670Z",
+  "generatedAt": "2026-11-19T05:39:24.347Z",
   "models": {
     "RuntimeNavigationContextState": {
       "name": "RuntimeNavigationContextState",
@@ -376,7 +373,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: NavigationPlacement;\n    context?: string | readonly ContextItem[] | NavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: PermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    blueprintScenarioId?: string;\n    tool?: Readonly<{\n        projectId: string;\n        pageId: string;\n        versionId?: string;\n    }>;\n    linkTarget?: NavigationLinkTarget;\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: NavigationPlacement;\n    context?: string | readonly ContextItem[] | NavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: PermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    blueprintScenarioId?: string;\n    tool?: Readonly<{\n        projectId: string;\n        pageId: string;\n    }>;\n    linkTarget?: NavigationLinkTarget;\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
         "members": {
           "attributes": [
             {

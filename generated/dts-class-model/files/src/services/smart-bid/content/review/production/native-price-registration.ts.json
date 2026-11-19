@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/native-price-registration",
+    "sourcePath": "src/services/smart-bid/content/review/production/native-price-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/native-price-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/native-price-registration",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/native-price-registration\n职责：动作41按商务原导入及批准明细准备原生计价件登记。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "NativeImport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativeImport",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "pricingVersion": {
+          "type": "string"
+        },
+        "importRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:30:51.980Z",
+  "models": {
+    "NativeImport": {
+      "name": "NativeImport",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scopeRef: string;\n    pricingVersion: string;\n    importRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scopeRef: string;\n    pricingVersion: string;\n    importRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pricingVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "importRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

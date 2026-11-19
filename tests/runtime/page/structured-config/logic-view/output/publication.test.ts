@@ -174,7 +174,7 @@ describe('logic view two-source publication through original DataSets',()=>{
   expect(outputs.getEditingRow('F1')?.['cnname']).toBe('native input during read')
   expect(command.finished).toBe(false)
  })
- it('retires only its original output ids after verification proves the output write was not applied',async()=>{
+ it('preserves unrelated edits and guards output retirement when the receipt is missing',async()=>{
   const {command,page}=await workspace(),metadata=await LowcodeLogicView.ensureParameters(page)
   const params=metadata.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!
   params.updateEditingValue('P1','testvalue','keep')
@@ -182,27 +182,27 @@ describe('logic view two-source publication through original DataSets',()=>{
   await expect(command.save()).rejects.toThrow()
   expect(command.needsVerification).toBe(true)
   delete http.beforeSave
-  await command.verify()
+  await expect(command.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   expect(command.finished).toBe(false)
-  await expect(command.save()).rejects.toThrow('原输出')
+  await expect(command.save()).rejects.toThrow('原发布结果尚未确认')
   expect(http.saves).toHaveLength(0)
-  await command.retireNotAppliedOutputs()
-  expect(command.finished).toBe(true);expect(command.fileConfirmed).toBe(true)
+  await expect(command.retireNotAppliedOutputs()).rejects.toThrow()
+  expect(command.finished).toBe(false);expect(command.fileConfirmed).toBe(true)
   expect(http.saves).toHaveLength(0)
   expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
   const outputs=metadata.getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!
-  expect(outputs.getEditingRow('F1')?.['cnname']).toBe('old')
-  expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+  expect(outputs.dirtyTracking.hasPendingChanges()).toBe(true)
   expect(params.getEditingRow('P1')?.['testvalue']).toBe('keep')
  })
- it('refuses to retire verified unapplied output ids when they contain later input',async()=>{
+ it('keeps later output edits when the original receipt is missing',async()=>{
   const {command,page}=await workspace()
   http.beforeSave=()=>Promise.reject(Error('failed before storage'))
   await expect(command.save()).rejects.toThrow()
-  delete http.beforeSave;await command.verify()
+  delete http.beforeSave
+  await expect(command.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
   const outputs=page.getDataSet(LowcodeLogicView.parameterScenarioId)!.getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!
   outputs.updateEditingValue('F1','cnname','later output')
-  await expect(command.retireNotAppliedOutputs()).rejects.toThrow('新修改')
+  await expect(command.retireNotAppliedOutputs()).rejects.toThrow()
   expect(outputs.getEditingRow('F1')?.['cnname']).toBe('later output')
   expect(command.finished).toBe(false);expect(http.saves).toHaveLength(0)
  })
@@ -303,13 +303,14 @@ describe('logic view two-source publication through original DataSets',()=>{
   expect(command.fileConfirmed).toBe(true);expect(command.finished).toBe(true)
   expect(file.getEditingRow('V1')?.['designJson']).toContain('later input')
  })
- it('verifies only the original output capture after a lost output receipt without replaying SaveView',async()=>{
+ it('keeps the original output capture pending after a lost receipt without replaying SaveView',async()=>{
   const {command}=await workspace();http.onFile=()=>{http.failAfterWrite=true}
   await expect(command.save()).rejects.toThrow()
   expect(command.needsVerification).toBe(true);expect(command.fileConfirmed).toBe(true)
   const dispatched=http.saves.length;http.failAfterWrite=false
-  await command.verify()
-  expect(command.finished).toBe(true);expect(http.saves).toHaveLength(dispatched)
+  await expect(command.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(command.finished).toBe(false);expect(http.saves).toHaveLength(dispatched)
+  expect(command.needsVerification).toBe(true);expect(command.fileConfirmed).toBe(true)
   expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
  })
 })

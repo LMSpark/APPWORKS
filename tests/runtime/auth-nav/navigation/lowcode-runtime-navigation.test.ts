@@ -11,10 +11,10 @@ import { ProjectNavigationGuard } from '@/services/project/navigation/project-na
 import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@spark-appworks/spark-lowcode-api'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { createLowcodeProjectGateways } from '@/lowcode/lowcode-runtime'
+import { createLowcodeProjectGateways, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
 import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/lowcode/system-navigation'
 
@@ -903,6 +903,19 @@ describe('lowcode project navigation projection', () => {
     expect(authorization).not.toHaveBeenCalled()
     expect(lowcodeEnterpriseNavigation().projectId).toBe(APPLICATION_CATALOG_PROJECT_ID)
     expect(lowcodeApi.application.get()).toBeNull()
+  })
+
+  it('accepts the explicit missing directory response only for the scoped tool directory', async () => {
+    saveExecutionScope('APP-A')
+    const list = vi.spyOn(lowcodeApi.design, 'listFiles')
+      .mockRejectedValueOnce(new LowcodeApiError(1003, '[1003] 文件夹路径不存在'))
+      .mockRejectedValueOnce(new LowcodeApiError(1003, '当前目录不可访问'))
+    const tool = createPageToolFilesIo('APP-A')
+    await expect(tool.list('APP-A', 'new-tool')).resolves.toEqual([])
+    await expect(tool.list('APP-A', 'existing-tool')).rejects.toThrow('当前目录不可访问')
+    await expect(tool.list('APP-B', 'new-tool')).rejects.toThrow('FILE_SCOPE')
+    expect(list).toHaveBeenCalledTimes(2)
+    expect(list).toHaveBeenNthCalledWith(1, {appType:'designfile', folderPath:'APP-A/new-tool'})
   })
 
   it('uses the Chinese enterprise short name as the AppWorks display label', () => {

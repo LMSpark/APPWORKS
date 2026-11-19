@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/qualification-review",
+    "sourcePath": "src/services/smart-bid/content/references/response/qualification-review.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/qualification-review",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/qualification-review\n职责：动作35对已选合法路径逐项核资格依据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "requirementVersion": {
+          "type": "string"
+        },
+        "assignmentRef": {
+          "type": "string"
+        },
+        "subjectRef": {
+          "type": "string"
+        },
+        "asOf": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "requirementVersion",
+        "assignmentRef",
+        "subjectRef",
+        "asOf"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Condition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Condition",
+      "properties": {
+        "conditionRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "PERSON",
+            "MATERIAL",
+            "FACT"
+          ]
+        }
+      },
+      "required": [
+        "conditionRef",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "requirementVersion": {
+          "type": "string"
+        },
+        "assignmentRef": {
+          "type": "string"
+        },
+        "subjectRef": {
+          "type": "string"
+        },
+        "asOf": {
+          "type": "number"
+        },
+        "conditionRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "PERSON",
+            "MATERIAL",
+            "FACT"
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "use": {
+          "enum": [
+            "PENDING",
+            "USABLE",
+            "RESTRICTED"
+          ]
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "requirementVersion",
+        "assignmentRef",
+        "subjectRef",
+        "asOf",
+        "conditionRef",
+        "kind",
+        "assertCurrent",
+        "evidenceRef",
+        "use"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:43:16.885Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    requirementVersion: string;\n    assignmentRef: string;\n    subjectRef: string;\n    asOf: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    requirementVersion: string;\n    assignmentRef: string;\n    subjectRef: string;\n    asOf: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirementVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "asOf",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Condition": {
+      "name": "Condition",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    conditionRef: string;\n    kind: 'MATERIAL' | 'FACT' | 'PERSON';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    conditionRef: string;\n    kind: 'MATERIAL' | 'FACT' | 'PERSON';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "conditionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Condition & Proof & Readonly<{\n    evidenceRef: string;\n    use: 'USABLE' | 'RESTRICTED' | 'PENDING';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Condition",
+            "targetName": "Condition"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    evidenceRef: string;\n    use: 'USABLE' | 'RESTRICTED' | 'PENDING';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "use",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

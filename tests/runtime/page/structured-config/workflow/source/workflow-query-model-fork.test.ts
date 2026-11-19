@@ -69,7 +69,7 @@ describe('formal query model fork through original creation owner',()=>{
   await expect(f.owner.fork({modelId:'M1',name:'Fork',fields:f.fields})).rejects.toThrow()
   const captured=f.owner.getState().fork,writes=f.http.saves.length
   expect(captured?.modelId).toBeTruthy();expect(captured?.fieldIds).toHaveLength(2)
-  await expect(f.owner.verify()).resolves.toMatchObject({confirmed:true,modelId:captured?.modelId})
-  expect(f.http.saves).toHaveLength(writes);expect(f.owner.getState().fork).toMatchObject({...captured,confirmed:true})
+  await expect(f.owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(f.http.saves).toHaveLength(writes);expect(f.owner.getState().fork).toEqual(captured)
  })
 })

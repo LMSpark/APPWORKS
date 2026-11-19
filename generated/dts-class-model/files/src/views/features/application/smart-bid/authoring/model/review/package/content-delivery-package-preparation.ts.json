@@ -139,6 +139,31 @@
       ],
       "additionalProperties": false
     },
+    "MemberUse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MemberUse",
+      "properties": {
+        "position": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "usage": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "position",
+        "fileVersionId",
+        "usage"
+      ],
+      "additionalProperties": false
+    },
     "UseProof": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -158,6 +183,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MemberUse"
+          }
         }
       },
       "additionalProperties": false,
@@ -171,7 +202,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-18T04:05:16.409Z",
+  "generatedAt": "2026-11-18T17:06:50.837Z",
   "models": {
     "Host": {
       "name": "Host",
@@ -313,16 +344,50 @@
         }
       }
     },
+    "MemberUse": {
+      "name": "MemberUse",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    position: string;\n    fileVersionId: string;\n    usage: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    position: string;\n    fileVersionId: string;\n    usage: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usage",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "UseProof": {
       "name": "UseProof",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    allowed: boolean;\n    selectionHash: string;\n    positions: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    allowed: boolean;\n    selectionHash: string;\n    positions: readonly string[];\n    members: readonly MemberUse[];\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    allowed: boolean;\n    selectionHash: string;\n    positions: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    allowed: boolean;\n    selectionHash: string;\n    positions: readonly string[];\n    members: readonly MemberUse[];\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -340,6 +405,11 @@
             },
             {
               "name": "positions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "members",
               "readable": true,
               "writable": false
             }

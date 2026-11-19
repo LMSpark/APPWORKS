@@ -73,7 +73,7 @@ describe('LowcodeDesignFileUpload', () => {
       filePath: '/DesignFilePaths_publisher/APP-A/orders/2__script_renamed.js', state: 'success' }] }, 'A')
     await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadTextVersion({
       customPath: 'APP-A/orders', fileName: '2__script.js', text: 'A',
-    })).rejects.toThrow('文件名')
+    })).rejects.toMatchObject({message:expect.stringContaining('文件名'),fileResourceMutationMayHaveApplied:true})
     expect(http.requests).toHaveLength(1)
   })
 

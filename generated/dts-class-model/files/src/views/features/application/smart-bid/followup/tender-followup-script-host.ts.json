@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-followup-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-followup-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-followup-script-host\n职责：页09以当前招标范围读取原通知时间线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Read",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "lotId": {
+              "type": "string"
+            },
+            "roundId": {
+              "type": "string"
+            },
+            "subjectId": {
+              "type": "string"
+            },
+            "stageId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "lotId",
+            "roundId",
+            "subjectId",
+            "stageId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T02:09:43.334Z",
+  "models": {
+    "Read": {
+      "name": "Read",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredTenderFollowupNotices>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredTenderFollowupNotices>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ReadDeadline": {
+      "name": "ReadDeadline",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(scope: Read[1] & Readonly<{\n    projectId: string;\n    knownAt: string;\n}>, signal: AbortSignal) => Promise<ReturnType<typeof reconcileDeadlineDelivery> | null>",
+        "members": {}
+      }
+    }
+  }
+}

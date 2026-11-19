@@ -8,8 +8,7 @@
     @update:model-value="close">
     <DisplayAlert v-if="message" alert-type="error" :closable="false" :title="message" />
     <DisplayAlert v-if="selectedName" alert-type="success" :closable="false" :title="`已选择：${selectedName}`" />
-    <RendererTable v-if="ready" :data-view-key="pickerKey" :children="columns" :filter="filter" :highlight-current-row="true"
-      :show-data-view-meta="false" :on-row-click="choose" :pagination="{pageSizes: [10, 20, 50], showJumper: true}" />
+    <SparkComponentRenderer v-if="ready" :config="tableConfig" />
     <template #footer>
       <RendererButton label="取消" :disabled="busy" @click="close" />
       <RendererButton label="确定" button-type="primary" :disabled="busy || !selectedId" @click="submit" />
@@ -18,17 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import type {DataRow, DataView, SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-import {formatDay, isOn, textOf} from './report-format'
+import {isOn, textOf} from './report-format'
 import {commitReportChanges, reportPendingReason} from './report-save'
-const {PAGE_RUNTIME, RendererDialog, RendererTable, RendererButton, DisplayAlert, useSparkComponent} = Components
-type RFilterProps = Components.RFilterProps
-const props = defineProps<{infoKey: string; reportKey: string; pickerKey: string; infoId: string | number}>()
+const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, RendererButton, DisplayAlert, useSparkComponent} = Components
+const props = defineProps<{infoKey: string; reportKey: string; tableRule: SparkNode; infoId: string | number}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'report-model-dialog'})
 const busy = ref(false), ready = ref(false), message = ref(''), selectedId = ref(''), selectedName = ref('')
+
+const binding = props.tableRule.props?.['dataViewKey']
+const pickerKey = typeof binding === 'string' ? binding : ''
+if (!pickerKey) throw new Error('模型候选列表缺少正式视图绑定')
 
 let originalVersion: {id: string; assertCurrent: () => void} | undefined
 let assertSelection: (() => void) | undefined
@@ -52,7 +54,7 @@ onMounted(async () => {
     const assertVersion = report.captureReadRow(version, ['RptID', 'State'])
     if (textOf(version, 'RptID') !== String(props.infoId) || !isOn(version['State'])) throw new Error('该版本不是当前报表的启用版本')
     originalVersion = {id, assertCurrent() { assertHead(); assertVersion() }}
-    const picker = view(props.pickerKey)
+    const picker = view(pickerKey)
     await picker.refresh()
     if (picker.loadingError) throw picker.loadingError
     originalVersion.assertCurrent()
@@ -60,19 +62,15 @@ onMounted(async () => {
   } catch (cause) { message.value = failure(cause) } finally { busy.value = false }
 })
 
-const columns: SparkNode[] = [
-  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, minWidth: 260, showOverflowTooltip: true}},
-  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, minWidth: 120, displayFormatter: formatDay}},
-]
-const filter: RFilterProps = {
-  autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
-  children: [{type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '名称', filterTrim: true}}],
-}
+const tableConfig = computed<SparkNode>(() => ({
+  ...props.tableRule,
+  props: {...props.tableRule.props, onRowClick: choose},
+}))
 function choose(row: DataRow): void {
   if (busy.value) return
   assertSelection = undefined; selectedId.value = ''; selectedName.value = ''; message.value = ''
   try {
-    const picker = view(props.pickerKey)
+    const picker = view(pickerKey)
     const id = picker.getPkKey(row)
     if (id === undefined) throw new Error('模型候选缺少正式身份')
     const nameReadable = picker.fieldAccess(row, 'Name').read === 'visible'

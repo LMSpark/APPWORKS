@@ -10,16 +10,20 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
     <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
       <template #content="{children}">
         <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
-          <SparkComponentRenderer v-if="nodeId(node) !== 'reportVersions'" :config="node" />
-          <ReportVersionDialog v-else-if="ready && dialog?.kind === 'version'" :key="dialog.epoch" :info-key="viewKey" :info-id="dialog.infoId"
-            :table-rule="node" @close="closeDialog" />
+          <template v-if="nodeId(node) === 'reportVersions'">
+            <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" :key="dialog.epoch" :info-key="viewKey"
+              :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
+          </template>
+          <template v-else-if="nodeId(node) === 'reportModelPicker'">
+            <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey"
+              :report-key="reportKey" :info-id="dialog.infoId" :table-rule="node" @close="closeDialog" />
+          </template>
+          <SparkComponentRenderer v-else :config="node" />
         </template>
         <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" :key="dialog.epoch" :info-key="viewKey"
           :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId" @close="closeDialog" />
         <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
           title="编辑报表" :specs="editSpecs" :validate="validateEdit" @close="closeDialog" />
-        <ReportModelDialog v-if="ready && dialog?.kind === 'model'" :key="dialog.epoch" :info-key="viewKey" :report-key="reportKey"
-          :picker-key="pickerKey" :info-id="dialog.infoId" @close="closeDialog" />
       </template>
     </SparkPageRenderer>
   </RendererSection>
@@ -62,7 +66,7 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
   optionModels: ['Base_Report', 'Base_AppSystemList', 'Base_UserInfo', 'Base_DataSet', '功能导航状态字典'],
 })
 const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList')
-const pickerKey = key('Base_DataSet', 'picker'), statusKey = key('功能导航状态字典')
+const statusKey = key('功能导航状态字典')
 
 type Dialog = Readonly<{kind: 'create' | 'edit' | 'version' | 'model'; infoId: string | number; reportId?: string | number; epoch: number}>
 const busy = ref(false), message = ref(''), revision = ref(0)

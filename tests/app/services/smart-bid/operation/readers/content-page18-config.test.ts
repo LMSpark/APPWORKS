@@ -4,6 +4,26 @@ import script from '@/views/features/application/smart-bid/authoring/page18/scri
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 
+it('rechecks the same original dispatch without starting another attempt',async()=>{
+ const query={projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),
+  configurationLockHash:'b'.repeat(64)}
+ const invokeHostCommand=vi.fn()
+  .mockResolvedValueOnce({state:'UNKNOWN',assertCurrent:()=>{}})
+  .mockResolvedValueOnce({state:'DISPATCH_RECORDED',dispatchRef:'ORIGINAL',actualInputDigest:'DIGEST',assertCurrent:()=>{}})
+ const {__init__,bindOriginalDispatch,refreshOriginalDispatch}=compileFunctions(script,
+  {$route:{query},$page:{invokeHostCommand}} as unknown as PageContext)
+ if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch)throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
+ await __init__()
+ expect(bindOriginalDispatch()).toEqual({status:'原试次实发结果未知'})
+ const refresh=refreshOriginalDispatch()
+ expect(bindOriginalDispatch()).toEqual({status:'正在回查原试次'})
+ await refreshOriginalDispatch()
+ await refresh
+ expect(bindOriginalDispatch()).toEqual({status:'实发记录 ORIGINAL，输入摘要 DIGEST'})
+ expect(invokeHostCommand).toHaveBeenCalledTimes(2)
+ expect(invokeHostCommand.mock.calls[1]).toEqual(invokeHostCommand.mock.calls[0])
+})
+
 it('binds the original directory and never displays a superseded row response',async()=>{
  type GuideResponse={guide:string;assertCurrent:()=>void}
  let resolveFirst!:(value:GuideResponse)=>void

@@ -6,6 +6,8 @@ let selectionGeneration = 0
 let dispatch
 let dispatchError
 let dispatchIsCurrent
+let dispatchSelection
+let dispatchLoading = false
 let hasAttempt = false
 let reworkPending = false
 
@@ -15,24 +17,18 @@ async function __init__() {
   directoryError = undefined
   dispatch = undefined
   dispatchError = undefined
+  dispatchLoading = false
   const {projectId, runId, attemptRef, requestKey, targetDigest, configurationLockHash} = $route.query
   const directoryRef = $route.query.directoryRef
   const isDirectoryCurrent = () => $route.query.projectId === projectId && $route.query.directoryRef === directoryRef
   directoryIsCurrent = isDirectoryCurrent
   const attempt = {runId, attemptRef, requestKey, targetDigest, configurationLockHash}
+  dispatchSelection = attempt
   const isCurrent = () => $route.query.projectId === projectId &&
     Object.entries(attempt).every(([key, value]) => $route.query[key] === value)
   dispatchIsCurrent = isCurrent
   hasAttempt = Object.values(attempt).some(value => value != null)
-  if (hasAttempt) {
-    try {
-      const result = await $page.invokeHostCommand('content.operation.readDispatch',
-        attempt)
-      if (generation === selectionGeneration && isCurrent()) dispatch = result
-    } catch {
-      if (generation === selectionGeneration && isCurrent()) dispatchError = '原试次实发记录无法读取'
-    }
-  }
+  if (hasAttempt) await refreshOriginalDispatch()
   if (generation !== selectionGeneration || !isDirectoryCurrent()) return
   if (typeof directoryRef !== 'string' || !directoryRef || directoryRef.trim() !== directoryRef) {
     if (!hasAttempt) directoryError = '请从业务目录打开本工作区'
@@ -43,6 +39,27 @@ async function __init__() {
     if (generation === selectionGeneration && isDirectoryCurrent()) directory = result
   } catch {
     if (generation === selectionGeneration && isDirectoryCurrent()) directoryError = '指南目录读取失败'
+  }
+}
+
+function bindRefreshOriginalDispatch() {
+  return {visible: hasAttempt && dispatchIsCurrent?.() === true, disabled: dispatchLoading}
+}
+
+async function refreshOriginalDispatch() {
+  const {visible, disabled} = bindRefreshOriginalDispatch()
+  if (!visible || disabled) return
+  const generation = selectionGeneration, isCurrent = dispatchIsCurrent
+  dispatchLoading = true
+  dispatch = undefined
+  dispatchError = undefined
+  try {
+    const result = await $page.invokeHostCommand('content.operation.readDispatch', dispatchSelection)
+    if (generation === selectionGeneration && isCurrent()) dispatch = result
+  } catch {
+    if (generation === selectionGeneration && isCurrent()) dispatchError = '原试次实发记录无法读取'
+  } finally {
+    if (generation === selectionGeneration) dispatchLoading = false
   }
 }
 
@@ -70,6 +87,7 @@ function bindDirectoryStatus() {
 
 function bindOriginalDispatch() {
   if (!hasAttempt || !dispatchIsCurrent?.()) return {visible: false}
+  if (dispatchLoading) return {status: '正在回查原试次'}
   try {
     dispatch?.assertCurrent()
     if (dispatch?.state === 'DISPATCH_RECORDED') {

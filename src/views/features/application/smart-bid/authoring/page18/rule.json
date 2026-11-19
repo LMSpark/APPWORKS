@@ -22,6 +22,7 @@
     "type": "r-section",
     "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"},
     "children": [
+      {"type": "r-button", "props": {"label": "重查原试次", "onBeforeRender": "bindRefreshOriginalDispatch", "onClick": "refreshOriginalDispatch"}},
       {"type": "r-button", "props": {"label": "查看原实发 JSON", "onBeforeRender": "bindActualInput", "onClick": "openActualInput"}}
     ]
   },

@@ -158,6 +158,13 @@ it('loads the actual three files and authoring host through the page runtime poo
  const entry={nodeId:'fixture-navigation',pageId:'fixture-tool',receiptDataViewKey:`${scenarioId}@SaveReceipt@originalSave`}
  const tool={pageId:entry.pageId,projectId:applicationId}
  const path=`/apps/${applicationId}/__page/${entry.nodeId}`
+ const call=preparePublishedContentAuthoringCall({path,
+  meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,blueprintScenarioId:scenarioId,tool},
+  query:{scenarioId,projectId:'P',draftId:'D'}},entry)
+ if(!call)throw Error('TEST_PUBLISHED_AUTHORING_CALL_REQUIRED')
+ const wrongRuntime=new PageRuntime({pageId:'OTHER',scenarioIds:[scenarioId],loadScenario:async()=>ds})
+ try{expect(()=>call.createHost(wrongRuntime)).toThrow('CONTENT_AUTHORING_PUBLICATION_RUNTIME_CONFLICT')}
+ finally{wrongRuntime.dispose()}
  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
   meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,blueprintScenarioId:scenarioId,tool}}]})
  const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>

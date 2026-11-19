@@ -1,6 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {configurationReleaseReadView,readRegisteredConfigurationRelease} from '@/views/features/application/smart-bid/configuration/configuration-release-reader'
+import {configurationChannelReadView} from '@/views/features/application/smart-bid/configuration/configuration-channel-reader'
 import {createConfigurationReleaseScriptHost} from '@/views/features/application/smart-bid/configuration/configuration-release-script-host'
 import script from '@/views/features/application/smart-bid/configuration/page19/script.js?raw'
 import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
@@ -10,6 +11,37 @@ import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode
 import {prepareConfigurationRelease,resolveActiveConfiguration} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
 import {readOriginalConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-recovery'
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
+
+it('reads the current channel in the trusted scope without reusing any historical release',async()=>{
+ const row={id:'CHANNEL',kind:'template',key:'PROPOSAL',scope:'ENTERPRISE',scopeId:'ORG',version:'P3',state:'ACTIVE',hash:'a'.repeat(64)}
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{ConfigChannel:{
+  modelBinding:{modelId:'C',modelName:'ConfigChannel'},columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},currentChannel:configurationChannelReadView('id')},
+ }}})
+ try{
+  const view=ds.getView('ConfigChannel','currentChannel')!
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigChannel'})
+  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
+  view.bindQueryExecutor({save,executeQuery:async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'channel',readScope:()=> 'channel',snapshot:table.applyResult({Result:{
+    primaryKeyField:'id',data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+   }}),
+  })})
+  const page=createConfigurationReleaseScriptHost({resolveView:()=>view,generation:1,isLoaded:true,destroyed:false},
+   {scenarioId:'S',scopeId:'ORG',configurationScope:'ENTERPRISE',assertCurrent:()=>{}})
+  const selection={kind:row.kind,key:row.key},signal=new AbortController().signal
+  const active=await page.invoke('configuration.release.readCurrentChannel',selection,signal)
+  expect(active).toMatchObject({state:'ACTIVE',pointerVersion:'P3',versionDigest:row.hash})
+  expect(view.queryContext).toMatchObject({...selection,scope:'ENTERPRISE',scopeId:'ORG'})
+  row.state='DISABLED';row.version='P4'
+  const disabled=await page.invoke('configuration.release.readCurrentChannel',selection,signal)
+  expect(disabled).toMatchObject({state:'DISABLED',pointerVersion:'P4'})
+  expect(disabled).not.toHaveProperty('versionDigest')
+  expect(()=>active.assertCurrent()).toThrow()
+  expect(()=>page.invoke('configuration.release.readCurrentChannel',{...selection,scopeId:'OTHER'},signal)).toThrow()
+  expect(save).not.toHaveBeenCalled()
+ }finally{ds.destroy()}
+})
 
 it('binds enablement evidence and stops parent inheritance for explicit disablement',async()=>{
  const scope={kind:'TEMPLATE',key:'PROPOSAL',scopeId:'ORG'}

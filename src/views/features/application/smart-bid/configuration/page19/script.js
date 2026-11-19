@@ -1,4 +1,26 @@
 /* global $page, $route */
+function bindConfigurationChannel() {
+  const {configurationKind, configurationKey} = $route.query
+  return {visible: [configurationKind, configurationKey]
+    .every(value => typeof value === 'string' && !!value && value.trim() === value)}
+}
+
+async function openConfigurationChannel() {
+  if (!bindConfigurationChannel().visible) return
+  const {configurationKind: kind, configurationKey: key} = $route.query
+  const isCurrent = () => $route.query.configurationKind === kind && $route.query.configurationKey === key
+  try {
+    const current = await $page.invokeHostCommand('configuration.release.readCurrentChannel', {kind, key})
+    if (!isCurrent()) return
+    current.assertCurrent()
+    const text = current.state === 'ACTIVE' ? `已启用 · 当前指针 ${current.pointerVersion} · 配置摘要 ${current.versionDigest}` :
+      current.state === 'DISABLED' ? `已停用 · 当前指针 ${current.pointerVersion}` : '当前作用域无配置指针'
+    await $page.showAlert(text, '当前配置指针')
+  } catch {
+    if (isCurrent()) $page.showMessage('当前配置指针无法核验', 'warning')
+  }
+}
+
 function bindConfigurationRelease() {
   const {configurationKind, configurationKey, releaseRequestKey, releaseRequestDigest, configurationVersionId,
     configurationVersionDigest, releaseAction} = $route.query

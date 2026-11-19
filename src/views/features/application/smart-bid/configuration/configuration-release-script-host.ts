@@ -6,6 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {readRegisteredConfigurationRelease} from './configuration-release-reader'
+import {readRegisteredConfigurationChannel,type ConfigurationScope} from './configuration-channel-reader'
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
 
 import {prepareConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
@@ -28,7 +29,8 @@ type DisableReader=(selection:Prepare[0]&Readonly<{versionId:string;decisionRef:
 
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
 export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
- runtime:Runtime,host:Omit<Read[0],'runtime'>,readDisableImpact?:ImpactReader,readCandidate?:CandidateReader,readDisableDecision?:DisableReader){
+ runtime:Runtime,host:Omit<Read[0],'runtime'>&Readonly<{configurationScope?:ConfigurationScope}>,
+ readDisableImpact?:ImpactReader,readCandidate?:CandidateReader,readDisableDecision?:DisableReader){
  return {runtime,assertCurrent:host.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   const error='CONFIGURATION_RELEASE_PAGE_REQUEST'
   if(!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)
@@ -39,6 +41,11 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
     throw Error('CONFIGURATION_RELEASE_PAGE_STALE')
   }
   const {scopeId}=host
+  if(name==='configuration.release.readCurrentChannel'&&host.configurationScope){
+   const {kind,key}=input
+   if(Object.keys(input).length!==2||!identity(kind)||!identity(key))throw Error(error)
+   return readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key})
+  }
   if(name==='configuration.release.prepareDisable'&&readDisableDecision){
    const {kind,key,requestKey,versionId,decisionRef}=input
    if(Object.keys(input).length!==5||!identity(kind)||!identity(key)||!identity(requestKey)||

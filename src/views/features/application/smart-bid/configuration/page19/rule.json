@@ -1,5 +1,13 @@
 [
   {
+    "id": "configuration-current-pointer",
+    "type": "r-section",
+    "props": {"title": "当前配置指针", "onBeforeRender": "bindConfigurationChannel"},
+    "children": [
+      {"type": "r-button", "props": {"label": "读取当前配置指针", "onClick": "openConfigurationChannel"}}
+    ]
+  },
+  {
     "id": "configuration-release-recovery",
     "type": "r-section",
     "props": {"title": "配置启停回查", "onBeforeRender": "bindConfigurationRelease"},

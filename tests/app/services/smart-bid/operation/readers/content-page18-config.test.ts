@@ -6,13 +6,15 @@ import type {PageContext} from '../../../../../../packages/spark-component/src/p
 
 it('rechecks the same original dispatch without starting another attempt',async()=>{
  const query={projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),
-  configurationLockHash:'b'.repeat(64)}
+  configurationLockHash:'b'.repeat(64),directoryRef:'DIR'}
+ const showAlert=vi.fn(async()=>{})
  const invokeHostCommand=vi.fn()
   .mockResolvedValueOnce({state:'UNKNOWN',assertCurrent:()=>{}})
+  .mockResolvedValueOnce({dataViewKey:'GUIDES',assertCurrent:()=>{},readGuide:async()=>({guide:'原指南',assertCurrent:()=>{}})})
   .mockResolvedValueOnce({state:'DISPATCH_RECORDED',dispatchRef:'ORIGINAL',actualInputDigest:'DIGEST',assertCurrent:()=>{}})
- const {__init__,bindOriginalDispatch,refreshOriginalDispatch,bindOriginalVerification,bindRework}=compileFunctions(script,
-  {$route:{query},$page:{invokeHostCommand}} as unknown as PageContext)
- if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch||!bindOriginalVerification||!bindRework)
+ const {__init__,bindOriginalDispatch,refreshOriginalDispatch,bindOriginalVerification,bindRework,readGuide}=compileFunctions(script,
+  {$route:{query},$page:{invokeHostCommand,showAlert,resolveView:()=>({getPkKey:()=> 'ROW'})}} as unknown as PageContext)
+ if(!__init__||!bindOriginalDispatch||!refreshOriginalDispatch||!bindOriginalVerification||!bindRework||!readGuide)
   throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
  await __init__()
  expect(bindOriginalDispatch()).toEqual({status:'原试次实发结果未知'})
@@ -20,11 +22,14 @@ it('rechecks the same original dispatch without starting another attempt',async(
  expect(bindOriginalDispatch()).toEqual({status:'正在回查原试次'})
  expect(bindOriginalVerification()).toEqual({status:'正在回查原试次'})
  expect(bindRework()).toEqual({disabled:true})
+ const guide=readGuide({id:'ROW'})
  await refreshOriginalDispatch()
  await refresh
+ await guide
  expect(bindOriginalDispatch()).toEqual({status:'实发记录 ORIGINAL，输入摘要 DIGEST'})
- expect(invokeHostCommand).toHaveBeenCalledTimes(2)
- expect(invokeHostCommand.mock.calls[1]).toEqual(invokeHostCommand.mock.calls[0])
+ expect(showAlert).toHaveBeenCalledWith('原指南','动作指南')
+ expect(invokeHostCommand).toHaveBeenCalledTimes(3)
+ expect(invokeHostCommand.mock.calls[2]).toEqual(invokeHostCommand.mock.calls[0])
 })
 
 it('binds the original directory and never displays a superseded row response',async()=>{

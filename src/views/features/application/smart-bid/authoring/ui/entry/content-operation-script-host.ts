@@ -47,7 +47,9 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      ![targetDigest,configurationLockHash].every(value=>/^[a-f0-9]{64}$/u.test(value)))throw Error('OPERATION_PAGE_ATTEMPT_REQUIRED')
     const attempt={projectId:scope.projectId,runId,attemptRef,requestKey,targetDigest,configurationLockHash}
     const verified=scope.resolveOriginalGuide?await workspace.recoverOriginal(attempt,scope.resolveOriginalGuide):undefined
-    if(verified){
+    const prerequisite=verified?.state==='FROZEN_CONTEXT_REQUIRED'||verified?.state==='ORIGINAL_GUIDE_REQUIRED'||
+     verified?.state==='ORIGINAL_GUIDE_RULES_REQUIRED'?verified:undefined
+    if(verified&&!prerequisite){
      verified.assertCurrent()
      const dispatch='dispatch' in verified?verified.dispatch:undefined
      const result='result' in verified?verified.result:undefined
@@ -69,12 +71,14 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      })
     }
     const readback=await workspace.readDispatch(attempt)
-    readback.assertCurrent()
+    const assertCurrent=()=>{readback.assertCurrent();prerequisite?.assertCurrent()}
+    assertCurrent()
+    const verification=prerequisite?{verification:Object.freeze({state:prerequisite.state,assertCurrent})}:{}
     return readback.state==='DISPATCH_RECORDED'
-     ?Object.freeze({state:readback.state,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,
+     ?Object.freeze({state:readback.state,...verification,dispatchRef:readback.dispatchRef,actualInputDigest:readback.actualInputDigest,
       ...(readback.input===undefined?{}:{readActualInput:exposeVerifiedJson(()=>canonicalSnapshotValue(readback.input),
        readback.actualInputDigest,{assertCurrent:readback.assertCurrent})}),assertCurrent:readback.assertCurrent})
-     :Object.freeze({state:readback.state,assertCurrent:readback.assertCurrent})
+     :Object.freeze({state:readback.state,...verification,assertCurrent})
    }
    if(name!=='content.operation.discover'||!identity(input['directoryRef']))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const discovery=await workspace.discover(input['directoryRef'])

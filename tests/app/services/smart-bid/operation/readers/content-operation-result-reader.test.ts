@@ -128,7 +128,7 @@ it('reads the original result only for the selected attempt and verifies the ret
   expect(inspected).toHaveProperty('verification.actualRequirementReads',[
    {lineageId:'CLAUSE',version:'V1',fieldPath:'target',callRef:'DISPATCH',resultRef:'RECEIPT'},
   ])
-  if(!('verification' in inspected)||!inspected.verification?.readCandidate)throw Error('TEST_CANDIDATE_READER_REQUIRED')
+  if(!('verification' in inspected)||!inspected.verification||!('readCandidate' in inspected.verification)||!inspected.verification.readCandidate)throw Error('TEST_CANDIDATE_READER_REQUIRED')
   if(!('result' in verified)||verified.result.state!=='VERIFIED_CANDIDATE')throw Error('TEST_VERIFIED_RESULT_REQUIRED')
   await expect(inspected.verification.readCandidate()).resolves.toBe(verified.result.candidateJson)
   hasResult=false
@@ -145,9 +145,13 @@ it('reads the original result only for the selected attempt and verifies the ret
   const beforeMissingFrozen=resolveGuide.mock.calls.length
   const withoutFrozen=await verificationHost.invoke('content.operation.readDispatch',scope,signal)
   expect(withoutFrozen).toMatchObject({state:'DISPATCH_RECORDED',dispatchRef:'DISPATCH'})
-  expect(withoutFrozen).not.toHaveProperty('verification')
+  expect(withoutFrozen).toMatchObject({verification:{state:'FROZEN_CONTEXT_REQUIRED'}})
   expect(resolveGuide).toHaveBeenCalledTimes(beforeMissingFrozen)
   hasFrozen=true
+  const withoutRules=createContentOperationScriptHost(scriptHost.runtime,tools,
+   {...host,rootKind:'OperationRoute',resolveOriginalGuide:async()=>undefined})
+  expect(await withoutRules.invoke('content.operation.readDispatch',scope,signal))
+   .toMatchObject({dispatchRef:'DISPATCH',verification:{state:'ORIGINAL_GUIDE_RULES_REQUIRED'}})
   hideFrozen=true
   await expect(workspace.recoverOriginal(scope,resolveGuide)).rejects.toThrow('DATA_VIEW_READ_ROW')
   hidden=true

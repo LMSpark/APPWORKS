@@ -140,6 +140,8 @@ function bindOriginalVerification() {
     result.assertCurrent()
     const state = {
       VERIFIED_CANDIDATE: '候选核验通过', DISPATCH_UNKNOWN: '实发未知',
+      FROZEN_CONTEXT_REQUIRED: '待核原冻结输入', ORIGINAL_GUIDE_REQUIRED: '待核原版动作指南',
+      ORIGINAL_GUIDE_RULES_REQUIRED: '待核原版验证规则',
       DISPATCH_EVIDENCE_REQUIRED: '待核实发证据', RETURN_UNKNOWN: '原返回未知',
       PARTIAL: '原返回不完整', FAILED: '原试次失败', UNKNOWN: '原试次状态未知',
     }[result.state] ?? '待核原返回'

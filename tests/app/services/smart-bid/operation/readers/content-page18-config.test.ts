@@ -19,9 +19,11 @@ it('rechecks the same original dispatch without starting another attempt',async(
  const query={projectId:'P',runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),
   configurationLockHash:'b'.repeat(64),directoryRef:'DIR'}
  const showAlert=vi.fn(async()=>{})
- const originalResult=Promise.withResolvers<{state:string;assertCurrent:()=>void}>()
+ type OriginalResult={state:string;assertCurrent:()=>void}
+ let resolveOriginal!: (result:OriginalResult)=>void
+ const originalResult=new Promise<OriginalResult>(resolve=>{resolveOriginal=resolve})
  const invokeHostCommand=vi.fn()
-  .mockReturnValueOnce(originalResult.promise)
+  .mockReturnValueOnce(originalResult)
   .mockResolvedValueOnce({dataViewKey:'GUIDES',assertCurrent:()=>{},readGuide:async()=>({guide:'原指南',assertCurrent:()=>{}})})
   .mockResolvedValueOnce({state:'DISPATCH_RECORDED',dispatchRef:'ORIGINAL',actualInputDigest:'DIGEST',assertCurrent:()=>{}})
  const {__init__,bindOriginalDispatch,refreshOriginalDispatch,bindOriginalVerification,bindRework,readGuide}=compileFunctions(script,
@@ -30,7 +32,7 @@ it('rechecks the same original dispatch without starting another attempt',async(
   throw Error('TEST_DISPATCH_HANDLERS_REQUIRED')
  const initializing=__init__()
  expect(invokeHostCommand).toHaveBeenNthCalledWith(2,'content.operation.discover',{directoryRef:'DIR'})
- originalResult.resolve({state:'UNKNOWN',assertCurrent:()=>{}})
+ resolveOriginal({state:'UNKNOWN',assertCurrent:()=>{}})
  await initializing
  expect(bindOriginalDispatch()).toEqual({status:'原试次实发结果未知'})
  const refresh=refreshOriginalDispatch()

@@ -138,6 +138,13 @@ it('connects the published script to the original runtime only once per load',as
   expect(queries).toHaveBeenCalledTimes(2)
   const originalSave={requestKey:'REQ',requestDigest:'a'.repeat(64),contentDigest:'b'.repeat(64),expectedDraftVersion:'V1'}
   await expect(first.readOriginalSave(originalSave)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+  const draft=runtime.resolveView('SPACE@WorkingDraft@personalDraft')!
+  const pendingSave=vi.spyOn(draft,'hasUnconfirmedSave','get').mockReturnValue(true)
+  try{
+   expect(()=>first.assertCurrent()).toThrow('CONTENT_COMMAND_MUTATING')
+   const recovery=await connect()
+   await expect(recovery.readOriginalSave(originalSave)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+  }finally{pendingSave.mockRestore()}
   expect(queries).toHaveBeenCalledTimes(2)
   controller.abort()
   expect(()=>first.assertCurrent()).toThrow('CONTENT_PAGE_RENDER_STALE')

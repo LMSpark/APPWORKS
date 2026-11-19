@@ -91,11 +91,12 @@ export type ContentAuthoringScriptSession=Readonly<{
 export function createContentAuthoringScriptHost(binding:Binding,commands:ContentAuthoringCommands,receiptDataViewKey?:string){
  return {runtime:binding.runtime,assertCurrent:binding.assertCurrent,
   invoke(name:string,input:unknown,signal:AbortSignal):ContentAuthoringScriptSession{
-   const assertCurrent=()=>{
+   const assertReadSession=()=>{
     if(signal.aborted)throw Error('CONTENT_PAGE_RENDER_STALE')
-    binding.assertCurrent();commands.assertInputCurrent(commands.epoch)
+    binding.assertCurrent()
    }
-   assertCurrent()
+   const assertCurrent=()=>{assertReadSession();commands.assertInputCurrent(commands.epoch)}
+   assertReadSession()
    if(name!=='content.authoring.connect'||input!==undefined)throw Error('CONTENT_PAGE_COMMAND_UNKNOWN')
    const layoutInput=(path:JsonPath|null):ContentTreeEditorLayoutInput=>{
     assertCurrent()
@@ -240,11 +241,12 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      return readBaselineSubmissionObligations({runtime,scenarioId,projectId,assertCurrent:assertProject},baselineId)
     },
     async readOriginalSave(request:SaveReadInput){
-     assertCurrent()
+     assertReadSession()
      const scenarioId=parseDataViewKey(binding.dataViewKey)?.scope
      if(!scenarioId||!receiptDataViewKey)throw Error('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
      const {runtime,projectId,draftId,actorUserId}=binding
-     const receipt=await readRegisteredOriginalContentDraftSave({runtime,scenarioId,projectId,draftId,actorUserId,receiptDataViewKey,assertCurrent},request)
+     const receipt=await readRegisteredOriginalContentDraftSave({runtime,scenarioId,projectId,draftId,actorUserId,
+      receiptDataViewKey,assertCurrent:assertReadSession},request)
      if(receipt.state!=='SAVED'||commands.hasPendingInput)return receipt
      const view=runtime.resolveView(binding.dataViewKey)
      if(!view)return receipt

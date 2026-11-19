@@ -65,7 +65,7 @@ it('binds a prepared draft candidate to the original fact version query',async()
   const draftJson=canonicalSnapshotValue({nodes:basis.nodePayloads,responseChanges:[]})
   const request=await prepareRegisteredDraftCandidateRequest(f.host,{projectId:'P',draftId:'D',actorUserId:'U',
    draftVersion:'D1',baseRevisionId:'V1',draftJson,contentDigest:await hashCanonicalSnapshotText(draftJson),assertCurrent:()=>{}},
-  basis,{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}})
+  {basis,input:{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]}}})
   expect(request).toMatchObject({factVersions:[{factId:'PRICE',version:2}],
    factDependencyHash:expect.stringMatching(/^[a-f0-9]{64}$/u),requiresFactUseCheck:true})
   expect(request.requestJson).toContain(`"factDependencyHash":"${request.factDependencyHash}"`)
@@ -82,7 +82,7 @@ it('pins a new independent response and its frozen facts in the candidate reques
   const draftJson=canonicalSnapshotValue({nodes:[],responseChanges:[{assignmentId:'A',basisResponseId:'I',responseId:'NEW'}]})
   const prepared=await prepareRegisteredDraftCandidateRequest(f.host,{projectId:'P',draftId:'D',actorUserId:'U',
    draftVersion:'D1',baseRevisionId:'V1',draftJson,contentDigest:await hashCanonicalSnapshotText(draftJson),assertCurrent:()=>{}},
-  basis,{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'A',responseId:'I'}]}})
+  {basis,input:{requestKey:'Q',targetScope:{schemaVersion:2,projectId:'P',targets:[{kind:'RESPONSE',assignmentId:'A',responseId:'I'}]}}})
   expect(prepared).toMatchObject({factVersions:[{factId:'PRICE',version:2}],requiresResponseUseCheck:true})
   expect(prepared.requestJson).toContain('"responseId":"NEW"')
   expect(prepared.requestJson).toContain('"payloadHash":')

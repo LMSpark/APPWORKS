@@ -12,15 +12,18 @@ type NativeImport=Readonly<{
 }>
 
 /** 企业获准件以原导入、同计价版复算及批准为依据。 */
-export async function prepareNativePriceRegistration(source:NativeImport,approval:Parameters<typeof matchApprovedPriceDetail>[0],
- calculation:Parameters<typeof matchApprovedPriceDetail>[1],open:(input:Readonly<{
+export async function prepareNativePriceRegistration(source:NativeImport,{approval,calculation,open}:Readonly<{
+ approval:Parameters<typeof matchApprovedPriceDetail>[0];calculation:Parameters<typeof matchApprovedPriceDetail>[1]
+ open:(input:Readonly<{
  projectId:string;resourceVersionId:string
- }>)=>Promise<Readonly<{projectId:string;resourceVersionId:string;bytes:ArrayBuffer;assertCurrent:()=>void}>>){
+ }>)=>Promise<Readonly<{projectId:string;resourceVersionId:string;bytes:ArrayBuffer;assertCurrent:()=>void}>>
+}>){
  const {projectId,scopeRef,pricingVersion,importRef,resourceVersionId,fileHash}=source
  const origin={projectId,scopeRef,pricingVersion,importRef,resourceVersionId,fileHash}
  const assertOrigin=()=>{
   source.assertCurrent()
-  if(Object.entries(origin).some(([key,value])=>source[key as keyof typeof origin]!==value)||
+  if(source.projectId!==projectId||source.scopeRef!==scopeRef||source.pricingVersion!==pricingVersion||
+   source.importRef!==importRef||source.resourceVersionId!==resourceVersionId||source.fileHash!==fileHash||
    approval.scopeRef!==scopeRef||approval.pricingVersion!==pricingVersion)
    throw Error('BID_NATIVE_PRICE_REGISTRATION_SCOPE')
  }

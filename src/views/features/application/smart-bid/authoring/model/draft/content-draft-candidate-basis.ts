@@ -151,8 +151,9 @@ export async function readDraftCandidateBasis(host:ContentRevisionReadHost,selec
 
 /** 按请求实际使用的事实读取原版本，保留读取证明供登记前再核。 */
 export async function prepareRegisteredDraftCandidateRequest(host:ContentRevisionReadHost,
- draft:Parameters<typeof prepareDraftCandidateRequest>[0],basis:Awaited<ReturnType<typeof readDraftCandidateBasis>>,
- input:Parameters<typeof prepareDraftCandidateRequest>[2]){
+ draft:Parameters<typeof prepareDraftCandidateRequest>[0],{basis,input}:Readonly<{
+ basis:Awaited<ReturnType<typeof readDraftCandidateBasis>>;input:Parameters<typeof prepareDraftCandidateRequest>[2]
+ }>){
  const request=await prepareDraftCandidateRequest(draft,basis,input)
  if(host.projectId!==request.projectId)throw Error(error)
  const selected=request.responseChanges.flatMap(({assignmentId,responseId})=>{

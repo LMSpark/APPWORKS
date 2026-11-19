@@ -90,11 +90,11 @@ it('keeps a native price file attached to its original approved calculation vers
  const calculation=recalculatePriceLines({pricingVersion:'PRICE-V1',currency:'CNY',precision:2,rounding:'HALF_UP',
   lines:[{lineRef:'1',unit:'项',sourceRef:'IMPORT',quantity:'2',unitPrice:'1',reportedAmount:'2'}],assertCurrent})
  const open=async()=>({projectId:'P',resourceVersionId:'FILE',bytes,assertCurrent})
- const result=await prepareNativePriceRegistration(source,approval,calculation,open)
+ const result=await prepareNativePriceRegistration(source,{approval,calculation,open})
  expect(result.record).toMatchObject({importRef:'IMPORT',pricingVersion:'PRICE-V1',approvalRef:'APPROVAL',fileHash})
- await expect(prepareNativePriceRegistration(source,{...approval,pricingVersion:'PRICE-V2'},calculation,open))
+ await expect(prepareNativePriceRegistration(source,{approval:{...approval,pricingVersion:'PRICE-V2'},calculation,open}))
   .rejects.toThrow('BID_NATIVE_PRICE_REGISTRATION_SCOPE')
- await expect(prepareNativePriceRegistration(source,{...approval,value:'3.00'},calculation,open))
+ await expect(prepareNativePriceRegistration(source,{approval:{...approval,value:'3.00'},calculation,open}))
   .rejects.toThrow('BID_NATIVE_PRICE_REGISTRATION_APPROVAL')
 })
 

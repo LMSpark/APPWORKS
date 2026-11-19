@@ -128,7 +128,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      if(revisionId!==null){
       if(request.firstBatchId!==undefined||request.targetScopeIndex!==undefined)throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
       const basis=await readDraftCandidateBasis(host,{revisionId})
-      return prepareRegisteredDraftCandidateRequest(host,captured,basis,{...requestFields,targetScope:request.targetScope})
+      return prepareRegisteredDraftCandidateRequest(host,captured,{basis,input:{...requestFields,targetScope:request.targetScope}})
      }
      const projectKey=buildDataViewKey('ContentProject','selectedProject',scenarioId)
      const projectView=runtime.resolveView(projectKey)
@@ -158,7 +158,7 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
       {revisionId,firstBaselineId:project['activeBaselineId'],firstBatchId,targetScope:request.targetScope,
        ...(request.targetScopeIndex===undefined?{}:{targetScopeIndex:request.targetScopeIndex})})
      if(!('targetScope' in basis))throw Error('CONTENT_DRAFT_CANDIDATE_BASIS')
-     return prepareRegisteredDraftCandidateRequest(firstHost,captured,basis,{...requestFields,targetScope:basis.targetScope})
+     return prepareRegisteredDraftCandidateRequest(firstHost,captured,{basis,input:{...requestFields,targetScope:basis.targetScope}})
     },
     async captureCandidateDraft(){
      assertCurrent()

@@ -65,6 +65,7 @@ const session = new NativePageRuntimeSession({
   remove: () => sparkRemove(PAGE_RUNTIME),
 })
 const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('edit')
+let confirmingClose = false
 const bindingWindow = ref<{interfaceId: string | number; outputId: string | number; epoch: number}>()
 let bindingEpoch = 0
 let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
@@ -335,10 +336,17 @@ async function verifyOriginalSaves(): Promise<void> {
   })
 }
 async function close(): Promise<void> {
-  if (busy.value || bindingWindow.value) return
+  const runtime = listRuntime.value
+  if (!runtime || confirmingClose || busy.value || bindingWindow.value) return
   if (dirty.value || unconfirmed.value) {
-    const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
-    if (!confirmed || busy.value) return
+    confirmingClose = true
+    let confirmed: boolean
+    try {
+      confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
+    } finally {
+      confirmingClose = false
+    }
+    if (!confirmed || !active || !session.isCurrent(runtime) || busy.value || bindingWindow.value) return
     if (unconfirmed.value) {error.value = '仍有未确认的保存或调用结果，请先处理原操作'; return}
     for (const item of views.value) item.discardPendingChanges()
   }

@@ -4,6 +4,7 @@ import script from '@/views/features/application/smart-bid/authoring/page11/scri
 import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
 import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {DataSet} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -13,10 +14,22 @@ function fixture(user='U',primaryKey='id'){
   primaryKey,rows:[row],getPkKey:(item:typeof row)=>item[primaryKey],getEditingRow:vi.fn(()=>row),captureReadRow:vi.fn(()=>proof),captureReadResult:vi.fn(()=>resultProof)}
  const resolveView=vi.fn(()=>view)
  const query={projectId:'P',draftId:'D'}
+ const edit=vi.fn()
  const functions=compileFunctions(script,{$route:{query},$page:{resolveView,
-  invokeHostCommand:async()=>({assertCurrent:()=>{}})}} as unknown as PageContext)
- return {row,view,proof,resultProof,functions,resolveView,query}
+  invokeHostCommand:async()=>({assertCurrent:()=>{},actionProps:()=>({onClick:edit})})}} as unknown as PageContext)
+ return {row,view,proof,resultProof,functions,resolveView,query,edit}
 }
+it('does not dispatch an old edit button after switching drafts',async()=>{
+ const f=fixture()
+ await f.functions['__init__']!()
+ const button=f.functions['bindAddDocument']!()
+ if(!isRecord(button)||typeof button['onClick']!=='function')throw Error('TEST_EDIT_BUTTON_REQUIRED')
+ button['onClick']()
+ expect(f.edit).toHaveBeenCalledOnce()
+ f.query.draftId='OTHER'
+ button['onClick']()
+ expect(f.edit).toHaveBeenCalledOnce()
+})
 it('does not reuse the original proof for another draft in the same view',()=>{
  const f=fixture()
  expect(f.functions['bindOriginalDraft']!()).toEqual({contextRowId:'D'})

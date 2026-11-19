@@ -215,6 +215,8 @@ function buildRuntimeNavigationItem(
         : target.targetKind === 'empty'
           ? 'system-action'
           : 'page'
+  const sourceVersion = record.source['VersionId']
+  const versionId = typeof sourceVersion === 'string' ? sourceVersion.trim() : ''
   return {
     id: record.nodeId,
     title: (record.navigation?.title ?? record.capability.name),
@@ -224,7 +226,7 @@ function buildRuntimeNavigationItem(
     ...(record.dataSpace?.scenarioId === undefined ? {} : { blueprintScenarioId: record.dataSpace.scenarioId }),
     ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
       projectId: record.projectId, pageId: ProjectModel.parseConfigToolPageId(record.navigation.target),
-      ...(typeof record.source['VersionId'] === 'string' && record.source['VersionId'].trim() ? { versionId: record.source['VersionId'] } : {}),
+      ...(versionId ? { versionId } : {}),
     } } : {}),
     ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
     ...(record.navigation?.icon === undefined ? {} : { icon: record.navigation.icon }),
@@ -710,16 +712,29 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
 export function createPageToolFilesIo(projectId:string){
   const appId=projectId.trim()
   return {
-    list:async(app:string,page:string)=>{if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配');return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath:toolFilePath(appId,page)})).map(file=>file.name)},
+    list:async(app:string,page:string)=>{
+      if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      const folderPath=toolFilePath(appId,page)
+      try {
+        return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath})).map(file=>file.name)
+      } catch (error) {
+        // 新工具首次写入前目录尚未生成。只接纳服务明确返回的目录不存在。
+        if(error instanceof LowcodePlatform.LowcodeApiError && error.code===1003
+          && /^(?:\[1003\]\s*)?文件夹路径不存在$/.test(error.message)) return []
+        throw error
+      }
+    },
     read:async(app:string,page:string,name:string)=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       if(name.length===0||name!==name.trim()||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('FILE_SCOPE: 文件名无效')
       try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
-    upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
+    upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string;replace?:true}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
-      await scenarioFileUpload.uploadTextVersion({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
+      const file = {customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text}
+      if(command.replace) await scenarioFileUpload.uploadWorkingText(file)
+      else await scenarioFileUpload.uploadTextVersion(file)
     },
     restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')

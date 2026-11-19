@@ -4,16 +4,21 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, buildDataViewKey, resolveDataViewKey, resolveDataViewMember, diagnoseDataViewKey, DataMember} from '@spark-appworks/spark-data'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {createLowcodeProjectBlueprintRecord, DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {createLowcodeProjectBlueprintRecord, DataSpaceRuntimeApi, LowcodeApiError, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {Spark, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import DisplayText from '../../../../packages/spark-component/src/components/display/data-components/value/DisplayText/DisplayText.vue'
 import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {assembleLowcodeRuntimeNavigation} from '../../../../src/lowcode/lowcode-runtime'
+import {assembleLowcodeRuntimeNavigation, lowcodeApi, readLowcodePageFiles} from '../../../../src/lowcode/lowcode-runtime'
+import * as scenarioRuntime from '../../../../src/lowcode/data-space/lowcode-data-space-runtime'
+import blueprintConfig from '../../../../config/pages/application/project-blueprint/pagedata.json'
 
 const calls: PageRuntime[] = []
-afterEach(() => { for (const call of calls.splice(0)) call.dispose() })
+afterEach(() => {
+  for (const call of calls.splice(0)) call.dispose()
+  vi.restoreAllMocks()
+})
 
 function tool(): PageTool {
   const result = new PageTool({pageId: 'orders-tool'})
@@ -174,24 +179,39 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   const records = ['A', 'B'].map(scenarioId => createLowcodeProjectBlueprintRecord({
     nodeId: scenarioId, projectId:'APP', parentNodeId:'ROOT', kind:'page', capability:{name:scenarioId},
     navigation:{title:scenarioId, target, order:0, publishInMenu:true, showChildren:false, beginGroup:false},
-    dataSpace:{scenarioId, models:[]}, source:{VersionId:versionId},
+    dataSpace:{scenarioId, models:[]}, source:{VersionId:` ${versionId} `},
   }))
   const navTree = assembleLowcodeRuntimeNavigation({applicationName:'Orders', projectId:'APP', navigationRootId:'ROOT', records,
     authorization:{items:records.map(record=>({id:record.nodeId, target, targetKind:'route', formKey:record.nodeId, children:[]})), contexts:[]}})
+  expect(records.map(record => navTree.items.find(node => node.id === record.nodeId)?.tool?.versionId)).toEqual([versionId, versionId])
   const router = createRouter({history:createMemoryHistory(), routes:navTree.items.map(node=>({
     path:`/apps/:projectId/__page/${node.id}`, component:defineComponent({render:()=>h('div')}),
     meta:{type:'config-page', nodeId:node.id, tool:node.tool, blueprintScenarioId:node.blueprintScenarioId},
   }))})
   const openMenu = (nodeId:string) => router.push(`/apps/APP${navTree.items.find(node=>node.id===nodeId)!.path}`)
-  const readPageFiles = vi.fn(async () => [rule, script, ''])
+  const style = '.main-title { font-weight: bold; }'
+  const snapshots = new Map([['2__rule.json', rule], ['3__script.js', script], ['4__style.css', style]])
+  vi.spyOn(lowcodeApi, 'readRequestScope').mockReturnValue({token: 'SCOPE', headers: {'X-AppId': 'APP'}})
+  vi.spyOn(scenarioRuntime, 'loadLowcodeRuntimeScenario').mockImplementation(async ({projectId, scenarioId}) => {
+    expect([projectId, scenarioId]).toEqual(['APP', blueprintConfig.scenarioId])
+    return DataSet.fromJson({scenarioId, tables: {ProjectToolFile: blueprintConfig.tables.ProjectToolFile}})
+  })
+  const downloads = vi.spyOn(lowcodeApi.design, 'readFileBytes').mockImplementation(async locator => {
+    expect(locator).toMatchObject({appType: 'designfile', customPath: 'APP/orders-tool'})
+    const text = snapshots.get(locator.fileName)
+    if (text === undefined) throw new LowcodeApiError(404, 'snapshot missing')
+    return new TextEncoder().encode(text)
+  })
+  const workingRead = vi.spyOn(lowcodeApi.design, 'readTextFile').mockRejectedValue(new Error('unexpected working file read'))
   const pool = new PageRuntimePool({pageComponent: SparkPageRenderer, readNavTree: () => navTree,
     refreshRoutes: async () => undefined,
     readPageFile: async () => {throw new Error('Expected the atomic page file reader')},
-    readPageFiles,
+    readPageFiles: readLowcodePageFiles,
     loadScenario: async ({scenarioId}) => assembler.assemble({
       config: new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: {
         [differentNames ? `Internal${scenarioId}` : 'Orders']: {modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
-          views: {default: {autoLoad: false}, detail: {commitMode: 'staged', autoLoad: false, autoCurrentFirst: true}}},
+          views: {default: {autoLoad: false}, detail: {commitMode: 'staged', autoLoad: false, autoCurrentFirst: true},
+            receipt: {autoLoad: false, autoCurrentFirst: true}}},
       }})), space: {dataSpaceId: scenarioId, name: `Space ${scenarioId}`}, models: [model], relations: [],
     }).dataSet,
   })
@@ -199,9 +219,8 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   const first = pool.getPageRuntime(router.currentRoute.value)!
   calls.push(first)
   await first.load()
-  expect(readPageFiles).toHaveBeenCalledWith(['rule.json','script.js','style.css'].map(fileName=>({
-    projectId:'APP', pageId:'orders-tool', fileName, versionId,
-  })))
+  expect(downloads.mock.calls.map(([locator]) => locator.fileName).sort()).toEqual([...snapshots.keys()].sort())
+  expect(first.tool.getFileText('style.css')).toBe(style)
   expect(first.resolveView('Orders@detail')).toBe(first.getDataSet('A')!.getView(differentNames ? 'InternalA' : 'Orders', 'detail'))
   const errors: unknown[] = []
   const registry = Spark.createRegistry()
@@ -250,6 +269,10 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     await reopened.load()
     await reopened.resolveView('Orders@detail')!.loadFromServer()
     expect(reopened.resolveView('Orders@detail')!.currentRow?.['title']).toBe('A accepted')
+    const receipt = reopened.resolveView('A@Orders@receipt')!
+    expect(receipt).not.toBe(reopened.resolveView('Orders@detail'))
+    await receipt.loadFromServer()
+    expect(receipt.currentRow).toMatchObject({id: 'ROW', title: 'A accepted'})
     await second.resolveView('Orders@detail')!.loadFromServer()
     await flushPromises()
     expect(second.resolveView('Orders@detail')!.rows[0]?.['title']).toBe('B accepted')
@@ -265,5 +288,12 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     expect(wrapper.get('.lookup-title').text()).toBe('Lookup original')
     expect(() => first.resolveView('Orders@detail')).toThrow(/DESTROYED/)
     expect(second.resolveView('Orders@detail')!.dataSet?.destroyed).toBe(false)
+    reopened.dispose()
+    snapshots.delete('3__script.js')
+    const incomplete = pool.getPageRuntime(router.currentRoute.value)!
+    calls.push(incomplete)
+    await expect(incomplete.load()).rejects.toThrow(/FILE_RESOURCE_VERSION_MISSING: .*APP\/orders-tool\/3__script\.js/)
+    expect(workingRead).not.toHaveBeenCalled()
+    expect(http.requests.filter(request => request.url.endsWith('/BatchTableOperateRequestByCRUD'))).toHaveLength(2)
   } finally { wrapper.unmount(); pool.disposePageRuntimes() }
 })

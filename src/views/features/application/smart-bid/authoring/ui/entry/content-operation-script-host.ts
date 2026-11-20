@@ -14,6 +14,15 @@ import {openContentOperationWorkspace} from './content-operation-workspace'
 type Open=Parameters<typeof openContentOperationWorkspace>
 /** 按原身份解析已冻结工艺指南的能力。 */
 type ResolveGuide=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]
+type DispatchResult=Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>
+/** 当前可信宿主把已注册 Agent SSE 派发器注入同一 PageRuntime；四文件只提交精确输入。 */
+export type ContentOperationDispatch=Readonly<{
+ workspace:ReturnType<typeof openContentOperationWorkspace>;input:Readonly<Record<string,unknown>>;signal:AbortSignal
+}>
+type Scope=Omit<Open[2],'signal'>&Readonly<{
+ resolveOriginalGuide?:ResolveGuide
+ dispatchOperation?:(command:ContentOperationDispatch)=>Promise<DispatchResult>
+}>
 
 function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,error='OPERATION_ROUTE_DISPATCH_DIGEST'}:
  Readonly<{assertCurrent:()=>void;error?:string}>){
@@ -27,11 +36,19 @@ function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,err
 }
 
 export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],
- scope:Omit<Open[2],'signal'>&Readonly<{resolveOriginalGuide?:ResolveGuide}>){
+ scope:Scope){
  return {runtime,assertCurrent:scope.assertCurrent,
   async invoke(name:string,input:unknown,signal:AbortSignal){
    if(!isRecord(input))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const workspace=openContentOperationWorkspace(runtime,classModel,{...scope,signal})
+   if(name==='content.operation.dispatch'){
+    if(!scope.dispatchOperation)throw Error('OPERATION_PAGE_AGENT_DISPATCH_UNAVAILABLE')
+    const result=await scope.dispatchOperation({workspace,input,signal})
+    return Object.freeze({...result,assertCurrent:()=>{
+     scope.assertCurrent()
+     if(signal.aborted||runtime.destroyed||!runtime.isLoaded)throw Error('OPERATION_WORKSPACE_STALE')
+    }})
+   }
    if(name==='content.operation.prepareRework'){
     const {runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason}=input
     if(!identity(runId)||!identity(attemptRef)||!identity(requestKey)||!identity(targetDigest)||!identity(configurationLockHash)||

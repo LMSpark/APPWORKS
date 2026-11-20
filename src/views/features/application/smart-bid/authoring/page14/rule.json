@@ -1,28 +1,10 @@
 [
-  {
-    "id": "original-submission",
-    "type": "r-section",
-    "props": {"title": "原办理记录", "onBeforeRender": "bindOriginalSubmission"}
-  },
-  {
-    "id": "original-channel-receipt",
-    "type": "r-section",
-    "props": {"title": "接收凭据", "onBeforeRender": "bindOriginalReceipt"}
-  },
-  {
-    "id": "submission-deadline",
-    "type": "r-section",
-    "props": {"title": "截止有效组合", "onBeforeRender": "bindDeadline"},
-    "children": [
-      {"type": "r-button", "props": {"label": "核对截止有效组合", "onClick": "openDeadline"}}
-    ]
-  },
-  {
-    "id": "tender-stage-outcome",
-    "type": "r-section",
-    "props": {"title": "阶段结果", "onBeforeRender": "bindOutcome"},
-    "children": [
-      {"type": "r-button", "props": {"label": "核对阶段结果", "onClick": "openOutcome"}}
-    ]
-  }
+  {"id":"submission-record","type":"r-section","props":{"title":"递交结果"},"children":[
+    {"type":"r-toolbar","props":{"wrap":true},"children":[
+      {"type":"r-button","props":{"label":"回查原办理记录","action":"host-command","command":"content.submission.readOriginal","input":{"attemptRef":{"$route":"attemptRef"},"requestKey":{"$route":"requestKey"},"requestDigest":{"$route":"requestDigest"}},"routeQueryRequired":["attemptRef","requestKey","requestDigest"],"resultAlertTitle":"原办理记录"}},
+      {"type":"r-button","props":{"label":"回查接收凭据","action":"host-command","command":"content.submission.readReceipt","input":{"receiptRef":{"$route":"receiptRef"}},"routeQueryRequired":["receiptRef"],"resultAlertTitle":"接收凭据"}},
+      {"type":"r-button","props":{"label":"核对截止有效组合","action":"host-command","command":"content.submission.readDeadline","input":{"deadlineRef":{"$route":"deadlineRef"}},"routeQueryRequired":["deadlineRef"],"resultAlertTitle":"截止有效组合"}},
+      {"type":"r-button","props":{"label":"核对阶段结果","action":"host-command","command":"content.submission.readOutcome","input":{"lotId":{"$route":"lotId"},"roundId":{"$route":"roundId"},"stageId":{"$route":"stageId"},"subjectId":{"$route":"subjectId"},"knownAt":{"$route":"outcomeKnownAt"}},"routeQueryRequired":["lotId","roundId","stageId","subjectId","outcomeKnownAt"],"resultAlertTitle":"阶段结果"}}
+    ]}
+  ]}
 ]

@@ -14,8 +14,6 @@ import {createKnowledgeDirectoryScriptHost} from '@/views/features/application/s
 import {createBidClassModelCatalogHost} from '@/views/features/application/smart-bid/knowledge/class-model-catalog-script-host'
 import catalogScript from '@/views/features/application/smart-bid/knowledge/page17/script.js?raw'
 import knowledgeScript from '@/views/features/application/smart-bid/knowledge/page16/script.js?raw'
-import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import rule from '@/views/features/application/smart-bid/authoring/page18/rule.json?raw'
@@ -94,39 +92,23 @@ it('discovers only the complete scoped directory and retains the original public
   expect(executeTool).toHaveBeenCalledTimes(beforeStaleRow)
   const knowledge=createKnowledgeDirectoryScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
-  const showAlert=vi.fn(async()=>{})
-  const {__init__,bindKnowledgeDirectory,openKnowledgeGuide}=compileFunctions(knowledgeScript,{
-   $route:{query:{directoryRef:'DIR'}},$page:{invokeHostCommand:(name:string,input:unknown)=>knowledge.invoke(name,input,controller.signal),
-    resolveView:host.runtime.resolveView,showAlert},
-  } as unknown as PageContext)
-  if(!__init__||!bindKnowledgeDirectory||!openKnowledgeGuide)throw Error('TEST_KNOWLEDGE_PAGE_HANDLERS_REQUIRED')
   expect(()=>knowledge.invoke('content.operation.prepareRework',{},controller.signal)).toThrow('KNOWLEDGE_DIRECTORY_COMMAND_REQUIRED')
-  await __init__()
-  expect(bindKnowledgeDirectory()).toEqual({dataViewKey:'S@KnowledgeGuide@effectiveDirectory'})
-  await openKnowledgeGuide(view.rows[0])
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith(
-   ['指南 GUIDE · 版本 V1','目录路径 DIR','公共指南 · 发布引用 PUB','原材料引用 MATERIAL','',guideText].join('\n'),'动作指南 · V1')
+  const knowledgeDirectory=await knowledge.invoke('knowledge.directory.read',{directoryRef:'DIR'},controller.signal)
+  if(!('readGuide' in knowledgeDirectory)||typeof knowledgeDirectory.readGuide!=='function')
+   throw Error('TEST_KNOWLEDGE_DIRECTORY_REQUIRED')
+  await expect(knowledgeDirectory.readGuide('G',row)).resolves.toMatchObject({
+   guide:guideText,guideRef:'GUIDE',versionRef:'V1',origin:{source:'PUBLIC',publicationRef:'PUB'},
+  })
+  expect(knowledgeScript.trim()).toBe('')
   const runtime={generation:1,isLoaded:true,destroyed:false}
   const catalogTools={executeTool:vi.fn(async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool())}
   const catalog=createBidClassModelCatalogHost(runtime,catalogTools,{rootKind:'OperationRoute',assertCurrent:host.assertCurrent})
-  const showCatalog=vi.fn(async()=>{})
-  const catalogQuery:{modelKind:string;modelAction?:string;modelAttribute?:string}={modelKind:'OperationRoute',modelAction:'verify'}
-  const {openBidClassModelCatalog,openBidClassModelGuide,bindBidClassModelGuide}=compileFunctions(catalogScript,
-   {$route:{query:catalogQuery},$page:{
-   invokeHostCommand:(name:string,input:unknown)=>catalog.invoke(name,input,controller.signal),showAlert:showCatalog,
-  }} as unknown as PageContext)
-  if(!openBidClassModelCatalog||!openBidClassModelGuide||!bindBidClassModelGuide)throw Error('TEST_CLASS_MODEL_CATALOG_HANDLER_REQUIRED')
-  await openBidClassModelCatalog()
-  expect(showCatalog).toHaveBeenCalledExactlyOnceWith('根模型 OperationRoute · 1 个定义\nOperationRoute\nstatus: string\nverify(target: string): boolean','ClassModel 定义目录')
-  await openBidClassModelGuide()
-  expect(showCatalog).toHaveBeenLastCalledWith(guideText,'方法指南 · OperationRoute.verify')
+  const catalogResult=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
+  await expect(catalogResult.readGuide('OperationRoute','verify')).resolves.toMatchObject({guide:guideText})
   expect(catalogTools.executeTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'})
-  catalogQuery.modelAttribute='status'
-  expect(bindBidClassModelGuide()).toEqual({visible:false})
-  delete catalogQuery.modelAction
-  await openBidClassModelGuide()
-  expect(showCatalog).toHaveBeenLastCalledWith(guideText,'属性指南 · OperationRoute.status')
+  await expect(catalogResult.readAttributeGuide('OperationRoute','status')).resolves.toMatchObject({guide:guideText})
   expect(catalogTools.executeTool).toHaveBeenCalledWith('model_attribute_guide',{kind:'OperationRoute',attributeName:'status'})
+  expect(catalogScript.trim()).toBe('')
   await expect(catalog.invoke('bid.models.readCatalog',{rootKind:'OTHER'},controller.signal))
    .rejects.toThrow('BID_CLASS_MODEL_CATALOG_SCOPE')
   const evidence=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
@@ -148,7 +130,6 @@ it('discovers only the complete scoped directory and retains the original public
    tools,
    {...host,rootKind:'OperationRoute',signal:controller.signal})
   const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
-  expect(bindKnowledgeDirectory()).toEqual({visible:false})
   expect(()=>directory.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
   const original={scope:attempt,guideRef:'GUIDE',guideVersionRef:'V1',guideDigest}
@@ -224,10 +205,12 @@ it('discovers only the complete scoped directory and retains the original public
    if(!component)throw Error('TEST_OPERATION_PAGE_REQUIRED')
    const rendered=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
    try{
-    await vi.waitFor(()=>expect(rendered.text()).toContain('目录指南 1 项，当前可达动作 1 项'),{timeout:3000})
+    await vi.waitFor(()=>expect(rendered.text()).toContain('GUIDE'),{timeout:3000})
     const guideRow=rendered.findAll('tr').find(item=>item.text().includes('GUIDE'))
     expect(guideRow).toBeDefined()
-    await guideRow?.trigger('click')
+    const guideButton=rendered.findAll('button').find(item=>item.text()==='查看指南')
+    if(!guideButton)throw Error('TEST_GUIDE_BUTTON_REQUIRED')
+    await guideButton.trigger('click')
     await vi.waitFor(()=>expect(executePageTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'}))
    }finally{rendered.unmount()}
   }finally{config.global.stubs=originalStubs;pool.disposePageRuntimes()}

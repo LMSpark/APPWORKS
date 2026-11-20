@@ -1,8 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {checkCommitmentApprovalCoverage,prepareApprovedCommitmentFacts,priceCommitmentApproval} from '@/services/smart-bid/content/references/commercial/commitment-approval-coverage'
 import {reviewApprovedPrice} from '@/services/smart-bid/content/references/commercial/approved-price-review'
 
@@ -23,7 +21,6 @@ it('requires separate approval of both price and person, retaining zero as a val
  expect(()=>checkCommitmentApprovalCoverage({...input,approvals:[{...approvedPrice,purposeRef:'OTHER'},approvedPerson]}))
   .toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
 })
-
 it('prepares append inputs only when all original approvals are available',()=>{
  const input={...scope,fields:[price,person]}
  const source={projectId:'PROJECT',scopeRef:scope.scopeRef,sourceIds:['SOURCE'],claimId:null,assertCurrent:()=>{}}
@@ -52,29 +49,4 @@ it('carries the original price approval and use decision into commitment coverag
   ready:true,fields:[{decisionRefs:['PRICE-V2','USE-V2']}],
  })
  expect(checkCommitmentApprovalCoverage({...scope,fields:[price],approvals:[restricted]}).ready).toBe(false)
-})
-
-it('prepares facts from the page only once every field has the original approval',async()=>{
- let approvals:Array<typeof approvedPrice|typeof approvedPerson>=[approvedPrice]
- const runtime={resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false}
- const read=async()=>({commitmentRef:'C',coverage:{...scope,fields:[price,person],approvals},
-  source:{...scope,sourceIds:['SOURCE'],claimId:null}})
- const host=createBidResponseScriptHost(runtime,{...scope,scenarioId:'S',asOf:10,rateOnly:false},{
-  commitmentBasis:{...scope,read},readPriceEvidence:async()=>{throw Error('UNEXPECTED_PRICE')},readSecurityReceipts:async()=>[],
- })
- const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
- const invoke=(name:string,input:unknown)=>host.invoke(name,input,signal)
- const {openCommitmentReview}=compileFunctions(script,{$route:{query:{commitmentRef:'C'}},
-  $page:{showAlert,invokeHostCommand:invoke}} as unknown as PageContext)
- if(!openCommitmentReview)throw Error('TEST_COMMITMENT_HANDLER_REQUIRED')
- await openCommitmentReview()
- expect(showAlert).toHaveBeenLastCalledWith('待补批准，暂缓登记\nfee · 已核批准 PRICE-V1\nlead · 待核批准','承诺登记前核对')
- expect(await invoke('bid.response.reviewCommitment',{commitmentRef:'C'})).not.toHaveProperty('facts')
- approvals=[approvedPrice,approvedPerson]
- await openCommitmentReview()
- expect(showAlert).toHaveBeenLastCalledWith('批准齐全 · 承诺事实待登记\nfee · 已核批准 PRICE-V1\nlead · 已核批准 PERSON-DECISION','承诺登记前核对')
- expect(await invoke('bid.response.reviewCommitment',{commitmentRef:'C'})).toMatchObject({facts:[
-  {projectId:'PROJECT',key:'fee',value:'0'},{projectId:'PROJECT',key:'lead',value:'P1'},
- ]})
- await expect(invoke('bid.response.reviewCommitment',{commitmentRef:'OTHER'})).rejects.toThrow('BID_RESPONSE_COMMITMENT_REQUEST')
 })

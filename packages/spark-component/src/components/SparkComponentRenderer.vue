@@ -95,7 +95,7 @@ import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import type { ComponentRegistry, ComponentChildrenMode } from '../core/types.js'
 import { consumeSparkCapability, createSparkCapabilityContext, isRecord, sparkProvide, sparkRemove } from '@spark-appworks/spark-utils'
 import { SPARK_REGISTRY_KEY } from '../core/system/keys.js'
-import { DATA_ROW, DATA_SOURCE, PAGE_COMPONENT_REGISTRY } from '../core/capability-keys.js'
+import { DATA_ROW, DATA_SOURCE, PAGE_COMPONENT_REGISTRY, PAGE_ROUTE_QUERY } from '../core/capability-keys.js'
 import { sparkBindContextOwner, sparkResolveParentContext, sparkUnbindContextOwner, type SparkRuntimeOwner } from '../core/capability-context.js'
 import { resolveDataViewRow } from './containers/support/scope/row-mirror-sync.js'
 import type { BeforeRenderContext } from './support/beforeRender.js'
@@ -579,7 +579,8 @@ const effectiveNode = computed<SparkNode>(() => {
   const props = node.props
   if (!props) return node
   const row = resolveScopedRow({ rawProps: props, parentContext: parentCapabilityContext.value })
-  const resolved = resolvePlaceholderProps(props, row)
+  const getRouteQuery = consumeSparkCapability(parentCapabilityContext.value, PAGE_ROUTE_QUERY)
+  const resolved = resolvePlaceholderProps(props, row, getRouteQuery?.())
   if (resolved === props) return node
   return { ...node, props: resolved }
 })

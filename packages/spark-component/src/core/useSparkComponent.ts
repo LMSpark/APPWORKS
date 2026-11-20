@@ -23,7 +23,7 @@ import type {
 import { PAGE_RUNTIME_SERVICES } from '../runtime'
 import { PAGE_COMPONENT_REGISTRY } from './capability-keys.js'
 import type { PageComponentRegistry } from './capability-keys.js'
-import { DATA_ROW } from './capability-keys.js'
+import { DATA_ROW, PAGE_ROUTE_QUERY } from './capability-keys.js'
 
 import { sparkBindContextOwner, sparkResolveParentContext, sparkUnbindContextOwner, type SparkRuntimeOwner } from './capability-context.js'
 import { type SparkNode, normalizeSparkNode, nodeInputProp, SPARK_NODE_STRUCT_KEYS, nodeId } from '@spark-appworks/spark-data'
@@ -318,7 +318,15 @@ function hasPlaceholderString(value: unknown, visited = new WeakSet<object>()): 
   return Object.values(value).some(item => hasPlaceholderString(item, visited))
 }
 
-function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>, resolved: WeakMap<object, unknown>): unknown {
+function resolveValuePlaceholders(
+  value: unknown,
+  options:Readonly<{
+    row:Record<string,unknown>
+    routeQuery:Readonly<Record<string,unknown>>|undefined
+    resolved:WeakMap<object,unknown>
+  }>,
+): unknown {
+ const {row,routeQuery,resolved}=options
   if (typeof value === 'string') {
     const pureMatch = PURE_PLACEHOLDER_RE.exec(value)
     const pureField = pureMatch?.[1]
@@ -331,18 +339,20 @@ function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>, 
     })
   }
   if (!Array.isArray(value) && !isPlaceholderRecord(value)) return value
+  if (!Array.isArray(value) && isRecord(value) && Object.keys(value).length === 1
+    && typeof value['$route'] === 'string') return routeQuery?.[value['$route']]
   if (resolved.has(value)) return resolved.get(value)
   if (!hasPlaceholderString(value)) return value
   if (Array.isArray(value)) {
     const result = new Array<unknown>(value.length)
     resolved.set(value, result)
-    value.forEach((item, index) => {result[index] = resolveValuePlaceholders(item, row, resolved)})
+    value.forEach((item, index) => {result[index] = resolveValuePlaceholders(item, options)})
     return result
   }
   const result: Record<string, unknown> = {}
   resolved.set(value, result)
   for (const [key, item] of Object.entries(value)) {
-    result[key] = resolveValuePlaceholders(item, row, resolved)
+    result[key] = resolveValuePlaceholders(item, options)
   }
   return result
 }
@@ -350,13 +360,15 @@ function resolveValuePlaceholders(value: unknown, row: Record<string, unknown>, 
 export function resolvePlaceholderProps(
   props: Record<string, unknown>,
   row: Record<string, unknown> | null | undefined,
+  routeQuery?: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> {
   // 无 DATA_ROW 或 props 中根本没有占位符时直接复用原对象，避免无意义复制。
-  if (!row || !hasPlaceholderString(props)) return props
+  if (!row && !routeQuery) return props
   const result: Record<string, unknown> = {}
   const resolved = new WeakMap<object, unknown>([[props, result]])
+  const options={row:row??{},routeQuery,resolved}
   for (const [key, value] of Object.entries(props)) {
-    result[key] = resolveValuePlaceholders(value, row, resolved)
+    result[key] = resolveValuePlaceholders(value,options)
   }
   return result
 }
@@ -424,7 +436,8 @@ export function useSparkComponent(
   const resolvedProps = computed(() => {
     const props = effectiveConfig.value.props ?? {}
     const row = consumeCapability(DATA_ROW)
-    return resolvePlaceholderProps(props, row)
+    const routeQuery = consumeCapability(PAGE_ROUTE_QUERY)
+    return resolvePlaceholderProps(props, row, routeQuery?.())
   })
 
   // ===== 当前组件暴露给后代的能力读写 =====

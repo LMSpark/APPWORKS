@@ -29,6 +29,7 @@ import type {
   AppendRowAction,
   ClearRowsAction,
   DeleteAction,
+  DiscardChangesAction,
   MessageRowAction,
   MoveAction,
   PatchAction,
@@ -250,6 +251,43 @@ function mapBuiltinAction(name: BuiltinActionName, props: Record<string, unknown
       const views = readSaveDataSetViews(props['views'])
       if (views) desc.views = views
       return withThen(desc, props)
+    }
+
+    case 'discard-changes': {
+      const desc: DiscardChangesAction = { action: 'discard-changes', ...decorator }
+      if (dataViewKey) desc.dataViewKey = dataViewKey
+      if (props['target'] === 'current' || props['target'] === 'all') desc.target = props['target']
+      return withThen(desc, props)
+    }
+
+    case 'host-command': {
+      const desc: Extract<ActionDescriptor,{action:'host-command'}> = {
+        action:'host-command',
+        command:readString(props['command']) ?? '',
+        ...decorator,
+      }
+      if(Object.hasOwn(props,'input'))desc.input=props['input']
+      const resultMethod=readString(props['resultMethod'])
+      if(resultMethod)desc.resultMethod=resultMethod
+      const methodArgs=props['methodArgs']
+      if(Array.isArray(methodArgs))desc.methodArgs=methodArgs.map((item:unknown)=>item)
+      const prompt=asRecord(props['prompt'])
+      if(prompt) {
+        const message=readString(prompt['message'])
+        const title=readString(prompt['title'])
+        if(message)desc.prompt={message,...(title===undefined?{}:{title})}
+      }
+      const successMessage=readString(props['successMessage'])
+      if(successMessage)desc.successMessage=successMessage
+      const resultDataViewKey=readString(props['resultDataViewKey'])
+      if(resultDataViewKey)desc.resultDataViewKey=resultDataViewKey
+      const resultPath=readString(props['resultPath'])
+      if(resultPath)desc.resultPath=resultPath
+      const resultAlertTitle=readString(props['resultAlertTitle'])
+      if(resultAlertTitle)desc.resultAlertTitle=resultAlertTitle
+      const resultAlertPath=readString(props['resultAlertPath'])
+      if(resultAlertPath)desc.resultAlertPath=resultAlertPath
+      return withThen(desc,props)
     }
 
     case 'clear-rows': {

@@ -145,10 +145,10 @@
               "state": {
                 "enum": [
                   "CANCELLED",
-                  "ACTIVE",
-                  "PENDING_LINK",
                   "PENDING_CONFLICT",
-                  "SUPERSEDED"
+                  "PENDING_LINK",
+                  "SUPERSEDED",
+                  "ACTIVE"
                 ]
               }
             },

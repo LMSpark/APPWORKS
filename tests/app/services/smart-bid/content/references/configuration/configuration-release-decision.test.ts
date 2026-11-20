@@ -4,8 +4,6 @@ import {configurationReleaseReadView,readRegisteredConfigurationRelease} from '@
 import {configurationChannelReadView,configurationVersionReadView} from '@/views/features/application/smart-bid/configuration/configuration-channel-reader'
 import {createConfigurationReleaseScriptHost} from '@/views/features/application/smart-bid/configuration/configuration-release-script-host'
 import script from '@/views/features/application/smart-bid/configuration/page19/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {prepareConfigurationRelease,resolveActiveConfiguration} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
@@ -143,7 +141,7 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const original={...disabled.record,requestDigest:disabled.requestDigest}
   const proved=await readRegisteredConfigurationRelease(host,original)
   expect(proved).toMatchObject({status:'APPLIED',state:'DISABLED',resultPointerVersion:'P2'})
-  let impactCurrent=true,expireImpactAfterRead=false
+  let impactCurrent=true
   const readDisableImpact=vi.fn(async()=>({stop:{...stop,assertCurrent:()=>{if(!impactCurrent)throw Error('IMPACT_STALE')}},uses:refs}))
   let pointerCurrent=true
   const oldVersion={versionId:'V0',digest:'b'.repeat(64)}
@@ -152,28 +150,16 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   const disableDecision={...source,action:'DISABLE' as const,original:version,effectiveAt:'2026-11-18T10:00:00+08:00',
    stopScope:'NEW_SELECTION' as const}
   const readDisableDecision=vi.fn(async()=>({decision:disableDecision}))
+  const submitEnable=vi.fn(async()=>({releaseRef:'ENABLE-1'}))
+  const submitDisable=vi.fn(async()=>({releaseRef:'DISABLE-1'}))
   const page=createConfigurationReleaseScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,
-   {readDisableImpact,readCandidate,readDisableDecision})
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
-  const query={
-   configurationKind:scope.kind,configurationKey:scope.key,candidateRequestKey:'Q',releaseRequestKey:request.requestKey,releaseRequestDigest:disabled.requestDigest,
-   configurationVersionId:version.versionId,configurationVersionDigest:version.digest,releaseAction:'DISABLE',expectedPointerVersion:'P1',
-   disableRequestKey:request.requestKey,disableDecisionRef:source.decisionRef,
-  }
-  let changeSelectionAfterRead:(()=>void)|undefined
-  let rejectAfterSelectionChange=false
-  const {openConfigurationRelease,openConfigurationCandidate,openConfigurationDisable}=compileFunctions(script,{$route:{query},
-   $page:{invokeHostCommand:async(name:string,input:unknown)=>{
-   const result=await page.invoke(name,input,signal)
-   if(expireImpactAfterRead)impactCurrent=false
-   changeSelectionAfterRead?.()
-   if(rejectAfterSelectionChange)throw Error('OLD_QUERY_FAILED')
-   return result
-  },showAlert,showMessage}} as unknown as PageContext)
-  if(!openConfigurationRelease||!openConfigurationCandidate||!openConfigurationDisable)throw Error('TEST_CONFIGURATION_RELEASE_HANDLER_REQUIRED')
-  await openConfigurationDisable()
+   {readDisableImpact,readCandidate,readDisableDecision,submitEnable,submitDisable})
+  const signal=new AbortController().signal
+  expect(script.trim()).toBe('')
+  await page.invoke('configuration.release.prepareDisable',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,versionId:version.versionId,decisionRef:source.decisionRef,
+  },signal)
   expect(readDisableDecision).toHaveBeenCalledWith({...scope,versionId:version.versionId,decisionRef:source.decisionRef},signal)
-  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(disabled.requestDigest),'配置停用核验')
   expect(versionView.queryContext).toMatchObject({kind:scope.kind,key:scope.key,hash:version.digest})
   versionExists=false
   await expect(page.invoke('configuration.release.prepareDisable',{
@@ -181,32 +167,40 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   },signal)).rejects.toThrow('CONFIGURATION_RELEASE_VERSION_MISSING')
   versionExists=true
   channelRow.hash=oldVersion.digest
-  await openConfigurationDisable()
-  expect(showMessage).toHaveBeenLastCalledWith('原停用决定或当前版本无法核验','warning')
+  await expect(page.invoke('configuration.release.prepareDisable',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,versionId:version.versionId,decisionRef:source.decisionRef,
+  },signal)).rejects.toThrow('CONFIGURATION_RELEASE_DISABLE_SCOPE')
   channelRow.hash=version.digest
   expect(()=>page.invoke('configuration.release.readOriginal',{scopeId:'OTHER'},signal)).toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
-  await openConfigurationRelease()
-  expect(showAlert).toHaveBeenLastCalledWith([
-   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1','停用影响尚未核全',
-   'RUN · 原锁可续办 · 跟踪人 OWNER','UNKNOWN · 待查原操作 · 跟踪人 OWNER','SENT · 保留已执行记录 · 跟踪人 OWNER',
-  ].join('\n'),'配置启停回查')
+  await expect(page.invoke('configuration.release.readOriginal',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,requestDigest:disabled.requestDigest,
+   versionId:version.versionId,versionDigest:version.digest,action:'DISABLE',expectedPointerVersion:'P1',
+  },signal)).resolves.toMatchObject({status:'APPLIED',state:'DISABLED',releaseRef:'STOP',
+   impact:{assessmentComplete:false},
+  })
   expect(readDisableImpact).toHaveBeenCalledExactlyOnceWith({...scope,...version,releaseRef:'STOP'},signal)
   row.status='NOT_APPLIED'
-  await openConfigurationRelease()
-  expect(showAlert).toHaveBeenLastCalledWith('原停用未生效 · 凭据 TERMINAL','配置启停回查')
+  await expect(page.invoke('configuration.release.readOriginal',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,requestDigest:disabled.requestDigest,
+   versionId:version.versionId,versionDigest:version.digest,action:'DISABLE',expectedPointerVersion:'P1',
+  },signal)).resolves.toMatchObject({status:'NOT_APPLIED'})
   row.status='UNKNOWN'
-  await openConfigurationRelease()
-  expect(showAlert).toHaveBeenLastCalledWith('原停用结果未知','配置启停回查')
+  await expect(page.invoke('configuration.release.readOriginal',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,requestDigest:disabled.requestDigest,
+   versionId:version.versionId,versionDigest:version.digest,action:'DISABLE',expectedPointerVersion:'P1',
+  },signal)).resolves.toMatchObject({status:'UNKNOWN'})
   expect(readDisableImpact).toHaveBeenCalledTimes(1)
   row.status='APPLIED'
   readDisableImpact.mockResolvedValueOnce({stop:{...stop,releaseRef:'DIFFERENT'},uses:refs})
-  await openConfigurationRelease()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
-  expireImpactAfterRead=true
-  await openConfigurationRelease()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '原停用已生效 · 原回执 STOP · 当次指针 P2 · 配置版本 V1\n停用影响证据无法核验','配置启停回查')
+  await expect(page.invoke('configuration.release.readOriginal',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,requestDigest:disabled.requestDigest,
+   versionId:version.versionId,versionDigest:version.digest,action:'DISABLE',expectedPointerVersion:'P1',
+  },signal)).resolves.toMatchObject({status:'APPLIED',impactState:'UNVERIFIED'})
+  impactCurrent=false
+  await expect(page.invoke('configuration.release.readOriginal',{
+   kind:scope.kind,key:scope.key,requestKey:request.requestKey,requestDigest:disabled.requestDigest,
+   versionId:version.versionId,versionDigest:version.digest,action:'DISABLE',expectedPointerVersion:'P1',
+  },signal)).resolves.toMatchObject({status:'APPLIED',impactState:'UNVERIFIED'})
   await expect(readRegisteredConfigurationRelease(host,{...original,requestDigest:'c'.repeat(64)}))
    .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
   expect(view.queryContext).toMatchObject({...scope,requestKey:'Q'})
@@ -214,29 +208,20 @@ it('binds enablement evidence and stops parent inheritance for explicit disablem
   await expect(readRegisteredConfigurationRelease(host,{...original,expectedPointerVersion:'OTHER'}))
    .rejects.toThrow('CONFIGURATION_RELEASE_REGISTERED_READ')
   channelRow.hash=oldVersion.digest
-  await openConfigurationCandidate()
-  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining(
-   `当前启用版 V0 · 摘要 ${oldVersion.digest}\n候选 V1 · 摘要 ${version.digest}\n预期指针 P1`),'配置候选核验')
+  await expect(page.invoke('configuration.release.prepareEnable',{
+   kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q',
+  },signal)).resolves.toMatchObject({record:{version},currentVersion:oldVersion})
   expect(readCandidate).toHaveBeenCalledWith({...scope,versionId:'V1'},signal)
-  showAlert.mockClear()
-  changeSelectionAfterRead=()=>{query.candidateRequestKey='OTHER'}
-  await openConfigurationCandidate()
-  expect(showAlert).not.toHaveBeenCalled()
-  changeSelectionAfterRead=()=>{query.releaseRequestKey='OTHER'}
-  await openConfigurationRelease()
-  expect(showAlert).not.toHaveBeenCalled()
-  query.candidateRequestKey='Q'
-  rejectAfterSelectionChange=true
-  changeSelectionAfterRead=()=>{query.candidateRequestKey='OTHER'}
-  showMessage.mockClear()
-  await openConfigurationCandidate()
-  expect(query.candidateRequestKey).toBe('OTHER')
-  expect(showMessage).not.toHaveBeenCalled()
-  rejectAfterSelectionChange=false
-  changeSelectionAfterRead=undefined
   const candidate=await page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
   expect(candidate).toMatchObject({record:{expectedPointerVersion:'P1',typeCheckRef:'TYPE',closureCheckRef:'LINKS',reviewRef:'REVIEW'},
    requestDigest:prepared.requestDigest})
+  await page.invoke('configuration.release.submitEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal)
+  expect(submitEnable).toHaveBeenCalledWith(expect.objectContaining({requestDigest:prepared.requestDigest}),signal)
+  channelRow.hash=version.digest
+  await page.invoke('configuration.release.submitDisable',{kind:scope.kind,key:scope.key,versionId:version.versionId,
+   requestKey:request.requestKey,decisionRef:source.decisionRef},signal)
+  expect(submitDisable).toHaveBeenCalledWith(expect.objectContaining({requestDigest:disabled.requestDigest}),signal)
+  channelRow.hash=oldVersion.digest
   channelRow.version='P2'
   await expect(page.invoke('configuration.release.prepareEnable',{kind:scope.kind,key:scope.key,versionId:'V1',requestKey:'Q'},signal))
    .rejects.toThrow('CONFIGURATION_RELEASE_CANDIDATE_SCOPE')

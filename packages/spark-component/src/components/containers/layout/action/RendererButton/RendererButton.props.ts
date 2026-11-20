@@ -100,6 +100,19 @@ export type RButtonProps = SparkNodeProps & {
    */
   successMessage?: string
 
+  /** host-command 输入；支持 {$route:"key"} 声明式读取当前路由查询。 */
+  command?: string
+  /** host-command 的输入对象或静态值。 */
+  input?: unknown
+  /** host-command 结果可选写入的完整 DataViewKey。 */
+  resultDataViewKey?: string
+  /** host-command 结果写入 DataView 前读取的点号路径。 */
+  resultPath?: string
+  /** host-command 成功后以只读 Alert 展示 JSON；值为空时不展示结果。 */
+  resultAlertTitle?: string
+  /** resultAlertTitle 展示的结果点号路径。 */
+  resultAlertPath?: string
+
   /**
    * 操作失败后的提示文案。
    * @default ""
@@ -155,6 +168,13 @@ export type RButtonProps = SparkNodeProps & {
    * @default {}
    */
   disabledWhenRow?: Record<string, unknown>
+
+  /** 仅当路由查询包含全部非空字符串键时显示；空数组不限制。 */
+  routeQueryRequired?: string[]
+  /** 仅当路由查询包含任一非空字符串键时显示；未配置不限制。 */
+  routeQueryAny?: string[]
+  /** 路由查询中的指定键必须严格匹配，显示前不做类型转换。 */
+  routeQueryMatches?: Record<string, unknown>
 
   /**
    * 样式模板名。

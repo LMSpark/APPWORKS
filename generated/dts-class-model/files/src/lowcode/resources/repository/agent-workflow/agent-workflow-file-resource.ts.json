@@ -391,7 +391,10 @@
       "type": "object",
       "title": "AgentWorkflowFileCommitCommand",
       "properties": {
-        "context": true,
+        "context": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
         "workflowId": {
           "type": "string"
         },

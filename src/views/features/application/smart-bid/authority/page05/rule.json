@@ -2,15 +2,47 @@
   {
     "id": "bid-resource-version-history",
     "type": "r-section",
-    "props": {"title": "资料版本历史", "onBeforeRender": "bindResourceVersionHistoryStatus"},
+    "props": {"title": "资料版本历史"},
     "children": [
       {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "读取版本历史",
+              "action": "host-command",
+              "command": "bid.resources.readHistory",
+              "input": {},
+              "errorMessage": "资料版本历史无法核验"
+            }
+          }
+        ]
+      },
+      {
         "type": "r-table",
-        "props": {"autoColumns": false, "showPagination": false, "onBeforeRender": "bindResourceVersionHistory", "onRowClick": "openHistoricalResourceVersion"},
+        "props": {
+          "dataViewKey": "ResourceVersion@versionHistory",
+          "autoColumns": false,
+          "showPagination": false
+        },
         "children": [
           {"type": "r-text", "props": {"field": "version", "label": "版本", "readonly": true}},
           {"type": "r-text", "props": {"field": "typeVersion", "label": "资料类型版本", "readonly": true}},
-          {"type": "r-text", "props": {"field": "createdAt", "label": "登记时间", "readonly": true}}
+          {"type": "r-text", "props": {"field": "createdAt", "label": "登记时间", "readonly": true}},
+          {
+            "type": "r-button",
+            "props": {
+              "label": "读取原版",
+              "action": "host-command",
+              "command": "bid.resources.readHistory",
+              "input": {},
+              "resultMethod": "readVersion",
+              "methodArgs": [{"$rowKey": true}, {"$row": true}],
+              "resultAlertTitle": "企业资料原版",
+              "errorMessage": "所选资料原版无法核验"
+            }
+          }
         ]
       }
     ]
@@ -18,9 +50,25 @@
   {
     "id": "bid-original-resource-version",
     "type": "r-section",
-    "props": {"title": "企业资料原版", "onBeforeRender": "bindResourceVersion"},
+    "props": {"title": "企业资料原版"},
     "children": [
-      {"type": "r-button", "props": {"label": "查询资料原版", "onClick": "openResourceVersion"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查询资料原版",
+              "action": "host-command",
+              "command": "bid.resources.readVersion",
+              "routeQueryRequired": ["resourceVersion"],
+              "input": {"version": {"$route": "resourceVersion"}},
+              "resultAlertTitle": "企业资料原版",
+              "errorMessage": "所选资料原版无法核验"
+            }
+          }
+        ]
+      }
     ]
   }
 ]

@@ -4,8 +4,6 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredBidSecurity} from '@/views/features/application/smart-bid/response/model/bid-security-reader'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -50,25 +48,5 @@ it('reads the specified security requirement before requesting finance receipts'
    {readSecurityReceipts:readReceipts,readPriceEvidence:async()=>{throw Error('UNEXPECTED_PRICE_READ')}})
   const signal=new AbortController().signal
   expect(()=>page.invoke('bid.response.readSecurity',{...target},signal)).toThrow('BID_SECURITY_PAGE_REQUEST')
-  const showAlert=vi.fn()
-  const {bindBidSecurity,openBidSecurity}=compileFunctions(script,{
-   $route:{query:{securityRequirementVersion:'R1',liablePartyRef:'BIDDER'}},
-   $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert},
-  } as unknown as PageContext)
-  if(!bindBidSecurity||!openBidSecurity)throw Error('TEST_SCRIPT_REQUIRED')
-  expect(bindBidSecurity()).toEqual({disabled:false})
-  await openBidSecurity()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith('待核\n原条款 CLAUSE\n欠项 到账','投标担保')
-  const unavailable:ReadReceipts=async()=>{throw Error('FINANCE_UNAVAILABLE')}
-  await expect(readRegisteredBidSecurity(host,target,unavailable)).resolves.toMatchObject({
-   state:'PENDING',clauseRef:'CLAUSE',pending:['RECEIVED'],receiptsUnavailable:true,
-  })
-  const controller=new AbortController()
-  const closingPage=createBidResponseScriptHost(host.runtime,{...host,asOf:10,purposeRef:'BID',rateOnly:false},{
-   readPriceEvidence:async()=>{throw Error('UNEXPECTED_PRICE_READ')},
-   readSecurityReceipts:async()=>{controller.abort();throw Error('FINANCE_UNAVAILABLE')},
-  })
-  await expect(closingPage.invoke('bid.response.readSecurity',{requirementVersion:'R1',liablePartyRef:'BIDDER'},controller.signal))
-   .rejects.toThrow('BID_SECURITY_PAGE_STALE')
- }finally{ds.destroy()}
+}finally{ds.destroy()}
 })

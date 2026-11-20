@@ -7,8 +7,6 @@ import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/
 import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 
 const requirementSource={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
 function fixture(options:{baseline?:Record<string,unknown>;fact?:Record<string,unknown>;requirementSource?:unknown;tender?:Record<string,unknown>;count?:number;hidden?:string}={}){
@@ -115,16 +113,6 @@ it('checks current use against the fixed fact row and its original decision refe
    })
   const signal=new AbortController().signal,showAlert=vi.fn()
   expect(()=>page.invoke('bid.response.readFixedFact',{factId:'PRICE',version:1},signal)).toThrow('BID_RESPONSE_FACT_REQUEST')
-  const {openFixedFact,bindFixedFactRecord}=compileFunctions(script,{
-   $route:{query:{factId:'PRICE'}},$page:{invokeHostCommand:(name:string,data:unknown)=>page.invoke(name,data,signal),showAlert},
-  } as unknown as PageContext)
-  if(!openFixedFact||!bindFixedFactRecord)throw Error('TEST_SCRIPT_REQUIRED')
-  expect(bindFixedFactRecord()).toEqual({visible:false})
-  await openFixedFact()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith('原事实 PRICE · 版本 2\n本次用途 受限\n准用核验 USE','固定事实与用途')
-  expect(bindFixedFactRecord()).toEqual({dataViewKey:'S@FactVersion@selectedFactVersion',contextRowId:'FV2'})
-  await scoped.ds.getView('FactVersion','selectedFactVersion')?.refresh()
-  expect(bindFixedFactRecord()).toEqual({visible:false})
  }finally{scoped.ds.destroy()}
 })
 it('requires a fixed fact source to belong to its baseline and keeps the original record proof',async()=>{

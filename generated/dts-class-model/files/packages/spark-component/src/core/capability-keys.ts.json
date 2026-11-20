@@ -11,6 +11,8 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SubtreeFieldPolicy",
+      "PageHostCommandCapability",
+      "PageRouteQueryCapability",
       "ThemeMode",
       "ThemeCapability",
       "ModuleContextCapability",
@@ -313,7 +315,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.539Z",
+  "generatedAt": "2026-11-20T14:50:13.346Z",
   "models": {
     "SubtreeFieldPolicy": {
       "name": "SubtreeFieldPolicy",
@@ -321,6 +323,24 @@
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'unrestricted'",
+        "members": {}
+      }
+    },
+    "PageHostCommandCapability": {
+      "name": "PageHostCommandCapability",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(name: string, input: unknown) => Promise<unknown>",
+        "members": {}
+      }
+    },
+    "PageRouteQueryCapability": {
+      "name": "PageRouteQueryCapability",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "() => Readonly<Record<string, unknown>>",
         "members": {}
       }
     },

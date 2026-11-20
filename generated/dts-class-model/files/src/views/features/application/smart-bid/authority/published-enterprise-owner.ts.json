@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
+    "sourcePath": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authority/published-enterprise-owner",
+    "jsdoc": "@module app:views/features/application/smart-bid/authority/published-enterprise-owner\n职责：从当前低码认证会话取得已发布企业页的企业身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PublishedEnterpriseBinding"
+    ]
+  },
+  "$defs": {
+    "PublishedEnterpriseBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishedEnterpriseBinding",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T10:35:23.793Z",
+  "models": {
+    "PublishedEnterpriseBinding": {
+      "name": "PublishedEnterpriseBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1494,
+  "scannedFileCount": 1511,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -8612,6 +8612,8 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "SubtreeFieldPolicy",
+          "PageHostCommandCapability",
+          "PageRouteQueryCapability",
           "ThemeMode",
           "ThemeCapability",
           "ModuleContextCapability",
@@ -8816,6 +8818,8 @@
           "ClearRowsAction",
           "SubmitCurrentFormAction",
           "SaveDataSetAction",
+          "DiscardChangesAction",
+          "HostCommandAction",
           "ActionExecutionContext",
           "ActionExecutionControl",
           "RouterLike"
@@ -18753,6 +18757,237 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/authoring-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/authoring-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/authoring-action-modules\n职责：公开分册、模板、候选、采用与审核动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BidVolume",
+          "DocumentTemplate",
+          "ContentRevision",
+          "ContentAdoption",
+          "Approval"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/authority-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/authority-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/authority-action-modules\n职责：公开企业资料、用途、人员、担保与代表授权动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ResourceVersion",
+          "Person",
+          "BidSecurity",
+          "AuthorityGrant",
+          "ResourceUseDecision"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/collaboration-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/collaboration-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/collaboration-action-modules\n职责：公开问题登记与复验动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CheckFinding"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/configuration-action-modules\n职责：公开业务配置启停动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ConfigurationRelease"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/knowledge-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/knowledge-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/knowledge-action-modules\n职责：公开知识目录与 AI 作业动作；方法名由正式 ClassModel 编译器投影。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "KnowledgeGuide",
+          "ActionContract",
+          "ContextManifest",
+          "GenerationRun",
+          "ActionVerification"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/production-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/production-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/production-action-modules\n职责：公开制作、填报、签署和交付清单动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ProducedFile",
+          "AnswerLocation",
+          "SignatureRecord",
+          "DeliveryManifest"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/project-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/project-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/project-action-modules\n职责：公开投标项目、主体、成员、决策和移交动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "TenderLot",
+          "BidSubject",
+          "ProjectSubject",
+          "ParticipationDecision",
+          "ContentProject",
+          "BidHandoff"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/response-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/response-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/response-action-modules\n职责：公开价格、事实、响应与资格复核动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PriceSheet",
+          "ApprovedPrice",
+          "FactVersion",
+          "ResponseAssignment",
+          "QualificationReview",
+          "Response"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/submission-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/submission-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/submission-action-modules\n职责：公开封装、递交、回执和截止组合动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SubmissionPackage",
+          "SubmissionAttempt",
+          "ChannelReceipt",
+          "SubmissionReconciliation"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/tender-analysis-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/tender-analysis-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/tender-analysis-action-modules\n职责：公开要求、依据、递交义务及阶段结果动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "Requirement",
+          "Baseline",
+          "SubmissionObligation",
+          "TenderOutcome"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/models/tender-source-action-modules",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/models/tender-source-action-modules",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/tender-source-action-modules\n职责：公开招标原件、版本、澄清、修改及后续事项动作。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "TenderFileRegister",
+          "TenderFileVersion",
+          "PrebidInquiry",
+          "TenderAddendum",
+          "TenderRecord",
+          "TenderFollowup"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-action-module",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-action-module",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-action-module\n职责：为 47 个 SmartBid 业务模型公开同一套当前 PageRuntime 动作执行合同。\n边界：不建立动作注册表；模型类的方法名和源码声明由 ClassModel 编译器自动投影。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SmartBidActionRequest",
+          "SmartBidActionResult",
+          "SmartBidActionExecutor"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-model-resolver",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-model-resolver",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-model-resolver\n职责：把生成 ClassModel 的 kind 解析为同名源码 class，并绑定当前 PageRuntime owner。\n边界：不声明 action、schema、guide 或 registration；这些只来自源码声明与编译产物。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts": {
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json",
       "module": {
@@ -18767,6 +19002,22 @@
           "SmartBidOperationCommand",
           "SmartBidOperationResult",
           "SmartBidOperationModule"
+        ]
+      }
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner\n职责：把已生成的 SmartBid 动作提交到当前 PageRuntime 中显式声明的单一命令视图。\n边界：只接受完整动作输入；不推断模型视图、不把普通 CRUD 当业务命令、不创建后端协议。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SmartBidRuntimeClaimInput",
+          "SmartBidRuntimeClaim"
         ]
       }
     },
@@ -20745,6 +20996,35 @@
         "symbols": []
       }
     },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source\n职责：把页08–15 的已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner。\n边界：不创建命令视图、不映射后端 HTTP；场景没有已绑定 owner 时明确失败。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SmartBidPageAction",
+          "SmartBidPageActionSubmit"
+        ]
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按发布导航标题和正式元信息选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts.json",
       "module": {
@@ -20808,6 +21088,21 @@
         "jsdoc": "@module app:views/features/application/smart-bid/authority/original-registration-view\n职责：按固定请求从授权登记命名视图捕获可读原行。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts": {
+      "file": "files/src/views/features/application/smart-bid/authority/published-enterprise-owner.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
+        "sourcePath": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authority/published-enterprise-owner",
+        "jsdoc": "@module app:views/features/application/smart-bid/authority/published-enterprise-owner\n职责：从当前低码认证会话取得已发布企业页的企业身份。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "PublishedEnterpriseBinding"
+        ]
       }
     },
     "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts": {
@@ -23413,6 +23708,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts.json"
     },
+    "ActionContract": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json"
+    },
     "ActionDescriptor": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -23456,6 +23755,10 @@
     "ActionUiDecorator": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
+    },
+    "ActionVerification": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json"
     },
     "ActivateAgentWorkflowDefinitionCommand": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
@@ -24409,6 +24712,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json"
     },
+    "AnswerLocation": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json"
+    },
     "ApiConfigPageProps": {
       "sourcePath": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
       "file": "files/src/views/features/integration/api-management/ui/api-config-page.props.ts.json"
@@ -24509,9 +24816,17 @@
       "sourcePath": "packages/spark-app/src/logger/index.ts",
       "file": "files/packages/spark-app/src/logger/index.ts.json"
     },
+    "Approval": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json"
+    },
     "ApprovalInputCapture": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace.ts.json"
+    },
+    "ApprovedPrice": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
     },
     "AppThemeCapability": {
       "sourcePath": "packages/spark-app/src/shell/theme/index.ts",
@@ -24601,6 +24916,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/application-resource.ts.json"
     },
+    "AuthorityGrant": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json"
+    },
     "AutoPopulateEntry": {
       "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
       "file": "files/packages/spark-json-document/src/tree/tree-types.ts.json"
@@ -24616,6 +24935,10 @@
     "BaseCrudContainerApi": {
       "sourcePath": "packages/spark-component/src/components/containers/support/crud/base-container-api.ts",
       "file": "files/packages/spark-component/src/components/containers/support/crud/base-container-api.ts.json"
+    },
+    "Baseline": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json"
     },
     "BaselineFactMember": {
       "sourcePath": "src/services/smart-bid/content/references/baseline/baseline-fact-members.ts",
@@ -24648,6 +24971,22 @@
     "BeforeRenderState": {
       "sourcePath": "packages/spark-component/src/components/support/beforeRender.ts",
       "file": "files/packages/spark-component/src/components/support/beforeRender.ts.json"
+    },
+    "BidHandoff": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
+    "BidSecurity": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json"
+    },
+    "BidSubject": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
+    "BidVolume": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json"
     },
     "BindCommandSubmitOptions": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
@@ -24865,6 +25204,10 @@
       "sourcePath": "packages/spark-component/src/components/fields/data-components/picker/FieldCascader/FieldCascader.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/picker/FieldCascader/FieldCascader.props.ts.json"
     },
+    "ChannelReceipt": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json"
+    },
     "CheckboxGroupMultiValue": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.props.ts.json"
@@ -24872,6 +25215,10 @@
     "CheckedResponseText": {
       "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
       "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
+    "CheckFinding": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts.json"
     },
     "ClassDeclarationMembers": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
@@ -25193,6 +25540,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
+    "ConfigurationRelease": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts.json"
+    },
     "ConfigurationScope": {
       "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
       "file": "files/src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts.json"
@@ -25220,6 +25571,10 @@
     "ContainerToolbarState": {
       "sourcePath": "packages/spark-component/src/components/containers/runtime/container-ui.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/container-ui.ts.json"
+    },
+    "ContentAdoption": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json"
     },
     "ContentAdoptionSelection": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
@@ -25337,6 +25692,10 @@
       "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json"
     },
+    "ContentProject": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
     "ContentRequirementBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts.json"
@@ -25352,6 +25711,10 @@
     "ContentResponseTextSnapshot": {
       "sourcePath": "src/services/smart-bid/content/content-text-snapshot-preview.ts",
       "file": "files/src/services/smart-bid/content/content-text-snapshot-preview.ts.json"
+    },
+    "ContentRevision": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json"
     },
     "ContentRevisionReadBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
@@ -25508,6 +25871,10 @@
     "ContextItem": {
       "sourcePath": "packages/spark-utils/src/script-types.ts",
       "file": "files/packages/spark-utils/src/script-types.ts.json"
+    },
+    "ContextManifest": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json"
     },
     "ContextSnapshot": {
       "sourcePath": "packages/spark-utils/src/script-types.ts",
@@ -26613,6 +26980,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "DeliveryManifest": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json"
+    },
     "DesignResourceRejection": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts.json"
@@ -26713,9 +27084,17 @@
       "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
       "file": "files/packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts.json"
     },
+    "DiscardChangesAction": {
+      "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
+      "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
+    },
     "DisplayIconName": {
       "sourcePath": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
       "file": "files/packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts.json"
+    },
+    "DocumentTemplate": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json"
     },
     "Draft2020AuditIssue": {
       "sourcePath": "packages/spark-json-document/src/schema/schema-draft2020-audit.ts",
@@ -27072,6 +27451,10 @@
     "ExternalDataViewSession": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts",
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-state/useDevState.ts.json"
+    },
+    "FactVersion": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
     },
     "FeatureFieldOption": {
       "sourcePath": "src/views/features/shared/record/feature-field-spec.ts",
@@ -27513,6 +27896,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts.json"
     },
+    "GenerationRun": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json"
+    },
     "GraphArrange": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
@@ -27580,6 +27967,10 @@
     "GroupFunType": {
       "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
       "file": "files/packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts.json"
+    },
+    "HostCommandAction": {
+      "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
+      "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
     "HostLocalColumn": {
       "sourcePath": "src/layout/host-local-runtime.ts",
@@ -27808,6 +28199,10 @@
     "JsonValue": {
       "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
       "file": "files/packages/spark-json-document/src/core/json-types.ts.json"
+    },
+    "KnowledgeGuide": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json"
     },
     "LayoutDataContextProps": {
       "sourcePath": "packages/spark-component/src/components/containers/runtime/layout-data-context.ts",
@@ -28945,6 +29340,10 @@
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
+    "PageHostCommandCapability": {
+      "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
+      "file": "files/packages/spark-component/src/core/capability-keys.ts.json"
+    },
     "PageMessageType": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
       "file": "files/packages/spark-component/src/runtime/app-services.ts.json"
@@ -28964,6 +29363,10 @@
     "PageRoute": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
       "file": "files/packages/spark-component/src/runtime/script-context-types.ts.json"
+    },
+    "PageRouteQueryCapability": {
+      "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
+      "file": "files/packages/spark-component/src/core/capability-keys.ts.json"
     },
     "PageRouterService": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
@@ -29093,6 +29496,10 @@
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
       "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
     },
+    "ParticipationDecision": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
     "PatchAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -29217,6 +29624,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json"
     },
+    "Person": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json"
+    },
     "PickActionTextInput": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
@@ -29245,6 +29656,10 @@
       "sourcePath": "packages/spark-app/src/shell/plugins/registry.ts",
       "file": "files/packages/spark-app/src/shell/plugins/registry.ts.json"
     },
+    "PrebidInquiry": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
+    },
     "PreparedBusinessCodeAssignment": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts.json"
@@ -29260,6 +29675,10 @@
     "PrepareFlowRunPageCommand": {
       "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "file": "files/src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json"
+    },
+    "PriceSheet": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
     },
     "PrimaryKeyDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/primary-key-delegate.ts",
@@ -29288,6 +29707,10 @@
     "PrimaryPreset": {
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
       "file": "files/packages/spark-app/src/navigation/useColorScheme.ts.json"
+    },
+    "ProducedFile": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json"
     },
     "ProjectActivePageProjection": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
@@ -29497,6 +29920,10 @@
       "sourcePath": "packages/spark-project-model/src/project/project-session.ts",
       "file": "files/packages/spark-project-model/src/project/project-session.ts.json"
     },
+    "ProjectSubject": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
     "ProjectSummary": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
@@ -29532,6 +29959,14 @@
     "PublicScenarioName": {
       "sourcePath": "src/registries/system-scenario-registry.ts",
       "file": "files/src/registries/system-scenario-registry.ts.json"
+    },
+    "PublishedEnterpriseBinding": {
+      "sourcePath": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+      "file": "files/src/views/features/application/smart-bid/authority/published-enterprise-owner.ts.json"
+    },
+    "QualificationReview": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
     },
     "QueryParams": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -29805,6 +30240,10 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
+    "Requirement": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json"
+    },
     "ResolveAgentWorkflowActivationCommand": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts.json"
@@ -29860,6 +30299,22 @@
     "ResourceRelationDefinition": {
       "sourcePath": "packages/spark-data/src/query/resource-relation-definition.ts",
       "file": "files/packages/spark-data/src/query/resource-relation-definition.ts.json"
+    },
+    "ResourceUseDecision": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json"
+    },
+    "ResourceVersion": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json"
+    },
+    "Response": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
+    },
+    "ResponseAssignment": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json"
     },
     "ResponseInterceptor": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
@@ -30385,6 +30840,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "SignatureRecord": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json"
+    },
     "SimpleEnvironment": {
       "sourcePath": "packages/spark-app/src/env.ts",
       "file": "files/packages/spark-app/src/env.ts.json"
@@ -30392,6 +30851,18 @@
     "SimpleEnvironmentInfo": {
       "sourcePath": "packages/spark-app/src/env.ts",
       "file": "files/packages/spark-app/src/env.ts.json"
+    },
+    "SmartBidActionExecutor": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json"
+    },
+    "SmartBidActionRequest": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json"
+    },
+    "SmartBidActionResult": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json"
     },
     "SmartBidOperationCommand": {
       "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
@@ -30404,6 +30875,22 @@
     "SmartBidOperationResult": {
       "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json"
+    },
+    "SmartBidPageAction": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json"
+    },
+    "SmartBidPageActionSubmit": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json"
+    },
+    "SmartBidRuntimeClaim": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json"
+    },
+    "SmartBidRuntimeClaimInput": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json"
     },
     "SnapshotHistory": {
       "sourcePath": "packages/spark-utils/src/snapshot-history.ts",
@@ -30865,6 +31352,22 @@
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
       "file": "files/packages/spark-app/src/navigation/useColorScheme.ts.json"
     },
+    "SubmissionAttempt": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json"
+    },
+    "SubmissionObligation": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json"
+    },
+    "SubmissionPackage": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json"
+    },
+    "SubmissionReconciliation": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json"
+    },
     "SubmitCurrentFormAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -30952,6 +31455,34 @@
     "TagType": {
       "sourcePath": "packages/spark-component/src/components/display/data-components/value/DisplayTag/DisplayTag.props.ts",
       "file": "files/packages/spark-component/src/components/display/data-components/value/DisplayTag/DisplayTag.props.ts.json"
+    },
+    "TenderAddendum": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
+    },
+    "TenderFileRegister": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
+    },
+    "TenderFileVersion": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
+    },
+    "TenderFollowup": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
+    },
+    "TenderLot": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json"
+    },
+    "TenderOutcome": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json"
+    },
+    "TenderRecord": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json"
     },
     "TextLoadOptions": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",

@@ -23,7 +23,10 @@
         "key": {
           "type": "string"
         },
-        "page": true
+        "page": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        }
       },
       "additionalProperties": false,
       "$defs": {

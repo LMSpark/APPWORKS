@@ -1,8 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {reviewPersonAppointment} from '@/services/smart-bid/content/references/commercial/person-appointment-review'
 import {checkCommitmentApprovalCoverage,personCommitmentApproval} from '@/services/smart-bid/content/references/commercial/commitment-approval-coverage'
 
@@ -47,29 +45,4 @@ it('hands only an exact verified appointment to commitment registration',()=>{
  expect(personCommitmentApproval('lead',pending)).toBeUndefined()
  expect(()=>checkCommitmentApprovalCoverage({...input,projectId:'OTHER'})).toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
  expect(()=>checkCommitmentApprovalCoverage({...input,purposeRef:'OTHER'})).toThrow('BID_COMMITMENT_APPROVAL_SCOPE')
-})
-
-it('shows only in-scope appointment evidence and leaves released allocations pending',async()=>{
- let intent:'ASSIGN'|'RELEASE'='ASSIGN'
- const runtime={resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false}
- const read=vi.fn(async()=>({appointmentRef:'REF',request,evidence:{material,appointment,availability:{
-  ...availability,allocation:{...allocation,intent},
- }}}))
- const host=createBidResponseScriptHost(runtime,{scenarioId:'S',scopeRef:'SCOPE',purposeRef:'USE',asOf:10,rateOnly:false,assertCurrent},{
-  appointmentBasis:{enterpriseId:'E',projectId:'P',read,assertCurrent},
-  readPriceEvidence:async()=>{throw Error('UNEXPECTED_PRICE')},readSecurityReceipts:async()=>[],
- })
- const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
- const {openPersonAppointment}=compileFunctions(script,{$route:{query:{appointmentRef:'REF'}},
-  $page:{showAlert,invokeHostCommand:(name:string,input:unknown)=>host.invoke(name,input,signal)}} as unknown as PageContext)
- if(!openPersonAppointment)throw Error('TEST_APPOINTMENT_HANDLER_REQUIRED')
- await openPersonAppointment()
- expect(showAlert).toHaveBeenLastCalledWith('人员 PERSON · 岗位 POSITION\n材料版 M1 · 用人决定 D1\n调配决定 A1','人员拟任核对')
- intent='RELEASE'
- await openPersonAppointment()
- expect(showAlert).toHaveBeenLastCalledWith('待核本项目现行调配','人员拟任核对')
- expect(()=>host.invoke('bid.response.reviewAppointment',{appointmentRef:'REF',projectId:'OTHER'},signal))
-  .toThrow('BID_RESPONSE_APPOINTMENT_REQUEST')
- await expect(host.invoke('bid.response.reviewAppointment',{appointmentRef:'OTHER'},signal))
-  .rejects.toThrow('BID_RESPONSE_APPOINTMENT_REQUEST')
 })

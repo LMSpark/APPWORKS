@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {producedFileScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -41,12 +41,15 @@ it('matches numbered paper copies and page order against independent observation
   })})
   const host=createContentReviewScriptHost({resolveView:()=>view,generation:1,isLoaded:true,destroyed:false},
    {scenarioId:'S',projectId:'P',assertCurrent:()=>{}},{readSelection:unused,readField:unused,readDecision:unused,
-    readCompleted:unused,openFile:unused,readPaperRegistrationSelection:async()=>({selectionRef:'PAPER-REF',prepared,paper,observed})})
+    readCompleted:unused,openFile:unused,readPaperRegistrationSelection:async()=>({selectionRef:'PAPER-REF',prepared,paper,observed}),
+    submitAction:vi.fn(async()=>({receiptRef:'PAPER-REGISTERED'}))})
   const controller=new AbortController()
   const command='content.review.preparePaperRegistration'
   await expect(host.invoke(command,{selectionRef:'OTHER'},controller.signal)).rejects.toThrow('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
   const result=await host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)
   expect(result).toMatchObject({registrationRef:null,record:{paperRef:'PAPER',witnessRef:'W',copies:paper.copies}})
+  await expect(host.invoke('content.review.registerPaper',{selectionRef:'PAPER-REF'},controller.signal))
+   .resolves.toMatchObject({state:'SUBMITTED',receipt:{receiptRef:'PAPER-REGISTERED'}})
   found=true
   await expect(host.invoke(command,{selectionRef:'PAPER-REF'},controller.signal)).resolves.toMatchObject({registrationRef:'REG'})
   row.witnessRef='OTHER'

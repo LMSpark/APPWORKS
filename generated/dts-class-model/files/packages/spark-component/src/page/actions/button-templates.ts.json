@@ -134,7 +134,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.980Z",
+  "generatedAt": "2026-11-20T17:05:47.711Z",
   "models": {
     "ButtonTemplateProps": {
       "name": "ButtonTemplateProps",

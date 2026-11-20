@@ -3,9 +3,9 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {preparePublishedContentAuthoringCall,resolveContentAuthoringTarget,resolvePublishedContentAuthoringTarget,type ContentAuthoringRoute} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
 import {preparePublishedAuthorityGrantCall,preparePublishedResourceVersionCall,preparePublishedResourceUseCall,preparePublishedBidHandoffCall,preparePublishedTenderFollowupCall,preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
-const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802'}))
+const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802',enterpriseId:'ORG'}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
- session:{get:()=>({identity:{userId:'ACTOR'}})},
+ session:{get:()=>({identity:{userId:'ACTOR',enterpriseId:auth.enterpriseId},enterprise:{id:auth.enterpriseId}})},
  readRequestScope:()=>({token:auth.token,headers:{'X-AppId':auth.appId}}),
 }}))
 
@@ -166,6 +166,47 @@ it.each([
  expect(()=>prepareCall({...publishedRoute,query:{...publishedRoute.query,projectId:'OTHER'}},entry,binding))
   .toThrow('BID_AUTHORITY_PUBLICATION_SCOPE')
  expect(binding).not.toHaveBeenCalled()
+})
+it.each([
+ {pageNumber:'04',prepareCall:preparePublishedAuthorityGrantCall},
+ {pageNumber:'06',prepareCall:preparePublishedResourceUseCall},
+])('binds page $pageNumber to the authenticated enterprise without a URL owner',({pageNumber,prepareCall})=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:`NAV${pageNumber}`,pageId:`TOOL${pageNumber}`}
+ const publishedRoute={path:`/apps/${app}/page${pageNumber}`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},
+  query:{scenarioId:space,...(pageNumber==='06'?{projectId:'P'}:{})}}
+ const prepared=prepareCall(publishedRoute,entry)
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],loadScenario:async()=>{throw Error('UNEXPECTED')}})
+ try{
+  const host=prepared?.createHost(runtime)
+  expect(host?.assertCurrent).toBeTypeOf('function')
+  auth.enterpriseId='OTHER'
+  expect(()=>host?.assertCurrent()).toThrow('BID_AUTHORITY_ENTERPRISE_OWNER_STALE')
+ }finally{auth.enterpriseId='ORG';runtime.dispose()}
+})
+it('rejects an authority binding for a different authenticated enterprise',()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV04',pageId:'TOOL04'}
+ const publishedRoute={path:`/apps/${app}/page04`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{scenarioId:space}}
+ const prepared=preparePublishedAuthorityGrantCall(publishedRoute,entry,
+  ()=>({enterpriseId:'OTHER',assertCurrent:()=>{}}))
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],loadScenario:async()=>{throw Error('UNEXPECTED')}})
+ try{expect(()=>prepared?.createHost(runtime)).toThrow('BID_AUTHORITY_ENTERPRISE_OWNER_CONFLICT')}
+ finally{runtime.dispose()}
+})
+it('wires page 07 allocation sources to the authenticated enterprise',()=>{
+ const entry={applicationId:app,scenarioId:space,nodeId:'NAV07',pageId:'TOOL07'}
+ const publishedRoute={path:`/apps/${app}/page07`,meta:{type:'config-page',nodeId:entry.nodeId,pageId:entry.pageId,
+  blueprintScenarioId:space,tool:{projectId:app,pageId:entry.pageId}},query:{scenarioId:space,projectId:'P'}}
+ const readSnapshot=vi.fn(async()=>{throw Error('UNEXPECTED')})
+ const prepared=preparePublishedResourceAllocationCall(publishedRoute,entry,
+  ()=>({readSnapshot,assertCurrent:()=>{}}))
+ const runtime=new PageRuntime({pageId:entry.pageId,scenarioIds:[space],loadScenario:async()=>{throw Error('UNEXPECTED')}})
+ try{
+  const host=prepared?.createHost(runtime)
+  expect(host?.runtime).toBe(runtime)
+  expect(readSnapshot).not.toHaveBeenCalled()
+ }finally{runtime.dispose()}
 })
 it('dispatches only the published node and tool pair in the declared space',()=>{
  const entry={nodeId:'NAV11',pageId:'TOOL11'}

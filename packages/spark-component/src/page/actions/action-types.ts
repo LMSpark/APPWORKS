@@ -114,6 +114,8 @@ export type ActionDescriptor =
   | ClearRowsAction
   | SubmitCurrentFormAction
   | SaveDataSetAction
+  | DiscardChangesAction
+  | HostCommandAction
 
 /** ActionDescriptor 的统一动作名集合（用于类型约束和穷举检查）。 */
 export type ActionDescriptorActionName =
@@ -132,6 +134,8 @@ export type ActionDescriptorActionName =
   | 'clear-rows'
   | 'submit-current-form'
   | 'save-dataset'
+  | 'discard-changes'
+  | 'host-command'
 
 /**
  * 行目标语义：区分动作操作的目标行来源。
@@ -366,6 +370,26 @@ applyEditingRows?: boolean
         /** views 字段。 */
 views?: DataSetSaveChangesViewSelector[]}
 
+export type DiscardChangesAction = ActionDescriptorBase & ActionUiDecorator & {
+  action:'discard-changes'
+  dataViewKey?:string
+  target?:'current'|'all'
+}
+
+export type HostCommandAction = ActionDescriptorBase & ActionUiDecorator & {
+  action:'host-command'
+  command:string
+  input?:unknown
+  resultMethod?:string
+  methodArgs?:unknown[]
+  prompt?:Readonly<{message:string;title?:string}>
+  resultDataViewKey?:string
+  resultPath?:string
+  resultAlertTitle?:string
+  resultAlertPath?:string
+  successMessage?:string
+}
+
 // ── 类型守卫 ──────────────────────────────────────────────────────────────
 
 /**
@@ -399,6 +423,8 @@ export type ActionExecutionContext = {
   getDataSource?: () => DataView | null
   /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */
   getPageService: () => PageServiceCapability | null
+  invokeHostCommand?: (name:string,input:unknown)=>Promise<unknown>
+  getRouteQuery?: () => Readonly<Record<string,unknown>>
   /** 获取路由器（navigate 动作使用）；非路由环境返回 null */
   getRouter: () => RouterLike | null}
 

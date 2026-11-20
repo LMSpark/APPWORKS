@@ -2,8 +2,6 @@ import {expect,it,vi} from 'vitest'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
-import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -42,8 +40,8 @@ it('retains deadline reception while leaving nonmatching attempts and missing fi
 
 it('shows the deadline batch separately from pending content and retains receipt proof',async()=>{
  const time='2026-11-18T10:00:00+08:00',scope={projectId:'P',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL'}
- let receiptCurrent=true
- let includeDisposition=false
+ const receiptCurrent=true
+ const includeDisposition=false
  const current=()=>{}
  const receipt={...pairOriginalChannelReceipt(scope,[{...scope,eventRef:'EVENT',sourceRef:'SOURCE',kind:'RECEIVED',
   eventAt:time,knownAt:time,operationRef:'OP',objectRef:null}],[{...scope,attemptRef:'A',operationRef:'OP',objectRef:null}]),
@@ -80,26 +78,5 @@ it('shows the deadline batch separately from pending content and retains receipt
   }
  }})
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
- try{
  await expect(page.invoke('content.submission.readDeadline',{deadlineRef:'OTHER'},signal)).rejects.toThrow('SUBMISSION_DEADLINE_READ_SCOPE')
- const {openDeadline}=compileFunctions(script,{$route:{query:{deadlineRef:'DL'}},$page:{
-  invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert,showMessage,
- }} as unknown as PageContext)
- if(!openDeadline)throw Error('TEST_DEADLINE_HANDLER_REQUIRED')
- await openDeadline()
- expect(showAlert).toHaveBeenCalledExactlyOnceWith([
-  `截止 ${time} · 证据截至 ${time}`,'O · 有有效批次 A · 内容待核',
-  `  接收 A · 事件 EVENT · 规则 RULE · 生效 ${time} · 获知 ${time} · 来源 SOURCE`,
-  '  文件位置 商务册 · 待核','  平台栏 ASSIGN / PRICE · 待核',
- ].join('\n'),'截止有效组合')
- includeDisposition=true
- await openDeadline()
- expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining([
-  `后续处置 · 实包 PKG · 批次 A · 证据截至 ${later}`,'  开启 · 开启失败',
-  `    开启失败 · 事件 OPEN · 出具方 ISSUER · ${later}`,'  准入 · 待核',
- ].join('\n')),'截止有效组合')
- receiptCurrent=false
- await openDeadline()
- expect(showMessage).toHaveBeenCalledExactlyOnceWith('截止有效组合无法核验','warning')
- }finally{ds.destroy()}
 })

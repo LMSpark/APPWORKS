@@ -85,6 +85,37 @@ function createActionContext(overrides?: Partial<ActionExecutionContext>): Actio
     getRouter: () => null,
     ...overrides,
   }
+
+  it('executes a configured host command with route-derived input', async () => {
+    const assertCurrent = vi.fn()
+    const invokeHostCommand = vi.fn(async () => ({assertCurrent}))
+    const showMessage = vi.fn()
+    const ctx=createActionContext({
+      invokeHostCommand,getRouteQuery:()=>({selectionRef:'SEL'}),
+      getPageService:()=>createPageService({showMessage}),
+    })
+
+    it('projects a host command result into a bound result DataView', async()=>{
+     const dataSet=SparkData.createDataSet({dataSetName:'HostResult',tables:{CommandResult:{
+      tableName:'CommandResult',columns:[{name:'name',type:'string'}],views:{default:{rows:[]}},
+     }}})
+     const view=dataSet.getView('CommandResult','default')
+     if(!view)throw Error('TEST_HOST_RESULT_VIEW_REQUIRED')
+     const replaceRows=vi.spyOn(view,'replaceRows')
+     const ctx=createActionContext({resolveView:binding=>binding==='S@CommandResult@default'?view:null,
+      invokeHostCommand:async()=>({record:{name:'A'},assertCurrent:()=>{}})})
+     await executeActionDescriptor({action:'host-command',command:'bid.read',
+      resultDataViewKey:'S@CommandResult@default',resultPath:'record'},ctx)
+     expect(replaceRows).toHaveBeenCalledExactlyOnceWith([{name:'A'}])
+     expect(view.rows).toEqual([{name:'A'}])
+    })
+    const descriptor:ActionDescriptor={action:'host-command',command:'bid.submit',
+      input:{selectionRef:{$route:'selectionRef'}},successMessage:'已提交'}
+    await executeActionDescriptor(descriptor,ctx)
+    expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('bid.submit',{selectionRef:'SEL'})
+    expect(assertCurrent).toHaveBeenCalledOnce()
+    expect(showMessage).toHaveBeenCalledExactlyOnceWith('已提交','success')
+  })
 }
 
 function createInlineDataSet(tableName: string, rows: DataRow[]) {

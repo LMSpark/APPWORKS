@@ -35,6 +35,8 @@ export type {
   RefreshAction,
   ClearRowsAction,
   SubmitCurrentFormAction,
+  HostCommandAction,
+  DiscardChangesAction,
 } from './action-types'
 
 export { isActionDescriptor } from './action-types'

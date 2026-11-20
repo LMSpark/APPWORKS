@@ -17,14 +17,17 @@ type Open=Parameters<typeof openContentOperationWorkspace>
 /** 按原身份解析已冻结工艺指南的能力。 */
 type ResolveGuide=Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]
 type DispatchResult=Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>
+type ExecutableDispatchResult=DispatchResult|Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>
 /** 当前可信宿主把已注册 Agent SSE 派发器注入同一 PageRuntime；四文件只提交精确输入。 */
 export type ContentOperationDispatch=Readonly<{
- workspace:ReturnType<typeof openContentOperationWorkspace>;input:Readonly<Record<string,unknown>>;signal:AbortSignal
+ workspace:ReturnType<typeof openContentOperationWorkspace>;input:SmartBidOperationCommand;signal:AbortSignal
 }>
 type Scope=Omit<Open[2],'signal'>&Readonly<{
  resolveOriginalGuide?:ResolveGuide
- dispatchOperation?:(command:ContentOperationDispatch)=>Promise<DispatchResult>
+ dispatchOperation?:(command:ContentOperationDispatch)=>Promise<ExecutableDispatchResult>
  operationModule?:SmartBidOperationModule
+ registrationId?:string
+ runtimeInstanceId?:string
 }>
 
 function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,error='OPERATION_ROUTE_DISPATCH_DIGEST'}:
@@ -49,11 +52,15 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      scope.assertCurrent()
      if(signal.aborted||runtime.destroyed||!runtime.isLoaded)throw Error('OPERATION_WORKSPACE_STALE')
     }})
-    if(scope.operationModule){
-     const command=readOperationCommand(input)
+    const command=readOperationCommand(input,{
+     projectId:scope.projectId,
+     ...(scope.registrationId===undefined?{}:{registrationId:scope.registrationId}),
+     ...(scope.runtimeInstanceId===undefined?{}:{runtimeInstanceId:scope.runtimeInstanceId}),
+    })
+    if(scope.dispatchOperation){
+      return withCurrent(await scope.dispatchOperation({workspace,input:command,signal}))
+    }else if(scope.operationModule){
      return withCurrent(await scope.operationModule.dispatchOperation(command))
-    }else if(scope.dispatchOperation){
-     return withCurrent(await scope.dispatchOperation({workspace,input,signal}))
     }else throw Error('OPERATION_PAGE_AGENT_DISPATCH_UNAVAILABLE')
    }
    if(name==='content.operation.prepareRework'){
@@ -134,14 +141,23 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
  }
 }
 
-function readOperationCommand(value:unknown):SmartBidOperationCommand{
- if(!isRecord(value)||typeof value['operationId']!=='string'||typeof value['registrationId']!=='string'||
-  typeof value['businessInstanceId']!=='string'||typeof value['runtimeInstanceId']!=='string'||
-  typeof value['requestKey']!=='string'||typeof value['prompt']!=='string')
+function readOperationCommand(value:unknown,scope:Readonly<{
+ projectId:string;registrationId?:string;runtimeInstanceId?:string
+}>):SmartBidOperationCommand{
+ if(!isRecord(value)||typeof value['operationId']!=='string'||typeof value['requestKey']!=='string'||
+  typeof value['prompt']!=='string')
   throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
+ const registrationId=scope.registrationId??value['registrationId']
+ const businessInstanceId=scope.projectId
+ const runtimeInstanceId=scope.runtimeInstanceId??value['runtimeInstanceId']
+ if(typeof registrationId!=='string'||typeof runtimeInstanceId!=='string'||
+  (Object.hasOwn(value,'registrationId')&&value['registrationId']!==registrationId)||
+  (Object.hasOwn(value,'businessInstanceId')&&value['businessInstanceId']!==businessInstanceId)||
+  (Object.hasOwn(value,'runtimeInstanceId')&&value['runtimeInstanceId']!==runtimeInstanceId))
+  throw Error('OPERATION_PAGE_DISPATCH_SCOPE_REQUIRED')
  const inputs=coerceStrictJsonValue(value['inputs'])
- if(!inputs||typeof inputs!=='object'||Array.isArray(inputs))throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
- return Object.freeze({operationId:value['operationId'],registrationId:value['registrationId'],
-  businessInstanceId:value['businessInstanceId'],runtimeInstanceId:value['runtimeInstanceId'],
+ if(inputs===undefined||inputs===null||typeof inputs!=='object'||Array.isArray(inputs))
+  throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
+ return Object.freeze({operationId:value['operationId'],registrationId,businessInstanceId,runtimeInstanceId,
   requestKey:value['requestKey'],prompt:value['prompt'],inputs})
 }

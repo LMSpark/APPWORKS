@@ -132,7 +132,10 @@
             }
           ]
         },
-        "badgeStyle": true,
+        "badgeStyle": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
         "badgeClass": {
           "type": "string"
         }

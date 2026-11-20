@@ -1,24 +1,16 @@
 [
-  {
-    "id": "review-coverage",
-    "type": "r-section",
-    "props": {"title": "制件与审定", "onBeforeRender": "bindCoverage"},
-    "children": [
-      {"type": "r-button", "props": {"label": "查看审核覆盖明细", "onBeforeRender": "bindDetails", "onClick": "openDetails"}}
-    ]
-  },
-  {
-    "id": "answer-observations",
-    "type": "r-section",
-    "props": {"title": "原实填回读", "onBeforeRender": "bindObservations"},
-    "children": [
-      {"type": "r-button", "props": {"label": "回读平台实填值", "onBeforeRender": "bindObservation", "onClick": "openObservation"}},
-      {"type": "r-button", "props": {"label": "回读文件实填值", "onBeforeRender": "bindFileObservation", "onClick": "openFileObservation"}},
-      {"type": "r-button", "props": {"label": "回读纸件实填值", "onBeforeRender": "bindPaperObservation", "onClick": "openPaperObservation"}},
-      {"type": "r-button", "props": {"label": "核对原制作结果", "onBeforeRender": "bindProductionRecovery", "onClick": "openProductionRecovery"}},
-      {"type": "r-button", "props": {"label": "核对导出件登记", "onBeforeRender": "bindExportRegistration", "onClick": "openExportRegistration"}},
-      {"type": "r-button", "props": {"label": "核验待登记签后件", "onBeforeRender": "bindSignedRegistration", "onClick": "openSignedRegistration"}},
-      {"type": "r-button", "props": {"label": "核验待登记纸件", "onBeforeRender": "bindPaperRegistration", "onClick": "openPaperRegistration"}}
-    ]
-  }
+  {"id":"review-coverage","type":"r-section","props":{"title":"制件与审定"},"children":[
+    {"type":"r-toolbar","props":{"wrap":true},"children":[
+      {"type":"r-button","props":{"label":"查看审核覆盖明细","action":"host-command","command":"content.review.readCoverage","input":{"selectionRef":{"$route":"reviewSelectionRef"}},"routeQueryRequired":["reviewSelectionRef"],"resultAlertTitle":"审核覆盖明细"}},
+      {"type":"r-button","props":{"label":"回读平台实填值","action":"host-command","command":"content.review.readPlatformObservation","input":{"selectionRef":{"$route":"platformObservationRef"}},"routeQueryRequired":["platformObservationRef"],"resultAlertTitle":"平台实填回读"}},
+      {"type":"r-button","props":{"label":"回读文件实填值","action":"host-command","command":"content.review.readFileObservation","input":{"selectionRef":{"$route":"fileObservationRef"}},"routeQueryRequired":["fileObservationRef"],"resultAlertTitle":"文件实填回读"}},
+      {"type":"r-button","props":{"label":"回读纸件实填值","action":"host-command","command":"content.review.readPaperObservation","input":{"selectionRef":{"$route":"paperObservationRef"}},"routeQueryRequired":["paperObservationRef"],"resultAlertTitle":"纸件实填回读"}},
+      {"type":"r-button","props":{"label":"核对原制作结果","action":"host-command","command":"content.review.recoverProduction","input":{"selectionRef":{"$route":"productionSelectionRef"}},"routeQueryRequired":["productionSelectionRef"],"resultAlertTitle":"原制作结果"}},
+      {"type":"r-button","props":{"label":"核对导出件登记","action":"host-command","command":"content.review.readExportRegistration","input":{"selectionRef":{"$route":"exportRegistrationRef"}},"routeQueryRequired":["exportRegistrationRef"],"resultAlertTitle":"导出件登记"}},
+      {"type":"r-button","props":{"label":"核验待登记签后件","action":"host-command","command":"content.review.prepareSignedRegistration","input":{"selectionRef":{"$route":"signedRegistrationRef"}},"routeQueryRequired":["signedRegistrationRef"],"resultAlertTitle":"签后件登记前核验"}},
+      {"type":"r-button","props":{"label":"核验待登记纸件","action":"host-command","command":"content.review.preparePaperRegistration","input":{"selectionRef":{"$route":"paperRegistrationRef"}},"routeQueryRequired":["paperRegistrationRef"],"resultAlertTitle":"纸件登记前核验"}},
+      {"type":"r-button","props":{"label":"提交签后件登记","action":"host-command","command":"smart-bid.dispatch","input":{"operationId":"41","requestKey":{"$route":"signedRegistrationRef"},"prompt":"登记制作完成的文件","inputs":{"record":{"selectionRef":{"$route":"signedRegistrationRef"}}}},"routeQueryRequired":["signedRegistrationRef"],"successMessage":"签后件登记已提交"}},
+      {"type":"r-button","props":{"label":"提交纸件登记","action":"host-command","command":"smart-bid.dispatch","input":{"operationId":"41","requestKey":{"$route":"paperRegistrationRef"},"prompt":"登记制作完成的文件","inputs":{"record":{"selectionRef":{"$route":"paperRegistrationRef"}}}},"routeQueryRequired":["paperRegistrationRef"],"successMessage":"纸件登记已提交"}}
+    ]}
+  ]}
 ]

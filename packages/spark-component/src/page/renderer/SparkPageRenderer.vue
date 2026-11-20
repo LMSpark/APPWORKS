@@ -37,7 +37,7 @@ import { type DataSet, type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTr
 import { Logger, isCallable } from '@spark-appworks/spark-utils'
 import type { PageRuntime, PageToolDefinition } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
-import { PAGE_RUNTIME, PAGE_SERVICE, PAGE_PERMISSION_MODE, MODULE_CONTEXT, CSS_SCOPE } from '../../core/capability-keys'
+import { PAGE_RUNTIME, PAGE_SERVICE, PAGE_HOST_COMMAND, PAGE_ROUTE_QUERY, PAGE_PERMISSION_MODE, MODULE_CONTEXT, CSS_SCOPE } from '../../core/capability-keys'
 import { useRendererSetup } from './useRendererSetup'
 import { useCssScope } from './useCssScope'
 import { compileFunctions } from '../createSandbox'
@@ -237,6 +237,8 @@ async function loadConfig():Promise<void> {
     },
     invoke: (name,input,commandSignal) => host.invoke(name,input,commandSignal),
    }} : {}),getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
+  sparkProvide(PAGE_HOST_COMMAND,pageContext.$page.invokeHostCommand)
+  sparkProvide(PAGE_ROUTE_QUERY,()=>({...pageContext?.$route.query}))
   setScopedCss(runtime.instanceId,definition.css ?? '')
   try {functions=compileFunctions(definition.script ?? '',pageContext)}
   catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}

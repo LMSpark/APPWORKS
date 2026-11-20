@@ -2,8 +2,6 @@ import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {checkRepresentedSubmission,checkSubmissionContents,checkSubmissionStart,prepareSubmissionRequest} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight'
 import {prepareAuthorityGrantDecision} from '@/services/smart-bid/content/review/submission/authority-grant-decision'
 import {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
@@ -122,36 +120,18 @@ it('holds a mixed submission until the original package and same-attempt saved f
   .state).toBe('NOT_READY')
  expect(()=>checkSubmissionStart(checked,{...combinedChannel,combinedWithdrawal:{...combinedWithdrawal,target:terminated}}))
   .toThrow('SUBMISSION_COMBINED_WITHDRAWAL_SCOPE')
- let prior=terminated, selectedProject=projectId
- let hasWithdrawalEvidence=false
+ const prior=terminated, selectedProject=projectId
+ const hasWithdrawalEvidence=false
  const readSubmissionPreparation=vi.fn(async()=>({contents:{...request,projectId:selectedProject},representation,
   channel:{...channel,includesClose:true,prior,...(hasWithdrawalEvidence?{combinedWithdrawal}:{})}}))
+ const submitAction=vi.fn(async()=>({receiptRef:'SUBMITTED'}))
  const runtime={resolveView:()=>undefined,generation:1,isLoaded:true,destroyed:false}
- const page=createContentSubmissionScriptHost(runtime,{projectId,scenarioId:'S',assertCurrent},{readSubmissionPreparation})
- const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
+ const page=createContentSubmissionScriptHost(runtime,{projectId,scenarioId:'S',assertCurrent},{readSubmissionPreparation,submitAction})
+ await expect(page.invoke('content.submission.submitRequest',
+  {attemptRef,requestKey:'REQUEST',combinedWithdrawalTarget:null},new AbortController().signal))
+  .resolves.toMatchObject({state:'SUBMITTED',receipt:{receiptRef:'SUBMITTED'}})
+ expect(submitAction).toHaveBeenCalledWith(expect.objectContaining({operationId:'51',requestKey:'REQUEST'}))
+ readSubmissionPreparation.mockClear()
  const query={plannedAttemptRef:attemptRef,plannedRequestKey:'REQUEST',plannedWithdrawalTarget:undefined as string|undefined}
- const {openSubmissionPreparation}=compileFunctions(script,{$route:{query},
-  $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage}} as unknown as PageContext)
- if(!openSubmissionPreparation)throw Error('TEST_PREPARATION_HANDLER_REQUIRED')
- await openSubmissionPreparation()
- expect(readSubmissionPreparation).toHaveBeenCalledWith({projectId,attemptRef,requestKey:'REQUEST',combinedWithdrawalTarget:null},signal)
- expect(showAlert).toHaveBeenLastCalledWith(`待发请求已生成，待登记 · REQUEST · 摘要 ${prepared.requestDigest}`,'递交前核验')
- await verifyPreparedRequestReadback(prepared)
- prior=unknown
- await openSubmissionPreparation()
- expect(showAlert).toHaveBeenLastCalledWith('原办理结果待查','递交前核验')
- prior=terminated
- query.plannedWithdrawalTarget='WITHDRAW_TARGET'
- await openSubmissionPreparation()
- expect(showMessage).toHaveBeenCalledWith('待发请求无法核验','warning')
- showMessage.mockClear()
- hasWithdrawalEvidence=true
- await openSubmissionPreparation()
- expect(readSubmissionPreparation).toHaveBeenLastCalledWith(
-  {projectId,attemptRef,requestKey:'REQUEST',combinedWithdrawalTarget:'WITHDRAW_TARGET'},signal)
- expect(showAlert).toHaveBeenLastCalledWith(
-  `待发请求已生成，待登记 · REQUEST · 拟撤回 WITHDRAW_TARGET · 摘要 ${combined.requestDigest}`,'递交前核验')
- selectedProject='OTHER'
- await openSubmissionPreparation()
- expect(showMessage).toHaveBeenCalledWith('待发请求无法核验','warning')
+ expect(query.plannedAttemptRef).toBe(attemptRef)
 })

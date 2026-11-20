@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source\n职责：把页08–15 的已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner。\n边界：不创建命令视图、不映射后端 HTTP；场景没有已绑定 owner 时明确失败。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SmartBidPageAction",
+      "SmartBidPageActionSubmit"
+    ]
+  },
+  "$defs": {
+    "SmartBidPageAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidPageAction",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "inputs": true
+      },
+      "required": [
+        "operationId",
+        "requestKey",
+        "prompt",
+        "inputs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T12:04:15.470Z",
+  "models": {
+    "SmartBidPageAction": {
+      "name": "SmartBidPageAction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SmartBidPageActionSubmit": {
+      "name": "SmartBidPageActionSubmit",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(action: SmartBidPageAction) => Promise<JsonValue>",
+        "members": {}
+      }
+    }
+  }
+}

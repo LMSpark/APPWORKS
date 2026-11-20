@@ -10,6 +10,7 @@ import {readRegisteredConfigurationChannel,readRegisteredConfigurationVersion,ty
 import {assessConfigurationDisableImpact} from '@/services/smart-bid/content/references/configuration/configuration-disable-impact'
 
 import {prepareConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
+import type {JsonValue} from '@spark-appworks/spark-json-document'
 
 type Read=Parameters<typeof readRegisteredConfigurationRelease>
 type Impact=Parameters<typeof assessConfigurationDisableImpact>
@@ -25,13 +26,18 @@ type CandidateReader=(selection:Prepare[0]&Readonly<{versionId:string}>,signal:A
 type DisableReader=(selection:Prepare[0]&Readonly<{versionId:string;decisionRef:string}>,signal:AbortSignal)=>Promise<Readonly<{
  decision:Extract<Prepare[2],{action:'DISABLE'}>
 }>>
+type PreparedRelease=Awaited<ReturnType<typeof prepareConfigurationRelease>>
+type ReleaseOwner=Readonly<{
+ submitEnable?:(prepared:PreparedRelease,signal:AbortSignal)=>Promise<JsonValue>
+ submitDisable?:(prepared:PreparedRelease,signal:AbortSignal)=>Promise<JsonValue>
+}>
 
 /** 页面提供原配置与请求引用，作用域由当前正式宿主限定。 */
 export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,host:Omit<Read[0],'runtime'>&Readonly<{configurationScope?:ConfigurationScope}>,
- {readDisableImpact,readCandidate,readDisableDecision}:Readonly<{
+ {readDisableImpact,readCandidate,readDisableDecision,submitEnable,submitDisable}:Readonly<{
   readDisableImpact?:ImpactReader;readCandidate?:CandidateReader;readDisableDecision?:DisableReader
- }>={}){
+ }>&ReleaseOwner={}){
  return {runtime,assertCurrent:host.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   const error='CONFIGURATION_RELEASE_PAGE_REQUEST'
   if(!isRecord(input)||Object.hasOwn(input,'scopeId'))throw Error(error)
@@ -47,7 +53,8 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
    if(Object.keys(input).length!==2||!identity(kind)||!identity(key))throw Error(error)
    return readRegisteredConfigurationChannel({...host,runtime,assertCurrent,configurationScope:host.configurationScope},{kind,key})
   }
-  if(name==='configuration.release.prepareDisable'&&readDisableDecision&&host.configurationScope){
+  if((name==='configuration.release.prepareDisable'||name==='configuration.release.submitDisable')&&
+   readDisableDecision&&host.configurationScope&&(name!=='configuration.release.submitDisable'||submitDisable)){
    const {kind,key,requestKey,versionId,decisionRef}=input
    if(Object.keys(input).length!==5||!identity(kind)||!identity(key)||!identity(requestKey)||
     !identity(versionId)||!identity(decisionRef))throw Error(error)
@@ -64,11 +71,19 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
      throw Error('CONFIGURATION_RELEASE_DISABLE_SCOPE')
     const assertVersion=await readRegisteredConfigurationVersion({...host,runtime,assertCurrent},
      {kind,key,hash:pointer.versionDigest},versionId)
-    return prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
+    const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion:pointer.pointerVersion},
      {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})
+    if(name==='configuration.release.submitDisable'){
+     const outcome=await submitDisable?.(prepared,signal)
+     assertEvidence()
+     if(outcome===undefined)throw Error('CONFIGURATION_RELEASE_COMMAND_REQUIRED')
+     return Object.freeze({release:prepared,outcome,assertCurrent:prepared.assertCurrent})
+    }
+    return prepared
    })
   }
-  if(name==='configuration.release.prepareEnable'&&readCandidate&&host.configurationScope){
+  if((name==='configuration.release.prepareEnable'||name==='configuration.release.submitEnable')&&
+   readCandidate&&host.configurationScope&&(name!=='configuration.release.submitEnable'||submitEnable)){
    const {kind,key,requestKey,versionId}=input
    if(Object.keys(input).length!==4||!identity(kind)||!identity(key)||!identity(requestKey)||!identity(versionId))throw Error(error)
    const selection={kind,key,scopeId}
@@ -89,6 +104,12 @@ export function createConfigurationReleaseScriptHost<Runtime extends Pick<PageRu
     const currentVersion=pointer.version===null?null:Object.freeze({...pointer.version})
     const prepared=await prepareConfigurationRelease(selection,{requestKey,expectedPointerVersion},
       {...decision,assertCurrent:()=>{assertEvidence();assertVersion()}})
+    if(name==='configuration.release.submitEnable'){
+     const outcome=await submitEnable?.(prepared,signal)
+     assertEvidence()
+     if(outcome===undefined)throw Error('CONFIGURATION_RELEASE_COMMAND_REQUIRED')
+     return Object.freeze({release:prepared,currentVersion,outcome,assertCurrent:prepared.assertCurrent})
+    }
     return Object.freeze({...prepared,currentVersion})
    })
   }

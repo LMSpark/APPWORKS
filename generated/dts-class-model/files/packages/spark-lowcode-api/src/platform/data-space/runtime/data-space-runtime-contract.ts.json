@@ -75,7 +75,10 @@
           ],
           "additionalProperties": false
         },
-        "owner": true,
+        "owner": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
         "signature": {
           "type": "string"
         }

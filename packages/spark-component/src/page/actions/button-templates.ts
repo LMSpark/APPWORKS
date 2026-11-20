@@ -97,6 +97,8 @@ const ACTION_TEMPLATE_MAP: Record<BuiltinActionName, ActionDefaults> = {
   'prompt-edit':         { template: 'success', label: '编辑', icon: 'Edit' },
   'submit-current-form': { template: 'success', label: '保存当前' },
   'save-dataset':        { template: 'success', label: '保存全部' },
+  'discard-changes':     { template: 'warning', label: '取消修改' },
+  'host-command':        { template: 'success', label: '执行' },
   'refresh':             { template: 'primary', label: '刷新', icon: 'Refresh' },
   'clear-rows':          { template: 'danger', label: '清空', icon: 'Delete' },
   'delete-row':          { template: 'danger', label: '删除', icon: 'Delete' },

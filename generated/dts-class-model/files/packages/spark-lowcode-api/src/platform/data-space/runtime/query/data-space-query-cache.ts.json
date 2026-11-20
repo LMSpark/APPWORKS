@@ -19,7 +19,10 @@
       "type": "object",
       "title": "ResultCacheRequest",
       "properties": {
-        "page": true,
+        "page": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
         "definition": true
       },
       "additionalProperties": false,

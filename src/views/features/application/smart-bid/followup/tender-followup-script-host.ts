@@ -32,14 +32,17 @@ type ReadDeadline=(scope:Read[1]&Readonly<{projectId:string;knownAt:string}>,sig
 
 /** 固定本次调用的项目、标段、轮次、主体与阶段，页面只选择获知时点。 */
 export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
- runtime:Runtime,host:Omit<Read[0],'runtime'>,options:Readonly<{selection:Read[1];readDeadline?:ReadDeadline}>){
+ runtime:Runtime,host:Omit<Read[0],'runtime'>,options:Readonly<{
+  selection:Read[1];readDeadline?:ReadDeadline;assertCurrent?:()=>void
+ }>){
  const {selection,readDeadline}=options
  const scope=Object.freeze({...selection})
- return {runtime,assertCurrent:host.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
+ const assertOwner=()=>{host.assertCurrent();options.assertCurrent?.()}
+ return {runtime,assertCurrent:assertOwner,async invoke(name:string,input:unknown,signal:AbortSignal){
   if(!isRecord(input))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
   const generation=runtime.generation
   const assertCurrent=()=>{
-   host.assertCurrent()
+   assertOwner()
    if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
     throw Error('TENDER_FOLLOWUP_PAGE_STALE')
   }

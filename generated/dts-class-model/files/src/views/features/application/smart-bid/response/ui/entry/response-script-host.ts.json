@@ -36,7 +36,8 @@
         "approvals": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../services/smart-bid/content/references/commercial/commitment-approval-coverage.ts.json#/$defs/Approval"
+            "type": "object",
+            "title": "Approval"
           }
         },
         "assertCurrent": {
@@ -507,14 +508,18 @@
           "additionalProperties": false
         }
       },
-      "required": [
-        "readPriceEvidence",
-        "readSecurityReceipts"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-18T20:29:37.647Z",
+  "generatedAt": "2026-11-20T10:46:54.413Z",
   "models": {
     "Commitment": {
       "name": "Commitment",
@@ -668,11 +673,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    assertCurrent?: () => void;\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
+            "typeText": "Readonly<{\n    assertCurrent?: () => void;\n    readPriceEvidence: Parameters<typeof createApprovedPriceScriptHost>[2];\n    readSecurityReceipts: Parameters<typeof createBidSecurityScriptHost>[2];\n    appointmentBasis?: Readonly<{\n        projectId: string;\n        enterpriseId: string;\n        assertCurrent: () => void;\n        read: (appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            appointmentRef: string;\n            request: Appointment[0];\n            evidence: Appointment[1];\n        }>>;\n    }>;\n    commitmentBasis?: Readonly<{\n        projectId: string;\n        assertCurrent: () => void;\n        read: (commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{\n            commitmentRef: string;\n            coverage: Commitment;\n            source: CommitmentSource;\n        }>>;\n    }>;\n    assignmentBasis?: Readonly<{\n        projectId: string;\n        baselineId: string;\n        assertCurrent: () => void;\n    }>;\n    fixedFacts?: Readonly<{\n        projectId: string;\n        basis: Omit<Parameters<typeof readContentBaselineFactUse>[1], 'factId' | 'version' | 'purposeRef' | 'useAt'>;\n        assertCurrent: () => void;\n        readUse: Parameters<typeof readContentBaselineFactUse>[2];\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -707,6 +712,16 @@
               "name": "fixedFacts",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

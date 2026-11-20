@@ -17,6 +17,7 @@ import {readOriginalExportRegistration,readOriginalSignedRegistration} from '../
 import {readOriginalSignatureRequest} from '../../model/review/submission/content-signature-request-reader'
 import {prepareSignedOutputRegistration} from '@/services/smart-bid/content/review/production/signed-output-registration'
 import {preparePaperOutputRegistration} from '@/services/smart-bid/content/review/production/paper-output-registration'
+import type {SmartBidPageActionSubmit} from './publication/smart-bid-action-source'
 
 /** 审定覆盖工作区的宿主、固定范围与证据读取合同。 */
 type Review=Parameters<typeof readContentReviewWorkspace>
@@ -30,6 +31,7 @@ type PaperRegistration=Parameters<typeof preparePaperOutputRegistration>
 /** 固定审定范围由正式办理记录提供，调用地址只携带引用。 */
 export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Review[0],'runtime'>,sources:Review[2]&Readonly<{
+  assertCurrent?:()=>void
   readSelection:(selectionRef:string,signal:AbortSignal)=>Promise<Review[1]&Readonly<{selectionRef:string}>>
   readProductionSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
    selectionRef:string;request:ProductionRecovery[0];source:ProductionRecovery[1]
@@ -51,14 +53,16 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
    projectId:string;observationId:string;approved?:Parameters<typeof compareApprovedFileAnswer>[1]
    originalForm?:Readonly<{mapping:FormVerification[1];placement:FormVerification[2]}>;assertCurrent:()=>void
   }>>
+  submitAction?:SmartBidPageActionSubmit
  }>){
- return {runtime,assertCurrent:scope.assertCurrent,
+ const assertOwner=()=>{scope.assertCurrent();sources.assertCurrent?.()}
+ return {runtime,assertCurrent:assertOwner,
   async invoke(name:string,input:unknown,signal:AbortSignal){
    if(!isRecord(input)||!identity(input['selectionRef']))
     throw Error('CONTENT_REVIEW_PAGE_COMMAND_REQUIRED')
    const {selectionRef}=input,generation=runtime.generation
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
      throw Error('CONTENT_REVIEW_PAGE_STALE')
    }
@@ -72,6 +76,17 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
     const original=await readPaperRegistration({...scope,runtime,assertCurrent},prepared.record,prepared)
     return Object.freeze({...prepared,registrationRef:original.state==='REGISTERED'?original.registrationRef:null,
      assertCurrent:original.assertCurrent})
+   }
+   if(name==='content.review.registerPaper'&&sources.readPaperRegistrationSelection){
+    const selection=await sources.readPaperRegistrationSelection(selectionRef,signal)
+    assertCurrent()
+    if(selection.selectionRef!==selectionRef||selection.prepared.request.projectId!==scope.projectId||!sources.submitAction)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    const prepared=preparePaperOutputRegistration(selection.prepared,selection.paper,selection.observed)
+    const receipt=await sources.submitAction({operationId:'41',requestKey:selection.prepared.request.requestKey,
+     prompt:'登记制作完成的纸件',inputs:{record:prepared.record}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
    }
    if(name==='content.review.prepareSignedRegistration'&&sources.readSignedRegistrationSelection){
     const selection=await sources.readSignedRegistrationSelection(selectionRef,signal)
@@ -94,6 +109,21 @@ export function createContentReviewScriptHost<Runtime extends Pick<PageRuntime,'
      return Object.freeze({...registration,state:'SIGNED_REGISTERED' as const,assertCurrent:assertRegistered})
     }
     return Object.freeze({state:'PREPARED' as const,...prepared,assertCurrent:registration.assertCurrent})
+   }
+   if(name==='content.review.registerSigned'&&sources.readSignedRegistrationSelection){
+    const selection=await sources.readSignedRegistrationSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selection.assertCurrent()}
+    assertSelection()
+    if(selection.selectionRef!==selectionRef||selection.request.projectId!==scope.projectId||!sources.submitAction)
+     throw Error('CONTENT_REVIEW_PAGE_SELECTION_SCOPE')
+    const recovered=await readOriginalSignatureRequest({...scope,runtime,assertCurrent:assertSelection},selection.request)
+    if(recovered.state!=='SIGNED')return recovered
+    const prepared=await prepareSignedOutputRegistration(selection.original,selection.receipt,{recovered,open:selection.open})
+    prepared.assertCurrent()
+    const receipt=await sources.submitAction({operationId:'41',requestKey:selection.request.requestKey,
+     prompt:'登记制作完成的签后件',inputs:{record:prepared.record}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
    }
    if(name==='content.review.readExportRegistration'&&sources.readExportRegistrationSelection){
     const selection=await sources.readExportRegistrationSelection(selectionRef,signal)

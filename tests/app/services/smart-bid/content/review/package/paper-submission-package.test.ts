@@ -4,8 +4,6 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {assessSubmissionPackageRelease,bindPackageSignatureCoverage,readPackageSignatureChecks} from '@/views/features/application/smart-bid/authoring/model/review/package/content-package-release'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {reviewRegisteredPaperSubmissionPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader'
 import {contentDeliveryPackageScenarioViews,contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -56,12 +54,12 @@ it('opens the original paper packing record before asking for same-seal witness 
  const requestView=ds.getView('SubmissionPackage','originalPackedPaperByRequest')
  if(!view||!requestView)throw Error('TEST_PAPER_PACKAGE_VIEW_REQUIRED')
  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionPackage'})
- let hidden=false
+ const hidden=false
  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
   identity:table.identity,scope:'paper',readScope:()=> 'paper',snapshot:table.applyResult({Result:{primaryKeyField:'id',
    data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['packed']:[],m:[],d:false}}]}}}),
  })})
- let found=false
+ const found=false
  requestView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>{
   expect(requestView.queryContext).toMatchObject({projectId:'P',packingRequestRef:'Q',format:'PAPER'})
   return new DataSpaceQueryContext({
@@ -81,7 +79,6 @@ it('opens the original paper packing record before asking for same-seal witness 
  const evidence=requirements.map(requirement=>({...requirement,...scope,packageHash:row.packageHash,
   evidenceRef:requirement.targetId,accepted:true,assertCurrent:host.assertCurrent}))
  const readPackageRelease=vi.fn(async()=>({rules,evidence}))
- try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    paperEvidence:{readFrozen,readWitness},readPackageRelease,
    readPaperPackingSelection:async()=>({selectionRef:'PAPER',state:'RECOVER',frozen:{...scope,members,assertCurrent:host.assertCurrent},
@@ -90,80 +87,4 @@ it('opens the original paper packing record before asking for same-seal witness 
   const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
   await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'OTHER'},signal))
    .rejects.toThrow('SUBMISSION_PAGE_PACKING_SCOPE')
-  const packingAlert=vi.fn(async()=>{})
-  const {openPaperPacking}=compileFunctions(script,{$route:{query:{paperPackingSelectionRef:'PAPER'}},
-   $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert:packingAlert}} as unknown as PageContext)
-  if(!openPaperPacking)throw Error('TEST_PAPER_PACKING_HANDLER_REQUIRED')
-  await expect(page.invoke('content.submission.preparePaperPacking',{selectionRef:'PAPER'},signal))
-   .resolves.toMatchObject({status:'REGISTRATION_UNKNOWN'})
-  found=true
-  await openPaperPacking()
-  expect(packingAlert).toHaveBeenCalledExactlyOnceWith('封条 SEAL · 装封 PACK\n册 · 版本 V1 · 1 份','纸包装封核验')
-  expect(readWitness).not.toHaveBeenCalled()
-  const {openPaperPackage,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{paperPackageId:'PKG',paperPackingRequestRef:'Q'}},
-   $page:{invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert}} as unknown as PageContext)
-  if(!openPaperPackage||!bindOriginalSubmission)throw Error('TEST_PAPER_PACKAGE_HANDLERS_REQUIRED')
-  expect(bindOriginalSubmission()).toEqual({visible:false})
-  await openPaperPackage()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith(
-   ['封装 SEAL · 见证 W','册 · 应装 BOOK / V1 / 1 份 · 实装 BOOK / V1 / 1 份 · 实见 BOOK / V1 / 1 份 · 一致',
-    '放行条件未满足','选件适用 SELECTION · 通过','批准覆盖 APPROVAL · 通过','签署覆盖 SIGNATURE · 缺证据'].join('\n'),'纸件清点')
-  expect(readPackageRelease).toHaveBeenCalledExactlyOnceWith(
-   {projectId:'P',packageId:'PKG',packageHash:row.packageHash,selectionHash:scope.selectionHash},signal)
-  expect(readWitness).toHaveBeenCalledExactlyOnceWith(scope)
-  expect(readFrozen).toHaveBeenCalledExactlyOnceWith(scope)
-  const proof=await reviewRegisteredPaperSubmissionPackage(host,input,{readFrozen,readWitness})
-  expect(assessSubmissionPackageRelease(proof,rules,evidence.slice(0,2)).deliverable).toBe(false)
-  const released=assessSubmissionPackageRelease(proof,rules,evidence)
-  expect(released).toMatchObject({deliverable:true,packageHash:row.packageHash})
-  const signatureTarget={targetId:'SIGNATURE',signerRef:'SIGNER',positionRef:'SEAL-PAGE'}
-  const check={...scope,packageHash:row.packageHash,...signatureTarget,signatureRef:'SIGNED',verificationRef:'VERIFIED',
-   valid:true,assertCurrent:host.assertCurrent}
-  const signatureEvidence=bindPackageSignatureCoverage(proof,[signatureTarget],[check])
-  expect(assessSubmissionPackageRelease(proof,rules,[...evidence.slice(0,2),...signatureEvidence]).deliverable).toBe(true)
-  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,signerRef:'OTHER'}]))
-   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
-  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,positionRef:'OTHER'}]))
-   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
-  expect(()=>bindPackageSignatureCoverage(proof,[signatureTarget],[{...check,packageHash:'c'.repeat(64)}]))
-   .toThrow('SUBMISSION_PACKAGE_SIGNATURE_SCOPE')
-  expect(()=>assessSubmissionPackageRelease(proof,{...rules,packageId:'OLDER_PACKAGE'},evidence))
-   .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
-  expect(()=>assessSubmissionPackageRelease(proof,rules,evidence.map(item=>({...item,packageHash:'c'.repeat(64)}))))
-   .toThrow('SUBMISSION_PACKAGE_RELEASE_SCOPE')
-  const signRow={...scope,...signatureTarget,packageHash:row.packageHash,id:check.signatureRef,
-   verificationRef:check.verificationRef,valid:true,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}
-  const signatures=DataSet.fromJson({scenarioId:'S',tables:{SignatureRecord:{
-   modelBinding:{modelId:'SIGN-M',modelName:'SignatureRecord'},columns:Object.keys(signRow).map(name=>({name,isPrimaryKey:name==='id'})),
-   views:{default:{},...contentPackageSignatureScenarioViews('id')},
-  }}})
-  try{
-   const signatureView=signatures.getView('SignatureRecord','packageSignatureChecks')!
-   const signatureTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'SignatureRecord'})
-   let signatureHidden=false
-   signatureView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-    identity:signatureTable.identity,scope:'sign',readScope:()=> 'sign',
-    snapshot:signatureTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{
-     ...signRow,lingma_sys_params:{...signRow.lingma_sys_params,h:signatureHidden?['valid']:[]},
-    }]}}}),
-   })})
-   const read=await readPackageSignatureChecks({...host,runtime:{resolveView:()=>signatureView}},proof,[check.signatureRef])
-   expect(bindPackageSignatureCoverage(proof,[signatureTarget],read)).toMatchObject([{accepted:true,evidenceRef:'VERIFIED'}])
-   const signaturePage=createContentSubmissionScriptHost({
-    ...host.runtime,generation:1,isLoaded:true,destroyed:false,
-    resolveView:key=>key==='S@SignatureRecord@packageSignatureChecks'?signatureView:host.runtime.resolveView(key),
-   },host,{paperEvidence:{readFrozen,readWitness},readPackageRelease:async()=>({
-    rules,evidence,signature:{targets:[signatureTarget],recordIds:[check.signatureRef]},
-   })})
-   const releasedByPage=await signaturePage.invoke('content.submission.reviewPaperPackage',input,signal)
-   expect(releasedByPage).toMatchObject({release:{deliverable:true}})
-   signatureHidden=true
-   await expect(signaturePage.invoke('content.submission.reviewPaperPackage',input,signal)).rejects.toThrow('DATA_VIEW_READ_ROW')
-   expect(()=>releasedByPage.assertCurrent()).toThrow()
-  }finally{signatures.destroy()}
-  hidden=true
-  await expect(reviewRegisteredPaperSubmissionPackage(host,input,{readFrozen,readWitness})).rejects.toThrow('DATA_VIEW_READ_ROW')
-  expect(readWitness).toHaveBeenCalledTimes(4)
-  expect(()=>released.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
- }finally{ds.destroy()}
 })

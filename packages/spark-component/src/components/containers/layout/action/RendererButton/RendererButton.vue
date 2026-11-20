@@ -47,6 +47,8 @@ import {
   DATA_SOURCE,
   PAGE_RUNTIME,
   PAGE_SERVICE,
+  PAGE_HOST_COMMAND,
+  PAGE_ROUTE_QUERY,
   SparkComponentRenderer,
   useSparkPageComponent,
 } from '../../../../internal'
@@ -131,6 +133,8 @@ const { hasBuiltinAction, hostActionDisabled, executeAction } = useActionButtonR
     getDataSource: resolveActionView,
     getPageService: () => sparkConsume(PAGE_SERVICE),
     getRouter: () => null,
+    ...(sparkConsume(PAGE_HOST_COMMAND) ? {invokeHostCommand: sparkConsume(PAGE_HOST_COMMAND)!} : {}),
+    ...(sparkConsume(PAGE_ROUTE_QUERY) ? {getRouteQuery: sparkConsume(PAGE_ROUTE_QUERY)!} : {}),
   }),
   warn: (msg) => logger.warn(msg),
 })
@@ -155,6 +159,7 @@ const permissionDeniedMode = computed<'disable' | 'hide'>(() => {
 // 最终可见性：先看组件自身显示条件，再叠加权限策略。
 const effectiveVisible = computed(() => {
   if (!isVisible.value) return false
+  if (!routeQueryVisible.value) return false
   if (permissionAllowed.value) return true
   return permissionDeniedMode.value !== 'hide'
 })
@@ -210,7 +215,7 @@ const resolvedOnClick = computed<((...args: unknown[]) => unknown) | null>(() =>
 // ── 七、点击执行流 ─────────────────────────────────────────────────────
 async function handleClick(event: MouseEvent): Promise<void> {
   if (hasBuiltinAction.value) {
-    if (!resolveActionView()) return
+    if (props.action !== 'host-command' && !resolveActionView()) return
     await executeAction()
     return
   }
@@ -226,4 +231,21 @@ async function handleClick(event: MouseEvent): Promise<void> {
   }
   await onClick(event)
 }
+
+function hasRouteValue(query: Readonly<Record<string, unknown>>, key: string): boolean {
+  const value = query[key]
+  return typeof value === 'string' ? value.trim().length > 0 && value.trim() === value
+    : value !== undefined && value !== null
+}
+
+const routeQueryVisible = computed(() => {
+  const getQuery = sparkConsume(PAGE_ROUTE_QUERY)
+  if (!getQuery) return props.routeQueryRequired === undefined
+    && props.routeQueryAny === undefined
+    && props.routeQueryMatches === undefined
+  const query = getQuery()
+  if (props.routeQueryRequired?.some(key => !hasRouteValue(query, key))) return false
+  if (props.routeQueryAny !== undefined && !props.routeQueryAny.some(key => hasRouteValue(query, key))) return false
+  return Object.entries(props.routeQueryMatches ?? {}).every(([key, expected]) => query[key] === expected)
+})
 </script>

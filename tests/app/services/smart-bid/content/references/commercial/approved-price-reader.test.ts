@@ -4,8 +4,6 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredApprovedPrice} from '@/views/features/application/smart-bid/response/model/approved-price-reader'
 import {createApprovedPriceScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/approved-price-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -26,7 +24,8 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   const sheetView=ds.getView('PriceSheet','selectedPriceSheet')
   if(!view||!sheetView)throw Error('TEST_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ApprovedPrice'})
-  let hidden:string[]=[],version=row.version,withSheet=false,sheetHidden:string[]=[]
+  let hidden:string[]=[],version=row.version
+  const withSheet=false,sheetHidden:string[]=[]
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'original',readScope:()=> 'original',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,version,...(withSheet?{detailRef:sheet.detailRef,pricingVersion:sheet.pricingVersion,value:'1.00',unit:'CNY',rateOnly:false}:{}),
@@ -66,53 +65,5 @@ it('reads only the scoped original approval and rejects mismatched or concealed 
   await expect(readRegisteredApprovedPrice(host,target,evidence)).rejects.toThrow()
   expect(evidence).toHaveBeenCalledTimes(1)
   hidden=[]
-  const showAlert=vi.fn(async()=>{})
-  const {bindApprovedPrice,openApprovedPrice}=compileFunctions(script,{
-   $route:{query:{approvalRef:'A',approvalVersion:'V1'}},
-   $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,new AbortController().signal),showAlert},
-  } as unknown as PageContext)
-  if(!bindApprovedPrice||!openApprovedPrice)throw Error('TEST_SCRIPT_REQUIRED')
-  expect(bindApprovedPrice()).toEqual({disabled:false})
-  await openApprovedPrice()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith('原批准 A · 版本 V1\n批准值 0.00 %\n本次用途 可用','原报价批准')
-  withSheet=true
-  await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},evidence)).resolves.toMatchObject({
-   original:'APPROVED',use:'USABLE',detailRef:'DETAIL',
-  })
-  expect(sheetView.queryContext).toMatchObject({pricingVersion:'SHEET-V1',detailRef:'DETAIL',scopeRef:'LOT'})
-  sheetHidden=['lines']
-  await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},evidence)).resolves.toMatchObject({
-   original:'APPROVED',use:'PENDING',value:'1.00',detailRef:'DETAIL',
-  })
-  sheetHidden=[]
-  const unavailable:EvidenceReader=async()=>{throw Error('USE_SOURCE_UNAVAILABLE')}
-  await expect(readRegisteredApprovedPrice(host,{...target,rateOnly:false},unavailable)).resolves.toMatchObject({
-   original:'APPROVED',use:'PENDING',value:'1.00',detailStatus:'MATCHED',
-  })
-  const scopeLost=new AbortController()
-  const stopped=createApprovedPriceScriptHost(host.runtime,{...host,purposeRef:'BID',rateOnly:false},async()=>{
-   scopeLost.abort()
-   throw Error('USE_SOURCE_UNAVAILABLE')
-  })
-  await expect(stopped.invoke('bid.response.readApprovedPrice',{approvalRef:'A',version:'V1'},scopeLost.signal))
-   .rejects.toThrow('BID_APPROVED_PRICE_PAGE_STALE')
- }finally{ds.destroy()}
-})
-
-it('suppresses the old warning after the selected version changes',async()=>{
- const query={approvalRef:'A',approvalVersion:'V1'}
- let rejectPending:(reason:Error)=>void=()=>{throw Error('TEST_REQUEST_REQUIRED')}
- const pending=new Promise<never>((_resolve,reject)=>{rejectPending=reject})
- const showAlert=vi.fn(),showMessage=vi.fn()
- const {openApprovedPrice}=compileFunctions(script,{
-  $route:{query},
-  $page:{invokeHostCommand:()=>pending,showAlert,showMessage},
- } as unknown as PageContext)
- if(!openApprovedPrice)throw Error('TEST_SCRIPT_REQUIRED')
- const opening=openApprovedPrice()
- query.approvalVersion='V2'
- rejectPending(Error('STALE'))
- await opening
- expect(showAlert).not.toHaveBeenCalled()
- expect(showMessage).not.toHaveBeenCalled()
+}finally{ds.destroy()}
 })

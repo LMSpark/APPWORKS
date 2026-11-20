@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/smart-bid-model-resolver",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/smart-bid-model-resolver",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-model-resolver\n职责：把生成 ClassModel 的 kind 解析为同名源码 class，并绑定当前 PageRuntime owner。\n边界：不声明 action、schema、guide 或 registration；这些只来自源码声明与编译产物。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T10:11:50.224Z",
+  "models": {
+    "SmartBidExecutable": {
+      "name": "SmartBidExecutable",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "object",
+        "members": {}
+      }
+    }
+  }
+}

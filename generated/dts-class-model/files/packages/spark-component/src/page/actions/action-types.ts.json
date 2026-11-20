@@ -32,6 +32,8 @@
       "ClearRowsAction",
       "SubmitCurrentFormAction",
       "SaveDataSetAction",
+      "DiscardChangesAction",
+      "HostCommandAction",
       "ActionExecutionContext",
       "ActionExecutionControl",
       "RouterLike"
@@ -187,6 +189,12 @@
         },
         {
           "$ref": "#/$defs/SaveDataSetAction"
+        },
+        {
+          "$ref": "#/$defs/DiscardChangesAction"
+        },
+        {
+          "$ref": "#/$defs/HostCommandAction"
         }
       ]
     },
@@ -208,7 +216,9 @@
         "refresh",
         "clear-rows",
         "submit-current-form",
-        "save-dataset"
+        "save-dataset",
+        "discard-changes",
+        "host-command"
       ]
     },
     "ActionRowTarget": {
@@ -274,6 +284,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -343,6 +359,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -424,6 +446,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -493,6 +521,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -542,6 +576,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         }
@@ -606,6 +646,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -682,6 +728,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -755,6 +807,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -828,6 +886,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -935,6 +999,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1074,6 +1144,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1190,6 +1266,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1318,6 +1400,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1462,6 +1550,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1595,6 +1689,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1704,6 +1804,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1813,6 +1919,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -1928,6 +2040,12 @@
             },
             {
               "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
             }
           ]
         },
@@ -2008,6 +2126,278 @@
       ],
       "additionalProperties": false
     },
+    "DiscardChangesAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DiscardChangesAction",
+      "properties": {
+        "action": {
+          "const": "discard-changes"
+        },
+        "then": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ShowMessageAction"
+            },
+            {
+              "$ref": "#/$defs/ShowConfirmAction"
+            },
+            {
+              "$ref": "#/$defs/ShowAlertAction"
+            },
+            {
+              "$ref": "#/$defs/NavigateAction"
+            },
+            {
+              "$ref": "#/$defs/OpenAction"
+            },
+            {
+              "$ref": "#/$defs/SetFieldAction"
+            },
+            {
+              "$ref": "#/$defs/AppendRowAction"
+            },
+            {
+              "$ref": "#/$defs/DeleteAction"
+            },
+            {
+              "$ref": "#/$defs/PatchAction"
+            },
+            {
+              "$ref": "#/$defs/MoveAction"
+            },
+            {
+              "$ref": "#/$defs/MessageRowAction"
+            },
+            {
+              "$ref": "#/$defs/RefreshAction"
+            },
+            {
+              "$ref": "#/$defs/ClearRowsAction"
+            },
+            {
+              "$ref": "#/$defs/SubmitCurrentFormAction"
+            },
+            {
+              "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
+            }
+          ]
+        },
+        "cancelDefault": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "silent": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "enum": [
+            "info",
+            "error",
+            "warning",
+            "success"
+          ]
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "target": {
+          "enum": [
+            "current",
+            "all"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "HostCommandAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostCommandAction",
+      "properties": {
+        "action": {
+          "const": "host-command"
+        },
+        "then": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ShowMessageAction"
+            },
+            {
+              "$ref": "#/$defs/ShowConfirmAction"
+            },
+            {
+              "$ref": "#/$defs/ShowAlertAction"
+            },
+            {
+              "$ref": "#/$defs/NavigateAction"
+            },
+            {
+              "$ref": "#/$defs/OpenAction"
+            },
+            {
+              "$ref": "#/$defs/SetFieldAction"
+            },
+            {
+              "$ref": "#/$defs/AppendRowAction"
+            },
+            {
+              "$ref": "#/$defs/DeleteAction"
+            },
+            {
+              "$ref": "#/$defs/PatchAction"
+            },
+            {
+              "$ref": "#/$defs/MoveAction"
+            },
+            {
+              "$ref": "#/$defs/MessageRowAction"
+            },
+            {
+              "$ref": "#/$defs/RefreshAction"
+            },
+            {
+              "$ref": "#/$defs/ClearRowsAction"
+            },
+            {
+              "$ref": "#/$defs/SubmitCurrentFormAction"
+            },
+            {
+              "$ref": "#/$defs/SaveDataSetAction"
+            },
+            {
+              "$ref": "#/$defs/DiscardChangesAction"
+            },
+            {
+              "$ref": "#/$defs/HostCommandAction"
+            }
+          ]
+        },
+        "cancelDefault": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "silent": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "enum": [
+            "info",
+            "error",
+            "warning",
+            "success"
+          ]
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "command": {
+          "type": "string"
+        },
+        "input": true,
+        "resultMethod": {
+          "type": "string"
+        },
+        "methodArgs": {
+          "type": "array",
+          "items": true
+        },
+        "prompt": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        "resultDataViewKey": {
+          "type": "string"
+        },
+        "resultPath": {
+          "type": "string"
+        },
+        "resultAlertTitle": {
+          "type": "string"
+        },
+        "resultAlertPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "command"
+      ],
+      "additionalProperties": false
+    },
     "ActionExecutionContext": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -2077,6 +2467,28 @@
             "object"
           ],
           "title": "PageServiceCapability"
+        },
+        "method.invokeHostCommand.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.invokeHostCommand.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.getRouteQuery.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRouteQuery.return": {
+          "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
         },
         "method.getRouter.params": {
           "type": "object",
@@ -2149,7 +2561,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T19:50:59.447Z",
+  "generatedAt": "2026-11-20T17:07:09.077Z",
   "models": {
     "ActionUiDecorator": {
       "name": "ActionUiDecorator",
@@ -2316,7 +2728,7 @@
       "jsdoc": "ActionDescriptor 判别联合。\n每种动作通过 `action` 字段（字符串字面量）区分，TypeScript 可利用\n此字段做详尽的 switch/if 窄化。所有 data-mutating 类型还继承 `ActionUiDecorator`。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ShowMessageAction | ShowConfirmAction | ShowAlertAction | NavigateAction | OpenAction | SetFieldAction | AppendRowAction | DeleteAction | PatchAction | MoveAction | MessageRowAction | RefreshAction | ClearRowsAction | SubmitCurrentFormAction | SaveDataSetAction",
+        "declarationTypeText": "ShowMessageAction | ShowConfirmAction | ShowAlertAction | NavigateAction | OpenAction | SetFieldAction | AppendRowAction | DeleteAction | PatchAction | MoveAction | MessageRowAction | RefreshAction | ClearRowsAction | SubmitCurrentFormAction | SaveDataSetAction | DiscardChangesAction | HostCommandAction",
         "declarationRelations": [
           {
             "kind": "union",
@@ -2392,6 +2804,16 @@
             "kind": "union",
             "typeText": "SaveDataSetAction",
             "targetName": "SaveDataSetAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "DiscardChangesAction",
+            "targetName": "DiscardChangesAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "HostCommandAction",
+            "targetName": "HostCommandAction"
           }
         ],
         "members": {}
@@ -2402,7 +2824,7 @@
       "jsdoc": "ActionDescriptor 的统一动作名集合（用于类型约束和穷举检查）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'show-message' | 'confirm' | 'alert' | 'navigate' | 'open' | 'set-field' | 'append-row' | 'delete' | 'patch' | 'move' | 'message-row' | 'refresh' | 'clear-rows' | 'submit-current-form' | 'save-dataset'",
+        "declarationTypeText": "'show-message' | 'confirm' | 'alert' | 'navigate' | 'open' | 'set-field' | 'append-row' | 'delete' | 'patch' | 'move' | 'message-row' | 'refresh' | 'clear-rows' | 'submit-current-form' | 'save-dataset' | 'discard-changes' | 'host-command'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -2463,6 +2885,14 @@
           {
             "kind": "union",
             "typeText": "'save-dataset'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'discard-changes'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'host-command'"
           }
         ],
         "members": {}
@@ -3372,12 +3802,138 @@
         }
       }
     },
+    "DiscardChangesAction": {
+      "name": "DiscardChangesAction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    action: 'discard-changes';\n    dataViewKey?: string;\n    target?: 'current' | 'all';\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    action: 'discard-changes';\n    dataViewKey?: string;\n    target?: 'current' | 'all';\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HostCommandAction": {
+      "name": "HostCommandAction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    action: 'host-command';\n    command: string;\n    input?: unknown;\n    resultMethod?: string;\n    methodArgs?: unknown[];\n    prompt?: Readonly<{\n        message: string;\n        title?: string;\n    }>;\n    resultDataViewKey?: string;\n    resultPath?: string;\n    resultAlertTitle?: string;\n    resultAlertPath?: string;\n    successMessage?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    action: 'host-command';\n    command: string;\n    input?: unknown;\n    resultMethod?: string;\n    methodArgs?: unknown[];\n    prompt?: Readonly<{\n        message: string;\n        title?: string;\n    }>;\n    resultDataViewKey?: string;\n    resultPath?: string;\n    resultAlertTitle?: string;\n    resultAlertPath?: string;\n    successMessage?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "command",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultMethod",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "methodArgs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultAlertTitle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultAlertPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "successMessage",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ActionExecutionContext": {
       "name": "ActionExecutionContext",
       "jsdoc": "动作执行上下文：执行器与调用方（容器/渲染器）之间的依赖注入接口。\n执行器不直接持有 Vue 组件或 DataSet 引用，而是通过此接口的工厂函数按需获取，\n从而保持执行器框架无关性并支持懒解析。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */\n    getDataSet: (scenarioId: string) => DataSetContract | null;\n    resolveView: (binding: string) => DataView | null;\n    /**\n     * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n     *\n     * 适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n     * 此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。\n     */\n    getDataSource?: () => DataView | null;\n    /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */\n    getPageService: () => PageServiceCapability | null;\n    /** 获取路由器（navigate 动作使用）；非路由环境返回 null */\n    getRouter: () => RouterLike | null;\n}",
+        "declarationTypeText": "{\n    /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */\n    getDataSet: (scenarioId: string) => DataSetContract | null;\n    resolveView: (binding: string) => DataView | null;\n    /**\n     * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n     *\n     * 适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n     * 此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。\n     */\n    getDataSource?: () => DataView | null;\n    /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */\n    getPageService: () => PageServiceCapability | null;\n    invokeHostCommand?: (name: string, input: unknown) => Promise<unknown>;\n    getRouteQuery?: () => Readonly<Record<string, unknown>>;\n    /** 获取路由器（navigate 动作使用）；非路由环境返回 null */\n    getRouter: () => RouterLike | null;\n}",
         "members": {
           "methods": [
             {
@@ -3464,6 +4020,59 @@
                   {
                     "type": "literal",
                     "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "invokeHostCommand",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getRouteQuery",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
                   }
                 ]
               }

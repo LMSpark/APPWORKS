@@ -1,11 +1,8 @@
-import {expect,it,vi} from 'vitest'
+import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredTenderOutcome} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
-import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -35,21 +32,9 @@ it('keeps recommendations and whole-round decisions separate and rejects another
   key==='S@TenderOutcome@officialRoundEvents'?round:undefined},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host)
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
-  const query={...scope,outcomeKnownAt:time}
-  const {openOutcome,bindOriginalSubmission}=compileFunctions(script,{$route:{query},$page:{
-   invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal),showAlert,showMessage,
-  }} as unknown as PageContext)
-  if(!openOutcome||!bindOriginalSubmission)throw Error('TEST_OUTCOME_PAGE_HANDLERS_REQUIRED')
-  expect(bindOriginalSubmission()).toEqual({visible:false})
-  await openOutcome()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith(
-   `主体 ENT · 获得推荐\n轮次 R · 已终止\n证据截至 ${time}\nREC · 获得推荐 · 原件 DOC\nSTOP · 整轮终止决定 · 原件 DOC`,'阶段结果')
-  const previous=openOutcome()
-  query.subjectId='OTHER'
-  await previous
-  expect(showAlert).toHaveBeenCalledTimes(1)
-  expect(showMessage).not.toHaveBeenCalled()
+  const signal=new AbortController().signal
+  const hostResult=await page.invoke('content.submission.readOutcome',{...scope,knownAt:time},signal)
+  expect(hostResult).toMatchObject({subjectState:'RECOMMENDED',roundState:'TERMINATED'})
   const result=await readRegisteredTenderOutcome(host,{...scope,knownAt:time})
   expect(result).toMatchObject({subjectState:'RECOMMENDED',roundState:'TERMINATED',evidence:[{eventRef:'REC'},{eventRef:'STOP'}]})
   expect(subject.queryContext).toMatchObject(scope)

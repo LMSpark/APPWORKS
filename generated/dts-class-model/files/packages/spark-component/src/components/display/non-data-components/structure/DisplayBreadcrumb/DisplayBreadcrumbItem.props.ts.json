@@ -42,7 +42,17 @@
         "label": {
           "type": "string"
         },
-        "to": true,
+        "to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "SmartBidExecutable"
+            }
+          ]
+        },
         "replace": {
           "enum": [
             false,

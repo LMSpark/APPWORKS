@@ -103,11 +103,41 @@
         "method.dispatchOperation.return": {
           "type": "object",
           "title": "Promise<SmartBidOperationResult>"
+        },
+        "method.dispatchAction.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "actionName": {
+                  "type": "string"
+                },
+                "input": {
+                  "$ref": "smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+                }
+              },
+              "required": [
+                "kind",
+                "actionName",
+                "input"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatchAction.return": {
+          "type": "object",
+          "title": "Promise<SmartBidActionResult>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T09:38:07.307Z",
+  "generatedAt": "2026-11-20T14:06:26.886Z",
   "models": {
     "SmartBidOperationCommand": {
       "name": "SmartBidOperationCommand",
@@ -247,6 +277,36 @@
                     "type": "reference",
                     "name": "SmartBidOperationResult",
                     "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispatchAction",
+              "jsdoc": "按生成 ClassModel 的 exact kind/actionName 解析到已编译模型方法，不建立第二套动作注册表。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        kind: string;\n        actionName: string;\n        input: SmartBidActionRequest;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SmartBidActionResult",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
                   }
                 ]
               }

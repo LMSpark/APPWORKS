@@ -189,9 +189,236 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "PreparedRelease": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreparedRelease",
+      "properties": {
+        "record": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "targetState": {
+                  "const": "ENABLED"
+                },
+                "typeCheckRef": {
+                  "type": "string"
+                },
+                "closureCheckRef": {
+                  "type": "string"
+                },
+                "reviewRef": {
+                  "type": "string"
+                },
+                "effectiveAt": false,
+                "stopScope": false,
+                "kind": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "expectedPointerVersion": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "action": {
+                  "enum": [
+                    "ENABLE",
+                    "DISABLE"
+                  ]
+                },
+                "decisionRef": {
+                  "type": "string"
+                },
+                "authorityRef": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "digest"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "targetState",
+                "typeCheckRef",
+                "closureCheckRef",
+                "reviewRef",
+                "kind",
+                "key",
+                "scopeId",
+                "requestKey",
+                "expectedPointerVersion",
+                "action",
+                "decisionRef",
+                "authorityRef",
+                "version"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "targetState": {
+                  "const": "DISABLED"
+                },
+                "effectiveAt": {
+                  "type": "string"
+                },
+                "stopScope": {
+                  "enum": [
+                    "NEW_SELECTION",
+                    "UNEXECUTED"
+                  ]
+                },
+                "typeCheckRef": false,
+                "closureCheckRef": false,
+                "reviewRef": false,
+                "kind": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "expectedPointerVersion": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "action": {
+                  "enum": [
+                    "ENABLE",
+                    "DISABLE"
+                  ]
+                },
+                "decisionRef": {
+                  "type": "string"
+                },
+                "authorityRef": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "digest"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "targetState",
+                "effectiveAt",
+                "stopScope",
+                "kind",
+                "key",
+                "scopeId",
+                "requestKey",
+                "expectedPointerVersion",
+                "action",
+                "decisionRef",
+                "authorityRef",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "record",
+        "requestDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "ReleaseOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReleaseOwner",
+      "$defs": {
+        "method.submitEnable.params": {
+          "type": "object",
+          "properties": {
+            "prepared": {
+              "$ref": "#/$defs/PreparedRelease"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.submitEnable.return": {
+          "type": "object",
+          "title": "Promise<JsonValue>"
+        },
+        "method.submitDisable.params": {
+          "type": "object",
+          "properties": {
+            "prepared": {
+              "$ref": "#/$defs/PreparedRelease"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.submitDisable.return": {
+          "type": "object",
+          "title": "Promise<JsonValue>"
+        }
+      }
     }
   },
-  "generatedAt": "2026-11-19T00:33:03.400Z",
+  "generatedAt": "2026-11-20T10:39:02.013Z",
   "models": {
     "Read": {
       "name": "Read",
@@ -309,6 +536,119 @@
       "typeAlias": {
         "declarationTypeText": "(selection: Prepare[0] & Readonly<{\n    versionId: string;\n    decisionRef: string;\n}>, signal: AbortSignal) => Promise<Readonly<{\n    decision: Extract<Prepare[2], {\n        action: 'DISABLE';\n    }>;\n}>>",
         "members": {}
+      }
+    },
+    "PreparedRelease": {
+      "name": "PreparedRelease",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareConfigurationRelease>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareConfigurationRelease>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "record",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ReleaseOwner": {
+      "name": "ReleaseOwner",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    submitEnable?: (prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>;\n    submitDisable?: (prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    submitEnable?: (prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>;\n    submitDisable?: (prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "submitEnable",
+              "parameters": [
+                {
+                  "name": "prepared",
+                  "type": {
+                    "type": "reference",
+                    "name": "PreparedRelease",
+                    "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "submitDisable",
+              "parameters": [
+                {
+                  "name": "prepared",
+                  "type": {
+                    "type": "reference",
+                    "name": "PreparedRelease",
+                    "sourcePath": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
     }
   }

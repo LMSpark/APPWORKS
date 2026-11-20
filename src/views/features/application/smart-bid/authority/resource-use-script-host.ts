@@ -11,6 +11,7 @@ import {readRegisteredResourceUseRegistration} from './resource-use-registration
 export function createResourceUseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Parameters<typeof readRegisteredResourceUseRegistration>[0],'runtime'>){
  return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
+  if(name==='authority.resourceUse.register')throw Error('RESOURCE_USE_COMMAND_CONTRACT_UNAVAILABLE')
   if(name!=='authority.resourceUse.readRegistration'||!isRecord(input))throw Error('RESOURCE_USE_PAGE_REQUEST')
   const {sourceEnterpriseId,recipientEnterpriseId,applicationRef,resourceVersionId,decisionChainId,requestKey,requestDigest}=input
   if(!identity(sourceEnterpriseId)||!identity(recipientEnterpriseId)||!identity(applicationRef)||!identity(resourceVersionId)||

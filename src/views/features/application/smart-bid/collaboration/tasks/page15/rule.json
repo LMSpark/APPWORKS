@@ -1,26 +1,13 @@
 [
-  {
-    "id": "bid-task-findings",
-    "type": "r-section",
-    "props": {"title": "任务问题回查"},
-    "children": [
-      {"type": "r-button", "props": {"label": "查看原检查问题", "onClick": "openBidFindings"}}
-    ]
-  },
-  {
-    "id": "bid-finding-registration",
-    "type": "r-section",
-    "props": {"title": "登记问题或检查覆盖", "onBeforeRender": "bindBidFindingRegistration"},
-    "children": [
-      {"type": "r-button", "props": {"label": "核对检查并生成登记请求", "onClick": "openBidFindingRegistration"}}
-    ]
-  },
-  {
-    "id": "bid-finding-recheck",
-    "type": "r-section",
-    "props": {"title": "问题复验", "onBeforeRender": "bindBidFindingRecheck"},
-    "children": [
-      {"type": "r-button", "props": {"label": "核验证据并生成复验请求", "onClick": "openBidFindingRecheck"}}
-    ]
-  }
+  {"id":"bid-task-findings","type":"r-section","props":{"title":"任务问题与复验"},"children":[
+    {"type":"r-toolbar","props":{"wrap":true},"children":[
+      {"type":"r-button","props":{"label":"查看原检查问题","action":"host-command","command":"bid.tasks.readFindings","input":{},"resultAlertTitle":"任务问题回查"}},
+      {"type":"r-button","props":{"label":"核对检查并生成登记请求","action":"host-command","command":"bid.tasks.prepareFindingRegistration","input":{"checkRef":{"$route":"findingCheckRef"},"requestKey":{"$route":"findingRegistrationKey"}},"routeQueryRequired":["findingCheckRef","findingRegistrationKey"],"resultAlertTitle":"登记问题或检查覆盖"}},
+      {"type":"r-button","props":{"label":"回查原问题登记","action":"host-command","command":"bid.tasks.readFindingRegistration","input":{"checkRef":{"$route":"findingCheckRef"},"requestKey":{"$route":"findingRegistrationKey"},"requestDigest":{"$route":"findingRegistrationDigest"}},"routeQueryRequired":["findingCheckRef","findingRegistrationKey","findingRegistrationDigest"],"resultAlertTitle":"原问题登记结果"}},
+      {"type":"r-button","props":{"label":"提交问题或检查覆盖登记","action":"host-command","command":"smart-bid.dispatch","input":{"operationId":"43","requestKey":{"$route":"findingRegistrationKey"},"prompt":"登记问题","inputs":{"checkRef":{"$route":"findingCheckRef"}}},"routeQueryRequired":["findingCheckRef","findingRegistrationKey"],"successMessage":"问题登记已提交"}},
+      {"type":"r-button","props":{"label":"核验证据并生成复验请求","action":"host-command","command":"bid.tasks.prepareRecheck","input":{"findingId":{"$route":"findingId"},"expectedFindingVersion":{"$route":"expectedFindingVersion"},"requestKey":{"$route":"recheckRequestKey"}},"routeQueryRequired":["findingId","expectedFindingVersion","recheckRequestKey"],"resultAlertTitle":"问题复验"}},
+      {"type":"r-button","props":{"label":"回查原复验结果","action":"host-command","command":"bid.tasks.readRecheckResult","input":{"findingId":{"$route":"findingId"},"expectedFindingVersion":{"$route":"expectedFindingVersion"},"requestKey":{"$route":"recheckRequestKey"},"requestDigest":{"$route":"recheckRequestDigest"}},"routeQueryRequired":["findingId","expectedFindingVersion","recheckRequestKey","recheckRequestDigest"],"resultAlertTitle":"原复验结果"}},
+      {"type":"r-button","props":{"label":"提交问题复验","action":"host-command","command":"smart-bid.dispatch","input":{"operationId":"44","requestKey":{"$route":"recheckRequestKey"},"prompt":"复验问题","inputs":{"findingId":{"$route":"findingId"},"expectedFindingVersion":{"$route":"expectedFindingVersion"}}},"routeQueryRequired":["findingId","expectedFindingVersion","recheckRequestKey"],"successMessage":"问题复验已提交"}}
+    ]}
+  ]}
 ]

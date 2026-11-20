@@ -11,6 +11,7 @@ import {readRegisteredAuthorityGrantRegistration} from './authority-grant-regist
 export function createAuthorityGrantScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Parameters<typeof readRegisteredAuthorityGrantRegistration>[0],'runtime'>){
  return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
+  if(name==='authority.grant.register')throw Error('AUTHORITY_GRANT_COMMAND_CONTRACT_UNAVAILABLE')
   if(name!=='authority.grant.readRegistration'||!isRecord(input))throw Error('AUTHORITY_GRANT_PAGE_REQUEST')
   const {grantId,requestKey,requestDigest}=input
   if(!identity(grantId)||!identity(requestKey)||!identity(requestDigest)||Object.hasOwn(input,'enterpriseId'))

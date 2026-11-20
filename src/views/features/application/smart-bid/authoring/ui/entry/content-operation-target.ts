@@ -11,6 +11,8 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentOperationScriptHost} from './content-operation-script-host'
+import {SmartBidOperationModule} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
+import {createSmartBidRuntimeActionExecutor} from '@/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner'
 
 /** 正式导航发布的应用、节点、工具和场景身份。 */
 type PublishedEntry=Readonly<{applicationId:string;nodeId:string;pageId:string;scenarioId:string}>
@@ -56,9 +58,13 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
    const binding=bindRoot(runtime,target)
    if(!identity(binding.rootKind))throw Error('OPERATION_PAGE_ROOT_REQUIRED')
    const {classModel,rootKind,resolveOriginalGuide,dispatchOperation,operationModule}=binding
+   const actionModule=operationModule??new SmartBidOperationModule(createSmartBidRuntimeActionExecutor({
+    runtime,scenarioId:target.scenarioId,assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()},
+   }))
    return createContentOperationScriptHost(runtime,classModel,{scenarioId:target.scenarioId,projectId:target.projectId,rootKind,
+    registrationId:'SmartBidOperationModule',runtimeInstanceId:runtime.call.instanceId,
     ...(resolveOriginalGuide?{resolveOriginalGuide}:{}),...(dispatchOperation?{dispatchOperation}:{}),
-    ...(operationModule?{operationModule}:{}),
+    operationModule:actionModule,
     assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()}})
   },
  }

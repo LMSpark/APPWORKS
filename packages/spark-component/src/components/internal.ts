@@ -29,6 +29,8 @@ export { default as SparkComponentRenderer } from './SparkComponentRenderer.vue'
 // ── 能力键 ──
 export {
   PAGE_SERVICE,
+  PAGE_HOST_COMMAND,
+  PAGE_ROUTE_QUERY,
   PAGE_RUNTIME,
   DATA_SOURCE,
   DATA_ROW,

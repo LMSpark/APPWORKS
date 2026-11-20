@@ -2,12 +2,48 @@
   {
     "id": "operation-workspace",
     "type": "r-section",
-    "props": {"title": "AI 作业与核验", "onBeforeRender": "bindDirectoryStatus"},
+    "props": {"title": "AI 作业与核验"},
     "children": [
       {
         "id": "operation-guide-directory",
         "type": "r-table",
-        "props": {"autoColumns": false, "highlightCurrentRow": true, "showPagination": false, "onBeforeRender": "bindDirectory", "onRowClick": "readGuide"},
+        "props": {
+          "dataViewKey": "KnowledgeGuide@effectiveDirectory",
+          "autoColumns": false,
+          "highlightCurrentRow": true,
+          "showPagination": false,
+          "toolbar": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "读取操作目录",
+                  "action": "host-command",
+                  "command": "content.operation.discover",
+                  "input": {"directoryRef": {"$route": "directoryRef"}},
+                  "successMessage": "操作目录已读取"
+                }
+              }
+            ]
+          },
+          "actions": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "查看指南",
+                  "action": "host-command",
+                  "command": "content.operation.discover",
+                  "input": {"directoryRef": {"$route": "directoryRef"}},
+                  "resultMethod": "readGuide",
+                  "methodArgs": [{"$rowKey": true}, {"$row": true}],
+                  "resultAlertPath": "guide",
+                  "resultAlertTitle": "动作指南"
+                }
+              }
+            ]
+          }
+        },
         "children": [
           {"type": "r-text", "props": {"field": "guideRef", "label": "指南", "readonly": true}},
           {"type": "r-text", "props": {"field": "versionRef", "label": "版本", "readonly": true}},
@@ -18,21 +54,122 @@
     ]
   },
   {
+    "id": "operation-agent-dispatch",
+    "type": "r-section",
+    "props": {"title": "当前操作"},
+    "children": [
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "派发当前操作",
+              "action": "host-command",
+              "command": "content.operation.dispatch",
+              "input": {
+                "operationId": {"$route": "operationId"},
+                "requestKey": {"$route": "requestKey"},
+                "prompt": {"$route": "operationPrompt"},
+                "inputs": {"$route": "operationInputs", "parse": "json"}
+              },
+              "resultAlertTitle": "AI 作业派发结果"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "original-operation-dispatch",
     "type": "r-section",
-    "props": {"title": "原试次实发记录", "onBeforeRender": "bindOriginalDispatch"},
+    "props": {"title": "原试次实发记录"},
     "children": [
-      {"type": "r-button", "props": {"label": "重查原试次", "onBeforeRender": "bindRefreshOriginalDispatch", "onClick": "refreshOriginalDispatch"}},
-      {"type": "r-button", "props": {"label": "查看原实发 JSON", "onBeforeRender": "bindActualInput", "onClick": "openActualInput"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "重查原试次",
+              "action": "host-command",
+              "command": "content.operation.readDispatch",
+              "input": {
+                "runId": {"$route": "runId"},
+                "attemptRef": {"$route": "attemptRef"},
+                "requestKey": {"$route": "requestKey"},
+                "targetDigest": {"$route": "targetDigest"},
+                "configurationLockHash": {"$route": "configurationLockHash"}
+              },
+              "resultAlertTitle": "原试次实发记录"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看原实发 JSON",
+              "action": "host-command",
+              "command": "content.operation.readDispatch",
+              "input": {
+                "runId": {"$route": "runId"},
+                "attemptRef": {"$route": "attemptRef"},
+                "requestKey": {"$route": "requestKey"},
+                "targetDigest": {"$route": "targetDigest"},
+                "configurationLockHash": {"$route": "configurationLockHash"}
+              },
+              "resultMethod": "readActualInput",
+              "resultAlertTitle": "原实发 JSON"
+            }
+          }
+        ]
+      }
     ]
   },
   {
     "id": "original-operation-verification",
     "type": "r-section",
-    "props": {"title": "原试次返回核验", "onBeforeRender": "bindOriginalVerification"},
+    "props": {"title": "原试次返回核验"},
     "children": [
-      {"type": "r-button", "props": {"label": "查看已核候选 JSON", "onBeforeRender": "bindVerifiedCandidate", "onClick": "openVerifiedCandidate"}},
-      {"type": "r-button", "props": {"label": "查看返工交接", "onBeforeRender": "bindRework", "onClick": "prepareRework"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看已核候选 JSON",
+              "action": "host-command",
+              "command": "content.operation.readDispatch",
+              "input": {
+                "runId": {"$route": "runId"},
+                "attemptRef": {"$route": "attemptRef"},
+                "requestKey": {"$route": "requestKey"},
+                "targetDigest": {"$route": "targetDigest"},
+                "configurationLockHash": {"$route": "configurationLockHash"}
+              },
+              "resultMethod": "verification.readCandidate",
+              "resultAlertTitle": "已核候选 JSON"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看返工交接",
+              "action": "host-command",
+              "command": "content.operation.prepareRework",
+              "input": {
+                "runId": {"$route": "runId"},
+                "attemptRef": {"$route": "attemptRef"},
+                "requestKey": {"$route": "requestKey"},
+                "targetDigest": {"$route": "targetDigest"},
+                "configurationLockHash": {"$route": "configurationLockHash"},
+                "reason": {"$prompt": true}
+              },
+              "prompt": {"message": "请说明本次返工原因", "title": "准备返工交接"},
+              "resultAlertTitle": "返工交接预览"
+            }
+          }
+        ]
+      }
     ]
   }
 ]

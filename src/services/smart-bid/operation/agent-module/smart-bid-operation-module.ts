@@ -3,7 +3,10 @@
  * 职责：SmartBid 前端 Agent 的 ClassModel 根模块，将正式 action guide 编排为当前 PageRuntime owner 的一次工具执行。
  * 边界：不持久化业务状态、不解析低层 CRUD、不读取凭据；执行回调由可信宿主按当前 DataView/file/command owner 提供。
  */
-import type {JsonParams,JsonValue} from '@spark-appworks/spark-json-document'
+import {coerceStrictJsonValue,type JsonParams,type JsonValue} from '@spark-appworks/spark-json-document'
+import {isRecord} from '@spark-appworks/spark-utils'
+import type {SmartBidActionRequest,SmartBidActionResult} from './smart-bid-action-module'
+import {resolveSmartBidModel} from './smart-bid-model-resolver'
 
 /** 同次 Agent turn 固定的业务动作输入。 */
 export type SmartBidOperationCommand=Readonly<{
@@ -40,5 +43,26 @@ export class SmartBidOperationModule {
    throw Error('SMART_BID_OPERATION_SCOPE')
   const outcome=await this.executeOperation(command)
   return Object.freeze({operationId:command.operationId,requestKey:command.requestKey,outcome})
+ }
+
+ /** 按生成 ClassModel 的 exact kind/actionName 解析到已编译模型方法，不建立第二套动作注册表。 */
+ public async dispatchAction(command:Readonly<{
+  kind:string;actionName:string;input:SmartBidActionRequest
+ }>):Promise<SmartBidActionResult>{
+  if(!command.kind.trim()||command.kind!==command.kind.trim()||!command.actionName.trim()||
+   command.actionName!==command.actionName.trim())throw Error('SMART_BID_MODEL_ACTION_REQUIRED')
+  const model=resolveSmartBidModel(command.kind,async input=>this.executeOperation(input))
+  const descriptor=Object.getOwnPropertyDescriptor(Object.getPrototypeOf(model),command.actionName)
+  const method:unknown=descriptor?.value
+  if(typeof method!=='function')throw Error('SMART_BID_MODEL_ACTION_UNAVAILABLE')
+  const result:unknown=await Reflect.apply(method,model,[command.input])
+  if(!isRecord(result)||typeof result['operationId']!=='string'||typeof result['requestKey']!=='string'||
+   !Object.hasOwn(result,'outcome'))throw Error('SMART_BID_MODEL_ACTION_RESULT_INVALID')
+  const outcome=coerceStrictJsonValue(result['outcome'])
+  if(outcome===undefined)throw Error('SMART_BID_MODEL_ACTION_RESULT_INVALID')
+  return Object.freeze({
+   operationId:result['operationId'],requestKey:result['requestKey'],
+   outcome,
+  })
  }
 }

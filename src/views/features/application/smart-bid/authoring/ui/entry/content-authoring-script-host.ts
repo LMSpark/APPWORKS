@@ -31,6 +31,7 @@ type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0
 type DraftCandidateInput=Readonly<{
  requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number;declaredAddedNodeIds?:readonly string[]
 }>
+type PublishedContentAuthoringInvoke=(name:string,input:unknown,signal:AbortSignal)=>Promise<unknown>
 
 function isUncachedContentRead(view:NonNullable<ReturnType<PageRuntime['resolveView']>>){
  const {cacheType}=view.queryConfig
@@ -45,15 +46,16 @@ export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:C
   assertSession()
   if(runtime.destroyed)throw Error('CONTENT_PAGE_RENDER_STALE')
  }
- return {runtime,assertCurrent,
-  async invoke(name:string,input:unknown,signal:AbortSignal):Promise<ContentAuthoringScriptSession>{
+ const invoke:PublishedContentAuthoringInvoke=async(
+  name:string,input:unknown,signal:AbortSignal,
+ )=>{
    const generation=runtime.generation
    const assertRender=()=>{
     assertCurrent()
     if(signal.aborted||!runtime.isLoaded||runtime.generation!==generation)throw Error('CONTENT_PAGE_RENDER_STALE')
    }
    assertRender()
-   if(name!=='content.authoring.connect'||input!==undefined)throw Error('CONTENT_PAGE_COMMAND_UNKNOWN')
+   if(name==='content.authoring.connect'&&input!==undefined)throw Error('CONTENT_PAGE_COMMAND_UNKNOWN')
    if(active?.generation!==generation){
     const owner=new ContentAuthoringHost(runtime)
     const connection=owner.open(target).then(binding=>{
@@ -68,9 +70,51 @@ export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:C
    }
    const host=await active.connection
    assertRender()
-   return host.invoke(name,input,signal)
-  },
+   const session=host.invoke('content.authoring.connect',undefined,signal)
+   if(name==='content.authoring.connect')return session
+   if(!isRecord(input))throw Error('CONTENT_PAGE_COMMAND_INPUT_REQUIRED')
+   if(name==='content.authoring.readObligations'&&Object.keys(input).length===0)
+    return session.readVolumePlanningObligations()
+   if(name==='content.authoring.readOriginalForm')
+    return session.readOriginalForm({templateRef:String(input['templateRef']),templateVersion:String(input['templateVersion'])})
+   if(name==='content.authoring.compareOriginalForms')
+    return session.compareOriginalForms({templateRef:String(input['templateRef']),previousVersion:String(input['previousVersion']),currentVersion:String(input['currentVersion'])})
+   if(name==='content.authoring.readOriginalAdoption'&&Object.keys(input).length===4)
+    return session.readOriginalAdoption({
+     candidateRevisionId:String(input['candidateRevisionId']),requestKey:String(input['requestKey']),
+     requestDigest:String(input['requestDigest']),previewRef:String(input['previewRef'])})
+   if(name==='content.authoring.readOriginalSave'&&Object.keys(input).length===4)
+    return session.readOriginalSave({
+     requestKey:String(input['requestKey']),requestDigest:String(input['requestDigest']),
+     contentDigest:String(input['contentDigest']),expectedDraftVersion:input['expectedDraftVersion']===null?null:String(input['expectedDraftVersion'])})
+   if(name==='content.authoring.readCurrentHead'&&Object.keys(input).length===0)
+    return session.readCurrentHead()
+   if(name==='content.authoring.previewCandidate'&&isRecord(input['options'])){
+    const options=input['options']
+    const declaredAddedNodeIds=Array.isArray(options['declaredAddedNodeIds'])
+     ? options['declaredAddedNodeIds'].filter((value):value is string=>typeof value==='string') : []
+    const originalForm=isRecord(options['originalFormTemplate'])?options['originalFormTemplate']:undefined
+    const preview:CandidatePreviewInput={declaredAddedNodeIds,
+     ...(originalForm?{originalFormTemplate:{documentId:String(originalForm['documentId']),templateRef:String(originalForm['templateRef']),
+      templateVersion:String(originalForm['templateVersion'])}}:{})}
+    return session.previewCandidate({
+     candidateRevisionId:String(input['candidateRevisionId']),
+     expectedHead:input['expectedHead']===undefined||input['expectedHead']===null?null:String(input['expectedHead']),
+    },preview)
+   }
+   if(name==='content.authoring.prepareCandidate'){
+    const declared=Array.isArray(input['declaredAddedNodeIds'])
+     ? input['declaredAddedNodeIds'].filter((value):value is string=>typeof value==='string') : undefined
+    const request:DraftCandidateInput={requestKey:String(input['requestKey']),
+     ...(input['targetScope']===undefined?{}:{targetScope:input['targetScope']}),
+     ...(input['firstBatchId']===undefined?{}:{firstBatchId:String(input['firstBatchId'])}),
+     ...(typeof input['targetScopeIndex']==='number'?{targetScopeIndex:input['targetScopeIndex']}:{ }),
+     ...(declared?{declaredAddedNodeIds:declared}:{})}
+    return session.prepareDraftCandidate(request)
+   }
+   throw Error('CONTENT_PAGE_COMMAND_UNKNOWN')
  }
+ return {runtime,assertCurrent,invoke}
 }
 /** 脚本句柄只有业务能力和选择代次，没有业务数据副本。 */
 export type ContentAuthoringScriptSession=Readonly<{

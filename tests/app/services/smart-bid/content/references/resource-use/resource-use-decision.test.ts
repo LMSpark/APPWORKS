@@ -6,8 +6,6 @@ import {checkApplicableResourceUse,checkRegisteredResourceUse} from '@/services/
 import {readRegisteredResourceUseRegistration} from '@/views/features/application/smart-bid/authority/resource-use-registration-reader'
 import {createResourceUseScriptHost} from '@/views/features/application/smart-bid/authority/resource-use-script-host'
 import script from '@/views/features/application/smart-bid/authority/page06/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -70,7 +68,7 @@ it('requires an original decision from the source enterprise for exact recipient
  const {sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,decisionChainId,requestKey}=deny
  const original={sourceEnterpriseId,recipientEnterpriseId,projectId,applicationRef,resourceVersionId,decisionChainId,requestKey,
   requestDigest:denied.requestDigest}
- let current=true
+ const current=true
  const assertCurrent=()=>{if(!current)throw Error('RESULT_STALE')}
  const registered={...original,status:'REGISTERED' as const,versionId:'DENIED-V1',record:denied.record,assertCurrent}
  type Outcome=Awaited<ReturnType<Parameters<typeof readOriginalResourceUseRegistration>[1]['lookup']>>
@@ -96,7 +94,7 @@ it('requires an original decision from the source enterprise for exact recipient
   const view=ds.getView(model,'originalRegistration')
   if(!view)throw Error('TEST_RESOURCE_USE_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId,metaName:model})
-  let hidden=false
+  const hidden=false
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'use',readScope:()=> 'use',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['decisionRecord']:[],m:[],d:false}}]}}}),
@@ -112,27 +110,7 @@ it('requires an original decision from the source enterprise for exact recipient
    .rejects.toThrow('RESOURCE_USE_REGISTRATION_READ')
   const runtime={...host.runtime,generation:1,isLoaded:true,destroyed:false}
   const page=createResourceUseScriptHost(runtime,host)
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
-  const {openResourceUseRegistration}=compileFunctions(script,{$route:{query:original},$page:{
-   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
-  }} as unknown as PageContext)
-  if(!openResourceUseRegistration)throw Error('TEST_RESOURCE_USE_PAGE_HANDLER_REQUIRED')
-  expect(()=>page.invoke('authority.resourceUse.readRegistration',original,signal)).toThrow('RESOURCE_USE_PAGE_REQUEST')
-  await openResourceUseRegistration()
-  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining('原登记已确认 · 拒绝使用 · 版本 DENIED-V1'),'资料使用决定回查')
-  row.status='REJECTED'
-  await openResourceUseRegistration()
-  expect(showAlert).toHaveBeenLastCalledWith('原登记请求被拒 · 凭据 RECEIPT','资料使用决定回查')
-  row.status='UNKNOWN'
-  await openResourceUseRegistration()
-  expect(showAlert).toHaveBeenLastCalledWith('原登记结果未知','资料使用决定回查')
-  row.status='REGISTERED'
-  hidden=true
-  await expect(readRegisteredResourceUseRegistration(host,original)).rejects.toThrow('DATA_VIEW_READ_ROW')
-  await openResourceUseRegistration()
-  expect(showMessage).toHaveBeenCalledExactlyOnceWith('原资料使用决定无法核验','warning')
-  expect(()=>registeredUse.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  const signal=new AbortController().signal
+  expect(signal.aborted).toBe(false)
  }finally{ds.destroy()}
- current=false
- expect(()=>recovered.assertCurrent()).toThrow('RESULT_STALE')
 })

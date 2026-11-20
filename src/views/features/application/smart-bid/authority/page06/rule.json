@@ -2,9 +2,36 @@
   {
     "id": "resource-use-registration",
     "type": "r-section",
-    "props": {"title": "资料使用决定回查", "onBeforeRender": "bindResourceUseRegistration"},
+    "props": {"title": "资料使用决定回查"},
     "children": [
-      {"type": "r-button", "props": {"label": "查询原登记结果", "onClick": "openResourceUseRegistration"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查询原登记结果",
+              "action": "host-command",
+              "command": "authority.resourceUse.readRegistration",
+              "routeQueryRequired": [
+                "sourceEnterpriseId", "recipientEnterpriseId", "applicationRef",
+                "resourceVersionId", "decisionChainId", "requestKey", "requestDigest"
+              ],
+              "input": {
+                "sourceEnterpriseId": {"$route": "sourceEnterpriseId"},
+                "recipientEnterpriseId": {"$route": "recipientEnterpriseId"},
+                "applicationRef": {"$route": "applicationRef"},
+                "resourceVersionId": {"$route": "resourceVersionId"},
+                "decisionChainId": {"$route": "decisionChainId"},
+                "requestKey": {"$route": "requestKey"},
+                "requestDigest": {"$route": "requestDigest"}
+              },
+              "resultAlertTitle": "资料使用决定回查",
+              "errorMessage": "原资料使用决定无法核验"
+            }
+          }
+        ]
+      }
     ]
   }
 ]

@@ -30,7 +30,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T16:40:15.140Z",
+  "generatedAt": "2026-11-20T17:10:16.089Z",
   "models": {
     "RendererProps": {
       "name": "RendererProps",

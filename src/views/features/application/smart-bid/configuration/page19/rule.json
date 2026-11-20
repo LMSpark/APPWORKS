@@ -2,33 +2,143 @@
   {
     "id": "configuration-current-pointer",
     "type": "r-section",
-    "props": {"title": "当前配置指针", "onBeforeRender": "bindConfigurationChannel"},
+    "props": {"title": "当前配置指针"},
     "children": [
-      {"type": "r-button", "props": {"label": "读取当前配置指针", "onClick": "openConfigurationChannel"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "读取当前配置指针",
+              "action": "host-command",
+              "command": "configuration.release.readCurrentChannel",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"}
+              },
+              "resultAlertTitle": "当前配置指针"
+            }
+          }
+        ]
+      }
     ]
   },
   {
     "id": "configuration-release-recovery",
     "type": "r-section",
-    "props": {"title": "配置启停回查", "onBeforeRender": "bindConfigurationRelease"},
+    "props": {"title": "配置启停回查"},
     "children": [
-      {"type": "r-button", "props": {"label": "查询原启停结果", "onClick": "openConfigurationRelease"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查询原启停结果",
+              "action": "host-command",
+              "command": "configuration.release.readOriginal",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"},
+                "requestKey": {"$route": "releaseRequestKey"},
+                "requestDigest": {"$route": "releaseRequestDigest"},
+                "versionId": {"$route": "configurationVersionId"},
+                "versionDigest": {"$route": "configurationVersionDigest"},
+                "action": {"$route": "releaseAction"},
+                "expectedPointerVersion": {"$route": "expectedPointerVersion", "default": null}
+              },
+              "resultAlertTitle": "配置启停回查"
+            }
+          }
+        ]
+      }
     ]
   },
   {
     "id": "configuration-release-candidate",
     "type": "r-section",
-    "props": {"title": "配置候选核验", "onBeforeRender": "bindConfigurationCandidate"},
+    "props": {"title": "配置候选核验"},
     "children": [
-      {"type": "r-button", "props": {"label": "核对候选与当前版本", "onClick": "openConfigurationCandidate"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "核对候选与当前版本",
+              "action": "host-command",
+              "command": "configuration.release.prepareEnable",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"},
+                "versionId": {"$route": "configurationVersionId"},
+                "requestKey": {"$route": "candidateRequestKey"}
+              },
+              "resultAlertTitle": "配置候选核验"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "提交启用请求",
+              "action": "host-command",
+              "command": "configuration.release.submitEnable",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"},
+                "versionId": {"$route": "configurationVersionId"},
+                "requestKey": {"$route": "candidateRequestKey"}
+              },
+              "successMessage": "配置启用请求已提交"
+            }
+          }
+        ]
+      }
     ]
   },
   {
     "id": "configuration-disable-decision",
     "type": "r-section",
-    "props": {"title": "配置停用核验", "onBeforeRender": "bindConfigurationDisable"},
+    "props": {"title": "配置停用核验"},
     "children": [
-      {"type": "r-button", "props": {"label": "核对停用决定与当前版本", "onClick": "openConfigurationDisable"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "核对停用决定与当前版本",
+              "action": "host-command",
+              "command": "configuration.release.prepareDisable",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"},
+                "versionId": {"$route": "configurationVersionId"},
+                "requestKey": {"$route": "disableRequestKey"},
+                "decisionRef": {"$route": "disableDecisionRef"}
+              },
+              "resultAlertTitle": "配置停用核验"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "提交停用请求",
+              "action": "host-command",
+              "command": "configuration.release.submitDisable",
+              "input": {
+                "kind": {"$route": "configurationKind"},
+                "key": {"$route": "configurationKey"},
+                "versionId": {"$route": "configurationVersionId"},
+                "requestKey": {"$route": "disableRequestKey"},
+                "decisionRef": {"$route": "disableDecisionRef"}
+              },
+              "successMessage": "配置停用请求已提交"
+            }
+          }
+        ]
+      }
     ]
   }
 ]

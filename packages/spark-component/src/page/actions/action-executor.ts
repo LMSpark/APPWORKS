@@ -36,7 +36,8 @@ import type {
   OpenAction,
 } from './action-types'
 import { isCancellableControl, type CancellableControl } from '../../components/containers/support/interactionControl.js'
-import { Logger } from '@spark-appworks/spark-utils'
+import { Logger,isRecord } from '@spark-appworks/spark-utils'
+import {parseJsonValue} from '@spark-appworks/spark-json-document'
 import type { DataRow, DataView } from '@spark-appworks/spark-data'
 import type { PageMessageType } from '../../components/internal'
 import {
@@ -58,6 +59,7 @@ import {
   executeMessageRow,
   executeRefresh,
   executeClearRows,
+  executeDiscardChanges,
   executeSetField,
   executeSaveDataSet,
   executeSubmitCurrentForm,
@@ -69,6 +71,67 @@ import {
 function executeShowMessage(desc: ShowMessageAction, ctx: ActionExecutionContext): void {
   const ps = ctx.getPageService()
   if (ps) ps.showMessage(desc.message, desc.messageType ?? 'info')
+}
+
+type HostCommandInputContext=Readonly<{
+ query:Readonly<Record<string,unknown>>
+ scope:ActionExecutionScope|undefined
+ dataSource:DataView|null|undefined
+ promptValue:string|undefined
+}>
+
+function collectHostCommandRouteKeys(value:unknown,keys:Set<string>):void{
+ if(Array.isArray(value)) {
+ for(const item of value)collectHostCommandRouteKeys(item,keys)
+ return
+ }
+ if(!isRecord(value))return
+ if(typeof value['$route']==='string')keys.add(value['$route'])
+ for(const item of Object.values(value))collectHostCommandRouteKeys(item,keys)
+}
+
+function resolveHostCommandInput(value:unknown,context:HostCommandInputContext):unknown{
+ if(Array.isArray(value))return value.map(item=>resolveHostCommandInput(item,context))
+ if(!isRecord(value))return value
+ const record=value
+ if(typeof record['$route']==='string') {
+  const selected=context.query[record['$route']] ?? record['default']
+  if(record['parse']==='json') {
+   if(typeof selected!=='string')throw Error('host-command 路由 JSON 输入缺失')
+   return parseJsonValue(selected)
+  }
+  return selected
+ }
+ if(record['$rowKey']===true) {
+  const row=context.scope?.row
+  return row && context.dataSource ? context.dataSource.getPkKey(row) : undefined
+ }
+ if(record['$row']===true)return context.scope?.row
+ if(typeof record['$row']==='string')return context.scope?.row?.[record['$row']]
+ if(record['$prompt']===true)return context.promptValue
+ return Object.fromEntries(Object.entries(record).map(([key,item])=>[key,resolveHostCommandInput(item,context)]))
+}
+
+function readHostCommandResultPath(value:unknown,path:string):unknown{
+ if(!path.trim())return value
+ return path.split('.').reduce<unknown>((current,part)=>{
+  if(!isRecord(current))return undefined
+  return current[part]
+ },value)
+}
+
+function serializeHostCommandResult(value:unknown):string{
+ return JSON.stringify(value,(_key:string,item:unknown)=>typeof item==='function'?undefined:item)
+}
+
+async function callHostCommandResultMethod(result:unknown,methodPath:string,args:unknown[]):Promise<unknown>{
+ const parts=methodPath.split('.').filter(Boolean)
+ if(parts.length===0)throw Error('host-command 结果方法为空')
+ const methodName=parts.pop()
+ const owner=parts.length===0?result:readHostCommandResultPath(result,parts.join('.'))
+ const method=methodName && isRecord(owner) ? owner[methodName] : undefined
+ if(typeof method!=='function')throw Error('host-command 结果方法缺失')
+ return await Reflect.apply(method,owner,args)
 }
 
 /** 展示 Alert 弹窗（异步阻塞，只有确认按钮）。 */
@@ -262,6 +325,7 @@ function resolveActionDataCapabilitiesForGuard(
     case 'refresh':
     case 'clear-rows':
     case 'submit-current-form':
+    case 'discard-changes':
       return resolveActionDataCapabilities(descriptor.dataViewKey, ctx)
     case 'show-message':
     case 'confirm':
@@ -269,6 +333,8 @@ function resolveActionDataCapabilitiesForGuard(
     case 'navigate':
     case 'open':
     case 'save-dataset':
+      return { dataSource: null }
+    case 'host-command':
       return { dataSource: null }
     default:
       return { dataSource: null }
@@ -326,6 +392,8 @@ function decoratorOf(descriptor: ActionDescriptor): ActionUiDecorator | undefine
     case 'clear-rows':
     case 'submit-current-form':
     case 'save-dataset':
+    case 'discard-changes':
+    case 'host-command':
       return descriptor
     default:
       return undefined
@@ -437,6 +505,64 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
     case 'save-dataset':
       await executeSaveDataSet(descriptor, ctx)
       return
+    case 'discard-changes':
+      executeDiscardChanges(descriptor, ctx)
+      return
+    case 'host-command': {
+      if(!descriptor.command.trim()||!ctx.invokeHostCommand)throw Error('host-command 缺少命令宿主')
+      const querySnapshotSource=ctx.getRouteQuery?.()??{}
+      const pageService=ctx.getPageService()
+      const promptValue=descriptor.prompt
+        ? await pageService?.showPrompt(descriptor.prompt.message,descriptor.prompt.title??'输入')
+        : undefined
+      if(descriptor.prompt&&!promptValue)return
+      const inputContext:HostCommandInputContext={
+       query:querySnapshotSource,scope,
+       dataSource:ctx.getDataSource?.()??null,
+       promptValue:promptValue??undefined,
+      }
+      const routeKeys=new Set<string>()
+      collectHostCommandRouteKeys(descriptor.input,routeKeys)
+      collectHostCommandRouteKeys(descriptor.methodArgs,routeKeys)
+      const routeSnapshot=Object.fromEntries(Array.from(routeKeys).map(key=>[key,inputContext.query[key]]))
+      const assertRouteCurrent=()=>{
+       const current=ctx.getRouteQuery?.()??{}
+       for(const [key,value] of Object.entries(routeSnapshot)) {
+        if(current[key]!==value)throw Error('host-command 路由输入已失效')
+       }
+      }
+      const commandInput=resolveHostCommandInput(descriptor.input,inputContext)
+      let result=await ctx.invokeHostCommand(descriptor.command,commandInput)
+      assertRouteCurrent()
+      const assertCurrent = result !== null && typeof result === 'object' && 'assertCurrent' in result
+        ? result['assertCurrent'] : undefined
+      if(typeof assertCurrent==='function')Reflect.apply(assertCurrent,result,[])
+      if(descriptor.resultMethod) {
+       const args=(descriptor.methodArgs??[]).map(value=>resolveHostCommandInput(value,inputContext))
+       result=await callHostCommandResultMethod(result,descriptor.resultMethod,args)
+       assertRouteCurrent()
+       const methodAssert=result !== null && typeof result === 'object' && 'assertCurrent' in result
+        ? result['assertCurrent'] : undefined
+       if(typeof methodAssert==='function')Reflect.apply(methodAssert,result,[])
+      }
+      if(descriptor.resultDataViewKey){
+       const view=ctx.resolveView(descriptor.resultDataViewKey)
+       if(!view)throw Error('host-command 结果 DataView 未就绪')
+       const selected=descriptor.resultPath?readHostCommandResultPath(result,descriptor.resultPath):result
+       const json=parseJsonValue(serializeHostCommandResult(selected))
+       const values=Array.isArray(json)?json:[json]
+       const rows:DataRow[]=[]
+       for(const value of values)if(isRecord(value))rows.push({...value})
+       view.replaceRows(rows)
+      }
+      if(descriptor.resultAlertTitle){
+       const selected=descriptor.resultAlertPath?readHostCommandResultPath(result,descriptor.resultAlertPath):result
+       const text=typeof selected==='string'?selected:serializeHostCommandResult(selected)
+       await ctx.getPageService()?.showAlert(text,descriptor.resultAlertTitle,{})
+      }
+      if(descriptor.successMessage)ctx.getPageService()?.showMessage(descriptor.successMessage,'success')
+      return
+    }
     default: {
       const exhaustive: never = descriptor
       logger.warn(`未知 action 类型: ${readUnknownActionName(exhaustive)}`)

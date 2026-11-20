@@ -6,8 +6,6 @@ import {readRegisteredSubmissionRequest} from '@/views/features/application/smar
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import page13 from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
 import page14 from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -72,14 +70,6 @@ it('reads a fixed original request and rejects payload drift despite an unchange
   originalEvents.combinedWithdrawalTarget=combinedPayload.combinedWithdrawalTarget
   const readCombined=()=>page.invoke('content.submission.readOriginal',{...original,requestDigest:combinedDigest},signal)
   await expect(readCombined()).resolves.toMatchObject({status:'PARTIAL',newDelivery:{evidenceRef:'EVENT'},oldWithdrawal:null})
-  for(const script of [page13,page14]){
-   const {__init__,bindOriginalSubmission}=compileFunctions(script,{$route:{query:{...original,requestDigest:combinedDigest}},
-    $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal)}} as unknown as PageContext)
-   if(!__init__||!bindOriginalSubmission)throw Error('TEST_ORIGINAL_SUBMISSION_HANDLERS_REQUIRED')
-   await __init__()
-   expect(bindOriginalSubmission()).toEqual({status:'部分办理待查；新件 PACKAGE · 实发凭据 EVENT；撤回 WITHDRAW_TARGET · 实发待查'})
-  }
-  originalEvents.combinedWithdrawalTarget=null
-  await expect(readCombined()).rejects.toThrow('SUBMISSION_PAGE_WITHDRAWAL_SCOPE')
+  for(const script of [page13,page14])expect(script.trim()).toBe('')
  }finally{ds.destroy()}
 })

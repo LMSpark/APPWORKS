@@ -15,7 +15,8 @@ it('exposes one trusted frontend SSE dispatch command through the current PageRu
  },{
   scenarioId:'SPACE',projectId:'P',rootKind:'OperationRoute',assertCurrent:()=>{},dispatchOperation,
  })
- const input={registrationId:'bid.operation',attemptRef:'ATTEMPT'}
+ const input={operationId:'39',registrationId:'bid.operation',businessInstanceId:'P',
+  runtimeInstanceId:'RUNTIME',requestKey:'Q',prompt:'采用候选',inputs:{revisionId:'REV'}}
  const controller=new AbortController()
 
  const result=await host.invoke('content.operation.dispatch',input,controller.signal)
@@ -23,6 +24,25 @@ it('exposes one trusted frontend SSE dispatch command through the current PageRu
  expect(dispatchOperation).toHaveBeenCalledOnce()
  expect(dispatchOperation.mock.calls[0]?.[0]).toMatchObject({input,signal:controller.signal})
  expect(result).toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN'})
+})
+
+it('does not fall through to direct ClassModel execution when an SSE dispatcher is bound',async()=>{
+ const runtime={generation:1,destroyed:false,isLoaded:true,resolveView:()=>undefined}
+ const direct=vi.fn(async()=>({receiptRef:'DIRECT'}))
+ const dispatchOperation=vi.fn(async()=>({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNKNOWN' as const,
+  turnId:'TURN',attempt:{runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',
+   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}}))
+ const host=createContentOperationScriptHost(runtime,{executeTool:vi.fn(async()=>({ok:true,data:null}))},{
+  scenarioId:'SPACE',projectId:'P',rootKind:'OperationRoute',assertCurrent:()=>{},
+  operationModule:new SmartBidOperationModule(direct),dispatchOperation,
+ })
+ const input={operationId:'39',registrationId:'SmartBidOperationModule',businessInstanceId:'P',
+  runtimeInstanceId:'RT',requestKey:'Q',prompt:'采用候选',inputs:{}}
+
+ await host.invoke('content.operation.dispatch',input,new AbortController().signal)
+
+ expect(dispatchOperation).toHaveBeenCalledOnce()
+ expect(direct).not.toHaveBeenCalled()
 })
 
 it('dispatches through the generated SmartBid ClassModel module instance',async()=>{

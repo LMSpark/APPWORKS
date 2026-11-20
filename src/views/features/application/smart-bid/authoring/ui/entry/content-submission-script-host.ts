@@ -25,6 +25,7 @@ import {reviewRegisteredDeliveryZipPackage} from '../../model/review/package/con
 import {readRegisteredPaperPacking,reviewRegisteredPaperSubmissionPackage} from '../../model/review/package/content-paper-submission-package-reader'
 import {assessSubmissionPackageRelease,bindPackageSignatureCoverage,readPackageSignatureChecks} from '../../model/review/package/content-package-release'
 import {checkRepresentedSubmission,checkSubmissionStart,prepareSubmissionRequest} from '../../model/review/submission/content-submission-preflight'
+import type {SmartBidPageActionSubmit} from './publication/smart-bid-action-source'
 
 /** 原递交请求的读取合同。 */
 type Read=Parameters<typeof readRegisteredSubmissionRequest>
@@ -73,6 +74,7 @@ type SubmissionPreparation=(input:Readonly<{
 /** 原请求身份由当前项目与调用引用取得，原事件由已绑定办理记录读取方供给。 */
 export function createContentSubmissionScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Omit<Read[0],'runtime'>,sources:Readonly<{
+  assertCurrent?:()=>void
   readDeadline?:ReadDeadline;readPackageSelection?:PackageSelection
   paperEvidence?:Parameters<typeof reviewRegisteredPaperSubmissionPackage>[2]
   readPaperPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<Readonly<{
@@ -97,6 +99,7 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
    selectionRef:string;selection:FreezePreparation[0];uses:FreezePreparation[1];assertCurrent:()=>void
   }>>
   readPackingSelection?:(selectionRef:string,signal:AbortSignal)=>Promise<PackingSelection>
+  submitAction?:SmartBidPageActionSubmit
  }>={}){
  async function readRelease(proof:PackageRelease[0],signal:AbortSignal){
   proof.assertCurrent()
@@ -108,12 +111,13 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
   const otherEvidence=selected.evidence.filter(item=>item.kind!=='SIGNATURE')
   return assessSubmissionPackageRelease(proof,selected.rules,[...otherEvidence,...signatures])
  }
- return {runtime,assertCurrent:scope.assertCurrent,
+ const assertOwner=()=>{scope.assertCurrent();sources.assertCurrent?.()}
+ return {runtime,assertCurrent:assertOwner,
   async invoke(name:string,input:unknown,signal:AbortSignal){
    if(!isRecord(input))throw Error('SUBMISSION_PAGE_COMMAND_REQUIRED')
    const generation=runtime.generation,projectId=scope.projectId
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)throw Error('SUBMISSION_PAGE_STALE')
    }
    const host={...scope,runtime,assertCurrent}
@@ -138,6 +142,20 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     const prepared=await prepareSignatureRequest(selected.request,selected.basis,selected.authority)
     assertCurrent()
     return Object.freeze({...prepared,assertCurrent:()=>{assertCurrent();prepared.assertCurrent()}})
+   }
+   if(name==='content.submission.submitSignature'&&sources.readSignatureSelection&&sources.submitAction){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    assertCurrent()
+    const selected=await sources.readSignatureSelection(selectionRef,signal)
+    assertCurrent()
+    if(selected.selectionRef!==selectionRef||selected.request.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_SIGNATURE_SCOPE')
+    const prepared=await prepareSignatureRequest(selected.request,selected.basis,selected.authority)
+    const receipt=await sources.submitAction({operationId:'46',requestKey:selected.request.requestKey,
+     prompt:'办理签署',inputs:{record:prepared.record}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
    }
    if(name==='content.submission.preparePaperPacking'&&sources.readPaperPackingSelection){
     const {selectionRef}=input
@@ -170,6 +188,23 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(selected.state==='PREPARE')return prepareRegisteredDeliveryZipPackage(scopedHost,selected.request,selected.options)
     return recoverRegisteredPackingCandidate(scopedHost,selected.packingRequestRef,selected)
    }
+   if(name==='content.submission.submitPacking'&&sources.readPackingSelection&&sources.submitAction){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    assertCurrent()
+    const selected=await sources.readPackingSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selected.assertCurrent()}
+    assertSelection()
+    if(selected.selectionRef!==selectionRef||selected.request.groupScope.projectId!==projectId||selected.state!=='PREPARE')
+     throw Error('SUBMISSION_PAGE_PACKING_SCOPE')
+    const prepared=await prepareRegisteredDeliveryZipPackage({...host,assertCurrent:assertSelection},
+     selected.request,selected.options)
+    if(prepared.status!=='PREPARED')return prepared
+    const receipt=await sources.submitAction({operationId:'49',requestKey:selected.request.requestKey,
+     prompt:'封装递交文件',inputs:{record:prepared.candidate,requestDigest:selected.request.requestDigest}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
+   }
    if(name==='content.submission.prepareFreeze'&&sources.readFreezeSelection){
     const {selectionRef}=input
     if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')
@@ -182,6 +217,21 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     const prepared=await prepareDeliveryFreezeSelection(selected.selection,selected.uses)
     assertSelection()
     return Object.freeze({...prepared,assertCurrent:()=>{assertSelection();prepared.assertCurrent()}})
+   }
+   if(name==='content.submission.submitFreeze'&&sources.readFreezeSelection&&sources.submitAction){
+    const {selectionRef}=input
+    if(!identity(selectionRef))throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')
+    assertCurrent()
+    const selected=await sources.readFreezeSelection(selectionRef,signal)
+    const assertSelection=()=>{assertCurrent();selected.assertCurrent()}
+    assertSelection()
+    if(selected.selectionRef!==selectionRef||selected.selection.groupScope.projectId!==projectId)
+     throw Error('SUBMISSION_PAGE_FREEZE_SCOPE')
+    const prepared=await prepareDeliveryFreezeSelection(selected.selection,selected.uses)
+    const receipt=await sources.submitAction({operationId:'48',requestKey:selected.selection.requestKey,
+     prompt:'冻结交付清单',inputs:{record:prepared.record,requestDigest:prepared.record.requestDigest}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
    }
    if(name==='content.submission.prepareRequest'&&sources.readSubmissionPreparation){
     const {attemptRef,requestKey,combinedWithdrawalTarget=null}=input
@@ -202,6 +252,29 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
     if(start.state!=='READY')return Object.freeze({state:start.state,assertCurrent:start.assertCurrent})
     const prepared=await prepareSubmissionRequest(start,requestKey)
     return Object.freeze({state:'PREPARED' as const,...prepared})
+   }
+   if(name==='content.submission.submitRequest'&&sources.readSubmissionPreparation&&sources.submitAction){
+    const {attemptRef,requestKey,combinedWithdrawalTarget=null}=input
+    if(!identity(attemptRef)||!identity(requestKey)||
+     (combinedWithdrawalTarget!==null&&(!identity(combinedWithdrawalTarget)||combinedWithdrawalTarget===attemptRef)))
+     throw Error('SUBMISSION_PAGE_REQUEST_REQUIRED')
+    assertCurrent()
+    const request=Object.freeze({projectId,attemptRef,requestKey,combinedWithdrawalTarget})
+    const {contents,representation,channel}=await sources.readSubmissionPreparation(request,signal)
+    assertCurrent()
+    if(contents.projectId!==projectId||contents.attemptRef!==attemptRef||
+     (channel.combinedWithdrawal?.target.attemptRef??null)!==combinedWithdrawalTarget)
+     throw Error('SUBMISSION_PAGE_PREPARATION_SCOPE')
+    const represented=await checkRepresentedSubmission({...contents,assertCurrent:()=>{
+     assertCurrent();contents.assertCurrent()
+    }},representation)
+    const start=checkSubmissionStart(represented,channel)
+    if(start.state!=='READY')return Object.freeze({state:start.state,assertCurrent:start.assertCurrent})
+    const prepared=await prepareSubmissionRequest(start,requestKey)
+    const receipt=await sources.submitAction({operationId:'51',requestKey,prompt:'办理递交或撤回',
+     inputs:{record:prepared.record,requestDigest:prepared.requestDigest}})
+    prepared.assertCurrent()
+    return Object.freeze({state:'SUBMITTED' as const,prepared,receipt,assertCurrent:prepared.assertCurrent})
    }
    if(name==='content.submission.reviewPaperPackage'&&sources.paperEvidence){
     const {packageId,packingRequestRef}=input

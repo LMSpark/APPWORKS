@@ -38,6 +38,9 @@ import type {
 /** 子树级字段输入策略 — 仅描述子树内字段输入行为，不改变全局 permissionMode。 */
 export type SubtreeFieldPolicy = 'unrestricted'
 
+export type PageHostCommandCapability = (name: string, input: unknown) => Promise<unknown>
+export type PageRouteQueryCapability = () => Readonly<Record<string, unknown>>
+
 export type {
   PageMessageType,
   PageDialogResult,
@@ -215,5 +218,9 @@ export const PAGE_COMPONENT_REGISTRY = defineCapability<PageComponentRegistry>('
 export const CSS_SCOPE = defineCapability<PageCssScopeCapability>('spark:capability:css-scope', isPageCssScopeCapability)
 
 export const PAGE_SERVICE = defineCapability<PageServiceCapability>('spark:capability:page-service', isPageServiceCapability)
+export const PAGE_HOST_COMMAND = defineCapability<PageHostCommandCapability>('spark:capability:page-host-command',
+  (value): value is PageHostCommandCapability => isCallable(value))
+export const PAGE_ROUTE_QUERY = defineCapability<PageRouteQueryCapability>('spark:capability:page-route-query',
+  (value): value is PageRouteQueryCapability => isCallable(value))
 export const PAGE_PERMISSION_MODE = defineCapability<PermissionMode>('spark:capability:permission-mode', isPermissionMode)
 export const SUBTREE_FIELD_POLICY = defineCapability<SubtreeFieldPolicy>('spark:capability:subtree-field-policy', isSubtreeFieldPolicy)

@@ -2,17 +2,52 @@
   {
     "id": "resource-allocation-review",
     "type": "r-section",
-    "props": {"title": "跨项目资源协调", "onBeforeRender": "bindAllocation"},
+    "props": {"title": "跨项目资源协调"},
     "children": [
-      {"type": "r-button", "props": {"label": "核对占用冲突", "onClick": "openAllocation"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "核对占用冲突",
+              "action": "host-command",
+              "command": "bid.resources.checkAllocation",
+              "routeQueryRequired": ["resourceVersionId", "allocationRequestRef"],
+              "input": {
+                "resourceVersionId": {"$route": "resourceVersionId"},
+                "requestRef": {"$route": "allocationRequestRef"}
+              },
+              "resultAlertTitle": "跨项目占用核对",
+              "errorMessage": "原申请或占用证据无法核验"
+            }
+          }
+        ]
+      }
     ]
   },
   {
     "id": "resource-allocation-release",
     "type": "r-section",
-    "props": {"title": "资源释放前核对", "onBeforeRender": "bindAllocationRelease"},
+    "props": {"title": "资源释放前核对"},
     "children": [
-      {"type": "r-button", "props": {"label": "核对义务终止凭据", "onClick": "openAllocationRelease"}}
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "核对义务终止凭据",
+              "action": "host-command",
+              "command": "bid.resources.checkRelease",
+              "routeQueryRequired": ["allocationRef"],
+              "input": {"allocationRef": {"$route": "allocationRef"}},
+              "resultAlertTitle": "资源释放前核对",
+              "errorMessage": "原调配或义务终止证据无法核验"
+            }
+          }
+        ]
+      }
     ]
   }
 ]

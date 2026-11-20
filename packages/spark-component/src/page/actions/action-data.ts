@@ -28,6 +28,7 @@ import type {
   AppendRowAction,
   ClearRowsAction,
   DeleteAction,
+  DiscardChangesAction,
   MessageRowAction,
   MoveAction,
   PatchAction,
@@ -822,4 +823,26 @@ export async function executeSaveDataSet(
     return
   }
   notifier.notify('warning', desc.failureMessage ?? result.message ?? '保存失败')
+}
+
+export function executeDiscardChanges(
+  desc: DiscardChangesAction,
+  ctx: ActionExecutionContext,
+): void {
+  const notifier = createActionNotifier(ctx, desc)
+  const { dataSource } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
+  if (!dataSource) {
+    notifier.notify('warning', desc.emptyMessage ?? '数据视图未就绪')
+    return
+  }
+  const currentRow=desc.target==='current'?dataSource.currentRow:null
+  const currentKey=currentRow===null?undefined:dataSource.getPkKey(currentRow)
+  if (desc.target === 'current' && currentKey === undefined) {
+    notifier.notify('warning', desc.emptyMessage ?? '请先选择当前行')
+    return
+  }
+  const discarded = currentKey === undefined
+    ? dataSource.discardPendingChanges()
+    : dataSource.discardPendingChanges([currentKey])
+  notifier.notify('success', desc.successMessage ?? (discarded > 0 ? '已取消本次修改' : '当前没有待取消修改'))
 }

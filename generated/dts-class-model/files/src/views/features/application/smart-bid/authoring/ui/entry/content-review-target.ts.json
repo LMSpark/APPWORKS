@@ -65,6 +65,10 @@
       "type": "object",
       "title": "SubmissionSources",
       "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "readDeadline": {
           "type": "object",
           "title": "ReadDeadline"
@@ -118,6 +122,10 @@
         "readPackingSelection": {
           "type": "object",
           "title": "(selectionRef: string, signal: AbortSignal) => Promise<PackingSelection>"
+        },
+        "submitAction": {
+          "type": "object",
+          "title": "SmartBidPageActionSubmit"
         }
       },
       "additionalProperties": false
@@ -221,6 +229,14 @@
             "readDisableDecision": {
               "type": "object",
               "title": "DisableReader"
+            },
+            "submitEnable": {
+              "type": "object",
+              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
+            },
+            "submitDisable": {
+              "type": "object",
+              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
             }
           },
           "additionalProperties": false
@@ -270,6 +286,10 @@
         {
           "type": "object",
           "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
             "readPriceEvidence": {
               "type": "object",
               "title": "(request: Readonly<{ scopeRef: string; approvalRef: string; version: string; }> & Readonly<{ purposeRef: string; rateOnly: boolean; }>, approval: NonNullable<Price | undefined>) => Promise<ReviewEvidence>"
@@ -454,7 +474,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-19T00:37:51.454Z",
+  "generatedAt": "2026-11-20T12:11:11.041Z",
   "models": {
     "PublishedEntry": {
       "name": "PublishedEntry",
@@ -550,6 +570,11 @@
         "members": {
           "attributes": [
             {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "readDeadline",
               "readable": true,
               "writable": false
@@ -596,6 +621,11 @@
             },
             {
               "name": "readPackingSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitAction",
               "readable": true,
               "writable": false
             }

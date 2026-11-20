@@ -33,6 +33,8 @@ export { SPARK_REGISTRY_KEY } from './system/keys.js'
 
 export type {
   PageServiceCapability,
+  PageHostCommandCapability,
+  PageRouteQueryCapability,
   PageMessageType,
   PageDialogResult,
   PageDialogOptions,
@@ -46,6 +48,8 @@ export type {
 
 export {
   PAGE_SERVICE,
+  PAGE_HOST_COMMAND,
+  PAGE_ROUTE_QUERY,
   PAGE_PERMISSION_MODE,
   isThemeMode,
 } from './capability-keys.js'

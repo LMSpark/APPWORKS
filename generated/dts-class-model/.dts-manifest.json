@@ -1089,12 +1089,12 @@
     "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts.json",
-      "sourceModifiedAt": "2026-11-07T02:07:59.868Z"
+      "sourceModifiedAt": "2026-11-20T17:07:11.870Z"
     },
     "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue.json",
-      "sourceModifiedAt": "2026-11-14T07:30:05.270Z"
+      "sourceModifiedAt": "2026-11-20T17:07:11.875Z"
     },
     "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts",
@@ -2274,12 +2274,12 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts.json",
-      "sourceModifiedAt": "2026-11-13T19:17:21.904Z"
+      "sourceModifiedAt": "2026-11-20T17:53:48.651Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.vue.json",
-      "sourceModifiedAt": "2026-11-13T19:17:21.905Z"
+      "sourceModifiedAt": "2026-11-20T17:53:48.656Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldTextarea/FieldTextarea.props.ts",
@@ -2424,7 +2424,7 @@
     "packages/spark-component/src/components/internal.ts": {
       "sourceFile": "packages/spark-component/src/components/internal.ts",
       "shardFile": "files/packages/spark-component/src/components/internal.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.532Z"
+      "sourceModifiedAt": "2026-11-20T15:08:10.174Z"
     },
     "packages/spark-component/src/components/register-renderers.ts": {
       "sourceFile": "packages/spark-component/src/components/register-renderers.ts",
@@ -2439,7 +2439,7 @@
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/SparkComponentRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-13T16:40:15.140Z"
+      "sourceModifiedAt": "2026-11-20T17:10:16.089Z"
     },
     "packages/spark-component/src/components/support/beforeRender.ts": {
       "sourceFile": "packages/spark-component/src/components/support/beforeRender.ts",
@@ -2459,12 +2459,12 @@
     "packages/spark-component/src/core/capability-keys.ts": {
       "sourceFile": "packages/spark-component/src/core/capability-keys.ts",
       "shardFile": "files/packages/spark-component/src/core/capability-keys.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.539Z"
+      "sourceModifiedAt": "2026-11-20T14:50:13.346Z"
     },
     "packages/spark-component/src/core/index.ts": {
       "sourceFile": "packages/spark-component/src/core/index.ts",
       "shardFile": "files/packages/spark-component/src/core/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.541Z"
+      "sourceModifiedAt": "2026-11-20T14:53:09.400Z"
     },
     "packages/spark-component/src/core/system/index.ts": {
       "sourceFile": "packages/spark-component/src/core/system/index.ts",
@@ -2499,47 +2499,47 @@
     "packages/spark-component/src/core/useSparkComponent.ts": {
       "sourceFile": "packages/spark-component/src/core/useSparkComponent.ts",
       "shardFile": "files/packages/spark-component/src/core/useSparkComponent.ts.json",
-      "sourceModifiedAt": "2026-11-16T07:33:04.025Z"
+      "sourceModifiedAt": "2026-11-20T17:28:53.328Z"
     },
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-16T11:54:15.679Z"
+      "sourceModifiedAt": "2026-11-20T14:53:09.404Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/action-data.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.546Z"
+      "sourceModifiedAt": "2026-11-20T17:17:19.978Z"
     },
     "packages/spark-component/src/page/actions/action-executor.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-executor.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/action-executor.ts.json",
-      "sourceModifiedAt": "2026-10-06T19:51:52.983Z"
+      "sourceModifiedAt": "2026-11-20T17:30:15.556Z"
     },
     "packages/spark-component/src/page/actions/action-types.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-types.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/action-types.ts.json",
-      "sourceModifiedAt": "2026-10-06T19:50:59.447Z"
+      "sourceModifiedAt": "2026-11-20T17:07:09.077Z"
     },
     "packages/spark-component/src/page/actions/button-templates.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/button-templates.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/button-templates.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:50.980Z"
+      "sourceModifiedAt": "2026-11-20T17:05:47.711Z"
     },
     "packages/spark-component/src/page/actions/executor-helpers.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json",
-      "sourceModifiedAt": "2026-11-10T10:12:35.023Z"
+      "sourceModifiedAt": "2026-11-20T17:05:47.706Z"
     },
     "packages/spark-component/src/page/actions/index.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/index.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/index.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:50.981Z"
+      "sourceModifiedAt": "2026-11-20T17:06:15.708Z"
     },
     "packages/spark-component/src/page/actions/node-to-descriptor.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/node-to-descriptor.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/node-to-descriptor.ts.json",
-      "sourceModifiedAt": "2026-10-06T19:50:59.449Z"
+      "sourceModifiedAt": "2026-11-20T17:15:49.416Z"
     },
     "packages/spark-component/src/page/binding/bind-normalize.ts": {
       "sourceFile": "packages/spark-component/src/page/binding/bind-normalize.ts",
@@ -2589,7 +2589,7 @@
     "packages/spark-component/src/page/renderer/SparkPageRenderer.vue": {
       "sourceFile": "packages/spark-component/src/page/renderer/SparkPageRenderer.vue",
       "shardFile": "files/packages/spark-component/src/page/renderer/SparkPageRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-18T21:40:06.176Z"
+      "sourceModifiedAt": "2026-11-20T15:00:34.748Z"
     },
     "packages/spark-component/src/page/renderer/useCssScope.ts": {
       "sourceFile": "packages/spark-component/src/page/renderer/useCssScope.ts",
@@ -5079,7 +5079,7 @@
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
-      "sourceModifiedAt": "2026-11-19T17:36:22.666Z"
+      "sourceModifiedAt": "2026-11-20T10:43:09.341Z"
     },
     "src/registries/system-scenario-registry.ts": {
       "sourceFile": "src/registries/system-scenario-registry.ts",
@@ -5761,10 +5761,80 @@
       "shardFile": "files/src/services/smart-bid/content/revision-template-bindings.ts.json",
       "sourceModifiedAt": "2026-11-18T01:27:20.695Z"
     },
+    "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/authoring-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.377Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/authority-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.194Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/collaboration-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.704Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T10:11:50.217Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/knowledge-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:52:40.951Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/production-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/production-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.488Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/project-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:52:41.040Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/response-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.292Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/submission-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:53:19.620Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/tender-analysis-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:52:41.207Z"
+    },
+    "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/models/tender-source-action-modules.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:52:41.120Z"
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json",
+      "sourceModifiedAt": "2026-11-20T09:52:08.191Z"
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts.json",
+      "sourceModifiedAt": "2026-11-20T10:11:50.224Z"
+    },
     "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts": {
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
       "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json",
-      "sourceModifiedAt": "2026-11-20T09:38:07.307Z"
+      "sourceModifiedAt": "2026-11-20T14:06:26.886Z"
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json",
+      "sourceModifiedAt": "2026-11-20T11:53:04.608Z"
     },
     "src/services/smart-bid/operation/guides/operation-action-guide.ts": {
       "sourceFile": "src/services/smart-bid/operation/guides/operation-action-guide.ts",
@@ -6439,7 +6509,7 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-20T06:13:50.865Z"
+      "sourceModifiedAt": "2026-11-20T17:20:06.092Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
@@ -6449,12 +6519,12 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-20T09:38:07.319Z"
+      "sourceModifiedAt": "2026-11-20T11:17:18.109Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts.json",
-      "sourceModifiedAt": "2026-11-20T09:29:33.064Z"
+      "sourceModifiedAt": "2026-11-20T12:51:15.824Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts",
@@ -6464,17 +6534,27 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-19T00:32:07.538Z"
+      "sourceModifiedAt": "2026-11-20T11:30:15.702Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts.json",
-      "sourceModifiedAt": "2026-11-19T00:37:51.454Z"
+      "sourceModifiedAt": "2026-11-20T12:11:11.041Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-19T00:34:07.577Z"
+      "sourceModifiedAt": "2026-11-20T11:42:05.025Z"
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json",
+      "sourceModifiedAt": "2026-11-20T12:04:15.470Z"
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts.json",
+      "sourceModifiedAt": "2026-11-20T15:34:33.582Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
@@ -6489,7 +6569,7 @@
     "src/views/features/application/smart-bid/authority/authority-grant-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/authority-grant-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authority/authority-grant-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T10:12:48.386Z"
+      "sourceModifiedAt": "2026-11-20T11:41:28.657Z"
     },
     "src/views/features/application/smart-bid/authority/authority-scenario-views.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/authority-scenario-views.ts",
@@ -6500,6 +6580,11 @@
       "sourceFile": "src/views/features/application/smart-bid/authority/original-registration-view.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authority/original-registration-view.ts.json",
       "sourceModifiedAt": "2026-11-19T00:14:20.490Z"
+    },
+    "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authority/published-enterprise-owner.ts.json",
+      "sourceModifiedAt": "2026-11-20T10:35:23.793Z"
     },
     "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/resource-allocation-script-host.ts",
@@ -6514,7 +6599,7 @@
     "src/views/features/application/smart-bid/authority/resource-use-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/resource-use-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authority/resource-use-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T10:21:17.473Z"
+      "sourceModifiedAt": "2026-11-20T11:41:28.661Z"
     },
     "src/views/features/application/smart-bid/authority/resource-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
@@ -6529,7 +6614,7 @@
     "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-19T00:36:04.216Z"
+      "sourceModifiedAt": "2026-11-20T10:46:26.380Z"
     },
     "src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader.ts",
@@ -6554,7 +6639,7 @@
     "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/collaboration/tasks/bid-findings-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T19:43:47.202Z"
+      "sourceModifiedAt": "2026-11-20T11:28:07.802Z"
     },
     "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-channel-reader.ts",
@@ -6569,7 +6654,7 @@
     "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/configuration/configuration-release-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-19T00:33:03.400Z"
+      "sourceModifiedAt": "2026-11-20T10:39:02.013Z"
     },
     "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/followup/submission-obligation-reader.ts",
@@ -6604,7 +6689,7 @@
     "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/followup/tender-followup-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/followup/tender-followup-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-19T02:09:43.334Z"
+      "sourceModifiedAt": "2026-11-20T10:46:26.397Z"
     },
     "src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/knowledge/class-model-catalog-script-host.ts",
@@ -6659,7 +6744,7 @@
     "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/response/ui/entry/response-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-18T20:29:37.647Z"
+      "sourceModifiedAt": "2026-11-20T10:46:54.413Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",

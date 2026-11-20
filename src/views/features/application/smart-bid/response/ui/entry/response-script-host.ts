@@ -20,6 +20,7 @@ type Appointment=Parameters<typeof reviewPersonAppointment>
 
 type Scope=Parameters<typeof createApprovedPriceScriptHost>[1]&Parameters<typeof createBidSecurityScriptHost>[1]
 type Sources=Readonly<{
+ assertCurrent?:()=>void
  readPriceEvidence:Parameters<typeof createApprovedPriceScriptHost>[2]
  readSecurityReceipts:Parameters<typeof createBidSecurityScriptHost>[2]
  appointmentBasis?:Readonly<{projectId:string;enterpriseId:string;assertCurrent:()=>void;
@@ -41,16 +42,18 @@ type Sources=Readonly<{
 export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,scope:Scope,sources:Sources,
 ){
- const price=createApprovedPriceScriptHost(runtime,scope,sources.readPriceEvidence)
- const security=createBidSecurityScriptHost(runtime,scope,sources.readSecurityReceipts)
- return {runtime,assertCurrent:scope.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
+ const assertOwner=()=>{scope.assertCurrent();sources.assertCurrent?.()}
+ const ownedScope={...scope,assertCurrent:assertOwner}
+ const price=createApprovedPriceScriptHost(runtime,ownedScope,sources.readPriceEvidence)
+ const security=createBidSecurityScriptHost(runtime,ownedScope,sources.readSecurityReceipts)
+ return {runtime,assertCurrent:assertOwner,invoke(name:string,input:unknown,signal:AbortSignal){
   if(name==='bid.response.reviewCommitment'){
    const basis=sources.commitmentBasis
    if(!basis||!isRecord(input)||Object.keys(input).length!==1||!identity(input['commitmentRef']))
     throw Error('BID_RESPONSE_COMMITMENT_REQUEST')
    const {commitmentRef}=input,generation=runtime.generation
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     basis.assertCurrent()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
      throw Error('BID_RESPONSE_COMMITMENT_STALE')
@@ -76,7 +79,7 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
     throw Error('BID_RESPONSE_APPOINTMENT_REQUEST')
    const {appointmentRef}=input,generation=runtime.generation
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     basis.assertCurrent()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
      throw Error('BID_RESPONSE_APPOINTMENT_STALE')
@@ -98,7 +101,7 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
     throw Error('BID_RESPONSE_ASSIGNMENT_REQUEST')
    const generation=runtime.generation
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     assignmentBasis.assertCurrent()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
      throw Error('BID_RESPONSE_ASSIGNMENT_STALE')
@@ -111,7 +114,7 @@ export function createBidResponseScriptHost<Runtime extends Pick<PageRuntime,'re
     throw Error('BID_RESPONSE_FACT_REQUEST')
    const generation=runtime.generation
    const assertCurrent=()=>{
-    scope.assertCurrent()
+    assertOwner()
     fixedFacts.assertCurrent()
     if(signal.aborted||runtime.destroyed||!runtime.isLoaded||runtime.generation!==generation)
      throw Error('BID_RESPONSE_FACT_STALE')

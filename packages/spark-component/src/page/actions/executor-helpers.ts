@@ -399,6 +399,8 @@ export const BUILTIN_ACTION_META = {
   'message-row': { label: '查看' },
   'message-current': { label: '查看当前' },
   'save-dataset': { label: '保存全部' },
+  'discard-changes': { label: '取消修改' },
+  'host-command': { label: '执行' },
 } satisfies Record<string, BuiltinActionMeta>
 
 /** Builtin Action Name 的语义模型。 */
@@ -566,6 +568,7 @@ export function isActionDescriptorPermitted(
     case 'open':
     case 'message-row':
     case 'refresh':
+    case 'host-command':
       return true
     case 'set-field': {
       const row = view?.currentRow
@@ -615,6 +618,11 @@ export function isActionDescriptorPermitted(
       return view !== null && view !== undefined && isDataViewSavePermitted(
         createDataViewSavePermissionInput(view, undefined, descriptor.applyEditingRows),
       )
+    case 'discard-changes':
+      if (!view) return false
+      return view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
+    case 'host-command':
+      return true
     default:
       return false
   }
@@ -658,6 +666,9 @@ export function isActionDescriptorDisabled(
     case 'set-field':
     case 'append-row':
     case 'save-dataset':
+    case 'host-command':
+      return false
+    case 'discard-changes':
       return false
 
     case 'clear-rows':

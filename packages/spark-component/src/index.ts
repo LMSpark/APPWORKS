@@ -64,6 +64,8 @@ export type {
 // ── 6. 数据 + Renderer 能力键 ──
 export {
   PAGE_SERVICE,
+  PAGE_HOST_COMMAND,
+  PAGE_ROUTE_QUERY,
   PAGE_PERMISSION_MODE,
   PAGE_RUNTIME,
   DATA_SOURCE,
@@ -75,6 +77,8 @@ export {
 } from './core/index.js'
 export type {
   PageServiceCapability,
+  PageHostCommandCapability,
+  PageRouteQueryCapability,
   ThemeCapability,
   ThemeMode,
   ModuleContextCapability,

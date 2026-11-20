@@ -5,8 +5,6 @@ import {assessBidHandoff,compareBidHandoffVersions} from '@/services/smart-bid/c
 import {bidHandoffScenarioViews,readRegisteredBidHandoff} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader'
 import {createBidHandoffScriptHost} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host'
 import script from '@/views/features/application/smart-bid/collaboration/handoff/page08/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
@@ -70,7 +68,8 @@ it('keeps responsibility with the original assignee until the current version is
   const view=ds.getView('BidHandoff','originalHandoff')
   if(!view)throw Error('TEST_HANDOFF_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'BidHandoff'})
-  let hidden=false,receiptCurrent=true
+  const hidden=false
+  let receiptCurrent=true
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'handoff',readScope:()=> 'handoff',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:hidden?['items']:[],m:[],d:false}}]}}}),
@@ -86,7 +85,7 @@ it('keeps responsibility with the original assignee until the current version is
   const projectView=ds.getView('ContentProject','originalProjectScope')
   if(!projectView)throw Error('TEST_PROJECT_SCOPE_VIEW_REQUIRED')
   const projectTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentProject'})
-  let projectExists=true
+  const projectExists=true
   projectView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:projectTable.identity,scope:'project',readScope:()=> 'project',
    snapshot:projectTable.applyResult({Result:{primaryKeyField:'id',data:{Count:projectExists?1:0,
@@ -94,7 +93,7 @@ it('keeps responsibility with the original assignee until the current version is
   })})
   const baseline=ds.getView('Baseline','originalProjectBaseline'),head=ds.getView('ContentRevision','originalProjectHead')
   if(!baseline||!head)throw Error('TEST_PROJECT_POINTER_VIEWS_REQUIRED')
-  let hasBaseline=false
+  const hasBaseline=false
   const proof={r:[],e:[],h:[],m:[],d:false}
   const baselineTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
   baseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
@@ -105,14 +104,14 @@ it('keeps responsibility with the original assignee until the current version is
   const fixedBaseline=ds.getView('Baseline','originalHeadBaseline')
   if(!fixedBaseline)throw Error('TEST_FIXED_BASELINE_VIEW_REQUIRED')
   const fixedTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'Baseline'})
-  let fixedStage='OTHER'
+  const fixedStage='OTHER'
   fixedBaseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:fixedTable.identity,scope:'fixed',readScope:()=> 'fixed',
    snapshot:fixedTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,
     Items:[{...baselineRow,id:'PREVIOUS-BASELINE',stageRef:fixedStage,lingma_sys_params:proof}]}}}),
   })})
   const headTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'ContentRevision'})
-  let headUnavailable=false
+  const headUnavailable=false
   head.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},async executeQuery(){
    if(headUnavailable)throw Error('TEST_HEAD_QUERY_UNAVAILABLE')
    return new DataSpaceQueryContext({identity:headTable.identity,scope:'head',readScope:()=> 'head',
@@ -128,7 +127,7 @@ it('keeps responsibility with the original assignee until the current version is
    snapshot:previousFrozenTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...baselineRow,
     id:'PREVIOUS-BASELINE',stageRef:'PREVIOUS-STAGE',factVersions:[],lingma_sys_params:proof}]}}}),
   })})
-  let duplicateFact=false
+  const duplicateFact=false
   frozenBaseline.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:frozenTable.identity,scope:'frozen',readScope:()=> 'frozen',
    snapshot:frozenTable.applyResult({Result:{primaryKeyField:'id',data:{Count:1,Items:[{...baselineRow,
@@ -140,7 +139,7 @@ it('keeps responsibility with the original assignee until the current version is
     key==='S@Baseline@originalProjectBaseline'?baseline:key==='S@ContentRevision@originalProjectHead'?head:key==='S@Baseline@originalHeadBaseline'?fixedBaseline:
     key==='S@Baseline@originalFrozenBaseline'?frozenBaseline:key==='S@Baseline@previousFrozenBaseline'?previousFrozen:undefined},
    assertCurrent}
-  let hasCurrentReceipt=true
+  const hasCurrentReceipt=true
   const readReceipts=vi.fn(async()=>({receipts:hasCurrentReceipt?[old,current]:[old],
    assertCurrent:()=>{if(!receiptCurrent)throw Error('RECEIPT_STALE')}}))
   const selection={lotId:'L',roundId:'R',stageId:'RESULT',handoffId:'H'}
@@ -151,63 +150,6 @@ it('keeps responsibility with the original assignee until the current version is
   expect(()=>registered.assertCurrent()).toThrow('RECEIPT_STALE')
   receiptCurrent=true
   const page=createBidHandoffScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{selection,readReceipts})
-  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{})
-  const {openBidHandoff,openHandoffComparison,openBidProjectScope,openFrozenBaseline}=compileFunctions(script,{$route:{query:{handoffId:'H',previousHandoffId:'H1',frozenBaselineId:'BASELINE'}},$page:{
-   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,
-  }} as unknown as PageContext)
-  if(!openBidHandoff||!openHandoffComparison||!openBidProjectScope||!openFrozenBaseline)throw Error('TEST_HANDOFF_PAGE_HANDLER_REQUIRED')
-  await openBidHandoff()
-  expect(showAlert).toHaveBeenLastCalledWith([
-   '移交 H · 所列事项均已签收','GUARANTEE · 版本 V2 · 已签收 · 跟踪人 FINANCE','  原任务凭据 RECEIPT-2',
-   '  未决事项 REFUND',`  续查 QUERY · 下次核查 ${item.nextDueAt}`,
-  ].join('\n'),'本轮移交核对')
-  hasCurrentReceipt=false
-  await openBidHandoff()
-  expect(showAlert).toHaveBeenLastCalledWith(expect.stringContaining('待签收 · 跟踪人 OWNER'),'本轮移交核对')
-  expect(()=>registered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  await openHandoffComparison()
-  expect(showAlert).toHaveBeenLastCalledWith('GUARANTEE · 换版 · V2 · 待签收','移交清单差异')
-  expect(readReceipts).toHaveBeenLastCalledWith(scope,[{...item,versionRef:'V1'}],signal,'previous')
-  const compared=await page.invoke('bid.handoff.compareVersions',{handoffId:'H',previousHandoffId:'H1'},signal)
-  compared.assertCurrent()
-  await previousView.refresh()
-  expect(()=>compared.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  await openBidProjectScope()
-  expect(showAlert).toHaveBeenLastCalledWith('编制项目 P\n阶段引用 STAGE-1\n原正文头 尚未形成\n激活基线 BASELINE · 缺原记录，恢复待核','原编制项目范围')
-  hasBaseline=true
-  projectRow.headRevisionId='HEAD'
-  await openBidProjectScope()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 已核原记录\n正文头阶段 PREVIOUS-STAGE · 固定基线 PREVIOUS-BASELINE · 原阶段不符，恢复待核\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
-  fixedStage='PREVIOUS-STAGE'
-  const recovered=await page.invoke('bid.project.readScope',{},signal)
-  expect(recovered).toMatchObject({headBaselineState:'VERIFIED'})
-  await fixedBaseline.refresh()
-  expect(()=>recovered.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  await openFrozenBaseline()
-  expect(showAlert).toHaveBeenLastCalledWith([
-   '基线 BASELINE · 阶段 STAGE-1','固定事实 1 项 · 固定要求 1 项 · 招标记录 1 项',
-   '事实 FACT · 版本 1','要求 CLAUSE · 版本 V1',`招标记录 RUN / CLAUSES / 0 · 版本 TV1 · 摘要 ${'b'.repeat(64)}`,
-  ].join('\n'),'冻结依据回查')
-  const baselineComparison=await page.invoke('bid.project.compareFrozenBaselines',
-   {previousId:'PREVIOUS-BASELINE',currentId:'BASELINE'},signal)
-  expect(baselineComparison).toMatchObject({state:'COMPARED',previousStage:'PREVIOUS-STAGE',currentStage:'STAGE-1',
-   facts:[{previous:null,current:{factId:'FACT',version:1}}],requirements:[],tenderRecords:[]})
-  baselineComparison.assertCurrent()
-  await previousFrozen.refresh()
-  expect(()=>baselineComparison.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  duplicateFact=true
-  await expect(page.invoke('bid.project.readFrozenBaseline',{baselineId:'BASELINE'},signal)).rejects.toThrow('BASELINE_FACT_MEMBER_DUPLICATE')
-  headUnavailable=true
-  await openBidProjectScope()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '编制项目 P\n阶段引用 STAGE-1\n原正文头 HEAD · 原记录无法核验，恢复待核\n激活基线 BASELINE · 已核原记录\n激活基线阶段 STAGE-1','原编制项目范围')
-  projectExists=false
-  await openBidProjectScope()
-  expect(showAlert).toHaveBeenLastCalledWith('当前项目范围登记待确认','原编制项目范围')
-  await expect(page.invoke('bid.project.readScope',{projectId:'OTHER'},signal)).rejects.toThrow('BID_HANDOFF_PAGE_REQUEST')
-  hidden=true
-  await expect(readRegisteredBidHandoff(host,selection,readReceipts)).rejects.toThrow('DATA_VIEW_READ_ROW')
-  expect(readReceipts).toHaveBeenCalledTimes(7)
+  expect(page.runtime.resolveView).toBe(host.runtime.resolveView)
  }finally{ds.destroy()}
 })

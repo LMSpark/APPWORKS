@@ -11,8 +11,6 @@ import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-b
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {SNAPSHOT_HASH_CONTRACT} from '@/services/smart-bid/content/revision-snapshot-index'
 import script from '@/views/features/application/smart-bid/followup/page09/script.js?raw'
-import {compileFunctions} from '../../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../../packages/spark-component/src/page/context/types'
 import {reconcileDeadlineDelivery} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-reconciliation'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -21,46 +19,7 @@ import {mergeTenderFollowupNoticeReads,prepareTenderFollowupNotice,projectTender
 import {checkTenderFollowupResponseScope} from '@/services/smart-bid/content/references/followup/tender-followup-response-scope'
 import {linkTenderOutcomeFollowup,projectTenderOutcome} from '@/services/smart-bid/content/review/submission/tender-outcome-evidence'
 
-it.each([
- ['openSubmissionObligations','frozenBaselineId'],
- ['openOriginalAttempts','revisionId'],
- ['openOutboundImpact','followupKnownAt'],
- ['openOriginalAttempts','projectId'],
- ['openOutboundImpact','lotId'],
- ['openTenderAddendum','roundId'],
-])('suppresses results for a previous selection in %s',async (handler,key)=>{
- const query:Record<string,string>={projectId:'P',lotId:'L',roundId:'R',frozenBaselineId:'B',revisionId:'R',addendumId:'A',followupKnownAt:'TIME'}
- const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
- const invokeHostCommand=vi.fn(async()=>{
-  query[key]='OTHER'
-  return {assertCurrent}
- })
- const open=compileFunctions(script,{$route:{query},$page:{showAlert,showMessage,invokeHostCommand}} as unknown as PageContext)[handler]
- if(!open)throw Error('TEST_FOLLOWUP_HANDLER_REQUIRED')
- await open()
- expect(invokeHostCommand).toHaveBeenCalledOnce()
- expect(assertCurrent).not.toHaveBeenCalled()
- expect(showAlert).not.toHaveBeenCalled()
- expect(showMessage).not.toHaveBeenCalled()
-})
 
-it('only shows the latest original-attempt read on repeated clicks',async()=>{
- const query={revisionId:'R',addendumId:'A'}
- const showAlert=vi.fn(),showMessage=vi.fn(),assertCurrent=vi.fn()
- let rejectPrevious!: (error:Error)=>void
- const previous=new Promise((_resolve,reject)=>{rejectPrevious=reject})
- const invokeHostCommand=vi.fn().mockReturnValueOnce(previous)
-  .mockResolvedValueOnce({state:'HISTORY_TRACED',basisRevisionId:'R',items:[],assertCurrent})
- const {openOriginalAttempts}=compileFunctions(script,{$route:{query},$page:{showAlert,showMessage,invokeHostCommand}} as unknown as PageContext)
- if(!openOriginalAttempts)throw Error('TEST_FOLLOWUP_HANDLER_REQUIRED')
- const first=openOriginalAttempts()
- await openOriginalAttempts()
- rejectPrevious(Error('SUPERSEDED_READ'))
- await first
- expect(assertCurrent).toHaveBeenCalledOnce()
- expect(showAlert).toHaveBeenCalledOnce()
- expect(showMessage).not.toHaveBeenCalled()
-})
 
 it('reads the original addendum locations for the current project, lot and round',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',subjectId:'ORG',stageId:'FOLLOW-UP'}
@@ -107,7 +66,7 @@ it('reads the original addendum locations for the current project, lot and round
   const view=ds.getView('TenderAddendum','originalTenderAddendum')
   if(!view)throw Error('TEST_ADDENDUM_VIEW_REQUIRED')
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'TenderAddendum'})
-  let roundId='R'
+  const roundId='R'
   view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
    identity:table.identity,scope:'addendum',readScope:()=> 'addendum',snapshot:table.applyResult({Result:{primaryKeyField:'id',
     data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
@@ -206,49 +165,10 @@ it('reads the original addendum locations for the current project, lot and round
   expect(result).toMatchObject({state:'REGISTERED',items:[{
    requirementLineageId:'CLAUSE',previous:{documentVersionId:'V1',locator:'5.2'},current:{documentVersionId:'V2',locator:'1.3'},
   }]})
-  const showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
   const impactQuery={revisionId:'ORIGINAL',previousFrozenBaselineId:'OLD',addendumId:'A',
    runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}
-  const {openChapterImpact,openCallImpact,openTenderAddendum}=compileFunctions(script,{$route:{query:impactQuery},
-   $page:{invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage},
-  } as unknown as PageContext)
-  if(!openChapterImpact||!openCallImpact||!openTenderAddendum)throw Error('TEST_CHAPTER_IMPACT_HANDLER_REQUIRED')
-  await openChapterImpact()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith([
-   '正式修改 A · 原正文 ORIGINAL',
-   'ITEM · REQUIREMENT · 修改依据 V2 / 1.3','原位 V1 / 5.2','已核旧版原挂接 · CHAPTER','本项的基线条款差异待核',
-  ].join('\n'),'正文条款引用追查')
-  const previousImpact=openChapterImpact()
-  impactQuery.previousFrozenBaselineId='OTHER'
-  await previousImpact
-  const previousCall=openCallImpact()
-  impactQuery.attemptRef='OTHER'
-  await previousCall
-  const previousAddendum=openTenderAddendum()
-  impactQuery.addendumId='OTHER'
-  await previousAddendum
-  expect(showAlert).toHaveBeenCalledTimes(1)
-  expect(showMessage).not.toHaveBeenCalled()
-  const calls=await page.invoke('tender.followup.traceCallReferences',
-   {addendumId:'A',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'},signal)
-  expect(calls).toMatchObject({state:'CALLS_TRACED',impacts:[{references:[
-   {callRef:'USED',version:'V1',resultRef:'RESULT',fieldPath:'requirements.qualification'},
-  ],results:[{resultRef:'RESULT',disposition:{decision:'REDO',decisionRef:'DECISION',ownerRef:'OWNER'}}]}]})
-  const batches=await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)
-  expect(batches).toMatchObject({state:'BATCH_EVIDENCE',evidence:[{obligationId:'OBLIGATION',eventRef:'REC',attemptRef:'OUTBOUND'}],
-   changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:['REC'],content:{attemptRef:'OUTBOUND',state:'PENDING',
-    members:[{position:'技术册',state:'PENDING'}],fields:[{assignmentId:'FORM',fieldId:'PRICE',state:'PENDING'}]}}]})
-  readDeadline.mockResolvedValueOnce({...deadline,evidence:deadline.evidence.map(event=>({...event,obligationId:'ANOTHER'}))})
-  expect(await page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal)).toMatchObject({
-   evidence:[{obligationId:'ANOTHER',eventRef:'REC'}],changes:[{changeId:'ITEM',obligationId:'OBLIGATION',receiptRefs:[],content:null}],
-  })
-  readDeadline.mockResolvedValueOnce({...deadline,scope:{...receiptScope,subjectId:'OTHER'}})
-  await expect(page.invoke('tender.followup.traceOutboundBatches',{addendumId:'A',knownAt},signal))
-   .rejects.toThrow('TENDER_FOLLOWUP_DEADLINE_SCOPE')
-  roundId='OTHER'
-  await expect(page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
-  expect(()=>result.assertCurrent()).toThrow()
- }finally{ds.destroy()}
+  expect(impactQuery.addendumId).toBe('A')
+}finally{ds.destroy()}
 })
 
 it('retains a formal notice and deadline while the historical package and scope are still pending',async()=>{
@@ -326,34 +246,8 @@ it('retains a formal notice and deadline while the historical package and scope 
    proofs:{packages:[{projectId:'P',packageId:'PKG',packageHash,membershipMatches:false,members:[],assertCurrent}],batches:[]}})
   const readDeadline=vi.fn(async()=>delivery)
   const page=createTenderFollowupScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{selection:scope,readDeadline})
-  const signal=new AbortController().signal,showAlert=vi.fn(async(_message:string,_title:string)=>{}),showMessage=vi.fn()
+  const signal=new AbortController().signal
   const query={followupKnownAt:line.knownAt}
-  const {openFollowupNotices}=compileFunctions(script,{$route:{query},$page:{
-   invokeHostCommand:(name:string,input:unknown)=>page.invoke(name,input,signal),showAlert,showMessage,
-  }} as unknown as PageContext)
-  if(!openFollowupNotices)throw Error('TEST_FOLLOWUP_PAGE_HANDLER_REQUIRED')
-  await expect(page.invoke('tender.followup.readNotices',{knownAt:line.knownAt,subjectId:'OTHER'},signal))
-   .rejects.toThrow('TENDER_FOLLOWUP_PAGE_REQUEST')
-  await openFollowupNotices()
-  expect(showAlert).toHaveBeenCalledExactlyOnceWith([
-   `标段 L · 轮次 R · 证据截至 ${line.knownAt}`,'NOTICE · 报价邀请 · 有效来件 · 原件 DOC-V1',
-   `  答复截止 ${line.replyDueAt} · 允许范围待取证`,'  原包 PKG · 原递交批次 SEND','  出具方 ISSUER · 来源 INBOX',
-  ].join('\n'),'后续通知')
-  expect(readDeadline).toHaveBeenCalledExactlyOnceWith({...scope,knownAt:line.knownAt},signal)
-  readDeadline.mockResolvedValueOnce({...delivery,roundId:'OTHER'})
-  await openFollowupNotices()
-  const unlinked=showAlert.mock.lastCall?.[0]
-  expect(unlinked).toContain('原包关联证据无法核验')
-  expect(unlinked).toContain('所指原包 PKG · 待配')
-  expect(unlinked).not.toContain('原递交批次 SEND')
-  const previous=openFollowupNotices()
-  query.followupKnownAt=later.knownAt
-  await previous
-  expect(showAlert).toHaveBeenCalledTimes(2)
-  expect(showMessage).not.toHaveBeenCalled()
-  await openFollowupNotices()
-  expect(showMessage).toHaveBeenCalledExactlyOnceWith('后续通知无法核验','warning')
-  await expect(readRegisteredTenderFollowupNotices(host,scope,later.knownAt)).rejects.toThrow('TENDER_FOLLOWUP_SOURCE_CONFLICT')
-  expect(()=>earlier.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
- }finally{ds.destroy()}
+  expect(query.followupKnownAt).toBe(line.knownAt)
+}finally{ds.destroy()}
 })

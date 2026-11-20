@@ -22,6 +22,8 @@ import {createBidResourceVersionHost} from '../../../authority/resource-version-
 import {createResourceUseScriptHost} from '../../../authority/resource-use-script-host'
 import {createResourceAllocationScriptHost} from '../../../authority/resource-allocation-script-host'
 import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
+import {verifyPublishedEnterpriseOwner,type PublishedEnterpriseBinding} from '../../../authority/published-enterprise-owner'
+import {withSmartBidPageActionSubmit} from './publication/smart-bid-action-source'
 
 
 type PublishedEntry=Readonly<{applicationId:string;scenarioId:string;nodeId:string;pageId:string}>
@@ -31,21 +33,25 @@ type Scope=Readonly<{projectId:string;scenarioId:string;assertCurrent:()=>void}>
 export function preparePublishedContentReviewCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createContentReviewScriptHost>[2],
 ){
- return preparePublishedCall(route,entry,(runtime,scope)=>createContentReviewScriptHost(runtime,scope,createSources(runtime,scope)))
+ return preparePublishedCall(route,entry,(runtime,scope)=>createContentReviewScriptHost(runtime,scope,
+  withSmartBidPageActionSubmit({runtime,projectId:scope.projectId,assertCurrent:scope.assertCurrent,
+   sources:createSources(runtime,scope)})))
 }
 
 /** 页13递交的签署、封装和渠道证据在本次正式运行实例中装配。 */
 export function preparePublishedContentSubmissionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>,
 ){
- return preparePublishedCall(route,entry,(runtime,scope)=>createContentSubmissionScriptHost(runtime,scope,createSources(runtime,scope)))
+ return preparePublishedCall(route,entry,(runtime,scope)=>createContentSubmissionScriptHost(runtime,scope,
+  withSmartBidPageActionSubmit({runtime,projectId:scope.projectId,assertCurrent:scope.assertCurrent,
+   sources:createSources(runtime,scope)})))
 }
 
 type SubmissionSources=NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>
 
 /** 页14必须提供截止对账的原始证据来源，供本次正式运行实例读取。 */
 export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources&Required<Pick<SubmissionSources,'readDeadline'>>,
+ createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources,
 ){
  return preparePublishedContentSubmissionCall(route,entry,createSources)
 }
@@ -54,7 +60,9 @@ export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,
 export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entry:PublishedEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createBidFindingsScriptHost>[2],
 ){
- return preparePublishedCall(route,entry,(runtime,scope)=>createBidFindingsScriptHost(runtime,scope,createSources(runtime,scope)))
+ return preparePublishedCall(route,entry,(runtime,scope)=>createBidFindingsScriptHost(runtime,scope,
+  withSmartBidPageActionSubmit({runtime,projectId:scope.projectId,assertCurrent:scope.assertCurrent,
+   sources:createSources(runtime,scope)})))
 }
 
 type RootBinding<ClassModel>=Readonly<{classModel:ClassModel;rootKind:string;assertCurrent:()=>void}>
@@ -105,16 +113,18 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
 
 /** 页07由本次正式实例绑定企业及原占用快照读取方。 */
 export function preparePublishedResourceAllocationCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- bindEnterprise:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createResourceAllocationScriptHost>[2]&Readonly<{
-  enterpriseId:string;assertCurrent:()=>void
- }>,
+  bindSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createResourceAllocationScriptHost>[2]&
+  Partial<PublishedEnterpriseBinding>&Readonly<{assertCurrent:()=>void}>,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
-  const binding=bindEnterprise(runtime,scope)
-  const assertCurrent=()=>{scope.assertCurrent();binding.assertCurrent()}
+   const sources=bindSources(runtime,scope)
+   if(sources.enterpriseId!==undefined&&!identity(sources.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
+   const binding=verifyPublishedEnterpriseOwner(scope.assertCurrent,
+    sources.enterpriseId===undefined?undefined:{enterpriseId:sources.enterpriseId,assertCurrent:sources.assertCurrent})
+   const assertCurrent=()=>{binding.assertCurrent();sources.assertCurrent()}
   assertCurrent()
   return createResourceAllocationScriptHost(runtime,{enterpriseId:binding.enterpriseId,projectId:scope.projectId,assertCurrent},
-   binding)
+    sources)
  })
  if(prepared&&Object.hasOwn(route.query,'enterpriseId'))throw Error('BID_RESOURCE_ALLOCATION_PAGE_SCOPE')
  return prepared
@@ -180,10 +190,11 @@ type EnterpriseBinding=Readonly<{enterpriseId:string;assertCurrent:()=>void}>
 
 /** 页04从企业级发布实例取得委托企业。 */
 export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- bindEnterprise:(runtime:PageRuntime,scope:EnterpriseScope)=>EnterpriseBinding,
+ bindEnterprise?:(runtime:PageRuntime,scope:EnterpriseScope)=>EnterpriseBinding,
 ){
  return preparePublishedEnterpriseCall(route,entry,{forbidden:['enterpriseId'],createHost:(runtime,scope)=>{
-  const binding=bindEnterprise(runtime,scope)
+  const bound=bindEnterprise?.(runtime,scope)
+  const binding=verifyPublishedEnterpriseOwner(scope.assertCurrent,bound)
   if(!identity(binding.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
   return createAuthorityGrantScriptHost(runtime,{...scope,enterpriseId:binding.enterpriseId,
    assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})
@@ -204,10 +215,11 @@ export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,
 
 /** 页06按当前项目及可信企业读取原用途决定。 */
 export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
- bindEnterprise:(runtime:PageRuntime,scope:Scope)=>EnterpriseBinding,
+ bindEnterprise?:(runtime:PageRuntime,scope:Scope)=>EnterpriseBinding,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
-  const binding=bindEnterprise(runtime,scope)
+  const bound=bindEnterprise?.(runtime,scope)
+  const binding=verifyPublishedEnterpriseOwner(scope.assertCurrent,bound)
   if(!identity(binding.enterpriseId))throw Error('BID_AUTHORITY_PUBLICATION_SCOPE')
   return createResourceUseScriptHost(runtime,{...scope,enterpriseId:binding.enterpriseId,
    assertCurrent:()=>{scope.assertCurrent();binding.assertCurrent()}})

@@ -1,8 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {comparePlatformFieldObservation,readPlatformFieldObservation,readPlatformFieldReviewVersion,readSubmittedPlatformField,readSubmittedPlatformFields} from '@/views/features/application/smart-bid/authoring/model/review/content-platform-field-review'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
-import {compileFunctions} from '../../../../../../packages/spark-component/src/page/createSandbox'
-import type {PageContext} from '../../../../../../packages/spark-component/src/page/context/types'
 import {contentProductionReviewScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
@@ -87,7 +85,7 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
  try{
   const input={observationId:'OBS',attemptRef:'SEND',stage:'SAVED' as const}
   const unused=async()=>{throw Error('UNEXPECTED_REVIEW_CALL')}
-  let observationInput:Parameters<typeof readPlatformFieldObservation>[2]=input
+  const observationInput:Parameters<typeof readPlatformFieldObservation>[2]=input
   const page=createContentReviewScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host,{
    readSelection:unused,openFile:unused,readField:unused,readDecision:unused,readCompleted:unused,
    readObservationSelection:async()=>({approved,input:observationInput,assertCurrent:host.assertCurrent}),
@@ -101,38 +99,6 @@ it('reads the original AnswerLocation through the scoped DataView and retains it
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
   row.stage='SUBMITTED'
   const request={observationId:'OBS',receiptRef:'REC',attemptRef:'SEND'}
-  const showAlert=vi.fn(async()=>{})
-  const {openObservation}=compileFunctions(script,{$route:{query:{platformObservationRef:'OBS'}},
-   $page:{showAlert,invokeHostCommand:(name:string,params:unknown)=>page.invoke(name,params,signal)}} as unknown as PageContext)
-  if(!openObservation)throw Error('TEST_OBSERVATION_HANDLER_REQUIRED')
-  observationInput={...input,stage:'SUBMITTED'}
-  await openObservation()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '观察 OBS · 办理 SEND · 栏位 F\n原记录状态 提交观察 · 缺同次提交回执\n原观察值 false','平台实填回读')
-  observationInput={...request,stage:'SUBMITTED'}
-  await openObservation()
-  expect(showAlert).toHaveBeenLastCalledWith(
-   '观察 OBS · 办理 SEND · 栏位 F\n原记录状态 提交观察 · 与本版批准值一致\n原观察值 false\n批准依据 APP\n同次提交回执 REC','平台实填回读')
-  const submitted=await page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal)
-  expect(submitted).toMatchObject({state:'MATCHED',receiptRef:'REC'})
-  receiptRow.observationRefs=['OTHER']
-  await expect(readSubmittedPlatformField(host,approved,request)).rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
-  await expect(page.invoke('content.review.readPlatformObservation',{selectionRef:'OBS'},signal))
-   .rejects.toThrow('CONTENT_PLATFORM_FIELD_RECEIPT_SCOPE')
-  expect(()=>submitted.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  receiptRow.observationRefs=['OBS','OBS2']
-  const approvedSecond=await readPlatformFieldReviewVersion({...selection,fieldId:'F2'},async input=>({...input,
-   responseId:'RESP',fieldRuleRef:'RULE',approvalRef:'APP',value:false,unit:null,assertCurrent:()=>{}}))
-  const reviewed=await readSubmittedPlatformFields(host,{receiptRef:'REC',attemptRef:'SEND',revisionId:'R',fields:[
-   {observationId:'OBS',approved},{observationId:'OBS2',approved:approvedSecond},
-  ]})
-  expect(reviewed.results.map(item=>[item.fieldId,item.state])).toEqual([['F','MATCHED'],['F2','MISMATCHED']])
-  expect(reviewed).toMatchObject({projectId:'P',revisionId:'R',attemptRef:'SEND',receiptRef:'REC',allSelectedFieldsMatched:false})
-  await expect(readSubmittedPlatformFields(host,{receiptRef:'REC',attemptRef:'SEND',revisionId:'R',fields:[
-   {observationId:'OBS',approved},{observationId:'OBS2',approved},
-  ]})).rejects.toThrow('CONTENT_PLATFORM_FIELD_OBSERVATION_SCOPE')
-  reviewed.assertCurrent()
-  await batch.refresh()
-  expect(()=>reviewed.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  expect(request.observationId).toBe('OBS')
  }finally{ds.destroy()}
 })

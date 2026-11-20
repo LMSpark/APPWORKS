@@ -214,7 +214,7 @@
             },
             "session": {
               "type": "object",
-              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
             },
             "publishedVersionRef": {
               "type": "string"
@@ -276,7 +276,7 @@
             },
             "session": {
               "type": "object",
-              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
             },
             "publishedVersionRef": {
               "type": "string"
@@ -338,7 +338,7 @@
             },
             "session": {
               "type": "object",
-              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
             },
             "publishedVersionRef": {
               "type": "string"
@@ -394,6 +394,324 @@
         }
       ]
     },
+    "ExecutableDispatchResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ExecutableDispatchResult",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "CLAIM_UNKNOWN"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "CLAIM_UNAVAILABLE"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "START_UNKNOWN"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "SEND_UNKNOWN"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "SEND_RETURNED"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "operationId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "outcome": {
+              "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+            }
+          },
+          "required": [
+            "operationId",
+            "requestKey",
+            "outcome"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
     "ContentOperationDispatch": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -416,7 +734,7 @@
             },
             "dispatch": {
               "type": "object",
-              "title": "(options: Readonly<{ registry: { get(moduleId: string): import(\"@spark-appworks/spark-ai/agent\").AiAgentRegistration<Readonly<Record<string, import(\"@spark-appworks/spark-json-document\").JsonValue>>> | undefined; }; turnCallbacks: Readonly<{ prepareSession?: (input: import(\"@spark-appworks/spark-ai/agent\").AiAgentPr..."
+              "title": "(options: Readonly<{ registry: { get(moduleId: string): import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentRegistration<Readonly<Record<string, import(\"../../../../../../../../packages/spark-json-document/src\").JsonValue>>> | undefined; }; turnCallbacks: Readonly<{ prepareSession?: (input: import(\"..."
             },
             "readDispatch": {
               "type": "object",
@@ -453,9 +771,7 @@
           "additionalProperties": false
         },
         "input": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": true
+          "$ref": "../../../../../../../services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json#/$defs/SmartBidOperationCommand"
         },
         "signal": {
           "type": "object",
@@ -480,6 +796,12 @@
         },
         "operationModule": {
           "$ref": "../../../../../../../services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json#/$defs/SmartBidOperationModule"
+        },
+        "registrationId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -495,12 +817,12 @@
         },
         "method.dispatchOperation.return": {
           "type": "object",
-          "title": "Promise<DispatchResult>"
+          "title": "Promise<ExecutableDispatchResult>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T09:38:07.319Z",
+  "generatedAt": "2026-11-20T11:17:18.109Z",
   "models": {
     "Open": {
       "name": "Open",
@@ -543,16 +865,37 @@
         "members": {}
       }
     },
+    "ExecutableDispatchResult": {
+      "name": "ExecutableDispatchResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DispatchResult | Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "DispatchResult",
+            "targetName": "DispatchResult"
+          },
+          {
+            "kind": "union",
+            "typeText": "Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
     "ContentOperationDispatch": {
       "name": "ContentOperationDispatch",
       "jsdoc": "当前可信宿主把已注册 Agent SSE 派发器注入同一 PageRuntime；四文件只提交精确输入。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: Readonly<Record<string, unknown>>;\n    signal: AbortSignal;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: Readonly<Record<string, unknown>>;\n    signal: AbortSignal;\n}>",
+            "typeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -582,7 +925,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<DispatchResult>;\n    operationModule?: SmartBidOperationModule;\n}>",
+        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -591,7 +934,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<DispatchResult>;\n    operationModule?: SmartBidOperationModule;\n}>",
+            "typeText": "Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -604,6 +947,16 @@
             },
             {
               "name": "operationModule",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "registrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
               "readable": true,
               "writable": false
             }
@@ -627,7 +980,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DispatchResult",
+                    "name": "ExecutableDispatchResult",
                     "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts"
                   }
                 ]

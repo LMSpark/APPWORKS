@@ -60,7 +60,8 @@ const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<stri
   coerce: coerceStringValue,
   member: fieldMemberFromProps(props),
   formatDisplay: value => props.displayFormatter ? props.displayFormatter(value)
-    : value == null || value === '' ? (props.emptyText ?? '') : String(value),
+    : value == null || value === '' ? (props.emptyText ?? '')
+      : (props.displayValueMap?.[String(value)] ?? String(value)),
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 

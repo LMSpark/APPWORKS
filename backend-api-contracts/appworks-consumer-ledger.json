@@ -1015,19 +1015,19 @@
     {
       "expression": "/api/File/exportSRS",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 200,
+      "sourceLine": 202,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/exportSDD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 202,
+      "sourceLine": 204,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/exportDesignDoc",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 204,
+      "sourceLine": 206,
       "scope": "publishable-lowcode-api"
     },
     {

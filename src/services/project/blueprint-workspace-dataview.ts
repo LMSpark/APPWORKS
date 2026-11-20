@@ -435,6 +435,7 @@ export class BlueprintWorkspaceDataView {
   /** 原 DataView 刷新后恢复懒加载已展开的父节点；懒加载模式与进行中的展开/定位排队串行，完整树或单目标模式下只刷新。 */
   private async refreshView():Promise<void>{
     const refresh=async():Promise<void>=>{
+      if(this.view.hasPendingSavedRowPermissions)await this.view.refreshSavedRowPermissions()
       await this.view.refresh()
       if(this.view.loadingError)throw this.view.loadingError
       if(this.#lazyParents!==undefined){this.assertLazyRows(this.view.rows);await this.appendLoadedLazyParents()}
@@ -448,16 +449,20 @@ export class BlueprintWorkspaceDataView {
     if(!lazy?.size)return
     const parents=[...lazy]
     lazy.clear()
-    await this.appendLazyChildren(parents,lazy)
+    const appended=await this.appendLazyChildren(parents,lazy)
+    if(!appended)for(const parent of parents)lazy.add(parent)
   }
 
-  private async appendLazyChildren(parentIds:readonly string[],lazy:Set<string>):Promise<void>{
+  private async appendLazyChildren(parentIds:readonly string[],lazy:Set<string>):Promise<boolean>{
+    if(this.view.mutating||this.view.hasUnconfirmedSave||this.view.hasPendingSavedRowPermissions
+      ||this.view.dirtyTracking.pendingCreateIds.size>0||this.view.dirtyTracking.pendingDeleteIds.size>0)return false
     const ids=[...new Set(parentIds.map(id=>id.trim()).filter(id=>id.length>0&&!isBlueprintRootParent(id)))]
     for(let index=0;index<ids.length;index+=LAZY_PARENT_BATCH){
       const batch=ids.slice(index,index+LAZY_PARENT_BATCH)
       await this.appendLazyRows(DataViewFilter.condition({field:'prowid',operator:'in',value:batch}).toJSON(),lazy)
       for(const id of batch)lazy.add(id)
     }
+    return true
   }
 
   /** 通过公共 DataView 增量查询并入当前项目的指定行；保持原 owner 行权限、草稿与刷新身份。 */
@@ -1147,7 +1152,7 @@ export class BlueprintWorkspaceDataView {
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     const parent=this.requireCurrentParent(parentNodeId)
     if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
-    if(this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许在所选父节点下新增子节点')
+    if(this.view.addActionState()!=='enabled')throw new Error('蓝图 DataView 当前查询不允许新增节点')
   }
 
   private requireCurrentParent(parentNodeId:string):DataRow{
@@ -1158,11 +1163,10 @@ export class BlueprintWorkspaceDataView {
 
   public preflightChildNode(parentNodeId:string,input:Record<string,unknown>):Record<string,unknown>{
     this.assertCanAddChild(parentNodeId)
-    const parent=this.requireCurrentParent(parentNodeId)
     const expected={...input,SysId:this.#projectId,prowid:parentNodeId}
     for(const field of Object.keys(expected)){
       if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出子节点新增字段 ${field}`)
-      const access=this.view.fieldAccess(parent,field)
+      const access=this.view.newRowFieldAccess(field)
       if(access.write!=='allowed')throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
     }
     const validation=this.view.validator?.validateColumns(expected,new Set(Object.keys(expected)))
@@ -1197,12 +1201,11 @@ export class BlueprintWorkspaceDataView {
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined;return id
     }
     const expected=this.preflightChildNode(parentNodeId,input)
-    const created=await this.view.addChildRow({
-      parentRow:this.requireCurrentParent(parentNodeId),
-      parentField:'rowid',childForeignKey:'prowid',
-      ...(explicitNodeId===undefined?{}:{identity:{field:'rowid',value:explicitNodeId}}),
-      data:Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='prowid')),
-    })
+    const nodeId=explicitNodeId??crypto.randomUUID().replaceAll('-','').toUpperCase()
+    const created=await this.view.addRowWithIdentity(
+      {field:'rowid',value:nodeId},
+      Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='rowid')),
+    )
     if('success' in created)throw new Error('蓝图 DataView 未准备出正式新增行')
     const id=this.view.getPkKey(created)
     if((typeof id!=='string'&&typeof id!=='number')||!String(id).trim()||created['rowid']!==id||created['SysId']!==this.#projectId||created['prowid']!==parentNodeId){
@@ -1448,7 +1451,8 @@ export class BlueprintWorkspaceDataView {
     if(!this.#treeQueryLoaded)return 'unknown'
     const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
     if(!parent)return 'unknown'
-    return this.view.createChildActionState(parent)
+    if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')return 'unknown'
+    return this.view.addActionState()
   }
 
   public canRead(field: string): boolean {

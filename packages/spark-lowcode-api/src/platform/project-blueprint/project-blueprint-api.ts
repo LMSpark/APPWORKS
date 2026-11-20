@@ -146,7 +146,9 @@ export class LowcodeProjectBlueprintApi {
     const {context, records} = await this.readQuery(projectId)
     if (records.some(record => record.nodeId === node.nodeId)) throw new Error('新增节点 ID 已存在，禁止重复提交')
     if (node.parentNodeId && !records.some(record => record.nodeId === node.parentNodeId)) throw new Error('新增节点的父节点不存在')
-    if (node.parentNodeId ? context.createChildActionState(node.parentNodeId) !== 'enabled' : !context.allowAdd) throw new Error('后端权限不允许新增蓝图节点')
+    if (!context.allowAdd || node.parentNodeId && !records.some(record => record.nodeId === node.parentNodeId)) {
+      throw new Error('后端权限不允许新增蓝图节点')
+    }
     const fields = lowcodeProjectBlueprintFields(node)
     await this.#runtime.save({changes:[{identity:this.#identity,context,changes:{added:[context.prepareNewRow({rowid:node.nodeId,
       SysId:projectId,prowid:node.parentNodeId || '000000',...fields})]}}]})

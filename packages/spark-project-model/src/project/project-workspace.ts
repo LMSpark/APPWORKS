@@ -445,6 +445,17 @@ constructor(options: ProjectWorkspaceOptions) {
     return record?.status ?? emptyScenarioVersionStatus
   }
 
+  /** 已确认或明确未应用的场景快照回执已交付，原owner不再保留恢复入口。 */
+  public acknowledgeScenarioVersionAttempt(command: ScenarioViewSaveCommand): void {
+    const scenarioId = this.requireScenarioId(command.scenarioId), scope = this.currentScenarioScope()
+    const key = JSON.stringify([scope, scenarioId]), record = this.scenarioVersionAttempts.get(key)
+    const file = this.scenarioFiles.get(scenarioId)
+    command.assertCurrent?.()
+    if (!record || !file || record.context.file !== file
+      || record.status.state !== 'confirmed' && record.status.state !== 'not-applied') return
+    this.scenarioVersionAttempts.delete(key)
+  }
+
   /** 只读核验Workspace捕获的原编号和原文本；允许当前定义视图有后续草稿。 */
   public async verifyScenarioVersionAttempt(command: ScenarioViewSaveCommand): Promise<ScenarioViewVersionAttemptStatus> {
     const scenarioId = this.requireScenarioId(command.scenarioId), scope = this.currentScenarioScope()

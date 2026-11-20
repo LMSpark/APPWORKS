@@ -282,6 +282,22 @@ describe('LowcodeProjectBlueprintApi', () => {
     }
   })
 
+  it('creates a blueprint child from table add permission without requiring row child permission', async () => {
+    const http = new BlueprintMutationHttp()
+    http.rows.set('ROOT', {...row('ROOT', '000000', 1),
+      lingma_sys_params: {e: [...LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS], d: true, c: false}})
+    const api = activeApi(http).blueprint
+    const created = await api.createNode('P1', {
+      nodeId: 'CHILD', parentNodeId: 'ROOT', projectId: 'P1', kind: 'page',
+      capability: {name: 'Child'}, navigation: {
+        title: 'Child', order: 1, target: 'cfg:child', publishInMenu: true,
+        showChildren: false, beginGroup: false,
+      }, source: {},
+    })
+    expect(created).toMatchObject({nodeId: 'CHILD', parentNodeId: 'ROOT', projectId: 'P1'})
+    expect(http.writes).toHaveLength(1)
+  })
+
   it('does not accept an unconfirmed creation or silently retry it', async () => {
     const http = new BlueprintMutationHttp()
     http.ignoreWrites = true

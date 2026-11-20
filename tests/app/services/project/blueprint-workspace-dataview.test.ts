@@ -8,7 +8,7 @@ const FIELDS=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode
   'NavigationImageWxz','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment',
   'IsShowAtNav','IsShowChildItem','BeginGroup','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
 type FixtureOptions=Readonly<{hiddenFields?:readonly string[];editableByRow?:Readonly<Record<string,readonly string[]>>;outputFields?:readonly string[];
-  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean}>
+  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;allowAdd?:boolean}>
 
 function initialRows():DataRow[]{return [
   {rowid:'NAV-ROOT',SysId:PROJECT,prowid:'000000',FunOrderValue:0,name:'APP',FunName:'APP',funCode:'APP',conid:'',conType:'Model',NavigationUrl:''},
@@ -31,6 +31,7 @@ function createFixture(options:FixtureOptions={}){
   const saveRequests:Array<Readonly<{ids:readonly string[];patches:readonly DataRow[]}>>=[]
   const verificationIds:string[][]=[]
   let queryCount=0,saveAttempts=0,writeCount=0,unknownPending=false,unknownFirstSave=options.unknownFirstSave===true
+  let pendingSavedRowIds:readonly unknown[]=[]
   let nextQueryGate:Readonly<{started:()=>void;wait:Promise<void>}>&{release:()=>void}|undefined
   const result=(selected:readonly DataRow[])=>({
     rows:selected,total:options.omitTotal?0:selected.length+(options.totalDelta??0),countReported:!options.omitTotal,resultPrimaryKey:'rowid',
@@ -47,8 +48,16 @@ function createFixture(options:FixtureOptions={}){
         writeMode:canWrite?'editable' as const:'readonly' as const}
     },
     readFieldAccess:(row:Readonly<DataRow>,field:string)=>output.has(field)&&Object.hasOwn(row,field)&&!hidden.has(field)?'visible' as const:'invisible' as const,
-    addActionState:()=> 'disabled' as const,editActionState:()=> 'enabled' as const,deleteActionState:()=> 'disabled' as const,
-    createChildActionState:()=> 'disabled' as const,viewActionState:()=> 'enabled' as const,
+    addActionState:()=> options.allowAdd===true?'enabled' as const:'disabled' as const,editActionState:()=> 'enabled' as const,deleteActionState:()=> 'disabled' as const,
+    createChildActionState:()=> 'hidden' as const,viewActionState:()=> 'enabled' as const,
+    prepareNewRow:(input:DataRow)=>({...input,rowid:crypto.randomUUID()}),
+    prepareNewRowWithIdentity:(input:DataRow,identity:Readonly<{field:string;value:string|number}>)=>({...input,[identity.field]:identity.value}),
+    newRowFieldAccess:(field:string)=>({
+      read:output.has(field)&&!hidden.has(field)?'visible' as const:'invisible' as const,
+      write:options.allowAdd===true&&field!=='rowid'&&output.has(field)&&!hidden.has(field)?'allowed' as const:'denied' as const,
+      required:false,
+    }),
+    ...(pendingSavedRowIds.length?{hasPendingSavedRowPermissions:true,pendingSavedRowIds}:{}),
   })
   const executor:Parameters<DataView['bindQueryExecutor']>[0]={
     queryColumns:target=>target.columns,
@@ -70,8 +79,9 @@ function createFixture(options:FixtureOptions={}){
     },
     save:async command=>{
       saveAttempts++
+      const added=command.changes[0]?.changes.added??[]
       const changes=command.changes[0]?.changes.changed??[]
-      const ids=changes.map(row=>String(row['rowid']??''))
+      const ids=[...added,...changes].map(row=>String(row['rowid']??''))
       if(unknownPending){
         verificationIds.push(ids)
         const verified=changes.every(patch=>{
@@ -83,12 +93,18 @@ function createFixture(options:FixtureOptions={}){
         return command.changes.map(change=>{const changed=change.changes.changed??[];return {metaName:change.identity.metaName,changed,added:[],deleted:[],
           changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===PROJECT))}})
       }
-      const patches=changes.map(patch=>({...patch}))
+      const patches=[...added,...changes].map(patch=>({...patch}))
       saveRequests.push({ids,patches});writeCount++
+      for(const patch of added)rows.push({...patch})
       for(const patch of changes){const stored=rows.find(row=>row['rowid']===patch['rowid']&&row['SysId']===PROJECT);if(stored)Object.assign(stored,patch)}
       if(unknownFirstSave){unknownFirstSave=false;unknownPending=true;throw Object.assign(new Error('transport timeout after apply'),{name:'RequestError'})}
-      return command.changes.map(change=>{const changed=change.changes.changed??[];return {metaName:change.identity.metaName,changed,added:[],deleted:[],
+      pendingSavedRowIds=added.map(row=>row['rowid'])
+      return command.changes.map(change=>{const changed=change.changes.changed??[],created=change.changes.added??[];return {metaName:change.identity.metaName,changed,added:created,deleted:[],
         changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===PROJECT))}})
+    },
+    refreshSavedRowPermissions:async()=>{
+      pendingSavedRowIds=[]
+      return result(rows.filter(row=>row['SysId']===PROJECT))
     },
     hasUnconfirmedSave:()=>unknownPending,
   }
@@ -105,6 +121,17 @@ function findNode(node:{nodeId:string;children?:readonly any[]},id:string):any{r
 function withPosition(node:any,parentNodeId:string,order:number):any{return {...node,parentNodeId,navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}}}
 
 describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
+  it('uses table add permission for a tree child when row child permission is hidden',async()=>{
+    const fixture=createFixture({allowAdd:true})
+    await fixture.owner.loadProjectTree()
+    expect(fixture.owner.childCreateActionState('NAV-ROOT')).toBe('enabled')
+    const id=await fixture.owner.addModuleNode('NAV-ROOT')
+    expect(typeof id).toBe('string')
+    const created=fixture.rows.find(row=>row['rowid']===id)
+    expect(created).toMatchObject({rowid:id,SysId:PROJECT,prowid:'NAV-ROOT',name:'新模块'})
+    expect(fixture.saveRequests).toHaveLength(1)
+  })
+
   it('keeps currentRow aligned with selected identity and clears its edit overlay on cancel',async()=>{
     const fixture=createFixture()
     await fixture.owner.load('NAV-BOUND')

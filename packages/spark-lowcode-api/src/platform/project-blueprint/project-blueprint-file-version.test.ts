@@ -22,19 +22,25 @@ describe('project blueprint file version', () => {
   it('parses named segments independent of input order and encodes fixed order', () => {
     const versions = parseLowcodeBlueprintFileVersions('style=3;rule=2;script=1')
     expect(versions).toEqual({ rule: 2, script: 1, style: 3, manifest: null })
-    expect(encodeLowcodeBlueprintFileVersions(versions)).toBe('rule=2;script=1;style=3')
+    expect(encodeLowcodeBlueprintFileVersions(versions)).toBe('r=2;s=1;t=3')
   })
 
   it('keeps legacy versionIds valid while adding a fourth manifest reference', () => {
     const versions = parseLowcodeBlueprintFileVersions('manifest=9;style=3;rule=2;script=1')
     expect(versions).toEqual({ rule: 2, script: 1, style: 3, manifest: 9 })
-    expect(encodeLowcodeBlueprintFileVersions(versions)).toBe('rule=2;script=1;style=3;manifest=9')
+    expect(encodeLowcodeBlueprintFileVersions(versions)).toBe('r=2;s=1;t=3;m=9')
     expect(lowcodeBlueprintVersionedFileName('publication-manifest.json', versions))
       .toBe('9__publication-manifest.json')
   })
 
+  it('reads compact publication pointers', () => {
+    expect(parseLowcodeBlueprintFileVersions('m=9;t=3;r=2;s=1'))
+      .toEqual({rule:2,script:1,style:3,manifest:9})
+  })
+
   it.each([
     'rule=1;rule=2',
+    'r=1;rule=2',
     'data=1',
     'rule=-1',
     'rule=',

@@ -16,9 +16,16 @@ export type LowcodeBlueprintFileVersionKey = 'rule' | 'script' | 'style' | 'mani
 export type LowcodeBlueprintFileVersions = Readonly<Record<LowcodeBlueprintFileVersionKey, number | null>>
 
 const FILE_VERSION_KEYS: readonly LowcodeBlueprintFileVersionKey[] = ['rule', 'script', 'style', 'manifest']
+const SHORT_FILE_VERSION_KEYS = {r:'rule',s:'script',t:'style',m:'manifest'} as const
 
-function isFileVersionKey(value: string): value is LowcodeBlueprintFileVersionKey {
-  return FILE_VERSION_KEYS.some(candidate => candidate === value)
+function normalizeFileVersionKey(value: string): LowcodeBlueprintFileVersionKey | undefined {
+  const legacy = FILE_VERSION_KEYS.find(candidate => candidate === value)
+  if (legacy) return legacy
+  if (value === 'r') return SHORT_FILE_VERSION_KEYS.r
+  if (value === 's') return SHORT_FILE_VERSION_KEYS.s
+  if (value === 't') return SHORT_FILE_VERSION_KEYS.t
+  if (value === 'm') return SHORT_FILE_VERSION_KEYS.m
+  return undefined
 }
 
 function emptyVersions(): Record<LowcodeBlueprintFileVersionKey, number | null> {
@@ -56,10 +63,10 @@ export function parseLowcodeBlueprintFileVersions(value: string): LowcodeBluepri
     if (separator <= 0 || separator === segment.length - 1) {
       throw new LowcodeApiError(0, `导航文件版本分段无效：${segment}`)
     }
-    const key = segment.slice(0, separator).trim()
+    const key = normalizeFileVersionKey(segment.slice(0, separator).trim())
     const rawVersion = segment.slice(separator + 1).trim()
-    if (!isFileVersionKey(key)) {
-      throw new LowcodeApiError(0, `未知导航文件版本分段：${key}`)
+    if (key === undefined) {
+      throw new LowcodeApiError(0, `未知导航文件版本分段：${segment.slice(0, separator).trim()}`)
     }
     if (seen.has(key)) throw new LowcodeApiError(0, `导航文件版本分段重复：${key}`)
     seen.add(key)
@@ -72,7 +79,11 @@ export function parseLowcodeBlueprintFileVersions(value: string): LowcodeBluepri
 export function encodeLowcodeBlueprintFileVersions(versions: LowcodeBlueprintFileVersions): string {
   return FILE_VERSION_KEYS
     .filter(key => versions[key] !== null)
-    .map(key => `${key}=${versions[key]}`)
+    .map(key => {
+      const shortKey = Object.entries(SHORT_FILE_VERSION_KEYS).find(([, value]) => value === key)?.[0]
+      if (!shortKey) throw new LowcodeApiError(0, `导航文件版本缺少短键：${key}`)
+      return `${shortKey}=${versions[key]}`
+    })
     .join(';')
 }
 

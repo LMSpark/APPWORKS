@@ -94,6 +94,11 @@ export class ScenarioDefinitionResource {
         this.assertSourceView(view)
         return status
       },
+      acknowledge: view => {
+        this.options.workspace.acknowledgeScenarioVersionAttempt({scenarioId: this.options.targetScenarioId,
+          assertCurrent: () => this.assertSourceView(view)})
+        this.assertSourceView(view)
+      },
       create: async (view, hooks) => {
         const assertCurrent = () => {
           this.assertSourceView(view)
@@ -185,6 +190,7 @@ export class ScenarioDefinitionResource {
           preview: (view, version) => resolve(view.queryContext['dataSpaceId']).source.history.preview(view, version),
           status: view => resolve(view.queryContext['dataSpaceId']).source.history.status(view),
           verify: (view, hooks) => resolve(view.queryContext['dataSpaceId']).source.history.verify(view, hooks),
+          acknowledge: view => resolve(view.queryContext['dataSpaceId']).source.history.acknowledge?.(view),
           create: (view, hooks) => resolve(view.queryContext['dataSpaceId']).source.history.create(view, hooks),
         },
         views: view => resolve(view.queryContext['dataSpaceId']).source.views(view),

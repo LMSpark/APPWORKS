@@ -3631,11 +3631,20 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       || !this.effectivePkFields.includes(keyField)) {
       throw new Error(`DATA_VIEW_APPEND_UNSUPPORTED: ${this.tableName}@${this.viewId} 当前结果不支持增量装载`)
     }
-    if (this._isDisposing || this._resultStale || this.requestState !== RequestState.Loaded || this.mutating
-      || this.#refreshingSavedRowPermissions || this.hasUnconfirmedSave || base.hasPendingSavedRowPermissions === true
-      || this.dirtyTrackingDelegate.pendingCreateIds.size > 0 || this.dirtyTrackingDelegate.pendingDeleteIds.size > 0
-      || this.#queryResultRefreshIdentity !== identity) {
-      throw new Error(`DATA_VIEW_APPEND_STATE: ${this.tableName}@${this.viewId} 当前状态不能增量装载`)
+    const blockers = [
+      this._isDisposing ? 'disposing' : '',
+      this._resultStale ? 'stale-result' : '',
+      this.requestState !== RequestState.Loaded ? `request:${this.requestState}` : '',
+      this.mutating ? 'mutating' : '',
+      this.#refreshingSavedRowPermissions ? 'refreshing-saved-permissions' : '',
+      this.hasUnconfirmedSave ? 'unconfirmed-save' : '',
+      base.hasPendingSavedRowPermissions === true ? 'pending-saved-permissions' : '',
+      this.dirtyTrackingDelegate.pendingCreateIds.size > 0 ? 'pending-create' : '',
+      this.dirtyTrackingDelegate.pendingDeleteIds.size > 0 ? 'pending-delete' : '',
+      this.#queryResultRefreshIdentity !== identity ? 'stale-query-identity' : '',
+    ].filter(Boolean)
+    if (blockers.length > 0) {
+      throw new Error(`DATA_VIEW_APPEND_STATE: ${this.tableName}@${this.viewId} 当前状态不能增量装载 (${blockers.join(',')})`)
     }
     if (this.queryConfig.parentResult || this.queryConfig.filterLookups?.length || (this.queryConfig.cacheType && this.queryConfig.cacheType !== 'none')
       || this.dataSet?.getParentCascades(this.tableName, this.viewId).length) {

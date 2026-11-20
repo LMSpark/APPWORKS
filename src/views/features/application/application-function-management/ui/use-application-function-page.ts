@@ -544,6 +544,7 @@ export function useApplicationFunctionPage() {
   /** 展开时按父节点沿原 DataView 增量装载；结果所属树代次变化即丢弃。 */
   async function loadChildren(nodeId: string, context: BlueprintTreeContext): Promise<void> {
     if (!context.owner.isLazyTree) return
+    if (context.owner.isBusy || context.owner.dirty || context.owner.hasPendingBlueprintCommand) return
     try {
       await state.loadBlueprintChildrenFromDataView(nodeId)
     } catch (cause) {

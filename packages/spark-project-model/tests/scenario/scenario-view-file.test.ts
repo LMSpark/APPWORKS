@@ -1651,6 +1651,18 @@ describe('ProjectWorkspace shared scenario versions', () => {
     expect(workspaceOwner.workspace.hasPendingScenarioVersionAttempt).toBe(false)
     expect(() => workspaceOwner.workspace.dispose()).not.toThrow()
   })
+  it('acknowledges a confirmed scenario version after publication delivery', async () => {
+    const workspaceOwner = workspaceFixture()
+    await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    await workspaceOwner.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})
+
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'confirmed', version: 1})
+    workspaceOwner.workspace.acknowledgeScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})
+
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    expect(workspaceOwner.workspace.getScenarioViews('UNIT-SCENE')?.isPersisted).toBe(true)
+    await expect(workspaceOwner.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('ATTEMPT_NONE')
+  })
   it('does not surface an old unknown attempt through a replacement file owner', async () => {
     const workspaceOwner = workspaceFixture()
     const file = await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})

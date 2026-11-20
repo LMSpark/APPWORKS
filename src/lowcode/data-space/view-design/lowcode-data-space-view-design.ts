@@ -2741,6 +2741,7 @@ export class LowcodeDataSpaceViewDesign {
           preview: (view, version) => requireResource().source.history.preview(view, version),
           status: view => requireResource().source.history.status(view),
           verify: (view, hooks) => requireResource().source.history.verify(view, hooks),
+          acknowledge: view => requireResource().source.history.acknowledge?.(view),
           create: (view, hooks) => requireResource().source.history.create(view, hooks),
         },
         views: view => requireResource().source.views(view),

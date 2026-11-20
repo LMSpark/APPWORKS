@@ -9,6 +9,8 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {openContentOperationWorkspace} from './content-operation-workspace'
+import type {SmartBidOperationModule,SmartBidOperationCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
+import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
 
 /** 工艺页面连接命令的输入形状。 */
 type Open=Parameters<typeof openContentOperationWorkspace>
@@ -22,6 +24,7 @@ export type ContentOperationDispatch=Readonly<{
 type Scope=Omit<Open[2],'signal'>&Readonly<{
  resolveOriginalGuide?:ResolveGuide
  dispatchOperation?:(command:ContentOperationDispatch)=>Promise<DispatchResult>
+ operationModule?:SmartBidOperationModule
 }>
 
 function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,error='OPERATION_ROUTE_DISPATCH_DIGEST'}:
@@ -42,12 +45,16 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
    if(!isRecord(input))throw Error('OPERATION_PAGE_COMMAND_REQUIRED')
    const workspace=openContentOperationWorkspace(runtime,classModel,{...scope,signal})
    if(name==='content.operation.dispatch'){
-    if(!scope.dispatchOperation)throw Error('OPERATION_PAGE_AGENT_DISPATCH_UNAVAILABLE')
-    const result=await scope.dispatchOperation({workspace,input,signal})
-    return Object.freeze({...result,assertCurrent:()=>{
+    const withCurrent=<T extends object>(result:T)=>Object.freeze({...result,assertCurrent:()=>{
      scope.assertCurrent()
      if(signal.aborted||runtime.destroyed||!runtime.isLoaded)throw Error('OPERATION_WORKSPACE_STALE')
     }})
+    if(scope.operationModule){
+     const command=readOperationCommand(input)
+     return withCurrent(await scope.operationModule.dispatchOperation(command))
+    }else if(scope.dispatchOperation){
+     return withCurrent(await scope.dispatchOperation({workspace,input,signal}))
+    }else throw Error('OPERATION_PAGE_AGENT_DISPATCH_UNAVAILABLE')
    }
    if(name==='content.operation.prepareRework'){
     const {runId,attemptRef,requestKey,targetDigest,configurationLockHash,reason}=input
@@ -125,4 +132,16 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
    })
   },
  }
+}
+
+function readOperationCommand(value:unknown):SmartBidOperationCommand{
+ if(!isRecord(value)||typeof value['operationId']!=='string'||typeof value['registrationId']!=='string'||
+  typeof value['businessInstanceId']!=='string'||typeof value['runtimeInstanceId']!=='string'||
+  typeof value['requestKey']!=='string'||typeof value['prompt']!=='string')
+  throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
+ const inputs=coerceStrictJsonValue(value['inputs'])
+ if(!inputs||typeof inputs!=='object'||Array.isArray(inputs))throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
+ return Object.freeze({operationId:value['operationId'],registrationId:value['registrationId'],
+  businessInstanceId:value['businessInstanceId'],runtimeInstanceId:value['runtimeInstanceId'],
+  requestKey:value['requestKey'],prompt:value['prompt'],inputs})
 }

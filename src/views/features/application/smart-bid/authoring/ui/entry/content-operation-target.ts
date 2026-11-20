@@ -39,6 +39,7 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
   classModel:ScriptHost[1];rootKind:string;assertCurrent:()=>void
   resolveOriginalGuide?:NonNullable<ScriptHost[2]['resolveOriginalGuide']>
  dispatchOperation?:NonNullable<ScriptHost[2]['dispatchOperation']>
+ operationModule?:NonNullable<ScriptHost[2]['operationModule']>
  }>){
  const target=resolvePublishedContentOperationTarget(route,entry)
  if(!target)return undefined
@@ -54,9 +55,10 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
     throw Error('OPERATION_PAGE_PUBLICATION_RUNTIME_CONFLICT')
    const binding=bindRoot(runtime,target)
    if(!identity(binding.rootKind))throw Error('OPERATION_PAGE_ROOT_REQUIRED')
-   const {classModel,rootKind,resolveOriginalGuide,dispatchOperation}=binding
+   const {classModel,rootKind,resolveOriginalGuide,dispatchOperation,operationModule}=binding
    return createContentOperationScriptHost(runtime,classModel,{scenarioId:target.scenarioId,projectId:target.projectId,rootKind,
     ...(resolveOriginalGuide?{resolveOriginalGuide}:{}),...(dispatchOperation?{dispatchOperation}:{}),
+    ...(operationModule?{operationModule}:{}),
     assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()}})
   },
  }

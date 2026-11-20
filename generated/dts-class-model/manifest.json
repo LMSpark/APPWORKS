@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1493,
+  "scannedFileCount": 1494,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -18753,6 +18753,23 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-operation-module",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-operation-module",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-operation-module\n职责：SmartBid 前端 Agent 的 ClassModel 根模块，将正式 action guide 编排为当前 PageRuntime owner 的一次工具执行。\n边界：不持久化业务状态、不解析低层 CRUD、不读取凭据；执行回调由可信宿主按当前 DataView/file/command owner 提供。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SmartBidOperationCommand",
+          "SmartBidOperationResult",
+          "SmartBidOperationModule"
+        ]
+      }
+    },
     "src/services/smart-bid/operation/guides/operation-action-guide.ts": {
       "file": "files/src/services/smart-bid/operation/guides/operation-action-guide.ts.json",
       "module": {
@@ -20658,7 +20675,9 @@
         "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host\n职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。\n边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。\nAI用途：核对页18脚本能够调用哪些当前实例能力。",
         "jsdocSource": "source-file-jsdoc",
-        "symbols": []
+        "symbols": [
+          "ContentOperationDispatch"
+        ]
       }
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts": {
@@ -25313,6 +25332,10 @@
     "ContentNodeVersionSelection": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts.json"
+    },
+    "ContentOperationDispatch": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json"
     },
     "ContentRequirementBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
@@ -30369,6 +30392,18 @@
     "SimpleEnvironmentInfo": {
       "sourcePath": "packages/spark-app/src/env.ts",
       "file": "files/packages/spark-app/src/env.ts.json"
+    },
+    "SmartBidOperationCommand": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json"
+    },
+    "SmartBidOperationModule": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json"
+    },
+    "SmartBidOperationResult": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json"
     },
     "SnapshotHistory": {
       "sourcePath": "packages/spark-utils/src/snapshot-history.ts",

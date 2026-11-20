@@ -9,7 +9,9 @@
     "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host\n职责：把本次页18工作区的目录查询与同版指南交给四文件脚本。\n边界：把本次 PageRuntime 的工艺能力交给脚本，读写仍由原绑定负责。\nAI用途：核对页18脚本能够调用哪些当前实例能力。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "ContentOperationDispatch"
+    ]
   },
   "$defs": {
     "Open": {
@@ -93,9 +95,412 @@
           "additionalProperties": false
         }
       ]
+    },
+    "DispatchResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DispatchResult",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "CLAIM_UNKNOWN"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "CLAIM_UNAVAILABLE"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "START_UNKNOWN"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "SEND_UNKNOWN"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observation": {
+              "const": "SEND_RETURNED"
+            },
+            "session": {
+              "type": "object",
+              "title": "import(\"@spark-appworks/spark-ai/agent\").AiAgentSession"
+            },
+            "publishedVersionRef": {
+              "type": "string"
+            },
+            "state": {
+              "const": "CHECK_ORIGINAL"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string"
+                },
+                "attemptRef": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "targetDigest": {
+                  "type": "string"
+                },
+                "configurationLockHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "runId",
+                "attemptRef",
+                "requestKey",
+                "projectId",
+                "targetDigest",
+                "configurationLockHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "observation",
+            "session",
+            "publishedVersionRef",
+            "state",
+            "turnId",
+            "attempt"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ContentOperationDispatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentOperationDispatch",
+      "properties": {
+        "workspace": {
+          "type": "object",
+          "properties": {
+            "discover": {
+              "type": "object",
+              "title": "(directoryRef: string) => Promise<Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; guideRef: string; versionRef: string; guideDigest: string; kind: string; actionName: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }>[]; assertCurrent: () => v..."
+            },
+            "readGuide": {
+              "type": "object",
+              "title": "(discovery: Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; guideRef: string; versionRef: string; guideDigest: string; kind: string; actionName: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }>[]; assertCurrent: () => void; }>, selection: Pa..."
+            },
+            "freeze": {
+              "type": "object",
+              "title": "(attempt: Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }>, guide: Readonly<{ versionRef: string; pathRefs: readonly string[]; materialRefs: readonly string[]; rootKind: string; kind: string; actionName: string; guideRef: str..."
+            },
+            "dispatch": {
+              "type": "object",
+              "title": "(options: Readonly<{ registry: { get(moduleId: string): import(\"@spark-appworks/spark-ai/agent\").AiAgentRegistration<Readonly<Record<string, import(\"@spark-appworks/spark-json-document\").JsonValue>>> | undefined; }; turnCallbacks: Readonly<{ prepareSession?: (input: import(\"@spark-appworks/spark-ai/agent\").AiAgentPr..."
+            },
+            "readDispatch": {
+              "type": "object",
+              "title": "(attempt: Parameters<typeof readRegisteredOperationDispatch>[1]) => Promise<Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }> & (Readonly<{ assertCurrent: () => void; }> & (Readonly<{ state: \"DISPATCH_RECORDED\"; dispatchRef: s..."
+            },
+            "readOriginalGuide": {
+              "type": "object",
+              "title": "(original: Parameters<typeof readRegisteredOriginalOperationGuide>[2][\"original\"]) => Promise<(Readonly<{ rootKind: string; kind: string; actionName: string; guideRef: string; guideDigest: string; guide: string; assertCurrent: () => void; }> & Readonly<{ guideVersionRef: string; }>) | undefined>"
+            },
+            "recover": {
+              "type": "object",
+              "title": "(manifest: Parameters<typeof recoverRegisteredOperationRouteAttempt>[1], guide: Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]) => Promise<Readonly<{ state: \"DISPATCH_UNKNOWN\"; assertCurrent: () => void; }> | Readonly<{ state: \"DISPATCH_EVIDENCE_REQUIRED\"; dispatch: Readonly<{ state: \"MATCHED\" | \"MISMA..."
+            },
+            "recoverOriginal": {
+              "type": "object",
+              "title": "(attempt: Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }>, resolveGuide: ResolveOriginalGuide) => Promise<Readonly<{ state: \"DISPATCH_UNKNOWN\"; assertCurrent: () => void; }> | Readonly<{ state: \"DISPATCH_EVIDENCE_REQUIRED\"; ..."
+            },
+            "prepareRework": {
+              "type": "object",
+              "title": "(selection: Parameters<typeof prepareRegisteredOperationStepRework>[1]) => Promise<Readonly<{ requestKey: string; targetDigest: string; configurationLockHash: string; projectId: string; runId: string; attemptRef: string; reason: string; inputRef: string; returnRef: string | null; firstCallRef: string | undefined; ha..."
+            }
+          },
+          "required": [
+            "discover",
+            "readGuide",
+            "freeze",
+            "dispatch",
+            "readDispatch",
+            "readOriginalGuide",
+            "recover",
+            "recoverOriginal",
+            "prepareRework"
+          ],
+          "additionalProperties": false
+        },
+        "input": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "required": [
+        "workspace",
+        "input",
+        "signal"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "resolveOriginalGuide": {
+          "type": "object",
+          "title": "ResolveOriginalGuide"
+        },
+        "operationModule": {
+          "$ref": "../../../../../../../services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json#/$defs/SmartBidOperationModule"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.dispatchOperation.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ContentOperationDispatch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatchOperation.return": {
+          "type": "object",
+          "title": "Promise<DispatchResult>"
+        }
+      }
     }
   },
-  "generatedAt": "2026-11-19T01:40:26.784Z",
+  "generatedAt": "2026-11-20T09:38:07.319Z",
   "models": {
     "Open": {
       "name": "Open",
@@ -120,6 +525,116 @@
       "typeAlias": {
         "declarationTypeText": "Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]",
         "members": {}
+      }
+    },
+    "DispatchResult": {
+      "name": "DispatchResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContentOperationDispatch": {
+      "name": "ContentOperationDispatch",
+      "jsdoc": "当前可信宿主把已注册 Agent SSE 派发器注入同一 PageRuntime；四文件只提交精确输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: Readonly<Record<string, unknown>>;\n    signal: AbortSignal;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: Readonly<Record<string, unknown>>;\n    signal: AbortSignal;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workspace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<DispatchResult>;\n    operationModule?: SmartBidOperationModule;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Open[2], 'signal'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<DispatchResult>;\n    operationModule?: SmartBidOperationModule;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resolveOriginalGuide",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operationModule",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "dispatchOperation",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentOperationDispatch",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DispatchResult",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
     }
   }

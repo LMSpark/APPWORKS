@@ -1,5 +1,6 @@
 import {expect,it,vi} from 'vitest'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
+import {SmartBidOperationModule} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
 
 it('exposes one trusted frontend SSE dispatch command through the current PageRuntime',async()=>{
  const runtime={generation:1,destroyed:false,isLoaded:true,resolveView:()=>undefined}
@@ -22,4 +23,23 @@ it('exposes one trusted frontend SSE dispatch command through the current PageRu
  expect(dispatchOperation).toHaveBeenCalledOnce()
  expect(dispatchOperation.mock.calls[0]?.[0]).toMatchObject({input,signal:controller.signal})
  expect(result).toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN'})
+})
+
+it('dispatches through the generated SmartBid ClassModel module instance',async()=>{
+ const runtime={generation:1,destroyed:false,isLoaded:true,resolveView:()=>undefined}
+ const execute=vi.fn(async()=>({receiptRef:'R1'}))
+ const operationModule=new SmartBidOperationModule(execute)
+ const host=createContentOperationScriptHost(runtime,{
+  executeTool:vi.fn(async()=>({ok:true,data:null})),
+ },{
+  scenarioId:'SPACE',projectId:'P',rootKind:'OperationRoute',assertCurrent:()=>{},operationModule,
+ })
+ const input={operationId:'39',registrationId:'SmartBidOperationModule',businessInstanceId:'P',
+  runtimeInstanceId:'RT',requestKey:'Q',prompt:'采用候选',inputs:{revisionId:'REV'}}
+
+ const result=await host.invoke('content.operation.dispatch',input,new AbortController().signal)
+
+ expect(result).toMatchObject({operationId:'39',requestKey:'Q',outcome:{receiptRef:'R1'}})
+ expect(execute).toHaveBeenCalledExactlyOnceWith(input)
+ expect(result).toHaveProperty('assertCurrent')
 })

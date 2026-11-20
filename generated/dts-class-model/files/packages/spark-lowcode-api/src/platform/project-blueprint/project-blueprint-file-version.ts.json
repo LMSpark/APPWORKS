@@ -75,7 +75,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-19T16:36:36.114Z",
+  "generatedAt": "2026-11-20T05:34:46.232Z",
   "models": {
     "LowcodeBlueprintFileName": {
       "name": "LowcodeBlueprintFileName",

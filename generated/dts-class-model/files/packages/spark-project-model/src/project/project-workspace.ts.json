@@ -662,6 +662,16 @@
         "method.getScenarioVersionStatus.return": {
           "$ref": "#/$defs/ScenarioViewVersionAttemptStatus"
         },
+        "method.acknowledgeScenarioVersionAttempt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acknowledgeScenarioVersionAttempt.return": true,
         "method.verifyScenarioVersionAttempt.params": {
           "type": "object",
           "properties": {
@@ -804,7 +814,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T22:59:18.858Z",
+  "generatedAt": "2026-11-20T05:25:24.530Z",
   "models": {
     "ScenarioViewVersionAttempt": {
       "name": "ScenarioViewVersionAttempt",
@@ -1872,6 +1882,24 @@
                 "type": "reference",
                 "name": "ScenarioViewVersionAttemptStatus",
                 "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+              }
+            },
+            {
+              "name": "acknowledgeScenarioVersionAttempt",
+              "jsdoc": "已确认或明确未应用的场景快照回执已交付，原owner不再保留恢复入口。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

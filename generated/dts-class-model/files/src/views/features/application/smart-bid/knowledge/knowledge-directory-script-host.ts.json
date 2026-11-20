@@ -64,32 +64,7 @@
         },
         {
           "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string"
-            },
-            "assertCurrent": {
-              "type": "object",
-              "title": "() => void"
-            },
-            "scenarioId": {
-              "type": "string"
-            },
-            "rootKind": {
-              "type": "string"
-            },
-            "resolveOriginalGuide": {
-              "type": "object",
-              "title": "ResolveOriginalGuide"
-            }
-          },
-          "required": [
-            "projectId",
-            "assertCurrent",
-            "scenarioId",
-            "rootKind"
-          ],
-          "additionalProperties": false
+          "title": "Scope"
         }
       ]
     }

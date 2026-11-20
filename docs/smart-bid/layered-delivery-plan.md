@@ -758,15 +758,15 @@ ClassModel 定义的真源是业务模块的 TypeScript／Vue 源声明、类型
 | 08 项目目录与策划 | page08 三文件、移交/基线读取比较存在 | 项目/轮次/标段/阶段/决定/分工/基线选择写链缺失 | 项目定义和阶段命令 + 基线选版 + 移交记录 + 正式查询/回读。 |
 | 09 招标依据与要求 | page09 三文件、义务/修改/通知/追踪读取存在 | 原件接入、要求判定、修改适用和义务登记写链缺失 | 原件/页栏/修改/要求/义务模型 + 判定命令 + 影响追踪 + 下游基线消费。 |
 | 10 响应与商务 | page10 三文件、响应/事实/批准/担保读取存在 | 作答、复算、批准、分工、担保办理写链和原回执缺失 | 要求响应 + 事实/证据 + 计价/批准 + 担保/人员承诺命令 + 同版回读。 |
-| 11 内容编制 | page11 已发布 `cfg`；JSON 文本 staged 编辑、候选读取已存在；通用 Agent SSE 路由已在仓内 | Page11 尚未把保存/候选/采用注册为前端 `FRONTEND` 工具；`SubmissionObligation`、基线/事实和原试次结果视图未装配到该入口 | Action guide/Agent registration + PageRuntime 工具 + 版本/请求/摘要原查询 + 基线义务 + 三版候选 + 原结果回读。 |
+| 11 内容编制 | page11 已发布 `cfg`；JSON 文本 staged 编辑、候选读取已存在；通用 Agent SSE 路由已在仓内 | 保存/候选/采用模块尚未把公开方法声明完整编译进 ClassModel；`SubmissionObligation`、基线/事实和原试次结果视图未装配到该入口 | 模块公开声明 → ClassModel 编译工具 → 本次 PageRuntime 实例绑定 + 版本/请求/摘要原查询 + 基线义务 + 三版候选 + 原结果回读。 |
 | 12 制件与审定 | page12 三文件、覆盖/制作/登记/恢复读取存在 | 现有链主要核验，实际制作、审定登记、实件摘要和批准写链未证 | 制作请求 + 模板版 + 制件结果 + 审定决定 + 实件文件/摘要原结果。 |
 | 13 签署与递交 | page13 三文件、冻结/封装/签署/请求准备存在 | `prepare*` 不等实际签署、封包、发送或登记；外部效力未接 | 明确实件 + 代表权 + 签署 + 封包 + 幂等实发命令 + 原办理查询。 |
 | 14 回执与截止核对 | page14 三文件、办理/回执/截止/结果读取存在 | 只读核验，正式接收事件、矛盾回执和阶段结果来源未统一 | 原请求/批次 + 事件回执 + 截止有效组合 + 正式结果与更正查询。 |
 | 15 任务与问题 | page15 三文件、发现准备/登记回查/复验读取存在 | 检查执行、问题登记、复验决定和任务签收/改派写链未闭环 | 目标版本 + 证据 + 登记命令 + 复验命令 + 任务签收/改派原结果。 |
 | 16 知识目录与指南 | page16 三文件、目录/指南读取存在 | 维护、编审、发布和换版影响命令未接 | 目录/指南版本 + 来源权限 + 编审发布记录 + 消费者换版影响。 |
-| 17 ClassModel 登记 | page17 三文件、目录/guide 查询存在 | 只读；产物登记、签名、验证器、实例绑定与停用前端工具未暴露 | 编译产物 + 可信实例 + validator/guide 绑定 + Agent 注册/换版/停用工具 + 原回执。 |
-| 18 AI 作业与核验 | page18 三文件、指南/原试次/核验/恢复读取及 `dispatchOperationRouteAgentTask` 存在 | `content-operation-script-host` 尚未暴露 dispatch，宿主未注入 Agent registry/tool、claim 和原试次写入 | 目录选用 + 输入冻结 + claimOriginalTurn + SSE per-call 派发 + 前端工具执行 + 实发/返回回读 + 业务页采用。 |
-| 19 配置编审与启用 | page19 三文件、候选/当前/影响/准备决策存在 | 只有 prepare；启停未注册为 Agent 前端工具，指针切换与原发布回查未串到同一 turn/toolCallId | 候选闭包 + 审阅 + 预期指针 + Agent 前端启停工具 + 真实指针回读 + 回滚/影响。 |
+| 17 ClassModel 登记 | page17 三文件、目录/guide 查询存在 | 只读；编译产物、签名、验证器、实例绑定与停用模块方法未完整公开 | 业务模块公开方法 → 正式生成 → validator/guide 绑定 + 实例绑定 + 换版/停用方法 + 原回执。 |
+| 18 AI 作业与核验 | page18 三文件、指南/原试次/核验/恢复读取及 `dispatchOperationRouteAgentTask` 存在 | 四文件已可进入 dispatch 宿主；应用启动仍未把生成的模块实例、工具运行时和 claim owner 一次注入 | 编译产物选用 + 输入冻结 + ClassModel 实例绑定 + claimOriginalTurn + SSE per-call + 原 owner 工具执行/回读。 |
+| 19 配置编审与启用 | page19 三文件、候选/当前/影响/准备决策存在 | 只有 prepare；启停公开模块方法与生成工具未绑定，指针切换和原发布回查未串到同一 turn/toolCallId | 候选闭包 + 审阅 + 预期指针 + 编译后的启停公开方法 + 真实指针回读 + 回滚/影响。 |
 
 **一次性关闭顺序**
 
@@ -788,12 +788,12 @@ ClassModel 定义的真源是业务模块的 TypeScript／Vue 源声明、类型
 **服务合同缺口的处理**
 
 - **不以“后端无接口”为结论。** 业务 Agent 的执行入口固定使用 `/api/ai/turns`，模型事件、`FRONTEND` 工具调用和结果通过 APP SSE `/api/sse/connect` 传输；前端把结果追加到 `/api/ai/sessions/{sessionId}/turn/append`。
-- AppWorks 的待做项是注册前端工具、装配当前 PageRuntime、固定输入、执行正式 owner 和回传工具结果，不是再实现一个 Java 接口或从页面调用 Agent 内部 API。
+- AppWorks 的待做项是补齐业务模块公开方法与同一 ClassModel 编译产物、装配当前 PageRuntime 实例、固定输入、执行正式 owner 和回传工具结果。不得另写人工 registration/tool schema；模块与生成物才是真源。
 - 所有动作共用 `dispatchOperationRouteAgentTask` 的原试次身份、指南摘要、配置锁、输入摘要和 claim；当前页只能消费本次明确的 `registrationId/businessInstanceId/runtimeInstanceId`。
 - 前端工具实际执行仍是 SPARK data、正式文件 owner 或原业务命令，不能为了 Agent 直调私有 HTTP、读取凭据、绕过字段权限或另建内存真源。
 - 真实模型不存在：先查页面所属正式数据空间、模型资源及 Agent 指南；只在确认资源身份和字段合同后新增绑定，不凭 `modelName` 猜表名。
 - 现有模型但缺视图：在共享 `pagedata.json` 增命名视图，供前端工具读取、校验、编辑、保存与回读。
-- 现有查询但页面没有命令：登记对应 Agent action/guide、前端工具和原结果视图；不得把“当前 Agent 还未注册”误写为“后端不支持”。
+- 现有查询但页面没有命令：先补对应模块公开方法、JSDoc/schema 和原结果视图，再运行正式 ClassModel 生成；不得把“模块方法未暴露”误写为“后端不支持”。
 - 现有命令但缺原结果查询：只保留发出前的固定捕获与 SSE 原试次，不标 READY，不允许重复发送。
 - 现有回执但缺部分回读：只确认能证明的部分工具结果，其他修改、行、文件及后续步骤继续待核。
 - SSE 中断、工具未执行或回传未知：状态为 unknown，先查原 Agent turn/toolCallId；原请求可核验、可移交、不可重放。

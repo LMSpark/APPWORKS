@@ -455,8 +455,16 @@ function originalDraft() {
 }
 
 function bindDraftIdentity() {
-  try {return {field: originalDraft().view.primaryKey}}
+  try {originalDraft(); return {value: '当前个人草稿'}}
   catch {return {visible: false}}
+}
+
+function bindContentNodeType() {
+  const labels = {
+    document: '逻辑册', chapter: '章节', heading: '标题', paragraph: '段落', list: '列表',
+    item: '列表项', quote: '引文', table: '普通表', toc: '目录', caption: '题注', image: '图片',
+  }
+  return {displayFormatter: value => Object.hasOwn(labels, value) ? labels[value] : String(value)}
 }
 
 function bindOriginalDraft() {

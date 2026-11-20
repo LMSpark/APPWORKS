@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-tree-comparison",
+    "sourcePath": "src/services/smart-bid/content-tree-comparison.ts",
+    "sourceFile": "src/services/smart-bid/content-tree-comparison.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-tree-comparison",
+    "jsdoc": "@module app:services/smart-bid/content-tree-comparison\n职责：对完整B/O/T内容树执行结构、身份、节点生命周期及同级顺序比较。\n边界：输出确定JSON诊断，不合并/保存，不核独立响应、外部引用、模板或采用授权。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentTreeLinkCheck",
+      "ContentTreeGeneratorCheck",
+      "ContentTreeComparisonInput",
+      "ContentTreeComparison"
+    ]
+  },
+  "$defs": {
+    "ContentTreeLinkCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeLinkCheck",
+      "properties": {
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "xref"
+          ]
+        },
+        "targetNodeId": {
+          "type": "string"
+        },
+        "snapshot": {
+          "enum": [
+            "BASIS",
+            "CURRENT",
+            "CANDIDATE"
+          ]
+        },
+        "targetExists": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "ownerNodeId",
+        "path",
+        "kind",
+        "targetNodeId",
+        "snapshot",
+        "targetExists"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTreeGeneratorCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeGeneratorCheck",
+      "properties": {
+        "snapshot": {
+          "enum": [
+            "BASIS",
+            "CURRENT",
+            "CANDIDATE"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshot",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTreeComparisonInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeComparisonInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "basis": true,
+        "current": true,
+        "candidate": true
+      },
+      "required": [
+        "projectId",
+        "basis",
+        "current",
+        "candidate"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTreeComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeComparison",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "content-node-comparison.ts.json#/$defs/ContentNodeComparison"
+          }
+        },
+        "siblings": {
+          "type": "array",
+          "items": {
+            "$ref": "content-sibling-order.ts.json#/$defs/ContentSiblingOrderComparison"
+          }
+        },
+        "linkChecks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTreeLinkCheck"
+          }
+        },
+        "tableGeneratorChecks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTreeGeneratorCheck"
+          }
+        },
+        "requiresExternalReferenceChecks": {
+          "const": true
+        },
+        "requiresCurrentBasisChecks": {
+          "const": true
+        },
+        "requiresMergedSnapshotValidation": {
+          "const": true
+        }
+      },
+      "required": [
+        "projectId",
+        "nodes",
+        "siblings",
+        "linkChecks",
+        "tableGeneratorChecks",
+        "requiresExternalReferenceChecks",
+        "requiresCurrentBasisChecks",
+        "requiresMergedSnapshotValidation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T21:37:39.573Z",
+  "models": {
+    "ContentTreeLinkCheck": {
+      "name": "ContentTreeLinkCheck",
+      "jsdoc": "引用只在所属固定快照内定位，不把另一版存在当作本版有效。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ContentNodeLink & Readonly<{\n    snapshot: 'BASIS' | 'CURRENT' | 'CANDIDATE';\n    targetExists: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ContentNodeLink",
+            "targetName": "ContentNodeLink"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    snapshot: 'BASIS' | 'CURRENT' | 'CANDIDATE';\n    targetExists: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetExists",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTreeGeneratorCheck": {
+      "name": "ContentTreeGeneratorCheck",
+      "jsdoc": "空表是否计算表须核该版模板，不从空数组或类名猜生成器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    snapshot: 'BASIS' | 'CURRENT' | 'CANDIDATE';\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    snapshot: 'BASIS' | 'CURRENT' | 'CANDIDATE';\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTreeComparisonInput": {
+      "name": "ContentTreeComparisonInput",
+      "jsdoc": "三份已完整取得的树；undefined不表示空树，允许首次建稿明确传空数组。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTreeComparison": {
+      "name": "ContentTreeComparison",
+      "jsdoc": "逐节点和逐父节点的诊断；不是完整修订语义校验或可提交的合并结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    nodes: readonly ContentNodeComparison[];\n    siblings: readonly ContentSiblingOrderComparison[];\n    linkChecks: readonly ContentTreeLinkCheck[];\n    tableGeneratorChecks: readonly ContentTreeGeneratorCheck[];\n    requiresExternalReferenceChecks: true;\n    requiresCurrentBasisChecks: true;\n    /** 最终合并尚未形成，必须再对合并后的完整快照执行适用检查。 */\n    requiresMergedSnapshotValidation: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    nodes: readonly ContentNodeComparison[];\n    siblings: readonly ContentSiblingOrderComparison[];\n    linkChecks: readonly ContentTreeLinkCheck[];\n    tableGeneratorChecks: readonly ContentTreeGeneratorCheck[];\n    requiresExternalReferenceChecks: true;\n    requiresCurrentBasisChecks: true;\n    /** 最终合并尚未形成，必须再对合并后的完整快照执行适用检查。 */\n    requiresMergedSnapshotValidation: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "siblings",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableGeneratorChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresExternalReferenceChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentBasisChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresMergedSnapshotValidation",
+              "jsdoc": "最终合并尚未形成，必须再对合并后的完整快照执行适用检查。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

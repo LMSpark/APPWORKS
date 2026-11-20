@@ -1,0 +1,30 @@
+/**
+ * @module @spark-appworks/spark-component:components/display/data-components/DisplayPagination/DisplayPagination.props
+ * 职责：定义 DisplayPagination（r-pagination）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。
+ * 边界：只描述 display/data-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
+ * AI用途：生成或修订页面配置时，用本模块判断 display pagination 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
+ */
+import type { SparkNodeProps } from '../../../shared-types'
+
+/** RPagination Props 的属性契约。 */
+export type RPaginationProps = SparkNodeProps & {
+  /** 分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准；countReported=false时只显示当前页、页大小及前后翻页，不用已加载行数伪造总数。下一页须nextPageAvailable明确为true；加载、编辑、待提交、未知提交及查询错误期间禁止派发翻页。 */
+  dataViewKey?: string
+  /** 总条数；仅未绑定视图时生效 */
+  total?: number
+    /** 每页条数 */
+    pageSize?: number
+    /** 当前页 */
+    currentPage?: number
+    /** 每页条数选项 */
+    pageSizes?: number[]
+    /** 页码按钮数量 */
+    pagerCount?: number
+    /** 布局模板 */
+    layout?: string
+    /** 是否显示背景 */
+    background?: boolean
+    /** 是否小尺寸 */
+    small?: boolean
+    /** 单页时是否隐藏 */
+    hideOnSinglePage?: boolean}

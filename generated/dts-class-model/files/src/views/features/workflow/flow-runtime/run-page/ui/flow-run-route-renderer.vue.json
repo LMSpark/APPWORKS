@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer\n职责：在办理页内按已解析路由挂载业务 Vue 页，并向注册表暴露 flowSubmit* 回调。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T01:17:48.256Z",
+  "models": {}
+}

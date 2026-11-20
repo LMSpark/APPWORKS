@@ -1,0 +1,408 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "r-page-header",
+        "props": {
+          "content": "管理仪表板",
+          "on": {
+            "back": "handleBack"
+          }
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "r-row",
+            "children": [
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "div",
+                        "children": [
+                          {
+                            "type": "div",
+                            "children": [
+                              "👥"
+                            ],
+                            "props": {
+                              "class": "stats-icon"
+                            }
+                          },
+                          {
+                            "type": "div",
+                            "children": [
+                              {
+                                "type": "div",
+                                "children": [
+                                  "1,234"
+                                ],
+                                "props": {
+                                  "class": "stats-value"
+                                }
+                              },
+                              {
+                                "type": "div",
+                                "children": [
+                                  "用户总数"
+                                ],
+                                "props": {
+                                  "class": "stats-label"
+                                }
+                              }
+                            ],
+                            "props": {
+                              "class": "stats-info"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "class": "stats-content"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "class": "stats-card stats-card--users"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 6
+                }
+              },
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "div",
+                        "children": [
+                          {
+                            "type": "div",
+                            "children": [
+                              "📊"
+                            ],
+                            "props": {
+                              "class": "stats-icon"
+                            }
+                          },
+                          {
+                            "type": "div",
+                            "children": [
+                              {
+                                "type": "div",
+                                "children": [
+                                  "567"
+                                ],
+                                "props": {
+                                  "class": "stats-value"
+                                }
+                              },
+                              {
+                                "type": "div",
+                                "children": [
+                                  "今日访问"
+                                ],
+                                "props": {
+                                  "class": "stats-label"
+                                }
+                              }
+                            ],
+                            "props": {
+                              "class": "stats-info"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "class": "stats-content"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "class": "stats-card stats-card--visits"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 6
+                }
+              },
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "div",
+                        "children": [
+                          {
+                            "type": "div",
+                            "children": [
+                              "🔥"
+                            ],
+                            "props": {
+                              "class": "stats-icon"
+                            }
+                          },
+                          {
+                            "type": "div",
+                            "children": [
+                              {
+                                "type": "div",
+                                "children": [
+                                  "89"
+                                ],
+                                "props": {
+                                  "class": "stats-value"
+                                }
+                              },
+                              {
+                                "type": "div",
+                                "children": [
+                                  "热门内容"
+                                ],
+                                "props": {
+                                  "class": "stats-label"
+                                }
+                              }
+                            ],
+                            "props": {
+                              "class": "stats-info"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "class": "stats-content"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "class": "stats-card stats-card--hot"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 6
+                }
+              },
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "div",
+                        "children": [
+                          {
+                            "type": "div",
+                            "children": [
+                              "💰"
+                            ],
+                            "props": {
+                              "class": "stats-icon"
+                            }
+                          },
+                          {
+                            "type": "div",
+                            "children": [
+                              {
+                                "type": "div",
+                                "children": [
+                                  "¥12,345"
+                                ],
+                                "props": {
+                                  "class": "stats-value"
+                                }
+                              },
+                              {
+                                "type": "div",
+                                "children": [
+                                  "今日收入"
+                                ],
+                                "props": {
+                                  "class": "stats-label"
+                                }
+                              }
+                            ],
+                            "props": {
+                              "class": "stats-info"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "class": "stats-content"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "class": "stats-card stats-card--revenue"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 6
+                }
+              }
+            ],
+            "props": {
+              "gutter": 20,
+              "class": "stats-row"
+            }
+          },
+          {
+            "type": "r-row",
+            "children": [
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "div",
+                        "children": [
+                          {
+                            "type": "r-button-group",
+                            "children": [
+                              {
+                                "type": "r-button",
+                                "children": [
+                                  "📝 配置页面演示"
+                                ],
+                                "props": {
+                                  "buttonType": "primary",
+                                  "on": {
+                                    "click": "goToConfigPage"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "r-button",
+                                "children": [
+                                  "🎯 Vue 组件页面"
+                                ],
+                                "props": {
+                                  "buttonType": "success",
+                                  "on": {
+                                    "click": "goToVueComponent"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "r-button",
+                                "children": [
+                                  "⚙️ 系统设置"
+                                ],
+                                "props": {
+                                  "buttonType": "warning",
+                                  "on": {
+                                    "click": "goToSettings"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "props": {
+                          "class": "quick-actions"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "header": "快捷操作"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 12
+                }
+              },
+              {
+                "type": "r-col",
+                "children": [
+                  {
+                    "type": "r-card",
+                    "children": [
+                      {
+                        "type": "el-table",
+                        "children": [
+                          {
+                            "type": "el-table-column",
+                            "props": {
+                              "prop": "type",
+                              "label": "页面类型",
+                              "width": "120"
+                            }
+                          },
+                          {
+                            "type": "el-table-column",
+                            "props": {
+                              "prop": "tech",
+                              "label": "技术实现"
+                            }
+                          },
+                          {
+                            "type": "el-table-column",
+                            "props": {
+                              "prop": "example",
+                              "label": "示例页面"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "style": {
+                            "width": "100%"
+                          },
+                          "dataViewKey": "pageTypes@default",
+                          "dataMember": "rows"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "header": "页面类型对比"
+                    }
+                  }
+                ],
+                "props": {
+                  "span": 12
+                }
+              }
+            ],
+            "props": {
+              "gutter": 20,
+              "class": "feature-row"
+            }
+          },
+          {
+            "type": "r-alert",
+            "props": {
+              "title": "混合渲染模式",
+              "alertType": "info",
+              "closable": false,
+              "description": "🎯 当前页面: 零代码配置页面 (JSON DSL 模式) | 📊 配置页面: 通过 JSON 配置生成 | 🔄 混合模式: 同时支持 Vue 组件与 JSON 配置两种渲染方式",
+              "style": {
+                "marginTop": "20px"
+              }
+            }
+          }
+        ],
+        "props": {
+          "class": "dashboard-content"
+        }
+      }
+    ],
+    "props": {
+      "class": "dashboard-page"
+    }
+  }
+]

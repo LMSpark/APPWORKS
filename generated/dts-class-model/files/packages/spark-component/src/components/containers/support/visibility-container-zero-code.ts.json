@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/visibility-container-zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/visibility-container-zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/visibility-container-zero-code\n职责：维护 @spark-appworks/spark-component 中 components/containers/support/visibility-container-zero-code 的模块能力，围绕 VisibilityContainerZeroCodeOptions 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/containers/support/visibility-container-zero-code 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "VisibilityContainerZeroCodeOptions"
+    ]
+  },
+  "$defs": {
+    "VisibilityContainerZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VisibilityContainerZeroCodeOptions",
+      "properties": {
+        "visibleValue": {
+          "$ref": "../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "onOpen": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClose": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onOpened": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClosed": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "visibleValue",
+        "onOpen",
+        "onClose",
+        "onOpened",
+        "onClosed"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.commitVisibleValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.commitVisibleValue.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.822Z",
+  "models": {
+    "VisibilityContainerZeroCodeOptions": {
+      "name": "VisibilityContainerZeroCodeOptions",
+      "jsdoc": "Visibility Container Zero Code Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** visible Value 字段。 */\n    visibleValue: ValueRef<boolean>;\n    /** commit Visible Value 回调。 */\n    commitVisibleValue: (value: boolean) => void;\n    /** on Open 事件回调。 */\n    onOpen: (() => void) | undefined;\n    /** on Close 事件回调。 */\n    onClose: (() => void) | undefined;\n    /** on Opened 事件回调。 */\n    onOpened: (() => void) | undefined;\n    /** on Closed 事件回调。 */\n    onClosed: (() => void) | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "visibleValue",
+              "jsdoc": "visible Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onOpen",
+              "jsdoc": "on Open 事件回调。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onClose",
+              "jsdoc": "on Close 事件回调。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onOpened",
+              "jsdoc": "on Opened 事件回调。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onClosed",
+              "jsdoc": "on Closed 事件回调。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "commitVisibleValue",
+              "jsdoc": "commit Visible Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

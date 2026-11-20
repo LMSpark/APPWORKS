@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views\n职责：为页15的正式共享场景装配 CheckFinding 数据视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T19:46:06.095Z",
+  "models": {}
+}

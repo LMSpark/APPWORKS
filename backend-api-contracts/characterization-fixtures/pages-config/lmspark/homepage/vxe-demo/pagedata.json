@@ -1,0 +1,196 @@
+{
+  "dataSetName": "VxeDemoDataSet",
+  "tables": {
+    "DemoData": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "gender",
+          "type": "string",
+          "label": "性别"
+        },
+        {
+          "name": "age",
+          "type": "number",
+          "label": "年龄"
+        },
+        {
+          "name": "birthday",
+          "type": "date",
+          "label": "生日"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "label": "地址"
+        },
+        {
+          "name": "score",
+          "type": "number",
+          "label": "分数"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "label": "激活"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1001,
+              "name": "张晨",
+              "gender": "male",
+              "age": 28,
+              "birthday": "1998-03-12",
+              "status": "active",
+              "address": "上海市浦东新区张江高科",
+              "score": 92,
+              "active": true
+            },
+            {
+              "id": 1002,
+              "name": "李然",
+              "gender": "female",
+              "age": 31,
+              "birthday": "1995-08-21",
+              "status": "inactive",
+              "address": "北京市海淀区中关村",
+              "score": 85,
+              "active": false
+            },
+            {
+              "id": 1003,
+              "name": "王越",
+              "gender": "male",
+              "age": 26,
+              "birthday": "2000-01-08",
+              "status": "pending",
+              "address": "深圳市南山区科技园",
+              "score": 78,
+              "active": true
+            },
+            {
+              "id": 1004,
+              "name": "赵宁",
+              "gender": "female",
+              "age": 34,
+              "birthday": "1992-05-16",
+              "status": "active",
+              "address": "杭州市西湖区文三路",
+              "score": 96,
+              "active": true
+            },
+            {
+              "id": 1005,
+              "name": "陈旭",
+              "gender": "male",
+              "age": 29,
+              "birthday": "1997-11-03",
+              "status": "inactive",
+              "address": "广州市天河区珠江新城",
+              "score": 81,
+              "active": false
+            },
+            {
+              "id": 1006,
+              "name": "孙悦",
+              "gender": "female",
+              "age": 27,
+              "birthday": "1999-07-19",
+              "status": "active",
+              "address": "成都市高新区天府大道",
+              "score": 88,
+              "active": true
+            },
+            {
+              "id": 1007,
+              "name": "周航",
+              "gender": "male",
+              "age": 33,
+              "birthday": "1993-12-25",
+              "status": "pending",
+              "address": "武汉市洪山区光谷",
+              "score": 74,
+              "active": false
+            },
+            {
+              "id": 1008,
+              "name": "吴彤",
+              "gender": "female",
+              "age": 30,
+              "birthday": "1996-04-09",
+              "status": "active",
+              "address": "南京市建邺区河西新城",
+              "score": 90,
+              "active": true
+            },
+            {
+              "id": 1009,
+              "name": "郑凯",
+              "gender": "male",
+              "age": 25,
+              "birthday": "2001-02-14",
+              "status": "inactive",
+              "address": "西安市雁塔区高新一路",
+              "score": 69,
+              "active": false
+            },
+            {
+              "id": 1010,
+              "name": "何静",
+              "gender": "female",
+              "age": 32,
+              "birthday": "1994-09-30",
+              "status": "active",
+              "address": "苏州市工业园区金鸡湖",
+              "score": 94,
+              "active": true
+            },
+            {
+              "id": 1011,
+              "name": "高峰",
+              "gender": "male",
+              "age": 35,
+              "birthday": "1991-06-27",
+              "status": "pending",
+              "address": "重庆市渝北区两江新区",
+              "score": 76,
+              "active": true
+            },
+            {
+              "id": 1012,
+              "name": "林雪",
+              "gender": "female",
+              "age": 24,
+              "birthday": "2002-10-11",
+              "status": "active",
+              "address": "厦门市思明区软件园",
+              "score": 87,
+              "active": true
+            }
+          ],
+          "autoCurrentFirst": true,
+          "pageSize": 10
+        }
+      },
+      "tableName": "DemoData"
+    }
+  }
+}

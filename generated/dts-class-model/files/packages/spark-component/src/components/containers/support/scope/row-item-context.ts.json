@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/scope/row-item-context",
+    "sourcePath": "packages/spark-component/src/components/containers/support/scope/row-item-context.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/scope/row-item-context.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/scope/row-item-context",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/scope/row-item-context\n职责：标识集合行项的自定义动作参数，区别普通表单和弹窗命令事件。\n边界：只携带所属视图和原行定位函数，不授予权限，不按主键认领替换记录。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-07T02:07:59.864Z",
+  "models": {}
+}

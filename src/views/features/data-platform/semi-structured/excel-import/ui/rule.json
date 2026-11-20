@@ -1,0 +1,180 @@
+[
+  {
+    "type": "r-section",
+    "props": {"title": "Excel 导入配置", "class": "excel-import-catalog", "bordered": false, "gridColumns": 1, "onBeforeRender":"bindCatalogSection"},
+    "children": [
+      {"type":"r-section","props":{"bordered":false,"status":"方案已保留；编码处理未标记完成，请核查正式结果。","onBeforeRender":"bindRetainedScheme"}},
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@default",
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "showDataViewMeta": false,
+          "onRowClick": "selectScheme",
+          "toolbar": {"wrap":true,"children":[
+            {"type":"r-button","props":{"label":"新增方案","permAction":"create","onBeforeRender":"bindMaintenanceAction","onClick":"createScheme"}},
+            {"type":"r-button","props":{"label":"打开设计","onBeforeRender":"bindSelectedAction","onClick":"openSelectedScheme"}},
+            {"type":"r-button","props":{"label":"刷新","action":"refresh","onBeforeRender":"bindMaintenanceAction"}}
+          ]},
+          "actions": {"children":[
+            {"type":"r-button","props":{"label":"复制KEY","onBeforeRender":"bindCopyAction","onClick":"copySchemeKey"}},
+            {"type":"r-button","props":{"label":"设计","permAction":"edit","onBeforeRender":"bindDesignRowAction","onClick":"designScheme"}},
+            {"type":"r-button","props":{"label":"编辑","permAction":"edit","onBeforeRender":"bindMaintenanceAction","onClick":"editScheme"}}
+          ]},
+          "filter": {"autoQuery": false, "children": [
+            {"type": "r-text", "props": {"field":"coding", "label":"方案编码", "placeholder":"按编码搜索"}},
+            {"type": "r-text", "props": {"field":"solutionName", "label":"方案名称", "placeholder":"按名称搜索"}}
+          ]}
+        },
+        "children": [
+          {"type":"r-text","props":{"field":"coding","label":"方案编码","readonly":true,"width":180}},
+          {"type":"r-text","props":{"field":"solutionName","label":"方案名称","readonly":true,"width":240}},
+          {"type":"r-text","props":{"field":"dataSetId","label":"数据空间 ID","readonly":true,"onBeforeRender":"bindCatalogId"}},
+          {"type":"r-select","props":{"field":"dataSetId","label":"数据空间","readonly":true,"width":200,"onBeforeRender":"bindDataSpace"}},
+          {"type":"r-text","props":{"field":"description","label":"描述","readonly":true,"width":300}},
+          {"type":"r-text","props":{"field":"createuser","label":"创建人 ID","readonly":true,"onBeforeRender":"bindCatalogId"}},
+          {"type":"r-select","props":{"field":"createuser","label":"创建人","readonly":true,"width":150,"onBeforeRender":"bindCreator"}},
+          {"type":"r-text","props":{"field":"createtime","label":"创建时间","readonly":true,"width":140}}
+        ]
+      },
+      {
+        "id": "excel-scheme-edit",
+        "type": "r-dialog",
+        "props": {
+          "width": 760,
+          "destroyOnClose": true,
+          "onBeforeRender": "bindSchemeDialog",
+          "on": {
+            "update:modelValue": "closeSchemeDialog"
+          },
+          "footer": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "保存方案",
+                  "onBeforeRender": "bindSaveScheme",
+                  "onClick": "saveScheme"
+                }
+              },
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "取消修改",
+                  "onBeforeRender": "bindCancelScheme",
+                  "onClick": "cancelScheme"
+                }
+              },
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "保留方案并结束",
+                  "onBeforeRender": "bindEndScheme",
+                  "onClick": "endScheme"
+                }
+              }
+            ]
+          }
+        },
+        "children": [
+          {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindSchemeError"}},
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "warning",
+              "closable": false,
+              "onBeforeRender": "bindSchemeStatus"
+            }
+          },
+          {
+            "type": "r-form",
+            "props": {
+              "gridColumns": 1,
+              "labelWidth": "88px",
+              "showDataViewMeta": false,
+              "onBeforeRender": "bindSchemeForm"
+            },
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "solutionName",
+                  "label": "方案名称",
+                  "maxlength": 200,
+                  "onBeforeRender": "bindSchemeField"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "field": "dataSetId",
+                  "label": "数据空间",
+                  "onBeforeRender": "bindSchemeDataSpace"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "templatePath",
+                  "label": "文件路径",
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-textarea",
+                "props": {
+                  "field": "description",
+                  "label": "备注",
+                  "maxlength": 500,
+                  "showWordLimit": true,
+                  "onBeforeRender": "bindSchemeField"
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "选择模板",
+              "onBeforeRender": "bindChooseTemplate",
+              "onClick": "chooseSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-alert",
+            "props": {
+              "alertType": "info",
+              "closable": false,
+              "onBeforeRender": "bindTemplateStatus"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "取消选择",
+              "onBeforeRender": "bindCancelTemplate",
+              "onClick": "cancelSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "保留文件并结束",
+              "onBeforeRender": "bindRetainTemplate",
+              "onClick": "retainSchemeTemplate"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "确认上传模板",
+              "onBeforeRender": "bindUploadTemplate",
+              "onClick": "uploadSchemeTemplate"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

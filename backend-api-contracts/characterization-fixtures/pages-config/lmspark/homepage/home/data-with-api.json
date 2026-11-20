@@ -1,0 +1,24 @@
+{
+  "stats": {
+    "totalUsers": "1,234",
+    "todayOrders": "89",
+    "revenue": "¥98,765",
+    "pending": "12"
+  },
+  "tableData": {
+    "url": "/api/users",
+    "method": "GET",
+    "dataPath": "data",
+    "autoLoad": true
+  },
+  "formOptions": {
+    "statusOptions": [
+      { "label": "激活", "value": "激活" },
+      { "label": "禁用", "value": "禁用" }
+    ],
+    "genderOptions": [
+      { "label": "男", "value": "男" },
+      { "label": "女", "value": "女" }
+    ]
+  }
+}

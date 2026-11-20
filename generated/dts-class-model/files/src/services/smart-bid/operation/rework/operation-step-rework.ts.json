@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/rework/operation-step-rework",
+    "sourcePath": "src/services/smart-bid/operation/rework/operation-step-rework.ts",
+    "sourceFile": "src/services/smart-bid/operation/rework/operation-step-rework.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/rework/operation-step-rework",
+    "jsdoc": "@module app:services/smart-bid/operation/rework/operation-step-rework\n职责：第07项沿原试次定位返工与逐笔外部接手。\n边界：定位首个退回点并移交责任，原办理状态继续由对应责任方维护。\nAI用途：根据原调用与检查记录找到返工责任方。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Cause": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Cause",
+      "enum": [
+        "DIRECTORY",
+        "BINDING",
+        "INPUT",
+        "RECOMPUTE",
+        "ACTUAL_INPUT_MISSING",
+        "EVIDENCE_ONLY",
+        "MODEL_DEFECT",
+        "BUSINESS_CONDITION",
+        "UNKNOWN_IMPACT"
+      ]
+    },
+    "Call": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Call",
+      "properties": {
+        "callRef": {
+          "type": "string"
+        },
+        "ownerRef": {
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "COMPUTE",
+            "SIGN",
+            "SUBMIT",
+            "WITHDRAW",
+            "OTHER_EXTERNAL"
+          ]
+        },
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "PARTIAL",
+            "COMPLETE",
+            "NOT_STARTED"
+          ]
+        },
+        "inputRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "returnRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Finding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Finding",
+      "properties": {
+        "cause": {
+          "$ref": "#/$defs/Cause"
+        },
+        "callRef": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "affectedRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "PriorResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PriorResult",
+      "properties": {
+        "resultRef": {
+          "type": "string"
+        },
+        "applicabilityRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T02:14:42.825Z",
+  "models": {
+    "Cause": {
+      "name": "Cause",
+      "jsdoc": "返工发现所指向的责任原因。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "keyof typeof routes",
+        "members": {}
+      }
+    },
+    "Call": {
+      "name": "Call",
+      "jsdoc": "参与返工定位的原调用事实。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    callRef: string;\n    ownerRef: string;\n    effect: 'COMPUTE' | 'SIGN' | 'SUBMIT' | 'WITHDRAW' | 'OTHER_EXTERNAL';\n    state: 'NOT_STARTED' | 'COMPLETE' | 'PARTIAL' | 'UNKNOWN';\n    inputRef: string | null;\n    returnRef: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    callRef: string;\n    ownerRef: string;\n    effect: 'COMPUTE' | 'SIGN' | 'SUBMIT' | 'WITHDRAW' | 'OTHER_EXTERNAL';\n    state: 'NOT_STARTED' | 'COMPLETE' | 'PARTIAL' | 'UNKNOWN';\n    inputRef: string | null;\n    returnRef: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "callRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effect",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "returnRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Finding": {
+      "name": "Finding",
+      "jsdoc": "本次返工检查记录及其证据引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    cause: Cause;\n    callRef: string;\n    evidenceRef: string;\n    affectedRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    cause: Cause;\n    callRef: string;\n    evidenceRef: string;\n    affectedRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "cause",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "callRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "affectedRefs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PriorResult": {
+      "name": "PriorResult",
+      "jsdoc": "可供本次返工核对的原结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resultRef: string;\n    applicabilityRef: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resultRef: string;\n    applicabilityRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resultRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicabilityRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

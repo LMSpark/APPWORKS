@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/content-subtree-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/content-subtree-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/content-subtree-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/content-subtree-hash\n职责：按本版完整树的同级index组合已核nodeHash，计算可重建的子树摘要。\n边界：不证明输入nodeHash载荷，不计算rootHash/effectiveHash、不保存投影或授权。\nAI用途：原完整节点读取器验证载荷后调用；摘要仅随原视图证明有效。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentSubtreeInput",
+      "ContentSubtreeHash"
+    ]
+  },
+  "$defs": {
+    "ContentSubtreeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSubtreeInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              },
+              "type": {
+                "type": "string"
+              },
+              "nodeHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "parentId",
+              "index",
+              "type",
+              "nodeHash"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "ContentSubtreeHash": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentSubtreeHash",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "subtreeHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "subtreeHash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T13:46:22.798Z",
+  "models": {
+    "ContentSubtreeInput": {
+      "name": "ContentSubtreeInput",
+      "jsdoc": "固定结构与已由调用方核对的节点摘要，不携带正文或样式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    nodes: ReadonlyArray<ContentStructureNode & {\n        nodeHash: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    nodes: ReadonlyArray<ContentStructureNode & {\n        nodeHash: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentSubtreeHash": {
+      "name": "ContentSubtreeHash",
+      "jsdoc": "可重建摘要索引；原数据和查询证明仍归所属DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    subtreeHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    subtreeHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subtreeHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

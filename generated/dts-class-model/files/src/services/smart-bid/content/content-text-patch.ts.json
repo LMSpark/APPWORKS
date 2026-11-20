@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-text-patch",
+    "sourcePath": "src/services/smart-bid/content/content-text-patch.ts",
+    "sourceFile": "src/services/smart-bid/content/content-text-patch.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-text-patch",
+    "jsdoc": "@module app:services/smart-bid/content/content-text-patch\n职责：组合固定候选和预演头的文字片段，检查不重叠后同时生成文字预览。\n边界：不改正式节点/响应或绑定；预览坐标不是已采用修订的来源坐标。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentTextPatchObject",
+      "ContentTextPatchInput",
+      "ContentTextPatchPart",
+      "ContentTextPatch",
+      "ContentTextPatchPreview"
+    ]
+  },
+  "$defs": {
+    "ContentTextPatchObject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextPatchObject",
+      "properties": {
+        "owner": {
+          "$ref": "content-text-span.ts.json#/$defs/ContentTextOwner"
+        },
+        "object": true
+      },
+      "required": [
+        "owner",
+        "object"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextPatchInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextPatchInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "expectedHead": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTextPatchObject"
+          }
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTextPatchObject"
+          }
+        },
+        "changes": true
+      },
+      "required": [
+        "projectId",
+        "candidateRevisionId",
+        "expectedHead",
+        "sources",
+        "targets",
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextPatchPart": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextPatchPart",
+      "properties": {
+        "changeIndex": {
+          "type": "number"
+        },
+        "operation": {
+          "enum": [
+            "delete",
+            "replace",
+            "insert"
+          ]
+        },
+        "sourceRef": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "ContentTextSpan"
+        },
+        "targetRef": {
+          "$ref": "content-text-span.ts.json#/$defs/ContentTextSpan"
+        },
+        "resultStart": {
+          "type": "number"
+        },
+        "resultEnd": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "changeIndex",
+        "operation",
+        "sourceRef",
+        "targetRef",
+        "resultStart",
+        "resultEnd"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextPatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextPatch",
+      "properties": {
+        "owner": {
+          "$ref": "content-text-span.ts.json#/$defs/ContentTextOwner"
+        },
+        "path": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTextPatchPart"
+          }
+        }
+      },
+      "required": [
+        "owner",
+        "path",
+        "before",
+        "after",
+        "parts"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTextPatchPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTextPatchPreview",
+      "properties": {
+        "patches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentTextPatch"
+          }
+        },
+        "containsSelectedPlaceholders": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresFieldBindingChecks": {
+          "const": true
+        },
+        "requiresDeletionDifferenceChecks": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresMeaningChecks": {
+          "const": true
+        },
+        "requiresTargetScopeChecks": {
+          "const": true
+        },
+        "requiresCurrentAuthorityChecks": {
+          "const": true
+        },
+        "requiresMergedSnapshotValidation": {
+          "const": true
+        }
+      },
+      "required": [
+        "patches",
+        "containsSelectedPlaceholders",
+        "requiresFieldBindingChecks",
+        "requiresDeletionDifferenceChecks",
+        "requiresMeaningChecks",
+        "requiresTargetScopeChecks",
+        "requiresCurrentAuthorityChecks",
+        "requiresMergedSnapshotValidation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T22:16:29.535Z",
+  "models": {
+    "ContentTextPatchObject": {
+      "name": "ContentTextPatchObject",
+      "jsdoc": "宿主从固定修订读回的对象，不能用当前屏幕文字代替。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    owner: ContentTextOwner;\n    object: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    owner: ContentTextOwner;\n    object: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "object",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextPatchInput": {
+      "name": "ContentTextPatchInput",
+      "jsdoc": "所有目标都属于同一expectedHead；删除不能夹带sourceRef。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    expectedHead: string;\n    sources: readonly ContentTextPatchObject[];\n    targets: readonly ContentTextPatchObject[];\n    changes: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    expectedHead: string;\n    sources: readonly ContentTextPatchObject[];\n    targets: readonly ContentTextPatchObject[];\n    changes: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedHead",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextPatchPart": {
+      "name": "ContentTextPatchPart",
+      "jsdoc": "预览串中的实际位置；正式采用后仍须按新修订核定并生成来源记录。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    changeIndex: number;\n    operation: 'replace' | 'insert' | 'delete';\n    sourceRef: ContentTextSpan | null;\n    targetRef: ContentTextSpan;\n    resultStart: number;\n    resultEnd: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    changeIndex: number;\n    operation: 'replace' | 'insert' | 'delete';\n    sourceRef: ContentTextSpan | null;\n    targetRef: ContentTextSpan;\n    resultStart: number;\n    resultEnd: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "changeIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultStart",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultEnd",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextPatch": {
+      "name": "ContentTextPatch",
+      "jsdoc": "此处after只是待核文字，不自动写回绑定DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    owner: ContentTextOwner;\n    path: string;\n    before: string;\n    after: string;\n    parts: readonly ContentTextPatchPart[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    owner: ContentTextOwner;\n    path: string;\n    before: string;\n    after: string;\n    parts: readonly ContentTextPatchPart[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parts",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTextPatchPreview": {
+      "name": "ContentTextPatchPreview",
+      "jsdoc": "独立的文字预览，语义、绑定、删除依据、范围和授权均不得据此跳过。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    patches: readonly ContentTextPatch[];\n    containsSelectedPlaceholders: boolean;\n    requiresFieldBindingChecks: true;\n    requiresDeletionDifferenceChecks: boolean;\n    requiresMeaningChecks: true;\n    requiresTargetScopeChecks: true;\n    requiresCurrentAuthorityChecks: true;\n    requiresMergedSnapshotValidation: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    patches: readonly ContentTextPatch[];\n    containsSelectedPlaceholders: boolean;\n    requiresFieldBindingChecks: true;\n    requiresDeletionDifferenceChecks: boolean;\n    requiresMeaningChecks: true;\n    requiresTargetScopeChecks: true;\n    requiresCurrentAuthorityChecks: true;\n    requiresMergedSnapshotValidation: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "patches",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "containsSelectedPlaceholders",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresFieldBindingChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresDeletionDifferenceChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresMeaningChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresTargetScopeChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentAuthorityChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresMergedSnapshotValidation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

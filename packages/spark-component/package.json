@@ -1,0 +1,80 @@
+{
+  "name": "@spark-appworks/spark-component",
+  "version": "0.4.5",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.vue.js"
+  ],
+  "private": false,
+  "license": "MIT",
+  "description": "SPARK Component System - 组件核心（能力系统、组件管理器、组件注册表）",
+  "files": [
+    "dist",
+    "API.md",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./runtime": {
+      "import": "./dist/runtime/index.js",
+      "types": "./dist/runtime/index.d.ts"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && vite build && vue-tsc -p tsconfig.build.json",
+    "typecheck": "vue-tsc -p tsconfig.json --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint \"src/**/*.{ts,tsx,js}\" --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx,js}\" --fix"
+  },
+  "dependencies": {
+    "@codemirror/commands": "catalog:",
+    "@codemirror/lang-css": "catalog:",
+    "@codemirror/lang-javascript": "catalog:",
+    "@codemirror/language": "catalog:",
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
+    "@spark-appworks/spark-data": "workspace:*",
+    "@spark-appworks/spark-json-document": "workspace:*",
+    "@spark-appworks/spark-project-model": "workspace:*",
+    "@spark-appworks/spark-utils": "workspace:*",
+    "codemirror": "catalog:",
+    "vanilla-jsoneditor": "catalog:"
+  },
+  "peerDependencies": {
+    "@vue-flow/core": "catalog:",
+    "@element-plus/icons-vue": "catalog:",
+    "element-plus": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "vxe-table": "catalog:"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "@vitejs/plugin-vue": "catalog:",
+    "@spark-appworks/spark-ai": "workspace:*",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

@@ -1,0 +1,23 @@
+[data-page="master-detail"] .master-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+[data-page="master-detail"] .master-detail-container .section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-page="master-detail"] .master-detail-container h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+[data-page="master-detail"] .master-detail-container pre {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}

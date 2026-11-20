@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/example-plan",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/example-plan.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/example-plan.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/example-plan",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/example-plan\n职责：按正式主/分段DataView当前编辑覆盖编译示例输入，不修改节点或保存记录。\n边界：名称、来源、节点归属、规则与结果字段沿原查询权限核定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeExamplePlan"
+    ]
+  },
+  "$defs": {
+    "CodeExamplePlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeExamplePlan",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "input": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/example-client.ts.json#/$defs/CodeExampleInput"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "previous": true
+      },
+      "required": [
+        "id",
+        "input",
+        "signature",
+        "previous"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T13:22:33.330Z",
+  "models": {
+    "CodeExamplePlan": {
+      "name": "CodeExamplePlan",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    input: CodeExampleInput;\n    signature: string;\n    previous: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    input: CodeExampleInput;\n    signature: string;\n    previous: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signature",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previous",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

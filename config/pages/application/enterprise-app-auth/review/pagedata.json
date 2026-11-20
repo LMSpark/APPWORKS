@@ -1,0 +1,67 @@
+{
+  "scenarioId": "C06D41607B6258106F35A0A319B71804",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "enterprise_app_auth": {
+      "modelBinding": {"modelId": "6a72428e-27bf-483d-8262-1796e4b49f98", "modelName": "enterprise_app_auth"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "auth_status", "operator": "eq", "value": "PENDING"},
+            {"field": "source_ent", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}},
+            {"field": "request_type", "operator": "eq", "value": "REQUEST"}
+          ]},
+          "queryConfig": {"pagination": "paged", "cacheType": "none",
+            "fields": ["id", "enterprise_id", "ent_shortname", "app_id", "source_ent", "request_type", "auth_status", "requested_at", "review_comment"]}
+        },
+        "audit": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+          "scopeFilter": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "recordId"}},
+          "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["id", "auth_status", "review_comment", "operator"]}
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "a3e5363d-9a82-49d9-a291-aecac406c9dd", "modelName": "Base_AppSystemList"},
+      "columns": [{"name": "displayName", "type": "string", "label": "应用名称",
+        "computeExpression": "AppDesc && AppName ? AppDesc + '[' + AppName + ']' : (AppDesc || AppName || '-')"}],
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "displayName",
+          "queryConfig": {"allPages": true, "maxRows": 1000, "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc"]}
+        },
+        "published": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 10,
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "app_status", "operator": "eq", "value": "PUBLISHED"},
+            {"field": "publisher_ent", "operator": "ne", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}}
+          ]},
+          "queryConfig": {"pagination": "paged", "cacheType": "none", "fields": ["rowid", "AppName", "AppDesc", "publisher_ent", "Memo"]}
+        }
+      }
+    },
+    "Base_Enterprise_Info": {
+      "modelBinding": {"modelId": "8407ce12-0533-4125-bf6c-e36b6ea18d52", "modelName": "Base_Enterprise_Info"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "CName",
+          "queryConfig": {"allPages": true, "maxRows": 1000, "cacheType": "none", "fields": ["rowid", "ShortName", "CName"]}
+        },
+        "byShortName": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "ShortName", "labelField": "CName",
+          "queryConfig": {"allPages": true, "maxRows": 1000, "cacheType": "none", "fields": ["rowid", "ShortName", "CName"]}
+        }
+      }
+    },
+    "app_auth_status": {
+      "modelBinding": {"modelId": "d1c4cd17-76c0-4900-9fc1-79c22b0ba606", "modelName": "app_auth_status"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    }
+  }
+}

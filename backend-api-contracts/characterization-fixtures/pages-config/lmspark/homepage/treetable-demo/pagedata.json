@@ -1,0 +1,99 @@
+{
+  "dataSetName": "TreeTableDS",
+  "resourceRelations": [],
+  "tables": {
+    "OrgRows": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "名称"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "label": "类型"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "label": "负责人"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "武汉领码科技",
+              "type": "company",
+              "owner": "总部",
+              "status": "正常",
+              "children": [
+                {
+                  "id": 2,
+                  "name": "研发中心",
+                  "type": "department",
+                  "owner": "张三",
+                  "status": "正常",
+                  "children": [
+                    {
+                      "id": 3,
+                      "name": "前端组",
+                      "type": "team",
+                      "owner": "李四",
+                      "status": "正常"
+                    },
+                    {
+                      "id": 4,
+                      "name": "后端组",
+                      "type": "team",
+                      "owner": "王五",
+                      "status": "正常"
+                    }
+                  ]
+                },
+                {
+                  "id": 5,
+                  "name": "产品中心",
+                  "type": "department",
+                  "owner": "赵六",
+                  "status": "筹备中"
+                },
+                {
+                  "id": 6,
+                  "name": "市场中心",
+                  "type": "department",
+                  "owner": "孙七",
+                  "status": "正常",
+                  "children": [
+                    {
+                      "id": 7,
+                      "name": "品牌组",
+                      "type": "team",
+                      "owner": "周八",
+                      "status": "正常"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "OrgRows"
+    }
+  }
+}

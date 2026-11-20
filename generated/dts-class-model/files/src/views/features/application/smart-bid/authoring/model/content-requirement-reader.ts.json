@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-requirement-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-requirement-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-requirement-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-requirement-reader\n职责：读取项目内指定谱系及版本的要求原记录。\n边界：只返回原DataView证明，基线成员与用途许可由上层确认。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentRequirementSelection",
+      "ContentRequirementBinding"
+    ]
+  },
+  "$defs": {
+    "ContentRequirementSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentRequirementSelection",
+      "properties": {
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "ContentRequirementBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentRequirementBinding",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "requirementContentHash": {
+          "type": "string"
+        },
+        "requiresBaselineMembershipCheck": {
+          "const": true
+        },
+        "requiresUseCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T01:00:29.745Z",
+  "models": {
+    "ContentRequirementSelection": {
+      "name": "ContentRequirementSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentRequirementBinding": {
+      "name": "ContentRequirementBinding",
+      "jsdoc": "原版本可读证明；两个待核标志不因status=ADOPTED而消失。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    requirementContentHash: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    requirementContentHash: string;\n    requiresBaselineMembershipCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirementContentHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresBaselineMembershipCheck",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresUseCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h2",
+        "children": [
+          "测试订单"
+        ]
+      },
+      {
+        "type": "el-divider"
+      },
+      {
+        "type": "r-table",
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "label": "ID",
+              "width": 80,
+              "field": "id"
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "label": "名称",
+              "field": "name"
+            }
+          },
+          {
+            "type": "r-select",
+            "props": {
+              "label": "状态",
+              "width": 120,
+              "options": [
+                {
+                  "label": "待处理",
+                  "value": "pending"
+                },
+                {
+                  "label": "进行中",
+                  "value": "processing"
+                },
+                {
+                  "label": "已完成",
+                  "value": "completed"
+                },
+                {
+                  "label": "已取消",
+                  "value": "cancelled"
+                }
+              ],
+              "field": "status"
+            }
+          },
+          {
+            "type": "r-number",
+            "props": {
+              "label": "价格",
+              "width": 120,
+              "min": 0,
+              "field": "price"
+            }
+          }
+        ],
+        "props": {
+          "border": true,
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "dataViewKey": "test-order@default"
+        }
+      }
+    ],
+    "props": {
+      "class": "page-container",
+      "style": {
+        "padding": "20px"
+      }
+    }
+  }
+]

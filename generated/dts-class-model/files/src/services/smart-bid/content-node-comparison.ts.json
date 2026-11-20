@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-node-comparison",
+    "sourcePath": "src/services/smart-bid/content-node-comparison.ts",
+    "sourceFile": "src/services/smart-bid/content-node-comparison.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-node-comparison",
+    "jsdoc": "@module app:services/smart-bid/content-node-comparison\n职责：按固定B/O/T快照比较一个内容节点的生命周期、内容与位置。\n边界：只返回诊断JSON，不合并/保存节点，不核授权；完整树、句段、兄弟顺序与采用依据另核。\nAI用途：预演区分内容冲突与位置变化，并显式保留删除引用及当前依据的检查责任。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentVersionDelta",
+      "ContentNodePresence",
+      "ContentNodeConflict",
+      "ContentNodeComparisonInput",
+      "ContentNodeComparison"
+    ]
+  },
+  "$defs": {
+    "ContentVersionDelta": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentVersionDelta",
+      "enum": [
+        "UNCHANGED",
+        "CURRENT_ONLY",
+        "CANDIDATE_ONLY",
+        "SAME_CHANGE",
+        "DIVERGED"
+      ]
+    },
+    "ContentNodePresence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentNodePresence",
+      "enum": [
+        "ABSENT",
+        "PRESENT",
+        "CURRENT_ADDITION",
+        "CANDIDATE_ADDITION",
+        "CONCURRENT_ADDITION",
+        "CURRENT_DELETION",
+        "CANDIDATE_DELETION",
+        "CONCURRENT_DELETION"
+      ]
+    },
+    "ContentNodeConflict": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ContentNodeConflict",
+      "enum": [
+        "TYPE_CHANGED",
+        "CONTENT",
+        "PARENT",
+        "DELETE_EDIT",
+        "ADD_COLLISION",
+        "REFERENCED_DELETE"
+      ]
+    },
+    "ContentNodeComparisonInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeComparisonInput",
+      "properties": {
+        "basis": true,
+        "current": true,
+        "candidate": true,
+        "deletionReferencedBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "basis",
+        "current",
+        "candidate"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeComparison",
+      "properties": {
+        "nodeId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "presence": {
+          "$ref": "#/$defs/ContentNodePresence"
+        },
+        "content": {
+          "enum": [
+            null,
+            "UNCHANGED",
+            "CURRENT_ONLY",
+            "CANDIDATE_ONLY",
+            "SAME_CHANGE",
+            "DIVERGED"
+          ]
+        },
+        "parent": {
+          "enum": [
+            null,
+            "UNCHANGED",
+            "CURRENT_ONLY",
+            "CANDIDATE_ONLY",
+            "SAME_CHANGE",
+            "DIVERGED"
+          ]
+        },
+        "position": {
+          "enum": [
+            null,
+            "UNCHANGED",
+            "CURRENT_ONLY",
+            "CANDIDATE_ONLY",
+            "SAME_CHANGE",
+            "DIVERGED"
+          ]
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentNodeConflict"
+          }
+        },
+        "deletionReferenceCheck": {
+          "enum": [
+            "NOT_APPLICABLE",
+            "REQUIRED",
+            "CLEAR",
+            "REFERENCED"
+          ]
+        },
+        "referencedBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiresSiblingOrderReview": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requiresCurrentBasisChecks": {
+          "const": true
+        },
+        "requiresFullSnapshotValidation": {
+          "const": true
+        }
+      },
+      "required": [
+        "nodeId",
+        "presence",
+        "content",
+        "parent",
+        "position",
+        "conflicts",
+        "deletionReferenceCheck",
+        "referencedBy",
+        "requiresSiblingOrderReview",
+        "requiresCurrentBasisChecks",
+        "requiresFullSnapshotValidation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T08:55:00.259Z",
+  "models": {
+    "ContentVersionDelta": {
+      "name": "ContentVersionDelta",
+      "jsdoc": "三方分量关系；DIVERGED只表示两边均改且不同，索引不能据此直接判整树冲突。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'UNCHANGED' | 'CURRENT_ONLY' | 'CANDIDATE_ONLY' | 'SAME_CHANGE' | 'DIVERGED'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'UNCHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CURRENT_ONLY'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CANDIDATE_ONLY'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'SAME_CHANGE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'DIVERGED'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContentNodePresence": {
+      "name": "ContentNodePresence",
+      "jsdoc": "节点存在性与增删来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'ABSENT' | 'PRESENT' | 'CURRENT_ADDITION' | 'CANDIDATE_ADDITION' | 'CONCURRENT_ADDITION' | 'CURRENT_DELETION' | 'CANDIDATE_DELETION' | 'CONCURRENT_DELETION'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ABSENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PRESENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CURRENT_ADDITION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CANDIDATE_ADDITION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CONCURRENT_ADDITION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CURRENT_DELETION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CANDIDATE_DELETION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CONCURRENT_DELETION'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContentNodeConflict": {
+      "name": "ContentNodeConflict",
+      "jsdoc": "已确定的节点级冲突；顺序仍须在完整同级集合中判定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'TYPE_CHANGED' | 'CONTENT' | 'PARENT' | 'DELETE_EDIT' | 'ADD_COLLISION' | 'REFERENCED_DELETE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'TYPE_CHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CONTENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PARENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'DELETE_EDIT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ADD_COLLISION'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'REFERENCED_DELETE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContentNodeComparisonInput": {
+      "name": "ContentNodeComparisonInput",
+      "jsdoc": "节点比较输入；null是明确缺席，undefined不得冒充删除或未加载。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n    /** 当前引用检查的完整已取结果；省略表示尚未检查，不是无引用。 */\n    deletionReferencedBy?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n    /** 当前引用检查的完整已取结果；省略表示尚未检查，不是无引用。 */\n    deletionReferencedBy?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deletionReferencedBy",
+              "jsdoc": "当前引用检查的完整已取结果；省略表示尚未检查，不是无引用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeComparison": {
+      "name": "ContentNodeComparison",
+      "jsdoc": "固定比较结果；不包含合并稿、采用许可或头指针。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string | null;\n    presence: ContentNodePresence;\n    content: ContentVersionDelta | null;\n    parent: ContentVersionDelta | null;\n    position: ContentVersionDelta | null;\n    conflicts: readonly ContentNodeConflict[];\n    deletionReferenceCheck: 'NOT_APPLICABLE' | 'REQUIRED' | 'CLEAR' | 'REFERENCED';\n    referencedBy: readonly string[];\n    /** 插入与重排须结合完整同级集合，不能从单节点index自动裁决。 */\n    requiresSiblingOrderReview: boolean;\n    /** 即使节点相同，当前基线、绑定、模板、所选来源及权限仍由正式预演责任方核验。 */\n    requiresCurrentBasisChecks: true;\n    /** 核预演命令的完整合并快照；不是普通保存前全空间加载的前置。 */\n    requiresFullSnapshotValidation: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string | null;\n    presence: ContentNodePresence;\n    content: ContentVersionDelta | null;\n    parent: ContentVersionDelta | null;\n    position: ContentVersionDelta | null;\n    conflicts: readonly ContentNodeConflict[];\n    deletionReferenceCheck: 'NOT_APPLICABLE' | 'REQUIRED' | 'CLEAR' | 'REFERENCED';\n    referencedBy: readonly string[];\n    /** 插入与重排须结合完整同级集合，不能从单节点index自动裁决。 */\n    requiresSiblingOrderReview: boolean;\n    /** 即使节点相同，当前基线、绑定、模板、所选来源及权限仍由正式预演责任方核验。 */\n    requiresCurrentBasisChecks: true;\n    /** 核预演命令的完整合并快照；不是普通保存前全空间加载的前置。 */\n    requiresFullSnapshotValidation: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "presence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conflicts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deletionReferenceCheck",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "referencedBy",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresSiblingOrderReview",
+              "jsdoc": "插入与重排须结合完整同级集合，不能从单节点index自动裁决。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentBasisChecks",
+              "jsdoc": "即使节点相同，当前基线、绑定、模板、所选来源及权限仍由正式预演责任方核验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresFullSnapshotValidation",
+              "jsdoc": "核预演命令的完整合并快照；不是普通保存前全空间加载的前置。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

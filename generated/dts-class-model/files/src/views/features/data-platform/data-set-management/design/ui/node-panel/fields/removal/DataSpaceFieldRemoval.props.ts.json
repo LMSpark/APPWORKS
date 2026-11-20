@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props\n职责：定义计算字段删除弹窗的当前会话及记录身份。\n边界：不传行数据或权限副本，操作归元数据DataView。\nAI用途：在页面稳定位置挂载，使字段消失后仍可核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceFieldRemovalProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceFieldRemovalProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFieldRemovalProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "fieldViewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "session",
+        "fieldId",
+        "fieldViewId",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-17T10:15:30.823Z",
+  "models": {
+    "DataSpaceFieldRemovalProps": {
+      "name": "DataSpaceFieldRemovalProps",
+      "jsdoc": "当前字段删除的调用范围。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceFieldRemoval"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原生页面持有的元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 待删计算字段的正式记录ID。 */\n    fieldId: string;\n    /** 发起删除的实际字段视图；不从未加载的default查找目标。 */\n    fieldViewId: 'default' | 'modelFields';\n    /** 原DataView事件引起的呈现修订。 */\n    revision: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "原生页面持有的元数据会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldId",
+              "jsdoc": "待删计算字段的正式记录ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldViewId",
+              "jsdoc": "发起删除的实际字段视图；不从未加载的default查找目标。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "原DataView事件引起的呈现修订。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

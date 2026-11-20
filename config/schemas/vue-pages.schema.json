@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spark-appworks.local/schemas/vue-pages.schema.json",
+  "title": "SPARK AppWorks Vue Pages Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocol": {
+      "const": "spark-appworks.vue-pages"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "enum": ["public", "platform", "enterprise", "app"]
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^src/views/.+\\.vue$"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "order": {
+            "type": "integer"
+          },
+          "dataSpaceId": {
+            "type": "string",
+            "pattern": "^[A-F0-9]{32}$"
+          },
+          "navigationId": {
+            "type": "string",
+            "pattern": "^[A-F0-9]{32}$"
+          },
+          "identityHost": {
+            "type": "string",
+            "pattern": "^/"
+          }
+        },
+        "required": ["path", "title", "scope", "source"]
+      }
+    }
+  },
+  "required": ["protocol", "schemaVersion", "pages"]
+}

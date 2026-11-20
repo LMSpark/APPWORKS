@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/submission-receipt-effects",
+    "sourcePath": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/submission-receipt-effects.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/submission-receipt-effects",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/submission-receipt-effects\n职责：将第53项已配对事件及适用规则判定交给第54项截止对账。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "eventRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "RECEIVED",
+            "REJECTED",
+            "WITHDRAWAL_CONFIRMED"
+          ]
+        },
+        "eventAt": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "withdrawalTargetRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "state": {
+          "enum": [
+            "PENDING_PAIR",
+            "PAIRED"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceRef": {
+                "type": "string"
+              },
+              "knownAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceRef",
+              "knownAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "eventRef",
+        "kind",
+        "eventAt",
+        "attemptRef",
+        "withdrawalTargetRef",
+        "state",
+        "sources"
+      ],
+      "additionalProperties": false
+    },
+    "DeadlineInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DeadlineInput",
+      "properties": {
+        "cutoffAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "obligationIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Effect"
+          }
+        }
+      },
+      "required": [
+        "cutoffAt",
+        "knownAt",
+        "obligationIds",
+        "effects"
+      ],
+      "additionalProperties": false
+    },
+    "Effect": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Effect",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "RECEIVED"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "WITHDRAWN"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "REPLACED"
+            },
+            "priorAttemptRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind",
+            "priorAttemptRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Decision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Decision",
+      "properties": {
+        "knownAt": {
+          "type": "string"
+        },
+        "ruleRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "RECEIVED",
+            "WITHDRAWN",
+            "REPLACED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T19:30:05.167Z",
+  "models": {
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof pairOriginalChannelReceipt>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof pairOriginalChannelReceipt>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "withdrawalTargetRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DeadlineInput": {
+      "name": "DeadlineInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reconcileSubmissionDeadline>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "cutoffAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "obligationIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effects",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Effect": {
+      "name": "Effect",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DeadlineInput['effects'][number]",
+        "members": {}
+      }
+    },
+    "Decision": {
+      "name": "Decision",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Effect, 'knownAt' | 'kind'> & Readonly<{\n    knownAt: string;\n    ruleRef: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    kind: 'RECEIVED' | 'WITHDRAWN';\n}> | Readonly<{\n    kind: 'REPLACED';\n    priorAttemptRef: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Effect, 'knownAt' | 'kind'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    knownAt: string;\n    ruleRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'RECEIVED' | 'WITHDRAWN';\n}> | Readonly<{\n    kind: 'REPLACED';\n    priorAttemptRef: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "scenarioId": "__SCENARIO__",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "WFM_FLOW_MODLE": {
+      "modelBinding": {
+        "modelName": "WFM_FLOW_MODLE",
+        "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p000"
+      },
+      "views": {
+        "default": {
+          "commitMode": "staged",
+          "newRowFields": ["TITLE", "MEMO", "CRTUSER", "CRTDATE", "STATE", "BusinessTable", "sysid"],
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 15,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TITLE",
+              "MEMO",
+              "sysid",
+              "CRTDATE",
+              "CRTUSER",
+              "BusinessTable",
+              "createuser"
+            ]
+          }
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelName": "Base_UserInfo",
+        "modelId": "87F0EF6AD1B64D67FFE597E7E3285994p001"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "ID",
+              "UserName"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

@@ -1,0 +1,306 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "el-alert",
+        "props": {
+          "type": "success",
+          "style": {
+            "marginBottom": "16px"
+          },
+          "title": "改权限不改代码 —— 业务返回 _perm 快照，前端零代码消费结果",
+          "closable": false,
+          "description": "切换角色 = 模拟业务脚本收到不同返回值。左侧实时展示写入 DataSet 的权限结果，右侧由 r-table / r-form 内置权限链零代码消费这些结果。"
+        }
+      },
+      {
+        "type": "el-card",
+        "children": [
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "span",
+                "children": [
+                  "模拟角色（= 后端返回不同权限）："
+                ],
+                "props": {
+                  "style": {
+                    "fontWeight": "600",
+                    "color": "#303133",
+                    "fontSize": "14px",
+                    "whiteSpace": "nowrap"
+                  }
+                }
+              },
+              {
+                "type": "RenderUserSwitch"
+              }
+            ],
+            "props": {
+              "style": {
+                "display": "flex",
+                "alignItems": "center",
+                "gap": "12px",
+                "flexWrap": "wrap"
+              }
+            }
+          }
+        ],
+        "props": {
+          "bodyStyle": "padding:16px 20px;",
+          "style": {
+            "marginBottom": "16px"
+          }
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "el-card",
+            "children": [
+              {
+                "type": "div",
+                "children": [
+                  "▼ 后端下发的权限快照"
+                ],
+                "props": {
+                  "style": {
+                    "fontSize": "12px",
+                    "fontWeight": "600",
+                    "color": "#909399",
+                    "marginBottom": "10px",
+                    "letterSpacing": "0.5px"
+                  }
+                }
+              },
+              {
+                "type": "RenderPermSnapshot"
+              }
+            ],
+            "props": {
+              "bodyStyle": "padding:16px;",
+              "style": {
+                "width": "280px",
+                "flexShrink": "0"
+              }
+            }
+          },
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "el-card",
+                "children": [
+                  {
+                    "type": "div",
+                    "children": [
+                      "▼ 业务返回值 -> 前端零代码权限渲染"
+                    ],
+                    "props": {
+                      "style": {
+                        "fontSize": "12px",
+                        "fontWeight": "600",
+                        "color": "#909399",
+                        "marginBottom": "10px",
+                        "letterSpacing": "0.5px"
+                      }
+                    }
+                  },
+                  {
+                    "type": "div",
+                    "children": [
+                      "script.js 只负责把业务返回值写进 DataSet；表格动作再通过 permAction 自动过滤，当前行表单再通过 editableFields / hiddenFields 自动控制。"
+                    ],
+                    "props": {
+                      "style": {
+                        "fontSize": "12px",
+                        "color": "#909399",
+                        "marginBottom": "12px",
+                        "lineHeight": "1.6"
+                      }
+                    }
+                  },
+                  {
+                    "type": "r-table",
+                    "children": [
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "ID",
+                          "width": 70,
+                          "field": "id"
+                        }
+                      },
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "姓名",
+                          "width": 120,
+                          "field": "name"
+                        }
+                      },
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "邮箱",
+                          "minWidth": 200,
+                          "field": "email"
+                        }
+                      },
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "部门",
+                          "width": 120,
+                          "field": "department"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "border": true,
+                      "stripe": true,
+                      "highlightCurrentRow": true,
+                      "toolbar": {
+                        "type": "r-toolbar",
+                        "children": [
+                          {
+                            "type": "r-button",
+                            "props": {
+                              "action": "append-row",
+                              "label": "新增",
+                              "buttonType": "primary",
+                              "buttonSize": "small",
+                              "permAction": "create"
+                            }
+                          },
+                          {
+                            "type": "r-button",
+                            "props": {
+                              "action": "refresh",
+                              "label": "刷新",
+                              "buttonSize": "small"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "position": "top"
+                        }
+                      },
+                      "actions": {
+                        "type": "r-toolbar",
+                        "children": [
+                          {
+                            "type": "r-button",
+                            "props": {
+                              "action": "prompt-edit",
+                              "label": "编辑",
+                              "buttonType": "warning",
+                              "buttonSize": "small",
+                              "buttonLink": true,
+                              "permAction": "edit"
+                            }
+                          },
+                          {
+                            "type": "r-button",
+                            "props": {
+                              "action": "delete-row",
+                              "label": "删除",
+                              "buttonType": "danger",
+                              "buttonSize": "small",
+                              "buttonLink": true,
+                              "confirmTitle": "删除确认",
+                              "confirmMessage": "确认删除当前记录吗？",
+                              "permAction": "delete"
+                            }
+                          }
+                        ],
+                        "props": {
+                          "width": 180,
+                          "fixed": "right",
+                          "label": "零代码动作"
+                        }
+                      },
+                      "dataViewKey": "PermissionUsers@default"
+                    }
+                  },
+                  {
+                    "type": "div",
+                    "children": [
+                      "▼ 当前行零代码表单（自动吃 editableFields / hiddenFields）"
+                    ],
+                    "props": {
+                      "style": {
+                        "fontSize": "12px",
+                        "fontWeight": "600",
+                        "color": "#909399",
+                        "marginTop": "16px",
+                        "marginBottom": "10px",
+                        "letterSpacing": "0.5px"
+                      }
+                    }
+                  },
+                  {
+                    "type": "r-form",
+                    "children": [
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "姓名",
+                          "field": "name"
+                        }
+                      },
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "邮箱",
+                          "field": "email"
+                        }
+                      },
+                      {
+                        "type": "r-text",
+                        "props": {
+                          "label": "部门",
+                          "field": "department"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "labelWidth": "72px",
+                      "dataViewKey": "PermissionUsers@default",
+                      "contextDataMember": "currentRow"
+                    }
+                  }
+                ],
+                "props": {
+                  "bodyStyle": "padding:16px;"
+                }
+              }
+            ],
+            "props": {
+              "style": {
+                "flex": "1",
+                "minWidth": "0"
+              }
+            }
+          }
+        ],
+        "props": {
+          "style": {
+            "display": "flex",
+            "gap": "16px",
+            "alignItems": "flex-start"
+          }
+        }
+      }
+    ],
+    "props": {
+      "style": {
+        "padding": "20px",
+        "maxWidth": "1100px"
+      }
+    }
+  }
+]

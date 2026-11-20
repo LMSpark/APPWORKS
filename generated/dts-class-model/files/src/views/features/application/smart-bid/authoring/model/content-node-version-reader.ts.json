@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-node-version-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-node-version-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-node-version-reader\n职责：通过正文宿主原视图读取精确节点版本，复核查询唯一性及载荷摘要。\n边界：不保存、不复制节点真源、不读取完整快照或授予采用权；清单成员另核。\nAI用途：固定快照给定nodeId/nodeHash后取得原字段绑定，供完整清单组装消费。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentNodeVersionSelection",
+      "ContentNodeVersionBinding"
+    ]
+  },
+  "$defs": {
+    "ContentNodeVersionSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeVersionSelection",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "nodeHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "nodeHash"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeVersionBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeVersionBinding",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "requiresSnapshotMembershipCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T21:11:12.257Z",
+  "models": {
+    "ContentNodeVersionSelection": {
+      "name": "ContentNodeVersionSelection",
+      "jsdoc": "固定快照交出的精确节点版本；节点稳定身份不按NFC另找替代行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    nodeHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    nodeHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeVersionBinding": {
+      "name": "ContentNodeVersionBinding",
+      "jsdoc": "原视图读取证明；消费者须继续核本节点属于本次完整清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    requiresSnapshotMembershipCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    requiresSnapshotMembershipCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresSnapshotMembershipCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+[data-page="users"] .page-container {
+  background-color: #fff;
+}
+
+[data-page="users"] .content-section {
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+[data-page="users"] .el-table {
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+[data-page="users"] .el-table__body-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+/* 确保表格容器宽度撑满 */
+[data-page="users"] .el-table {
+  width: 100% !important;
+}
+
+[data-page="users"] .el-table .el-table__header-wrapper,
+[data-page="users"] .el-table .el-table__body-wrapper {
+  width: 100% !important;
+}
+
+/* 列宽自适应调整 */
+[data-page="users"] .el-table .el-table-column--flexible {
+  flex: 1;
+}

@@ -1,0 +1,99 @@
+{
+  "dataSetName": "SectionGridDemo",
+  "resourceRelations": [],
+  "tables": {
+    "Users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "gender",
+          "type": "string",
+          "label": "性别"
+        },
+        {
+          "name": "age",
+          "type": "number",
+          "label": "年龄"
+        },
+        {
+          "name": "joinDate",
+          "type": "date",
+          "label": "入职日期"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "label": "状态"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "张三",
+              "gender": "male",
+              "age": 28,
+              "joinDate": "2022-03-15",
+              "department": "tech",
+              "active": true
+            },
+            {
+              "id": 2,
+              "name": "李四",
+              "gender": "female",
+              "age": 32,
+              "joinDate": "2021-08-22",
+              "department": "market",
+              "active": true
+            },
+            {
+              "id": 3,
+              "name": "王五",
+              "gender": "male",
+              "age": 25,
+              "joinDate": "2023-01-10",
+              "department": "hr",
+              "active": false
+            },
+            {
+              "id": 4,
+              "name": "赵六",
+              "gender": "female",
+              "age": 35,
+              "joinDate": "2020-11-05",
+              "department": "finance",
+              "active": true
+            },
+            {
+              "id": 5,
+              "name": "钱七",
+              "gender": "male",
+              "age": 30,
+              "joinDate": "2022-09-18",
+              "department": "tech",
+              "active": true
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "Users"
+    }
+  }
+}

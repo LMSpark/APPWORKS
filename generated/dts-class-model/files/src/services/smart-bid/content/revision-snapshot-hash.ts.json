@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/revision-snapshot-hash",
+    "sourcePath": "src/services/smart-bid/content/revision-snapshot-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/revision-snapshot-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/revision-snapshot-hash",
+    "jsdoc": "@module app:services/smart-bid/content/revision-snapshot-hash\n职责：按持久版本合同规范编码新快照完整清单并计算UTF8 SHA256。\n边界：不改节点哈希、不改写旧清单或历史摘要，不代业务闭包/rootHash/权限和采用校验。\nAI用途：新清单登记前及精确读取后用同版规范核完整清单摘要。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T03:13:53.305Z",
+  "models": {}
+}

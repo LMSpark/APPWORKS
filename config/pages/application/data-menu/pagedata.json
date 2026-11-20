@@ -1,0 +1,47 @@
+{
+  "scenarioId": "2CA968B3513084BA2537BB0C85AE945E",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_DataMenu": {
+      "modelBinding": {"modelId": "e043a1d4-7b0a-4117-b37b-60049b319bb5", "modelName": "Base_DataMenu"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "page": 1, "pageSize": 20,
+        "queryConfig": {"fields": ["rowid", "Name", "Desc", "DataType", "DataId", "DataName", "DbName", "TextField", "ValueField",
+          "ShowType", "dataSetId", "createtime"]}
+      }}
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "d8d3f3cb-d395-459a-a748-f4a82c988c45", "modelName": "Base_DataSet"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "rowid", "labelField": "Name",
+        "filterExpression": {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "Name", "description"]}
+      }}
+    },
+    "Base_DataModel": {
+      "modelBinding": {"modelId": "39178705-5151-47a8-8b7d-e3cfd646eab6", "modelName": "Base_DataModel"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "Name", "labelField": "Name",
+        "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type", "DbName"]}
+      }}
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {"modelId": "47af5185-fb8c-4bb9-8709-a9965ab34a5b", "modelName": "Base_DataModel_Field"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "Name", "labelField": "description",
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}},
+          {"field": "type", "operator": "eq", "value": "dataModel"}
+        ]},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

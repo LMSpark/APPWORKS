@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission-reconciliation",
+    "sourcePath": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission-reconciliation",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission-reconciliation\n职责：按动作54指定截止与获知时点，逐项归并已经核定效力的渠道事件。\n边界：事件的生效条件由原规则和渠道证据核定；本函数不认定开启、准入或审批值相符。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Effect": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Effect",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "RECEIVED"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "WITHDRAWN"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "eventRef": {
+              "type": "string"
+            },
+            "obligationId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "REPLACED"
+            },
+            "priorAttemptRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "eventRef",
+            "obligationId",
+            "attemptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind",
+            "priorAttemptRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T09:46:07.499Z",
+  "models": {
+    "Effect": {
+      "name": "Effect",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    eventRef: string;\n    obligationId: string;\n    attemptRef: string;\n    effectiveAt: string;\n    knownAt: string;\n}> & (Readonly<{\n    kind: 'RECEIVED';\n}> | Readonly<{\n    kind: 'WITHDRAWN';\n}> | Readonly<{\n    kind: 'REPLACED';\n    priorAttemptRef: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    eventRef: string;\n    obligationId: string;\n    attemptRef: string;\n    effectiveAt: string;\n    knownAt: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'RECEIVED';\n}> | Readonly<{\n    kind: 'WITHDRAWN';\n}> | Readonly<{\n    kind: 'REPLACED';\n    priorAttemptRef: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "obligationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

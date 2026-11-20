@@ -1,0 +1,70 @@
+{
+  "contract": "spark-bid.content-subtree/1",
+  "oracle": "Independent Python hashlib; explicit H/A/B -> C -> D order",
+  "nodes": [
+    {
+      "nodeId": "D",
+      "parentId": "P",
+      "index": 0,
+      "type": "document",
+      "nodeHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "nodeId": "C",
+      "parentId": "D",
+      "index": 0,
+      "type": "chapter",
+      "nodeHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "nodeId": "H",
+      "parentId": "C",
+      "index": 0,
+      "type": "heading",
+      "nodeHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "nodeId": "A",
+      "parentId": "C",
+      "index": 1,
+      "type": "paragraph",
+      "nodeHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "nodeId": "B",
+      "parentId": "C",
+      "index": 2,
+      "type": "paragraph",
+      "nodeHash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  ],
+  "preimages": {
+    "H": "[\"spark-bid.content-subtree/1\",\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",[]]",
+    "A": "[\"spark-bid.content-subtree/1\",\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",[]]",
+    "B": "[\"spark-bid.content-subtree/1\",\"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",[]]",
+    "C": "[\"spark-bid.content-subtree/1\",\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",[\"0ded1720f32d26793a8e9331c121e3151bf113a48707a8d90efba10dbb5a4f8e\",\"83bd117e22db458db348a380ce2fe859c730bcf91d820df2c0be1c4c29cffba3\",\"89f1021a7cdcff676324fa7138c1416410edf4aebcd991b4eaa26844000a09ee\"]]",
+    "D": "[\"spark-bid.content-subtree/1\",\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",[\"41a8be89f07da0a399497e71a9addd6ff3d420c0b8a1fb43ba826a11c28b90eb\"]]"
+  },
+  "subtreeHashes": [
+    {
+      "nodeId": "A",
+      "subtreeHash": "83bd117e22db458db348a380ce2fe859c730bcf91d820df2c0be1c4c29cffba3"
+    },
+    {
+      "nodeId": "B",
+      "subtreeHash": "89f1021a7cdcff676324fa7138c1416410edf4aebcd991b4eaa26844000a09ee"
+    },
+    {
+      "nodeId": "C",
+      "subtreeHash": "41a8be89f07da0a399497e71a9addd6ff3d420c0b8a1fb43ba826a11c28b90eb"
+    },
+    {
+      "nodeId": "D",
+      "subtreeHash": "c2f0a5ea5799c835a04e180c7de86cb0cd313d40adac3f3539c3cc8ab7ce5717"
+    },
+    {
+      "nodeId": "H",
+      "subtreeHash": "0ded1720f32d26793a8e9331c121e3151bf113a48707a8d90efba10dbb5a4f8e"
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/response-review",
+    "sourcePath": "src/services/smart-bid/content/references/response/response-review.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/response-review.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/response-review",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/response-review\n职责：动作37核对原拟答、本次复核位置及其证明和验证引用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Draft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Draft",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "authorRef": {
+          "type": "string"
+        },
+        "body": {
+          "$ref": "response-draft.ts.json#/$defs/Body"
+        },
+        "taskRef": {
+          "type": "string"
+        },
+        "assignmentVersion": {
+          "type": "string"
+        },
+        "acceptanceRef": {
+          "type": "string"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "MATERIAL",
+                  "FACT",
+                  "QUALIFICATION"
+                ]
+              },
+              "ref": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "ref"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "lineageId",
+        "version",
+        "targetRef",
+        "authorRef",
+        "body",
+        "taskRef",
+        "assignmentVersion",
+        "acceptanceRef",
+        "evidenceRefs",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Position": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Position",
+      "properties": {
+        "positionRef": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "requiresAiVerification": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "positionRef",
+        "contentHash",
+        "requiresAiVerification"
+      ],
+      "additionalProperties": false
+    },
+    "Check": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Check",
+      "properties": {
+        "accepted": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "reviewRef": {
+          "type": "string"
+        },
+        "aiVerificationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:19:05.718Z",
+  "models": {
+    "Draft": {
+      "name": "Draft",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof prepareResponseDraft>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof prepareResponseDraft>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "authorRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "body",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "taskRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assignmentVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "acceptanceRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "evidenceRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Position": {
+      "name": "Position",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    positionRef: string;\n    contentHash: string;\n    requiresAiVerification: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    positionRef: string;\n    contentHash: string;\n    requiresAiVerification: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "positionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresAiVerification",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Check": {
+      "name": "Check",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Position, 'positionRef' | 'contentHash'> & Readonly<{\n    accepted: boolean;\n    reviewRef: string;\n    aiVerificationRef: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Position, 'positionRef' | 'contentHash'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    accepted: boolean;\n    reviewRef: string;\n    aiVerificationRef: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "accepted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reviewRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "aiVerificationRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

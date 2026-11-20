@@ -1,0 +1,807 @@
+{
+  "kind": "agent.workflow.design",
+  "version": 1,
+  "id": "agent.workflow.pageDesign",
+  "workflow": {
+    "id": "agent.workflow.pageDesign",
+    "version": 1,
+    "variables": [
+      {
+        "name": "requestId",
+        "title": "Request ID",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      {
+        "name": "pageId",
+        "title": "Page ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "description",
+        "title": "Requirement",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "effectiveDescription",
+        "title": "Planning Description",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "projectId",
+        "title": "Project ID",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningTitle",
+        "title": "Planning Title",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningPath",
+        "title": "Planning Path",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "mode",
+        "title": "Run Mode",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "create",
+            "update",
+            "fix"
+          ]
+        }
+      },
+      {
+        "name": "allowedOperations",
+        "title": "Allowed Operations",
+        "required": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "nodeTree": {
+              "type": "boolean"
+            },
+            "dataSet": {
+              "type": "boolean"
+            },
+            "script": {
+              "type": "boolean"
+            },
+            "style": {
+              "type": "boolean"
+            },
+            "blueprint": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      {
+        "name": "preserveExistingInteractions",
+        "title": "Preserve Existing Interactions",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "scenarioId",
+        "title": "Scenario ID",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      {
+        "name": "deliverySaveFileNames",
+        "title": "Page files to save",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "rule.json",
+              "script.js",
+              "style.css"
+            ]
+          }
+        }
+      }
+    ],
+    "runtimeBinding": {
+      "registration": {
+        "alias": "pageDesign",
+        "moduleId": "pageDesign",
+        "businessId": "pageDesign"
+      },
+      "inputContract": {
+        "identityField": "requestId",
+        "messageField": "description",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "effectiveDescription": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "planningTitle": {
+              "type": "string"
+            },
+            "planningPath": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "create",
+                "update",
+                "fix"
+              ]
+            },
+            "allowedOperations": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "nodeTree": {
+                  "type": "boolean"
+                },
+                "dataSet": {
+                  "type": "boolean"
+                },
+                "script": {
+                  "type": "boolean"
+                },
+                "style": {
+                  "type": "boolean"
+                },
+                "blueprint": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "preserveExistingInteractions": {
+              "type": "boolean"
+            },
+            "requestId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "scenarioId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "deliverySaveFileNames": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "rule.json",
+                  "script.js",
+                  "style.css"
+                ]
+              }
+            }
+          },
+          "required": [
+            "requestId",
+            "pageId",
+            "description",
+            "effectiveDescription"
+          ],
+          "additionalProperties": false
+        },
+        "readonlySteps": [
+          "策划约束已注入 effectiveDescription（来自 readPlanningProjection）。",
+          "业务契约见 ClassModel 知识索引（model_query / model_class_guide / model_action_guide）。"
+        ]
+      },
+      "systemPrompt": {
+        "template": "pageDesign system prompt is interpolated by app binding.",
+        "conditionalHints": [
+          {
+            "when": {
+              "allowedOperations": "dataSetOnly"
+            },
+            "template": "Only the explicitly supplied scenarioId may load/save ScenarioViewFile; do not modify page rule/script/style."
+          }
+        ]
+      },
+      "modelProjectionRef": {
+        "kind": "dts-class-model",
+        "rootClassName": "ProjectWorkspace",
+        "manifestUrlRef": "dts-class-model"
+      },
+      "executableRef": {
+        "kind": "js-module",
+        "moduleSpecifier": "@spark-appworks/spark-project-model",
+        "exportName": "ProjectWorkspace"
+      },
+      "toolLoopNudge": {
+        "templates": {
+          "plan_without_tool": "requestId=\"{{moduleInstanceId}}\"；禁止只输出计划，下一回合必须发起真实 tool_call。；target pageId/scenarioId 来自本次输入，禁止由 requestId 推断。",
+          "execution_phase": "requestId=\"{{moduleInstanceId}}\"；目录/指南阶段已完成，直接 model_script。；target pageId/scenarioId 来自本次输入，禁止由 requestId 推断。",
+          "model_script_retry": "requestId=\"{{moduleInstanceId}}\"；按 RECOVERY_HINT 修正后重试 model_script。；target pageId/scenarioId 来自本次输入，禁止由 requestId 推断。"
+        },
+        "contextFields": [
+          "moduleInstanceId"
+        ]
+      },
+      "beforeFunctionCall": {
+        "gateRules": [
+          {
+            "kind": "pageDesignMutationGate"
+          },
+          {
+            "kind": "allowedOperations"
+          },
+          {
+            "kind": "forbiddenScriptMarkers",
+            "markers": [
+              "editNodeTree",
+              "loadScenarioViews",
+              "setText",
+              "setFileText",
+              "writePageFile"
+            ]
+          }
+        ]
+      },
+      "executionToolNames": [
+        "model_script"
+      ],
+      "planWithoutToolMarkers": [
+        "openpagedesign",
+        "editnodetree",
+        "loadscenarioviews",
+        "settext"
+      ],
+      "resolveInstance": {
+        "editorSource": "pageDesign",
+        "identityField": "requestId"
+      }
+    },
+    "capabilities": [
+      {
+        "id": "page-design.delivery",
+        "title": "Page Design Delivery",
+        "description": "Coordinate page design input, ClassModel runtime execution, and page file delivery.",
+        "scope": "workflow",
+        "constraints": [
+          "Workflow definition declares runtime binding; app layer injects executable capabilities."
+        ]
+      }
+    ],
+    "graph": {
+      "id": "agent.workflow.pageDesign.graph",
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "data": {
+            "type": "start",
+            "title": "Start"
+          }
+        },
+        {
+          "id": "node.pageEntry",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Use loaded page tool",
+            "models": [
+              {
+                "id": "node.pageEntry.workspace",
+                "rootClassName": "ProjectWorkspace",
+                "className": "ProjectWorkspace",
+                "sourceRef": "$runtime"
+              }
+            ],
+            "inputs": {
+              "pageId": "{{pageId}}"
+            },
+            "outputs": {
+              "page": "{{node.pageEntry.workspace.getActivePageTool}}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Use the explicitly selected pageId; tool files were loaded through the ProjectToolFile DataView before workflow execution.",
+                "requirements": {
+                  "pageId": "{{pageId}}"
+                },
+                "contextInputs": {
+                  "pageId": "{{pageId}}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectWorkspace",
+                "className": "ProjectWorkspace",
+                "allowedActions": [
+                  "getActivePageTool"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext"
+              },
+              "output": {
+                "structuredResult": {
+                  "page": "{{node.pageEntry.workspace.getActivePageTool}}"
+                }
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": []
+          },
+          "position": {
+            "x": 90,
+            "y": 40
+          }
+        },
+        {
+          "id": "node.pageInventory",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Read page files",
+            "models": [
+              {
+                "id": "node.pageInventory.page",
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "sourceRef": "node.pageEntry.page"
+              }
+            ],
+            "inputs": {
+              "page": "{{node.pageEntry.page}}"
+            },
+            "outputs": {
+              "rule": "{{node.pageInventory.page.rule}}",
+              "script": "{{node.pageInventory.page.script}}",
+              "style": "{{node.pageInventory.page.style}}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Inspect the three page files and preserve existing interactions.",
+                "requirements": {
+                  "page": "{{node.pageEntry.page}}"
+                },
+                "contextInputs": {
+                  "page": "{{node.pageEntry.page}}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "allowedActions": [
+                  "getFileText",
+                  "getNodeTree"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext"
+              },
+              "output": {
+                "structuredResult": {
+                  "rule": "{{node.pageInventory.page.rule}}",
+                  "script": "{{node.pageInventory.page.script}}",
+                  "style": "{{node.pageInventory.page.style}}"
+                }
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": []
+          },
+          "position": {
+            "x": 180,
+            "y": 220
+          }
+        },
+        {
+          "id": "node.dataShape",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Scenario views",
+            "models": [
+              {
+                "id": "node.dataShape.workspace",
+                "rootClassName": "ProjectWorkspace",
+                "className": "ProjectWorkspace",
+                "sourceRef": "$runtime"
+              },
+              {
+                "id": "node.dataShape.views",
+                "rootClassName": "ProjectWorkspace",
+                "className": "ScenarioViewFile",
+                "sourceRef": "node.dataShape.workspace.loadScenarioViews"
+              }
+            ],
+            "inputs": {
+              "scenarioId": "{{scenarioId}}"
+            },
+            "outputs": {
+              "views": "{{node.dataShape.views.value}}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Only when explicit scenarioId is supplied and allowedOperations permits, loadScenarioViews({scenarioId}) then setText with validated ScenarioViewConfig; preserve formal physical model bindings and fields. Never infer scenarioId from pageId.",
+                "requirements": {
+                  "scenarioId": "{{scenarioId}}"
+                },
+                "contextInputs": {
+                  "scenarioId": "{{scenarioId}}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectWorkspace",
+                "className": "ProjectWorkspace",
+                "allowedActions": [
+                  "loadScenarioViews",
+                  "getScenarioViews"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext"
+              },
+              "output": {
+                "structuredResult": {
+                  "views": "{{node.dataShape.views.value}}"
+                }
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": []
+          },
+          "position": {
+            "x": 270,
+            "y": 40
+          }
+        },
+        {
+          "id": "node.ruleBehaviorAssets",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Edit rule script style",
+            "models": [
+              {
+                "id": "node.ruleBehaviorAssets.page",
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "sourceRef": "node.pageEntry.page"
+              }
+            ],
+            "inputs": {
+              "rule": "{{node.pageInventory.rule}}",
+              "script": "{{node.pageInventory.script}}",
+              "style": "{{node.pageInventory.style}}"
+            },
+            "outputs": {
+              "page": "{{node.ruleBehaviorAssets.page}}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Use PageTool.setFileText for rule.json/script.js/style.css and editNodeTree only within allowedOperations. Bind existing scenario views; never put scenario configuration in a page file.",
+                "requirements": {
+                  "rule": "{{node.pageInventory.rule}}",
+                  "script": "{{node.pageInventory.script}}",
+                  "style": "{{node.pageInventory.style}}"
+                },
+                "contextInputs": {
+                  "rule": "{{node.pageInventory.rule}}",
+                  "script": "{{node.pageInventory.script}}",
+                  "style": "{{node.pageInventory.style}}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "allowedActions": [
+                  "setFileText",
+                  "editNodeTree"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext"
+              },
+              "output": {
+                "structuredResult": {
+                  "page": "{{node.ruleBehaviorAssets.page}}"
+                }
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": []
+          },
+          "position": {
+            "x": 540,
+            "y": 220
+          }
+        },
+        {
+          "id": "node.renderCloseout",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Render and delivery",
+            "models": [
+              {
+                "id": "node.renderCloseout.page",
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "sourceRef": "node.ruleBehaviorAssets.page"
+              }
+            ],
+            "inputs": {
+              "page": "{{node.ruleBehaviorAssets.page}}"
+            },
+            "outputs": {
+              "renderConfig": "{{node.renderCloseout.page.toDefinition}}",
+              "result": "pageDesign.result"
+            },
+            "llm": {
+              "task": {
+                "goal": "Preview toDefinition. Delivery independently confirms dirty page files and explicit scenario views, preserving partial-save facts.",
+                "requirements": {
+                  "page": "{{node.ruleBehaviorAssets.page}}"
+                },
+                "contextInputs": {
+                  "page": "{{node.ruleBehaviorAssets.page}}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectWorkspace",
+                "className": "PageTool",
+                "allowedActions": [
+                  "toDefinition"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext"
+              },
+              "output": {
+                "structuredResult": {
+                  "renderConfig": "{{node.renderCloseout.page.toDefinition}}",
+                  "result": "pageDesign.result"
+                }
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": []
+          },
+          "position": {
+            "x": 630,
+            "y": 40
+          }
+        },
+        {
+          "id": "output",
+          "type": "output",
+          "data": {
+            "type": "output",
+            "title": "Output",
+            "outputs": {
+              "result": "{{ node.renderCloseout.result }}"
+            },
+            "capabilities": []
+          }
+        }
+      ],
+      "lines": [
+        {
+          "id": "line.0",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "pageId"
+          },
+          "to": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.workspace",
+            "memberName": "getActivePageTool"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.1",
+          "from": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.workspace",
+            "memberName": "getActivePageTool"
+          },
+          "to": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "getFileText"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.2",
+          "from": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "getFileText"
+          },
+          "to": {
+            "nodeId": "node.dataShape",
+            "modelId": "node.dataShape.workspace",
+            "memberName": "loadScenarioViews"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.3",
+          "from": {
+            "nodeId": "node.dataShape",
+            "modelId": "node.dataShape.views",
+            "memberName": "value"
+          },
+          "to": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.page",
+            "memberName": "setFileText"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.4",
+          "from": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.page",
+            "memberName": "toDefinition"
+          },
+          "to": {
+            "nodeId": "node.renderCloseout",
+            "modelId": "node.renderCloseout.page",
+            "memberName": "toDefinition"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.5",
+          "from": {
+            "nodeId": "node.renderCloseout",
+            "modelId": "node.renderCloseout.page",
+            "memberName": "toDefinition"
+          },
+          "to": {
+            "nodeId": "output",
+            "modelId": "$workflow",
+            "memberName": "result"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "x_spark": {
+    "schema": "spark.agent.workflow.design.v1",
+    "designer": {
+      "title": "Page Design"
+    },
+    "draft": {
+      "status": "saved",
+      "dirtyPaths": []
+    },
+    "validation": {
+      "status": "draft",
+      "issues": []
+    }
+  }
+}

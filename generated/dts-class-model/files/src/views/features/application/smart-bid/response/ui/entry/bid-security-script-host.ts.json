@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/ui/entry/bid-security-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/ui/entry/bid-security-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/ui/entry/bid-security-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/ui/entry/bid-security-script-host\n职责：在页10可信编制范围及观察时点核担保。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "scopeRef": {
+          "type": "string"
+        },
+        "asOf": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "scenarioId",
+        "scopeRef",
+        "asOf"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.506Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Parameters<typeof readRegisteredBidSecurity>[0], 'runtime'> & Readonly<{\n    asOf: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Parameters<typeof readRegisteredBidSecurity>[0], 'runtime'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    asOf: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "asOf",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

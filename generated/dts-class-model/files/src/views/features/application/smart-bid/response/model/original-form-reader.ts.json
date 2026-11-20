@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/model/original-form-reader",
+    "sourcePath": "src/views/features/application/smart-bid/response/model/original-form-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/model/original-form-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/model/original-form-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/model/original-form-reader\n职责：动作33在原基线固定招标记录上读取原表映射依据。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FormInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "formRef": {
+          "type": "string"
+        },
+        "formVersion": {
+          "type": "string"
+        },
+        "fillerRef": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/references/response/original-form-mapping.ts.json#/$defs/Mapping"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "formRef",
+        "formVersion",
+        "fillerRef",
+        "mappings"
+      ],
+      "additionalProperties": false
+    },
+    "FormFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormFields",
+      "properties": {
+        "formRef": {
+          "type": "string"
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/references/response/original-form-mapping.ts.json#/$defs/Cell"
+          }
+        }
+      },
+      "required": [
+        "formRef",
+        "cells"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:37:07.182Z",
+  "models": {
+    "FormInput": {
+      "name": "FormInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof mapOriginalForm>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "formRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "formVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fillerRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mappings",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FormFields": {
+      "name": "FormFields",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Parameters<typeof mapOriginalForm>[0], 'formRef' | 'cells'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Parameters<typeof mapOriginalForm>[0], 'formRef' | 'cells'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cells",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

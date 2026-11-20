@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿正式目录视图发现当前根可达的指南。\n边界：通过标准绑定读取目录动作与指南，调用由原工具宿主执行。\nAI用途：核对目录行展示与点击打开的指南是否一致。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Discovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Discovery",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "executeTool": {
+              "type": "object",
+              "title": "(toolName: string, rawArgs: ClassModelToolArgs, host?: unknown) => Promise<ClassModelToolResult>"
+            }
+          },
+          "required": [
+            "executeTool"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "rootKind": {
+              "type": "string"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../services/smart-bid/operation/guides/operation-guide-discovery.ts.json#/$defs/Entry"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "rootKind",
+            "entries",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T08:28:10.392Z",
+  "models": {
+    "Discovery": {
+      "name": "Discovery",
+      "jsdoc": "正式目录查询得到的可达动作定义。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof discoverOperationGuides>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof discoverOperationGuides>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

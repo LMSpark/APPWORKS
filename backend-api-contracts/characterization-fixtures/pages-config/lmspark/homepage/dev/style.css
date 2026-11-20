@@ -1,0 +1,23 @@
+[data-page="dev"] .leave-application-page {
+  min-height: 100vh;
+}
+
+[data-page="dev"] .leave-application-page .r-section {
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+[data-page="dev"] .leave-application-page .r-section:last-child {
+  margin-bottom: 0;
+}
+
+[data-page="dev"] .leave-application-page .r-form {
+  padding-top: 10px;
+}
+
+[data-page="dev"] .leave-application-page .r-table {
+  margin-top: 10px;
+}

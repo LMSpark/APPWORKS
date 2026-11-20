@@ -1,0 +1,20 @@
+[
+  {
+    "type": "h2",
+    "children": [
+      "⚠️ AI 生成失败"
+    ]
+  },
+  {
+    "type": "p",
+    "children": [
+      "响应解析失败，LLM 未返回标准 JSON"
+    ]
+  },
+  {
+    "type": "p",
+    "children": [
+      "请检查控制台日志或 application.yml 配置"
+    ]
+  }
+]

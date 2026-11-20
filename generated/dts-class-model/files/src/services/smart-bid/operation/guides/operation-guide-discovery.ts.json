@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/guides/operation-guide-discovery",
+    "sourcePath": "src/services/smart-bid/operation/guides/operation-guide-discovery.ts",
+    "sourceFile": "src/services/smart-bid/operation/guides/operation-guide-discovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/guides/operation-guide-discovery",
+    "jsdoc": "@module app:services/smart-bid/operation/guides/operation-guide-discovery\n职责：第01项在当前根的可达目录内核正式指南与动作引用。\n边界：发现可达动作并保留定义身份，调用许可由原执行上下文确认。\nAI用途：定位目录为什么显示或过滤某个工艺动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Entry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Entry",
+      "properties": {
+        "guideRef": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "pathRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materialRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T11:55:38.325Z",
+  "models": {
+    "Entry": {
+      "name": "Entry",
+      "jsdoc": "目录可达动作及其原始定义引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pathRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "materialRefs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

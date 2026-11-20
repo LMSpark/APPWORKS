@@ -1,0 +1,76 @@
+[
+  {
+    "id": "bid-project-scope",
+    "type": "r-section",
+    "props": {"title": "编制项目范围"},
+    "children": [
+      {"type": "r-toolbar", "children": [
+        {"type": "r-button", "props": {
+          "label": "回查原项目范围", "action": "host-command", "command": "bid.project.readScope",
+          "input": {}, "resultAlertTitle": "原编制项目范围", "errorMessage": "原编制项目范围无法核验"
+        }}
+      ]}
+    ]
+  },
+  {
+    "id": "bid-round-handoff",
+    "type": "r-section",
+    "props": {"title": "本轮移交核对"},
+    "children": [
+      {"type": "r-toolbar", "children": [
+        {"type": "r-button", "props": {
+          "label": "查看移交及签收", "action": "host-command", "command": "bid.handoff.readOriginal",
+          "routeQueryRequired": ["handoffId"], "input": {"handoffId": {"$route": "handoffId"}},
+          "resultAlertTitle": "本轮移交核对", "errorMessage": "本轮移交无法核验"
+        }}
+      ]}
+    ]
+  },
+  {
+    "id": "bid-handoff-comparison",
+    "type": "r-section",
+    "props": {"title": "移交清单差异"},
+    "children": [
+      {"type": "r-toolbar", "children": [
+        {"type": "r-button", "props": {
+          "label": "核对移交差异", "action": "host-command", "command": "bid.handoff.compareVersions",
+          "routeQueryRequired": ["handoffId", "previousHandoffId"],
+          "input": {"handoffId": {"$route": "handoffId"}, "previousHandoffId": {"$route": "previousHandoffId"}},
+          "resultAlertTitle": "移交清单差异", "errorMessage": "移交清单差异无法核验"
+        }}
+      ]}
+    ]
+  },
+  {
+    "id": "bid-project-frozen-baseline",
+    "type": "r-section",
+    "props": {"title": "冻结依据回查"},
+    "children": [
+      {"type": "r-toolbar", "children": [
+        {"type": "r-button", "props": {
+          "label": "查询指定基线", "action": "host-command", "command": "bid.project.readFrozenBaseline",
+          "routeQueryRequired": ["frozenBaselineId"], "input": {"baselineId": {"$route": "frozenBaselineId"}},
+          "resultAlertTitle": "冻结依据回查", "errorMessage": "原基线或固定引用无法核验"
+        }}
+      ]}
+    ]
+  },
+  {
+    "id": "bid-project-frozen-baseline-comparison",
+    "type": "r-section",
+    "props": {"title": "冻结依据差异"},
+    "children": [
+      {"type": "r-toolbar", "children": [
+        {"type": "r-button", "props": {
+          "label": "比较两版基线", "action": "host-command", "command": "bid.project.compareFrozenBaselines",
+          "routeQueryRequired": ["previousFrozenBaselineId", "frozenBaselineId"],
+          "input": {
+            "previousId": {"$route": "previousFrozenBaselineId"},
+            "currentId": {"$route": "frozenBaselineId"}
+          },
+          "resultAlertTitle": "冻结依据差异", "errorMessage": "冻结依据差异无法核验"
+        }}
+      ]}
+    ]
+  }
+]

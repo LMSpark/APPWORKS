@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-view-data",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-data.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-data.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-view-data",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-data\n职责：用原生 DataView 保存单个场景配置文件的编辑值与变更。\n边界：文件 IO、冲突和未知结果核验由文件 owner 注入；不伪造后端模型或业务权限。\nAI用途：文件配置复用 DataSet.saveChanges 的捕获、提交及回执处理。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ScenarioViewData"
+    ]
+  },
+  "$defs": {
+    "ScenarioViewData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewData",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "baseline": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "assertValid": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "write": {
+              "type": "object",
+              "title": "WriteText"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-11T18:13:25.814Z",
+  "models": {
+    "WriteText": {
+      "name": "WriteText",
+      "jsdoc": "实际存储适配：写入并核实提交原文；不确定结果须拒绝，不能伪造成功回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(text: string) => Promise<void>",
+        "members": {}
+      }
+    },
+    "ScenarioViewData": {
+      "name": "ScenarioViewData",
+      "jsdoc": "单文件的数据适配；唯一可编辑原文由原生视图持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从文件读取基线及当前原文装配视图；baseline 为 null 表示明确缺失的新文件。",
+          "signatureText": "constructor(scenarioId: string, baseline: string | null, text: string, assertValid: () => void)",
+          "parameters": [
+            {
+              "name": "scenarioId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "baseline",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "text",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertValid",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "原生 DataView 的当前原文，包括尚未提交的编辑覆盖。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "save",
+              "jsdoc": "仅提交原生 DataSet 已追踪的变更；回执之后保留保存期间产生的新编辑。",
+              "parameters": [
+                {
+                  "name": "write",
+                  "type": {
+                    "type": "reference",
+                    "name": "WriteText",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-data.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "释放文件运行视图及其编辑状态；不执行持久化。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

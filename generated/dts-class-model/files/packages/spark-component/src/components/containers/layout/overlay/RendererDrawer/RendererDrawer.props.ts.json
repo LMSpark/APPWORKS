@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererDrawer/RendererDrawer.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/RendererDrawer.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererDrawer/RendererDrawer.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererDrawer/RendererDrawer.props\n职责：定义 RendererDrawer（r-drawer）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer drawer 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RDrawerProps"
+    ],
+    "componentName": "RendererDrawer",
+    "componentType": "r-drawer",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RDrawerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RDrawerProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "onOpen": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClose": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onOpened": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClosed": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "value": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "header": {
+          "$ref": "../../../zones/RendererHeader.types.ts.json#/$defs/RHeaderProps"
+        },
+        "footer": {
+          "$ref": "../../../zones/RendererFooter.types.ts.json#/$defs/RFooterProps"
+        },
+        "title": {
+          "type": "string"
+        },
+        "modelValue": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "closeDisabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "bodyClass": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-13T05:30:30.691Z",
+  "models": {
+    "RDrawerProps": {
+      "name": "RDrawerProps",
+      "jsdoc": "RDrawer Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererDrawer",
+        "type": "r-drawer",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkVisibilityContainerProps",
+            "targetName": "SparkVisibilityContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "footer",
+              "jsdoc": "结构化底部",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "抽屉标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "控制显隐",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭抽屉，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放抽屉。用于草稿/在途操作保护，不代表数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

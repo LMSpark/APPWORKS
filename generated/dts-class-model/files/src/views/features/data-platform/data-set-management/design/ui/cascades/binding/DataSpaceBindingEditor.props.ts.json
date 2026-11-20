@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.props\n职责：描述级联端点的配置输入。\n边界：正式定义由原会话持有，组件仅投影候选及编辑值。\nAI用途：复用模型、视图、字段的配置级联。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceBindingEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceBindingEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceBindingEditorProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "definitionView": {
+          "$ref": "../../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "definitionKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "endpoint": {
+          "enum": [
+            "parent",
+            "options",
+            "target",
+            "query-parent",
+            "query-child",
+            "filter-source",
+            "filter-target",
+            "query-input",
+            "query-when"
+          ]
+        },
+        "index": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "fieldMode": {
+          "enum": [
+            "none",
+            "required",
+            "optional"
+          ]
+        },
+        "writableField": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fixedView": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "revision",
+        "definitionView",
+        "definitionKey",
+        "endpoint",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T10:45:28.249Z",
+  "models": {
+    "DataSpaceBindingEditorProps": {
+      "name": "DataSpaceBindingEditorProps",
+      "jsdoc": "当前元数据空间中的端点编辑上下文。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceBindingEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 持有正式定义和元数据的会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 上游刷新信号，不参与持久化。 */\n    revision: number;\n    /** 所属定义视图；嵌套端点通过局部配置视图编辑并写回此草稿。 */\n    definitionView: DataView;\n    /** 所属定义行的正式草稿键。 */\n    definitionKey: string | number;\n    /** 定位原生级联定义中的端点，不接收另一份modelValue。 */\n    endpoint: 'target' | 'options' | 'parent' | 'query-parent' | 'query-child' | 'filter-source' | 'filter-target' | 'query-input' | 'query-when';\n    /** 父输入或过滤映射的数组下标。 */\n    index?: number;\n    /** 供使用者区分输入、子字段与选项来源的名称。 */\n    label: string;\n    /** 字段为必填、可选或不适用。 */\n    fieldMode?: 'required' | 'optional' | 'none';\n    /** 子值目标排除主键和计算列。 */\n    writableField?: boolean;\n    /** 查询映射复用已选的两端视图，仅维护字段。 */\n    fixedView?: boolean;\n    /** 编辑占用锁，不是授权依据。 */\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "持有正式定义和元数据的会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "上游刷新信号，不参与持久化。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "definitionView",
+              "jsdoc": "所属定义视图；嵌套端点通过局部配置视图编辑并写回此草稿。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "definitionKey",
+              "jsdoc": "所属定义行的正式草稿键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "endpoint",
+              "jsdoc": "定位原生级联定义中的端点，不接收另一份modelValue。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "父输入或过滤映射的数组下标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "供使用者区分输入、子字段与选项来源的名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldMode",
+              "jsdoc": "字段为必填、可选或不适用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "writableField",
+              "jsdoc": "子值目标排除主键和计算列。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fixedView",
+              "jsdoc": "查询映射复用已选的两端视图，仅维护字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "编辑占用锁，不是授权依据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

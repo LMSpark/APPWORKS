@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission-attempt-recovery",
+    "sourcePath": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission-attempt-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission-attempt-recovery\n职责：第52项核对原办理结果，区分上传、实发、撤回及权威未执行。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "attemptRef",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "Event": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Event",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "eventRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "UPLOADED",
+            "DISPATCHED",
+            "WITHDRAWAL_SENT",
+            "NOT_EXECUTED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "attemptRef",
+        "requestDigest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T04:12:12.485Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    subjectId: string;\n    channelId: string;\n    attemptRef: string;\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    subjectId: string;\n    channelId: string;\n    attemptRef: string;\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Event": {
+      "name": "Event",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    eventRef: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    kind: 'UPLOADED';\n    fileVersionId: string;\n}> | Readonly<{\n    kind: 'DISPATCHED';\n    actualObjectRef: string;\n    uploadEventRef?: string;\n}> | Readonly<{\n    kind: 'WITHDRAWAL_SENT';\n    targetAttemptRef: string;\n}> | Readonly<{\n    kind: 'NOT_EXECUTED';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    eventRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'UPLOADED';\n    fileVersionId: string;\n}> | Readonly<{\n    kind: 'DISPATCHED';\n    actualObjectRef: string;\n    uploadEventRef?: string;\n}> | Readonly<{\n    kind: 'WITHDRAWAL_SENT';\n    targetAttemptRef: string;\n}> | Readonly<{\n    kind: 'NOT_EXECUTED';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

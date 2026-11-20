@@ -1,0 +1,89 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "h1",
+            "children": [
+              "TreeTable 最小示例"
+            ]
+          },
+          {
+            "type": "p",
+            "children": [
+              "用 r-table 直接承接 Element Plus el-table 的树形数据模式，而不是用 r-tree 模拟多列。"
+            ]
+          }
+        ],
+        "props": {
+          "class": "demo-header"
+        }
+      },
+      {
+        "type": "r-section",
+        "children": [
+          {
+            "type": "r-table",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "名称",
+                  "field": "name"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "类型",
+                  "width": 140,
+                  "field": "type"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "负责人",
+                  "width": 140,
+                  "field": "owner"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "状态",
+                  "width": 120,
+                  "field": "status"
+                }
+              }
+            ],
+            "props": {
+              "border": true,
+              "stripe": true,
+              "highlightCurrentRow": true,
+              "row-key": "id",
+              "default-expand-all": true,
+              "tree-props": {
+                "children": "children",
+                "hasChildren": "hasChildren"
+              },
+              "indent": 18,
+              "onCurrentChange": "handleCurrentChange",
+              "dataViewKey": "OrgRows@default"
+            }
+          }
+        ],
+        "props": {
+          "title": "组织结构树表格",
+          "description": "首列负责树层级展开，后续列保持标准表格对齐。"
+        }
+      }
+    ],
+    "props": {
+      "class": "treetable-demo-page"
+    }
+  }
+]

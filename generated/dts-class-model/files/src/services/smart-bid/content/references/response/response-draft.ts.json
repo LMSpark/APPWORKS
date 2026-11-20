@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/response-draft",
+    "sourcePath": "src/services/smart-bid/content/references/response/response-draft.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/response-draft.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/response-draft",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/response-draft\n职责：动作36核当前承办任务及引用后生成待核答复。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "lineageId",
+        "version",
+        "targetRef"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Body",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "chapterId": {
+              "type": "string"
+            },
+            "anchorNodeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "chapterId",
+            "anchorNodeId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "statement": {
+              "type": "string"
+            },
+            "data": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "statement",
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "MATERIAL",
+            "FACT",
+            "QUALIFICATION"
+          ]
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T15:42:32.685Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    assignmentId: string;\n    lineageId: string;\n    version: string;\n    targetRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    assignmentId: string;\n    lineageId: string;\n    version: string;\n    targetRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Body": {
+      "name": "Body",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    chapterId: string;\n    anchorNodeId: string;\n}> | Readonly<{\n    statement: string;\n    data: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    chapterId: string;\n    anchorNodeId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    statement: string;\n    data: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ref: string;\n    kind: 'FACT' | 'MATERIAL' | 'QUALIFICATION';\n    usable: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ref: string;\n    kind: 'FACT' | 'MATERIAL' | 'QUALIFICATION';\n    usable: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ref",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

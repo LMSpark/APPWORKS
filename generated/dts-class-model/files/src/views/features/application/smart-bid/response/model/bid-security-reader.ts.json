@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/model/bid-security-reader",
+    "sourcePath": "src/views/features/application/smart-bid/response/model/bid-security-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/model/bid-security-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/model/bid-security-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/model/bid-security-reader\n职责：动作26从原担保要求行取得财务凭据的核验范围。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Requirement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Requirement",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "EXEMPT"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "CONDITIONAL_EXEMPT"
+            },
+            "conditionRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind",
+            "conditionRefs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "REQUIRED"
+            },
+            "methodRef": {
+              "type": "string"
+            },
+            "milestones": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../services/smart-bid/content/references/commercial/bid-security-review.ts.json#/$defs/Milestone"
+              }
+            },
+            "deadline": {
+              "type": "number"
+            },
+            "amount": {
+              "$ref": "../../../../../../services/smart-bid/content/references/commercial/bid-security-review.ts.json#/$defs/Money"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind",
+            "methodRef",
+            "milestones",
+            "deadline"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Observation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Observation",
+      "properties": {
+        "asOf": {
+          "type": "number"
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Receipt"
+          }
+        }
+      },
+      "required": [
+        "asOf",
+        "receipts"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.494Z",
+  "models": {
+    "Requirement": {
+      "name": "Requirement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewBidSecurity>[0]",
+        "members": {}
+      }
+    },
+    "Observation": {
+      "name": "Observation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof reviewBidSecurity>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "asOf",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receipts",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

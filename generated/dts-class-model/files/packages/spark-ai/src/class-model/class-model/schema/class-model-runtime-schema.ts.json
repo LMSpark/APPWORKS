@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/schema/class-model-runtime-schema",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/schema/class-model-runtime-schema.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-runtime-schema.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/schema/class-model-runtime-schema",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/schema/class-model-runtime-schema\n职责：把动作参数引用的声明闭包绑定成可独立校验的运行schema。\n边界：只消费已加载声明；保留递归引用，不补造缺失定义或展开业务模型。\nAI用途：确认脚本参数与bundle声明使用相同约束，缺失引用必须修复知识闭包。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelRuntimeSchema"
+    ]
+  },
+  "$defs": {
+    "ClassModelRuntimeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelRuntimeSchema",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "surface": {
+              "$ref": "../dts-surface-types.ts.json#/$defs/DtsClassModelSurfaceDocument"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bind.params": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bind.return": {
+          "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:58:06.662Z",
+  "models": {
+    "ClassModelRuntimeSchema": {
+      "name": "ClassModelRuntimeSchema",
+      "jsdoc": "为单个参数schema收集可达定义，生成不依赖原shard相对路径的校验资源。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定只读取当前loader已加载的声明，不触发文件或网络访问。",
+          "signatureText": "constructor(surface: DtsClassModelSurfaceDocument)",
+          "parameters": [
+            {
+              "name": "surface",
+              "type": {
+                "type": "reference",
+                "name": "DtsClassModelSurfaceDocument",
+                "sourcePath": "packages/spark-ai/src/class-model/class-model/dts-surface-types.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "bind",
+              "jsdoc": "每个参数资源独立收集定义，保持无引用参数的原有结构。",
+              "parameters": [
+                {
+                  "name": "schema",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonSchemaObject"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonSchemaObject"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

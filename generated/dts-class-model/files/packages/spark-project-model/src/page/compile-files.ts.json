@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/compile-files",
+    "sourcePath": "packages/spark-project-model/src/page/compile-files.ts",
+    "sourceFile": "packages/spark-project-model/src/page/compile-files.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/compile-files",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/compile-files\n职责：提供项目模型和页面配置域中的 compile files 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:01:39.931Z",
+  "models": {}
+}

@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "noEmitOnError": true,
+    "composite": false,
+    "paths": {
+      "@spark-appworks/spark-utils": ["../spark-utils/dist/index.d.ts"],
+      "@spark-appworks/spark-json-document": ["../spark-json-document/dist/index.d.ts"],
+      "@spark-appworks/spark-json-document/schema": ["../spark-json-document/dist/schema/index.d.ts"],
+      "@spark-appworks/spark-json-document/tree": ["../spark-json-document/dist/tree/index.d.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "dist",
+    "node_modules",
+    "src/**/__tests__/**"
+  ]
+}

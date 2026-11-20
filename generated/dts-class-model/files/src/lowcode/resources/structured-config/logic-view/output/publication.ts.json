@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/logic-view/output/publication",
+    "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/logic-view/output/publication",
+    "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication\n职责：按设计文件、正式输出两个独立提交边界编排一次逻辑视图发布。\n边界：仅持原运行实例、原捕获及只读证明；草稿、查询、提交与未知核验仍归SPARK data。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LogicViewPublication"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "page": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "LogicViewPublication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewPublication",
+      "properties": {
+        "pending": {
+          "type": "boolean"
+        },
+        "finished": {
+          "type": "boolean"
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "fileConfirmed": {
+          "type": "boolean"
+        },
+        "needsVerification": {
+          "type": "boolean"
+        },
+        "canSave": {
+          "type": "boolean"
+        },
+        "canAcceptCurrent": {
+          "type": "boolean"
+        },
+        "canRetireNotAppliedOutputs": {
+          "type": "boolean"
+        },
+        "canCancelBeforeDispatch": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancelBeforeDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancelBeforeDispatch.return": true,
+        "method.retireNotAppliedOutputs.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.retireNotAppliedOutputs.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.acceptCurrentAndRetire.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrentAndRetire.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T16:17:53.932Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    page: PageRuntime;\n    viewId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    page: PageRuntime;\n    viewId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LogicViewPublication": {
+      "name": "LogicViewPublication",
+      "jsdoc": "原发布意图；核验动作只恢复原捕获，不在同次动作继续下一次提交。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "jsdoc": "原发布尚有待处理阶段；即便文件已干净也参与关闭保护。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "finished",
+              "jsdoc": "原意图已经确认或明确取消。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "published",
+              "jsdoc": "仅正式回执证明原文件和输出均确认；采用当前结果或退休不算成功。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileConfirmed",
+              "jsdoc": "至少文件阶段已确认，不表示输出也已提交。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "needsVerification",
+              "jsdoc": "只能通过核验入口处理的原捕获，不用capture消失猜成功。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canSave",
+              "jsdoc": "原捕获尚未结束时不再派发；文件确认后允许下一次明确提交输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canAcceptCurrent",
+              "jsdoc": "明确采用当前结果入口；实际调用仍核原目标和后续修改证明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRetireNotAppliedOutputs",
+              "jsdoc": "原输出已经核验未生效，可明确结束其原草稿。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancelBeforeDispatch",
+              "jsdoc": "仅表示没有未处理的派发；取消时仍核输出归属，不扩大清理范围。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "save",
+              "jsdoc": "预检、原生应用、文件确认、输出确认；任何失败保留实际阶段，不伪造跨来源回滚。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "仅核原文件或输出捕获；确认后等待下一次显式保存，不自动派发下一阶段。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancelBeforeDispatch",
+              "jsdoc": "仅撤销尚未派发的本次输出暂存；已确认文件和文件新输入均保留。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "retireNotAppliedOutputs",
+              "jsdoc": "原输出已核验未生效后，显式退休其原草稿；不重提或处理文件和参数。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrentAndRetire",
+              "jsdoc": "用户明确采用当前正式结果并退休；不证明原发布成功，不派发后续阶段。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "宿主释放时移除监听；不取消原数据层捕获或静默丢弃草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

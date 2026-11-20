@@ -1,0 +1,478 @@
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==================== SPARK 主题 CSS 变量 ==================== */
+
+:root {
+  /* 基础色 */
+  --spark-bg: #f5f5f5;
+  --spark-bg-page: #ffffff;
+  --spark-bg-overlay: #ffffff;
+  --spark-bg-soft: #f8fafc;
+  --spark-bg-sunken: #f2f3f5;
+  --spark-bg-hover: #f5f7fa;
+  --spark-bg-selected: color-mix(in srgb, var(--el-color-primary, #409eff) 11%, #ffffff);
+  --spark-text-primary: #303133;
+  --spark-text-regular: #606266;
+  --spark-text-secondary: #909399;
+  --spark-text-placeholder: #a8abb2;
+  --spark-border-color: #dcdfe6;
+  --spark-border-light: #e4e7ed;
+  --spark-divider-color: #ebeef5;
+  --spark-chrome-border: rgba(0, 0, 0, 0.08);
+  --spark-control-bg: #ffffff;
+  --spark-control-border: #dcdfe6;
+  --spark-control-border-hover: #c0c4cc;
+  --spark-focus-ring: 0 0 0 3px color-mix(in srgb, var(--el-color-primary, #409eff) 18%, transparent);
+
+  /* 阴影 */
+  --spark-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  --spark-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --spark-shadow-panel: 0 10px 28px rgba(15, 23, 42, 0.08);
+
+  /* 圆角与动效 */
+  --spark-radius-xs: 4px;
+  --spark-radius-sm: 6px;
+  --spark-radius-md: 8px;
+  --spark-radius-lg: 12px;
+  --spark-radius-pill: 999px;
+  --spark-transition-fast: 0.15s ease;
+  --spark-transition-base: 0.2s ease;
+
+  /* 滚动条 */
+  --spark-scrollbar-size: 10px;
+  --spark-scrollbar-track: transparent;
+  --spark-scrollbar-thumb: rgba(148, 163, 184, 0.45);
+  --spark-scrollbar-thumb-hover: rgba(100, 116, 139, 0.62);
+
+  /* 布局尺寸 */
+  --spark-header-height: 48px;
+  --spark-breadcrumb-height: 36px;
+  --spark-footer-height: 32px;
+  --spark-tab-bar-height: 34px;
+  --spark-sidebar-width: 240px;
+  --spark-sidebar-collapsed-width: 64px;
+  --spark-sidebar-right-width: 0px;
+
+  /* 布局色 */
+  --spark-header-bg: #001529;
+  --spark-header-text: #ffffffd9;
+  --spark-sidebar-bg: #001529;
+  --spark-sidebar-text: #ffffffd9;
+  --spark-breadcrumb-bg: var(--spark-bg-page);
+  --spark-footer-bg: var(--spark-bg-page);
+  --spark-footer-text: var(--spark-text-secondary);
+}
+
+/* 暗色主题覆盖（html.dark 由 VueUse useColorMode 自动切换） */
+html.dark:root {
+  --spark-bg: #111213;
+  --spark-bg-page: #171819;
+  --spark-bg-overlay: #202225;
+  --spark-bg-soft: #1d1f21;
+  --spark-bg-sunken: #101112;
+  --spark-bg-hover: #242629;
+  --spark-bg-selected: color-mix(in srgb, var(--el-color-primary, #409eff) 20%, #1a1b1d);
+  --spark-text-primary: #edf2f7;
+  --spark-text-regular: #cbd3df;
+  --spark-text-secondary: #9ca6b4;
+  --spark-text-placeholder: #707783;
+  --spark-border-color: #35383d;
+  --spark-border-light: #2a2d31;
+  --spark-divider-color: #303338;
+  --spark-chrome-border: rgba(255, 255, 255, 0.08);
+  --spark-control-bg: #121314;
+  --spark-control-border: #3a3d43;
+  --spark-control-border-hover: #565b63;
+  --spark-focus-ring: 0 0 0 3px color-mix(in srgb, var(--el-color-primary, #409eff) 28%, transparent);
+
+  --spark-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
+  --spark-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --spark-shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --spark-scrollbar-thumb: rgba(120, 127, 138, 0.46);
+  --spark-scrollbar-thumb-hover: rgba(160, 168, 180, 0.68);
+
+  /* 布局色（暗色） */
+  --spark-header-bg: #1d1d1d;
+  --spark-header-text: #e5eaf3d9;
+  --spark-sidebar-bg: #1d1d1d;
+  --spark-sidebar-text: #e5eaf3d9;
+  --spark-breadcrumb-bg: var(--spark-bg-page);
+  --spark-footer-bg: var(--spark-bg-page);
+  --spark-footer-text: var(--spark-text-secondary);
+
+  color-scheme: dark;
+}
+
+/* Element Plus 全局变量桥接 */
+html:root {
+  --el-border-radius-base: var(--spark-radius-sm);
+  --el-border-radius-small: var(--spark-radius-xs);
+  --el-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --el-transition-duration: 0.2s;
+  --el-transition-duration-fast: 0.15s;
+}
+
+html.dark:root {
+  --el-bg-color-page: var(--spark-bg);
+  --el-bg-color: var(--spark-bg-page);
+  --el-bg-color-overlay: var(--spark-bg-overlay);
+  --el-fill-color-blank: var(--spark-bg-page);
+  --el-fill-color-extra-light: var(--spark-bg-soft);
+  --el-fill-color-lighter: var(--spark-bg-soft);
+  --el-fill-color-light: var(--spark-bg-hover);
+  --el-fill-color: #24272b;
+  --el-fill-color-dark: #2c3035;
+  --el-text-color-primary: var(--spark-text-primary);
+  --el-text-color-regular: var(--spark-text-regular);
+  --el-text-color-secondary: var(--spark-text-secondary);
+  --el-text-color-placeholder: var(--spark-text-placeholder);
+  --el-border-color: var(--spark-border-color);
+  --el-border-color-light: var(--spark-border-light);
+  --el-border-color-lighter: var(--spark-divider-color);
+  --el-border-color-extra-light: #25282c;
+  --el-mask-color: rgba(0, 0, 0, 0.7);
+  --el-mask-color-extra-light: rgba(0, 0, 0, 0.3);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--spark-text-primary);
+  background-color: var(--spark-bg);
+  transition: color 0.3s, background-color 0.3s;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ⚠️ 阻止所有 Google Fonts 加载 - 提升国内网络访问速度 */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+}
+
+#app {
+  min-height: 100vh;
+}
+
+::selection {
+  color: #ffffff;
+  background: color-mix(in srgb, var(--el-color-primary, #409eff) 78%, #000000);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--spark-focus-ring);
+}
+
+* {
+  scrollbar-color: var(--spark-scrollbar-thumb) var(--spark-scrollbar-track);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: var(--spark-scrollbar-size);
+  height: var(--spark-scrollbar-size);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--spark-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--spark-scrollbar-thumb);
+  border: 3px solid transparent;
+  border-radius: var(--spark-radius-pill);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--spark-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+/* ==================== Element Plus 控件基准 ==================== */
+
+body .el-button {
+  font-weight: 600;
+  border-radius: var(--spark-radius-sm);
+  transition:
+    color var(--spark-transition-fast),
+    background-color var(--spark-transition-fast),
+    border-color var(--spark-transition-fast),
+    box-shadow var(--spark-transition-fast),
+    opacity var(--spark-transition-fast);
+}
+
+body .el-button:focus-visible,
+body .el-button.is-focus {
+  box-shadow: var(--spark-focus-ring);
+}
+
+body .el-button--small {
+  min-height: 28px;
+  padding-inline: 12px;
+}
+
+body .el-button + .el-button {
+  margin-left: 8px;
+}
+
+body .el-button-group .el-button + .el-button {
+  margin-left: 0;
+}
+
+body .el-input__wrapper,
+body .el-select__wrapper,
+body .el-textarea__inner,
+body .el-input-number .el-input__wrapper {
+  border-radius: var(--spark-radius-sm);
+  background: var(--spark-control-bg);
+  box-shadow: 0 0 0 1px var(--spark-control-border) inset;
+  transition:
+    background-color var(--spark-transition-fast),
+    box-shadow var(--spark-transition-fast);
+}
+
+body .el-input__wrapper:hover,
+body .el-select__wrapper:hover,
+body .el-textarea__inner:hover,
+body .el-input-number .el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--spark-control-border-hover) inset;
+}
+
+body .el-input__wrapper.is-focus,
+body .el-select__wrapper.is-focused,
+body .el-textarea__inner:focus {
+  box-shadow:
+    0 0 0 1px var(--el-color-primary) inset,
+    var(--spark-focus-ring);
+}
+
+body .el-form-item__label {
+  color: var(--spark-text-secondary);
+  font-weight: 600;
+}
+
+body .el-radio-button__inner {
+  font-weight: 600;
+  border-radius: var(--spark-radius-sm);
+}
+
+body .el-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--spark-radius-xs);
+  font-weight: 600;
+}
+
+body .el-divider--horizontal {
+  border-color: var(--spark-border-color);
+}
+
+body .el-divider__text {
+  color: var(--spark-text-primary);
+  background: var(--spark-bg-page);
+  font-weight: 700;
+}
+
+body .el-tabs--border-card {
+  border-color: var(--spark-border-color);
+  border-radius: var(--spark-radius-md);
+  background: var(--spark-bg-page);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+body .el-tabs--border-card > .el-tabs__header {
+  background: var(--spark-bg-soft);
+  border-bottom-color: var(--spark-border-color);
+}
+
+body .el-tabs--border-card > .el-tabs__header .el-tabs__item {
+  color: var(--spark-text-secondary);
+  font-weight: 600;
+}
+
+body .el-tabs--border-card > .el-tabs__header .el-tabs__item:hover,
+body .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
+  color: var(--el-color-primary);
+}
+
+body .el-tabs--card > .el-tabs__header .el-tabs__item {
+  color: var(--spark-text-secondary);
+  font-weight: 600;
+}
+
+body .el-tree {
+  --el-tree-node-hover-bg-color: var(--spark-bg-hover);
+  background: transparent;
+  color: var(--spark-text-regular);
+}
+
+body .el-tree-node.is-current > .el-tree-node__content {
+  background: var(--spark-bg-selected);
+  color: var(--spark-text-primary);
+}
+
+body .el-dropdown-menu,
+body .el-popper.is-light,
+body .el-popover.el-popper {
+  border-color: var(--spark-border-color);
+  background: var(--spark-bg-overlay);
+  box-shadow: var(--spark-shadow);
+}
+
+body .el-dropdown-menu__item:hover,
+body .el-dropdown-menu__item:focus {
+  color: var(--spark-text-primary);
+  background: var(--spark-bg-hover);
+}
+
+body .el-empty__description {
+  color: var(--spark-text-secondary);
+}
+
+/* ==================== SPARK 应用壳样式 ==================== */
+
+body .spark-layout__header {
+  border-bottom: 1px solid var(--spark-chrome-border);
+  box-shadow: none;
+}
+
+body .spark-layout__sidebar {
+  border-right: 1px solid var(--spark-chrome-border);
+}
+
+body .spark-layout__breadcrumb,
+body .spark-layout__tab-bar,
+body .spark-layout__footer {
+  border-color: var(--spark-border-light);
+}
+
+body .spark-layout__main {
+  scrollbar-gutter: stable;
+}
+
+body .app-tab-bar__tab {
+  border-radius: var(--spark-radius-xs) var(--spark-radius-xs) 0 0;
+}
+
+body .app-tab-bar__tab:hover {
+  background: var(--spark-bg-hover);
+}
+
+body .app-tab-bar__tab--active {
+  background: var(--spark-bg);
+  border-color: var(--spark-border-color);
+}
+
+/* ==================== SPARK 页面通用工具类 ==================== */
+
+.spark-page-surface {
+  min-height: 100%;
+  color: var(--spark-text-primary);
+  background: var(--spark-bg);
+}
+
+.spark-panel {
+  border: 1px solid var(--spark-border-color);
+  border-radius: var(--spark-radius-md);
+  background: var(--spark-bg-page);
+  box-shadow: var(--spark-shadow-light);
+}
+
+.spark-panel--elevated {
+  box-shadow: var(--spark-shadow-panel);
+}
+
+.spark-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--spark-border-light);
+  background: var(--spark-bg-soft);
+}
+
+.spark-action-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spark-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--spark-text-primary);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.spark-muted {
+  color: var(--spark-text-secondary);
+}
+
+.spark-scroll-area {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+/* 工具类 */
+.text-center {
+  text-align: center;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}

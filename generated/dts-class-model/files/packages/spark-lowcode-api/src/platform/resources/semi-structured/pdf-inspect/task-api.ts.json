@@ -1,0 +1,749 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/task-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/pdf-inspect/task-api",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/task-api\n职责：PDF核验v2正式任务请求及回执身份校验。\n边界：存储适配使用；不上传、不自动重试、不生成requestId、不把恢复未命中解释为未提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PdfInspectionFileInput",
+      "PdfInspectionInitInput",
+      "PdfInspectionInitReceipt",
+      "PdfInspectionLimits",
+      "PdfInspectionHistory",
+      "PdfInspectionJob",
+      "PdfInspectionApi"
+    ]
+  },
+  "$defs": {
+    "PdfInspectionFileInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionFileInput",
+      "properties": {
+        "fileId": {
+          "type": "string"
+        },
+        "appType": {
+          "type": "string"
+        },
+        "filePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileId",
+        "appType",
+        "filePath"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionInitInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionInitInput",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "configId": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PdfInspectionFileInput"
+          }
+        }
+      },
+      "required": [
+        "requestId",
+        "configId",
+        "files"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionInitReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionInitReceipt",
+      "properties": {
+        "inspectJobId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "fileCount": {
+          "type": "number"
+        },
+        "protocolVersion": {
+          "const": "2.0"
+        }
+      },
+      "required": [
+        "inspectJobId",
+        "status",
+        "fileCount",
+        "protocolVersion"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionLimits": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionLimits",
+      "properties": {
+        "protocolVersion": {
+          "const": "2.0"
+        },
+        "maxFiles": {
+          "type": "number"
+        },
+        "maxFileBytes": {
+          "type": "number"
+        },
+        "maxTotalFileBytes": {
+          "type": "number"
+        },
+        "maxTotalSourceBytes": {
+          "type": "number"
+        },
+        "maxZipBytes": {
+          "type": "number"
+        },
+        "maxZipEntries": {
+          "type": "number"
+        },
+        "maxPages": {
+          "type": "number"
+        },
+        "maxTextCharsPerPage": {
+          "type": "number"
+        },
+        "maxRenderedPixels": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "maxFiles",
+        "maxFileBytes",
+        "maxTotalFileBytes",
+        "maxTotalSourceBytes",
+        "maxZipBytes",
+        "maxZipEntries",
+        "maxPages",
+        "maxTextCharsPerPage",
+        "maxRenderedPixels"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionHistory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionHistory",
+      "properties": {
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "page",
+        "pageSize",
+        "total",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionJob": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionJob",
+      "properties": {
+        "inspectJobId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "protocolVersion": {
+          "const": "2.0"
+        },
+        "progress": {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "number"
+            },
+            "finished": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "total",
+            "finished"
+          ],
+          "additionalProperties": false
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "inspectJobId",
+        "requestId",
+        "status",
+        "protocolVersion",
+        "progress",
+        "files"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "http": {
+                  "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+                },
+                "readScope": {
+                  "type": "object",
+                  "title": "() => DataSpaceRequestScope"
+                }
+              },
+              "required": [
+                "http",
+                "readScope"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.init.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PdfInspectionInitInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.init.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectionInitReceipt>"
+        },
+        "method.recover.params": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.recover.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectionJob>"
+        },
+        "method.result.params": {
+          "type": "object",
+          "properties": {
+            "inspectJobId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.result.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectionJob>"
+        },
+        "method.limits.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.limits.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectionLimits>"
+        },
+        "method.history.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "page",
+                "pageSize"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.history.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectionHistory>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T13:06:44.449Z",
+  "models": {
+    "PdfInspectionFileInput": {
+      "name": "PdfInspectionFileInput",
+      "jsdoc": "路径须来自已核验上传ACK，不由文件展示名称拼接。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fileId: string;\n    appType: string;\n    filePath: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fileId: string;\n    appType: string;\n    filePath: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fileId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filePath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionInitInput": {
+      "name": "PdfInspectionInitInput",
+      "jsdoc": "同一请求编号的输入固定，不在异常后换号重发。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestId: string;\n    configId: string;\n    files: readonly PdfInspectionFileInput[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestId: string;\n    configId: string;\n    files: readonly PdfInspectionFileInput[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionInitReceipt": {
+      "name": "PdfInspectionInitReceipt",
+      "jsdoc": "init不回显requestId，调用者须保留原命令捕获。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    inspectJobId: string;\n    status: string;\n    fileCount: number;\n    protocolVersion: '2.0';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    inspectJobId: string;\n    status: string;\n    fileCount: number;\n    protocolVersion: '2.0';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "inspectJobId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "protocolVersion",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionLimits": {
+      "name": "PdfInspectionLimits",
+      "jsdoc": "读取服务当前限制，不固化默认大小。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    protocolVersion: '2.0';\n    maxFiles: number;\n    maxFileBytes: number;\n    maxTotalFileBytes: number;\n    maxTotalSourceBytes: number;\n    maxZipBytes: number;\n    maxZipEntries: number;\n    maxPages: number;\n    maxTextCharsPerPage: number;\n    maxRenderedPixels: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    protocolVersion: '2.0';\n    maxFiles: number;\n    maxFileBytes: number;\n    maxTotalFileBytes: number;\n    maxTotalSourceBytes: number;\n    maxZipBytes: number;\n    maxZipEntries: number;\n    maxPages: number;\n    maxTextCharsPerPage: number;\n    maxRenderedPixels: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "protocolVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxFiles",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxFileBytes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxTotalFileBytes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxTotalSourceBytes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxZipBytes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxZipEntries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxTextCharsPerPage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRenderedPixels",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionHistory": {
+      "name": "PdfInspectionHistory",
+      "jsdoc": "服务已分页的历史；不能再在当前页上执行一次本地分页。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    page: number;\n    pageSize: number;\n    total: number;\n    items: ReadonlyArray<Readonly<Record<string, unknown>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    page: number;\n    pageSize: number;\n    total: number;\n    items: ReadonlyArray<Readonly<Record<string, unknown>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionJob": {
+      "name": "PdfInspectionJob",
+      "jsdoc": "完整文件/规则证据保留服务原JSON字段，不把状态等同结论。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    inspectJobId: string;\n    requestId: string;\n    status: string;\n    protocolVersion: '2.0';\n    progress: Readonly<{\n        total: number;\n        finished: number;\n    }>;\n    files: ReadonlyArray<Readonly<Record<string, unknown>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    inspectJobId: string;\n    requestId: string;\n    status: string;\n    protocolVersion: '2.0';\n    progress: Readonly<{\n        total: number;\n        finished: number;\n    }>;\n    files: ReadonlyArray<Readonly<Record<string, unknown>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "inspectJobId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "protocolVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "progress",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionApi": {
+      "name": "PdfInspectionApi",
+      "jsdoc": "一个适配实例绑定原执行域；刷新认证或切应用后须由宿主重新装配。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Readonly<{\n        http: HttpClientBase;\n        readScope: () => DataSpaceRequestScope;\n    }>)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        http: HttpClientBase;\n        readScope: () => DataSpaceRequestScope;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "init",
+              "jsdoc": "原配置与ACK前置证明由命令资源完成；本层只执行一次固定请求。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PdfInspectionInitInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectionInitReceipt",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "recover",
+              "jsdoc": "恢复只查原请求；任何错误仍交原命令核验，绝不调用init。",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectionJob",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "result",
+              "jsdoc": "按已接纳任务刷新，不能替换成同页面其他任务。",
+              "parameters": [
+                {
+                  "name": "inspectJobId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectionJob",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "limits",
+              "jsdoc": "只读获取协议及限制；不会创建任务或读取文件。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectionLimits",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "history",
+              "jsdoc": "请求原服务页，保留正式total及来源信息，不伪造协议版本。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        page: number;\n        pageSize: number;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectionHistory",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/task-api.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

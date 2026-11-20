@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:index",
+    "sourcePath": "packages/spark-ai/src/index.ts",
+    "sourceFile": "packages/spark-ai/src/index.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "index",
+    "jsdoc": "@module @spark-appworks/spark-ai:index\n职责：维护 @spark-appworks/spark-ai 中 index 的 AI 运行时语义。\n边界：只服务 spark-ai 包内部的 Agent/ClassModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\n@packageDocumentation\nSPARK AI root facade.\nUse the focused public entries for new code:\n- `@spark-appworks/spark-ai/class-model`\n- `@spark-appworks/spark-ai/agent`\nJSON Schema / 值类型 SSOT：`@spark-appworks/spark-json-document`（本包不再转发）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-10T10:00:36.143Z",
+  "models": {}
+}

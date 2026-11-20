@@ -1,0 +1,1303 @@
+{
+  "audit": {
+    "phase": "confirmed",
+    "reads": 8,
+    "previews": 17,
+    "businessWrites": 0,
+    "blockedRequests": 0,
+    "fixtureRemaining": false,
+    "models": [
+      {
+        "space": "36B01771C627B9BF5CD493DC75B996A1",
+        "metaName": "Base_Import_solution",
+        "id": "36B01771C627B9BF5CD493DC75B996A1p000",
+        "primaryKey": "rowid",
+        "fields": [
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "bigint",
+            "output": true,
+            "description": "是否删除"
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "output": true,
+            "description": "流程实例id"
+          },
+          {
+            "name": "config_hash",
+            "type": "varchar",
+            "output": false,
+            "description": "规则配置摘要，保留用于版本一致性校验"
+          },
+          {
+            "name": "lingma_sys_appid",
+            "type": "varchar",
+            "output": false,
+            "description": "默认应用系统标识字段；请求携带 X-AppId 时由系统自动维护"
+          },
+          {
+            "name": "transform_enabled",
+            "type": "tinyint",
+            "output": false,
+            "description": "是否启用标准转换规则：0兼容旧导入；1启用"
+          },
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "output": true,
+            "description": "唯一值（ID）"
+          },
+          {
+            "name": "version",
+            "type": "int",
+            "output": false,
+            "description": "方案版本号"
+          },
+          {
+            "name": "status",
+            "type": "varchar",
+            "output": false,
+            "description": "规则方案状态：DRAFT草稿；PUBLISHED已启用"
+          },
+          {
+            "name": "solutionName",
+            "type": "varchar",
+            "output": true,
+            "description": "方案名称"
+          },
+          {
+            "name": "templatePath",
+            "type": "varchar",
+            "output": true,
+            "description": "模板文件路径"
+          },
+          {
+            "name": "coding",
+            "type": "varchar",
+            "output": true,
+            "description": "方案编码"
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "output": true,
+            "description": "创建时间"
+          },
+          {
+            "name": "dataSetId",
+            "type": "varchar",
+            "output": true,
+            "description": "数据空间id"
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "output": true,
+            "description": "修改人"
+          },
+          {
+            "name": "lingma_sys_ent",
+            "type": "varchar",
+            "output": true,
+            "description": "企业标识字段"
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "output": true,
+            "description": "流程状态"
+          },
+          {
+            "name": "description",
+            "type": "varchar",
+            "output": true,
+            "description": "摘要"
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "output": true,
+            "description": "修改时间"
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "output": true,
+            "description": "创建人"
+          },
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "output": true,
+            "description": "报表id"
+          }
+        ]
+      },
+      {
+        "space": "0F93B82141CF40852021D704B0E30BF4",
+        "metaName": "Base_Import_Transform_Rule",
+        "id": "b3ca28c2-432c-4374-ac20-bb98a85c2098",
+        "primaryKey": "id",
+        "fields": [
+          {
+            "name": "target_field",
+            "type": "varchar",
+            "output": true,
+            "description": "目标字段物理名"
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "output": true,
+            "description": "创建时间"
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "int",
+            "output": true,
+            "description": "软删除：0正常；1删除"
+          },
+          {
+            "name": "lingma_sys_ent",
+            "type": "varchar",
+            "output": true,
+            "description": "所属租户"
+          },
+          {
+            "name": "rule_type",
+            "type": "varchar",
+            "output": true,
+            "description": "规则类型"
+          },
+          {
+            "name": "description",
+            "type": "text",
+            "output": true,
+            "description": "规则维护说明"
+          },
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "output": true,
+            "description": "报表ID"
+          },
+          {
+            "name": "enabled",
+            "type": "tinyint",
+            "output": true,
+            "description": "0停用；1启用"
+          },
+          {
+            "name": "scheme_id",
+            "type": "varchar",
+            "output": true,
+            "description": "所属导入方案ID"
+          },
+          {
+            "name": "sort_order",
+            "type": "int",
+            "output": true,
+            "description": "执行顺序"
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "output": true,
+            "description": "创建人"
+          },
+          {
+            "name": "source_field",
+            "type": "varchar",
+            "output": true,
+            "description": "源字段物理名"
+          },
+          {
+            "name": "on_error",
+            "type": "varchar",
+            "output": true,
+            "description": "预览错误策略；正式导入错误整体回滚"
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "output": true,
+            "description": "流程状态"
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "output": true,
+            "description": "流程实例ID"
+          },
+          {
+            "name": "config_id",
+            "type": "varchar",
+            "output": true,
+            "description": "所属Sheet或目标表配置ID"
+          },
+          {
+            "name": "id",
+            "type": "varchar",
+            "output": true,
+            "description": "规则主键ID"
+          },
+          {
+            "name": "phase",
+            "type": "varchar",
+            "output": true,
+            "description": "执行阶段"
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "output": true,
+            "description": "修改人"
+          },
+          {
+            "name": "config_json",
+            "type": "text",
+            "output": true,
+            "description": "规则参数JSON，不允许脚本或SQL"
+          },
+          {
+            "name": "lingma_sys_appid",
+            "type": "varchar",
+            "output": true,
+            "description": "所属应用系统ID"
+          },
+          {
+            "name": "condition_json",
+            "type": "text",
+            "output": true,
+            "description": "结构化执行条件JSON"
+          },
+          {
+            "name": "rule_name",
+            "type": "varchar",
+            "output": true,
+            "description": "规则中文名称"
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "output": true,
+            "description": "修改时间"
+          }
+        ]
+      }
+    ],
+    "cases": [
+      {
+        "label": "TRIM",
+        "expected": [
+          {
+            "name": "张三",
+            "zero": 0,
+            "active": false
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "name": "张三",
+              "zero": 0,
+              "active": false
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "REPLACE",
+        "expected": [
+          {
+            "code": "A-B"
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "code": "A-B"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "CONVERT",
+        "expected": [
+          {
+            "quantity": 12
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "quantity": 12
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "EXPLODE",
+        "expected": [
+          {
+            "name": "张三",
+            "projects": "项目A、项目B",
+            "project": "项目A"
+          },
+          {
+            "name": "张三",
+            "projects": "项目A、项目B",
+            "project": "项目B"
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "name": "张三",
+              "projects": "项目A、项目B",
+              "project": "项目A"
+            },
+            {
+              "name": "张三",
+              "projects": "项目A、项目B",
+              "project": "项目B"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 2
+        },
+        "matched": true
+      },
+      {
+        "label": "LOOKUP",
+        "expected": [
+          {
+            "status_text": "启用",
+            "status": 1
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "status_text": "启用",
+              "status": 1
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "COMPUTE",
+        "expected": [
+          {
+            "quantity": 2,
+            "unit_price": 12.5,
+            "amount": 25
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "quantity": 2,
+              "unit_price": 12.5,
+              "amount": 25
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "DEFAULT",
+        "expected": [
+          {
+            "status": "草稿"
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "status": "草稿"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "OVERRIDE",
+        "expected": [
+          {
+            "source": "系统导入"
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "source": "系统导入"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "VALIDATE",
+        "expected": [],
+        "expectedErrors": 1,
+        "result": {
+          "rows": [],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "probe-VALIDATE",
+              "ruleName": "VALIDATE",
+              "field": "",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "员工不能为空"
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 0
+        },
+        "matched": true
+      },
+      {
+        "label": "FILTER",
+        "expected": [
+          {
+            "code": "B",
+            "amount": 120
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "code": "B",
+              "amount": 120
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 2,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "DEDUPLICATE",
+        "expected": [
+          {
+            "code": "A",
+            "value": 1
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "code": "A",
+              "value": 1
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 2,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "UNPIVOT",
+        "expected": [
+          {
+            "employee": "张三",
+            "month": "01",
+            "amount": 100
+          },
+          {
+            "employee": "张三",
+            "month": "02",
+            "amount": 120
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "employee": "张三",
+              "month": "01",
+              "amount": 100
+            },
+            {
+              "employee": "张三",
+              "month": "02",
+              "amount": 120
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 2
+        },
+        "matched": true
+      },
+      {
+        "label": "PIVOT",
+        "expected": [
+          {
+            "employee": "张三",
+            "base_salary": 8000,
+            "bonus": 1000
+          }
+        ],
+        "expectedErrors": 0,
+        "result": {
+          "rows": [
+            {
+              "employee": "张三",
+              "base_salary": 8000,
+              "bonus": 1000
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 2,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "error-FAIL_ROW",
+        "expected": [],
+        "expectedErrors": 1,
+        "result": {
+          "rows": [],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "probe-error-FAIL_ROW",
+              "ruleName": "error-FAIL_ROW",
+              "field": "quantity",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "Character b is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark."
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 0
+        },
+        "matched": true
+      },
+      {
+        "label": "error-SKIP_ROW",
+        "expected": [],
+        "expectedErrors": 1,
+        "result": {
+          "rows": [],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "probe-error-SKIP_ROW",
+              "ruleName": "error-SKIP_ROW",
+              "field": "quantity",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "Character b is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark."
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 0
+        },
+        "matched": true
+      },
+      {
+        "label": "error-KEEP_RAW",
+        "expected": [
+          {
+            "quantity": "bad"
+          }
+        ],
+        "expectedErrors": 1,
+        "result": {
+          "rows": [
+            {
+              "quantity": "bad"
+            }
+          ],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "probe-error-KEEP_RAW",
+              "ruleName": "error-KEEP_RAW",
+              "field": "quantity",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "Character b is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark."
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "error-USE_NULL",
+        "expected": [
+          {
+            "quantity": null
+          }
+        ],
+        "expectedErrors": 1,
+        "result": {
+          "rows": [
+            {
+              "quantity": null
+            }
+          ],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "probe-error-USE_NULL",
+              "ruleName": "error-USE_NULL",
+              "field": "quantity",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "Character b is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark."
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      }
+    ],
+    "switchProbe": {
+      "gap": "transform_enabled is absent or not an output field",
+      "field": {
+        "name": "transform_enabled",
+        "type": "tinyint",
+        "output": false,
+        "description": "是否启用标准转换规则：0兼容旧导入；1启用"
+      }
+    },
+    "testedAt": "2026-11-05T10:48:30.262Z"
+  },
+  "sourceHashesUnchanged": true,
+  "sourceHashes": [
+    {
+      "path": "artifacts/data-chain-smoke/excel-transform-preflight.mts",
+      "sha256": "9d15e33b9826f6fa1df2f3228c462faeacfd51776a7fb9a367faa42f75982c6e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-transform-preflight-run.mts",
+      "sha256": "6ff9baca4a9de37e99aaadfc3a15b0b37d25cdf1879963aedfa16fa6139dd3fe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-transform-preflight-driver.ps1",
+      "sha256": "b9c66fe83d6bd3c844f9250fdb43b877d6e159a7b35a168695713dde2679d857"
+    }
+  ],
+  "scope": "Formal Excel scheme/rule metadata and 17 memory-only transformation previews; no persisted scheme execution",
+  "verifiedAt": "2026-11-05T10:51:57.3719676Z",
+  "limits": {
+    "browserVerified": false,
+    "workbookExportVerified": false,
+    "schemeSwitchWritten": false,
+    "strictImportPoliciesVerified": false,
+    "savedSchemeExecutionVerified": false,
+    "schemeSwitchReadable": false
+  },
+  "intent": {
+    "scope": "Readonly metadata and memory-only rule preview",
+    "cases": [
+      {
+        "label": "TRIM",
+        "body": {
+          "rows": [
+            {
+              "name": "  张三  ",
+              "zero": 0,
+              "active": false
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-TRIM",
+              "rule_name": "TRIM",
+              "rule_type": "TRIM",
+              "source_field": "name",
+              "target_field": "name",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "张三",
+            "zero": 0,
+            "active": false
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "REPLACE",
+        "body": {
+          "rows": [
+            {
+              "code": "A_B"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-REPLACE",
+              "rule_name": "REPLACE",
+              "rule_type": "REPLACE",
+              "source_field": "code",
+              "target_field": "code",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"_\",\"replacement\":\"-\",\"regex\":false}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "code": "A-B"
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "CONVERT",
+        "body": {
+          "rows": [
+            {
+              "quantity": "12"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-CONVERT",
+              "rule_name": "CONVERT",
+              "rule_type": "CONVERT",
+              "source_field": "quantity",
+              "target_field": "quantity",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "quantity": 12
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "EXPLODE",
+        "body": {
+          "rows": [
+            {
+              "name": "张三",
+              "projects": "项目A、项目B"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-EXPLODE",
+              "rule_name": "EXPLODE",
+              "rule_type": "EXPLODE",
+              "source_field": "projects",
+              "target_field": "project",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，、]+\",\"distinct\":true,\"maxItems\":10}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "张三",
+            "projects": "项目A、项目B",
+            "project": "项目A"
+          },
+          {
+            "name": "张三",
+            "projects": "项目A、项目B",
+            "project": "项目B"
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "LOOKUP",
+        "body": {
+          "rows": [
+            {
+              "status_text": "启用"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-LOOKUP",
+              "rule_name": "LOOKUP",
+              "rule_type": "LOOKUP",
+              "source_field": "status_text",
+              "target_field": "status",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"mapping\":{\"启用\":1,\"停用\":0},\"missingPolicy\":\"ERROR\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "status_text": "启用",
+            "status": 1
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "COMPUTE",
+        "body": {
+          "rows": [
+            {
+              "quantity": 2,
+              "unit_price": 12.5,
+              "amount": 999
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-COMPUTE",
+              "rule_name": "COMPUTE",
+              "rule_type": "COMPUTE",
+              "source_field": "",
+              "target_field": "amount",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"expression\":{\"op\":\"MULTIPLY\",\"args\":[{\"field\":\"quantity\"},{\"field\":\"unit_price\"}]},\"writePolicy\":\"ALWAYS_OVERRIDE\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "quantity": 2,
+            "unit_price": 12.5,
+            "amount": 25
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "DEFAULT",
+        "body": {
+          "rows": [
+            {
+              "status": ""
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-DEFAULT",
+              "rule_name": "DEFAULT",
+              "rule_type": "DEFAULT",
+              "source_field": "",
+              "target_field": "status",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"value\":\"草稿\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "status": "草稿"
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "OVERRIDE",
+        "body": {
+          "rows": [
+            {
+              "source": "用户填写"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-OVERRIDE",
+              "rule_name": "OVERRIDE",
+              "rule_type": "OVERRIDE",
+              "source_field": "",
+              "target_field": "source",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"value\":\"系统导入\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "source": "系统导入"
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "VALIDATE",
+        "body": {
+          "rows": [
+            {
+              "employee": ""
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-VALIDATE",
+              "rule_name": "VALIDATE",
+              "rule_type": "VALIDATE",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"requiredFields\":[\"employee\"],\"message\":\"员工不能为空\"}"
+            }
+          ]
+        },
+        "expected": [],
+        "errors": 1
+      },
+      {
+        "label": "FILTER",
+        "body": {
+          "rows": [
+            {
+              "code": "A",
+              "amount": 80
+            },
+            {
+              "code": "B",
+              "amount": 120
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-FILTER",
+              "rule_name": "FILTER",
+              "rule_type": "FILTER",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"expression\":{\"op\":\"GT\",\"args\":[{\"field\":\"amount\"},{\"const\":100}]}}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "code": "B",
+            "amount": 120
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "DEDUPLICATE",
+        "body": {
+          "rows": [
+            {
+              "code": "A",
+              "value": 1
+            },
+            {
+              "code": "A",
+              "value": 2
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-DEDUPLICATE",
+              "rule_name": "DEDUPLICATE",
+              "rule_type": "DEDUPLICATE",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"fields\":[\"code\"],\"duplicatePolicy\":\"KEEP_FIRST\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "code": "A",
+            "value": 1
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "UNPIVOT",
+        "body": {
+          "rows": [
+            {
+              "employee": "张三",
+              "amount_01": 100,
+              "amount_02": 120
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-UNPIVOT",
+              "rule_name": "UNPIVOT",
+              "rule_type": "UNPIVOT",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"columns\":[{\"sourceField\":\"amount_01\",\"key\":\"01\"},{\"sourceField\":\"amount_02\",\"key\":\"02\"}],\"keyTargetField\":\"month\",\"valueTargetField\":\"amount\",\"sourceFieldPolicy\":\"REMOVE\",\"nullPolicy\":\"SKIP\",\"maxItems\":12}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "employee": "张三",
+            "month": "01",
+            "amount": 100
+          },
+          {
+            "employee": "张三",
+            "month": "02",
+            "amount": 120
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "PIVOT",
+        "body": {
+          "rows": [
+            {
+              "employee": "张三",
+              "item": "BASE",
+              "amount": 8000
+            },
+            {
+              "employee": "张三",
+              "item": "BONUS",
+              "amount": 1000
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-PIVOT",
+              "rule_name": "PIVOT",
+              "rule_type": "PIVOT",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"groupFields\":[\"employee\"],\"keyField\":\"item\",\"valueField\":\"amount\",\"columns\":{\"BASE\":\"base_salary\",\"BONUS\":\"bonus\"},\"unknownKeyPolicy\":\"ERROR\",\"duplicateCellPolicy\":\"ERROR\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "employee": "张三",
+            "base_salary": 8000,
+            "bonus": 1000
+          }
+        ],
+        "errors": 0
+      },
+      {
+        "label": "error-FAIL_ROW",
+        "body": {
+          "rows": [
+            {
+              "quantity": "bad"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-error-FAIL_ROW",
+              "rule_name": "error-FAIL_ROW",
+              "rule_type": "CONVERT",
+              "source_field": "quantity",
+              "target_field": "quantity",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\"}"
+            }
+          ]
+        },
+        "expected": [],
+        "errors": 1
+      },
+      {
+        "label": "error-SKIP_ROW",
+        "body": {
+          "rows": [
+            {
+              "quantity": "bad"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-error-SKIP_ROW",
+              "rule_name": "error-SKIP_ROW",
+              "rule_type": "CONVERT",
+              "source_field": "quantity",
+              "target_field": "quantity",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "SKIP_ROW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\"}"
+            }
+          ]
+        },
+        "expected": [],
+        "errors": 1
+      },
+      {
+        "label": "error-KEEP_RAW",
+        "body": {
+          "rows": [
+            {
+              "quantity": "bad"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-error-KEEP_RAW",
+              "rule_name": "error-KEEP_RAW",
+              "rule_type": "CONVERT",
+              "source_field": "quantity",
+              "target_field": "quantity",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "KEEP_RAW",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "quantity": "bad"
+          }
+        ],
+        "errors": 1
+      },
+      {
+        "label": "error-USE_NULL",
+        "body": {
+          "rows": [
+            {
+              "quantity": "bad"
+            }
+          ],
+          "rules": [
+            {
+              "id": "probe-error-USE_NULL",
+              "rule_name": "error-USE_NULL",
+              "rule_type": "CONVERT",
+              "source_field": "quantity",
+              "target_field": "quantity",
+              "sort_order": 10,
+              "phase": "",
+              "enabled": 1,
+              "on_error": "USE_NULL",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "quantity": null
+          }
+        ],
+        "errors": 1
+      }
+    ]
+  }
+}

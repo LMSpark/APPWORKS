@@ -1,0 +1,444 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/adoption/adoption-recovery",
+    "sourcePath": "src/services/smart-bid/content/adoption/adoption-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/adoption/adoption-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/adoption/adoption-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-recovery\n职责：将原采用请求、结果观察及原责任域凭据配对。\n边界：纯核对，不查询、不写入。观察与凭据应由同一权威业务域读取。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "AdoptionRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AdoptionRequest",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "previewRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "candidateRevisionId",
+        "requestKey",
+        "requestDigest",
+        "previewRef"
+      ],
+      "additionalProperties": false
+    },
+    "Effect": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Effect",
+      "enum": [
+        "COMMITTED",
+        "NOT_COMMITTED",
+        "UNKNOWN"
+      ]
+    },
+    "Observation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Observation",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "previewRef": {
+          "type": "string"
+        },
+        "effect": {
+          "$ref": "#/$defs/Effect"
+        },
+        "resultEvidenceRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "candidateRevisionId",
+        "requestKey",
+        "requestDigest",
+        "previewRef",
+        "effect"
+      ],
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Evidence",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "candidateRevisionId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "previewRef": {
+              "type": "string"
+            },
+            "resultEvidenceRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "COMMITTED"
+            },
+            "adoptionRef": {
+              "type": "string"
+            },
+            "mergeRevisionId": {
+              "type": "string"
+            },
+            "commitCheckRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "candidateRevisionId",
+            "requestKey",
+            "requestDigest",
+            "previewRef",
+            "resultEvidenceRef",
+            "kind",
+            "adoptionRef",
+            "mergeRevisionId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "candidateRevisionId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "previewRef": {
+              "type": "string"
+            },
+            "resultEvidenceRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "NOT_COMMITTED"
+            },
+            "executionFenceRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "candidateRevisionId",
+            "requestKey",
+            "requestDigest",
+            "previewRef",
+            "resultEvidenceRef",
+            "kind",
+            "executionFenceRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Recovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Recovery",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "effect": {
+              "const": "UNKNOWN"
+            },
+            "missing": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "ORIGINAL_RESULT",
+                  "RESULT_EVIDENCE"
+                ]
+              }
+            }
+          },
+          "required": [
+            "effect",
+            "missing"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "effect": {
+              "const": "NOT_COMMITTED"
+            },
+            "resultEvidenceRef": {
+              "type": "string"
+            },
+            "executionFenceRef": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "array",
+              "items": false,
+              "prefixItems": []
+            }
+          },
+          "required": [
+            "effect",
+            "resultEvidenceRef",
+            "executionFenceRef",
+            "missing"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "effect": {
+              "const": "COMMITTED"
+            },
+            "resultEvidenceRef": {
+              "type": "string"
+            },
+            "adoptionRef": {
+              "type": "string"
+            },
+            "mergeRevisionId": {
+              "type": "string"
+            },
+            "commitCheckRef": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "array",
+              "items": {
+                "const": "COMMIT_CHECK"
+              }
+            }
+          },
+          "required": [
+            "effect",
+            "resultEvidenceRef",
+            "adoptionRef",
+            "mergeRevisionId",
+            "missing"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-17T22:24:10.983Z",
+  "models": {
+    "AdoptionRequest": {
+      "name": "AdoptionRequest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    requestKey: string;\n    requestDigest: string;\n    previewRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    candidateRevisionId: string;\n    requestKey: string;\n    requestDigest: string;\n    previewRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Effect": {
+      "name": "Effect",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'COMMITTED' | 'NOT_COMMITTED' | 'UNKNOWN'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'COMMITTED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'NOT_COMMITTED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'UNKNOWN'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Observation": {
+      "name": "Observation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "AdoptionRequest & Readonly<{\n    effect: Effect;\n    resultEvidenceRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "AdoptionRequest",
+            "targetName": "AdoptionRequest"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    effect: Effect;\n    resultEvidenceRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "effect",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultEvidenceRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "已经从原业务域取得的事实投影。终结凭据含同笔请求的旧执行许可失效依据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "AdoptionRequest & Readonly<{\n    resultEvidenceRef: string;\n}> & (Readonly<{\n    kind: 'COMMITTED';\n    adoptionRef: string;\n    mergeRevisionId: string;\n    commitCheckRef?: string;\n}> | Readonly<{\n    kind: 'NOT_COMMITTED';\n    executionFenceRef: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "AdoptionRequest",
+            "targetName": "AdoptionRequest"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    resultEvidenceRef: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'COMMITTED';\n    adoptionRef: string;\n    mergeRevisionId: string;\n    commitCheckRef?: string;\n}> | Readonly<{\n    kind: 'NOT_COMMITTED';\n    executionFenceRef: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resultEvidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Recovery": {
+      "name": "Recovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    effect: 'UNKNOWN';\n    missing: ReadonlyArray<'ORIGINAL_RESULT' | 'RESULT_EVIDENCE'>;\n} | {\n    effect: 'NOT_COMMITTED';\n    resultEvidenceRef: string;\n    executionFenceRef: string;\n    missing: readonly [];\n} | {\n    effect: 'COMMITTED';\n    resultEvidenceRef: string;\n    adoptionRef: string;\n    mergeRevisionId: string;\n    commitCheckRef?: string;\n    missing: ReadonlyArray<'COMMIT_CHECK'>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    effect: 'UNKNOWN';\n    missing: ReadonlyArray<'ORIGINAL_RESULT' | 'RESULT_EVIDENCE'>;\n} | {\n    effect: 'NOT_COMMITTED';\n    resultEvidenceRef: string;\n    executionFenceRef: string;\n    missing: readonly [];\n} | {\n    effect: 'COMMITTED';\n    resultEvidenceRef: string;\n    adoptionRef: string;\n    mergeRevisionId: string;\n    commitCheckRef?: string;\n    missing: ReadonlyArray<'COMMIT_CHECK'>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "effect",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "missing",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/value/FieldColor/FieldColor.props",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/value/FieldColor/FieldColor.props.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldColor/FieldColor.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/value/FieldColor/FieldColor.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/value/FieldColor/FieldColor.props\n职责：定义 FieldColor（r-color）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 field color 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RColorProps"
+    ],
+    "componentName": "FieldColor",
+    "componentType": "r-color",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "RColorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RColorProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "resizable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "clearable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "modelValue": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "onChange": {
+          "type": "object",
+          "title": "(...args: unknown[]) => void | Promise<void>"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "enum": [
+            false,
+            true,
+            "custom"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.179Z",
+  "models": {
+    "RColorProps": {
+      "name": "RColorProps",
+      "jsdoc": "RColor Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldColor",
+        "type": "r-color",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<string>",
+            "targetName": "SparkFieldSemanticProps"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionDeniedMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

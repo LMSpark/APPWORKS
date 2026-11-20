@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bid-original-approved-price",
+    "type": "r-section",
+    "props": {"title": "原报价批准"},
+    "children": [
+      {"type": "r-button", "props": {"label": "读取指定批准版", "action": "host-command",
+        "command": "bid.response.readApprovedPrice",
+        "input": {"approvalRef": {"$route": "approvalRef"}, "version": {"$route": "approvalVersion"}},
+        "resultAlertTitle": "原报价批准"}}
+    ]
+  },
+  {
+    "id": "bid-security-review",
+    "type": "r-section",
+    "props": {"title": "投标担保"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核担保办理", "action": "host-command",
+        "command": "bid.response.readSecurity",
+        "input": {"requirementVersion": {"$route": "securityRequirementVersion"},
+          "liablePartyRef": {"$route": "liablePartyRef"}}, "resultAlertTitle": "投标担保"}}
+    ]
+  },
+  {
+    "id": "bid-fixed-fact-use",
+    "type": "r-section",
+    "props": {"title": "固定事实与用途"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核事实准用", "action": "host-command",
+        "command": "bid.response.readFixedFact", "input": {"factId": {"$route": "factId"}},
+        "resultAlertTitle": "固定事实与用途"}}
+    ]
+  },
+  {
+    "id": "bid-original-response-assignment",
+    "type": "r-section",
+    "props": {"title": "原答复分工"},
+    "children": [
+      {"type": "r-button", "props": {"label": "读取原分工", "action": "host-command",
+        "command": "bid.response.readAssignment", "input": {"assignmentId": {"$route": "assignmentId"}},
+        "resultAlertTitle": "原答复分工"}}
+    ]
+  },
+  {
+    "id": "bid-person-appointment",
+    "type": "r-section",
+    "props": {"title": "人员拟任核对"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对拟任凭据", "action": "host-command",
+        "command": "bid.response.reviewAppointment", "input": {"appointmentRef": {"$route": "appointmentRef"}},
+        "resultAlertTitle": "人员拟任核对"}}
+    ]
+  },
+  {
+    "id": "bid-commitment-review",
+    "type": "r-section",
+    "props": {"title": "承诺登记前核对"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对承诺批准", "action": "host-command",
+        "command": "bid.response.reviewCommitment", "input": {"commitmentRef": {"$route": "commitmentRef"}},
+        "resultAlertTitle": "承诺批准"}}
+    ]
+  }
+]

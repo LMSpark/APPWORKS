@@ -1,0 +1,23 @@
+.interface-list {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-height: 560px;
+}
+
+.interface-list__sidebar {
+  border-right: 1px solid var(--el-border-color-lighter);
+  padding-right: 12px;
+}
+
+@media (max-width: 900px) {
+  .interface-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .interface-list__sidebar {
+    border-right: 0;
+    padding-right: 0;
+  }
+}

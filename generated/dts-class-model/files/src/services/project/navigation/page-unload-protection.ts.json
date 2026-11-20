@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/navigation/page-unload-protection",
+    "sourcePath": "src/services/project/navigation/page-unload-protection.ts",
+    "sourceFile": "src/services/project/navigation/page-unload-protection.ts",
+    "packageName": "app",
+    "modulePath": "services/project/navigation/page-unload-protection",
+    "jsdoc": "@module app:services/project/navigation/page-unload-protection\n职责：浏览器离页前复用当前路由管理器的运行实例检查。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T00:08:12.848Z",
+  "models": {}
+}

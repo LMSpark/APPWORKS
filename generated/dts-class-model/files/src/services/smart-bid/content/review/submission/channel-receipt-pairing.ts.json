@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
+    "sourcePath": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/channel-receipt-pairing",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/channel-receipt-pairing\n职责：第53项将接收方回执配回原办理，保留原事件与各取得来源。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "eventRef": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "RECEIVED",
+            "REJECTED",
+            "WITHDRAWAL_CONFIRMED"
+          ]
+        },
+        "eventAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "operationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "objectRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "eventRef",
+        "sourceRef",
+        "kind",
+        "eventAt",
+        "knownAt",
+        "operationRef",
+        "objectRef"
+      ],
+      "additionalProperties": false
+    },
+    "Candidate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Candidate",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "operationRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "objectRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "withdrawalTargetRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "subjectId",
+        "channelId",
+        "attemptRef",
+        "operationRef",
+        "objectRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:45:13.944Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    subjectId: string;\n    channelId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    subjectId: string;\n    channelId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    eventRef: string;\n    sourceRef: string;\n    kind: 'RECEIVED' | 'REJECTED' | 'WITHDRAWAL_CONFIRMED';\n    eventAt: string;\n    knownAt: string;\n    operationRef: string | null;\n    objectRef: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    eventRef: string;\n    sourceRef: string;\n    kind: 'RECEIVED' | 'REJECTED' | 'WITHDRAWAL_CONFIRMED';\n    eventAt: string;\n    knownAt: string;\n    operationRef: string | null;\n    objectRef: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Candidate": {
+      "name": "Candidate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    attemptRef: string;\n    operationRef: string | null;\n    objectRef: string | null;\n    withdrawalTargetRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    attemptRef: string;\n    operationRef: string | null;\n    objectRef: string | null;\n    withdrawalTargetRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "withdrawalTargetRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

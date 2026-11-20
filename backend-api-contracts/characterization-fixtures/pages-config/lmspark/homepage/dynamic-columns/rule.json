@@ -1,0 +1,102 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h3",
+        "children": [
+          "DataView 远程加载演示"
+        ]
+      },
+      {
+        "type": "r-module-context-badge",
+        "props": {
+          "label": "模块上下文",
+          "emptyText": "当前页面无模块上下文"
+        }
+      },
+      {
+        "type": "el-alert",
+        "props": {
+          "type": "success",
+          "style": {
+            "marginTop": "12px",
+            "marginBottom": "12px"
+          },
+          "title": "Projects 视图开启 autoLoad=true：页面加载后自动 requestData() 拉取远程数据",
+          "showIcon": true,
+          "closable": false
+        }
+      },
+      {
+        "type": "el-button",
+        "children": [
+          "手动刷新远程数据"
+        ],
+        "props": {
+          "type": "primary",
+          "on": {
+            "click": "refreshProjects"
+          },
+          "size": "small"
+        }
+      },
+      {
+        "type": "r-table",
+        "children": [
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "projectId",
+              "label": "项目ID",
+              "width": "160"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "name",
+              "label": "项目名称",
+              "minWidth": "220"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "projectType",
+              "label": "类型",
+              "width": "120"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "description",
+              "label": "描述",
+              "minWidth": "280"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "updatedAt",
+              "label": "更新时间",
+              "minWidth": "180"
+            }
+          }
+        ],
+        "props": {
+          "border": true,
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "dataViewKey": "Projects@default"
+        }
+      }
+    ],
+    "props": {
+      "style": {
+        "padding": "12px"
+      }
+    }
+  }
+]

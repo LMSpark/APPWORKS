@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-dispatch-evidence",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-dispatch-evidence.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-dispatch-evidence",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-dispatch-evidence\n职责：第05项按原试次回读实际发送的工艺 JSON，核对已冻结输入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ],
+      "additionalProperties": false
+    },
+    "Readback": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Readback",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "DISPATCH_RECORDED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T02:00:10.654Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOperationRouteReturn>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configurationLockHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Readback": {
+      "name": "Readback",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'DISPATCH_RECORDED';\n    dispatchRef: string;\n    actualInputDigest: string;\n    input?: unknown;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'DISPATCH_RECORDED';\n    dispatchRef: string;\n    actualInputDigest: string;\n    input?: unknown;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

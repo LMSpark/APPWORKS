@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@spark-appworks/spark-utils": ["../spark-utils/dist/index.d.ts"],
+      "@spark-appworks/spark-utils/internal": ["../spark-utils/dist/internal/index.d.ts"],
+      "@spark-appworks/spark-data": ["../spark-data/dist/index.d.ts"],
+      "@spark-appworks/spark-project-model": ["../spark-project-model/dist/index.d.ts"],
+      "@spark-appworks/spark-json-document": ["../spark-json-document/dist/index.d.ts"],
+      "@spark-appworks/spark-json-document/schema": ["../spark-json-document/dist/schema/index.d.ts"],
+      "@spark-appworks/spark-json-document/tree": ["../spark-json-document/dist/tree/index.d.ts"],
+      "@spark-appworks/spark-ai": ["../spark-ai/dist/index.d.ts"],
+      "@spark-appworks/spark-ai/agent": ["../spark-ai/dist/agent/index.d.ts"]
+    },
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "noEmitOnError": true,
+    "removeComments": false
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "src/tests/**", "dist", "node_modules"]
+}

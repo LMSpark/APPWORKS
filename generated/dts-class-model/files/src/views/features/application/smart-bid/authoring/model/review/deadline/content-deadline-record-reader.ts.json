@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-record-reader\n职责：第54项回读已登记对账时点及应交义务索引。\n边界：原记录确定截止范围和时点，证据由各正式办理方提供。\nAI用途：核对截止对账是否使用原时点、原阶段和完整应交义务。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T09:08:34.073Z",
+  "models": {}
+}

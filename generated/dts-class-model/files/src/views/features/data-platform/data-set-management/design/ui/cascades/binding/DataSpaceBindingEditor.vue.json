@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor\n职责：将级联端点投影为配置DataView，由仓内字段组件读写并消费公共级联。\n边界：定义草稿是唯一编辑来源；端点和候选随组件释放，不独立保存。\nAI用途：复用模型、视图、字段和参数的原生组件绑定链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-15T00:12:30.910Z",
+  "models": {}
+}

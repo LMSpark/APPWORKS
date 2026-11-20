@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/tender-change-requirement-impact",
+    "sourcePath": "src/services/smart-bid/content/references/tender-change-requirement-impact.ts",
+    "sourceFile": "src/services/smart-bid/content/references/tender-change-requirement-impact.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/tender-change-requirement-impact",
+    "jsdoc": "@module app:services/smart-bid/content/references/tender-change-requirement-impact\n职责：动作23正文侧，按精确旧版挂接追查受招标变更影响的责任章。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RequirementChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RequirementChange",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "baseline-requirement-members.ts.json#/$defs/BaselineRequirementMember"
+            },
+            "current": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "title": "BaselineRequirementMember"
+            }
+          },
+          "required": [
+            "previous",
+            "current"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "type": "null"
+            },
+            "current": {
+              "$ref": "baseline-requirement-members.ts.json#/$defs/BaselineRequirementMember"
+            }
+          },
+          "required": [
+            "previous",
+            "current"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RequirementChangeEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequirementChangeEvidence",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RequirementChange"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ChapterPinEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ChapterPinEvidence",
+      "properties": {
+        "revisionId": {
+          "type": "string"
+        },
+        "pins": {
+          "type": "array",
+          "items": {
+            "$ref": "revision-requirement-pins.ts.json#/$defs/RevisionRequirementPin"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T21:13:44.136Z",
+  "models": {
+    "RequirementChange": {
+      "name": "RequirementChange",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    previous: BaselineRequirementMember;\n    current: BaselineRequirementMember | null;\n}> | Readonly<{\n    previous: null;\n    current: BaselineRequirementMember;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    previous: BaselineRequirementMember;\n    current: BaselineRequirementMember | null;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    previous: null;\n    current: BaselineRequirementMember;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "previous",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RequirementChangeEvidence": {
+      "name": "RequirementChangeEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    changes: readonly RequirementChange[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    changes: readonly RequirementChange[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ChapterPinEvidence": {
+      "name": "ChapterPinEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    revisionId: string;\n    pins: readonly RevisionRequirementPin[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    revisionId: string;\n    pins: readonly RevisionRequirementPin[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pins",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

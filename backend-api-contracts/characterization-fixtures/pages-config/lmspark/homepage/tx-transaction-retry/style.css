@@ -1,0 +1,11 @@
+[data-page="tx-transaction-retry"] .tx-test-page {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+[data-page="tx-transaction-retry"] .tx-test-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -1,0 +1,72 @@
+diff --git a/dist/vue-test-utils.browser.js b/dist/vue-test-utils.browser.js
+index 0ce07d4da9e22fbc8f94bb2107dde704fb1aee1d..92ed9abe85a70e4de5006407f1c1217c48959677 100644
+--- a/dist/vue-test-utils.browser.js
++++ b/dist/vue-test-utils.browser.js
+@@ -7856,11 +7856,11 @@ var VueTestUtils = (function (exports, Vue, compilerDom, serverRenderer) {
+             if (!this.__app) {
+                 throw new Error(`wrapper.unmount() can only be called by the root wrapper`);
+             }
+-            // Clear emitted events cache for this component instance
+-            removeEventHistory(this.vm);
+             this.cleanUpCallbacks.forEach(cb => cb());
+             this.cleanUpCallbacks = [];
+             this.__app.unmount();
++            // Unmount hooks can emit events; release the entire root history afterwards.
++            removeEventHistory(this.vm);
+         }
+     }
+     registerFactory(WrapperType.VueWrapper, (app, vm, setProps) => new VueWrapper(app, vm, setProps));
+diff --git a/dist/vue-test-utils.cjs.js b/dist/vue-test-utils.cjs.js
+index e6e8d833d81e4e8bf98b96f05159199d34f51dbd..62059261b2618d12cb4398e9e20dd49883bf70e0 100644
+--- a/dist/vue-test-utils.cjs.js
++++ b/dist/vue-test-utils.cjs.js
+@@ -7859,11 +7859,11 @@ class VueWrapper extends BaseWrapper {
+         if (!this.__app) {
+             throw new Error(`wrapper.unmount() can only be called by the root wrapper`);
+         }
+-        // Clear emitted events cache for this component instance
+-        removeEventHistory(this.vm);
+         this.cleanUpCallbacks.forEach(cb => cb());
+         this.cleanUpCallbacks = [];
+         this.__app.unmount();
++        // Unmount hooks can emit events; release the entire root history afterwards.
++        removeEventHistory(this.vm);
+     }
+ }
+ registerFactory(WrapperType.VueWrapper, (app, vm, setProps) => new VueWrapper(app, vm, setProps));
+diff --git a/dist/vue-test-utils.esm-browser.js b/dist/vue-test-utils.esm-browser.js
+index 7c69a18955cafbe603dd7871f50c70e4e47d471b..038580b042f687658cad11f6093642c5db5ebfcc 100644
+--- a/dist/vue-test-utils.esm-browser.js
++++ b/dist/vue-test-utils.esm-browser.js
+@@ -7837,11 +7837,11 @@ class VueWrapper extends BaseWrapper {
+         if (!this.__app) {
+             throw new Error(`wrapper.unmount() can only be called by the root wrapper`);
+         }
+-        // Clear emitted events cache for this component instance
+-        removeEventHistory(this.vm);
+         this.cleanUpCallbacks.forEach(cb => cb());
+         this.cleanUpCallbacks = [];
+         this.__app.unmount();
++        // Unmount hooks can emit events; release the entire root history afterwards.
++        removeEventHistory(this.vm);
+     }
+ }
+ registerFactory(WrapperType.VueWrapper, (app, vm, setProps) => new VueWrapper(app, vm, setProps));
+diff --git a/dist/vue-test-utils.esm-bundler.mjs b/dist/vue-test-utils.esm-bundler.mjs
+index 477f1f4f871cb3331fefc9424b90347c2ee1e3aa..cc659ed62dfc0ea541ac84e03114f7dfc49d0182 100644
+--- a/dist/vue-test-utils.esm-bundler.mjs
++++ b/dist/vue-test-utils.esm-bundler.mjs
+@@ -7839,11 +7839,11 @@ class VueWrapper extends BaseWrapper {
+         if (!this.__app) {
+             throw new Error(`wrapper.unmount() can only be called by the root wrapper`);
+         }
+-        // Clear emitted events cache for this component instance
+-        removeEventHistory(this.vm);
+         this.cleanUpCallbacks.forEach(cb => cb());
+         this.cleanUpCallbacks = [];
+         this.__app.unmount();
++        // Unmount hooks can emit events; release the entire root history afterwards.
++        removeEventHistory(this.vm);
+     }
+ }
+ registerFactory(WrapperType.VueWrapper, (app, vm, setProps) => new VueWrapper(app, vm, setProps));

@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/draft/content-draft-save-recovery",
+    "sourcePath": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/draft/content-draft-save-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-recovery\n职责：按原请求、作者和内容摘要核验权威草稿保存回执。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "baseRevisionId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestJson": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "draftId",
+        "baseRevisionId",
+        "expectedDraftVersion",
+        "requestKey",
+        "requestJson",
+        "requestDigest",
+        "contentDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "draftId",
+        "expectedDraftVersion",
+        "requestKey",
+        "requestDigest",
+        "contentDigest",
+        "authorId"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "SAVED",
+            "NOT_SAVED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "draftId",
+        "expectedDraftVersion",
+        "requestKey",
+        "requestDigest",
+        "contentDigest",
+        "authorId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T01:51:11.951Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareContentDraftSaveRequest>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareContentDraftSaveRequest>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseRevisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedDraftVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestJson",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contentDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Prepared, 'projectId' | 'draftId' | 'requestKey' | 'requestDigest' | 'expectedDraftVersion' | 'contentDigest'> & Readonly<{\n    authorId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Prepared, 'projectId' | 'draftId' | 'requestKey' | 'requestDigest' | 'expectedDraftVersion' | 'contentDigest'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    authorId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "authorId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Request & Readonly<{\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'SAVED';\n    draftVersion: string;\n    receiptRef: string;\n}> | Readonly<{\n    state: 'NOT_SAVED';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Request",
+            "targetName": "Request"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'SAVED';\n    draftVersion: string;\n    receiptRef: string;\n}> | Readonly<{\n    state: 'NOT_SAVED';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

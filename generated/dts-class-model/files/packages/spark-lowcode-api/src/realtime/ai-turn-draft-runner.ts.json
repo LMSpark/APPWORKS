@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/ai-turn-draft-runner",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/ai-turn-draft-runner",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/ai-turn-draft-runner\n职责：在同一 DataSet 的 AiTurnResource 四个语义 DataView 上，按“核 Agent→暂存创建命令→saveChanges→读回轮次终态”取得一次 assistantDraft 文本。\n边界：只经 DataView/DataSet 提交与查询，不直连 HTTP；不解析草稿、不写业务数据。创建回执未知时保留原命令，不重放；取消只发正式取消命令，不代表已停止。\nAI用途：页面需要“AI 生成 → 严格校验 → 预览 → 用户确认后写入”而非批量追加候选行时，用本运行器取得草稿，再由页面领域解析与确认。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiTurnDraftRunnerInput",
+      "AiTurnDraftRunner"
+    ]
+  },
+  "$defs": {
+    "AiTurnDraftRunnerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiTurnDraftRunnerInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "turnResource": {
+          "$ref": "ai-turn-resource.ts.json#/$defs/AiTurnResource"
+        },
+        "agentId": {
+          "type": "string"
+        },
+        "pollIntervalMs": {
+          "type": "number"
+        },
+        "timeoutMs": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "dataSet",
+        "turnResource",
+        "agentId"
+      ],
+      "additionalProperties": false
+    },
+    "AiTurnDraftRunner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiTurnDraftRunner",
+      "properties": {
+        "busy": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiTurnDraftRunnerInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T06:43:53.921Z",
+  "models": {
+    "AiTurnDraftRunnerInput": {
+      "name": "AiTurnDraftRunnerInput",
+      "jsdoc": "构造输入：已在 dataSet 上装配的 AiTurnResource 与正式 Agent。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 拥有四个轮次视图的当前运行 DataSet。 */\n    dataSet: DataSet;\n    /** 同一 dataSet 上已装配的轮次资源。 */\n    turnResource: AiTurnResource;\n    /** 当前租户配置的正式 Agent ID；每次运行前在 Agent 目录中核对。 */\n    agentId: string;\n    /** 两次轮次状态读回间隔（毫秒），默认 1000。 */\n    pollIntervalMs?: number;\n    /** 最长等待终态时间（毫秒），默认 180000；超时会发出取消命令。 */\n    timeoutMs?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 拥有四个轮次视图的当前运行 DataSet。 */\n    dataSet: DataSet;\n    /** 同一 dataSet 上已装配的轮次资源。 */\n    turnResource: AiTurnResource;\n    /** 当前租户配置的正式 Agent ID；每次运行前在 Agent 目录中核对。 */\n    agentId: string;\n    /** 两次轮次状态读回间隔（毫秒），默认 1000。 */\n    pollIntervalMs?: number;\n    /** 最长等待终态时间（毫秒），默认 180000；超时会发出取消命令。 */\n    timeoutMs?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "拥有四个轮次视图的当前运行 DataSet。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnResource",
+              "jsdoc": "同一 dataSet 上已装配的轮次资源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "agentId",
+              "jsdoc": "当前租户配置的正式 Agent ID；每次运行前在 Agent 目录中核对。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pollIntervalMs",
+              "jsdoc": "两次轮次状态读回间隔（毫秒），默认 1000。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeoutMs",
+              "jsdoc": "最长等待终态时间（毫秒），默认 180000；超时会发出取消命令。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiTurnDraftRunner": {
+      "name": "AiTurnDraftRunner",
+      "jsdoc": "单实例串行；一次 run 对应一个正式轮次。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "校验轮次视图属于 dataSet 且 Agent 非空；不发请求。",
+          "signatureText": "constructor(input: AiTurnDraftRunnerInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "AiTurnDraftRunnerInput",
+                "sourcePath": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "busy",
+              "jsdoc": "是否正在运行一个轮次。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "是否有结果未知、保留原捕获的创建或取消命令。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "run",
+              "jsdoc": "创建一个轮次并等待终态，返回完成的 assistantDraft 原文。\n@param message 发送给 Agent 的完整用户消息（≤100000 字符）。\n@param signal 中止后对已知轮次发正式取消命令并以“AI生成已取消”拒绝。\n@throws 轮次 FAILED/CANCELLED、草稿为空、超时、未知回执或作用域失效。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

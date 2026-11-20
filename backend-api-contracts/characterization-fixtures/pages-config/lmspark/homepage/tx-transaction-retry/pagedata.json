@@ -1,0 +1,78 @@
+{
+    "dataSetName": "TxRetryPageDataSet",
+    "saveChanges": {
+        "mode": "transaction",
+        "transaction": {
+            "endpoint": {
+                "url": "/data/transactions",
+                "method": "POST",
+                "params": {
+                    "source": "tx-config-retry"
+                }
+            },
+            "requestId": "tx-config-retry-v1"
+        }
+    },
+    "resourceRelations": [],
+    "viewCascades": [],
+    "tables": {
+        "SparkTxAudit": {
+            "tableName": "SparkTxAudit",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "number",
+                    "isPrimaryKey": true,
+                    "label": "审计ID"
+                },
+                {
+                    "name": "requestKey",
+                    "type": "string",
+                    "label": "请求键"
+                },
+                {
+                    "name": "message",
+                    "type": "string",
+                    "label": "消息"
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "label": "状态"
+                }
+            ],
+            "api": {
+                "list": {
+                    "url": "/data/SparkTxAudit/query",
+                    "method": "POST"
+                },
+                "create": {
+                    "url": "/data/SparkTxAudit/records",
+                    "method": "POST"
+                },
+                "retrieve": {
+                    "url": "/data/SparkTxAudit/records/get",
+                    "method": "POST"
+                },
+                "update": {
+                    "url": "/data/SparkTxAudit/records/update",
+                    "method": "POST"
+                },
+                "delete": {
+                    "url": "/data/SparkTxAudit/records/delete",
+                    "method": "POST"
+                }
+            },
+            "views": {
+                "default": {
+                    "autoLoad": true,
+                    "autoCurrentFirst": true,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "pageSize": 20,
+                    "rows": []
+                }
+            }
+        }
+    }
+}

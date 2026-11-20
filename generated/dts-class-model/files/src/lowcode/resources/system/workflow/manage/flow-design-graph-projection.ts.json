@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-design-graph-projection",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design-graph-projection.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-design-graph-projection",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design-graph-projection\n职责：从正式设计文件解析节点坐标与连线路径，投影为 RendererGraph 布局。\n边界：不读写平台文件、不修改节点/连线表；解析失败时按节点行顺序兜底排布。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowDesignGraphLayout",
+      "FlowDesignLayoutOverride",
+      "FlowDesignGraphLayoutInput"
+    ]
+  },
+  "$defs": {
+    "FlowDesignGraphLayout": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowDesignGraphLayout",
+      "properties": {
+        "nodePositions": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edgePaths": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "nodePositions",
+        "edgePaths"
+      ],
+      "additionalProperties": false
+    },
+    "FlowDesignLayoutOverride": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowDesignLayoutOverride",
+      "properties": {
+        "nodePositions": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edgePaths": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "FlowDesignGraphLayoutInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowDesignGraphLayoutInput",
+      "properties": {
+        "nodeView": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "edgeView": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "documentText": {
+          "type": "string"
+        },
+        "layoutOverride": {
+          "$ref": "#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "nodeView",
+        "edgeView",
+        "documentText"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-16T21:30:40.916Z",
+  "models": {
+    "FlowDesignGraphLayout": {
+      "name": "FlowDesignGraphLayout",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodePositions: Readonly<Record<string, {\n        x: number;\n        y: number;\n    }>>;\n    edgePaths: Readonly<Record<string, ReadonlyArray<{\n        x: number;\n        y: number;\n    }>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodePositions: Readonly<Record<string, {\n        x: number;\n        y: number;\n    }>>;\n    edgePaths: Readonly<Record<string, ReadonlyArray<{\n        x: number;\n        y: number;\n    }>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodePositions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgePaths",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowDesignLayoutOverride": {
+      "name": "FlowDesignLayoutOverride",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodePositions?: Readonly<Record<string, {\n        x: number;\n        y: number;\n    }>>;\n    edgePaths?: Readonly<Record<string, ReadonlyArray<{\n        x: number;\n        y: number;\n    }>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodePositions?: Readonly<Record<string, {\n        x: number;\n        y: number;\n    }>>;\n    edgePaths?: Readonly<Record<string, ReadonlyArray<{\n        x: number;\n        y: number;\n    }>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodePositions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgePaths",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowDesignGraphLayoutInput": {
+      "name": "FlowDesignGraphLayoutInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeView: DataView;\n    edgeView: DataView;\n    documentText: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeView: DataView;\n    edgeView: DataView;\n    documentText: string;\n    layoutOverride?: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

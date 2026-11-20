@@ -1,0 +1,98 @@
+<!--
+@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane
+职责：编排增强规则的原视图列表及单记录新增、编辑和删除确认。
+边界：标准组件绑定同一DataView，原DataSet精确提交；方案开关由同一宿主slot维护其独立数据来源。
+-->
+<template>
+  <section class="excel-transform-rules">
+    <h2>增强规则</h2>
+    <slot name="scheme-tools" />
+    <slot name="rule-list" />
+    <RuleDialog v-if="editing" ref="editDialog" :key="editing.epoch" :data-view-key="dataViewKey" :record-id="editing.id" :created="editing.created" :field-options-key="fieldOptionsKey" @close="editing=undefined">
+      <slot name="rule-editor" />
+    </RuleDialog>
+    <OperationDialog v-if="operation" ref="operationDialog" :key="operation.epoch" :data-view-key="dataViewKey" :record-id="operation.id" :mode="operation.mode" @close="operation=undefined">
+      <slot name="rule-operation" />
+    </OperationDialog>
+  </section>
+</template>
+<script setup lang="ts">
+import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
+import {RequestState,type DataRow} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
+import * as Components from '@spark-appworks/spark-component'
+import {createExcelTransformConfig} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
+import RuleDialog from './excel-import-transform-rule-dialog.vue'
+import OperationDialog from './excel-import-transform-operation-dialog.vue'
+
+const {PAGE_RUNTIME,useSparkComponent}=Components
+const props=withDefaults(defineProps<{dataViewKey:string;fieldOptionsKey:string;hasNode:boolean;disabled?:boolean}>(),{disabled:false})
+const emit=defineEmits<{'session-change':[value:boolean]}>()
+const {sparkConsume}=useSparkComponent({type:'excel-import-transform-rules-pane'}),runtime=sparkConsume(PAGE_RUNTIME)
+const resolved=runtime?.resolveView(props.dataViewKey)
+if(!resolved||!resolved.dataSet||resolved.commitMode!=='staged')throw Error('规则列表缺少原暂存DataView')
+const view=resolved,dataSet=resolved.dataSet
+const openedKey=props.dataViewKey
+const revision=ref(0),acting=ref(false),error=ref('')
+const editing=shallowRef<{id:string|number;created:boolean;epoch:number}>()
+const operation=shallowRef<{id:string|number;mode:'pending'|'delete';epoch:number}>()
+const editDialog=shallowRef<InstanceType<typeof RuleDialog>>()
+const operationDialog=shallowRef<InstanceType<typeof OperationDialog>>()
+let active=true,epoch=0
+const stop=dataSet.onAnyViewChange({rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
+function changed():void{revision.value++}
+const busy=computed(()=>{revision.value;return acting.value||view.mutating||[RequestState.Loading,RequestState.Preparing].includes(view.requestState)})
+const unconfirmed=computed(()=>{revision.value;return view.hasUnconfirmedSave})
+const sourceCurrent=computed(()=>props.dataViewKey===openedKey&&runtime?.resolveView(openedKey)===view&&!view.destroyed&&!dataSet.destroyed)
+const blocked=computed(()=>!sourceCurrent.value||props.disabled||busy.value||unconfirmed.value||!!editing.value||!!operation.value)
+watch(()=>!!editing.value||!!operation.value,value=>emit('session-change',value),{immediate:true,flush:'sync'})
+function scopeLabel(value:unknown):string{
+ try{const config:unknown=typeof value==='string'?JSON.parse(value):undefined;if(isRecord(config)&&typeof config['executionScope']==='string')return config['executionScope'];return '未配置'}catch{return '配置待纠正'}
+}
+function message(cause:unknown):void{if(active)error.value=cause instanceof Error?cause.message:String(cause)}
+function rowIdentity(value:unknown):{id:string|number;row:DataRow}{
+ if(!isRecord(value))throw Error('缺少原规则记录')
+ const id=view.getPkKey(value),row=view.rows.find(row=>view.getPkKey(row)===id)
+ if(id===undefined||!row)throw Error('规则已变化，请刷新后重新选择')
+ return {id,row}
+}
+function openEdit(value:unknown):void{
+ if(blocked.value||!props.hasNode)return
+ try{const {id,row}=rowIdentity(value);if(view.editActionState(row)!=='enabled')throw Error('当前规则不可编辑');error.value='';if(view.dirtyTracking.hasPendingChanges(id)){operation.value={id,mode:'pending',epoch:++epoch};return}editing.value={id,created:false,epoch:++epoch}}catch(cause){message(cause)}
+}
+function rowClick(row:DataRow,_column?:unknown,event?:Event):void{if(event instanceof MouseEvent&&event.detail===2)openEdit(row)}
+async function add():Promise<void>{
+ if(blocked.value||!props.hasNode)return
+ acting.value=true;error.value=''
+ try{
+  if(view.requestState!==RequestState.Loaded)throw Error('请等待本配置规则读取完成')
+  const sort=Math.max(0,...view.rows.map(row=>Number(row['sort_order']??0)))+10
+  if(!Number.isSafeInteger(sort)||sort>2147483647)throw Error('规则顺序超出有效范围，请先调整现有顺序')
+  const row=await view.addRow({rule_name:'',rule_type:'TRIM',source_field:'',target_field:'',sort_order:sort,enabled:1,on_error:'FAIL_ROW',condition_json:'',config_json:JSON.stringify(createExcelTransformConfig('TRIM')),phase:'',description:''})
+  if(!active)return
+  const id=view.getPkKey(row);if(id===undefined)throw Error('新增规则未返回正式主键')
+  editing.value={id,created:true,epoch:++epoch}
+ }catch(cause){message(cause)}finally{if(active){acting.value=false;changed()}}
+}
+async function refresh():Promise<void>{
+ if(blocked.value||!props.hasNode)return
+ try{if(view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('请先处理本配置未保存的规则');await view.refresh();if(view.loadingError)throw view.loadingError}catch(cause){message(cause)}
+}
+function openDelete(value:unknown):void{
+ if(blocked.value)return
+ try{const {id,row}=rowIdentity(value);if(view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id))throw Error('请先处理该规则的未保存修改');if(view.deleteActionState(row)!=='enabled')throw Error('当前规则不可删除');error.value='';operation.value={id,mode:'delete',epoch:++epoch}}catch(cause){message(cause)}
+}
+async function verifyOriginal():Promise<void>{
+ if(busy.value||editing.value||operation.value||!sourceCurrent.value||!view.hasUnconfirmedSave)return
+ acting.value=true;error.value=''
+ try{await dataSet.saveChanges({applyEditingRows:false,views:[{tableName:view.tableName,viewId:view.viewId}]})}catch(cause){message(cause)}finally{if(active){acting.value=false;changed()}}
+}
+onBeforeUnmount(()=>{active=false;stop();emit('session-change',false)})
+defineExpose({
+  state:()=>({blocked:blocked.value,busy:busy.value,hasNode:props.hasNode,unconfirmed:unconfirmed.value,
+    canVerify:!busy.value&&!editing.value&&!operation.value,error:error.value}),
+  refresh,add,verifyOriginal,openEdit,openDelete,rowClick,scopeLabel,
+  operation:()=>operationDialog.value,
+  editor:()=>editDialog.value,
+})
+</script>

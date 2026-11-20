@@ -1,0 +1,85 @@
+{
+  "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts": {
+    "command-status": 2
+  },
+  "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts": {
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts": {
+    "command-status": 4
+  },
+  "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts": {
+    "command-status": 4,
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts": {
+    "command-status": 3
+  },
+  "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
+    "command-status": 5
+  },
+  "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts": {
+    "command-status": 2
+  },
+  "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
+    "command-status": 5
+  },
+  "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts": {
+    "command-status": 5
+  },
+  "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
+    "command-status": 5,
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts": {
+    "command-status": 5
+  },
+  "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts": {
+    "command-status": 4
+  },
+  "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
+    "command-status": 1
+  },
+  "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
+    "static-copy": 3
+  },
+  "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue": {
+    "hand-passed-ids": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts": {
+    "static-copy": 1
+  }
+}

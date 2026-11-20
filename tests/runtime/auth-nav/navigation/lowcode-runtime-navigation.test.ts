@@ -1,0 +1,1129 @@
+import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
+import { readFileSync } from 'node:fs'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h } from 'vue'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
+import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
+import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
+
+import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
+import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
+import { DataSet, type DataRow } from '@spark-appworks/spark-data'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@spark-appworks/spark-lowcode-api'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { createLowcodeProjectGateways, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
+import * as VuePageRegistry from '@/registries/vue-page-registry'
+import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/lowcode/system-navigation'
+
+const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
+const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
+const navigationRootReader = vi.hoisted(() => ({read: vi.fn<(systemId: string, assertCurrent: () => void) => Promise<string>>()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+  readLowcodeApplications: applicationListReader.read,
+  readLowcodeApplicationById: applicationCatalogReader.read,
+  readLowcodeNavigationRootId: navigationRootReader.read,
+}))
+
+import {
+  assembleLowcodeRuntimeNavigation,
+  activateLowcodeApplication,
+  enterLowcodeApplicationCatalog,
+  lowcodeEnterpriseDisplayName,
+  lowcodeApi,
+  readLowcodeRuntimeNavigation,
+} from '@/lowcode/lowcode-runtime'
+
+function saveExecutionScope(applicationId: string, navigationRootId = `ROOT-${applicationId}`): void {
+  lowcodeApi.session.save({
+    accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+    accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+    identity: { userId: 'USER-1', account: 'fixture', displayName: 'fixture', enterpriseId: 'TENANT-1',
+      enterpriseShortName: 'fixture-tenant', role: null, raw: {} },
+    enterprise: { id: 'TENANT-1', name: 'fixture', code: 'fixture', shortName: 'fixture-tenant', shortCode: 'fixture', raw: {} },
+  })
+  lowcodeApi.application.save({
+    application: { id: applicationId, code: applicationId, name: applicationId, description: '',
+      enterpriseId: 'OWNER-1', enterpriseShortName: 'owner', isDefault: false },
+    navigationRootId,
+  })
+}
+
+function application(applicationId: string) {
+  return { id: applicationId, code: applicationId, name: applicationId, description: '',
+    enterpriseId: 'OWNER-1', enterpriseShortName: 'owner', isDefault: false }
+}
+
+function deferred<T>(): Readonly<{
+  promise: Promise<T>
+  resolve: (value: T) => void
+  reject: (reason: unknown) => void
+}> {
+  let resolve!: (value: T) => void
+  let reject!: (reason: unknown) => void
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise
+    reject = rejectPromise
+  })
+  return { promise, resolve, reject }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+  navigationRootReader.read.mockReset()
+  lowcodeApi.application.clear()
+  lowcodeApi.session.clear()
+})
+
+type NavigationDataSetFixture = {dataSet: DataSet; filters: unknown[]}
+let lastNavigationDataSet: NavigationDataSetFixture | undefined
+function createNavigationDataSet(options: {rows?: DataRow[]; hiddenFields?: readonly string[]; beforeQuery?: () => Promise<void>} = {}): NavigationDataSetFixture {
+  const scenarioId = LOWCODE_APPLICATION_CATALOG_FORM_KEY
+  const fields = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'conType', 'NavigationUrl', 'IsShowAtNav']
+  const dataSet = DataSet.fromJson({scenarioId, tables: {Base_NavigationInfo: {
+    modelBinding: {modelId: `${scenarioId}p000`, modelName: 'Base_NavigationInfo'},
+    columns: fields.map(name => ({name, type: name === 'FunOrderValue' || name === 'IsShowAtNav' ? 'number' : 'string', isPrimaryKey: name === 'rowid'})),
+    views: {default: {autoLoad: false}},
+  }}})
+  const filters: unknown[] = []
+  const view = dataSet.getView('Base_NavigationInfo', 'default')!
+  view.bindQueryExecutor({executeQuery: async (_target, params) => {
+    filters.push(params.filter)
+    await options.beforeQuery?.()
+    const findProject = (filter: unknown): string | undefined => {
+      if (filter === null || typeof filter !== 'object') return undefined
+      const item = filter as Record<string, unknown>
+      if (item['field'] === 'SysId' && typeof item['value'] === 'string') return item['value']
+      if (Array.isArray(item['filters'])) return item['filters'].map(findProject).find(value => value !== undefined)
+      return undefined
+    }
+    const projectId = findProject(params.filter) ?? 'APP-B'
+    const selected = options.rows ?? [{rowid: `ROOT-${projectId}`, SysId: projectId, prowid: '000000', FunOrderValue: 0,
+      name: projectId, FunName: projectId, conType: 'Model', NavigationUrl: '', IsShowAtNav: 0},
+    {rowid: `PAGE-${projectId}`, SysId: projectId, prowid: `ROOT-${projectId}`, FunOrderValue: 1,
+      name: '已发布页面', FunName: '已发布页面', conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}]
+    const rows = selected.filter(row => row['SysId'] === projectId)
+    return {rows, total: rows.length, countReported: true, resultPrimaryKey: 'rowid',
+      assertIdentity: actual => {if (actual.scenarioId !== scenarioId || actual.metaName !== 'Base_NavigationInfo') throw new Error('identity mismatch')},
+      rowKey: row => row['rowid'],
+      fieldAccess: (key, field) => !options.hiddenFields?.includes(field) && rows.some(row => row['rowid'] === key && Object.hasOwn(row, field))
+        ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
+        : {read: 'invisible', write: 'denied', component: 'hidden', required: false, writeMode: 'readonly'},
+      readFieldAccess: (row, field) => !options.hiddenFields?.includes(field) && Object.hasOwn(row, field) ? 'visible' : 'invisible',
+      addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+      createChildActionState: () => 'hidden', viewActionState: () => 'hidden'}
+  }})
+  const fixture = {dataSet, filters}
+  lastNavigationDataSet = fixture
+  return fixture
+}
+
+async function expectApplicationReaderStarted(navigation: Promise<RuntimeNavigation>): Promise<boolean> {
+  await Promise.resolve()
+  if (applicationCatalogReader.read.mock.calls.length > 0) return true
+  await navigation
+  expect(applicationCatalogReader.read).toHaveBeenCalledOnce()
+  return false
+}
+
+beforeEach(() => {
+  lastNavigationDataSet = undefined
+  applicationCatalogReader.read.mockReset()
+  applicationCatalogReader.read.mockImplementation(async (id) => application(id))
+  applicationListReader.read.mockReset()
+  applicationListReader.read.mockImplementation(async (assertCurrent) => {
+    assertCurrent()
+    return [
+      {id: 'APP-CURRENT', name: '当前应用', code: 'current', description: '财务系统说明'},
+      {id: 'APP-OTHER', name: '其他应用', code: 'other', description: '采购系统说明'},
+    ]
+  })
+  vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet().dataSet)
+})
+
+describe('project reference application catalog owner', () => {
+  it('does not expose the unscoped legacy application directory API', () => {
+    expect(Reflect.get(lowcodeApi.platform, 'listApplications')).toBeUndefined()
+  })
+
+  it('uses the shared formal catalog reader and preserves reference exclusion and projection', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
+      blueprint: {}, projectReferences: gateway.projectReferences})
+    const projects = await workspace.listReferenceProjects()
+
+    expect(applicationListReader.read).toHaveBeenCalledOnce()
+    expect(applicationListReader.read).toHaveBeenCalledWith(expect.any(Function))
+    expect(projects).toEqual([{
+      projectId: 'APP-OTHER', name: '其他应用', icon: '', description: '采购系统说明',
+    }])
+  })
+
+  it('rejects reference candidates when the bound workspace is no longer the request application', async () => {
+    saveExecutionScope('APP-OTHER')
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    await expect(workspace.listReferenceProjects()).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(applicationListReader.read).not.toHaveBeenCalled()
+  })
+
+  it('discards a late reference catalog after the request application changes', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const pending = deferred<unknown[]>()
+    applicationListReader.read.mockReturnValue(pending.promise)
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    const result = workspace.listReferenceProjects()
+    saveExecutionScope('APP-OTHER')
+    pending.resolve([{id: 'APP-THIRD', name: '第三应用'}])
+
+    await expect(result).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('prefers stale scope over a late reference catalog error', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const pending = deferred<unknown[]>()
+    applicationListReader.read.mockReturnValue(pending.promise)
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    const result = workspace.listReferenceProjects()
+    saveExecutionScope('APP-OTHER')
+    pending.reject(new Error('formal catalog request failed'))
+
+    await expect(result).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('preserves target-project blueprint reads behind the project reference gateway', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+      record({nodeId: 'TARGET-PAGE', name: 'report', title: '目标页面', kind: 'page', target: 'cfg:report', order: 1}),
+    ])
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+
+    const blueprint = await gateway.projectReferences.loadProjectBlueprint('APP-TARGET')
+
+    expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
+    expect(blueprint.nodeId).toBe('TARGET-PAGE')
+  })
+})
+
+type BlueprintFixtureInput = Readonly<{
+  nodeId: string
+  parentNodeId?: string
+  name: string
+  title: string
+  kind?: LowcodeProjectBlueprintRecord['kind']
+  target?: string
+  scenarioId?: string
+  order?: number
+}>
+
+function record(input: BlueprintFixtureInput): LowcodeProjectBlueprintRecord {
+  return {
+    nodeId: input.nodeId,
+    parentNodeId: input.parentNodeId ?? '',
+    projectId: 'PROJECT-1',
+    kind: input.kind ?? 'page',
+    capability: { name: input.name },
+    navigation: { title: input.title, ...(input.target === undefined ? {} : { target: input.target }), order: input.order ?? 0,
+      publishInMenu: true, showChildren: true, beginGroup: false },
+    ...(input.scenarioId ? { dataSpace: { scenarioId: input.scenarioId, models: [] } } : {}),
+    source: {},
+  }
+}
+
+describe('lowcode project navigation projection', () => {
+  it('hosts startup navigation through the shared native session', () => {
+    const source = readFileSync('src/lowcode/lowcode-runtime.ts', 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).not.toContain('new ProjectModel.PageRuntime')
+  })
+
+  it('returns a current receipt for the application catalog state', () => {
+    saveExecutionScope('APP-A')
+    const originalCatalog = lowcodeApi.platform.enterApplicationCatalog.bind(lowcodeApi.platform)
+    const captured: { receipt: ReturnType<typeof lowcodeApi.platform.enterApplicationCatalog> | null } = { receipt: null }
+    vi.spyOn(lowcodeApi.platform, 'enterApplicationCatalog').mockImplementation(() => {
+      const receipt = originalCatalog()
+      captured.receipt = receipt
+      return receipt
+    })
+
+    const receipt = enterLowcodeApplicationCatalog()
+
+    expect(receipt).toEqual(expect.objectContaining({ assertCurrent: expect.any(Function) }))
+    expect(receipt).toBe(captured.receipt)
+    expect(lowcodeApi.application.get()).toBeNull()
+    expect(() => receipt.assertCurrent()).not.toThrow()
+  })
+
+  it('returns the platform activation receipt unchanged', async () => {
+    saveExecutionScope('APP-OLD')
+    const appB = application('APP-B')
+    vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(appB)
+    navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const originalActivate = lowcodeApi.platform.activateApplication.bind(lowcodeApi.platform)
+    const captured: { receipt: Awaited<ReturnType<typeof lowcodeApi.platform.activateApplication>> | null } = { receipt: null }
+    vi.spyOn(lowcodeApi.platform, 'activateApplication').mockImplementation(async (applicationId) => {
+      const receipt = await originalActivate(applicationId)
+      captured.receipt = receipt
+      return receipt
+    })
+
+    const receipt = await activateLowcodeApplication('APP-B')
+
+    expect(receipt).toBe(captured.receipt)
+    expect(() => receipt.assertCurrent()).not.toThrow()
+  })
+
+  it('forwards an aborted navigation signal to the real platform selection fence', async () => {
+    saveExecutionScope('APP-A')
+    const previous = lowcodeApi.application.get()
+    if (previous === null) throw new Error('application fixture missing')
+    const applicationRead = deferred<unknown>()
+    const list = vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(applicationRead.promise)
+    const root = navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const controller = new AbortController()
+    const reason = new Error('navigation intent superseded')
+    const activation = activateLowcodeApplication('APP-B', controller.signal)
+    await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
+
+    controller.abort(reason)
+    applicationRead.resolve(application('APP-B'))
+
+    await expect(activation).rejects.toBe(reason)
+    expect(root).not.toHaveBeenCalled()
+    expect(lowcodeApi.application.get()).toEqual(previous)
+  })
+
+  it('exports the reserved system-page identity key through the spark-app package root', () => {
+    expect(SYSTEM_PAGE_NAVIGATION_ID_QUERY).toBe('__sparkNavigationId')
+  })
+
+  it.each([0, 1])('opens application design for a confirmed empty root even when its menu flag is %s', async menuFlag => {
+    saveExecutionScope('APP-A')
+    const root = {rowid: 'ROOT-APP-A', SysId: 'APP-A', prowid: '000000', FunOrderValue: 0,
+      name: 'APP-A', FunName: 'APP-A', conType: 'Model', NavigationUrl: '', IsShowAtNav: menuFlag}
+    const draft = {rowid: 'DRAFT', SysId: 'APP-A', prowid: 'ROOT-APP-A', FunOrderValue: 1,
+      name: '未发布页面', FunName: '未发布页面', conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 0}
+    vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [root, draft]}).dataSet)
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+      .mockRejectedValue(new Error('导航菜单不存在'))
+
+    const navigation = await readLowcodeRuntimeNavigation()
+
+    expect(authorization).not.toHaveBeenCalled()
+    expect(navigation).toMatchObject({id: 'ROOT-APP-A', projectId: 'APP-A'})
+    expect(navigation.homePath).toBe('/features/application/application-function-management/ui/application-function-page'
+      + `?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=7AB874097A1E8711A42FD845939A6E05`)
+    expect(navigation.items.some(item => item.id === 'DRAFT' || item.id === 'ROOT-APP-A')).toBe(false)
+    expect(lastNavigationDataSet?.dataSet.destroyed).toBe(true)
+  })
+
+  it.each(['published-child', 'root-target', 'missing-root'] as const)('preserves authorization errors for %s instead of treating it as an empty application', async kind => {
+    saveExecutionScope('APP-A')
+    const root = {rowid: 'ROOT-APP-A', SysId: 'APP-A', prowid: '000000', FunOrderValue: 0,
+      name: 'APP-A', FunName: 'APP-A', conType: 'Model', NavigationUrl: kind === 'root-target' ? 'vue:dashboard' : '', IsShowAtNav: 1}
+    const child = {rowid: 'PAGE', SysId: 'APP-A', prowid: 'ROOT-APP-A', FunOrderValue: 1,
+      name: '页面', FunName: '页面', conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}
+    const rows = kind === 'missing-root' ? [] : kind === 'published-child' ? [root, child] : [root]
+    vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows}).dataSet)
+    const failure = new Error('导航菜单不存在')
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(failure)
+
+    await expect(readLowcodeRuntimeNavigation()).rejects.toBe(failure)
+    expect(authorization).toHaveBeenCalledWith('APP-A', 'ROOT-APP-A')
+    expect(lastNavigationDataSet?.dataSet.destroyed).toBe(true)
+  })
+
+  it.each(['missing-target', 'hidden-target', 'missing-publish', 'hidden-publish', 'invalid-publish', 'moved-root'] as const)(
+    'does not infer an empty menu from %s blueprint evidence', async kind => {
+      saveExecutionScope('APP-A')
+      const root: DataRow = {rowid: 'ROOT-APP-A', SysId: 'APP-A', prowid: kind === 'moved-root' ? 'OTHER' : '000000', FunOrderValue: 0,
+        name: 'APP-A', FunName: 'APP-A', conType: 'Model', NavigationUrl: '', IsShowAtNav: 1}
+      const child: DataRow = {rowid: 'DRAFT', SysId: 'APP-A', prowid: 'ROOT-APP-A', FunOrderValue: 1,
+        name: '页面', FunName: '页面', conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 0}
+      if (kind === 'missing-target') delete root['NavigationUrl']
+      if (kind === 'missing-publish') delete child['IsShowAtNav']
+      if (kind === 'invalid-publish') child['IsShowAtNav'] = null
+      const hiddenFields = kind === 'hidden-target' ? ['NavigationUrl'] : kind === 'hidden-publish' ? ['IsShowAtNav'] : []
+      vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [root, child], hiddenFields}).dataSet)
+      const failure = new Error('菜单授权未确认')
+      const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(failure)
+
+      await expect(readLowcodeRuntimeNavigation()).rejects.toBe(failure)
+      expect(authorization).toHaveBeenCalledWith('APP-A', 'ROOT-APP-A')
+      expect(lastNavigationDataSet?.dataSet.destroyed).toBe(true)
+    },
+  )
+
+  it('rejects navigation when the execution application changes during authorization read', async () => {
+    saveExecutionScope('APP-A')
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+    const authorizationRead = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+
+    const navigation = readLowcodeRuntimeNavigation()
+    await vi.waitFor(() => expect(authorizationRead).toHaveBeenCalledOnce())
+    saveExecutionScope('APP-B')
+    authorization.resolve({ items: [], contexts: [] })
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it.each(['session-reset', 'application-round-trip', 'navigation-root-change'] as const)(
+    'rejects navigation when %s changes while authorization is pending', async (change) => {
+      saveExecutionScope('APP-A')
+      vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
+      const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+      vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+      const navigation = readLowcodeRuntimeNavigation()
+      await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+
+      if (change === 'session-reset') {
+        lowcodeApi.session.clear()
+        saveExecutionScope('APP-A')
+      } else if (change === 'application-round-trip') {
+        lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
+        lowcodeApi.application.save({ application: application('APP-A'), navigationRootId: 'ROOT-APP-A' })
+      } else {
+        lowcodeApi.application.save({ application: application('APP-A'), navigationRootId: 'ROOT-CHANGED' })
+      }
+      authorization.resolve({ items: [], contexts: [] })
+
+      await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    },
+  )
+
+  it('keeps an explicit target separate from the stable execution application', async () => {
+    saveExecutionScope('APP-A')
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(application('APP-B'))
+    navigationRootReader.read.mockImplementation(async (systemId, assertCurrent) => {
+      assertCurrent()
+      return `ROOT-${systemId}`
+    })
+    const resolveRoot = navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({ items: [], contexts: [] })
+
+    const navigation = await readLowcodeRuntimeNavigation('APP-B')
+
+    expect(readApplication).toHaveBeenCalledOnce()
+    expect(readApplication).toHaveBeenCalledWith('APP-B', expect.any(Function))
+    expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', expect.any(Function))
+    expect(resolveRoot).toHaveBeenCalledOnce()
+    expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
+    expect(navigation).toMatchObject({projectId: 'APP-B', title: 'APP-B'})
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+  })
+
+  it('reads explicit target navigation through its scoped DataView while authorization stays independent', async () => {
+    saveExecutionScope('APP-A')
+    applicationCatalogReader.read.mockResolvedValue(application('APP-B'))
+    const resolveRoot = navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const row: DataRow = {rowid: 'NODE-B', SysId: 'APP-B', prowid: '000000', FunOrderValue: 1, name: 'Page B', FunName: 'Page B',
+      conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}
+    vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [row]}).dataSet)
+    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+      .mockResolvedValue({items: [{id: 'NODE-B', target: 'vue:dashboard', targetKind: 'vue', formKey: null, children: []}], contexts: []})
+
+    const navigation = await readLowcodeRuntimeNavigation('APP-B')
+
+    expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId: 'APP-A', scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+    expect(lastNavigationDataSet?.filters[0]).toMatchObject({field: 'SysId', operator: 'eq', value: 'APP-B'})
+    expect(JSON.stringify(lastNavigationDataSet?.filters[0])).toContain('APP-B')
+    expect(lowcodeApi.readRequestScope().headers['X-AppId']).toBe('APP-A')
+    expect(records).not.toHaveBeenCalled()
+    expect(resolveRoot).toHaveBeenCalledWith('APP-B', expect.any(Function))
+    expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+    expect(navigation.items.some(item => item.id === 'NODE-B')).toBe(true)
+  })
+
+  it('preserves application directory reader errors without a legacy list fallback', async () => {
+    saveExecutionScope('APP-A')
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockRejectedValue(new Error('formal app catalog query failed'))
+    const resolveRoot = navigationRootReader.read
+
+    await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('formal app catalog query failed')
+
+    expect(readApplication).toHaveBeenCalledOnce()
+    expect(resolveRoot).not.toHaveBeenCalled()
+  })
+
+  it('rejects an execution-app change while the by-ID directory reader is pending', async () => {
+    saveExecutionScope('APP-A')
+    const pendingApplication = deferred<unknown>()
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(pendingApplication.promise)
+    const resolveRoot = navigationRootReader.read
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    if (!await expectApplicationReaderStarted(navigation)) return
+
+    lowcodeApi.application.save({application: application('APP-C'), navigationRootId: 'ROOT-C'})
+    pendingApplication.resolve(application('APP-B'))
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+  })
+
+  it('waits for the DataView read before authorization and disposal when execution scope changes', async () => {
+    saveExecutionScope('APP-A')
+    const queryGate = deferred<void>()
+    let startQuery!: () => void
+    const queryStarted = new Promise<void>(resolve => {startQuery = resolve})
+    const fixture = createNavigationDataSet({beforeQuery: async () => {startQuery(); await queryGate.promise}})
+    vi.mocked(loadLowcodeRuntimeScenario).mockResolvedValue(fixture.dataSet)
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(new Error('authorization read failed'))
+    const runtimeDispose = vi.spyOn(PageRuntime.prototype, 'dispose')
+    const ownerDispose = vi.spyOn(BlueprintWorkspaceDataView.prototype, 'dispose')
+
+    const navigation = readLowcodeRuntimeNavigation()
+    await queryStarted
+    await Promise.resolve()
+    expect(authorization).not.toHaveBeenCalled()
+    expect(runtimeDispose).not.toHaveBeenCalled()
+    expect(ownerDispose).not.toHaveBeenCalled()
+    saveExecutionScope('APP-B')
+    queryGate.resolve()
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(authorization).not.toHaveBeenCalled()
+    expect(runtimeDispose).toHaveBeenCalledOnce()
+    expect(ownerDispose).toHaveBeenCalledOnce()
+    expect(fixture.dataSet.destroyed).toBe(true)
+  })
+
+  it('does not let a late application catalog overwrite a newer activation intent', async () => {
+    saveExecutionScope('APP-OLD')
+    const appA = application('APP-A')
+    const appB = application('APP-B')
+    const applicationsA = deferred<unknown>()
+    const applicationsB = deferred<unknown>()
+    const rootB = deferred<string>()
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read')
+      .mockReturnValueOnce(applicationsA.promise)
+      .mockReturnValueOnce(applicationsB.promise)
+    const resolveRoot = navigationRootReader.read.mockImplementation((id) => (
+      id === 'APP-B' ? rootB.promise : Promise.resolve('ROOT-A')
+    ))
+
+    const activationA = activateLowcodeApplication('APP-A')
+    const activationB = activateLowcodeApplication('APP-B')
+    applicationsB.resolve(appB)
+    await vi.waitFor(() => expect(resolveRoot).toHaveBeenCalledWith('APP-B', expect.any(Function)))
+    applicationsA.resolve(appA)
+
+    await expect(activationA).rejects.toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
+    expect(resolveRoot).toHaveBeenCalledTimes(1)
+    rootB.resolve('ROOT-B')
+    await expect(activationB).resolves.toMatchObject({ application: appB, navigationRootId: 'ROOT-B' })
+    expect(lowcodeApi.application.get()).toEqual({ application: appB, navigationRootId: 'ROOT-B' })
+    expect(readApplication).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps the active URL, platform application, and native page instance aligned after same-app navigation supersedes activation', async () => {
+    saveExecutionScope('APP-A')
+    const page = defineComponent({ setup: () => () => h('main', 'dashboard') })
+    const navigation: RuntimeNavigation = {
+      id: 'ROOT-APP-A', title: 'App A', projectId: 'APP-A', childPlacement: 'header',
+      items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }],
+    }
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({
+      router,
+      pageComponent: page,
+      applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => navigation,
+      componentMap: { '/dashboard': page },
+    })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    const guard = new ProjectNavigationGuard({
+      publicPaths: new Set(['/login']),
+      publicHomePath: '/login',
+      isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
+    })
+    router.beforeEach((to) => guard.resolve(to))
+
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+
+    const applicationRead = deferred<unknown>()
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(applicationRead.promise)
+    navigationRootReader.read.mockResolvedValue('ROOT-APP-B')
+    const staleNavigation = router.push('/apps/APP-B/dashboard?from=activation')
+    await vi.waitFor(() => expect(readApplication).toHaveBeenCalledOnce())
+
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    applicationRead.resolve(application('APP-B'))
+    await staleNavigation
+
+    const observed = {
+      url: router.currentRoute.value.fullPath,
+      applicationId: lowcodeApi.application.get()?.application.id ?? null,
+      nativeInstanceId: dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId ?? null,
+    }
+    expect(observed).toEqual({
+      url: `/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
+      applicationId: 'APP-A',
+      nativeInstanceId: expect.any(String),
+    })
+  })
+
+  it('cancels a pending external activation when same-app query navigation takes ownership', async () => {
+    saveExecutionScope('APP-A')
+    const page = defineComponent({ setup: () => () => h('main', 'dashboard') })
+    const navigation: RuntimeNavigation = {
+      id: 'ROOT-APP-A', title: 'App A', projectId: 'APP-A', childPlacement: 'header',
+      items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }],
+    }
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({
+      router,
+      pageComponent: page,
+      applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => navigation,
+      componentMap: { '/dashboard': page },
+    })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    const guard = new ProjectNavigationGuard({
+      publicPaths: new Set(['/login']),
+      publicHomePath: '/login',
+      isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
+    })
+    router.beforeEach((to) => guard.resolve(to))
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    const initialInstance = dynamic.getSystemPageInstance(router.currentRoute.value)
+    if (!initialInstance) throw new Error('APP-A system-page fixture did not create a native instance')
+
+    const applicationRead = deferred<unknown>()
+    const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(applicationRead.promise)
+    navigationRootReader.read.mockResolvedValue('ROOT-APP-B')
+    const externalActivation = activateLowcodeApplication('APP-B')
+    await vi.waitFor(() => expect(readApplication).toHaveBeenCalledOnce())
+
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    applicationRead.resolve(application('APP-B'))
+    const activationOutcome = await externalActivation.then(
+      (receipt) => {
+        receipt.assertCurrent()
+        return { status: 'committed' }
+      },
+      (error: unknown) => ({ status: 'rejected', errorMessage: error instanceof Error ? error.message : String(error) }),
+    )
+
+    const observed = {
+      activationOutcome,
+      url: router.currentRoute.value.fullPath,
+      applicationId: lowcodeApi.application.get()?.application.id ?? null,
+      navigationProjectId: dynamic.getNavTree()?.projectId ?? null,
+      nativeInstanceId: dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId ?? null,
+    }
+    console.info('C2D2F_EXTERNAL_ACTIVATION_OUTCOME', JSON.stringify(observed))
+    expect(observed).toEqual({
+      activationOutcome: { status: 'rejected', errorMessage: expect.stringContaining('STALE') },
+      url: `/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
+      applicationId: 'APP-A',
+      navigationProjectId: 'APP-A',
+      nativeInstanceId: expect.any(String),
+    })
+  })
+
+  it('keeps a committed application receipt current through an ordinary same-app query navigation', async () => {
+    saveExecutionScope('APP-A')
+    const page = defineComponent({ setup: () => () => h('main', 'dashboard') })
+    const navigation: RuntimeNavigation = {
+      id: 'ROOT-APP-A', title: 'App A', projectId: 'APP-A', childPlacement: 'header',
+      items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }],
+    }
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({
+      router,
+      pageComponent: page,
+      applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => navigation,
+      componentMap: { '/dashboard': page },
+    })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    const guard = new ProjectNavigationGuard({
+      publicPaths: new Set(['/login']),
+      publicHomePath: '/login',
+      isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
+    })
+    router.beforeEach((to) => guard.resolve(to))
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+
+    vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(application('APP-A'))
+    navigationRootReader.read.mockResolvedValue('ROOT-APP-A')
+    const receipt = await activateLowcodeApplication('APP-A')
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+
+    expect(() => receipt.assertCurrent()).not.toThrow()
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+    expect(dynamic.getNavTree()?.projectId).toBe('APP-A')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+  })
+
+  it('reinstalls the real target owner when navigation supersedes an activation just after platform commit', async () => {
+    saveExecutionScope('APP-A')
+    const page = defineComponent({ setup: () => () => h('main', 'dashboard') })
+    const navigationForApplication = (projectId: string): RuntimeNavigation => ({
+      id: `ROOT-${projectId}`, title: projectId, projectId, childPlacement: 'header',
+      items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page' as const, path: '/dashboard' }],
+    })
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({
+      router,
+      pageComponent: page,
+      applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => navigationForApplication(lowcodeApi.application.get()?.application.id ?? 'homepage'),
+      componentMap: { '/dashboard': page },
+    })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    const guard = new ProjectNavigationGuard({
+      publicPaths: new Set(['/login']),
+      publicHomePath: '/login',
+      isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
+    })
+    router.beforeEach((to) => guard.resolve(to))
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+
+    const appB = application('APP-B')
+    vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(appB)
+    navigationRootReader.read.mockResolvedValue('ROOT-APP-B')
+    const newerNavigation = deferred<void>()
+    const originalActivate = lowcodeApi.platform.activateApplication.bind(lowcodeApi.platform)
+    let scheduleNewerNavigation = true
+    vi.spyOn(lowcodeApi.platform, 'activateApplication').mockImplementation(async (applicationId, signal) => {
+      const receipt = await originalActivate(applicationId, signal)
+      if (scheduleNewerNavigation) {
+        scheduleNewerNavigation = false
+        queueMicrotask(() => {
+          void router.push(`/apps/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+            .then(() => newerNavigation.resolve(), newerNavigation.reject)
+        })
+      }
+      return receipt
+    })
+
+    const staleNavigation = router.push(`/apps/APP-B/dashboard?intent=old&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await newerNavigation.promise
+    await staleNavigation
+
+    expect(router.currentRoute.value.fullPath)
+      .toBe(`/apps/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-B')
+    expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+  })
+
+  it('rechecks the activation receipt after the runtime await continuation', async () => {
+    saveExecutionScope('APP-OLD')
+    const appB = application('APP-B')
+    vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(appB)
+    navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const originalActivate = lowcodeApi.platform.activateApplication.bind(lowcodeApi.platform)
+    vi.spyOn(lowcodeApi.platform, 'activateApplication').mockImplementation(async (applicationId) => {
+      const receipt = await originalActivate(applicationId)
+      queueMicrotask(() => {
+        lowcodeApi.application.save({ application: application('APP-C'), navigationRootId: 'ROOT-C' })
+      })
+      return receipt
+    })
+
+    const activation = activateLowcodeApplication('APP-B')
+
+    await expect(activation).rejects.toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
+    expect(lowcodeApi.application.get()).toEqual({ application: application('APP-C'), navigationRootId: 'ROOT-C' })
+  })
+
+  it.each(['application-clear', 'session-replacement'] as const)(
+    'stops a pending application selection after %s', async (change) => {
+      saveExecutionScope('APP-OLD')
+      const appB = application('APP-B')
+      const applicationRead = deferred<unknown>()
+      const list = vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(applicationRead.promise)
+      const root = navigationRootReader.read
+      const activation = activateLowcodeApplication('APP-B')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
+
+      if (change === 'application-clear') lowcodeApi.application.clear()
+      else {
+        lowcodeApi.session.clear()
+        saveExecutionScope('APP-OLD')
+      }
+      applicationRead.resolve(appB)
+
+      await expect(activation).rejects.toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
+      expect(root).not.toHaveBeenCalled()
+      expect(lowcodeApi.application.get()?.application.id).not.toBe('APP-B')
+    },
+  )
+
+  it('allows token refresh while an application selection is pending', async () => {
+    saveExecutionScope('APP-OLD')
+    const appB = application('APP-B')
+    const originalSession = lowcodeApi.session.get()
+    if (originalSession === null) throw new Error('session fixture missing')
+    const applicationRead = deferred<unknown>()
+    vi.spyOn(applicationCatalogReader, 'read').mockReturnValue(applicationRead.promise)
+    navigationRootReader.read.mockResolvedValue('ROOT-B')
+    const activation = activateLowcodeApplication('APP-B')
+    await vi.waitFor(() => expect(applicationCatalogReader.read).toHaveBeenCalledOnce())
+    lowcodeApi.session.save({ ...originalSession, accessToken: 'fixture-refreshed-access' })
+    applicationRead.resolve(appB)
+
+    await expect(activation).resolves.toMatchObject({ application: appB, navigationRootId: 'ROOT-B' })
+    expect(lowcodeApi.application.get()).toEqual({ application: appB, navigationRootId: 'ROOT-B' })
+  })
+
+  it('stops after a pending target lookup invalidates the execution scope', async () => {
+    saveExecutionScope('APP-A')
+    const deferredApplication = deferred<unknown>()
+    applicationCatalogReader.read.mockReturnValue(deferredApplication.promise)
+    const resolveRoot = navigationRootReader.read
+    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    await vi.waitFor(() => expect(applicationCatalogReader.read).toHaveBeenCalledOnce())
+    lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
+    deferredApplication.resolve(application('APP-B'))
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(records).not.toHaveBeenCalled()
+  })
+
+  it('stops before blueprint reads when navigation-root resolution becomes stale', async () => {
+    saveExecutionScope('APP-A')
+    vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(application('APP-B'))
+    const root = deferred<string>()
+    navigationRootReader.read.mockImplementation((_id, assertCurrent) => root.promise.then(value => {
+      assertCurrent()
+      return value
+    }))
+    navigationRootReader.read.mockReturnValue(root.promise)
+    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    await vi.waitFor(() => expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', expect.any(Function)))
+    lowcodeApi.session.clear()
+    root.resolve('ROOT-B')
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', expect.any(Function))
+    expect(records).not.toHaveBeenCalled()
+  })
+
+  it('rechecks immediately after application lookup before resolving the target root', async () => {
+    saveExecutionScope('APP-A')
+    const deferredApplication = deferred<unknown>()
+    applicationCatalogReader.read.mockReturnValue(deferredApplication.promise)
+    const resolveRoot = navigationRootReader.read.mockResolvedValue('ROOT-B')
+
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    await vi.waitFor(() => expect(applicationCatalogReader.read).toHaveBeenCalledOnce())
+    lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
+    deferredApplication.resolve(application('APP-B'))
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+  })
+
+  it('rechecks after the authorization response before assembling navigation', async () => {
+    saveExecutionScope('APP-A')
+    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+
+    const navigation = readLowcodeRuntimeNavigation()
+    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    authorization.resolve({ items: [], contexts: [] })
+    queueMicrotask(() => {
+      lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
+    })
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('turns a late request failure into stale-scope failure after the execution application changes', async () => {
+    saveExecutionScope('APP-A')
+    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const navigation = readLowcodeRuntimeNavigation()
+    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
+    authorization.reject(new Error('late backend failure'))
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('allows token refresh with stable identity references and preserves stable request errors', async () => {
+    saveExecutionScope('APP-A')
+    const originalSession = lowcodeApi.session.get()
+    if (originalSession === null) throw new Error('session fixture missing')
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const navigation = readLowcodeRuntimeNavigation()
+    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    lowcodeApi.session.save({ ...originalSession, accessToken: 'fixture-refreshed-access' })
+    authorization.resolve({ items: [], contexts: [] })
+    await expect(navigation).resolves.toMatchObject({ projectId: 'APP-A' })
+
+    const stableError = new Error('fixture authorization failure')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(stableError)
+    await expect(readLowcodeRuntimeNavigation()).rejects.toBe(stableError)
+  })
+
+  it('uses the local catalog without reading a request scope when no application is selected', async () => {
+    lowcodeApi.application.clear()
+    const scope = vi.spyOn(lowcodeApi, 'readRequestScope')
+    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+
+    await expect(readLowcodeRuntimeNavigation()).resolves.toEqual(lowcodeEnterpriseNavigation())
+
+    expect(scope).not.toHaveBeenCalled()
+    expect(records).not.toHaveBeenCalled()
+    expect(authorization).not.toHaveBeenCalled()
+    expect(lowcodeEnterpriseNavigation().projectId).toBe(APPLICATION_CATALOG_PROJECT_ID)
+    expect(lowcodeApi.application.get()).toBeNull()
+  })
+
+  it('accepts the explicit missing directory response only for the scoped tool directory', async () => {
+    saveExecutionScope('APP-A')
+    const list = vi.spyOn(lowcodeApi.design, 'listFiles')
+      .mockRejectedValueOnce(new LowcodeApiError(1003, '[1003] 文件夹路径不存在'))
+      .mockRejectedValueOnce(new LowcodeApiError(1003, '当前目录不可访问'))
+    const tool = createPageToolFilesIo('APP-A')
+    await expect(tool.list('APP-A', 'new-tool')).resolves.toEqual([])
+    await expect(tool.list('APP-A', 'existing-tool')).rejects.toThrow('当前目录不可访问')
+    await expect(tool.list('APP-B', 'new-tool')).rejects.toThrow('FILE_SCOPE')
+    expect(list).toHaveBeenCalledTimes(2)
+    expect(list).toHaveBeenNthCalledWith(1, {appType:'designfile', folderPath:'APP-A/new-tool'})
+  })
+
+  it('uses the Chinese enterprise short name as the AppWorks display label', () => {
+    expect(lowcodeEnterpriseDisplayName({
+      id: 'E1',
+      name: 'QinYanTech',
+      code: '武汉领码科技有限公司',
+      shortName: 'NewApp',
+      shortCode: '领码科技',
+      raw: {},
+    })).toBe('领码科技')
+  })
+
+  it('builds the enterprise menu from enterprise pages with groups ordered by their members', () => {
+    const catalog = lowcodeEnterpriseNavigation()
+
+    expect(catalog.homePath).toBe('/app-list')
+    expect(buildApplicationPath({ projectId: catalog.projectId ?? APPLICATION_CATALOG_PROJECT_ID }, catalog.homePath ?? '/app-list'))
+      .toBe('/apps/homepage/app-list')
+    expect(catalog.items[0]?.path).toBe('/app-list')
+    expect(catalog.items.at(-1)?.path).toBe('/settings')
+    const database = catalog.items.find(item => item.id === 'appworks-enterprise-group:数据库管理')
+    expect(database).toMatchObject({itemKind: 'module', order: 11})
+    expect(database?.children?.map(child => child.order)).toEqual([11, 12, 13])
+    const visible = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'enterprise' && page.hidden !== true)
+    const leaves = catalog.items.flatMap(item => item.children ?? [item])
+    expect(leaves.map(leaf => leaf.path).sort()).toEqual(visible.map(page => page.path).sort())
+    expect(leaves.every(leaf => leaf.itemKind === 'system-page')).toBe(true)
+    expect(leaves.some(leaf => leaf.path === '/tenants')).toBe(false)
+  })
+
+  it('projects dataSpaceId and navigationId into the system-page navigation identity', () => {
+    const leaves = lowcodeEnterpriseNavigation().items.flatMap(item => item.children ?? [item])
+    const people = VuePageRegistry.getVuePageOptions().find(page => page.navigationId !== undefined && page.scope === 'enterprise')
+    if (!people?.dataSpaceId || !people.navigationId) throw new Error('expected an enterprise page with its own navigation identity')
+    expect(leaves.find(leaf => leaf.path === people.path)).toMatchObject({id: people.navigationId, blueprintScenarioId: people.dataSpaceId})
+    expect(leaves.find(leaf => leaf.path === '/app-list')?.blueprintScenarioId).toBeUndefined()
+  })
+
+  it('builds the platform menu from platform pages only', () => {
+    const platform = lowcodePlatformNavigation()
+    const visible = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'platform' && page.hidden !== true)
+    expect(platform.items.flatMap(item => item.children ?? [item]).map(leaf => leaf.path).sort())
+      .toEqual(visible.map(page => page.path).sort())
+    expect(platform).not.toHaveProperty('projectId')
+  })
+
+  it.each(['Payroll.Calculate', 'Payroll.Calculate.Renamed'])('keeps the menu title and nested home path for capability %s', (name) => {
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: 'SPARK薪酬管理',
+      projectId: 'PROJECT-1',
+      navigationRootId: 'ROOT-1',
+      records: [
+        record({ nodeId: 'module-1', name: 'Payroll', title: '工资管理', kind: 'module', order: 0 }),
+        record({
+          nodeId: 'page-1',
+          parentNodeId: 'module-1',
+          name,
+          title: '工资核算',
+          kind: 'page',
+          target: 'vue:payroll/salary-calculation',
+          scenarioId: 'FORM-1',
+          order: 1,
+        }),
+      ],
+      authorization: {
+        items: [{
+          id: 'module-1',
+          target: '',
+          targetKind: 'empty',
+          formKey: null,
+          children: [{
+            id: 'page-1',
+            target: 'vue:payroll/salary-calculation',
+            targetKind: 'vue',
+            formKey: 'FORM-1',
+            children: [],
+          }],
+        }],
+        contexts: [],
+      },
+    })
+
+    expect(projection.homePath).toBe(`/payroll/salary-calculation?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=page-1`)
+    expect(projection.items[0]).not.toHaveProperty('dataSpaceId')
+    expect(projection.items[0]?.children?.[0]).toMatchObject({
+      title: '工资核算',
+      path: '/payroll/salary-calculation',
+      itemKind: 'system-page',
+    })
+    expect(projection.items[0]?.children?.[0]).not.toHaveProperty('formKey')
+    expect(projection.items[0]?.children?.[0]).not.toHaveProperty('dataSpaceId')
+    const design = projection.items.at(-1)
+    expect(design).toMatchObject({id: 'appworks-application-design', title: '应用设计', itemKind: 'module'})
+    expect(design?.children?.[0]).toMatchObject({id: '7AB874097A1E8711A42FD845939A6E05', title: '项目蓝图',
+      path: '/features/application/application-function-management/ui/application-function-page'})
+    const appPages = VuePageRegistry.getVuePageOptions().filter(page => page.scope === 'app' && page.hidden !== true)
+    expect(design?.children?.flatMap(child => child.children ?? [child]).map(leaf => leaf.path).sort())
+      .toEqual(appPages.map(page => page.path).sort())
+    expect(design?.children?.some(child => child.path === '/dev')).toBe(false)
+  })
+
+  it('omits design pages whose node identity the business navigation already carries', () => {
+    const logicView = VuePageRegistry.getVuePageOptions().find(page => page.path.endsWith('/logic-view/ui/logic-view-list-page'))
+    if (!logicView?.dataSpaceId) throw new Error('expected the logic view catalog to carry its navigation identity')
+    const target = `vue:${logicView.path.slice(1)}`
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '元数据管理', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [
+        record({nodeId: 'module-1', name: 'Structured', title: '结构化配置', kind: 'module', order: 0}),
+        record({nodeId: logicView.dataSpaceId, parentNodeId: 'module-1', name: 'LogicView', title: '逻辑视图', kind: 'page', target,
+          scenarioId: logicView.dataSpaceId, order: 1}),
+      ],
+      authorization: {items: [{id: 'module-1', target: '', targetKind: 'empty', formKey: null, children: [
+        {id: logicView.dataSpaceId, target, targetKind: 'vue', formKey: logicView.dataSpaceId, children: []},
+      ]}], contexts: []},
+    })
+    const ids: string[] = []
+    const walk = (items: readonly RuntimeNavigationItem[]): void => {
+      for (const item of items) {ids.push(item.id); walk(item.children ?? [])}
+    }
+    walk(projection.items)
+    expect(ids.filter(id => id === logicView.dataSpaceId)).toHaveLength(1)
+    expect(new Set(ids).size).toBe(ids.length)
+    const design = projection.items.at(-1)
+    expect(design?.children?.flatMap(child => child.children ?? [child]).some(leaf => leaf.path === logicView.path)).toBe(false)
+  })
+
+  it('keeps the cfg tool target separate from the scenario call parameter', () => {
+    const tool = record({ nodeId: 'NODE-1', name: 'Orders.Query', title: '订单查询',
+      target: 'cfg:orders', scenarioId: 'SCENE-1' })
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [tool], authorization: { items: [{ id: 'NODE-1', target: 'cfg:orders',
+        targetKind: 'route', formKey: 'SCENE-1', children: [] }], contexts: [] },
+    })
+
+    expect(tool.navigation?.target).toBe('cfg:orders')
+    expect(projection.items[0]).toMatchObject({ id: 'NODE-1', title: '订单查询',
+      itemKind: 'page', path: '/__page/NODE-1?scenarioId=SCENE-1', tool: { projectId: 'PROJECT-1', pageId: 'orders' } })
+    expect(projection.items[0]?.blueprintScenarioId).toBe('SCENE-1')
+    expect(projection.homePath).toBe('/__page/NODE-1?scenarioId=SCENE-1')
+    expect(projection.items[0]).not.toHaveProperty('formKey')
+    expect(projection.items[0]?.path).not.toContain('orders')
+  })
+
+  it('lands apps without business pages on the current application blueprint with its navigation identity', () => {
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '空应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [], authorization: { items: [], contexts: [] },
+    })
+
+    expect(projection.homePath).toBe('/features/application/application-function-management/ui/application-function-page'
+      + `?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=7AB874097A1E8711A42FD845939A6E05`)
+  })
+
+  it('routes an authorized cfg menu using the explicit additional spaces and input values', () => {
+    const inputs = JSON.stringify({'SCENE-2': {order: 'O-1'}})
+    const target = `cfg:orders?${new URLSearchParams({additionalScenarioIds:'SCENE-2', scenarioInputs:inputs})}`
+    const tool = record({nodeId:'NODE-1', name:'Orders', title:'订单', target, scenarioId:'SCENE-1'})
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName:'测试应用', projectId:'PROJECT-1', navigationRootId:'ROOT-1', records:[tool],
+      authorization:{items:[{id:'NODE-1', target, targetKind:'route', formKey:'SCENE-1', children:[]}], contexts:[]},
+    })
+    const menu = projection.items[0]!
+    expect(menu.tool?.pageId).toBe('orders')
+    expect(menu.path?.split('?')[0]).toBe('/__page/NODE-1')
+    const query = new URLSearchParams(menu.path?.split('?')[1])
+    expect(query.get('scenarioId')).toBe('SCENE-1')
+    expect(query.getAll('additionalScenarioIds')).toEqual(['SCENE-2'])
+    expect(query.get('scenarioInputs')).toBe(inputs)
+  })
+
+  it('skips maintenance pages and maintenance groups when selecting the landing page', () => {
+    const maintenance = (node: LowcodeProjectBlueprintRecord): LowcodeProjectBlueprintRecord => ({
+      ...node, capability: {...node.capability, deliveryStatus: 'maintenance'},
+    })
+    const initial = {applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1'}
+    const route = (id: string) => ({id, target: `cfg:${id}`, targetKind: 'route' as const, formKey: null, children: []})
+    const page = (id: string, order: number, parentNodeId?: string) => record({nodeId: id, name: id, title: id,
+      target: `cfg:${id}`, order, ...(parentNodeId === undefined ? {} : {parentNodeId})})
+    const records = [maintenance(page('paused', 0)),
+      maintenance(record({nodeId: 'group', name: 'group', title: 'group', kind: 'module', order: 1})), page('nested', 0, 'group')]
+    const items = [route('paused'), {id: 'group', target: '', targetKind: 'empty' as const, formKey: null, children: [route('nested')]}]
+    const fallback = assembleLowcodeRuntimeNavigation({...initial, records: [], authorization: {items: [], contexts: []}})
+    expect(assembleLowcodeRuntimeNavigation({...initial, records, authorization: {items, contexts: []}}).homePath).toBe(fallback.homePath)
+    expect(assembleLowcodeRuntimeNavigation({...initial, records: [...records, page('ready', 2)],
+      authorization: {items: [...items, route('ready')], contexts: []}}).homePath).toBe('/__page/ready')
+  })
+
+  it('rejects cfg navigation targets that cannot name one tool file directory', () => {
+    const tool = record({ nodeId: 'NODE-1', name: 'Orders.Query', title: '订单查询', target: 'cfg:PROJECT-1/orders' })
+    expect(() => assembleLowcodeRuntimeNavigation({
+      applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [tool], authorization: { items: [{ id: 'NODE-1', target: 'cfg:PROJECT-1/orders',
+        targetKind: 'route', formKey: null, children: [] }], contexts: [] },
+    })).toThrow('配置工具目标无效')
+  })
+
+  it('preserves native scene call parameters and hash while projecting the Vue resource', () => {
+    const target = 'vue:/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=#details'
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [record({ nodeId: 'native', name: 'Orders', title: '订单', target, scenarioId: 'BOUND-SCENARIO' })],
+      authorization: { items: [{ id: 'native', target, targetKind: 'vue', formKey: null, children: [] }], contexts: [] },
+    })
+    expect(projection.items[0]?.path).toBe('/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=#details')
+    expect(projection.items[0]?.blueprintScenarioId).toBe('BOUND-SCENARIO')
+    expect(projection.homePath).toBe(`/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=native#details`)
+  })
+})

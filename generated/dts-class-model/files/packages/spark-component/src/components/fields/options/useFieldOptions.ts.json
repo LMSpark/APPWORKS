@@ -1,0 +1,840 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/options/useFieldOptions",
+    "sourcePath": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/options/useFieldOptions",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/options/useFieldOptions\n职责：维护 @spark-appworks/spark-component 中 components/fields/options/useFieldOptions 的字段选项解析合同。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/options/useFieldOptions 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldTransferOption"
+    ]
+  },
+  "$defs": {
+    "FieldTransferOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldTransferOption",
+      "properties": {
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "key",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "FieldOptionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldOptionProps",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": true
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionLabelJoiner": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "optionDisabledField": {
+          "type": "string"
+        },
+        "optionChildrenField": {
+          "type": "string"
+        },
+        "optionDataViewKey": {
+          "type": "string"
+        },
+        "optionDataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "optionDataField": {
+          "type": "string"
+        },
+        "unmatchedText": {
+          "type": "string"
+        },
+        "valueSeparator": {
+          "type": "string"
+        },
+        "valueMode": {
+          "enum": [
+            "array",
+            "auto",
+            "separated-string"
+          ]
+        },
+        "multiple": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "optionValueTrim": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "UseFieldOptionsReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseFieldOptionsReturn",
+      "properties": {
+        "options": {
+          "type": "object",
+          "title": "ComputedRef<FieldOption[]>"
+        },
+        "flatOptions": {
+          "type": "object",
+          "title": "ComputedRef<FieldOption[]>"
+        },
+        "transferData": {
+          "type": "object",
+          "title": "ComputedRef<FieldTransferOption[]>"
+        },
+        "optionError": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "optionsAvailable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "optionsReady": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        }
+      },
+      "required": [
+        "options",
+        "flatOptions",
+        "transferData",
+        "optionError",
+        "optionsAvailable",
+        "optionsReady"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.normalizeOptionValues.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.normalizeOptionValues.return": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "method.findOptionLabel.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.findOptionLabel.return": {
+          "type": "string"
+        },
+        "method.findOptionLabels.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.findOptionLabels.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.formatOptionValue.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.formatOptionValue.return": {
+          "type": "string"
+        },
+        "method.formatCascaderValue.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.formatCascaderValue.return": {
+          "type": "string"
+        },
+        "method.captureOptionsGuard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureOptionsGuard.return": {
+          "type": "object",
+          "title": "() => boolean"
+        },
+        "method.toControlValue.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "multiple": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toControlValue.return": true,
+        "method.toSourceValue.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.toSourceValue.return": true
+      }
+    },
+    "UseOptionFieldOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseOptionFieldOptions",
+      "properties": {
+        "props": {
+          "type": "object",
+          "properties": {
+            "dataViewKey": {
+              "type": "string"
+            },
+            "dataMember": {
+              "enum": [
+                "page",
+                "columns",
+                "rows",
+                "total",
+                "requestState",
+                "value",
+                "currentRow",
+                "selectedRows",
+                "aggregateResult",
+                "selectionAggregateResult",
+                "pageSize",
+                "mutating",
+                "loadingError",
+                "mutatingError"
+              ]
+            },
+            "dataField": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": true
+            },
+            "optionLabelField": {
+              "type": "string"
+            },
+            "optionLabelFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "optionLabelJoiner": {
+              "type": "string"
+            },
+            "optionValueField": {
+              "type": "string"
+            },
+            "optionDisabledField": {
+              "type": "string"
+            },
+            "optionChildrenField": {
+              "type": "string"
+            },
+            "optionDataViewKey": {
+              "type": "string"
+            },
+            "optionDataMember": {
+              "enum": [
+                "page",
+                "columns",
+                "rows",
+                "total",
+                "requestState",
+                "value",
+                "currentRow",
+                "selectedRows",
+                "aggregateResult",
+                "selectionAggregateResult",
+                "pageSize",
+                "mutating",
+                "loadingError",
+                "mutatingError"
+              ]
+            },
+            "optionDataField": {
+              "type": "string"
+            },
+            "unmatchedText": {
+              "type": "string"
+            },
+            "valueSeparator": {
+              "type": "string"
+            },
+            "valueMode": {
+              "enum": [
+                "array",
+                "auto",
+                "separated-string"
+              ]
+            },
+            "multiple": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "optionValueTrim": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "label": {
+              "type": "string"
+            },
+            "readonly": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "editOnDblclick": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "modelValue": true,
+            "value": true,
+            "displayFallbackFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "type": {
+          "type": "string"
+        },
+        "fallbackValue": true
+      },
+      "required": [
+        "props",
+        "type",
+        "fallbackValue"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.coerce.params": {
+          "type": "object",
+          "properties": {
+            "rawValue": true
+          },
+          "additionalProperties": false
+        },
+        "method.coerce.return": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "method.formatDisplay.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "helpers": {
+              "$ref": "#/$defs/UseFieldOptionsReturn"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.formatDisplay.return": {
+          "type": "string"
+        },
+        "method.member.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.member.return": {
+          "$ref": "../context/useFieldPermission.ts.json#/$defs/FieldMemberRef"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T18:27:19.163Z",
+  "models": {
+    "FieldTransferOption": {
+      "name": "FieldTransferOption",
+      "jsdoc": "Field Transfer Option 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 定位键。 */\n    key: string | number;\n    /** 展示标签。 */\n    label: string;\n    /** 是否禁用。 */\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "jsdoc": "定位键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "展示标签。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "是否禁用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldOptionProps": {
+      "name": "FieldOptionProps",
+      "jsdoc": "Field Option Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "multiple",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueTrim",
+              "jsdoc": "r-select 显式启用的平面选项值修剪。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UseFieldOptionsReturn": {
+      "name": "UseFieldOptionsReturn",
+      "jsdoc": "Use Field Options Return 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 调用配置项。 */\n    options: ComputedRef<FieldOption[]>;\n    /** flat Options 配置项。 */\n    flatOptions: ComputedRef<FieldOption[]>;\n    /** normalize Option Values 回调。 */\n    normalizeOptionValues: (value: unknown) => Array<string | number | boolean>;\n    /** find Option Label 回调。 */\n    findOptionLabel: (value: unknown) => string;\n    /** find Option Labels 回调。 */\n    findOptionLabels: (value: unknown) => string[];\n    /** format Option Value 回调。 */\n    formatOptionValue: (value: unknown) => string;\n    /** format Cascader Value 回调。 */\n    formatCascaderValue: (value: unknown) => string;\n    /** transfer Data 字段。 */\n    transferData: ComputedRef<FieldTransferOption[]>;\n    optionError: ComputedRef<string | undefined>;\n    optionsAvailable: ComputedRef<boolean>;\n    /** 选项已可用且远端命名视图完成查询；本地静态来源不要求请求。用于显式自定义文本输入，不改变原候选选择合同。 */\n    optionsReady: ComputedRef<boolean>;\n    /** 捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。 */\n    captureOptionsGuard: () => () => boolean;\n    toControlValue: (value: unknown, multiple: boolean) => unknown;\n    toSourceValue: (value: unknown) => unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "options",
+              "jsdoc": "调用配置项。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "flatOptions",
+              "jsdoc": "flat Options 配置项。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "transferData",
+              "jsdoc": "transfer Data 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "optionError",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "optionsAvailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "optionsReady",
+              "jsdoc": "选项已可用且远端命名视图完成查询；本地静态来源不要求请求。用于显式自定义文本输入，不改变原候选选择合同。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "normalizeOptionValues",
+              "jsdoc": "normalize Option Values 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "union",
+                  "types": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "number"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "boolean"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "findOptionLabel",
+              "jsdoc": "find Option Label 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "findOptionLabels",
+              "jsdoc": "find Option Labels 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "formatOptionValue",
+              "jsdoc": "format Option Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "formatCascaderValue",
+              "jsdoc": "format Cascader Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "captureOptionsGuard",
+              "jsdoc": "捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "toControlValue",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "multiple",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "toSourceValue",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UseOptionFieldOptions": {
+      "name": "UseOptionFieldOptions",
+      "jsdoc": "Use Option Field Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: FieldOptionProps & FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** coerce 回调。 */\n    coerce: (rawValue: unknown) => TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string;\n    /** 绑定源字段内 JSON 成员；记录选择模式不适用。 */\n    member?: () => FieldMemberRef | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fallbackValue",
+              "jsdoc": "fallback Value 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "coerce",
+              "jsdoc": "coerce 回调。",
+              "parameters": [
+                {
+                  "name": "rawValue",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "TValue",
+                "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "formatDisplay",
+              "jsdoc": "format Display 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "helpers",
+                  "type": {
+                    "type": "reference",
+                    "name": "UseFieldOptionsReturn",
+                    "sourcePath": "packages/spark-component/src/components/fields/options/useFieldOptions.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "member",
+              "jsdoc": "绑定源字段内 JSON 成员；记录选择模式不适用。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FieldMemberRef",
+                  "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

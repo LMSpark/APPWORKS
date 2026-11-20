@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/relation/form-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/relation/form-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/relation/form-ops\n职责：Base_TblRln 单行编辑会话及多字段关系端点操作；字段值始终由原 DataView 持有。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogTableContext",
+      "DatabaseCatalogRelationSession"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogTableContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogTableContext",
+      "properties": {
+        "tableId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "dbId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableId",
+        "tableName",
+        "dbId"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseCatalogRelationSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogRelationSession",
+      "properties": {
+        "rowid": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "add",
+            "edit"
+          ]
+        },
+        "currentRole": {
+          "enum": [
+            "master",
+            "child"
+          ]
+        },
+        "context": {
+          "$ref": "#/$defs/DatabaseCatalogTableContext"
+        },
+        "queryIdentity": {
+          "type": "string"
+        },
+        "checkpoint": {
+          "type": "object",
+          "properties": {
+            "restore": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "release": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "restore",
+            "release"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "rowid",
+        "mode",
+        "currentRole",
+        "context",
+        "queryIdentity"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.753Z",
+  "models": {
+    "DatabaseCatalogTableContext": {
+      "name": "DatabaseCatalogTableContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableId: string;\n    tableName: string;\n    dbId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableId: string;\n    tableName: string;\n    dbId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dbId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogRelationSession": {
+      "name": "DatabaseCatalogRelationSession",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    context: DatabaseCatalogTableContext;\n    queryIdentity: string;\n    checkpoint?: {\n        restore(): void;\n        release(): void;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    context: DatabaseCatalogTableContext;\n    queryIdentity: string;\n    checkpoint?: {\n        restore(): void;\n        release(): void;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentRole",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryIdentity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkpoint",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

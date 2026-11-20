@@ -1,0 +1,335 @@
+[data-page="tree-demo"] {
+  padding: 12px 14px 16px;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  background:
+    linear-gradient(180deg, #f5f7fa 0%, #eef2f6 100%),
+    radial-gradient(circle at top left, rgba(64, 158, 255, 0.08), transparent 24%);
+}
+
+[data-page="tree-demo"] .nav-editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: max-content;
+  padding-bottom: 8px;
+}
+
+[data-page="tree-demo"] .nav-editor-panel,
+[data-page="tree-demo"] .nav-editor-toolbar-card {
+  border-radius: 16px;
+  border: 1px solid #dbe3ec;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 30px rgba(15, 35, 55, 0.06);
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar-card .renderer-form-grid-item,
+[data-page="tree-demo"] .nav-editor-panel .renderer-form-grid-item {
+  min-width: 0;
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar-card .renderer-form-toolbar,
+[data-page="tree-demo"] .nav-editor-panel .renderer-form-toolbar,
+[data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar-card button,
+[data-page="tree-demo"] .nav-editor-panel button,
+[data-page="tree-demo"] .nav-editor-tree-shell button {
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #d5dfea;
+  background: #ffffff;
+  color: #203247;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+[data-page="tree-demo"] .nav-editor-toolbar-card button:hover,
+[data-page="tree-demo"] .nav-editor-panel button:hover,
+[data-page="tree-demo"] .nav-editor-tree-shell button:hover {
+  border-color: #8fb4db;
+  background: #f4f9ff;
+}
+
+[data-page="tree-demo"] .nav-editor-body {
+  align-items: start;
+}
+
+[data-page="tree-demo"] .nav-editor-panel {
+  margin-bottom: 0;
+}
+
+[data-page="tree-demo"] .nav-editor-panel--tree {
+  position: static;
+}
+
+[data-page="tree-demo"] .nav-editor-panel__head {
+  margin-bottom: 12px;
+}
+
+[data-page="tree-demo"] .nav-editor-panel__head h3 {
+  margin: 0;
+  color: #24374e;
+  font-size: 20px;
+}
+
+[data-page="tree-demo"] .nav-editor-panel__head p {
+  margin: 8px 0 0;
+  color: #7a8796;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell {
+  min-height: calc(100vh - 170px);
+  max-height: calc(100vh - 170px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid #e0e7ef;
+  background: linear-gradient(180deg, #fbfcfe 0%, #f4f7fa 100%);
+  overflow: hidden;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-layout {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-body {
+  align-items: stretch;
+  min-height: 0;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-main {
+  padding: 10px 10px 18px;
+  min-height: 0;
+  height: auto;
+  flex: 0 0 340px;
+  max-width: 340px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid #e6edf5;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor {
+  min-width: 0;
+  width: min(920px, calc(100vw - 470px));
+  max-width: none;
+  padding: 10px 10px 18px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-card,
+[data-page="tree-demo"] .nav-editor-tree__editor .renderer-form-layout {
+  width: 100%;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .renderer-form-toolbar {
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-card__header {
+  font-size: 16px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-card__body {
+  padding-left: 22px;
+  padding-right: 22px;
+  padding-bottom: 22px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .renderer-form-grid {
+  row-gap: 16px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-form-item {
+  margin-bottom: 10px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .renderer-form-label {
+  margin-bottom: 6px;
+  color: #516274;
+  font-size: 13px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-input__wrapper,
+[data-page="tree-demo"] .nav-editor-tree__editor .el-textarea__inner,
+[data-page="tree-demo"] .nav-editor-tree__editor .el-select__wrapper {
+  min-height: 38px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-radio-group {
+  gap: 10px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree__editor .el-switch {
+  min-height: 32px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .tree-node-actions button {
+  padding: 0 8px;
+  min-height: 26px;
+  font-size: 12px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .el-tree {
+  background: transparent;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .el-tree-node__content {
+  height: 40px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+[data-page="tree-demo"] .nav-editor-tree-shell .el-tree-node__content:hover {
+  background: #eef4fb;
+}
+
+[data-page="tree-demo"] .el-card__header {
+  border-bottom-color: #e7edf4;
+  color: #223248;
+  font-weight: 700;
+}
+
+[data-page="tree-demo"] .nav-editor-panel .el-card__header,
+[data-page="tree-demo"] .nav-editor-toolbar-card .el-card__header,
+[data-page="tree-demo"] .nav-editor-header__status .el-card__header {
+  padding: 14px 18px;
+}
+
+[data-page="tree-demo"] .el-input,
+[data-page="tree-demo"] .el-select,
+[data-page="tree-demo"] .el-radio-group,
+[data-page="tree-demo"] .el-table {
+  font-size: 13px;
+}
+
+[data-page="tree-demo"] .el-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+[data-page="tree-demo"] .el-card__body {
+  padding-top: 14px;
+}
+
+[data-page="tree-demo"] .renderer-detail-layout,
+[data-page="tree-demo"] .renderer-form-layout {
+  width: 100%;
+}
+
+[data-page="tree-demo"] .renderer-detail-grid,
+[data-page="tree-demo"] .renderer-form-grid {
+  width: 100%;
+}
+
+[data-page="tree-demo"] .nav-editor-panel .renderer-form-grid {
+  row-gap: 12px;
+}
+
+[data-page="tree-demo"] .nav-editor-panel .renderer-form-label {
+  margin-bottom: 4px;
+}
+
+[data-page="tree-demo"] .nav-editor-panel .renderer-form-control {
+  min-width: 0;
+}
+
+[data-page="tree-demo"] .nav-editor-panel .el-card__body,
+[data-page="tree-demo"] .nav-editor-toolbar-card .el-card__body,
+[data-page="tree-demo"] .nav-editor-header__status .el-card__body {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-bottom: 18px;
+}
+
+@media (max-width: 1360px) {
+  [data-page="tree-demo"] .nav-editor-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  [data-page="tree-demo"] .nav-editor-toolbar__actions {
+    justify-content: flex-start;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree-shell {
+    max-height: none;
+    min-height: 720px;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-main {
+    flex-basis: 300px;
+    max-width: 300px;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree__editor {
+    width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  [data-page="tree-demo"] {
+    padding: 12px;
+  }
+
+  [data-page="tree-demo"] .nav-editor-toolbar__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree-shell {
+    min-height: 420px;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-body {
+    flex-direction: column;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree-shell .renderer-tree-main {
+    flex-basis: auto;
+    max-width: none;
+    border-right: 0;
+    border-bottom: 1px solid #e6edf5;
+  }
+
+  [data-page="tree-demo"] .nav-editor-tree__editor {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0 10px 18px;
+  }
+}

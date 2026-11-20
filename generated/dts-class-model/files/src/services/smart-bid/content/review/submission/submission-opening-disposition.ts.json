@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
+    "sourcePath": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/submission-opening-disposition",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/submission-opening-disposition\n职责：第54项按可识别原包分别展示开启和准入的正式处置。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ObjectScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ObjectScope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "objectRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "attemptRef",
+        "objectRef"
+      ],
+      "additionalProperties": false
+    },
+    "Disposition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Disposition",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "eventRef": {
+          "type": "string"
+        },
+        "issuerRef": {
+          "type": "string"
+        },
+        "eventAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "OPENING",
+            "ADMISSIBILITY"
+          ]
+        },
+        "state": {
+          "enum": [
+            "OPENED",
+            "OPEN_FAILED",
+            "ADMITTED",
+            "EXCLUDED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "attemptRef",
+        "objectRef"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T10:00:06.137Z",
+  "models": {
+    "ObjectScope": {
+      "name": "ObjectScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    attemptRef: string;\n    objectRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    attemptRef: string;\n    objectRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Disposition": {
+      "name": "Disposition",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ObjectScope & Readonly<{\n    eventRef: string;\n    issuerRef: string;\n    eventAt: string;\n    knownAt: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    stage: 'OPENING';\n    state: 'OPENED' | 'OPEN_FAILED';\n}> | Readonly<{\n    stage: 'ADMISSIBILITY';\n    state: 'ADMITTED' | 'EXCLUDED';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ObjectScope",
+            "targetName": "ObjectScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    eventRef: string;\n    issuerRef: string;\n    eventAt: string;\n    knownAt: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    stage: 'OPENING';\n    state: 'OPENED' | 'OPEN_FAILED';\n}> | Readonly<{\n    stage: 'ADMISSIBILITY';\n    state: 'ADMITTED' | 'EXCLUDED';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issuerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

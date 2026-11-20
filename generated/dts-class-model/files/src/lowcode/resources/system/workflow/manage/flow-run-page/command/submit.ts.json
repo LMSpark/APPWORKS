@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/command/submit",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/submit.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/command/submit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/command/submit",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/command/submit\n职责：审批动作只通过原场景命令视图提交，保留未知输入以供核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T17:24:53.532Z",
+  "models": {}
+}

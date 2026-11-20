@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/RendererDialog.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererDialog/RendererDialog.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/RendererDialog.props\n职责：定义 RendererDialog（r-dialog）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer dialog 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RDialogProps"
+    ],
+    "componentName": "RendererDialog",
+    "componentType": "r-dialog",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RDialogProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RDialogProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "onOpen": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClose": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onOpened": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "onClosed": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "value": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "fullscreen": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fullscreenable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "autoFullscreenBelow": {
+          "type": "number"
+        },
+        "resetFullscreenOnClose": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../zones/RendererHeader.types.ts.json#/$defs/RHeaderProps"
+        },
+        "footer": {
+          "$ref": "../../../zones/RendererFooter.types.ts.json#/$defs/RFooterProps"
+        },
+        "title": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "top": {
+          "type": "string"
+        },
+        "appendToBody": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "destroyOnClose": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "modelValue": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "closeDisabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "bodyClass": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T20:03:34.970Z",
+  "models": {
+    "RDialogProps": {
+      "name": "RDialogProps",
+      "jsdoc": "RDialog Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererDialog",
+        "type": "r-dialog",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & DialogFullscreenOptions & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度，普通模式实际宽度不超过视口减32px。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkVisibilityContainerProps",
+            "targetName": "SparkVisibilityContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DialogFullscreenOptions",
+            "targetName": "DialogFullscreenOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度，普通模式实际宽度不超过视口减32px。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "footer",
+              "jsdoc": "结构化底部",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度，普通模式实际宽度不超过视口减32px。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "top",
+              "jsdoc": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendToBody",
+              "jsdoc": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "destroyOnClose",
+              "jsdoc": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "控制显隐",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

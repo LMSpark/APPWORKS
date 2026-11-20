@@ -1,0 +1,486 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-package-release",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-package-release.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-package-release",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-package-release\n职责：第50项按当次要求核放行证据，供第51项绑定最终待发包。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "packageId",
+        "packageHash",
+        "selectionHash"
+      ],
+      "additionalProperties": false
+    },
+    "PackageProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PackageProof",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "membershipMatches": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "packageId",
+        "packageHash",
+        "selectionHash"
+      ]
+    },
+    "Requirement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Requirement",
+      "properties": {
+        "kind": {
+          "enum": [
+            "SELECTION_USE",
+            "APPROVAL",
+            "SIGNATURE"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId"
+      ],
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Evidence",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "SELECTION_USE",
+            "APPROVAL",
+            "SIGNATURE"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "accepted": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "packageId",
+        "packageHash",
+        "selectionHash",
+        "kind",
+        "targetId"
+      ]
+    },
+    "SignatureTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SignatureTarget",
+      "properties": {
+        "targetId": {
+          "type": "string"
+        },
+        "signerRef": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "targetId",
+        "signerRef",
+        "positionRef"
+      ],
+      "additionalProperties": false
+    },
+    "SignatureCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SignatureCheck",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "signerRef": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "signatureRef": {
+          "type": "string"
+        },
+        "verificationRef": {
+          "type": "string"
+        },
+        "valid": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "packageId",
+        "packageHash",
+        "selectionHash",
+        "targetId",
+        "signerRef",
+        "positionRef"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T17:59:18.075Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "Identity of the registered original package and its frozen selection.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    packageId: string;\n    packageHash: string;\n    selectionHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    packageId: string;\n    packageHash: string;\n    selectionHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "packageHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PackageProof": {
+      "name": "PackageProof",
+      "jsdoc": "Current member comparison from an independently observed final package.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    membershipMatches: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    membershipMatches: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "membershipMatches",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Requirement": {
+      "name": "Requirement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'SELECTION_USE' | 'APPROVAL' | 'SIGNATURE';\n    targetId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'SELECTION_USE' | 'APPROVAL' | 'SIGNATURE';\n    targetId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Evidence": {
+      "name": "Evidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Requirement & Readonly<{\n    evidenceRef: string;\n    accepted: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Requirement",
+            "targetName": "Requirement"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    evidenceRef: string;\n    accepted: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accepted",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SignatureTarget": {
+      "name": "SignatureTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    targetId: string;\n    signerRef: string;\n    positionRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    targetId: string;\n    signerRef: string;\n    positionRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "positionRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SignatureCheck": {
+      "name": "SignatureCheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & SignatureTarget & Readonly<{\n    signatureRef: string;\n    verificationRef: string;\n    valid: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SignatureTarget",
+            "targetName": "SignatureTarget"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    signatureRef: string;\n    verificationRef: string;\n    valid: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "signatureRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valid",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

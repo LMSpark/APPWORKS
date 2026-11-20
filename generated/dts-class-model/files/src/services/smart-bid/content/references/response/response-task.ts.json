@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/response-task",
+    "sourcePath": "src/services/smart-bid/content/references/response/response-task.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/response-task",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/response-task\n职责：从同目标的原任务现行版确认拟答资格。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "targetRef",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "Execution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Execution",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "authorRef": {
+          "type": "string"
+        },
+        "at": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "targetRef",
+        "version",
+        "authorRef",
+        "at"
+      ],
+      "additionalProperties": false
+    },
+    "Task": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Task",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "assignmentId": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "taskRef": {
+          "type": "string"
+        },
+        "assignmentVersion": {
+          "type": "string"
+        },
+        "assigneeRef": {
+          "type": "string"
+        },
+        "dueAt": {
+          "type": "number"
+        },
+        "state": {
+          "enum": [
+            "ASSIGNED",
+            "ACCEPTED",
+            "RETURNED",
+            "SUSPENDED"
+          ]
+        },
+        "acceptance": {
+          "type": "object",
+          "properties": {
+            "receiptRef": {
+              "type": "string"
+            },
+            "assignmentVersion": {
+              "type": "string"
+            },
+            "assigneeRef": {
+              "type": "string"
+            },
+            "acceptedAt": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "receiptRef",
+            "assignmentVersion",
+            "assigneeRef",
+            "acceptedAt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "baselineId",
+        "assignmentId",
+        "targetRef",
+        "version"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T15:43:54.218Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    assignmentId: string;\n    targetRef: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n    assignmentId: string;\n    targetRef: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Execution": {
+      "name": "Execution",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    authorRef: string;\n    at: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    authorRef: string;\n    at: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "authorRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "at",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Task": {
+      "name": "Task",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    taskRef: string;\n    assignmentVersion: string;\n    assigneeRef: string;\n    dueAt: number;\n    state: 'ASSIGNED' | 'ACCEPTED' | 'RETURNED' | 'SUSPENDED';\n    acceptance?: Readonly<{\n        receiptRef: string;\n        assignmentVersion: string;\n        assigneeRef: string;\n        acceptedAt: number;\n    }>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    taskRef: string;\n    assignmentVersion: string;\n    assigneeRef: string;\n    dueAt: number;\n    state: 'ASSIGNED' | 'ACCEPTED' | 'RETURNED' | 'SUSPENDED';\n    acceptance?: Readonly<{\n        receiptRef: string;\n        assignmentVersion: string;\n        assigneeRef: string;\n        acceptedAt: number;\n    }>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "taskRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assignmentVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assigneeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dueAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "acceptance",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

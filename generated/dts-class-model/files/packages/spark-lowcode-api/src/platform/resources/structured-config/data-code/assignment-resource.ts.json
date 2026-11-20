@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/assignment-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/assignment-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/assignment-resource\n职责：将已保存业务行的一次正式领码接入声明命令DataView及DataSet保存链。\n边界：不创建表、不保存业务行、不查询或复位流水；GetCodeString不能用于核验，派发后无可信回执即保留未知。\nAI用途：宿主凭本次新增已确认事实准备目标，绑定命令后由原生保存接纳只读code，再单独写回业务行。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PreparedBusinessCodeAssignment",
+      "BusinessCodeAssignmentResourceInput",
+      "BusinessCodeAssignmentResource"
+    ]
+  },
+  "$defs": {
+    "PreparedBusinessCodeAssignment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreparedBusinessCodeAssignment",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "rowId": {
+          "type": "string"
+        },
+        "ruleId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "BusinessCodeAssignmentResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BusinessCodeAssignmentResourceInput",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../../../data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "row": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "$ref": "#/$defs/PreparedBusinessCodeAssignment"
+        }
+      }
+    },
+    "BusinessCodeAssignmentResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BusinessCodeAssignmentResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/BusinessCodeAssignmentResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T10:54:16.775Z",
+  "models": {
+    "PreparedBusinessCodeAssignment": {
+      "name": "PreparedBusinessCodeAssignment",
+      "jsdoc": "宿主捕获的原业务目标；须持本次正式新增已确认事实及当前写编码权限，不能由空coding推断尚未分配。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    rowId: string;\n    ruleId: string;\n    /** 核原新增事实、业务行身份、绑定及编码写权限；不得用新目标替换原捕获。 */\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    rowId: string;\n    ruleId: string;\n    /** 核原新增事实、业务行身份、绑定及编码写权限；不得用新目标替换原捕获。 */\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ruleId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "核原新增事实、业务行身份、绑定及编码写权限；不得用新目标替换原捕获。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BusinessCodeAssignmentResourceInput": {
+      "name": "BusinessCodeAssignmentResourceInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n    /** 同步核本次已保存的新行及固定规则；无本次新增凭据时拒绝，不把历史空编码当作可重领。 */\n    prepare(view: DataView, row: Readonly<DataRow>): PreparedBusinessCodeAssignment;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n    /** 同步核本次已保存的新行及固定规则；无本次新增凭据时拒绝，不把历史空编码当作可重领。 */\n    prepare(view: DataView, row: Readonly<DataRow>): PreparedBusinessCodeAssignment;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "同步核本次已保存的新行及固定规则；无本次新增凭据时拒绝，不把历史空编码当作可重领。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PreparedBusinessCodeAssignment",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BusinessCodeAssignmentResource": {
+      "name": "BusinessCodeAssignmentResource",
+      "jsdoc": "一个实例只绑定一个DataSet，同目标/规则仅保留一个活动意图；命令ID不是后端幂等键。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: BusinessCodeAssignmentResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "BusinessCodeAssignmentResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "仅绑定首次装配声明的本地命令视图；确认回执跨refresh保留，未知不允许放弃或重领。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

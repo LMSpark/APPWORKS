@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/resource-use/resource-allocation-release",
+    "sourcePath": "src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts",
+    "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-release.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/resource-use/resource-allocation-release",
+    "jsdoc": "@module app:services/smart-bid/content/references/resource-use/resource-allocation-release\n职责：按原调配记录核准释放所需的义务终止证据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Allocation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Allocation",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "allocationRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "projectId",
+        "allocationRef"
+      ],
+      "additionalProperties": false
+    },
+    "ObligationEnd": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ObligationEnd",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "allocationRef": {
+          "type": "string"
+        },
+        "obligationRef": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "endedAt": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "enterpriseId",
+        "projectId",
+        "allocationRef"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T12:49:52.496Z",
+  "models": {
+    "Allocation": {
+      "name": "Allocation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    allocationRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    allocationRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allocationRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ObligationEnd": {
+      "name": "ObligationEnd",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Allocation & Readonly<{\n    obligationRef: string;\n    evidenceRef: string;\n    endedAt: number;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Allocation",
+            "targetName": "Allocation"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    obligationRef: string;\n    evidenceRef: string;\n    endedAt: number;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "obligationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "endedAt",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

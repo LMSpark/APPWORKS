@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/tender-outcome-evidence",
+    "sourcePath": "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/tender-outcome-evidence.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/tender-outcome-evidence",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/tender-outcome-evidence\n职责：第58项按主体和轮次固定可证的正式阶段结果，保留更正前的原记录。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId",
+        "subjectId"
+      ],
+      "additionalProperties": false
+    },
+    "SubjectOutcome": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SubjectOutcome",
+      "enum": [
+        "QUALIFIED",
+        "DISQUALIFIED",
+        "RECOMMENDED",
+        "AWARDED",
+        "NOT_AWARDED"
+      ]
+    },
+    "Event": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Event",
+      "properties": {
+        "eventRef": {
+          "type": "string"
+        },
+        "issuerRef": {
+          "type": "string"
+        },
+        "documentVersionId": {
+          "type": "string"
+        },
+        "eventAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "supersedesRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "subjectId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SubjectOutcome"
+            },
+            {
+              "const": "ROUND_TERMINATED"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:49:12.596Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n    subjectId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n    subjectId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SubjectOutcome": {
+      "name": "SubjectOutcome",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'QUALIFIED' | 'DISQUALIFIED' | 'RECOMMENDED' | 'AWARDED' | 'NOT_AWARDED'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'QUALIFIED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'DISQUALIFIED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'RECOMMENDED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'AWARDED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'NOT_AWARDED'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Event": {
+      "name": "Event",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Scope, 'subjectId'> & Readonly<{\n    eventRef: string;\n    issuerRef: string;\n    documentVersionId: string;\n    eventAt: string;\n    knownAt: string;\n    supersedesRef: string | null;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    subjectId: string;\n    kind: SubjectOutcome;\n}> | Readonly<{\n    subjectId: null;\n    kind: 'ROUND_TERMINATED';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Scope, 'subjectId'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    eventRef: string;\n    issuerRef: string;\n    documentVersionId: string;\n    eventAt: string;\n    knownAt: string;\n    supersedesRef: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    subjectId: string;\n    kind: SubjectOutcome;\n}> | Readonly<{\n    subjectId: null;\n    kind: 'ROUND_TERMINATED';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "eventRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issuerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "supersedesRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

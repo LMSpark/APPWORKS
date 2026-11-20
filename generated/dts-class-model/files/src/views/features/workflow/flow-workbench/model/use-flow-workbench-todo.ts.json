@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo",
+    "sourcePath": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
+    "sourceFile": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-workbench/model/use-flow-workbench-todo",
+    "jsdoc": "@module app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo\n职责：工作台四页签绑定与列定义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T23:24:34.555Z",
+  "models": {}
+}

@@ -1,0 +1,82 @@
+import type { PageToolFileName, ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import { useDevState } from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
+import { resetAppProjectWorkspace } from '@/services/project/project-shell'
+
+export type DevState = ReturnType<typeof useDevState>
+
+export type DevStateTestPage = {
+  pageId: string
+  nodeId?: string
+  title?: string
+  path?: string
+}
+
+export const ORDERS_PAGE_FIXTURE: readonly DevStateTestPage[] = [
+  { pageId: 'orders-page', nodeId: 'orders-page-node', title: 'Orders' },
+  { pageId: 'orders-page-v2', nodeId: 'orders-page-v2-node', title: 'Orders V2' },
+]
+
+export const DEMO_PAGE_FIXTURE: readonly DevStateTestPage[] = [
+  { pageId: 'demo', nodeId: 'demo-node', title: 'Demo' },
+]
+
+function buildTestNavRoot(pages: readonly DevStateTestPage[]): ProjectBlueprintTreeData {
+  return {
+    nodeId:'homepage_root',parentNodeId:'',projectId:'homepage',kind:'module',capability:{name:'Test Project'},source:{},
+    children:pages.map(page=>({nodeId:page.nodeId ?? `${page.pageId}-node`,parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:page.title ?? page.pageId},navigation:{title:page.title ?? page.pageId,target:page.path ?? `cfg:${page.pageId}`,order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}})),
+  }
+}
+
+/** 在导航树挂载配置页节点（与登录后 ingest 同路径），供应用级页面选择使用。 */
+export function seedDevStateConfigPages(
+  state: DevState,
+  pages: readonly DevStateTestPage[] = ORDERS_PAGE_FIXTURE,
+): void {
+  state.project.replaceBlueprintTree(buildTestNavRoot(pages))
+}
+
+/** 每个用例重置 APP ProjectWorkspace 缓存，避免跨测试污染 editor.project。 */
+export function isolateAppProjectWorkspaceForTest(): void {
+  resetAppProjectWorkspace()
+}
+
+export function alignDevStateActivePage(state: DevState): boolean {
+  const pageId = state.activePageId.value.trim()
+  if (!pageId) return false
+  if (state.project.getActivePage()?.pageId !== pageId) {
+    state.project.setActivePage(pageId)
+  }
+  return true
+}
+
+export async function ensureDevStateActivePageLoaded(
+  state: DevState,
+  options?: { forceReload?: boolean },
+): Promise<void> {
+  if (!alignDevStateActivePage(state)) return
+  const pageId=state.activePageId.value,page=state.project.getActivePage()
+  if(!page||page.pageId!==pageId)throw new Error('测试页面 DataView 活动身份不匹配')
+  for(const fileName of state.pageFileNames){
+    const view=await state.loadPageToolFileDataView({pageId,fileName,...(options?.forceReload===true?{forceReload:true}:{})})
+    const row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?row:view.getEditingRow(id)??row
+    if(!edited||edited['pageId']!==pageId||edited['fileName']!==fileName||typeof edited['text']!=='string')throw new Error(`测试文件 DataView ${fileName} 未返回有效原文`)
+    page.hydrateFileText(fileName,edited['text'])
+  }
+  page.markLoaded()
+}
+
+export function isDevStatePageDocumentDirty(state: DevState, name: PageToolFileName): boolean {
+  void state.projectRevision.value
+  return state.project.readDirtyProjection().dirtyFiles.has(name)
+}
+
+export function createDevStateWithConfigPages(
+  pages: readonly DevStateTestPage[] = ORDERS_PAGE_FIXTURE,
+  activePageId = 'orders-page',
+): DevState {
+  isolateAppProjectWorkspaceForTest()
+  const state = useDevState()
+  seedDevStateConfigPages(state, pages)
+  if (activePageId) state.selectPage(activePageId)
+  return state
+}

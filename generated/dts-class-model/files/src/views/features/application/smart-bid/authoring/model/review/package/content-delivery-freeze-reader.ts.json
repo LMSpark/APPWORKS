@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader\n职责：通过指定 DataView 查询原冻结，不读取当前选件指针。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "groupScope": {
+          "$ref": "../../../../../../../../services/smart-bid/content/review/delivery-selection-digest.ts.json#/$defs/GroupScope"
+        }
+      },
+      "required": [
+        "requestKey",
+        "requestDigest",
+        "groupScope"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T04:05:16.407Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readOriginalDeliveryFreeze>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "groupScope",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

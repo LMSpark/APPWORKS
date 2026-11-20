@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "dataSetName": "PageDataSet",
+  "tables": {
+    "TreeData": {
+      "tableName": "TreeData",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true,
+          "label": "ID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "名称"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "label": "类型"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "parentId",
+          "type": "number",
+          "allowDBNull": true,
+          "label": "父节点ID"
+        },
+        {
+          "name": "children",
+          "type": "string",
+          "label": "子节点JSON"
+        }
+      ],
+      "views": {
+        "default": {
+          "tableName": "TreeData",
+          "viewId": "default",
+          "page": 1,
+          "pageSize": 1000,
+          "rows": [
+            {
+              "id": 1,
+              "name": "根节点",
+              "type": "folder",
+              "status": "启用",
+              "children": [
+                {
+                  "id": 2,
+                  "name": "系统管理",
+                  "type": "folder",
+                  "status": "启用",
+                  "children": [
+                    {
+                      "id": 3,
+                      "name": "用户管理",
+                      "type": "menu",
+                      "status": "启用",
+                      "children": [
+                        {
+                          "id": 4,
+                          "name": "用户列表",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 5,
+                          "name": "新增用户",
+                          "type": "page",
+                          "status": "停用"
+                        },
+                        {
+                          "id": 6,
+                          "name": "角色管理",
+                          "type": "page",
+                          "status": "启用"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 7,
+                      "name": "权限管理",
+                      "type": "menu",
+                      "status": "启用",
+                      "children": [
+                        {
+                          "id": 8,
+                          "name": "角色列表",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 9,
+                          "name": "权限配置",
+                          "type": "page",
+                          "status": "启用"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 10,
+                      "name": "日志管理",
+                      "type": "menu",
+                      "status": "停用",
+                      "children": [
+                        {
+                          "id": 11,
+                          "name": "操作日志",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 12,
+                          "name": "登录日志",
+                          "type": "page",
+                          "status": "停用"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 13,
+                  "name": "内容管理",
+                  "type": "folder",
+                  "status": "启用",
+                  "children": [
+                    {
+                      "id": 14,
+                      "name": "文章管理",
+                      "type": "menu",
+                      "status": "启用",
+                      "children": [
+                        {
+                          "id": 15,
+                          "name": "文章列表",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 16,
+                          "name": "分类管理",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 17,
+                          "name": "标签管理",
+                          "type": "page",
+                          "status": "启用"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 18,
+                      "name": "评论管理",
+                      "type": "menu",
+                      "status": "启用",
+                      "children": [
+                        {
+                          "id": 19,
+                          "name": "评论列表",
+                          "type": "page",
+                          "status": "启用"
+                        },
+                        {
+                          "id": 20,
+                          "name": "评论审核",
+                          "type": "page",
+                          "status": "启用"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 21,
+                  "name": "统计分析",
+                  "type": "folder",
+                  "status": "启用",
+                  "children": [
+                    {
+                      "id": 22,
+                      "name": "用户统计",
+                      "type": "page",
+                      "status": "启用"
+                    },
+                    {
+                      "id": 23,
+                      "name": "访问统计",
+                      "type": "page",
+                      "status": "启用"
+                    },
+                    {
+                      "id": 24,
+                      "name": "数据报表",
+                      "type": "page",
+                      "status": "停用"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "autoCurrentFirst": true,
+          "autoSelectFirst": true,
+          "treeConfig": {
+            "idField": "id",
+            "parentIdField": "parentId",
+            "textField": "name",
+            "treeMode": "nested"
+          },
+          "autoLoad": false
+        }
+      },
+      "resourceType": "static-data",
+      "businessCategory": "reference",
+      "crudConfig": {
+        "skipPermissionCheck": true
+      }
+    }
+  },
+  "layout": {
+    "tablePositions": {
+      "TreeData": {
+        "x": 40,
+        "y": 40
+      }
+    }
+  }
+}

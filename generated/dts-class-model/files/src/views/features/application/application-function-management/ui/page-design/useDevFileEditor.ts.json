@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/page-design/useDevFileEditor",
+    "sourcePath": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/page-design/useDevFileEditor",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/useDevFileEditor\n职责：页面设计工具文件编辑器的状态组合。\n边界：工具文件状态与持久化沿正式 DataView/DataSet 链处理。\nAI用途：需要理解页面设计如何编辑工具文件时，用本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T19:59:11.541Z",
+  "models": {}
+}

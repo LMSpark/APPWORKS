@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-context/ui/application-database-relations-page",
+    "sourcePath": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+    "sourceFile": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-context/ui/application-database-relations-page",
+    "jsdoc": "@module app:views/features/application/application-context/ui/application-database-relations-page\n职责：关联数据库页外壳：装配93DF场景PageRuntime，确定目标应用身份后承载关联数据库内容。\n边界：业务读写在 application-database-relations-content；本页只解析 sysid（应用管理携带或当前应用自身）并提供运行实例。\nAI用途：导航直达关联数据库时定位本页；应用管理内以弹窗复用同一内容组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T18:37:20.400Z",
+  "models": {}
+}

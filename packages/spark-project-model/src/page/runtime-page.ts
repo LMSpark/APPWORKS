@@ -1,0 +1,311 @@
+/**
+ * @module @spark-appworks/spark-project-model:page/runtime-page
+ * 职责：每次页面调用的数据装配与生命周期。
+ * 边界：实例身份固定，数据集独占，代次失效必须销毁。
+ * AI用途：装配明确场景、物化绑定及刷新干净实例。
+ */
+import { deepClone, isRecord, Logger } from '@spark-appworks/spark-utils'
+import { buildDataViewKey, parseDataViewKey, resolveDataViewKey, visitSparkNodeDataViewBindings, type DataSet, type DataView, type DataViewQueryContext } from '@spark-appworks/spark-data'
+import type { PageTool, PageToolDefinition } from './page-tool'
+import { PageContentRuntime } from './content/runtime-content'
+
+const logger=Logger('PageRuntime')
+
+/** 按本次声明空间 ID 分组的业务查询输入；空间参数名称保留原样。 */
+type PageScenarioInputs = Readonly<Record<string, DataViewQueryContext>>
+export type PageRuntimeMode = 'design' | 'preview' | 'published'
+/** Immutable source identity for one complete runtime configuration. */
+export type PageRuntimeSource = Readonly<{
+  mode: PageRuntimeMode
+  sourceRevision: string
+  publicationRef: string | null
+  scenarioIds: readonly string[]
+}>
+/** 一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。 */
+export type PageRuntimeOptions = {
+  /** 三文件工具；与系统页pageId二选一。 */
+  tool?: PageTool
+  /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */
+  pageId?: string
+  scenarioIds: readonly string[]
+  /** 已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。 */
+  deferredScenarioIds?: readonly string[]
+  mainScenarioId?: string
+  /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */
+  scenarioInputs?: PageScenarioInputs
+  instanceId?: string
+  /** Static design/preview source. Published routes resolve the source before loading any file. */
+  source?: PageRuntimeSource
+  /** Resolves a published source atomically before tool or scenario materialization. */
+  resolveSource?: () => Promise<PageRuntimeSource>
+  loadScenario: (scenarioId: string) => Promise<DataSet>
+  loadTool?: () => Promise<PageTool>
+}
+/** 不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。 */
+export type PageRuntimeCall = Readonly<{ instanceId: string; pageId: string; scenarioIds: readonly string[]; mainScenarioId?: string;
+  /** 本次调用固定的按需空间身份，必须属于scenarioIds。 */
+  deferredScenarioIds?: readonly string[];
+  /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */
+  scenarioInputs?: PageScenarioInputs }>
+type ExternalDirtySource = Readonly<{ isDirty: boolean; subscribe(listener: () => void): () => void }>
+/** 一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。 */
+export class PageRuntime {
+  readonly #tool: PageTool | undefined
+  /** 三文件工具定义；原生系统页不伪造工具，读取时明确拒绝。 */
+  get tool(): PageTool {
+    if (!this.#tool) throw new Error('原生系统页没有三文件工具')
+    return this.#tool
+  }
+  static #snapshotSource(source:PageRuntimeSource,scenarioIds:readonly string[]):PageRuntimeSource {
+    if(!['design','preview','published'].includes(source.mode)
+      ||typeof source.sourceRevision!=='string'||!source.sourceRevision.trim()
+      ||source.scenarioIds.length!==scenarioIds.length
+      ||new Set(source.scenarioIds).size!==source.scenarioIds.length
+      ||source.scenarioIds.some(id=>!scenarioIds.includes(id))){
+      throw new Error('PAGE_RUNTIME_SOURCE_CONTRACT: 页面运行来源身份与场景集合不一致')
+    }
+    if(source.mode==='published'){
+      if(typeof source.publicationRef!=='string'||!source.publicationRef.trim()
+        ||source.publicationRef!==source.publicationRef.trim())throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布运行缺少 publicationRef')
+    }else if(source.publicationRef!==null)throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: 非发布运行不能携带 publicationRef')
+    if(source.mode==='preview'&&!source.sourceRevision.startsWith('preview:'))throw new Error('PAGE_RUNTIME_PREVIEW_SOURCE: 预览必须使用明确临时 sourceRevision')
+    return Object.freeze({mode:source.mode,sourceRevision:source.sourceRevision,publicationRef:source.publicationRef,
+      scenarioIds:Object.freeze([...source.scenarioIds])})
+  }
+  readonly call: PageRuntimeCall
+  #source: PageRuntimeSource | undefined
+  readonly #resolveSource: PageRuntimeOptions['resolveSource']
+  readonly #loadScenario: PageRuntimeOptions['loadScenario']
+  readonly #loadTool: PageRuntimeOptions['loadTool']
+  readonly #dataSets = new Map<string,DataSet>()
+  readonly #scenarioLoading = new Map<string,Promise<DataSet>>()
+  readonly #scenarioLoadedListeners = new Set<(dataSet:DataSet)=>void>()
+  readonly #content = new Map<string,PageContentRuntime>()
+  readonly #contentListeners = new Set<() => void>()
+  readonly #externalDirtySources = new Map<string, { source: ExternalDirtySource; unsubscribe: () => void }>()
+  #generation = 0
+  #destroyed = false
+  #loaded = false
+  #configPending = false
+  #loading: Promise<void> | undefined
+  /** 创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。 */
+  constructor(options:PageRuntimeOptions) {
+    if ((options.tool !== undefined) === (options.pageId !== undefined)) throw new Error('页面工具与系统页pageId必须二选一')
+    const pageId = options.tool?.pageId ?? options.pageId?.trim()
+    if (!pageId || options.pageId !== undefined && pageId !== options.pageId) throw new Error('系统页缺少有效pageId')
+    if (!options.tool && options.loadTool) throw new Error('系统页不能加载三文件工具')
+    const ids=options.scenarioIds.map(id=>id.trim())
+    if(ids.some(id=>!id || id.includes('@') || id.startsWith('#')) || new Set(ids).size!==ids.length)throw new Error('页面调用场景身份非法或重复')
+    if(options.mainScenarioId && !ids.includes(options.mainScenarioId))throw new Error('主场景不属于本次调用')
+    const deferred=options.deferredScenarioIds
+    if(deferred && (new Set(deferred).size!==deferred.length || deferred.some(id=>!ids.includes(id))))throw new Error('延后装配空间身份未声明或重复')
+    const scenarioInputs=options.scenarioInputs===undefined ? undefined : PageRuntime.#snapshotInputs(options.scenarioInputs)
+    if(scenarioInputs && Object.keys(scenarioInputs).some(id=>!ids.includes(id)))throw new Error('scenarioInputs 引用了未声明的场景')
+    if(options.source && options.resolveSource)throw new Error('页面运行来源不能同时使用静态配置和异步解析')
+    const source=options.source ?? {mode:'design' as const,sourceRevision:'working',publicationRef:null,scenarioIds:ids}
+    if(!options.resolveSource) this.#source=PageRuntime.#snapshotSource(source,ids)
+    this.#tool=options.tool;this.#loadScenario=options.loadScenario;this.#loadTool=options.loadTool
+    this.#resolveSource=options.resolveSource
+    this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId,scenarioIds:Object.freeze(ids),...(deferred===undefined ? {} : {deferredScenarioIds:Object.freeze([...deferred])}),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {}),...(scenarioInputs===undefined ? {} : {scenarioInputs})})
+  }
+  /** 解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。 */
+  static parseScenarioInputs(text:string):PageScenarioInputs {
+    let value:unknown
+    try { value=JSON.parse(text) } catch { throw new TypeError('scenarioInputs 必须是有效 JSON 对象') }
+    return PageRuntime.#snapshotInputs(value)
+  }
+  static #snapshotInputs(value:unknown):PageScenarioInputs {
+    const copy=PageRuntime.#copyInput(value,new Set())
+    if(!isRecord(copy))throw new TypeError('scenarioInputs 必须按场景 ID 提供参数对象')
+    return Object.freeze(Object.fromEntries(Object.entries(copy).map(([id,context])=>{
+      if(!isRecord(context) || Object.keys(context).some(name=>!name.trim()))throw new TypeError(`scenarioInputs.${id} 必须是具名参数对象`)
+      return [id,context]
+    })))
+  }
+  static #copyInput(value:unknown,ancestors:Set<object>):unknown {
+    if(value===null || typeof value==='string' || typeof value==='boolean')return value
+    if(typeof value==='number' && Number.isFinite(value))return value
+    if(typeof value!=='object' || ancestors.has(value))throw new TypeError('scenarioInputs 只支持无循环的 JSON 值')
+    const array=Array.isArray(value)
+    const prototype:unknown=Object.getPrototypeOf(value)
+    if(!array && prototype!==Object.prototype && prototype!==null)throw new TypeError('scenarioInputs 只支持普通 JSON 对象')
+    const descriptors=Object.getOwnPropertyDescriptors(value)
+    const keys=Reflect.ownKeys(value)
+    if(keys.some(key=>typeof key!=='string' || (!array || key!=='length')
+      && (!descriptors[key]?.enumerable || !Object.hasOwn(descriptors[key] ?? {},'value'))))throw new TypeError('scenarioInputs 不支持访问器或非 JSON 属性')
+    ancestors.add(value)
+    try {
+      if(array){
+        if(keys.length!==value.length+1)throw new TypeError('scenarioInputs 数组必须连续且无额外属性')
+        return Object.freeze(Array.from({length:value.length},(_,index)=>{
+          if(!Object.hasOwn(value,index))throw new TypeError('scenarioInputs 数组不能有空洞')
+          return PageRuntime.#copyInput(value[index],ancestors)
+        }))
+      }
+      return Object.freeze(Object.fromEntries(Object.entries(descriptors).map(([name,descriptor])=>[name,PageRuntime.#copyInput(descriptor.value,ancestors)])))
+    } finally { ancestors.delete(value) }
+  }
+  get instanceId():string { return this.call.instanceId }
+  get pageId():string { return this.call.pageId }
+  get source():PageRuntimeSource {
+    this.#assertAlive()
+    if(!this.#source)throw new Error('PAGE_RUNTIME_SOURCE_PENDING: 页面运行来源尚未解析')
+    return this.#source
+  }
+  get generation():number { return this.#generation }
+  get configPending():boolean { return this.#configPending }
+  markConfigPending():void { this.#assertAlive();this.#configPending=true }
+  /** 三文件工具的干净实例允许刷新；系统页由宿主重开完整会话，不能仅重建数据集。 */
+  async reload():Promise<void> {
+    this.#assertAlive()
+    if(!this.#tool)throw new Error('原生系统页须由宿主重新打开完整会话')
+    if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
+    this.#clearExternalDirtySources()
+    this.#generation++;this.#loaded=false;this.#loading=undefined
+    if(this.#resolveSource)this.#source=undefined
+    this.#scenarioLoading.clear()
+    for(const content of this.#content.values())content.dispose()
+    this.#content.clear()
+    for(const ds of this.#dataSets.values())ds.destroy()
+    this.#dataSets.clear()
+    await this.load()
+  }
+  get destroyed():boolean { return this.#destroyed }
+  get isLoaded():boolean { return this.#loaded && !this.#destroyed }
+  get isDirty(): boolean {
+    if ([...this.#externalDirtySources.values()].some(entry => entry.source.isDirty)) return true
+    if ([...this.#content.values()].some(content => content.isDirty)) return true
+    for (const dataSet of this.#dataSets.values()) {
+      for (const table of Object.values(dataSet.tables)) {
+        for (const view of Object.values(table.views)) {
+          if (view.mutating || view.hasUnconfirmedSave || view.hasPendingSavedRowPermissions
+            || view.dirtyTracking.hasPendingChanges() || view.editingRows.length > 0) return true
+        }
+      }
+    }
+    return false
+  }
+  setExternalDirtySource(key:string,source:ExternalDirtySource|null):void {
+    this.#assertAlive();if(!key.trim())throw new Error('PAGE_RUNTIME_EXTERNAL_DIRTY_KEY: 配置 owner 身份不能为空')
+    const previous=this.#externalDirtySources.get(key)
+    if(previous?.source===source)return
+    if(previous?.source.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 不能替换有未保存修改的配置 owner')
+    previous?.unsubscribe();this.#externalDirtySources.delete(key)
+    if(source){const unsubscribe=source.subscribe(()=>{for(const listener of this.#contentListeners)listener()});this.#externalDirtySources.set(key,{source,unsubscribe})}
+    for(const listener of this.#contentListeners)listener()
+  }
+  #clearExternalDirtySources():void { for(const entry of this.#externalDirtySources.values())entry.unsubscribe();this.#externalDirtySources.clear() }
+  getContent(key:string):PageContentRuntime { this.#assertAlive();if(!key)throw new Error('页面内容身份不能为空');let content=this.#content.get(key);if(!content){content=new PageContentRuntime();content.subscribe(()=>{for(const listener of this.#contentListeners)listener()});this.#content.set(key,content)}return content }
+  onContentChange(listener:()=>void):()=>void { this.#assertAlive();this.#contentListeners.add(listener);return ()=>this.#contentListeners.delete(listener) }
+  /** 装载工具与非延后声明场景；迟到或身份错误的数据集销毁并显式失败。 */
+  async load():Promise<void> {
+    this.#assertAlive();if(this.isLoaded)return;if(this.#loading)return this.#loading
+    const generation=++this.#generation
+    const loading=this.#load(generation).finally(()=>{if(this.#loading===loading)this.#loading=undefined})
+    this.#loading=loading;return loading
+  }
+  async #load(generation:number):Promise<void> {
+    if(this.#resolveSource){
+      const resolved=await this.#resolveSource()
+      this.#assertGeneration(generation)
+      this.#source=PageRuntime.#snapshotSource(resolved,this.call.scenarioIds)
+    }
+    if(this.#loadTool){const tool=await this.#loadTool();this.#assertGeneration(generation);if(tool!==this.tool)throw new Error('页面工具装载身份改变')}
+    this.#tool?.toDefinition()
+    const ids=this.call.scenarioIds.filter(id=>!this.call.deferredScenarioIds?.includes(id))
+    const results=await Promise.allSettled(ids.map(id=>this.#loadScenario(id)))
+    const dataSets=results.flatMap(result=>result.status==='fulfilled' ? [result.value] : [])
+    try {
+      this.#assertGeneration(generation)
+      const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason
+      if(new Set(dataSets).size!==dataSets.length)throw new Error('页面场景共享了同一个运行数据集')
+      for(let i=0;i<dataSets.length;i++){
+        const ds=dataSets[i];const id=ids[i]
+        if(!ds || !id || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
+        this.#applyScenarioInputs(id,ds);this.#bindPeers(ds)
+        this.#dataSets.set(id,ds)
+      }
+      this.#loaded=true;this.#configPending=false
+    } catch(error) {for(const ds of dataSets)ds.destroy();if(this.#generation===generation)this.#dataSets.clear();throw error}
+  }
+  /**
+   * 显式装配已声明的按需空间，并沿同一PageRuntime解析绑定及管理销毁。
+   * @param scenarioId 本次调用声明的完整空间身份，不推导首空间或同名资源。
+   * @returns 同一代次独占的DataSet；并发读取复用装配，失败可重试，迟到结果销毁。
+   */
+  async ensureScenarioLoaded(scenarioId:string):Promise<DataSet> {
+    this.#assertAlive()
+    if(!this.call.scenarioIds.includes(scenarioId))throw new Error(`视图场景未声明: ${scenarioId}`)
+    const pageLoading=this.load(),generation=this.#generation
+    await pageLoading;this.#assertGeneration(generation)
+    const existing=this.#dataSets.get(scenarioId)
+    if(existing)return existing
+    const pending=this.#scenarioLoading.get(scenarioId)
+    if(pending)return pending
+    const loading=this.#loadDeferredScenario(scenarioId,generation).finally(()=>{
+      if(this.#scenarioLoading.get(scenarioId)===loading)this.#scenarioLoading.delete(scenarioId)
+    })
+    this.#scenarioLoading.set(scenarioId,loading);return loading
+  }
+  async #loadDeferredScenario(id:string,generation:number):Promise<DataSet> {
+    const ds=await this.#loadScenario(id),alreadyOwned=[...this.#dataSets.values()].includes(ds)
+    try {
+      this.#assertGeneration(generation)
+      if(alreadyOwned || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
+      this.#applyScenarioInputs(id,ds);this.#bindPeers(ds);this.#dataSets.set(id,ds)
+    } catch(error) {if(!alreadyOwned)ds.destroy();throw error}
+    for(const listener of this.#scenarioLoadedListeners){
+      try{listener(ds)}
+      catch{logger.warn('按需场景已装配，但页面场景订阅回调失败')}
+    }
+    return ds
+  }
+  /** Observes deferred scenarios after the runtime has registered their identities and peers. */
+  onDeferredScenarioLoaded(listener:(dataSet:DataSet)=>void):()=>void {
+    this.#assertAlive()
+    this.#scenarioLoadedListeners.add(listener)
+    return ()=>this.#scenarioLoadedListeners.delete(listener)
+  }
+  /** 选项来源跨空间只解析本次调用声明且已装配的同伴 DataSet。 */
+  #bindPeers(ds:DataSet):void {
+    ds.bindPeerDataSets(id=>!this.#destroyed && this.call.scenarioIds.includes(id) ? this.#dataSets.get(id) : undefined)
+  }
+  #applyScenarioInputs(id:string,ds:DataSet):void {
+    const inputs=this.call.scenarioInputs
+    if(inputs && Object.hasOwn(inputs,id))for(const table of Object.values(ds.tables))for(const view of Object.values(table.views)){
+      view.queryContext=deepClone({...view.queryContext,...inputs[id]})
+    }
+  }
+  getDataSet(scenarioId:string):DataSet|undefined { this.#assertAlive();return this.#dataSets.get(scenarioId) }
+  /** 按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。 */
+  resolveView(binding:string):DataView|undefined {
+    this.#assertAlive()
+    const descriptor=parseDataViewKey(binding)
+    const scenarioId=descriptor?.scope ?? this.call.mainScenarioId
+    if(!descriptor || !scenarioId)throw new Error('视图绑定必须是 scenarioId@modelName@viewId；本地绑定必须声明主场景')
+    if(!this.call.scenarioIds.includes(scenarioId))throw new Error(`视图场景未声明: ${scenarioId}`)
+    const dataSet=this.#dataSets.get(scenarioId)
+    if(!dataSet)return undefined
+    return resolveDataViewKey(buildDataViewKey(descriptor.tableName,descriptor.viewId,scenarioId),dataSet)
+  }
+  /** 复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。 */
+  materialize():PageToolDefinition {
+    this.#assertAlive();if(!this.isLoaded)throw new Error('页面运行实例尚未装载')
+    const definition=deepClone(this.tool.toDefinition())
+    visitSparkNodeDataViewBindings(definition.rule, (binding, replace) => {
+      const descriptor=parseDataViewKey(binding)
+      if(!descriptor)throw new Error('视图绑定必须是 scenarioId@modelName@viewId 或 modelName@viewId')
+      const normalized=descriptor.scope===undefined
+        ? this.call.mainScenarioId ? buildDataViewKey(descriptor.tableName,descriptor.viewId,this.call.mainScenarioId) : ''
+        : binding
+      if(!normalized)throw new Error('局部视图绑定必须声明主场景')
+      if(!this.resolveView(normalized))throw new Error(`页面绑定的视图不存在: ${normalized}`)
+      if(normalized!==binding)replace(normalized)
+    })
+    return definition
+  }
+  /** 销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。 */
+  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#scenarioLoading.clear();this.#scenarioLoadedListeners.clear();this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
+  #assertAlive():void { if(this.#destroyed)throw new Error('PAGE_RUNTIME_DESTROYED: 页面调用已销毁') }
+  #assertGeneration(generation:number):void { this.#assertAlive();if(generation!==this.#generation)throw new Error('PAGE_RUNTIME_STALE: 页面调用代次已失效') }
+}

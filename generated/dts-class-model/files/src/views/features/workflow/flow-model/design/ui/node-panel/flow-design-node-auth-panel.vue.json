@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel",
+    "sourcePath": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue",
+    "sourceFile": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel",
+    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-auth-panel\n职责：选中节点的 FunctionNodeAuth 授权行，绑定设计场景 nodeAuth 视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-15T13:45:20.709Z",
+  "models": {}
+}

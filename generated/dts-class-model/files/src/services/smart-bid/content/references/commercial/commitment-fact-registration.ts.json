@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/commitment-fact-registration",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/commitment-fact-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/commitment-fact-registration",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/commitment-fact-registration\n职责：动作30固定待追加请求，并按原请求核对版本登记结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              },
+              "scopeRef": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "PRICE",
+                  "PERSON",
+                  "OTHER"
+                ]
+              },
+              "value": {
+                "type": "string"
+              },
+              "unit": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "claimId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sourceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "decisionRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "dependencyRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "projectId",
+              "scopeRef",
+              "key",
+              "kind",
+              "value",
+              "unit",
+              "claimId",
+              "sourceIds",
+              "decisionRefs",
+              "dependencyRefs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "facts",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "AuthorityResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AuthorityResult",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/Request"
+        },
+        "state": {
+          "enum": [
+            "REGISTERED",
+            "NOT_EFFECTIVE",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.542Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof prepareApprovedCommitmentFacts>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof prepareApprovedCommitmentFacts>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "facts",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    requestKey: string;\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    requestKey: string;\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AuthorityResult": {
+      "name": "AuthorityResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'REGISTERED';\n    versions: ReadonlyArray<Readonly<{\n        key: string;\n        id: string;\n        version: number;\n    }>>;\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'REGISTERED';\n    versions: ReadonlyArray<Readonly<{\n        key: string;\n        id: string;\n        version: number;\n    }>>;\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}> | Readonly<{\n    state: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

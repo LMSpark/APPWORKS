@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader\n职责：页18从原试次的返工证据视图准备第07项交接。\n边界：读取原试次证据供返工判断，责任域继续办理后续动作。\nAI用途：定位工艺返工前需要读取哪些原调用证明。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T02:05:49.141Z",
+  "models": {}
+}

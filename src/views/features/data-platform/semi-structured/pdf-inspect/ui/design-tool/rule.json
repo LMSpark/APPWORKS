@@ -1,0 +1,23 @@
+[
+  {
+    "type":"r-section",
+    "props":{"title":"PDF 规则设计","class":"pdf-rule-design","bordered":false,"gridColumns":1,"onBeforeRender":"bindStatus"},
+    "children":[
+      {"type":"r-section","props":{"bordered":false,"status":"保存结果尚未确认，请核验保存结果。","onBeforeRender":"bindUnconfirmed"}},
+      {
+        "type":"r-form",
+        "props":{"dataViewKey":"A2D63AB2AAEF156E7727094A23AEA433@Base_FileInspectConfig@definition","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindDefinition"},
+        "children":[
+          {"type":"r-text","props":{"field":"name","label":"规则名称","onBeforeRender":"bindField"}},
+          {"type":"r-text","props":{"field":"description","label":"描述","onBeforeRender":"bindField"}},
+          {"type":"r-radio","props":{"field":"enabled","label":"启用","options":[{"value":0,"label":"停用"},{"value":1,"label":"启用"}],"onBeforeRender":"bindField"}},
+          {"type":"r-json","props":{"field":"rule_config","label":"规则 JSON","mode":"text","onBeforeRender":"bindRule"}}
+        ]
+      },
+      {"type":"r-space","props":{"onBeforeRender":"bindDefinition"},"children":[
+        {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSave","onClick":"saveRule"}},
+        {"type":"r-button","props":{"label":"取消修改","onBeforeRender":"bindCancel","onClick":"cancelRule"}}
+      ]}
+    ]
+  }
+]

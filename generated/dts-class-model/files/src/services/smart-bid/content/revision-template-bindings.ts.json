@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/revision-template-bindings",
+    "sourcePath": "src/services/smart-bid/content/revision-template-bindings.ts",
+    "sourceFile": "src/services/smart-bid/content/revision-template-bindings.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/revision-template-bindings",
+    "jsdoc": "@module app:services/smart-bid/content/revision-template-bindings\n职责：核固定清单中的分册模板引用结构及本版逻辑册归属。\n边界：不读取模板实体、不选择默认模板、不证明发布/适用或交付通过，不修改内容哈希。\nAI用途：节点完整装配后核模板绑定；模板格式与业务内容分离，实体摘要及发布证据另查。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RevisionTemplateRef"
+    ]
+  },
+  "$defs": {
+    "RevisionTemplateRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RevisionTemplateRef",
+      "properties": {
+        "documentId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentId",
+        "key",
+        "version",
+        "hash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T01:27:20.695Z",
+  "models": {
+    "RevisionTemplateRef": {
+      "name": "RevisionTemplateRef",
+      "jsdoc": "新清单的固定模板引用；版本是精确字符串标识，不作版本号大小比较。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    documentId: string;\n    key: string;\n    version: string;\n    hash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    documentId: string;\n    key: string;\n    version: string;\n    hash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

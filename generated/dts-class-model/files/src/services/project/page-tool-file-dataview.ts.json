@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/page-tool-file-dataview",
+    "sourcePath": "src/services/project/page-tool-file-dataview.ts",
+    "sourceFile": "src/services/project/page-tool-file-dataview.ts",
+    "packageName": "app",
+    "modulePath": "services/project/page-tool-file-dataview",
+    "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PagePublicationFileName"
+    ]
+  },
+  "$defs": {
+    "PagePublicationFileName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PagePublicationFileName",
+      "enum": [
+        "rule.json",
+        "script.js",
+        "style.css",
+        "publication-manifest.json"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-20T20:35:43.940Z",
+  "models": {
+    "PagePublicationFileName": {
+      "name": "PagePublicationFileName",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageToolFileName | 'publication-manifest.json'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "PageToolFileName",
+            "targetName": "PageToolFileName"
+          },
+          {
+            "kind": "union",
+            "typeText": "'publication-manifest.json'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

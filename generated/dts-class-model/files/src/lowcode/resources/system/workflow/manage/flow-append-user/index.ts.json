@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-append-user/index",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-append-user/index.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-append-user/index",
+    "jsdoc": "app 的 lowcode/resources/system/workflow/manage/flow-append-user/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T17:43:53.906Z",
+  "models": {}
+}

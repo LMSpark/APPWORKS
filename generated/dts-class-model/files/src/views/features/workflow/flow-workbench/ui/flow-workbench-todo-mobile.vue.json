@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",
+    "sourcePath": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+    "sourceFile": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile",
+    "jsdoc": "@module app:views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile\n职责：工作台待办移动端面板占位。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T13:53:35.002Z",
+  "models": {}
+}

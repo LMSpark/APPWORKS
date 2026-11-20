@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/structure/RendererSection/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/structure/RendererSection/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererSection/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/structure/RendererSection/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/structure/RendererSection/zero-code\n职责：封装 RendererSection（r-section）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 container/layout-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer section 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererSection",
+    "componentType": "r-section",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RendererSectionZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererSectionZeroCodeOptions",
+      "properties": {
+        "collapsed": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "collapsible": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        }
+      },
+      "required": [
+        "collapsed",
+        "collapsible"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.109Z",
+  "models": {
+    "RendererSectionZeroCodeOptions": {
+      "name": "RendererSectionZeroCodeOptions",
+      "jsdoc": "Renderer Section Zero Code Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererSection",
+        "type": "r-section",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** collapsed 字段。 */\n    collapsed: ValueRef<boolean>;\n    /** collapsible 字段。 */\n    collapsible: ValueRef<boolean>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "collapsed",
+              "jsdoc": "collapsed 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "collapsible",
+              "jsdoc": "collapsible 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

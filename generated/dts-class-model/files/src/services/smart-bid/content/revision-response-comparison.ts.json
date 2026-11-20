@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/revision-response-comparison",
+    "sourcePath": "src/services/smart-bid/content/revision-response-comparison.ts",
+    "sourceFile": "src/services/smart-bid/content/revision-response-comparison.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/revision-response-comparison",
+    "jsdoc": "@module app:services/smart-bid/content/revision-response-comparison\n职责：按三版清单的作答分工比较固定响应内容。\n边界：只计算差异；调用方仍须证明清单摘要、完整分工、当前依据和采用权限。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RevisionResponseComparison"
+    ]
+  },
+  "$defs": {
+    "RevisionResponseComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RevisionResponseComparison",
+      "properties": {
+        "assignmentId": {
+          "type": "string"
+        },
+        "basisResponseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "currentResponseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "candidateResponseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "delta": {
+          "$ref": "../content-node-comparison.ts.json#/$defs/ContentVersionDelta"
+        },
+        "requiresCurrentBasisChecks": {
+          "const": true
+        }
+      },
+      "required": [
+        "assignmentId",
+        "basisResponseId",
+        "currentResponseId",
+        "candidateResponseId",
+        "delta",
+        "requiresCurrentBasisChecks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T22:21:06.676Z",
+  "models": {
+    "RevisionResponseComparison": {
+      "name": "RevisionResponseComparison",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    currentResponseId: string | null;\n    candidateResponseId: string | null;\n    delta: ContentVersionDelta;\n    requiresCurrentBasisChecks: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    currentResponseId: string | null;\n    candidateResponseId: string | null;\n    delta: ContentVersionDelta;\n    requiresCurrentBasisChecks: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basisResponseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentResponseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateResponseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "delta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentBasisChecks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

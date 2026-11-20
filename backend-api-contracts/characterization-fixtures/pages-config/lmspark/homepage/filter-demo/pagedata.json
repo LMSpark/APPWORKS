@@ -1,0 +1,141 @@
+{
+  "dataSetName": "FilterDemoDS",
+  "tables": {
+    "Employees": {
+      "tableName": "Employees",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "label": "职位"
+        },
+        {
+          "name": "salary",
+          "type": "number",
+          "label": "薪资"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "hireDate",
+          "type": "string",
+          "label": "入职日期"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "张三",
+              "department": "技术部",
+              "position": "前端工程师",
+              "salary": 18000,
+              "status": "在职",
+              "hireDate": "2022-03-15"
+            },
+            {
+              "id": 2,
+              "name": "李四",
+              "department": "技术部",
+              "position": "后端工程师",
+              "salary": 22000,
+              "status": "在职",
+              "hireDate": "2021-07-01"
+            },
+            {
+              "id": 3,
+              "name": "王五",
+              "department": "产品部",
+              "position": "产品经理",
+              "salary": 25000,
+              "status": "在职",
+              "hireDate": "2020-11-20"
+            },
+            {
+              "id": 4,
+              "name": "赵六",
+              "department": "设计部",
+              "position": "UI设计师",
+              "salary": 16000,
+              "status": "离职",
+              "hireDate": "2023-01-10"
+            },
+            {
+              "id": 5,
+              "name": "孙七",
+              "department": "技术部",
+              "position": "架构师",
+              "salary": 35000,
+              "status": "在职",
+              "hireDate": "2019-05-08"
+            },
+            {
+              "id": 6,
+              "name": "周八",
+              "department": "产品部",
+              "position": "产品助理",
+              "salary": 12000,
+              "status": "在职",
+              "hireDate": "2024-02-28"
+            },
+            {
+              "id": 7,
+              "name": "吴九",
+              "department": "设计部",
+              "position": "交互设计师",
+              "salary": 19000,
+              "status": "离职",
+              "hireDate": "2022-09-01"
+            },
+            {
+              "id": 8,
+              "name": "郑十",
+              "department": "技术部",
+              "position": "测试工程师",
+              "salary": 15000,
+              "status": "在职",
+              "hireDate": "2023-06-15"
+            },
+            {
+              "id": 9,
+              "name": "陈十一",
+              "department": "市场部",
+              "position": "市场专员",
+              "salary": 13000,
+              "status": "在职",
+              "hireDate": "2024-01-05"
+            },
+            {
+              "id": 10,
+              "name": "林十二",
+              "department": "市场部",
+              "position": "市场经理",
+              "salary": 28000,
+              "status": "在职",
+              "hireDate": "2020-08-12"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/ui/service-management-page",
+    "sourcePath": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/ui/service-management-page",
+    "jsdoc": "@module app:views/features/data-platform/database-management/ui/service-management-page\n职责：服务器目录；字段元信息只在 Base_serverInfo 的 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，编排只调用 spark-data。\n注册表单绑定 DatabaseServerRegister 写命令视图（/Db/registerServer），编辑表单绑定目录视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T10:52:38.941Z",
+  "models": {}
+}

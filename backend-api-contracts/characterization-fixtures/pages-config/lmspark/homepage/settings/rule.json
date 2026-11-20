@@ -1,0 +1,46 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h2",
+        "children": [
+          "系统设置"
+        ]
+      },
+      {
+        "type": "r-form",
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "label": "站点名称",
+              "field": "siteName"
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "label": "站点URL",
+              "field": "siteUrl"
+            }
+          },
+          {
+            "type": "r-switch",
+            "props": {
+              "label": "维护模式",
+              "field": "maintenance"
+            }
+          }
+        ],
+        "props": {
+          "style": {
+            "marginTop": "20px"
+          },
+          "dataViewKey": "settings@default",
+          "contextDataMember": "currentRow"
+        }
+      }
+    ]
+  }
+]

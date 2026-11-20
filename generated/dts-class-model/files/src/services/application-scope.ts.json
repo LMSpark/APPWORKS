@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/application-scope",
+    "sourcePath": "src/services/application-scope.ts",
+    "sourceFile": "src/services/application-scope.ts",
+    "packageName": "app",
+    "modulePath": "services/application-scope",
+    "jsdoc": "app 的 services/application-scope 模块。\n导出 DtsTypeDeclarationModel symbol: ApplicationPathScope（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ApplicationPathScope"
+    ]
+  },
+  "$defs": {
+    "ApplicationPathScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationPathScope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T10:02:10.561Z",
+  "models": {
+    "ApplicationPathScope": {
+      "name": "ApplicationPathScope",
+      "jsdoc": "Application Path Scope 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    projectId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

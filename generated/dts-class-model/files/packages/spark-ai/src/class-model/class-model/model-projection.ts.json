@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/model-projection",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/model-projection.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/model-projection.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/model-projection",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/model-projection\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 model-projection 能力，围绕 模块入口、副作用注册或内部组合逻辑 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/model-projection 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-14T13:02:05.294Z",
+  "models": {}
+}

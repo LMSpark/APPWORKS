@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission-package-members",
+    "sourcePath": "src/services/smart-bid/content/review/submission-package-members.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission-package-members",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission-package-members\n职责：动作50逐位置核对冻结清单、装封记录和独立实包读取。\n边界：包身份、材料准用、审核与签署覆盖由原证据另核。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ObservedMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ObservedMember",
+      "properties": {
+        "position": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "position",
+        "fileHash"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredMember": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegisteredMember",
+      "properties": {
+        "position": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "position",
+        "fileHash",
+        "fileVersionId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T03:11:06.678Z",
+  "models": {
+    "ObservedMember": {
+      "name": "ObservedMember",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    position: string;\n    fileHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    position: string;\n    fileHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegisteredMember": {
+      "name": "RegisteredMember",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ObservedMember & Readonly<{\n    fileVersionId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ObservedMember",
+            "targetName": "ObservedMember"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    fileVersionId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

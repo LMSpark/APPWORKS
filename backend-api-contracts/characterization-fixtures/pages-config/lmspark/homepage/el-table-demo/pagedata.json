@@ -1,0 +1,106 @@
+{
+  "dataSetName": "ElTableDemo",
+  "tables": {
+    "Users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true,
+          "label": "ID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "label": "邮箱"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        },
+        {
+          "name": "salary",
+          "type": "number",
+          "label": "薪资"
+        },
+        {
+          "name": "joinDate",
+          "type": "date",
+          "label": "入职日期"
+        },
+        {
+          "name": "isActive",
+          "type": "boolean",
+          "label": "在职"
+        }
+      ],
+      "tableName": "Users",
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "张三",
+              "email": "zhang@example.com",
+              "department": "销售部",
+              "salary": 12000,
+              "joinDate": "2021-03-15",
+              "isActive": true
+            },
+            {
+              "id": 2,
+              "name": "李四",
+              "email": "li@example.com",
+              "department": "技术部",
+              "salary": 18500,
+              "joinDate": "2020-08-01",
+              "isActive": true
+            },
+            {
+              "id": 3,
+              "name": "王五",
+              "email": "wang@example.com",
+              "department": "市场部",
+              "salary": 15000,
+              "joinDate": "2022-01-10",
+              "isActive": true
+            },
+            {
+              "id": 4,
+              "name": "赵六",
+              "email": "zhao@example.com",
+              "department": "技术部",
+              "salary": 22000,
+              "joinDate": "2019-06-20",
+              "isActive": false
+            },
+            {
+              "id": 5,
+              "name": "钱七",
+              "email": "qian@example.com",
+              "department": "销售部",
+              "salary": 9800,
+              "joinDate": "2023-11-05",
+              "isActive": true
+            },
+            {
+              "id": 6,
+              "name": "孙八",
+              "email": "sun@example.com",
+              "department": "市场部",
+              "salary": 16500,
+              "joinDate": "2021-09-18",
+              "isActive": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration",
+    "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration",
+    "jsdoc": "@module app:lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration\n职责：按正式模型身份迁移数据库关系中的来源字段引用。\n边界：保留wire原文中的非引用值；不改关系端点，不将原生关系反向写库。\nAI用途：来源替换预览和提交共用同一结构化迁移，不对表达式做字符串替换。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceRelationMigration"
+    ]
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Migration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Migration",
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "modelId",
+        "name",
+        "sourceName"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceRelationMigration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceRelationMigration",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "relations": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Row"
+                  }
+                },
+                "models": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Row"
+                  }
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Row"
+                  }
+                },
+                "mappings": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Migration"
+                  }
+                }
+              },
+              "required": [
+                "relations",
+                "models",
+                "fields",
+                "mappings"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T20:12:39.423Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "原元数据查询的可读记录；不携带独立权限或保存责任。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Migration": {
+      "name": "Migration",
+      "jsdoc": "使用者确认的同合同字段映射；输出别名保持。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 字段所属正式模型ID。 */\n    modelId: string;\n    /** 原始来源字段Name。 */\n    name: string;\n    /** 映射后的来源字段Name。 */\n    sourceName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 字段所属正式模型ID。 */\n    modelId: string;\n    /** 原始来源字段Name。 */\n    name: string;\n    /** 映射后的来源字段Name。 */\n    sourceName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelId",
+              "jsdoc": "字段所属正式模型ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "原始来源字段Name。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceName",
+              "jsdoc": "映射后的来源字段Name。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceRelationMigration": {
+      "name": "LowcodeDataSpaceRelationMigration",
+      "jsdoc": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "同时应用全部映射；没有引用变化时保留原文本，包括空白。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        relations: readonly Row[];\n        models: readonly Row[];\n        fields: readonly Row[];\n        mappings: readonly Migration[];\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "{\n        id: string;\n        before: string;\n        after: string;\n    }"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "name": "@spark-appworks/spark-ai",
+  "version": "0.3.7",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "private": false,
+  "license": "MIT",
+  "description": "Spark AI agent runtime - ClassModel tools, sessions, tool loop, and transport contracts",
+  "keywords": [
+    "spark",
+    "ai",
+    "agent",
+    "class-model",
+    "tool-calling",
+    "sse"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./agent": {
+      "types": "./dist/agent/index.d.ts",
+      "import": "./dist/agent/index.js"
+    },
+    "./class-model": {
+      "types": "./dist/class-model/index.d.ts",
+      "import": "./dist/class-model/index.js"
+    }
+  },
+  "dependencies": {
+    "@ag-ui/core": "catalog:",
+    "@spark-appworks/spark-json-document": "workspace:*",
+    "@spark-appworks/spark-utils": "workspace:*",
+    "comlink": "catalog:"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && vite build && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

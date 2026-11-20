@@ -1,0 +1,28 @@
+[data-page="page-manager"] .page-container {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+[data-page="page-manager"] .el-table {
+  margin-top: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+[data-page="page-manager"] .el-table .el-tag {
+  margin: 2px 0;
+}
+[data-page="page-manager"] .toolbar {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+[data-page="page-manager"] .toolbar .el-button {
+  flex-shrink: 0;
+}
+[data-page="page-manager"] .el-alert {
+  border-radius: 8px;
+}

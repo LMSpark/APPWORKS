@@ -1,0 +1,743 @@
+import { describe, it, expect, vi } from 'vitest'
+import { RequestState, SparkData } from '@spark-appworks/spark-data'
+import type { DataRow, DataView } from '@spark-appworks/spark-data'
+import { createRequest } from '@spark-appworks/spark-utils'
+import { isActionDescriptorDisabled } from '../../../packages/spark-component/src/page/actions/executor-helpers'
+import { executeActionDescriptor } from '../../../packages/spark-component/src/page/actions/action-executor'
+import { nodeToActionDescriptor } from '../../../packages/spark-component/src/page/actions/node-to-descriptor'
+import { createBaseCrudMethods } from '../../../packages/spark-component/src/components/containers/support/crud/base-crud-methods'
+import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import type {
+  ActionExecutionContext,
+  ActionExecutionScope,
+  ActionFormApi,
+} from '../../../packages/spark-component/src/page/actions/action-types'
+import type { PageDialogOptions, PageDialogResult, PageServiceCapability } from '@spark-appworks/spark-component'
+
+type GrantDataViewPermissionOptions = Readonly<{
+  allowAdd?: boolean
+  editableFields?: readonly string[]
+  allowDelete?: boolean
+}>
+
+async function grantDataViewPermission(view: DataView, options: GrantDataViewPermissionOptions = {}): Promise<void> {
+  const identity = {scenarioId: 'SCENE', metaName: view.tableName}
+  const table = new DataSpaceQueryTable(identity)
+  const rows = view.rows.map(row => ({...row, lingma_sys_params: {
+    ...row.lingma_sys_params, r: [], e: options.editableFields ?? ['name'], d: options.allowDelete ?? true,
+    h: row.lingma_sys_params?.h ?? [], m: row.lingma_sys_params?.m ?? [],
+  }}))
+  const context = new DataSpaceQueryContext({identity,scope:'fixture',readScope:()=> 'fixture',
+    snapshot:table.applyResult({Result:{primaryKeyField:view.primaryKey,allowAdd:options.allowAdd ?? true,data:{Items:rows,Count:rows.length}}})})
+  view.bindQueryExecutor({executeQuery:async()=>context})
+  await view.loadFromServer()
+}
+
+async function createDataView(options: GrantDataViewPermissionOptions = {}) {
+  const dataSet = SparkData.createDataSet({
+    dataSetName: 'CrudBridgeDS', scenarioId: 'SCENE',
+    tables: {
+      Users: {
+        tableName: 'Users', modelBinding: {modelId:'MODEL',modelName:'Users'},
+        columns: [
+          { name: 'id', type: 'number' },
+          { name: 'name', type: 'string' },
+        ],
+        views: {
+          default: {
+            rows: [{ id: 1, name: 'Alice' }],
+          },
+        },
+      },
+    },
+  })
+
+  const view = dataSet.getView('Users', 'default')
+  if (!view) {
+    throw new Error('Users@default view not created')
+  }
+  await grantDataViewPermission(view, options)
+  view.setCurrentRowById(1)
+  return { dataSet, view }
+}
+
+it('keeps keyless DataView reads tied to the current original query row', async () => {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'KeylessDS', scenarioId: 'SCENE', tables: {
+    Picker: { tableName: 'Picker', modelBinding: { modelId: 'MODEL', modelName: 'Picker' },
+      columns: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string' }], views: { default: {} } },
+  } })
+  const view = dataSet.getView('Picker', 'default')
+  if (!view) throw new Error('missing keyless view')
+  view.primaryKey = ''
+  const identity = { scenarioId: 'SCENE', metaName: 'Picker' }
+  const table = new DataSpaceQueryTable(identity)
+  const context = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: true, data: { Items: [
+      { id: 'WIRE-ID', name: 'Visible', secret: 'Hidden', masked: 'Mask',
+        lingma_sys_params: { e: ['name'], h: ['secret'], m: ['masked'] } },
+    ], Count: 1 } } }) })
+  const formal = { id: 'MODEL', metaName: 'Picker', name: 'Picker', sourceName: 'dictionary', sourceId: '',
+    sourceType: '字典', primaryKey: '', businessMain: false, raw: {}, fields: [
+      { id: 'FIELD', modelId: 'MODEL', name: 'name', canonicalName: 'name', type: 'string', primaryKey: false,
+        description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+    ] }
+  context.bindFormalModel(formal)
+  let nextContext = context
+  let failNext = false
+  const observedReads: string[] = []
+  view.events.on('rowsChanged', () => {
+    const current = view.rows[0]
+    if (current) observedReads.push(view.fieldAccess(current, 'name').read)
+  })
+  view.bindQueryExecutor({ executeQuery: async () => {
+    if (failNext) throw new Error('QUERY_FAILED')
+    return nextContext
+  } })
+  await view.loadFromServer()
+  await Promise.resolve()
+  const row = view.rows[0]
+  if (!row) throw new Error('missing keyless row')
+  expect(view.getPkKey(row)).toBeUndefined()
+  expect(view.fieldAccess(row, 'name')).toMatchObject({ read: 'visible', write: 'denied', component: 'readonly' })
+  expect(view.fieldAccess(row, 'secret').read).toBe('invisible')
+  expect(view.fieldAccess(row, 'masked').read).toBe('masked')
+  expect(view.fieldAccess({ ...row }, 'name').read).toBe('invisible')
+  expect(observedReads).toContain('visible')
+  expect(observedReads).not.toContain('invisible')
+  expect(view.addActionState()).toBe('hidden')
+  expect(view.editActionState(row)).toBe('hidden')
+  expect(view.deleteActionState(row)).toBe('hidden')
+  failNext = true
+  await view.refresh()
+  expect(view.requestState).toBe(RequestState.Failed)
+  expect(view.fieldAccess(row, 'name').read).toBe('visible')
+  failNext = false
+  nextContext = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: true, data: { Items: [
+      { id: 'WIRE-ID', name: 'New', lingma_sys_params: { e: ['name'] } },
+    ], Count: 1 } } }) })
+  nextContext.bindFormalModel(formal)
+  vi.spyOn(view, 'updateFromServer').mockImplementationOnce(() => { throw new Error('REPLACEMENT_FAILED') })
+  await view.refresh()
+  expect(view.requestState).toBe(RequestState.Failed)
+  expect(view.fieldAccess(row, 'name').read).toBe('visible')
+  await view.refresh()
+  const newRow = view.rows[0]
+  if (!newRow) throw new Error('missing refreshed row')
+  expect(view.fieldAccess(row, 'name').read).toBe('invisible')
+  expect(view.fieldAccess(newRow, 'name').read).toBe('visible')
+  expect(view.fieldAccess(context.rows[0] ?? null, 'name').read).toBe('invisible')
+  view.clearAll()
+  expect(view.fieldAccess(newRow, 'name').read).toBe('invisible')
+  dataSet.destroy()
+})
+
+it('does not promote duplicate keyed rows through original-row read access', async () => {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'KeyedDS', scenarioId: 'SCENE', tables: {
+    Users: { tableName: 'Users', modelBinding: { modelId: 'MODEL', modelName: 'Users' },
+      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'name', type: 'string' }],
+      views: { default: {} } },
+  } })
+  const view = dataSet.getView('Users', 'default')
+  if (!view) throw new Error('missing keyed view')
+  const identity = { scenarioId: 'SCENE', metaName: 'Users' }
+  const table = new DataSpaceQueryTable(identity)
+  const context = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: false, data: { Items: [
+      { id: 'SAME', name: 'First', lingma_sys_params: { e: ['name'] } },
+      { id: 'SAME', name: 'Second', lingma_sys_params: { e: ['name'] } },
+    ], Count: 2 } } }) })
+  view.bindQueryExecutor({ executeQuery: async () => context })
+  await view.loadFromServer()
+  const first = view.rows[0]
+  if (!first) throw new Error('missing keyed row')
+  expect(context.readFieldAccess(context.rows[0] ?? {}, 'name')).toBe('visible')
+  expect(view.fieldAccess(first, 'name').read).toBe('invisible')
+  expect(view.fieldAccess(first, 'name').write).toBe('denied')
+  dataSet.destroy()
+})
+
+function createPageService(overrides: Partial<PageServiceCapability> = {}): PageServiceCapability {
+  return {
+    copyText: vi.fn(async () => {}),
+    showMessage: vi.fn(),
+    showConfirm: vi.fn(async () => true),
+    showPrompt: vi.fn(async () => null),
+    showAlert: vi.fn(async () => {}),
+    showLoading: vi.fn(),
+    showDialog: vi.fn(async (_options: PageDialogOptions): Promise<PageDialogResult> => 'close'),
+    navigate: vi.fn(),
+    selectEntities: vi.fn(async () => []),
+    browseFiles: vi.fn(async () => []),
+    uploadFiles: vi.fn(async () => []),
+    ...overrides,
+  }
+}
+
+function createActionContext(dataSet: Awaited<ReturnType<typeof createDataView>>['dataSet'], pageService: PageServiceCapability): ActionExecutionContext {
+  return {
+    getDataSet: () => dataSet,
+    resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null},
+    getPageService: () => pageService,
+    getRouter: () => null,
+  }
+}
+
+async function flushAsync() {
+  await Promise.resolve()
+  await Promise.resolve()
+}
+
+describe('DataView CRUD bridge', () => {
+  it('base CRUD methods route formal explicit identities through DataView', async () => {
+    const {dataSet, view} = await createDataView()
+    const dispatch = vi.fn(async () => ({cancel: false}))
+    const methods = createBaseCrudMethods({value: view}, dispatch)
+    const identitySubmit = vi.spyOn(view, 'addRowWithIdentity')
+    try {
+      await expect(methods.addRow({id: 2, name: 'Bob'})).resolves.toMatchObject({id: 2, name: 'Bob'})
+      expect(identitySubmit).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
+      expect(dispatch).toHaveBeenCalledWith('add-row', {id: 2, name: 'Bob'})
+    } finally { dataSet.destroy() }
+  })
+
+  it('view CRUD should direct-commit to remote when create/update/delete API is configured', async () => {
+    const dataSet = SparkData.createDataSet({
+      dataSetName: 'CrudRemoteDS',
+      tables: {
+        Users: {
+          tableName: 'Users',
+          columns: [
+            { name: 'id', type: 'number', isPrimaryKey: true },
+            { name: 'name', type: 'string' },
+          ],
+          api: {
+            create: { url: '/api/users', method: 'POST' },
+            update: { url: '/api/users/{id}', method: 'PUT' },
+            delete: { url: '/api/users/{id}', method: 'DELETE' },
+          },
+          views: {
+            default: {
+              rows: [{ id: 1, name: 'Alice', status: 'active' }],
+            },
+          },
+        },
+      },
+    })
+
+    const httpClient = createRequest()
+    const post = vi.spyOn(httpClient, 'post').mockResolvedValue({ id: 2, name: 'Bob' })
+    const put = vi.spyOn(httpClient, 'put').mockResolvedValue({ id: 1, name: 'Alice-2', status: 'active' })
+    const deleteRequest = vi.spyOn(httpClient, 'delete').mockResolvedValue(true)
+    dataSet.setSharedHttpClient(httpClient)
+
+    const view = dataSet.getView('Users', 'default')!
+    const appendRowSpy = vi.spyOn(view, 'appendRow')
+    const updateRowByIdSpy = vi.spyOn(view, 'updateRowById')
+    const deleteRowByIdSpy = vi.spyOn(view, 'deleteRowById')
+
+    const createResult = await view.addRow({ id: 2, name: 'Bob' })
+    expect(post).toHaveBeenCalledOnce()
+    expect(createResult).toMatchObject({ success: true, data: { id: 2, name: 'Bob' } })
+    expect(appendRowSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 2, name: 'Bob' }))
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+
+    const updateResult = await view.editRowById(1, { name: 'Alice-2' })
+    expect(put).toHaveBeenCalledOnce()
+    expect(put).toHaveBeenCalledWith('/api/users/1', { id: 1, name: 'Alice-2', status: 'active' }, expect.anything())
+    expect(updateResult).toMatchObject({ success: true, data: { id: 1, name: 'Alice-2', status: 'active' } })
+    expect(updateRowByIdSpy).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1, name: 'Alice-2', status: 'active' }))
+    expect(view.rows.find(row => row['id'] === 1)?.['name']).toBe('Alice-2')
+
+    const deleteResult = await view.removeRow(2)
+    expect(deleteRequest).toHaveBeenCalledOnce()
+    expect(deleteResult).toMatchObject({ success: true, data: true })
+    expect(deleteRowByIdSpy).toHaveBeenCalledWith(2)
+    expect(view.rows.map(row => row['id'])).toEqual([1])
+  })
+
+  it('remote update should use the direct business entity and sync local row', async () => {
+    const dataSet = SparkData.createDataSet({
+      dataSetName: 'CrudWrappedUpdateDS',
+      tables: {
+        Nodes: {
+          tableName: 'Nodes',
+          columns: [
+            { name: 'id', type: 'string', isPrimaryKey: true },
+            { name: 'title', type: 'string' },
+            { name: 'path', type: 'string', allowDBNull: true },
+          ],
+          api: {
+            update: { url: '/api/nodes/{id}', method: 'PUT' },
+          },
+          views: {
+            default: {
+              rows: [{ id: 'node-1', title: '旧标题', path: '/old' }],
+            },
+          },
+        },
+      },
+    })
+
+    const httpClient = createRequest()
+    vi.spyOn(httpClient, 'put').mockResolvedValue({
+      id: 'node-1',
+      title: '新标题',
+      path: '/new',
+    })
+    dataSet.setSharedHttpClient(httpClient)
+
+    const view = dataSet.getView('Nodes', 'default')!
+
+    const result = await view.editRowById('node-1', { title: '新标题', path: '/new' })
+
+    expect(result).toMatchObject({ success: true, data: { id: 'node-1', title: '新标题', path: '/new' } })
+    expect(view.rows.find(row => row['id'] === 'node-1')?.['title']).toBe('新标题')
+    expect(view.rows.find(row => row['id'] === 'node-1')?.['path']).toBe('/new')
+  })
+
+  it('builtin append-row submits a formal primary key through the separate identity API', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService()
+    const createdRow: DataRow = { id: 2, name: 'Bob' }
+    const addRowWithIdentitySpy = vi.spyOn(view, 'addRowWithIdentity').mockResolvedValue(createdRow)
+    const appendRowSpy = vi.spyOn(view, 'appendRow')
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'append-row',
+        dataViewKey: 'Users@default',
+        appendPayload: { id: 2, name: 'Bob' },
+      },
+    })!
+    await executeActionDescriptor(desc, createActionContext(dataSet, pageService))
+    await flushAsync()
+
+    expect(addRowWithIdentitySpy).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
+    expect(appendRowSpy).not.toHaveBeenCalled()
+  })
+
+  it('builtin append-row should switch currentRow to created row when configured', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService()
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'append-row',
+        dataViewKey: 'Users@default',
+        setCurrentRowOnSuccess: true,
+        appendPayload: { id: 2, name: 'Bob' },
+      },
+    })!
+    await executeActionDescriptor(desc, createActionContext(dataSet, pageService))
+    await flushAsync()
+
+    expect(view.currentRow?.['id']).toBe(2)
+    expect(view.currentRow?.['name']).toBe('Bob')
+  })
+
+  it('builtin prompt-edit should call view.editRowById instead of updateRowById', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService({
+      showPrompt: vi.fn(async () => 'Bob'),
+    })
+    const editRowSpy = vi.spyOn(view, 'editRowById').mockResolvedValue(true)
+    const updateRowSpy = vi.spyOn(view, 'updateRowById')
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'prompt-edit',
+        dataViewKey: 'Users@default',
+        targetRow: 'current',
+        field: 'name',
+      },
+    })!
+    const scope: ActionExecutionScope = {}
+    if (view.currentRow) scope.row = view.currentRow
+    await executeActionDescriptor(desc, createActionContext(dataSet, pageService), { scope })
+    await flushAsync()
+
+    expect(editRowSpy).toHaveBeenCalledWith(1, { name: 'Bob' })
+    expect(updateRowSpy).not.toHaveBeenCalled()
+  })
+
+  it('builtin submit-current-form should call view.editRowById with current form draft', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService()
+    const editRowSpy = vi.spyOn(view, 'editRowById').mockResolvedValue(true)
+    const validateSpy = vi.fn(async () => true)
+
+    const formApi: ActionFormApi = {
+      getCurrentRow: () => view.currentRow,
+      getFormData: () => ({ id: 1, name: 'Alice-2' }),
+      validate: validateSpy,
+    }
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'submit-current-form',
+        dataViewKey: 'Users@default',
+      },
+    })!
+    const scope: ActionExecutionScope = { formApi }
+    await executeActionDescriptor(desc, createActionContext(dataSet, pageService), { scope })
+    await flushAsync()
+
+    expect(validateSpy).toHaveBeenCalledOnce()
+    expect(editRowSpy).toHaveBeenCalledWith(1, { id: 1, name: 'Alice-2' })
+  })
+
+  it('builtin prompt-append should build child row from scope row without script handlers', async () => {
+    const dataSet = SparkData.createDataSet({
+      scenarioId: 'SCENE', dataSetName: 'TreeAppendDS',
+      tables: {
+        Nodes: {
+          tableName: 'Nodes', modelBinding:{modelId:'NODES',modelName:'Nodes'},
+          columns: [
+            { name: 'id', type: 'string', isPrimaryKey: true },
+            { name: 'title', type: 'string' },
+            { name: 'parentId', type: 'string' },
+            { name: 'nodeKind', type: 'string' },
+          ],
+          views: {
+            default: {
+              rows: [{ id: 'root-1', title: '根节点', parentId: null, nodeKind: 'module' }],
+            },
+          },
+        },
+      },
+    })
+
+    const view = dataSet.getView('Nodes', 'default')!
+    await grantDataViewPermission(view, { allowAdd: true, editableFields: ['title'] })
+    const pageService = createPageService({
+      showPrompt: vi.fn(async () => '子节点 A'),
+    })
+    const addRowSpy = vi.spyOn(view, 'addRow').mockResolvedValue({
+      success: true,
+      data: { id: 'child-a', title: '子节点 A', parentId: 'root-1', nodeKind: 'page' },
+    })
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'prompt-append',
+        dataViewKey: 'Nodes@default', dataMember: 'rows',
+        field: 'title',
+        inheritFieldMap: { parentId: 'id' },
+        appendPayload: { nodeKind: 'page' },
+      },
+    })!
+    await executeActionDescriptor(
+      desc,
+      { getDataSet: () => dataSet,
+    resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null}, getPageService: () => pageService, getRouter: () => null },
+      { scope: { row: view.rows[0]!, index: 0 } },
+    )
+    await flushAsync()
+
+    expect(addRowSpy).toHaveBeenCalledWith(expect.objectContaining({
+      title: '子节点 A',
+      parentId: 'root-1',
+      nodeKind: 'page',
+    }))
+  })
+
+  it('builtin clear-rows should replace current view rows with empty list', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService({
+      showConfirm: vi.fn(async () => true),
+    })
+
+    view.selection.setSelectedRows([view.rows[0]!])
+
+    expect(view.rows).toHaveLength(1)
+
+    const desc = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'clear-rows',
+        dataViewKey: 'Users@default',
+      },
+    })!
+    await executeActionDescriptor(desc, createActionContext(dataSet, pageService))
+    await flushAsync()
+
+    expect(view.rows).toHaveLength(0)
+    expect(view.currentRow).toBeNull()
+    expect(view.selectedRows).toHaveLength(0)
+    expect(pageService.showConfirm).toHaveBeenCalledOnce()
+  })
+
+  it('does not clear rows when the required confirmation service is missing', async () => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await executeActionDescriptor({action: 'clear-rows', dataViewKey: 'Users@default'}, context)
+      expect(view.rows).toHaveLength(1)
+      expect(error.mock.calls.flat().join(' ')).toContain('PAGE_SERVICE')
+    } finally {error.mockRestore()}
+  })
+
+  it('does not delete a row when the required confirmation service is missing', async () => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const remove = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await executeActionDescriptor({action: 'delete', target: 'current', dataViewKey: 'Users@default'}, context)
+      expect(remove).not.toHaveBeenCalled()
+      expect(error.mock.calls.flat().join(' ')).toContain('PAGE_SERVICE')
+    } finally {error.mockRestore()}
+  })
+
+  it.each(['', '   '])('honors an explicitly disabled confirmation %j without a page service', async confirmMessage => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const remove = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+    await executeActionDescriptor({action: 'delete', target: 'current', dataViewKey: 'Users@default',
+      confirmMessage, silent: true}, context)
+    expect(remove).toHaveBeenCalledWith(1)
+  })
+
+  it('builtin disabledWhenRow should disable action for matching current row', () => {
+    const dataSet = SparkData.createDataSet({
+      dataSetName: 'BuiltinDisableDS',
+      tables: {
+        NavigationNodes: {
+          tableName: 'NavigationNodes',
+          columns: [
+            { name: 'id', type: 'string', isPrimaryKey: true },
+            { name: 'nodeKind', type: 'string' },
+            { name: 'parentId', type: 'string' },
+          ],
+          views: {
+            default: {
+              rows: [{ id: '__toolbar__', nodeKind: 'system-directory', parentId: null }],
+            },
+          },
+        },
+      },
+    })
+
+    const view = dataSet.getView('NavigationNodes', 'default')!
+    view.setCurrentRowById('__toolbar__')
+
+    const descriptor = nodeToActionDescriptor({
+      type: 'r-button',
+      props: {
+        action: 'submit-current-form',
+        disabledWhenRow: {
+          nodeKind: 'system-directory',
+          parentId: null,
+        },
+      },
+    })
+    expect(isActionDescriptorDisabled(descriptor!, view)).toBe(true)
+  })
+
+  it('action executor append-row submits an explicit key through the identity API', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService()
+    const createdRow: DataRow = { id: 2, name: 'Bob' }
+    const addRowWithIdentitySpy = vi.spyOn(view, 'addRowWithIdentity').mockResolvedValue(createdRow)
+    const appendRowSpy = vi.spyOn(view, 'appendRow')
+
+    await executeActionDescriptor(
+      {
+        action: 'append-row',
+        dataViewKey: 'Users@default',
+        appendPayload: { id: 2, name: 'Bob' },
+      },
+      createActionContext(dataSet, pageService),
+    )
+
+    expect(addRowWithIdentitySpy).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
+    expect(appendRowSpy).not.toHaveBeenCalled()
+  })
+
+  it('action executor delete-current should call view.removeRow instead of deleteRowById', async () => {
+    const { dataSet, view } = await createDataView()
+    const pageService = createPageService({
+      showConfirm: vi.fn(async () => true),
+    })
+    const removeRowSpy = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+    const deleteRowSpy = vi.spyOn(view, 'deleteRowById')
+
+    await executeActionDescriptor(
+      {
+        action: 'delete',
+        target: 'current',
+        dataViewKey: 'Users@default',
+        confirmMessage: '确认删除？',
+      },
+      createActionContext(dataSet, pageService),
+    )
+
+    expect(removeRowSpy).toHaveBeenCalledWith(1)
+    expect(deleteRowSpy).not.toHaveBeenCalled()
+  })
+
+  it('action executor rejects a direct mutation when backend permission is absent', async () => {
+    const { dataSet, view } = await createDataView({editableFields: []})
+    const pageService = createPageService()
+    const editRowSpy = vi.spyOn(view, 'editRowById')
+    const control = { cancel: false }
+    if (view.currentRow) delete view.currentRow.lingma_sys_params
+
+    await executeActionDescriptor(
+      {
+        action: 'patch',
+        target: 'current',
+        dataViewKey: 'Users@default',
+        field: 'name',
+        value: 'Blocked',
+      },
+      createActionContext(dataSet, pageService),
+      { control },
+    )
+
+    expect(control.cancel).toBe(true)
+    expect(editRowSpy).not.toHaveBeenCalled()
+    expect(pageService.showMessage).toHaveBeenCalledWith('后端权限不允许执行 patch', 'warning')
+  })
+
+  it('message-row never interpolates hidden or masked backend fields as raw values', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+
+    await executeActionDescriptor(
+      {
+        action: 'message-row',
+        target: 'current',
+        dataViewKey: 'Users@default',
+        message: '{name}|{secret}|{mobile}',
+      },
+      createActionContext(dataSet, pageService),
+    )
+
+    expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
+  })
+})
+
+describe('query-backed pending change discard', () => {
+  it('restores a failed query-backed edit from the original strong query baseline', async () => {
+    const { dataSet, view } = await createDataView()
+    expect(await view.editRowById(1, { name: 'Unsaved' })).toBe(true)
+    view.updateEditingValue(1, 'name', 'Editor draft')
+
+    expect(view.discardPendingChanges()).toBe(1)
+
+    expect(view.rows[0]?.['name']).toBe('Alice')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.hasEditingChanges()).toBe(false)
+    await view.refresh()
+    dataSet.destroy()
+  })
+
+  it('rejects stale query permissions without clearing local state', async () => {
+    const { dataSet, view, invalidate } = await createMessageDataView()
+    await view.editRowById(1, { name: 'Unsaved' })
+    invalidate()
+
+    expect(() => view.discardPendingChanges()).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(view.rows[0]?.['name']).toBe('Unsaved')
+    expect(view.dirtyTracking.isDirty(1)).toBe(true)
+    dataSet.destroy()
+  })
+
+  it('rejects local CRUD views without a strong query owner baseline', async () => {
+    const dataSet = SparkData.createDataSet({ dataSetName: 'LocalOnly', tables: {
+      Users: { tableName: 'Users', columns: [{ name: 'id', type: 'number', isPrimaryKey: true },
+        { name: 'name', type: 'string' }], views: { default: { rows: [{ id: 1, name: 'Alice' }] } } },
+    } })
+    const view = dataSet.getView('Users', 'default')
+    if (!view) throw new Error('local view fixture missing')
+    await view.editRowById(1, { name: 'Unsaved' })
+
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_OWNER')
+    expect(view.rows[0]?.['name']).toBe('Unsaved')
+    expect(view.dirtyTracking.isDirty(1)).toBe(true)
+    dataSet.destroy()
+  })
+})
+
+async function createMessageDataView() {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'MessageDS', scenarioId: 'SCENE', tables: {
+    Users: { tableName: 'Users', modelBinding: { modelId: 'MODEL', modelName: 'Users' },
+      columns: [
+        { name: 'id', type: 'number', isPrimaryKey: true },
+        { name: 'name', type: 'string' }, { name: 'secret', type: 'string' },
+        { name: 'mobile', type: 'string' }, { name: 'count', type: 'number' }, { name: 'active', type: 'boolean' },
+      ], views: { default: {} },
+    },
+  } })
+  const view = dataSet.getView('Users', 'default')
+  if (!view) throw new Error('missing message view')
+  let scope = 'message'
+  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+  const result = new DataSpaceQueryContext({ identity: table.identity, scope, readScope: () => scope,
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: false, data: { Items: [
+      { id: 1, name: 'Alice', secret: 'hidden-secret', mobile: '13800000000', count: 0, active: false,
+        lingma_sys_key: 'private-token', lingma_sys_params: { e: [], r: [], h: ['secret'], m: ['mobile'], d: false } },
+    ], Count: 1 } } }),
+  })
+  view.bindQueryExecutor({ executeQuery: async () => result })
+  await view.loadFromServer()
+  view.setCurrentRowById(1)
+  return { dataSet, view, invalidate: () => { scope = 'another identity' } }
+}
+
+describe('message-row original query permissions', () => {
+  it('listed fields preserve zero and false and exclude hidden and system fields', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default',
+      messageFields: ['name', 'secret', 'mobile', 'count', 'active', 'lingma_sys_key'],
+    }, createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith('name: Alice | mobile: •••• | count: 0 | active: false', 'info')
+  })
+
+  it('compact messages consume the same query owner', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default' },
+      createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith(
+      JSON.stringify({ id: 1, name: 'Alice', mobile: '••••', count: 0, active: false, _pk: 1 }), 'info')
+  })
+
+  it('scope rows cannot replace the original hidden and masked permissions', async () => {
+    const { dataSet, view } = await createMessageDataView()
+    const pageService = createPageService()
+    const row: DataRow = { ...view.currentRow, lingma_sys_params: { e: ['secret', 'mobile'], r: [], h: [], m: [], d: true } }
+    await executeActionDescriptor({ action: 'message-row', target: 'scope', dataViewKey: 'Users@default',
+      message: '{name}|{secret}|{mobile}' }, createActionContext(dataSet, pageService), { scope: { row } })
+    expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
+  })
+
+  it('unknown rows cannot display values with forged permissions', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    const row: DataRow = { id: 99, name: 'unregistered', lingma_sys_params: { e: ['name'], r: [], h: [], m: [], d: true } }
+    await executeActionDescriptor({ action: 'message-row', target: 'scope', dataViewKey: 'Users@default',
+      message: '{name}' }, createActionContext(dataSet, pageService), { scope: { row } })
+    expect(pageService.showMessage).not.toHaveBeenCalled()
+  })
+
+  it('invalidated request identity produces an error without displaying old values', async () => {
+    const { dataSet, invalidate } = await createMessageDataView()
+    const pageService = createPageService()
+    invalidate()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default',
+      message: '{name}|{secret}|{mobile}' }, createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith(expect.stringContaining('SPARK_QUERY_CONTEXT_STALE'), 'error')
+    expect(pageService.showMessage).not.toHaveBeenCalledWith(expect.stringContaining('Alice'), 'info')
+  })
+})

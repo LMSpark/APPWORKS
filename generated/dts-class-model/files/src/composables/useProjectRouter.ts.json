@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:composables/useProjectRouter",
+    "sourcePath": "src/composables/useProjectRouter.ts",
+    "sourceFile": "src/composables/useProjectRouter.ts",
+    "packageName": "app",
+    "modulePath": "composables/useProjectRouter",
+    "jsdoc": "app 的 composables/useProjectRouter 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-01T14:55:15.587Z",
+  "models": {}
+}

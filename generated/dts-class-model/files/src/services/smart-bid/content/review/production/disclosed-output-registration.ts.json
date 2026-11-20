@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/disclosed-output-registration",
+    "sourcePath": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/disclosed-output-registration",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/disclosed-output-registration\n职责：动作41按原发布记录与实际包成员准备披露件只读登记。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Publication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Publication",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "publicationRef": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "packageRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Member": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Member",
+      "properties": {
+        "memberRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "object",
+          "title": "ArrayBuffer"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T17:01:46.782Z",
+  "models": {
+    "Publication": {
+      "name": "Publication",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    publicationRef: string;\n    subjectId: string;\n    packageRef: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    publicationRef: string;\n    subjectId: string;\n    packageRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publicationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "packageRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Member": {
+      "name": "Member",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Omit<Publication, 'assertCurrent'> & {\n    memberRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Omit<Publication, 'assertCurrent'> & {\n    memberRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    bytes: ArrayBuffer;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "memberRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bytes",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

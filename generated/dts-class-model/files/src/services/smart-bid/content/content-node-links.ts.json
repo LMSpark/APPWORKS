@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-node-links",
+    "sourcePath": "src/services/smart-bid/content/content-node-links.ts",
+    "sourceFile": "src/services/smart-bid/content/content-node-links.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-node-links",
+    "jsdoc": "@module app:services/smart-bid/content/content-node-links\n职责：按节点及表格格子的正式引用合同读取page/xref节点链接。\n边界：不解引用、不查询或保存；不覆盖独立响应、挂接、模板和来源引用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentNodeLink",
+      "ContentNodeLinks",
+      "ContentTableData",
+      "ContentNodeLinkOccurrence",
+      "ContentFactOccurrence"
+    ]
+  },
+  "$defs": {
+    "ContentNodeLink": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLink",
+      "properties": {
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "xref"
+          ]
+        },
+        "targetNodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerNodeId",
+        "path",
+        "kind",
+        "targetNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeLinks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLinks",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentNodeLink"
+          }
+        },
+        "requiresTableGeneratorCheck": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "links",
+        "requiresTableGeneratorCheck"
+      ],
+      "additionalProperties": false
+    },
+    "ContentTableData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTableData",
+      "properties": {
+        "header": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "value",
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "header",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "ContentNodeLinkOccurrence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentNodeLinkOccurrence",
+      "properties": {
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "xref"
+          ]
+        },
+        "targetNodeId": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "number"
+        },
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "show": {
+          "enum": [
+            "number",
+            "title"
+          ]
+        }
+      },
+      "required": [
+        "ownerNodeId",
+        "path",
+        "kind",
+        "targetNodeId",
+        "occurrence",
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "ContentFactOccurrence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentFactOccurrence",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "factId": {
+          "type": "string"
+        },
+        "occurrence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "nodeId",
+        "factId",
+        "occurrence"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T01:34:48.879Z",
+  "models": {
+    "ContentNodeLink": {
+      "name": "ContentNodeLink",
+      "jsdoc": "原节点身份和JSON路径；保留精确目标身份，不用NFC替换引用对象。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ownerNodeId: string;\n    path: readonly string[];\n    kind: 'page' | 'xref';\n    targetNodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ownerNodeId: string;\n    path: readonly string[];\n    kind: 'page' | 'xref';\n    targetNodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ownerNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeLinks": {
+      "name": "ContentNodeLinks",
+      "jsdoc": "空计算表须另核模板类；没有链接不等于所有领域引用已核。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    links: readonly ContentNodeLink[];\n    requiresTableGeneratorCheck: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    links: readonly ContentNodeLink[];\n    requiresTableGeneratorCheck: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "links",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresTableGeneratorCheck",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentTableData": {
+      "name": "ContentTableData",
+      "jsdoc": "普通表和已展开计算表共用的正文 JSON 结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    header: readonly string[];\n    rows: ReadonlyArray<ReadonlyArray<Readonly<{\n        value: string;\n        data: Readonly<Record<string, unknown>>;\n    }>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentNodeLinkOccurrence": {
+      "name": "ContentNodeLinkOccurrence",
+      "jsdoc": "位置按原文 UTF-16 左闭右开区间，表格位置由 path 中的行列标识。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ContentNodeLink & Readonly<{\n    occurrence: number;\n    start: number;\n    end: number;\n    show?: 'title' | 'number';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ContentNodeLink",
+            "targetName": "ContentNodeLink"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    occurrence: number;\n    start: number;\n    end: number;\n    show?: 'title' | 'number';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "occurrence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "start",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "end",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "show",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentFactOccurrence": {
+      "name": "ContentFactOccurrence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    factId: string;\n    occurrence: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    factId: string;\n    occurrence: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "occurrence",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

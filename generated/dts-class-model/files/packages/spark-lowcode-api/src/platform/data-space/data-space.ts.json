@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/data-space",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/data-space\n职责：保留后端资源类型及关系记录合同，供正式元数据读取与存储适配使用。\n边界：页面模型、列与视图归SPARK data；此处不建立另一套可编辑模型实体。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceResourceType",
+      "DataSpaceDatabaseResourceType",
+      "LowcodeModelRelationRecord"
+    ]
+  },
+  "$defs": {
+    "DataSpaceResourceType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceResourceType",
+      "enum": [
+        "interface",
+        "file",
+        "table",
+        "view",
+        "dictionary",
+        "json"
+      ]
+    },
+    "DataSpaceDatabaseResourceType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceDatabaseResourceType",
+      "enum": [
+        "table",
+        "view"
+      ]
+    },
+    "LowcodeModelRelationRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeModelRelationRecord",
+      "properties": {
+        "sourceRelationId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "parentModelId": {
+          "type": "string"
+        },
+        "childModelId": {
+          "type": "string"
+        },
+        "parentResourceName": {
+          "type": "string"
+        },
+        "childResourceName": {
+          "type": "string"
+        },
+        "filterExpression": {
+          "type": "string"
+        },
+        "dependencyType": {
+          "type": "string"
+        },
+        "cascadeDelete": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "sourceRelationId",
+        "dataSpaceId",
+        "parentModelId",
+        "childModelId",
+        "parentResourceName",
+        "childResourceName",
+        "filterExpression",
+        "dependencyType",
+        "cascadeDelete"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-17T15:52:55.062Z",
+  "models": {
+    "DataSpaceResourceType": {
+      "name": "DataSpaceResourceType",
+      "jsdoc": "数据资源 wire 类型；仅 table/view 可在设计态解析稳定目录身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'table' | 'view' | 'dictionary' | 'interface' | 'json' | 'file'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'table'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'view'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dictionary'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'interface'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'json'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'file'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceDatabaseResourceType": {
+      "name": "DataSpaceDatabaseResourceType",
+      "jsdoc": "目录可解析的物理资源子集。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<DataSpaceResourceType, 'table' | 'view'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Extract<DataSpaceResourceType, 'table' | 'view'>",
+            "targetName": "Extract"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeModelRelationRecord": {
+      "name": "LowcodeModelRelationRecord",
+      "jsdoc": "lowcode Base_DataModel_Relation 的只读原始合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    sourceRelationId: string;\n    dataSpaceId: string;\n    parentModelId: string;\n    childModelId: string;\n    parentResourceName: string;\n    childResourceName: string;\n    filterExpression: string;\n    dependencyType: string;\n    cascadeDelete: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    sourceRelationId: string;\n    dataSpaceId: string;\n    parentModelId: string;\n    childModelId: string;\n    parentResourceName: string;\n    childResourceName: string;\n    filterExpression: string;\n    dependencyType: string;\n    cascadeDelete: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceRelationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterExpression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencyType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cascadeDelete",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

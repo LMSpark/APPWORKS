@@ -1,0 +1,536 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, inject, type Component } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { PAGE_SERVICE, useSparkComponent, type PageServiceCapability } from '@spark-appworks/spark-component'
+import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
+import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
+import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '../../../../packages/spark-app/src/navigation/action-registry'
+import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
+import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
+import App from '@/App.vue'
+import AppList from '@/views/app/AppList.vue'
+import AppTabBar from '@/layout/AppTabBar.vue'
+
+type LowcodeState = { applicationId: string | null; ownerIntent: number }
+const lowcodeState = vi.hoisted((): LowcodeState => ({ applicationId: 'old', ownerIntent: 0 }))
+const shellState = vi.hoisted(() => ({ reload: vi.fn(async () => null), resetWorkspace: vi.fn() }))
+const appListData = vi.hoisted(() => ({rows: [{rowid: 'APP-A', AppName: 'app-a', AppDesc: 'App A'}], refresh: vi.fn(async () => ({success: true}))}))
+
+vi.mock('@/lowcode/lowcode-runtime', () => {
+  const receipt = (intent: number) => ({
+    assertCurrent() {
+      if (intent !== lowcodeState.ownerIntent) throw new Error('platform selection stale')
+    },
+  })
+  return {
+    activateLowcodeApplication: vi.fn(async (applicationId: string) => {
+      const intent = ++lowcodeState.ownerIntent
+      lowcodeState.applicationId = applicationId
+      return receipt(intent)
+    }),
+    enterLowcodeApplicationCatalog: vi.fn(() => {
+      const intent = ++lowcodeState.ownerIntent
+      lowcodeState.applicationId = null
+      return receipt(intent)
+    }),
+    hasLowcodeSession: () => true,
+    lowcodeApi: {
+      application: { get: () => lowcodeState.applicationId ? ({ application: { id: lowcodeState.applicationId } }) : null },
+      session: { get: () => ({ enterprise: { shortName: 'acme' }, identity: { account: 'admin' } }) },
+      platform: {
+        logout: vi.fn(async () => undefined),
+      },
+    },
+    lowcodeEnterpriseDisplayName: () => 'Acme',
+    lowcodeRequestHeaders: () => ({}),
+    readLowcodePrincipal: () => ({ enterpriseName: 'acme', applicationId: lowcodeState.applicationId,
+      username: 'tester', displayName: 'Tester' }),
+  }
+})
+vi.mock('@spark-appworks/spark-project-model', async importOriginal => {
+  const actual = await importOriginal<typeof import('@spark-appworks/spark-project-model')>()
+  return {...actual, PageRuntime: class {
+    destroyed = false
+    constructor(readonly options: {scenarioIds: string[]; loadScenario: (id: string) => Promise<unknown>}) {}
+    async load() {for (const id of this.options.scenarioIds) await this.options.loadScenario(id)}
+    getDataSet() {return {getView: () => ({primaryKey: 'rowid', queryConfig: {allPages: true, distinct: true},
+      dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}}, rows: appListData.rows,
+      fieldAccess: () => ({read: 'visible'}), requestRefresh: appListData.refresh}), onAnyViewChange: () => () => undefined}}
+    dispose() {this.destroyed = true}
+  }}
+})
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+  loadLowcodeApplicationCatalog: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'})),
+  getFormalModelView: () => ({primaryKey: 'rowid', queryConfig: {allPages: true},
+    dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}}, rows: appListData.rows,
+    fieldAccess: () => ({read: 'visible'}), requestRefresh: appListData.refresh}),
+}))
+
+vi.mock('@/services/project/project-shell', () => ({
+  PROJECT_SWITCH_KEY: Symbol('project-switch'),
+  resetAppProjectWorkspace: shellState.resetWorkspace,
+  registerShellNavRootListener: () => () => undefined,
+  reloadAndSyncNavigation: shellState.reload,
+  syncCommittedNavigationFromRouter: vi.fn(),
+}))
+vi.mock('@/services/sse-events', () => ({ onPageConfigChange: () => () => undefined }))
+vi.mock('@/registries/vue-page-registry', () => ({ getPublicPaths: () => new Set(['/login', '/']) }))
+
+const mountedWrappers: Array<{ exists: () => boolean; unmount: () => void }> = []
+let mountedProjectSwitch: ProjectSwitchService | null = null
+let mountedNavigationActions: NavigationActionRegistry | null = null
+let mountedPageService: PageServiceCapability | null = null
+
+const AppLayoutProbe = defineComponent({
+  setup(_, { slots }) {
+    mountedProjectSwitch = inject(PROJECT_SWITCH_KEY, null)
+    mountedNavigationActions = inject(NAVIGATION_ACTION_REGISTRY_KEY, null)
+    mountedPageService = useSparkComponent({ type: 'app-layout-probe' }).sparkConsume(PAGE_SERVICE)
+    return () => h('main', [slots['header']?.(), slots['default']?.()])
+  },
+})
+const AppHeaderProbe = defineComponent({
+  emits: ['user-command'],
+  setup(_, { emit }) {
+    return () => h('button', { onClick: () => emit('user-command', '@app:APP-A/reports') }, 'cross-app')
+  },
+})
+const page = defineComponent({ setup: () => () => h('div', 'route page') })
+const RendererListProbe = defineComponent({
+  props: {children: {type: Array, default: () => []}},
+  setup(props) {
+    return () => {
+      const row = appListData.rows[0]!
+      const dataSource = {fieldAccess: () => ({read: 'visible'})}
+      const nodes = props.children as Array<{type: string; props?: Record<string, unknown>; children?: Array<{type: string; props?: Record<string, unknown>}>}>
+      const children = nodes.flatMap(child => child.type === 'r-toolbar' ? child.children ?? [] : [child]).filter(child => {
+        const condition = child.props?.['onBeforeRender']
+        return typeof condition !== 'function' || condition({row, dataSource})
+      })
+      return h('div', children.filter(child => child.type === 'r-button').map(child => h('button', {
+        onClick: () => {
+          const action = child.props?.['onClick']
+          if (typeof action === 'function') action(row)
+        },
+      }, String(child.props?.['label'] ?? ''))))
+    }
+  },
+})
+
+type PageServiceHostMount = Readonly<{
+  router: Router
+  provide: Record<symbol, unknown>
+  stubs: Record<string, boolean | Component>
+}>
+
+function mountWithPageService(component: Component, options: PageServiceHostMount) {
+  const showMessage = vi.fn()
+  const service: PageServiceCapability = {
+    copyText: async () => {},
+    showMessage,
+    showConfirm: async () => true,
+    showPrompt: async () => null,
+    showAlert: async () => {},
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => { throw new Error('application switch fixture must not upload') },
+    showLoading: () => {},
+    navigate: () => {},
+  }
+  const Host = defineComponent({
+    setup() {
+      useSparkComponent({ type: 'application-switch-test-host' }).sparkProvide(PAGE_SERVICE, service)
+      return () => h(component)
+    },
+  })
+  const wrapper = mount(Host, { global: { plugins: [options.router], provide: options.provide, stubs: options.stubs } })
+  mountedWrappers.push(wrapper)
+  return { wrapper, showMessage }
+}
+
+function appPageMessages() {
+  if (!mountedPageService) throw new Error('App did not provide PAGE_SERVICE')
+  return vi.spyOn(mountedPageService, 'showMessage')
+}
+
+function messagesOf(spy: { mock: { calls: unknown[][] } }, type: string) {
+  return spy.mock.calls.filter(call => call[1] === type).map(call => call[0])
+}
+
+async function mountRealApp() {
+  const router = createRouter({ history: createMemoryHistory(), routes: [] })
+  const dynamic = createDynamicRouter({
+    router,
+    pageComponent: page,
+    applicationPathPrefix: '/apps/:projectId',
+    loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'old',
+      items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }] }),
+    componentMap: { '/dashboard': page },
+  })
+  await dynamic.registerRoutes()
+  setDynamicRouter(dynamic)
+  await router.push('/apps/old/dashboard')
+  const wrapper = mount(App, { global: {
+    plugins: [router],
+    stubs: {
+      AppLayout: AppLayoutProbe, AppHeader: AppHeaderProbe, AppBreadcrumb: true, AppFooter: true, AppSidebar: true,
+      AppTabBar: true, NavHeaderBar: true, NavContextSelector: true, ThemeConfigurator: true, AppPageUiHost: true,
+    },
+  } })
+  mountedWrappers.push(wrapper)
+  await flushPromises()
+  return { router, dynamic, wrapper }
+}
+
+afterEach(() => {
+  for (const wrapper of mountedWrappers.splice(0)) {
+    if (wrapper.exists()) wrapper.unmount()
+  }
+  mountedProjectSwitch = null
+  mountedNavigationActions = null
+  mountedPageService = null
+  lowcodeState.applicationId = 'old'
+  lowcodeState.ownerIntent = 0
+  vi.mocked(activateLowcodeApplication).mockReset().mockImplementation(async (applicationId) => {
+    const intent = ++lowcodeState.ownerIntent
+    lowcodeState.applicationId = applicationId
+    return { assertCurrent() {
+      if (intent !== lowcodeState.ownerIntent) throw new Error('platform selection stale')
+    } }
+  })
+  shellState.reload.mockReset()
+  shellState.reload.mockResolvedValue(null)
+  shellState.resetWorkspace.mockReset()
+  vi.restoreAllMocks()
+})
+
+describe('App project selection owner', () => {
+  it('returns one composite receipt and gives that same receipt to navigation refresh', async () => {
+    const { dynamic } = await mountRealApp()
+    const clean = vi.spyOn(dynamic, 'assertPageRuntimesClean')
+    const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
+    const dispose = vi.spyOn(dynamic, 'disposePageRuntimes')
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+
+    const receipt = await service.switchAndReload('APP-A')
+
+    expect(receipt).toEqual(expect.objectContaining({ assertCurrent: expect.any(Function) }))
+    expect(clean).toHaveBeenCalled()
+    const activationOrder=vi.mocked(activateLowcodeApplication).mock.invocationCallOrder[0]
+    const resetOrder=reset.mock.invocationCallOrder[0]
+    if(activationOrder===undefined||resetOrder===undefined)throw new Error('Missing activation or cleanup')
+    expect(clean.mock.invocationCallOrder.some(order=>order<activationOrder)).toBe(true)
+    expect(clean.mock.invocationCallOrder.some(order=>order>activationOrder&&order<resetOrder)).toBe(true)
+    expect(reset).toHaveBeenCalledOnce()
+    expect(dispose).toHaveBeenCalledOnce()
+    expect(shellState.reload).toHaveBeenCalledOnce()
+    expect(shellState.reload).toHaveBeenCalledWith(receipt)
+    expect(() => receipt.assertCurrent()).not.toThrow()
+  })
+
+  it('keeps the current real system-page instance while activation is pending and rejected', async () => {
+    const { router, dynamic } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const initialRoute = router.currentRoute.value
+    const initialInstance = dynamic.getSystemPageInstance(initialRoute)
+    if (!initialInstance) throw new Error('The real current system-page instance was not registered')
+    const activationError = new Error('application activation rejected')
+    let rejectActivation: ((error: Error) => void) | undefined
+    vi.mocked(activateLowcodeApplication).mockImplementation(() => new Promise((_, reject) => {
+      rejectActivation = reject
+    }))
+    const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
+    const dispose = vi.spyOn(dynamic, 'disposePageRuntimes')
+    const reload = shellState.reload
+
+    const switching = service.switchAndReload('APP-B')
+    await vi.waitFor(() => expect(rejectActivation).toBeDefined())
+
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).toBe(initialInstance.instanceId)
+    rejectActivation?.(activationError)
+    await expect(switching).rejects.toBe(activationError)
+
+    expect(router.currentRoute.value.fullPath).toBe('/apps/old/dashboard')
+    expect(lowcodeState.applicationId).toBe('old')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).toBe(initialInstance.instanceId)
+    expect(reset).not.toHaveBeenCalled()
+    expect(dispose).not.toHaveBeenCalled()
+    expect(reload).not.toHaveBeenCalled()
+  })
+
+  it('runs the dirty guard before local reset or lowcode activation', async () => {
+    const { dynamic } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const dirty = vi.spyOn(dynamic, 'assertPageRuntimesClean').mockImplementation(() => { throw new Error('dirty page') })
+    const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
+    const activate = vi.mocked(activateLowcodeApplication)
+    activate.mockClear()
+
+    await expect(service.switchAndReload('APP-A')).rejects.toThrow('dirty page')
+
+    expect(dirty).toHaveBeenCalledOnce()
+    expect(reset).not.toHaveBeenCalled()
+    expect(activate).not.toHaveBeenCalled()
+  })
+
+  it('does not commit an activation resumed after a later App switch owns the intent', async () => {
+    const { dynamic } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const activate = vi.mocked(activateLowcodeApplication)
+    let resolveA: ((receipt: { assertCurrent(): void }) => void) | undefined
+    activate.mockImplementation(async (applicationId) => {
+      if (applicationId === 'APP-A') return await new Promise((resolve) => { resolveA = resolve })
+      lowcodeState.ownerIntent++
+      lowcodeState.applicationId = applicationId
+      return { assertCurrent: () => undefined }
+    })
+    const dispose = vi.spyOn(dynamic, 'disposePageRuntimes')
+    const first = service.switchAndReload('APP-A')
+    await vi.waitFor(() => expect(resolveA).toBeDefined())
+    await service.switchAndReload('APP-B')
+    const disposeCountAfterB = dispose.mock.calls.length
+    resolveA?.({ assertCurrent: () => undefined })
+
+    await expect(first).rejects.toThrow('APP_PROJECT_SWITCH_STALE')
+    expect(dispose).toHaveBeenCalledTimes(disposeCountAfterB)
+    expect(shellState.reload).toHaveBeenCalledOnce()
+    expect(lowcodeState.applicationId).toBe('APP-B')
+  })
+
+  it('rejects the original navigation refresh failure instead of reporting switch success', async () => {
+    await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const refreshError = new Error('navigation refresh failed')
+    shellState.reload.mockRejectedValueOnce(refreshError)
+
+    await expect(service.switchAndReload('APP-A')).rejects.toBe(refreshError)
+  })
+
+  it('restores the previous application navigation when the target navigation fails', async () => {
+    const { router, dynamic } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const refreshError = new Error('蓝图 DataView 父节点闭包缺失')
+    shellState.reload.mockRejectedValueOnce(refreshError)
+    shellState.reload.mockImplementationOnce(async () => { await dynamic.refreshRoutes(); return null })
+    const activate = vi.mocked(activateLowcodeApplication)
+    activate.mockClear()
+
+    await expect(service.switchAndReload('APP-A')).rejects.toBe(refreshError)
+    await flushPromises()
+
+    expect(activate.mock.calls.map(call => call[0])).toEqual(['APP-A', 'old'])
+    expect(lowcodeState.applicationId).toBe('old')
+    expect(shellState.reload).toHaveBeenCalledTimes(2)
+    expect(router.currentRoute.value.path).toBe('/apps/old/dashboard')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+  })
+
+  it('does not let the real App home consumer navigate to a switch superseded before its await resumes', async () => {
+    const { router } = await mountRealApp()
+    const service = mountedProjectSwitch
+    const actions = mountedNavigationActions
+    if (!service || !actions) throw new Error('App did not provide project switch and actions')
+    const originalSwitch = service.switchAndReload.bind(service)
+    service.switchAndReload = async (projectId) => {
+      const receipt = await originalSwitch(projectId)
+      if (projectId === 'homepage') queueMicrotask(() => { void originalSwitch('APP-B') })
+      return receipt
+    }
+    const push = vi.spyOn(router, 'push')
+    const messages = appPageMessages()
+
+    await actions.execute('home', { source: 'app-shell' })
+    await flushPromises()
+
+    expect(push).not.toHaveBeenCalled()
+    expect(messagesOf(messages, 'error')).not.toHaveLength(0)
+  })
+
+  it('does not let the real App cross-app consumer push after its switch receipt becomes stale', async () => {
+    const { router, wrapper } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const originalSwitch = service.switchAndReload.bind(service)
+    service.switchAndReload = async (projectId) => {
+      const receipt = await originalSwitch(projectId)
+      if (projectId === 'APP-A') queueMicrotask(() => { void originalSwitch('APP-B') })
+      return receipt
+    }
+    const push = vi.spyOn(router, 'push')
+    const messages = appPageMessages()
+
+    await wrapper.get('button').trigger('click')
+    await flushPromises()
+
+    expect(push).not.toHaveBeenCalled()
+    expect(messagesOf(messages, 'error')).not.toHaveLength(0)
+  })
+
+  it.each(['home', 'cross-app'] as const)('navigates once through the real App %s consumer when its owner stays current', async (target) => {
+    const { router, wrapper } = await mountRealApp()
+    const actions = mountedNavigationActions
+    if (!actions) throw new Error('App did not provide navigation actions')
+    const push = vi.spyOn(router, 'push')
+    const messages = appPageMessages()
+
+    if (target === 'home') await actions.execute('home', { source: 'app-shell' })
+    else await wrapper.get('button').trigger('click')
+    await flushPromises()
+
+    expect(push).toHaveBeenCalledOnce()
+    expect(messagesOf(messages, 'error')).toEqual([])
+    expect(router.currentRoute.value.path).toBe(target === 'home'
+      ? '/apps/homepage/app-list'
+      : '/apps/APP-A/reports')
+  })
+
+  it('waits for a current receipt and successful router push before the real AppList success toast', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [
+      { path: '/apps/:projectId/home', component: page },
+    ] })
+    const receipt = { assertCurrent: vi.fn() }
+    const order: string[] = []
+    const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => { order.push('switch'); return receipt }) }
+    const originalPush = router.push.bind(router)
+    const push = vi.spyOn(router, 'push').mockImplementation(async (location) => {
+      order.push('push')
+      return await originalPush(location)
+    })
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service },
+      stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
+    await flushPromises()
+
+    const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
+    if (!enter) throw new Error('AppList did not render the application entry button')
+    await enter.trigger('click')
+    await flushPromises()
+
+    expect(receipt.assertCurrent).toHaveBeenCalledTimes(2)
+    expect(push).toHaveBeenCalledOnce()
+    expect(order).toEqual(['switch', 'push'])
+    expect(messagesOf(showMessage, 'success')).toHaveLength(1)
+  })
+
+  it('does not toast or navigate when the real AppList receipt goes stale before caller continuation', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: page }] })
+    await router.push('/apps/homepage/app-list')
+    let current = true
+    const receipt = { assertCurrent: vi.fn(() => { if (!current) throw new Error('selection was superseded') }) }
+    const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => {
+      queueMicrotask(() => { current = false })
+      return receipt
+    }) }
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
+    await flushPromises()
+    const push = vi.spyOn(router, 'push')
+    const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
+    if (!enter) throw new Error('AppList did not render the application entry button')
+
+    await enter.trigger('click')
+    await flushPromises()
+
+    expect(push).not.toHaveBeenCalled()
+    expect(messagesOf(showMessage, 'success')).toEqual([])
+    expect(messagesOf(showMessage, 'error')).toEqual(['selection was superseded'])
+  })
+
+  it('does not show AppList success when the actual Router cancels navigation', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: page }] })
+    await router.push('/apps/homepage/app-list')
+    const receipt = { assertCurrent: vi.fn() }
+    const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
+    const cancel = router.beforeEach(() => false)
+    const { wrapper, showMessage } = mountWithPageService(AppList, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
+    })
+    await flushPromises()
+    const enter = wrapper.findAll('button').find((button) => button.text().includes('进入应用'))
+    if (!enter) throw new Error('AppList did not render the application entry button')
+
+    await enter.trigger('click')
+    await flushPromises()
+
+    cancel()
+    expect(messagesOf(showMessage, 'success')).toEqual([])
+    expect(messagesOf(showMessage, 'error')).toEqual(['应用页面导航未完成'])
+    expect(router.currentRoute.value.path).toBe('/apps/homepage/app-list')
+  })
+
+  it('checks the receipt in the real AppTabBar before switching owners', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [
+      { path: '/apps/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
+      { path: '/apps/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
+    ] })
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'APP-A', items: [] }), componentMap: {} })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    await router.push('/apps/APP-A/dashboard')
+    const receipt = { assertCurrent: vi.fn() }
+    const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
+    const { wrapper: tabWrapper, showMessage } = mountWithPageService(AppTabBar, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true },
+    })
+    await router.push('/apps/APP-B/dashboard')
+    await flushPromises()
+    const push = vi.spyOn(router, 'push')
+    const target = tabWrapper.findAll('.app-tab-bar__tab').find((tab) => tab.text().includes('Page A'))
+    if (!target) throw new Error('AppTabBar did not retain the other owner tab')
+
+    await target.trigger('click')
+    await flushPromises()
+
+    expect(service.switchAndReload).toHaveBeenCalledWith('APP-A')
+    expect(receipt.assertCurrent).toHaveBeenCalledOnce()
+    expect(push).toHaveBeenCalledOnce()
+    expect(router.currentRoute.value.path).toBe('/apps/APP-A/dashboard')
+    expect(messagesOf(showMessage, 'error')).toEqual([])
+  })
+
+  it('keeps the active route and both tabs when a real AppTabBar selection goes stale', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [
+      { path: '/apps/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
+      { path: '/apps/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
+    ] })
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
+      loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'APP-A', items: [] }), componentMap: {} })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    await router.push('/apps/APP-A/dashboard')
+    let current = true
+    const receipt = { assertCurrent: vi.fn(() => { if (!current) throw new Error('selection was superseded') }) }
+    const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => {
+      queueMicrotask(() => { current = false })
+      return receipt
+    }) }
+    const { wrapper, showMessage } = mountWithPageService(AppTabBar, {
+      router, provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { DisplayIcon: true },
+    })
+    await router.push('/apps/APP-B/dashboard')
+    await flushPromises()
+    const push = vi.spyOn(router, 'push')
+    const target = wrapper.findAll('.app-tab-bar__tab').find((tab) => tab.text().includes('Page A'))
+    if (!target) throw new Error('AppTabBar did not retain the other owner tab')
+
+    await target.trigger('click')
+    await flushPromises()
+
+    expect(push).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.params['projectId']).toBe('APP-B')
+    expect(wrapper.findAll('.app-tab-bar__tab').some((tab) => tab.text().includes('Page A'))).toBe(true)
+    expect(wrapper.findAll('.app-tab-bar__tab').some((tab) => tab.text().includes('Current Page'))).toBe(true)
+    expect(messagesOf(showMessage, 'error')).toEqual(['selection was superseded'])
+  })
+})

@@ -1,0 +1,168 @@
+/**
+ * @module @spark-appworks/spark-app:navigation/useTabPages
+ * 职责：按运行实例保存页面标签及调用地址。
+ * 边界：关闭先校验脏状态，由路由 owner 释放实例。
+ * AI用途：定位多场景调用的标签切换、导航取消和关闭规则。
+ */
+import { onScopeDispose, ref, watch } from 'vue'
+import { parseQuery, useRoute, useRouter, type RouteLocationNormalizedLoaded } from 'vue-router'
+import { getDynamicRouter } from './nav-access'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigationItem } from './runtime-navigation'
+
+/** 一个已打开页面的标签投影；工具实例用 instanceId 定位，fullPath 保留调用参数。 */
+export type TabPage = {
+  id: string
+  path: string
+  title: string
+  icon?: string
+  name?: string
+  runtimeName?: string
+  systemPage?: boolean
+  projectId?: string
+  closable: boolean
+  fullPath: string
+}
+/** 单页或多标签显示方式；切换模式仍遵守实例脏状态检查。 */
+export type PageMode = 'single' | 'multi'
+/** 标签导航入口配置；注入的导航必须等待完成，失败不得释放原实例。 */
+export type UseTabPagesOptions = { navigate?: (fullPath: string) => Promise<void> | void }
+const tabs = ref<TabPage[]>([])
+const activeTab = ref('')
+const mode = ref<PageMode>('multi')
+let watchInstalled = false
+
+function toTab(route: RouteLocationNormalizedLoaded): TabPage | null {
+  const title = route.meta['title']
+  if (typeof title !== 'string' || !title) return null
+  const owner = getDynamicRouter()
+  const systemPage = owner?.getSystemPageInstance(route)
+  if (route.meta['systemPageIdentityHost'] === true && systemPage === undefined) return null
+  const runtime = owner?.getPageRuntime(route)
+  const view = runtime ? owner?.getPageRuntimeView(route) : undefined
+  const pageId = route.meta['pageId']
+  const homePath = owner?.getNavTree()?.homePath
+  const home = homePath?.split(/[?#]/, 1)[0]
+  const nodeId = route.meta['nodeId']
+  const findHomeNodes = (nodes: readonly RuntimeNavigationItem[]): string[] => {
+    const matches: string[] = []
+    for (const item of nodes) {
+      if (item.path?.split(/[?#]/, 1)[0] === home) matches.push(item.id)
+      if (item.children) matches.push(...findHomeNodes(item.children))
+    }
+    return matches
+  }
+  const navTree = owner?.getNavTree()
+  const homeQueryIndex = homePath?.indexOf('?') ?? -1
+  const homeHashIndex = homePath?.indexOf('#') ?? -1
+  const homeQueryEnd = homeHashIndex < 0 ? undefined : homeHashIndex
+  const homeQuery = homeQueryIndex < 0 || homePath === undefined ? {} : parseQuery(homePath.slice(homeQueryIndex + 1, homeQueryEnd))
+  const homeMarker = homeQuery[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+  const homeNodeIds = typeof homeMarker === 'string' ? [homeMarker]
+    : navTree && home !== undefined ? findHomeNodes(navTree.items) : []
+  const routeNodeId = typeof nodeId === 'string' ? nodeId : undefined
+  const marker = route.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+  const isHomeIdentity = systemPage !== undefined && homeNodeIds.length === 1
+    && routeNodeId === homeNodeIds[0] && (marker === undefined || marker === routeNodeId)
+  const isLegacyHomePath = systemPage === undefined && home !== undefined && route.path.endsWith(home)
+  return { id: systemPage?.instanceId ?? runtime?.instanceId ?? route.path, path: route.path, title,
+    ...(typeof route.params['projectId'] === 'string' ? { projectId: route.params['projectId'] } : {}),
+    ...(typeof route.meta['icon'] === 'string' ? { icon: route.meta['icon'] } : {}),
+    ...(typeof route.name === 'string' ? { name: route.name } : {}),
+    ...(systemPage?.componentName ? { runtimeName: systemPage.componentName } : view?.name ? { runtimeName: view.name } : {}),
+    ...(systemPage ? { systemPage: true } : {}),
+    closable: pageId !== 'dashboard' && pageId !== 'home' && !isHomeIdentity && !isLegacyHomePath, fullPath: route.fullPath }
+}
+
+function assertClean(candidates: readonly TabPage[]): void {
+  const owner = getDynamicRouter()
+  for (const tab of candidates) {
+    const runtime = tab.runtimeName ? owner?.getPageRuntimeById(tab.id) : undefined
+    if (runtime?.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
+    if (tab.systemPage && owner?.getSystemPageInstanceById(tab.id)?.isDirty) {
+      throw new Error('系统页面有未保存修改或待核验提交，必须先保存或明确处理')
+    }
+  }
+}
+function release(candidates: readonly TabPage[]): void {
+  for (const tab of candidates) {
+    if (tab.systemPage) getDynamicRouter()?.closeSystemPageInstance(tab.id)
+    else if (tab.runtimeName) getDynamicRouter()?.closePageRuntime(tab.id)
+  }
+  const ids = new Set(candidates.map(tab => tab.id))
+  tabs.value = tabs.value.filter(tab => !ids.has(tab.id))
+}
+
+export function useTabPages(options?: UseTabPagesOptions) {
+  const route = useRoute()
+  const router = useRouter()
+  async function navigate(fullPath: string): Promise<void> {
+    if (options?.navigate) await options.navigate(fullPath)
+    else if (await router.push(fullPath)) throw new Error('页面导航已取消，原实例保留')
+  }
+
+  if (!watchInstalled) {
+    watchInstalled = true
+    const removeGuard = router.beforeEach((to, from) => {
+      if (mode.value !== 'single' || to.fullPath === from.fullPath) return
+      const previous = tabs.value.find(tab => tab.id === activeTab.value)
+      if (previous) assertClean([previous])
+    })
+    const stop = watch([() => route.fullPath, () => getDynamicRouter()?.systemPageRevision.value], () => {
+      const owner = getDynamicRouter()
+      const projectId = route.params['projectId']
+      tabs.value = tabs.value.filter(item => (!item.systemPage || owner?.getSystemPageInstanceById(item.id) !== undefined)
+        && (item.runtimeName === undefined || item.systemPage === true || owner?.getPageRuntimeById(item.id) !== undefined)
+        && (typeof projectId !== 'string' || item.projectId === undefined || item.projectId === projectId))
+      const tab = toTab(router.currentRoute.value)
+      if (!tab) {
+        if (!tabs.value.some(item => item.id === activeTab.value)) activeTab.value = ''
+        return
+      }
+      if (mode.value === 'single') {
+        const previous = tabs.value.filter(item => item.id !== tab.id && (item.runtimeName !== undefined || item.systemPage === true))
+        assertClean(previous)
+        release(previous)
+      }
+      activeTab.value = tab.id
+      const index = tabs.value.findIndex(item => item.id === tab.id)
+      if (index < 0) tabs.value.push(tab)
+      else tabs.value[index] = tab
+    }, { immediate: true })
+    onScopeDispose(() => {
+      stop()
+      removeGuard()
+      watchInstalled = false
+    })
+  }
+
+  async function close(candidates: readonly TabPage[]): Promise<void> {
+    assertClean(candidates)
+    const removing = new Set(candidates.map(tab => tab.id))
+    if (removing.has(activeTab.value)) {
+      const target = tabs.value.find(tab => !removing.has(tab.id))
+      if (!target) throw new Error('请先打开另一个页面再关闭当前唯一页面')
+      await navigate(target.fullPath)
+      if (removing.has(activeTab.value)) throw new Error('页面导航未完成，原实例保留')
+    }
+    release(candidates)
+  }
+  async function closeTab(id: string): Promise<void> {
+    const tab = tabs.value.find(item => item.id === id)
+    if (tab?.closable) await close([tab])
+  }
+  async function closeOthers(id: string): Promise<void> { await close(tabs.value.filter(tab => tab.id !== id && tab.closable)) }
+  async function closeAll(): Promise<void> { await close(tabs.value.filter(tab => tab.closable)) }
+  async function switchTo(id: string): Promise<void> {
+    const tab = tabs.value.find(item => item.id === id)
+    if (tab) await navigate(tab.fullPath)
+  }
+  function setMode(next: PageMode): void {
+    if (next === 'single') {
+      const candidates = tabs.value.filter(tab => tab.id !== activeTab.value && tab.closable)
+      assertClean(candidates)
+      release(candidates)
+    }
+    mode.value = next
+  }
+  return { tabs, activeTab, mode, closeTab, closeOthers, closeAll, switchTo, setMode }
+}

@@ -1,0 +1,21 @@
+[data-page="r-table-series"] .r-table-series-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-page="r-table-series"] .r-table-series-page__desc {
+  margin: 0;
+}
+
+[data-page="r-table-series"] .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 960px) {
+  [data-page="r-table-series"] .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-guard",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-guard.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-guard.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/save/data-space-save-guard",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-guard\n职责：拒绝空输入与无实际效果的显式变更。\n边界：有效数量必须是正安全整数，不把无操作报告为保存成功。\nAI用途：在统一保存前核对变更输入与实际差异。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpaceMutationOperation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceMutationOperation",
+      "enum": [
+        "新增",
+        "保存",
+        "更新",
+        "删除"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.619Z",
+  "models": {
+    "DataSpaceMutationOperation": {
+      "name": "DataSpaceMutationOperation",
+      "jsdoc": "显式数据变更动作名称，用于报告空输入或无实际效果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'新增' | '保存' | '更新' | '删除'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'新增'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'保存'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'更新'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'删除'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

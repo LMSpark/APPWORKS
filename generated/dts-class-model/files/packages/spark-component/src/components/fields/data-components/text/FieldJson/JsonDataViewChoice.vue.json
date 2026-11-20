@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/text/FieldJson/JsonDataViewChoice",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice\nFieldJson内部的标量及原生标量数组选项控件，复用同一DataView选项解析，不查询、编辑选项记录或保存数据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "FieldJson",
+    "componentType": "r-json",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "Scalar": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Scalar",
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-05T13:43:06.703Z",
+  "models": {
+    "Scalar": {
+      "name": "Scalar",
+      "jsdoc": "保持原生类型的JSON标量选项值。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldJson",
+        "type": "r-json",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "string | number | boolean",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          },
+          {
+            "kind": "union",
+            "typeText": "boolean"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

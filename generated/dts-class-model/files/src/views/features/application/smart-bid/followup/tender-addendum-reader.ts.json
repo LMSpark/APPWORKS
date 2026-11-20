@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/followup/tender-addendum-reader",
+    "sourcePath": "src/views/features/application/smart-bid/followup/tender-addendum-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/followup/tender-addendum-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/followup/tender-addendum-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-addendum-reader\n职责：动作14回读本标段本轮次的正式变动及新旧原件位置，供动作23继续取证。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T21:30:32.096Z",
+  "models": {}
+}

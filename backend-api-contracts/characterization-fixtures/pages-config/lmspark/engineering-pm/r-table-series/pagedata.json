@@ -1,0 +1,339 @@
+{
+  "dataSetName": "RTableSeriesDS",
+  "resourceRelations": [
+    {
+      "parentTable": "Orders",
+      "childTable": "OrderItems",
+      "parentField": "id",
+      "childField": "orderId"
+    }
+  ],
+  "tables": {
+    "Orders": {
+      "tableName": "Orders",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "orderNo",
+          "type": "string",
+          "label": "订单号"
+        },
+        {
+          "name": "customer",
+          "type": "string",
+          "label": "客户"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "label": "优先级"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "label": "负责人"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "label": "订单金额"
+        },
+        {
+          "name": "taxAmount",
+          "type": "number",
+          "label": "税额",
+          "computeExpression": "amount * 0.13"
+        },
+        {
+          "name": "totalAmount",
+          "type": "number",
+          "label": "含税总额",
+          "computeExpression": "amount + taxAmount"
+        },
+        {
+          "name": "orderDate",
+          "type": "string",
+          "label": "下单日期"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "label": "区域"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1001,
+              "orderNo": "SO-2026-001",
+              "customer": "华东数科",
+              "status": "pending",
+              "priority": "high",
+              "owner": "张三",
+              "amount": 28000,
+              "orderDate": "2026-03-02",
+              "region": "east",
+              "_perm": {
+                "allowDelete": true,
+                "editableFields": [
+                  "status",
+                  "priority",
+                  "owner",
+                  "amount"
+                ]
+              }
+            },
+            {
+              "id": 1002,
+              "orderNo": "SO-2026-002",
+              "customer": "华南智造",
+              "status": "draft",
+              "priority": "medium",
+              "owner": "李四",
+              "amount": 15200,
+              "orderDate": "2026-03-04",
+              "region": "south",
+              "_perm": {
+                "allowDelete": false,
+                "editableFields": [
+                  "status",
+                  "priority"
+                ]
+              }
+            },
+            {
+              "id": 1003,
+              "orderNo": "SO-2026-003",
+              "customer": "北辰医疗",
+              "status": "done",
+              "priority": "low",
+              "owner": "王五",
+              "amount": 42000,
+              "orderDate": "2026-03-06",
+              "region": "north",
+              "_perm": {
+                "allowDelete": true,
+                "editableFields": []
+              }
+            },
+            {
+              "id": 1004,
+              "orderNo": "SO-2026-004",
+              "customer": "西南云谷",
+              "status": "pending",
+              "priority": "high",
+              "owner": "赵六",
+              "amount": 19800,
+              "orderDate": "2026-03-07",
+              "region": "west",
+              "_perm": {
+                "allowDelete": true,
+                "editableFields": [
+                  "status",
+                  "priority",
+                  "owner"
+                ]
+              }
+            },
+            {
+              "id": 1005,
+              "orderNo": "SO-2026-005",
+              "customer": "星河零售",
+              "status": "cancelled",
+              "priority": "low",
+              "owner": "孙七",
+              "amount": 9600,
+              "orderDate": "2026-03-08",
+              "region": "east",
+              "_perm": {
+                "allowDelete": false,
+                "editableFields": []
+              }
+            },
+            {
+              "id": 1006,
+              "orderNo": "SO-2026-006",
+              "customer": "天启物流",
+              "status": "pending",
+              "priority": "medium",
+              "owner": "周八",
+              "amount": 33500,
+              "orderDate": "2026-03-10",
+              "region": "south",
+              "_perm": {
+                "allowDelete": true,
+                "editableFields": [
+                  "status",
+                  "owner"
+                ]
+              }
+            }
+          ],
+          "autoCurrentFirst": true,
+          "aggregates": {
+            "orderCount": {
+              "type": "count",
+              "field": "id"
+            },
+            "amount": {
+              "type": "sum"
+            },
+            "taxAmount": {
+              "type": "sum"
+            },
+            "totalAmount": {
+              "type": "sum"
+            }
+          }
+        }
+      }
+    },
+    "OrderItems": {
+      "tableName": "OrderItems",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "orderId",
+          "type": "number",
+          "label": "订单ID"
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "label": "SKU"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "label": "商品"
+        },
+        {
+          "name": "qty",
+          "type": "number",
+          "label": "数量"
+        },
+        {
+          "name": "unitPrice",
+          "type": "number",
+          "label": "单价"
+        },
+        {
+          "name": "lineAmount",
+          "type": "number",
+          "label": "行金额",
+          "computeExpression": "qty * unitPrice"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "orderId": 1001,
+              "sku": "NB-14-PRO",
+              "product": "轻薄笔记本",
+              "qty": 2,
+              "unitPrice": 9800
+            },
+            {
+              "id": 2,
+              "orderId": 1001,
+              "sku": "MOUSE-WL-02",
+              "product": "无线鼠标",
+              "qty": 6,
+              "unitPrice": 150
+            },
+            {
+              "id": 3,
+              "orderId": 1002,
+              "sku": "ROUTER-AX3",
+              "product": "企业路由器",
+              "qty": 4,
+              "unitPrice": 1200
+            },
+            {
+              "id": 4,
+              "orderId": 1002,
+              "sku": "SWITCH-24P",
+              "product": "24口交换机",
+              "qty": 2,
+              "unitPrice": 2200
+            },
+            {
+              "id": 5,
+              "orderId": 1003,
+              "sku": "MON-27-4K",
+              "product": "27寸4K显示器",
+              "qty": 8,
+              "unitPrice": 2600
+            },
+            {
+              "id": 6,
+              "orderId": 1004,
+              "sku": "PAD-11-AI",
+              "product": "11寸平板",
+              "qty": 10,
+              "unitPrice": 1800
+            },
+            {
+              "id": 7,
+              "orderId": 1004,
+              "sku": "KEY-MECH-87",
+              "product": "机械键盘",
+              "qty": 15,
+              "unitPrice": 380
+            },
+            {
+              "id": 8,
+              "orderId": 1005,
+              "sku": "CABLE-C2C",
+              "product": "Type-C 数据线",
+              "qty": 30,
+              "unitPrice": 35
+            },
+            {
+              "id": 9,
+              "orderId": 1006,
+              "sku": "CAM-4K-PTZ",
+              "product": "4K会议摄像头",
+              "qty": 3,
+              "unitPrice": 4200
+            },
+            {
+              "id": 10,
+              "orderId": 1006,
+              "sku": "MIC-ARRAY",
+              "product": "阵列麦克风",
+              "qty": 5,
+              "unitPrice": 980
+            }
+          ],
+          "aggregates": {
+            "qty": {
+              "type": "sum"
+            },
+            "lineAmount": {
+              "type": "sum"
+            }
+          }
+        }
+      }
+    }
+  }
+}

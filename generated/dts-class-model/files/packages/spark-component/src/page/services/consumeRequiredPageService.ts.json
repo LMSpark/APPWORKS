@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/services/consumeRequiredPageService",
+    "sourcePath": "packages/spark-component/src/page/services/consumeRequiredPageService.ts",
+    "sourceFile": "packages/spark-component/src/page/services/consumeRequiredPageService.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/services/consumeRequiredPageService",
+    "jsdoc": "@spark-appworks/spark-component 的 page/services/consumeRequiredPageService 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T07:15:39.427Z",
+  "models": {
+    "SparkCapabilityConsumer": {
+      "name": "SparkCapabilityConsumer",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    <T>(name: CapabilityKey<T>): T | null;\n}",
+        "members": {}
+      }
+    }
+  }
+}

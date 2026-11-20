@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader\n职责：冷回读冻结输入摘要，供页18核验原试次。\n边界：按原试次身份读取固定清单，本次视图仅用于查询。\nAI用途：定位原试次输入或清单身份不匹配的原因。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Manifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Manifest",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requirementReads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lineageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "fieldPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lineageId",
+              "version",
+              "fieldPath"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "scope",
+        "assertCurrent",
+        "inputDigest",
+        "guideVersionRef",
+        "guideRef",
+        "guideDigest",
+        "usable"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T01:43:11.180Z",
+  "models": {
+    "Manifest": {
+      "name": "Manifest",
+      "jsdoc": "原调用固定的输入、工具版本和证据清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof recoverRegisteredOperationRouteAttempt>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requirementReads",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

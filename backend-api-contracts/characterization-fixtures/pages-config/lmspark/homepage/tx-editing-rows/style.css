@@ -1,0 +1,23 @@
+[data-page="tx-editing-rows"] .tx-test-page {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+[data-page="tx-editing-rows"] .tx-test-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+[data-page="tx-editing-rows"] .tx-test-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  [data-page="tx-editing-rows"] .tx-test-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/structure/RendererCollapse/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/structure/RendererCollapse/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererCollapse/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/structure/RendererCollapse/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/structure/RendererCollapse/zero-code\n职责：封装 RendererCollapse（r-collapse）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 container/layout-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer collapse 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererCollapse",
+    "componentType": "r-collapse",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RendererCollapseZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererCollapseZeroCodeOptions",
+      "properties": {
+        "currentValue": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "itemConfigs": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "onChange": {
+          "type": "object",
+          "title": "(value: string | number | Array<string | number>) => void"
+        }
+      },
+      "required": [
+        "currentValue",
+        "itemConfigs",
+        "onChange"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.commitCollapseValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "emit": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.commitCollapseValue.return": true,
+        "method.getItemName.params": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getItemName.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.107Z",
+  "models": {
+    "RendererCollapseZeroCodeOptions": {
+      "name": "RendererCollapseZeroCodeOptions",
+      "jsdoc": "Renderer Collapse Zero Code Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererCollapse",
+        "type": "r-collapse",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** current Value 字段。 */\n    currentValue: ValueRef<string | number | Array<string | number> | undefined>;\n    /** commit Collapse Value 回调。 */\n    commitCollapseValue: (value: string | number | Array<string | number>, options?: {\n        emit?: boolean;\n    }) => void;\n    /** item Configs 字段。 */\n    itemConfigs: ValueRef<SparkNode[]>;\n    /** get Item Name 名称。 */\n    getItemName: (item: SparkNode, index: number) => string | number;\n    /** on Change 事件回调。 */\n    onChange: ((value: string | number | Array<string | number>) => void) | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "currentValue",
+              "jsdoc": "current Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "itemConfigs",
+              "jsdoc": "item Configs 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onChange",
+              "jsdoc": "on Change 事件回调。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "commitCollapseValue",
+              "jsdoc": "commit Collapse Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "array",
+                        "elementType": {
+                          "type": "union",
+                          "types": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            },
+                            {
+                              "type": "intrinsic",
+                              "name": "number"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        emit?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getItemName",
+              "jsdoc": "get Item Name 名称。",
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

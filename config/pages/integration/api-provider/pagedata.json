@@ -1,0 +1,66 @@
+{
+  "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+  "tables": {
+    "Base_InterfaceProvider": {
+      "modelBinding": {
+        "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p000",
+        "modelName": "Base_InterfaceProvider"
+      },
+      "columns": [
+        {
+          "name": "Name",
+          "required": true,
+          "trim": "normalize"
+        },
+        {
+          "name": "BaseURL",
+          "required": true,
+          "trim": "normalize"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "page": 1,
+          "pageSize": 10,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "BaseURL",
+              "updateuser",
+              "updatetime"
+            ]
+          }
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p001",
+        "modelName": "Base_UserInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "rowid",
+          "labelField": "UserName",
+          "queryConfig": {
+            "fields": [
+              "ID",
+              "rowid",
+              "UserName"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

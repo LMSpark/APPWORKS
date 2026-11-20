@@ -1,0 +1,193 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h1",
+        "children": [
+          "Master-Detail 演示"
+        ]
+      },
+      {
+        "type": "p",
+        "children": [
+          "点击用户行，自动加载该用户的订单（零代码，内核自动处理）"
+        ],
+        "props": {
+          "style": {
+            "color": "#666",
+            "marginBottom": "20px"
+          }
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "h2",
+            "children": [
+              "👥 用户列表 (Master)"
+            ]
+          },
+          {
+            "type": "r-table",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "用户ID",
+                  "width": 100,
+                  "field": "id"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "姓名",
+                  "width": 150,
+                  "field": "name"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "邮箱",
+                  "field": "email"
+                }
+              }
+            ],
+            "props": {
+              "border": true,
+              "stripe": true,
+              "highlightCurrentRow": true,
+              "dataViewKey": "Users@default"
+            }
+          }
+        ],
+        "props": {
+          "class": "section",
+          "style": {
+            "marginBottom": "30px"
+          }
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "h2",
+            "children": [
+              "📋 当前用户详情 (currentRow)"
+            ]
+          },
+          {
+            "type": "r-detail",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "用户ID",
+                  "colSpan": 8,
+                  "field": "id"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "姓名",
+                  "colSpan": 8,
+                  "field": "name"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "邮箱",
+                  "colSpan": 8,
+                  "field": "email"
+                }
+              }
+            ],
+            "props": {
+              "dataViewKey": "Users@default",
+              "contextDataMember": "currentRow"
+            }
+          }
+        ],
+        "props": {
+          "class": "section",
+          "style": {
+            "marginBottom": "30px"
+          }
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "h2",
+            "children": [
+              "📦 订单列表 (Detail - currentRow 依赖)"
+            ]
+          },
+          {
+            "type": "p",
+            "children": [
+              "自动加载 + 自动过滤（基于 Users.currentRow）"
+            ],
+            "props": {
+              "style": {
+                "color": "#999",
+                "fontSize": "14px"
+              }
+            }
+          },
+          {
+            "type": "r-table",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "订单ID",
+                  "width": 100,
+                  "field": "id"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "产品",
+                  "width": 200,
+                  "field": "product"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "金额",
+                  "width": 120,
+                  "field": "amount"
+                }
+              }
+            ],
+            "props": {
+              "border": true,
+              "stripe": true,
+              "emptyText": "请先选择用户",
+              "dataViewKey": "Orders@default"
+            }
+          }
+        ],
+        "props": {
+          "class": "section"
+        }
+      }
+    ],
+    "props": {
+      "class": "master-detail-container",
+      "style": {
+        "padding": "20px"
+      }
+    }
+  }
+]

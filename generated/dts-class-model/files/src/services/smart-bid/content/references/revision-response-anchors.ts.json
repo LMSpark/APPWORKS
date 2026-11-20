@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/revision-response-anchors",
+    "sourcePath": "src/services/smart-bid/content/references/revision-response-anchors.ts",
+    "sourceFile": "src/services/smart-bid/content/references/revision-response-anchors.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/revision-response-anchors",
+    "jsdoc": "@module app:services/smart-bid/content/references/revision-response-anchors\n职责：核固定响应版本身份、章内锚点及同版要求挂接。\n边界：只检查定位投影，不代完整Response模型、分工、承诺、证明、句意与核定授权。\nAI用途：原快照完整节点和挂接通过后检查响应落点；独立答复不造虚假章或正文锚点。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "AnchorNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AnchorNode",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "nodeId",
+        "parentId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T13:32:07.667Z",
+  "models": {
+    "AnchorNode": {
+      "name": "AnchorNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ContentStructureNode, 'nodeId' | 'parentId' | 'type'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<ContentStructureNode, 'nodeId' | 'parentId' | 'type'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

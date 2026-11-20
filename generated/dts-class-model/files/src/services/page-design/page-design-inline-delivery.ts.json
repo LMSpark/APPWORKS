@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/page-design/page-design-inline-delivery",
+    "sourcePath": "src/services/page-design/page-design-inline-delivery.ts",
+    "sourceFile": "src/services/page-design/page-design-inline-delivery.ts",
+    "packageName": "app",
+    "modulePath": "services/page-design/page-design-inline-delivery",
+    "jsdoc": "@module app:services/page-design/page-design-inline-delivery\n职责：交付活跃 pageDesign runner 本轮的页面文件和场景定义 DataView 变更。\n边界：只读取当前 ProjectWorkspace 投影并提交正式 DataView 回执，不创建 AI run owner。\nAI用途：理解 pageDesign inline runner 的提交结果与待保存状态。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageDesignDeliveryContext",
+      "CreatePageDesignDeliveryPortOptions"
+    ]
+  },
+  "$defs": {
+    "PageDesignDeliveryContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignDeliveryContext",
+      "properties": {
+        "editor": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "CreatePageDesignDeliveryPortOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreatePageDesignDeliveryPortOptions",
+      "properties": {
+        "mode": {
+          "$ref": "../ai/ai-delivery-port.ts.json#/$defs/AiDeliveryMode"
+        },
+        "shouldSave": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveFileNames": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+          }
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PageDesignDeliverySelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignDeliverySelection",
+      "properties": {
+        "saveFileNames": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+          }
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDesignInlineDeliveryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignInlineDeliveryOptions",
+      "properties": {
+        "saveFileNames": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+          }
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
+        "autoSave": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T15:31:33.727Z",
+  "models": {
+    "PageDesignDeliveryContext": {
+      "name": "PageDesignDeliveryContext",
+      "jsdoc": "pageDesign Agent Run 落盘时携带的 editor 与 pageId 上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "editor",
+              "jsdoc": "页面设计工作区编辑器。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "当前页面节点 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CreatePageDesignDeliveryPortOptions": {
+      "name": "CreatePageDesignDeliveryPortOptions",
+      "jsdoc": "Create Page Design Delivery Port Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "jsdoc": "交付模式（manual 或 auto）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shouldSave",
+              "jsdoc": "是否执行实际落盘保存。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveFileNames",
+              "jsdoc": "限定保存的文件名列表（省略则保存全部 dirty 文件）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedOperations",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignDeliverySelection": {
+      "name": "PageDesignDeliverySelection",
+      "jsdoc": "本次交付的明确文件范围及允许操作；省略范围与非法空范围语义不同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<CreatePageDesignDeliveryPortOptions, 'saveFileNames' | 'allowedOperations'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<CreatePageDesignDeliveryPortOptions, 'saveFileNames' | 'allowedOperations'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "saveFileNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedOperations",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignInlineDeliveryOptions": {
+      "name": "PageDesignInlineDeliveryOptions",
+      "jsdoc": "内联交付设置；沿用已确定的目标范围并显式决定是否实际保存。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDesignDeliverySelection & Readonly<{\n    autoSave: boolean;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDesignDeliverySelection",
+            "targetName": "PageDesignDeliverySelection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    autoSave: boolean;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "autoSave",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

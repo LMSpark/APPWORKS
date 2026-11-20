@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-return",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-return.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-return.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-return",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-return\n职责：核同一已派发路线工艺的原返回身份与原生 JSON。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        },
+        "receiptRef": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "COMPLETE",
+            "UNKNOWN",
+            "PARTIAL",
+            "FAILED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ]
+    },
+    "CandidateIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CandidateIssue",
+      "enum": [
+        "DISPATCH_CATALOG_REQUIRED",
+        "OUTSIDE_DISPATCH_CATALOG"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T02:24:04.313Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runId: string;\n    attemptRef: string;\n    requestKey: string;\n    projectId: string;\n    targetDigest: string;\n    configurationLockHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runId: string;\n    attemptRef: string;\n    requestKey: string;\n    projectId: string;\n    targetDigest: string;\n    configurationLockHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configurationLockHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    receiptRef: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'COMPLETE';\n    output: unknown;\n}> | Readonly<{\n    state: 'PARTIAL' | 'FAILED' | 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    receiptRef: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'COMPLETE';\n    output: unknown;\n}> | Readonly<{\n    state: 'PARTIAL' | 'FAILED' | 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "receiptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CandidateIssue": {
+      "name": "CandidateIssue",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'DISPATCH_CATALOG_REQUIRED' | 'OUTSIDE_DISPATCH_CATALOG'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'DISPATCH_CATALOG_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'OUTSIDE_DISPATCH_CATALOG'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

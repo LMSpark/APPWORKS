@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/DataPlanningPane\n职责：编辑正式场景绑定并挂载共享场景视图设计器。\n边界：场景dirty时禁止改绑定；模型定义由后端提供，不写conType。\nAI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式新建。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T19:59:05.824Z",
+  "models": {}
+}

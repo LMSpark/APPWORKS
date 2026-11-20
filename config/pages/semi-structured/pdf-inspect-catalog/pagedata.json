@@ -1,0 +1,103 @@
+{
+  "scenarioId": "A2D63AB2AAEF156E7727094A23AEA433",
+  "tables": {
+    "Base_FileInspectConfig": {
+      "modelBinding": {"modelId": "6d177477-0ecb-41c2-9299-ff037935066d", "modelName": "Base_FileInspectConfig"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "createtime", "updatetime"]},
+        "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "id", "direction": "asc"}]
+      }, "creation": {
+        "autoLoad": false, "autoCurrentFirst": true, "commitMode": "staged",
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
+        "filterExpression": {"field": "id", "operator": "is-null"}
+      }, "definition": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryContext": {"ruleId": ""},
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
+        "filterExpression": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
+      }, "executionRule": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"autoQuery": false, "cacheType": "none", "fields": ["id", "enabled", "rule_config"]},
+        "scopeFilter": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
+      }}
+    },
+    "PdfInspectionUpload": {
+      "resourceType": "command", "resourceId": "pdf-inspect:upload",
+      "columns": [
+        {"name": "uploadId", "type": "string", "isPrimaryKey": true},
+        {"name": "originalName", "type": "string"},
+        {"name": "size", "type": "number"},
+        {"name": "filePath", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "PdfInspectionInit": {
+      "resourceType": "command", "resourceId": "pdf-inspect:init",
+      "columns": [
+        {"name": "requestId", "type": "string", "isPrimaryKey": true},
+        {"name": "configId", "type": "string"},
+        {"name": "files", "type": "json"},
+        {"name": "inspectJobId", "type": "string"},
+        {"name": "status", "type": "string"},
+        {"name": "fileCount", "type": "number"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "PdfInspectionHistory": {
+      "resourceType": "logical-view", "resourceId": "pdf-inspect:history",
+      "columns": [
+        {"name": "inspectJobId", "type": "string", "isPrimaryKey": true},
+        {"name": "requestId", "type": "string"},
+        {"name": "configId", "type": "string"},
+        {"name": "status", "type": "string"}
+      ],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "pageSize": 20, "queryConfig": {"pagination": "paged"}
+      }}
+    },
+    "PdfInspectionLimits": {
+      "resourceType": "logical-view", "resourceId": "pdf-inspect:limits",
+      "columns": [
+        {"name": "id", "type": "string", "isPrimaryKey": true},
+        {"name": "protocolVersion", "type": "string"},
+        {"name": "maxFiles", "type": "number"},
+        {"name": "maxFileBytes", "type": "number"},
+        {"name": "maxTotalFileBytes", "type": "number"},
+        {"name": "maxTotalSourceBytes", "type": "number"},
+        {"name": "maxZipBytes", "type": "number"},
+        {"name": "maxZipEntries", "type": "number"},
+        {"name": "maxPages", "type": "number"},
+        {"name": "maxTextCharsPerPage", "type": "number"},
+        {"name": "maxRenderedPixels", "type": "number"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "PdfInspectionResult": {
+      "resourceType": "logical-view", "resourceId": "pdf-inspect:result",
+      "columns": [
+        {"name": "inspectJobId", "type": "string", "isPrimaryKey": true},
+        {"name": "requestId", "type": "string"},
+        {"name": "status", "type": "string"},
+        {"name": "total", "type": "number"},
+        {"name": "finished", "type": "number"},
+        {"name": "files", "type": "json"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "PdfInspectionRecovery": {
+      "resourceType": "logical-view", "resourceId": "pdf-inspect:recover",
+      "columns": [
+        {"name": "inspectJobId", "type": "string", "isPrimaryKey": true},
+        {"name": "requestId", "type": "string"},
+        {"name": "status", "type": "string"},
+        {"name": "total", "type": "number"},
+        {"name": "finished", "type": "number"},
+        {"name": "files", "type": "json"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    }
+  },
+  "resourceRelations": [], "viewCascades": []
+}

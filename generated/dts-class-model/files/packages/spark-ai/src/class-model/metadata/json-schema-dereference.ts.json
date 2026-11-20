@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/metadata/json-schema-dereference",
+    "sourcePath": "packages/spark-ai/src/class-model/metadata/json-schema-dereference.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/metadata/json-schema-dereference.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/metadata/json-schema-dereference",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/metadata/json-schema-dereference\n职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/json-schema-dereference 的 AI 运行时语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nRuntime API metadata schema inlining — delegates JSON Schema logic to spark-json-document.",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-10T11:17:37.593Z",
+  "models": {}
+}

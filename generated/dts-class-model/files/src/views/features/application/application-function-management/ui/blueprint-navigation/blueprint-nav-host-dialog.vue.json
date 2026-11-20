@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-nav-host-dialog\n职责：导航配置页签的“导航宿主”列表、新增/编辑导航宿主对话框（数据来源→字段映射→参数处理方式）、删除确认与数据空间设计入口。\n边界：列表与表单绑定 7AB 场景 byNode 视图；数据空间候选来自列 optionsView 所指视图，资源与三个字段映射由场景字段级联提供候选，\n资源类型由列 fill 回填；参数处理方式按 JSON 文本列的 type/name 子键编辑；只有显式“确定”才删除；结果未知时对话框不能关闭或放弃。\nAI用途：调整宿主列表列或表单分组时只改本组件；业务动作在 use-blueprint-nav-host。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T05:10:19.294Z",
+  "models": {}
+}

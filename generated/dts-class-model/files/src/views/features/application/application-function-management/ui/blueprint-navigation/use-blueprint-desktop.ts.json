@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：读取当前节点的桌面记录（主键即节点 id），新增对话框与取消确认。\n边界：直接使用蓝图 DataSet 中 7AB 场景声明的 Base_Desktop_System@byNode；默认值只写入新行可写的字段；\n保存与删除只经 DataSet.saveChanges 提交本行并回读，结果未知时对话框不能关闭或放弃，再次提交只核验原捕获。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintDesktopInput"
+    ]
+  },
+  "$defs": {
+    "BlueprintDesktopInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintDesktopInput",
+      "properties": {
+        "selectedNodeId": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "__@RefSymbol@305398": {
+              "const": true
+            }
+          },
+          "required": [
+            "value",
+            "__@RefSymbol@305398"
+          ],
+          "additionalProperties": false
+        },
+        "notice": {
+          "type": "object",
+          "title": "Ref<string, string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "../use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+        },
+        "method.isLive.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "../use-application-function-page.ts.json#/$defs/BlueprintTreeContext"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isLive.return": {
+          "type": "boolean"
+        },
+        "method.active.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.active.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-12T17:18:56.480Z",
+  "models": {
+    "BlueprintDesktopInput": {
+      "name": "BlueprintDesktopInput",
+      "jsdoc": "页面向桌面显示提供的上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    selectedNodeId: Readonly<Ref<string>>;\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    notice: Ref<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    context: () => BlueprintTreeContext | undefined;\n    selectedNodeId: Readonly<Ref<string>>;\n    isLive: (context: BlueprintTreeContext, nodeId: string) => boolean;\n    /** 导航配置页签处于激活状态。 */\n    active: () => boolean;\n    notice: Ref<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "selectedNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notice",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "context",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "BlueprintTreeContext",
+                  "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                }
+              }
+            },
+            {
+              "name": "isLive",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintTreeContext",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/use-application-function-page.ts"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "active",
+              "jsdoc": "导航配置页签处于激活状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

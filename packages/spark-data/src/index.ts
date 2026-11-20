@@ -1,0 +1,281 @@
+/**
+ * @module @spark-appworks/spark-data:index
+ * 职责：提供 spark-data 数据管线中的 index 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。
+ * 边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。
+ * AI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。
+ */
+/**
+ * @spark-appworks/spark-data
+ * SPARK 数据空间 — 数据模型 + CRUD + 树结构 + 权限
+ *
+ * **推荐入口**：`SparkData` 命名空间（工厂方法 + 解析工具）
+ *
+ * 精简公共 API，只暴露外部消费者实际需要的最小集合：
+ * - 命名空间：`SparkData`
+ * - 核心类：`DataSet`、`DataView`（纯 TS，无框架依赖）
+ * - DataViewKey / DataMember 解析工具函数
+ * - 权限渲染常量
+ * - 数据配置所需的类型
+ */
+
+// ===== 命名空间 API（推荐入口）=====
+
+export { SparkData } from './spark-data'
+
+// ===== 核心类（框架层必要直接引用）=====
+
+export { DataSet, DataSetSavePreflightError } from './dataset'
+export { DataTable, type DataTableQuerySaveRule, type DataTableQuerySaveRuleGroup, type DataTableQuerySaveRuleInput, type DataTableQueryReferenceChange, type DataTableQuerySaveReferences } from './data-table'
+export { DataView, DataViewSaveNotAppliedError, type DataViewNewRowIdentity, type DataViewChildRowInput,
+  type DataViewSaveResolution, type DataSetSaveResolution } from './data-view'
+export type {DataViewSourceHistoryStatus, DataViewSourceHistoryAttempt, DataViewSourceVersion, DataViewSourceWriteAttemptStatus} from './query/data-view-source'
+export {bindFileDirectoryQueryAdapter, bindFileResourceAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView,isFileResourceReadbackConfirmed} from './query/file-resource-adapter'
+export type {BindFileDirectoryQueryAdapterOptions, BindFileResourceAdapterOptions, FileResourceHistoryAttempt, FileResourceSnapshot, FileResourceTarget, FileResourceTransport} from './query/file-resource-adapter'
+export { DataViewFilter } from './query/filter/data-view-filter'
+export { DataViewFilterLocal } from './query/filter/data-view-filter-local'
+export { DataViewFilterCodec } from './query/filter/data-view-filter-codec'
+export type { DataViewFilterWire } from './query/filter/data-view-filter-codec'
+export { DataViewQuery } from './query/data-view-query'
+export { DataViewParentResult } from './query/data-view-parent-result'
+export { DataViewQueryCache } from './query/data-view-query-cache'
+export { DataViewArrayQuery } from './query/data-view-array-query'
+export { sortDataRowsByExpression } from './query/sort-expression'
+export { DataViewLocalQuery } from './query/data-view-local-query'
+export {
+  bindDataSetCommandSubmit,
+  bindDataSetReadonlyCommandQuery,
+  dataSetCommandQueryResultFromLocalRows,
+  ensureDataSetResourceView,
+  ensureDataSetStaticInputTable,
+  prepareDataSetReadonlyCommandQuery,
+} from './data-set-command/data-set-command-view'
+export type {
+  BindCommandSubmitOptions,
+  BindReadonlyCommandQueryOptions,
+  DataSetCommandColumnSpec,
+  DataSetCommandRequestProof,
+  DataSetCommandResourceIdentity,
+  DataSetCommandRowsLoader,
+  DataSetCommandPageLoader,
+  DataSetCommandScopeGuard,
+  DataSetReadonlyCommandBinding,
+  EnsureDataSetResourceViewInput,
+} from './data-set-command/data-set-command-view'
+export { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
+export { FormalTableRequestConfig } from './core/formal-table-request-config'
+export type { DataViewFilterTree, DataViewFilterOperator, DataViewFilterJsonValue } from './query/filter/data-view-filter-contract'
+export type {
+  DataViewFilterField, DataViewFilterFunctionContext, DataViewFilterValueFunction,
+  DataViewFilterFunctionField, DataViewFilterIssue, DataViewFilterValidationContext,
+} from './query/filter/data-view-filter-contract'
+export {
+  getDataViewFilterFieldOperators, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator,
+} from './query/filter/data-view-filter-catalog'
+export { isDataRow } from './core/data-row-guards'
+export { DataFieldMember } from './core/data-field-member'
+export { DataTreeField } from './core/tree-field'
+export type {TreeFieldSelector} from './types'
+export type { DataFieldMemberEdit, DataFieldMemberFormat, DataFieldMemberPath, DataFieldMemberRef } from './core/data-field-member'
+
+export type { FieldRenderState, PermissionActionContext } from './script-types'
+
+export { TreeManager } from './node-tree/tree-manager'
+export { DataSetCrudTool } from './dataset-crud-tool'
+export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+export { DataViewSelectionValue } from './strategies/selection/data-view-selection-value'
+
+// ===== Node Tree（页面节点树模型，从 spark-project-model 迁入）=====
+
+export {
+  SPARK_NODE_STRUCT_KEYS,
+  SPARK_PAGE_NODE_TYPE,
+  SPARK_PAGE_ROOT_ID,
+  SparkNodeTree,
+  visitSparkNodeDataViewBindings,
+  isSparkNode,
+  normalizeSparkNode,
+  getSparkNodeChildren,
+  nodeId,
+  nodeInputProp,
+  nodeInputProps,
+} from './node-tree'
+
+export type {
+  SparkNode,
+  SparkNodeChildren,
+  SparkNodeFindByTypeMatch,
+  SparkNodeFindByTypeParams,
+  SparkNodeFindByTypeResult,
+  SparkNodeLocation,
+  SparkNodeTreeChildrenParams,
+  SparkNodeTreeLookupParams,
+  SparkNodeAddResult,
+  SparkNodeMoveResult,
+  SparkNodeRemoveResult,
+  SparkNodeReplaceResult,
+  SparkNodeSetPropsResult,
+  SparkNodeAddNodesResult,
+  SparkNodeRemoveNodesResult,
+  SparkNodeReplaceNodesResult,
+  SparkNodeSetPropsBatchResult,
+  SparkNodeTreeAddNodesParams,
+  SparkNodeTreeAddParams,
+  SparkNodeTreeMoveParams,
+  SparkNodeTreeRemoveNodesParams,
+  SparkNodeTreeRemoveParams,
+  SparkNodeTreeReplaceNodesParams,
+  SparkNodeTreeReplaceParams,
+  SparkNodeTreeSetPropsParams,
+  SparkNodeTreeReplaceNodesItem,
+  SparkNodeTreeSetPropsBatchItem,
+  SparkNodeTreeSetPropsBatchParams,
+  SparkNodeTreeFromJsonOptions,
+  SparkNodeTreeJsonInput,
+  SparkNodeTreeMethodKey,
+  SparkNodeTreeRootParams,
+  SparkNodeTreeRuleJsonInput,
+} from './node-tree'
+export {
+  clearDataSetSnapshots,
+  commitDataSetSnapshot,
+  createLocalStorageHistoryAdapter,
+  formatPageDataSnapshot,
+  getDataSetSnapshot,
+  listDataSetSnapshots,
+  resolveDataSetHistoryKey,
+} from './dataset-history'
+export type {
+  DataSetCommitSnapshotOptions,
+  DataSetHistorySnapshot,
+  DataSetHistoryListOptions,
+  DataSetHistoryScope,
+  DataSetSnapshotSelector,
+  DataSetHistoryStorageAdapter,
+} from './dataset-history'
+
+// ===== DataViewKey / DataMember 统一解析 =====
+
+export {
+  DataMember,
+  isDataViewKey,
+  parseDataViewKey,
+  diagnoseDataViewKey,
+  resolveDataViewKey,
+  buildDataViewKey,
+  resolveDataViewMember,
+  diagnoseDataViewMember,
+  resolveDataViewMemberBinding,
+  getDataViewIdentity,
+  resolveDataViewCapabilities,
+} from './core/data-view-key'
+export type {
+  DataViewKeyDescriptor,
+  DataViewKeyDiagnostic,
+  DataViewKeyDiagnosticStatus,
+  DataViewMemberBinding,
+  DataViewMemberDescriptor,
+  DataViewMemberDiagnostic,
+  DataViewMemberDiagnosticStatus,
+  DataViewMemberInput,
+  DataViewMemberValue,
+  ResolvedDataViewCapabilities,
+} from './core/data-view-key'
+
+// ===== 核心类型 =====
+
+export type {
+  // 基础数据行 / 数据源契约
+  DataRow,
+  DataSource,
+  DataViewEditingFieldChangeEvent,
+  DataViewApplyEditingRowsResult,
+  DataSetSaveChangesOptions,
+  DataSetSaveChangesResult,
+  DataSetPhasedSaveResult,
+  DataSetSaveJournal,
+  DataSetSaveJournalPhase,
+  DataSetSaveJournalView,
+  DataSetSaveRecoverableAction,
+  DataSetSaveChangesViewResult,
+  DataSetSaveChangesViewSelector,
+  DataSetSaveChangesMode,
+  DataSetSaveChangesConfig,
+  DataSetSaveChangesTransactionConfig,
+  DataSetSaveChangesTransactionOptions,
+  DataSetTransactionOperation,
+  DataSetTransactionRequest,
+  DataSetTransactionResponse,
+  DataSetTransactionOperationResult,
+  DataSetContract,
+
+  // DataSet 配置（createDataSet / fromJson 参数类型）
+  DataSetMetadata,
+  TableMetadata,
+  DataColumn,
+  ColumnType,
+  DataResourceRelation,
+  DataResourceRelationInput,
+  DataResourceRelationFieldMapping,
+  DataViewCascade,
+  DataViewQueryCascade,
+  DataViewCascadeInputBinding,
+  DataViewFieldCascade,
+  DataViewFieldCascadeAddress,
+  DataViewFieldCascadeState,
+  DataViewCascadeFilterBinding,
+  DataViewCascadeSelector,
+  TableResourceType,
+  TableBusinessCategory,
+  TableModelBinding,
+  TableSemanticMetadata,
+  CrudApi,
+  CrudResult,
+  HttpEndpoint,
+  QueryParams,
+  DataViewQueryChild,
+
+  // 视图配置
+  ViewMetadata,
+  SortExpression,
+  SortDirection,
+  SortField,
+  TreeConfig,
+  TreePath,
+  FlatTreeNode,
+  NestedTreeNode,
+  NestedTreeSearchResult,
+  AggregateType,
+  AggregateColumnConfig,
+
+  // 提交模式
+  CommitMode,
+
+  // 事件订阅
+  ViewChangeHandlers,
+
+  // lowcode 后端最终权限快照
+  DataPermissionSets,
+  DataViewFieldProjection,
+  DataViewQueryContext,
+} from './types'
+
+// ===== 枚举 & 权限渲染常量 =====
+
+export {
+  TABLE_RESOURCE_TYPE_RECOMMENDED_VALUES,
+  TABLE_BUSINESS_CATEGORY_RECOMMENDED_VALUES,
+  RequestState,
+  FieldVisibility,
+  ComponentLevel,
+} from './types'
+
+// ===== 列验证规则 =====
+
+export { extractColumnRules, isColumnRequired } from './validation/column-validation'
+export type { ColumnValidationRule, ValidationRuleType } from './validation/column-validation'
+
+// ===== 事件发射器（spark-data 是 SSoT；spark-component 等下游 re-export） =====
+
+export { createEventEmitter } from './core/event-emitter'
+export {DataViewOptionCatalog, type DataViewOptionCatalogOptions, type DataViewOptionCatalogItem} from './query/data-view-option-catalog'
+export type { SparkEventEmitter } from './types'

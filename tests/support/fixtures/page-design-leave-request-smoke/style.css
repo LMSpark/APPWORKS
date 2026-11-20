@@ -1,0 +1,48 @@
+
+/* 请假申请页面样式 */
+.leave-request-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.leave-request-form {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.form-actions {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.form-actions .r-button {
+  min-width: 120px;
+  margin: 0 8px;
+}
+
+.leave-request-list {
+  margin-top: 32px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.leave-request-list .r-table {
+  width: 100%;
+}
+
+.status-pending {
+  color: #e6a23c;
+}
+
+.status-approved {
+  color: #67c23a;
+}
+
+.status-rejected {
+  color: #f56c6c;
+}

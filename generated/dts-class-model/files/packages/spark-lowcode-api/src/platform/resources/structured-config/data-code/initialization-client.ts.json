@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/initialization-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-client\n职责：沿实际CodeInitDataList合同读取服务端生成的前段组合与待用值。\n边界：结果不提供写权限，不写Base_CodeSerialPerform，不在浏览器排列业务组合。\nAI用途：初始化DataView资源适配内部消费；页面不得绕过数据空间调用该客户端。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeInitializationInput",
+      "CodeInitializationClient"
+    ]
+  },
+  "$defs": {
+    "CodeInitializationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeInitializationInput",
+      "properties": {
+        "codeId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "codeId",
+        "nodeId",
+        "date"
+      ],
+      "additionalProperties": false
+    },
+    "CodeInitializationClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeInitializationClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "readScope": {
+                  "type": "object",
+                  "title": "() => DataSpaceRequestScope"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "readScope"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/CodeInitializationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Readonly<Record<string, unknown>>>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T12:04:35.825Z",
+  "models": {
+    "CodeInitializationInput": {
+      "name": "CodeInitializationInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    codeId: string;\n    nodeId: string;\n    date: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    codeId: string;\n    nodeId: string;\n    date: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "codeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "date",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeInitializationClient": {
+      "name": "CodeInitializationClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase, options: Readonly<{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }>)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "jsdoc": "@param input 当前已保存设计、顺序段和日期。\n@returns 原服务组合，权限须另外消费正式模型查询。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "CodeInitializationInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "Record",
+                          "typeArguments": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            },
+                            {
+                              "type": "intrinsic",
+                              "name": "unknown"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/code-sequence-range",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/code-sequence-range",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/code-sequence-range\n职责：校验待用顺序值并转换为正式Code的前驱，遵循本行格式与增量。\n边界：不查询、不聚合、不保存；null表示尚无已用值，不把最小值减成无效字母。\nAI用途：初始化语义资源提交InitVal时使用，禁止固定减1或浮点转换长整数。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeSequenceRange"
+    ]
+  },
+  "$defs": {
+    "CodeSequenceRange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeSequenceRange",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "increment": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previous.params": {
+          "type": "object",
+          "properties": {
+            "desired": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previous.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T12:14:36.229Z",
+  "models": {
+    "CodeSequenceRange": {
+      "name": "CodeSequenceRange",
+      "jsdoc": "@module\n@spark-appworks /spark-lowcode-api:platform/resources/structured-config/data-code/code-sequence-range\n职责：校验待用顺序值并转换为正式Code的前驱，遵循本行格式与增量。\n边界：不查询、不聚合、不保存；null表示尚无已用值，不把最小值减成无效字母。\nAI用途：初始化语义资源提交InitVal时使用，禁止固定减1或浮点转换长整数。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(format: string, increment: number)",
+          "parameters": [
+            {
+              "name": "format",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "increment",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "previous",
+              "jsdoc": "@param desired 待使用的规范顺序号。\n@returns 已用前驱；最小值以null保留尚未使用的语义。",
+              "parameters": [
+                {
+                  "name": "desired",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

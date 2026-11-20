@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit\n职责：设计页会话内增删节点/连线行与布局覆盖，保存仍走 saveFlowDesignInfo。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RemoveFlowDesignGraphSelectionCommand",
+      "RemoveFlowDesignGraphSelectionResult",
+      "AddFlowDesignNodeCommand",
+      "AddFlowDesignNodeResult",
+      "AddFlowDesignEdgeCommand",
+      "AddFlowDesignEdgeResult"
+    ]
+  },
+  "$defs": {
+    "RemoveFlowDesignGraphSelectionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RemoveFlowDesignGraphSelectionCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "flowModelId": {
+          "type": "string"
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "node",
+                "edge"
+              ]
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "runtime",
+        "flowModelId",
+        "selection",
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    },
+    "RemoveFlowDesignGraphSelectionResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RemoveFlowDesignGraphSelectionResult",
+      "properties": {
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    },
+    "AddFlowDesignNodeCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AddFlowDesignNodeCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "flowModelId": {
+          "type": "string"
+        },
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "runtime",
+        "flowModelId",
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    },
+    "AddFlowDesignNodeResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AddFlowDesignNodeResult",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "nodeId",
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    },
+    "AddFlowDesignEdgeCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AddFlowDesignEdgeCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "flowModelId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "childId": {
+          "type": "string"
+        },
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "runtime",
+        "flowModelId",
+        "parentId",
+        "childId",
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    },
+    "AddFlowDesignEdgeResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AddFlowDesignEdgeResult",
+      "properties": {
+        "edgeId": {
+          "type": "string"
+        },
+        "layoutOverride": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignLayoutOverride"
+        }
+      },
+      "required": [
+        "edgeId",
+        "layoutOverride"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T05:34:47.892Z",
+  "models": {
+    "RemoveFlowDesignGraphSelectionCommand": {
+      "name": "RemoveFlowDesignGraphSelectionCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    selection: Readonly<{\n        kind: 'node' | 'edge';\n        id: string;\n    }>;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    selection: Readonly<{\n        kind: 'node' | 'edge';\n        id: string;\n    }>;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RemoveFlowDesignGraphSelectionResult": {
+      "name": "RemoveFlowDesignGraphSelectionResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AddFlowDesignNodeCommand": {
+      "name": "AddFlowDesignNodeCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n    x?: number;\n    y?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n    x?: number;\n    y?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AddFlowDesignNodeResult": {
+      "name": "AddFlowDesignNodeResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AddFlowDesignEdgeCommand": {
+      "name": "AddFlowDesignEdgeCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    parentId: string;\n    childId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    flowModelId: string;\n    parentId: string;\n    childId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AddFlowDesignEdgeResult": {
+      "name": "AddFlowDesignEdgeResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    edgeId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    edgeId: string;\n    layoutOverride: FlowDesignLayoutOverride;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "edgeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layoutOverride",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

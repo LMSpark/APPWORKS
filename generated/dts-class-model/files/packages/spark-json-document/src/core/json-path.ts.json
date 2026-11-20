@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:core/json-path",
+    "sourcePath": "packages/spark-json-document/src/core/json-path.ts",
+    "sourceFile": "packages/spark-json-document/src/core/json-path.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "core/json-path",
+    "jsdoc": "@module @spark-appworks/spark-json-document:core/json-path\n职责：提供 JSON Document/schema 处理中的 json path 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonPath"
+    ]
+  },
+  "$defs": {
+    "JsonPath": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "JsonPath",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.030Z",
+  "models": {
+    "JsonPath": {
+      "name": "JsonPath",
+      "jsdoc": "JSONPath：路径段数组（string = 对象键，number = 数组索引）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Array<string | number>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Array<string | number>",
+            "targetName": "Array"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

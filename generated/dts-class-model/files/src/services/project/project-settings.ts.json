@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/project-settings",
+    "sourcePath": "src/services/project/project-settings.ts",
+    "sourceFile": "src/services/project/project-settings.ts",
+    "packageName": "app",
+    "modulePath": "services/project/project-settings",
+    "jsdoc": "@module app:services/project/project-settings\n职责：按应用作用域把壳层 UI 偏好（头部优先、侧栏折叠、页脚、页面模式）读写到 localStorage。\n边界：只存本机偏好，不读写应用或导航的后端数据。\nAI用途：调整壳层布局偏好的存储键或默认值时，用本模块定位 localStorage 接线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectUiSettings"
+    ]
+  },
+  "$defs": {
+    "ProjectUiSettings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectUiSettings",
+      "properties": {
+        "headerFirst": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "sidebarCollapsed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showFooter": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "pageMode": {
+          "$ref": "../../../packages/spark-app/src/navigation/useTabPages.ts.json#/$defs/PageMode"
+        }
+      },
+      "required": [
+        "headerFirst",
+        "sidebarCollapsed",
+        "showFooter",
+        "pageMode"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T18:27:05.758Z",
+  "models": {
+    "ProjectUiSettings": {
+      "name": "ProjectUiSettings",
+      "jsdoc": "项目 UI 偏好设置：持久化到 localStorage，不涉及后端 API",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否优先展示顶部头部（header-first 布局） */\n    headerFirst: boolean;\n    /** 侧边栏是否折叠 */\n    sidebarCollapsed: boolean;\n    /** 是否显示页脚 */\n    showFooter: boolean;\n    /** 页面模式：single=单页 / multi=多页标签 */\n    pageMode: PageMode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "headerFirst",
+              "jsdoc": "是否优先展示顶部头部（header-first 布局）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sidebarCollapsed",
+              "jsdoc": "侧边栏是否折叠",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "showFooter",
+              "jsdoc": "是否显示页脚",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageMode",
+              "jsdoc": "页面模式：single=单页 / multi=多页标签",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

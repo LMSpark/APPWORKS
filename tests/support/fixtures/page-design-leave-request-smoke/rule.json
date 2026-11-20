@@ -1,0 +1,246 @@
+[
+  {
+    "type": "div",
+    "id": "div__0_0",
+    "children": [
+      {
+        "type": "h2",
+        "id": "h2__0_0_0",
+        "children": [
+          "请假申请"
+        ]
+      },
+      {
+        "type": "p",
+        "id": "p__0_0_1",
+        "children": [
+          "页面配置就绪，请编辑 rule.json 设计页面布局。"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "r-page",
+    "id": "leave-request-page",
+    "props": {
+      "title": "请假申请",
+      "style": {
+        "padding": "24px"
+      }
+    },
+    "children": [
+      {
+        "type": "r-form",
+        "id": "leave-request-form",
+        "props": {
+          "title": "请假申请表",
+          "dataViewKey": "LeaveRequest@default",
+          "dataMember": "current",
+          "layout": "vertical",
+          "columns": 2
+        },
+        "children": [
+          {
+            "type": "r-form-item",
+            "id": "field-applicantName",
+            "props": {
+              "prop": "applicantName",
+              "label": "申请人",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-department",
+            "props": {
+              "prop": "department",
+              "label": "部门",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-leaveType",
+            "props": {
+              "prop": "leaveType",
+              "label": "请假类型",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false,
+              "options": [
+                "年假",
+                "事假",
+                "病假",
+                "婚假",
+                "产假",
+                "丧假",
+                "其他"
+              ]
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-startDate",
+            "props": {
+              "prop": "startDate",
+              "label": "开始日期",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-endDate",
+            "props": {
+              "prop": "endDate",
+              "label": "结束日期",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-duration",
+            "props": {
+              "prop": "duration",
+              "label": "请假天数",
+              "required": true,
+              "colSpan": 1,
+              "readonly": false
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-reason",
+            "props": {
+              "prop": "reason",
+              "label": "请假事由",
+              "required": true,
+              "colSpan": 2,
+              "readonly": false,
+              "inputType": "textarea"
+            },
+            "children": []
+          },
+          {
+            "type": "r-form-item",
+            "id": "field-status",
+            "props": {
+              "prop": "status",
+              "label": "审批状态",
+              "required": false,
+              "colSpan": 1,
+              "readonly": true,
+              "defaultValue": "待审批"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "type": "r-button-group",
+        "id": "form-actions",
+        "props": {
+          "style": {
+            "marginTop": "24px",
+            "textAlign": "center"
+          }
+        },
+        "children": [
+          {
+            "type": "r-button",
+            "id": "btn-submit",
+            "props": {
+              "label": "提交申请",
+              "buttonType": "primary",
+              "action": "submit"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-reset",
+            "props": {
+              "label": "重置",
+              "buttonType": "default",
+              "action": "reset"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "type": "r-table",
+        "id": "leave-request-list",
+        "props": {
+          "title": "我的请假记录",
+          "dataViewKey": "LeaveRequest@default",
+          "dataMember": "rows",
+          "style": {
+            "marginTop": "32px"
+          },
+          "columns": [
+            {
+              "prop": "applicantName",
+              "label": "申请人",
+              "width": 100
+            },
+            {
+              "prop": "department",
+              "label": "部门",
+              "width": 100
+            },
+            {
+              "prop": "leaveType",
+              "label": "请假类型",
+              "width": 100
+            },
+            {
+              "prop": "startDate",
+              "label": "开始日期",
+              "width": 120
+            },
+            {
+              "prop": "endDate",
+              "label": "结束日期",
+              "width": 120
+            },
+            {
+              "prop": "duration",
+              "label": "天数",
+              "width": 80
+            },
+            {
+              "prop": "reason",
+              "label": "事由",
+              "width": 200
+            },
+            {
+              "prop": "status",
+              "label": "状态",
+              "width": 100
+            },
+            {
+              "prop": "createdAt",
+              "label": "申请时间",
+              "width": 160
+            }
+          ]
+        },
+        "children": []
+      }
+    ]
+  }
+]

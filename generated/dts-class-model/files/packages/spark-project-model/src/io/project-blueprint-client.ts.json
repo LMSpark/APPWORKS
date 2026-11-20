@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/project-blueprint-client",
+    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+    "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/project-blueprint-client",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：项目工作区可用的平台链接可嵌入性检查命令。\n边界：蓝图 CRUD 由正式 DataView/DataSet 负责，不由 ProjectWorkspace 直写。\nAI用途：确认Workspace的链接检查命令合同。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LinkProbeResult",
+      "ProjectBlueprintGateway"
+    ]
+  },
+  "$defs": {
+    "LinkProbeResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LinkProbeResult",
+      "properties": {
+        "embeddable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "embeddable",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintGateway",
+      "$defs": {
+        "method.probeLink.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.probeLink.return": {
+          "type": "object",
+          "title": "Promise<LinkProbeResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T15:31:33.625Z",
+  "models": {
+    "LinkProbeResult": {
+      "name": "LinkProbeResult",
+      "jsdoc": "真实链接嵌入检测结果及解释。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    embeddable: boolean;\n    reason: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    embeddable: boolean;\n    reason: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "embeddable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintGateway": {
+      "name": "ProjectBlueprintGateway",
+      "jsdoc": "ProjectWorkspace 仅使用平台链接检查命令；蓝图树读取与写入由 DataView/DataSet 负责。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "probeLink",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LinkProbeResult",
+                    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

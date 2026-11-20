@@ -1,0 +1,78 @@
+{
+  "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+  "tables": {
+    "JsonDocumentFile": {
+      "resourceType": "file",
+      "resourceId": "json-data:document-file",
+      "columns": [
+        {"name": "jsonId", "type": "string", "isPrimaryKey": true},
+        {"name": "fileName", "type": "string"},
+        {"name": "content", "type": "string"}
+      ],
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": true, "commitMode": "staged", "queryContext": {"jsonId": "", "create": false}}
+      }
+    },
+    "Base_JsonData": {
+      "modelBinding": {
+        "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp000",
+        "modelName": "Base_JsonData"
+      },
+      "columns": [
+        {"name": "name", "required": true, "trim": "normalize"}
+      ],
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 20,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name",
+              "description",
+              "path",
+              "createuser",
+              "createtime"
+            ]
+          },
+          "sortExpression": [
+            {
+              "field": "createtime",
+              "direction": "desc"
+            }
+          ]
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp001",
+        "modelName": "Base_UserInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "rowid",
+          "labelField": "UserName",
+          "pageSize": 500,
+          "queryConfig": {
+            "fields": [
+              "ID",
+              "rowid",
+              "UserName"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": []
+}

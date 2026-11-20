@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/content-rules-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/content-rules-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/content-rules-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/content-rules-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/content-rules-hash\n职责：将已核适用的章节角色、可交付性和分册限制固定为审核依赖。\n边界：模板和分册限制的实际选取由原来源负责，版式另在呈现层处理。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T01:22:27.297Z",
+  "models": {}
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/cross-project-ref-route",
+    "sourcePath": "packages/spark-app/src/router/cross-project-ref-route.ts",
+    "sourceFile": "packages/spark-app/src/router/cross-project-ref-route.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/cross-project-ref-route",
+    "jsdoc": "@module @spark-appworks/spark-app:router/cross-project-ref-route\n职责：提供应用壳层 cross-project-ref-route 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 router/cross-project-ref-route。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.358Z",
+  "models": {}
+}

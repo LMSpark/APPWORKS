@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/effective-fact-dependencies",
+    "sourcePath": "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/effective-fact-dependencies.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/effective-fact-dependencies",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/effective-fact-dependencies\n职责：固定审核范围内实际使用的事实版本、依据引用及显示摘要。\n边界：输入须由原事实读取链提供；不认为原采纳等同现在可用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T22:44:08.668Z",
+  "models": {}
+}

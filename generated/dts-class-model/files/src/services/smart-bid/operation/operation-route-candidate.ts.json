@@ -1,0 +1,516 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-candidate",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-candidate.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-candidate.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-candidate",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-candidate\n职责：按确定的JSON模型接收路线候选，复用载荷与结构预演。\n边界：接收公共AI层已解析的JSON值，不修复Markdown，不验证发布引用或执行条件。\nAI用途：工艺输出绑定OperationRouteCandidate，同版模型进入检查后才能继续发布核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "OperationDataValue",
+      "OperationCandidateNode",
+      "OperationRouteCandidate"
+    ]
+  },
+  "$defs": {
+    "OperationDataValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OperationDataValue",
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationDataValue"
+          }
+        },
+        {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "#/$defs/OperationDataValue"
+          }
+        }
+      ]
+    },
+    "ControlData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ControlData",
+      "properties": {
+        "when": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/OperationDataValue"
+              }
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": {
+                "$ref": "#/$defs/OperationDataValue"
+              }
+            }
+          ]
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "OperationCandidateNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OperationCandidateNode",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            },
+            "class": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "value": {
+              "type": "string"
+            },
+            "type": {
+              "const": "route"
+            },
+            "data": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "parentId",
+            "index",
+            "class",
+            "value",
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            },
+            "class": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "value": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "phase",
+                "sequence",
+                "parallel",
+                "choice"
+              ]
+            },
+            "data": {
+              "$ref": "#/$defs/ControlData"
+            }
+          },
+          "required": [
+            "id",
+            "parentId",
+            "index",
+            "class",
+            "value",
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            },
+            "class": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "value": {
+              "type": "string"
+            },
+            "type": {
+              "const": "call"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "when": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/OperationDataValue"
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": {
+                        "$ref": "#/$defs/OperationDataValue"
+                      }
+                    }
+                  ]
+                },
+                "required": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "routeRef": {
+                  "$ref": "#/$defs/OperationDataValue"
+                }
+              },
+              "required": [
+                "routeRef"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "parentId",
+            "index",
+            "class",
+            "value",
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            },
+            "class": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "value": {
+              "type": "string"
+            },
+            "type": {
+              "const": "task"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "when": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/OperationDataValue"
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": {
+                        "$ref": "#/$defs/OperationDataValue"
+                      }
+                    }
+                  ]
+                },
+                "required": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "stationRef": {
+                  "type": "string"
+                },
+                "maxTimes": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "stationRef"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "parentId",
+            "index",
+            "class",
+            "value",
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "OperationRouteCandidate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OperationRouteCandidate",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationCandidateNode"
+          }
+        }
+      },
+      "required": [
+        "nodes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T19:06:10.794Z",
+  "models": {
+    "OperationDataValue": {
+      "name": "OperationDataValue",
+      "jsdoc": "工序业务JSON值；数字以规范字符串承载，index另按结构模型处理。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | boolean | null | readonly OperationDataValue[] | {\n    readonly [key: string]: OperationDataValue;\n}",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "boolean"
+          },
+          {
+            "kind": "union",
+            "typeText": "null"
+          },
+          {
+            "kind": "union",
+            "typeText": "readonly OperationDataValue[]"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    readonly [key: string]: OperationDataValue;\n}"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ControlData": {
+      "name": "ControlData",
+      "jsdoc": "条件只留声明数据；其表达式、证据与适用性另由正式条件合同核验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    when?: OperationDataValue;\n    required?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    when?: OperationDataValue;\n    required?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "when",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationCandidateNode": {
+      "name": "OperationCandidateNode",
+      "jsdoc": "工序节点输出，不含排版、文件格式、子树缓存或模型自报摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}> & (Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    id: string;\n    parentId: string | null;\n    index: number;\n    class: readonly string[];\n    value: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    type: 'route';\n    data: Readonly<Record<string, never>>;\n}> | Readonly<{\n    type: Exclude<OperationNodeType, 'route' | 'call' | 'task'>;\n    data: ControlData;\n}> | Readonly<{\n    type: 'call';\n    data: ControlData & Readonly<{\n        routeRef: OperationDataValue;\n    }>;\n}> | Readonly<{\n    type: 'task';\n    data: ControlData & Readonly<{\n        stationRef: string;\n        maxTimes?: string;\n    }>;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OperationRouteCandidate": {
+      "name": "OperationRouteCandidate",
+      "jsdoc": "工艺编排的候选JSON输出。版本、hash及发布效力由正式办理生成，不由模型输出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodes: readonly OperationCandidateNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

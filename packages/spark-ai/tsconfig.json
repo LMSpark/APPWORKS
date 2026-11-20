@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "..",
+    "outDir": "./dist",
+    "composite": false,
+    "target": "ES2020",
+    "noEmit": true,
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@spark-appworks/spark-utils": ["../spark-utils/src/index.ts"],
+      "@spark-appworks/spark-json-document": ["../spark-json-document/src/index.ts"],
+      "@spark-appworks/spark-json-document/schema": ["../spark-json-document/src/schema/index.ts"],
+      "@spark-appworks/spark-json-document/tree": ["../spark-json-document/src/tree/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

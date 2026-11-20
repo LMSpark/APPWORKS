@@ -1,0 +1,159 @@
+[
+  {
+    "type": "div",
+    "id": "tx-transaction-retry-root",
+    "props": {
+      "class": "tx-test-page"
+    },
+    "children": [
+      {
+        "type": "h1",
+        "id": "tx-transaction-retry-title",
+        "props": {},
+        "children": [
+          "事务验证 3：分布式重试幂等"
+        ]
+      },
+      {
+        "type": "el-alert",
+        "id": "tx-transaction-retry-alert",
+        "props": {
+          "type": "info",
+          "closable": false,
+          "showIcon": true
+        },
+        "children": [
+          "同一个 requestId 重试应 replay 已提交结果；相同 requestId 携带不同 operations 必须被后端拒绝。"
+        ]
+      },
+      {
+        "type": "div",
+        "id": "tx-transaction-retry-toolbar",
+        "props": {
+          "class": "tx-test-toolbar"
+        },
+        "children": [
+          {
+            "type": "r-button",
+            "id": "btn-append-retry-audit",
+            "props": {
+              "label": "新增审计 staged",
+              "template": "primary",
+              "action": "append-row",
+              "appendPayload": {
+                "id": 9201,
+                "requestKey": "tx-config-retry-v1",
+                "message": "first-submit",
+                "status": "committed"
+              },
+              "successMessage": "审计记录已进入 staged 状态",
+              "dataViewKey": "SparkTxAudit@default",
+              "idField": "id"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-save-retry-audit",
+            "props": {
+              "label": "提交固定 requestId",
+              "template": "success",
+              "action": "save-dataset",
+              "mode": "transaction",
+              "requestId": "tx-config-retry-v1",
+              "successMessage": "事务已提交；重复相同 operations 时由后端 replay"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-save-retry-conflict",
+            "props": {
+              "label": "冲突 requestId 提交",
+              "template": "danger",
+              "action": "append-row",
+              "appendPayload": {
+                "id": 9202,
+                "requestKey": "tx-config-retry-v1",
+                "message": "conflict-submit",
+                "status": "conflict"
+              },
+              "silent": true,
+              "then": {
+                "action": "save-dataset",
+                "mode": "transaction",
+                "requestId": "tx-config-retry-v1",
+                "failureMessage": "后端应拒绝相同 requestId 的不同 payload"
+              },
+              "dataViewKey": "SparkTxAudit@default",
+              "idField": "id"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-reload-audit",
+            "props": {
+              "label": "刷新审计表",
+              "action": "refresh",
+              "dataViewKey": "SparkTxAudit@default",
+              "idField": "id"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "type": "r-table",
+        "id": "spark-tx-audit-table",
+        "props": {
+          "dataViewKey": "SparkTxAudit@default",
+          "border": true,
+          "stripe": true,
+          "highlightCurrentRow": true
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "id": "spark-tx-audit-id",
+            "props": {
+              "field": "id",
+              "label": "ID",
+              "width": 90
+            },
+            "children": []
+          },
+          {
+            "type": "r-text",
+            "id": "spark-tx-audit-request",
+            "props": {
+              "field": "requestKey",
+              "label": "请求键",
+              "width": 180
+            },
+            "children": []
+          },
+          {
+            "type": "r-text",
+            "id": "spark-tx-audit-message",
+            "props": {
+              "field": "message",
+              "label": "消息"
+            },
+            "children": []
+          },
+          {
+            "type": "r-text",
+            "id": "spark-tx-audit-status",
+            "props": {
+              "field": "status",
+              "label": "状态",
+              "width": 120
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+]

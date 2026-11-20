@@ -1,0 +1,47 @@
+import { describe, expect, it, vi } from 'vitest'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '../src/blueprint/project-blueprint-node'
+import { ProjectBlueprintNode } from '../src/blueprint/project-blueprint-node'
+import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import * as ProjectBlueprintApi from '@spark-appworks/spark-project-model'
+
+describe('ProjectBlueprint', () => {
+  function createRoot(children: ProjectBlueprintTreeNodeData[]): ProjectBlueprintTreeData { return {nodeId:'homepage_root',parentNodeId:'',projectId:'crm',kind:'module',capability:{name:'CRM'},navigation:{title:'CRM',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{},children} }
+
+  function createWorkspace(): ProjectWorkspace {
+    return new ProjectWorkspace({
+      projectId: 'crm',
+      blueprint: {},
+    })
+  }
+
+  it('does not expose a ProjectWorkspace-owned page file loading path',()=>{
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('selectPage')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('loadPageTool')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('ensureActivePageFilesLoaded')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('loadPageFile')
+  })
+
+  it('constructs a ProjectBlueprint root distinct from nodes and tools',()=>{ const workspace=createWorkspace(); expect(workspace.project).toBeInstanceOf(ProjectBlueprintApi.ProjectBlueprint); expect(workspace.project.openPageDesign('orders')).not.toBeInstanceOf(ProjectBlueprintNode) })
+  it('does not expose raw blueprint gateway loading from ProjectWorkspace', () => {
+    const workspace = createWorkspace()
+    expect({
+      loadBlueprint: Reflect.get(workspace, 'loadBlueprint'),
+      previewBlueprintRemote: Reflect.get(workspace, 'previewBlueprintRemote'),
+      probeLink: typeof Reflect.get(workspace, 'probeLink'),
+    }).toEqual({ loadBlueprint: undefined, previewBlueprintRemote: undefined, probeLink: 'function' })
+  })
+  it('retains the platform probeLink command', async () => {
+    const probeLink = vi.fn(async () => ({ embeddable: true, reason: 'allowed' }))
+    const workspace = new ProjectWorkspace({ projectId: 'crm', blueprint: { probeLink } })
+    await expect(workspace.probeLink('https://example.test')).resolves.toEqual({ embeddable: true, reason: 'allowed' })
+    expect(probeLink).toHaveBeenCalledWith('https://example.test')
+  })
+  it('keeps one shared read-only tool projection and distinct formal node identities across reloads',()=>{const workspace=createWorkspace();const a=node('a'),b=node('b');a.navigation!.target='cfg:shared';b.navigation!.target='cfg:shared';a.dataSpace={scenarioId:'s-a',models:[]};b.dataSpace={scenarioId:'s-b',models:[]};workspace.project.replaceBlueprintTree(createRoot([a,b]));const first=workspace.project.findNodeById('a');const tool=workspace.project.openPageDesign('shared');tool.hydrateFileText('script.js','projection');workspace.project.replaceBlueprintTree(createRoot([a,b]));expect(workspace.project.findNodeById('a')).toBe(first);expect(workspace.project.findNodeById('b')?.toNodeData().dataSpace?.scenarioId).toBe('s-b');expect(workspace.project.openPageDesign('shared')).toBe(tool);expect(tool.script.text).toBe('projection');expect(tool.script.isDirty).toBe(false)})
+  it.each(['cfg:APP/tool', 'cfg:orders?mode=preview', 'cfg:../orders', 'cfg:%2forders'])('does not resolve a non-single-segment config tool target: %s',target=>{const item=node('a');item.navigation!.target=target;expect(ProjectBlueprintApi.resolvePageNodePageId(item)).toBe('')})
+  it('preserves four groups and keeps ability name separate from menu title',()=>{const workspace=createWorkspace();const item=node('a');item.navigation!.title='菜单';item.prototype={htmlDescription:'原型'};item.dataSpace={scenarioId:'scene',models:[{metaName:'Orders'}]};workspace.project.replaceBlueprintTree(createRoot([item]));const model=workspace.project.findNodeById('a')!;expect(model.name).toBe('a');expect(model.title).toBe('菜单');const snap=model.toNodeData();snap.capability.name='changed';expect(model.name).toBe('a');expect(model.toNodeData()).toMatchObject({nodeId:'a',kind:'page',prototype:{htmlDescription:'原型'},dataSpace:{scenarioId:'scene'}});expect(model.toNodeData()).not.toHaveProperty('title')})
+  it('edits grouped navigation without changing capability or scenario',()=>{const workspace=createWorkspace();const item=node('a');item.dataSpace={scenarioId:'scene',models:[]};workspace.project.replaceBlueprintTree(createRoot([item]));workspace.project.selectNode('a');const draft=workspace.project.beginBlueprintDraft();draft.node.navigation!.title='new menu';workspace.project.applyBlueprintNodeEdit(draft);expect(workspace.project.findNodeById('a')?.toNodeData()).toMatchObject({capability:{name:'a'},navigation:{title:'new menu'},dataSpace:{scenarioId:'scene'}});expect(workspace.project.blueprintDirty).toBe(true)})
+  it.each(['module','page','embedded','service','content'] as const)('completes formal planning kind %s',kind=>{const workspace=createWorkspace();workspace.project.replaceBlueprintTree(createRoot([]));workspace.project.replaceBlueprintChildren([{...node('a'),kind}]);expect(workspace.project.completeProjectPlanning()).toMatchObject({ok:true,blueprintKinds:[kind]})})
+  it('rejects unresolved planning kind and duplicate node identities',()=>{const workspace=createWorkspace();workspace.project.replaceBlueprintTree(createRoot([]));workspace.project.replaceBlueprintChildren([{...node('a'),kind:'unknown'}]);expect(workspace.project.completeProjectPlanning()).toMatchObject({ok:false,code:'PROJECT_PLANNING_BLUEPRINT_KIND_UNRESOLVED'});expect(()=>workspace.project.replaceBlueprintTree(createRoot([node('a'),node('a')]))).toThrow('重复')})
+  it('uses only three tool files',()=>{expect(ProjectBlueprintApi.PAGE_TOOL_FILE_NAMES).toEqual(['rule.json','script.js','style.css']);const tool=createWorkspace().project.openPageDesign('orders');expect(tool).not.toHaveProperty('dataSet');expect(tool).not.toHaveProperty('toNodeData')})
+})
+function node(id:string):ProjectBlueprintTreeNodeData { return {nodeId:id,parentNodeId:'homepage_root',projectId:'crm',kind:'page',capability:{name:id,description:'需求'},navigation:{title:id,target:`cfg:${id}`,order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}} }

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog\n职责：绑定原目录DataSet的数据库、表视图，确认触发表选择，取消不写目标。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-06T09:09:33.575Z",
+  "models": {}
+}

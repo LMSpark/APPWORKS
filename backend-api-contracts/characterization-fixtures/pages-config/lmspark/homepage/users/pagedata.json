@@ -1,0 +1,109 @@
+{
+  "dataSetName": "PageDataSet",
+  "resourceRelations": [],
+  "tables": {
+    "users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "用户名"
+        },
+        {
+          "name": "fullName",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "label": "邮箱"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        },
+        {
+          "name": "age",
+          "type": "number",
+          "label": "年龄"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "label": "角色"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "admin",
+              "fullName": "张三",
+              "email": "zhangsan@example.com",
+              "department": "技术部",
+              "age": 35,
+              "role": "管理员",
+              "status": "在线"
+            },
+            {
+              "id": 2,
+              "name": "user1",
+              "fullName": "李四",
+              "email": "lisi@example.com",
+              "department": "市场部",
+              "age": 28,
+              "role": "普通用户",
+              "status": "离线"
+            },
+            {
+              "id": 3,
+              "name": "user2",
+              "fullName": "王五",
+              "email": "wangwu@example.com",
+              "department": "技术部",
+              "age": 42,
+              "role": "普通用户",
+              "status": "在线"
+            },
+            {
+              "id": 4,
+              "name": "user3",
+              "fullName": "赵六",
+              "email": "zhaoliu@example.com",
+              "department": "人事部",
+              "age": 25,
+              "role": "访客",
+              "status": "在线"
+            },
+            {
+              "id": 5,
+              "name": "user4",
+              "fullName": "钱七",
+              "email": "qianqi@example.com",
+              "department": "编辑部",
+              "age": 31,
+              "role": "编辑",
+              "status": "离线"
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "users"
+    }
+  }
+}

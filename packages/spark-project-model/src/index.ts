@@ -1,0 +1,110 @@
+/**
+ * @module @spark-appworks/spark-project-model:index
+ * 职责：提供项目蓝图和页面配置域的公共入口，支撑 blueprint、page content、project session 与远程 IO。
+ * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
+ * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
+ */
+/**
+ * @spark-appworks/spark-project-model
+ *
+ * 领域模型：class 层级为主语。
+ * 运行态页面加载与 ProjectWorkspace 均从根入口导出。
+ */
+
+// ── 项目根 ────────────────────────────────────────────────────
+
+export { ProjectBlueprint } from './project/project-blueprint'
+export { ProjectWorkspace, ScenarioViewVersionNotAppliedError } from './project/project-workspace'
+export { ProjectToolResource } from './page-tool/project-tool-resource'
+export { ScenarioDefinitionResource } from './scenario/scenario-definition-resource'
+export { DataSpaceReferenceLayoutResource } from './scenario/data-space-reference-layout-resource'
+export { ScenarioDefinitionRecords } from './scenario/scenario-definition-records'
+export { ScenarioDefinitionDocument } from './scenario/scenario-definition-document'
+export type {
+  ProjectBlueprintInitOptions,
+  ProjectBlueprintEvent,
+  ProjectBlueprintEventListener,
+  ProjectActivePageProjection,
+  ProjectDirtyProjection,
+  ProjectBlueprintProjection,
+  ProjectBlueprintDirtyScope,
+  ProjectInfo,
+  ProjectInfoInput,
+  ProjectPlanningInput,
+  ProjectPlanningCompletionInput,
+  ProjectPlanningCompletionResult,
+  BlueprintPlanningInput,
+} from './project/project-types'
+export type {
+  ProjectWorkspaceOptions,
+  ScenarioViewVersionAttempt,
+  ScenarioViewVersionAttemptStatus,
+  ScenarioViewVersionCreateCommand,
+} from './project/project-workspace'
+export type { ProjectBlueprintGateway } from './io/project-blueprint-client'
+export type { ProjectReferenceGateway } from './io/project-reference-client'
+export type {
+  ProjectPageReference,
+  ProjectSummary,
+} from './io/project-reference-client'
+export type {
+  BlueprintNodeDraftApplyResult,
+  BlueprintNodeDraft,
+} from './blueprint/project-blueprint-edit'
+
+// ── 项目蓝图节点与 DTO ──────────────────────────────────────
+
+export {
+  isProjectBlueprintTreeNodeData,
+  projectNodeDeliveryKind,
+} from './blueprint/project-blueprint-node'
+
+export {
+  isConfigNodeKind,
+  isConfigFilesPageSurface,
+  resolvePageNodePageId,
+  findPageNodeByPageId,
+  findNodeById,
+  findNodeLocation,
+  normalizePageIdFromPath,
+  parseConfigToolPageId,
+  normalizeBlueprintTree,
+} from './blueprint/project-blueprint-tree'
+
+export type {
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+  ProjectBlueprintNodePatch,
+  ProjectBlueprintTreeNodeLocation,
+  ProjectBlueprintImplGate,
+  ProjectPageSurface,
+  ProjectPageNodeSummary,
+} from './blueprint/project-blueprint-node'
+
+// ── 配置页 ──────────────────────────────────────────────────
+
+export { PageTool } from './page/page-tool'
+export type { PageToolOptions, PageToolDefinition } from './page/page-tool'
+export { PAGE_TOOL_FILE_NAMES } from './page/page-file'
+
+export type {
+  PageToolFileName,
+  PageToolFileVersionSummary,
+  PageFileReadCommand,
+  PageFileReader,
+} from './page/page-file'
+
+export { PageRuntime } from './page/runtime-page'
+export type { PageRuntimeOptions, PageRuntimeCall, PageRuntimeMode, PageRuntimeSource } from './page/runtime-page'
+export {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from './scenario/scenario-view-file'
+export type {ScenarioViewSubmission} from './scenario/scenario-view-file'
+export {createScenarioSubmissionJournal} from './scenario/scenario-submission-journal'
+export type {ScenarioSubmissionCapture, ScenarioSubmissionJournal, ScenarioSubmissionStorage} from './scenario/scenario-submission-journal'
+export { ScenarioViewConfig } from './scenario/scenario-view-config'
+
+export {
+  compileRule,
+  normalizeRuleNode,
+  parseScript,
+  parseCss,
+} from './page/compile-files'

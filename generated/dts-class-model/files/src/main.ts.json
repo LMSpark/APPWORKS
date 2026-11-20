@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:main",
+    "sourcePath": "src/main.ts",
+    "sourceFile": "src/main.ts",
+    "packageName": "app",
+    "modulePath": "main",
+    "jsdoc": "@module app:main\n职责：提供 src 应用层的 main 能力，连接运行时上下文、视图组件和服务。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。\n\nSPARK 主应用入口\n🎯 设计理念：\n- 100% 声明式配置，0 实现逻辑\n- 配置即文档，所有配置都有类型约束\n- SparkApp.start() 自动处理所有初始化流程\n🔧 技术栈：\n- Vue 3.5 + TypeScript\n- Element Plus + VXE Table\n- SPARK 组件系统 + 动态路由系统\n📦 架构层次（由 SparkApp.start 自动完成）：\n- L1: @spark-appworks/spark-app - 应用基础设施层\n- L2: @spark-appworks/spark-project-model - PageNode 编排层\n- L4-L6: @spark-appworks/spark-component - 组件核心层\n💾 缓存分级过期策略：\n- 默认级别定义：0=永不过期, 1=3天, 2=7天, 3=15天(默认), 4=30天\n- 可在 createFileLoader 配置 expirationTiers 自定义级别\n- 可在 load 时指定 expirationLevel 为单个文件设置级别\n- 示例：\n```ts\n// 全局配置\ncreateFileLoader({\ndefaultExpirationLevel: 3,  // 默认15天\nexpirationTiers: [\n{ level: 0, maxAge: Infinity, description: '永不过期' },\n{ level: 1, maxAge: 3 * 24 * 60 * 60 * 1000 }\n]\n})\n// 单文件配置\nloader.load('/home/pagedata.json', { expirationLevel: 0 })  // 永不过期\nloader.load('/admin/rule.json', { expirationLevel: 1 })     // 3天过期\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T10:43:09.341Z",
+  "models": {}
+}

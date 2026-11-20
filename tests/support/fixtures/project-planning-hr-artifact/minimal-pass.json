@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "requestId": "fixture-hr-pass",
+  "result": {
+    "requestId": "fixture-hr-pass",
+    "alias": "projectPlanning",
+    "status": "completed",
+    "toolCalls": [{ "toolName": "model_script", "status": "success" }],
+    "sseEvents": ["llm-frame"],
+    "projectPlanning": {
+      "navigationRoot": {
+        "id": "hr_root",
+        "title": "企业级人力资源系统",
+        "nodeKind": "module",
+        "description": "人力资源策划根模块",
+        "children": [
+          {
+            "id": "org_structure",
+            "title": "组织架构",
+            "nodeKind": "module",
+            "description": "部门与岗位组织树"
+          },
+          {
+            "id": "employee_profile",
+            "title": "员工档案",
+            "nodeKind": "page",
+            "path": "/employees",
+            "description": "员工主数据与档案管理页面概要"
+          },
+          {
+            "id": "recruitment",
+            "title": "招聘入职",
+            "nodeKind": "page",
+            "path": "/recruitment",
+            "description": "招聘与入职流程页面概要"
+          },
+          {
+            "id": "attendance",
+            "title": "考勤排班",
+            "nodeKind": "page",
+            "path": "/attendance",
+            "description": "考勤与排班管理页面概要"
+          },
+          {
+            "id": "payroll",
+            "title": "薪酬社保",
+            "nodeKind": "page",
+            "path": "/payroll",
+            "description": "薪酬社保与公积金核算页面概要"
+          },
+          {
+            "id": "performance_training",
+            "title": "绩效培训",
+            "nodeKind": "page",
+            "path": "/performance",
+            "description": "绩效评估与培训发展页面概要"
+          },
+          {
+            "id": "approval_workflow",
+            "title": "审批流",
+            "nodeKind": "page",
+            "path": "/approval",
+            "description": "人事审批流配置页面概要"
+          },
+          {
+            "id": "reports_audit",
+            "title": "报表审计",
+            "nodeKind": "page",
+            "path": "/reports",
+            "description": "人力报表与审计追踪页面概要"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "张三",
+      "age": 28,
+      "createTime": "2024-01-15",
+      "selectDate": "2024-06-01"
+    },
+    {
+      "id": 2,
+      "name": "李四",
+      "age": 32,
+      "createTime": "2024-02-20",
+      "selectDate": "2024-07-15"
+    },
+    {
+      "id": 3,
+      "name": "王五",
+      "age": 25,
+      "createTime": "2024-03-10",
+      "selectDate": "2024-08-20"
+    }
+  ],
+  "education_dict": [
+    {
+      "id": 1,
+      "code": "BK",
+      "name": "本科",
+      "level": "学士",
+      "description": "普通高等教育本科阶段",
+      "status": "启用"
+    },
+    {
+      "id": 2,
+      "code": "SS",
+      "name": "硕士研究生",
+      "level": "硕士",
+      "description": "研究生教育硕士阶段",
+      "status": "启用"
+    },
+    {
+      "id": 3,
+      "code": "BS",
+      "name": "博士研究生",
+      "level": "博士",
+      "description": "研究生教育博士阶段",
+      "status": "启用"
+    },
+    {
+      "id": 4,
+      "code": "ZK",
+      "name": "专科",
+      "level": "专科",
+      "description": "高等职业教育专科阶段",
+      "status": "停用"
+    }
+  ],
+  "user_resumes": [
+    {
+      "id": 101,
+      "userId": 1,
+      "title": "张三-前端开发简历",
+      "expectedPosition": "前端工程师",
+      "expectedCity": "上海",
+      "expectedSalary": 22000,
+      "status": "开放中",
+      "summary": "熟悉 Vue、TypeScript 和中后台页面搭建。",
+      "workExperience": "3 年前端研发经验，参与低代码配置平台建设。",
+      "educationBackground": "本科 / 计算机科学与技术",
+      "skills": "Vue, TypeScript, Vite",
+      "createTime": "2024-04-01"
+    },
+    {
+      "id": 102,
+      "userId": 2,
+      "title": "李四-产品运营简历",
+      "expectedPosition": "产品经理",
+      "expectedCity": "杭州",
+      "expectedSalary": 26000,
+      "status": "面试中",
+      "summary": "关注业务流程建模和跨团队协作。",
+      "workExperience": "5 年企业应用产品经验，负责数据管理模块规划。",
+      "educationBackground": "硕士 / 信息管理",
+      "skills": "需求分析, 原型设计, 数据建模",
+      "createTime": "2024-04-08"
+    },
+    {
+      "id": 103,
+      "userId": 3,
+      "title": "王五-后端开发简历",
+      "expectedPosition": "Java 后端工程师",
+      "expectedCity": "北京",
+      "expectedSalary": 24000,
+      "status": "已归档",
+      "summary": "熟悉 Spring Boot、数据库设计和接口集成。",
+      "workExperience": "4 年后端研发经验，维护多租户业务服务。",
+      "educationBackground": "本科 / 软件工程",
+      "skills": "Java, Spring Boot, MySQL",
+      "createTime": "2024-04-15"
+    }
+  ]
+}

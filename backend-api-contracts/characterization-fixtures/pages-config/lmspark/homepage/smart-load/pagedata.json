@@ -1,0 +1,180 @@
+{
+  "dataSetName": "SmartLoadDemo",
+  "resourceRelations": [
+    {
+      "parentTable": "Categories",
+      "parentViewId": "default",
+      "childTable": "Products",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "categoryId" }],
+      "childField": "categoryId",
+      "relationName": "CategoryProducts",
+      "cascadeUpdate": true,
+      "cascadeDelete": true
+    },
+    {
+      "parentTable": "Products",
+      "parentViewId": "default",
+      "childTable": "OrderDetails",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "productId" }],
+      "childField": "productId",
+      "relationName": "ProductOrders",
+      "cascadeDelete": true
+    }
+  ],
+  "viewCascades": [
+    {
+      "parentTable": "Categories",
+      "childTable": "Products",
+      "dependencyType": "allRows"
+    },
+    {
+      "parentTable": "Products",
+      "childTable": "OrderDetails",
+      "dependencyType": "allRows"
+    }
+  ],
+  "tables": {
+    "Categories": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "tableName": "Categories",
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "电子产品"
+            },
+            {
+              "id": 2,
+              "name": "孥具类"
+            },
+            {
+              "id": 3,
+              "name": "食品"
+            }
+          ]
+        }
+      }
+    },
+    "Products": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "categoryId",
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "price",
+          "type": "number"
+        }
+      ],
+      "tableName": "Products",
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 101,
+              "categoryId": 1,
+              "name": "笔记本",
+              "price": 4999
+            },
+            {
+              "id": 102,
+              "categoryId": 1,
+              "name": "无线耳机",
+              "price": 699
+            },
+            {
+              "id": 103,
+              "categoryId": 2,
+              "name": "党游榜",
+              "price": 299
+            },
+            {
+              "id": 104,
+              "categoryId": 2,
+              "name": "书架",
+              "price": 499
+            },
+            {
+              "id": 105,
+              "categoryId": 3,
+              "name": "坚果",
+              "price": 89
+            },
+            {
+              "id": 106,
+              "categoryId": 3,
+              "name": "饭盒子",
+              "price": 25
+            }
+          ]
+        }
+      }
+    },
+    "OrderDetails": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "productId",
+          "type": "number"
+        },
+        {
+          "name": "quantity",
+          "type": "number"
+        }
+      ],
+      "tableName": "OrderDetails",
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1001,
+              "productId": 101,
+              "quantity": 1
+            },
+            {
+              "id": 1002,
+              "productId": 102,
+              "quantity": 2
+            },
+            {
+              "id": 1003,
+              "productId": 103,
+              "quantity": 1
+            },
+            {
+              "id": 1004,
+              "productId": 105,
+              "quantity": 3
+            }
+          ]
+        }
+      }
+    }
+  }
+}

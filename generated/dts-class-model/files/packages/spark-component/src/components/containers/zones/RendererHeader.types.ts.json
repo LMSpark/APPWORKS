@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/zones/RendererHeader.types",
+    "sourcePath": "packages/spark-component/src/components/containers/zones/RendererHeader.types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/zones/RendererHeader.types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/zones/RendererHeader.types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/zones/RendererHeader.types\n职责：集中定义 RendererHeader（r-header）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 container/zone-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer header 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RHeaderProps"
+    ],
+    "componentName": "RendererHeader",
+    "componentType": "r-header",
+    "componentLevel": "container",
+    "componentLayer": "zone-container",
+    "componentDirectory": "containers/zones"
+  },
+  "$defs": {
+    "RHeaderProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RHeaderProps",
+      "properties": {
+        "type": {
+          "const": "r-header"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "type": "object",
+          "properties": {
+            "length": {
+              "type": "number"
+            },
+            "toString": {
+              "type": "object",
+              "title": "(() => string) & (() => string)"
+            },
+            "toLocaleString": {
+              "type": "object",
+              "title": "{ (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; } & { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; }"
+            },
+            "pop": {
+              "type": "object",
+              "title": "(() => string | number | SparkNode | undefined) & (() => SparkNode | undefined)"
+            },
+            "push": {
+              "type": "object",
+              "title": "((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number)"
+            },
+            "concat": {
+              "type": "object",
+              "title": "{ (...items: ConcatArray<string | number | SparkNode>[]): (string | number | SparkNode)[]; (...items: (string | number | SparkNode | ConcatArray<string | number | SparkNode>)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }"
+            },
+            "join": {
+              "type": "object",
+              "title": "((separator?: string) => string) & ((separator?: string) => string)"
+            },
+            "reverse": {
+              "type": "object",
+              "title": "(() => (string | number | SparkNode)[]) & (() => SparkNode[])"
+            },
+            "shift": {
+              "type": "object",
+              "title": "(() => string | number | SparkNode | undefined) & (() => SparkNode | undefined)"
+            },
+            "slice": {
+              "type": "object",
+              "title": "((start?: number, end?: number) => (string | number | SparkNode)[]) & ((start?: number, end?: number) => SparkNode[])"
+            },
+            "sort": {
+              "type": "object",
+              "title": "((compareFn?: ((a: string | number | SparkNode, b: string | number | SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[]) & ((compareFn?: ((a: SparkNode, b: SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[])"
+            },
+            "splice": {
+              "type": "object",
+              "title": "{ (start: number, deleteCount?: number): (string | number | SparkNode)[]; (start: number, deleteCount: number, ...items: (string | number | SparkNode)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }"
+            },
+            "unshift": {
+              "type": "object",
+              "title": "((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number)"
+            },
+            "indexOf": {
+              "type": "object",
+              "title": "((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number)"
+            },
+            "lastIndexOf": {
+              "type": "object",
+              "title": "((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number)"
+            },
+            "every": {
+              "type": "object",
+              "title": "{ <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): this is S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unkno..."
+            },
+            "some": {
+              "type": "object",
+              "title": "((predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => unknown, thisArg?: any) => boolean) & ((predicate: (value: SparkNode, index: number, array: SparkNode[]) => unknown, thisArg?: any) => boolean)"
+            },
+            "forEach": {
+              "type": "object",
+              "title": "((callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => void, thisArg?: any) => void) & ((callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => void, thisArg?: any) => void)"
+            },
+            "map": {
+              "type": "object",
+              "title": "(<U>(callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U, thisArg?: any) => U[]) & (<U>(callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => U, thisArg?: any) => U[])"
+            },
+            "filter": {
+              "type": "object",
+              "title": "{ <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unknown, this..."
+            },
+            "reduce": {
+              "type": "object",
+              "title": "{ (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV..."
+            },
+            "reduceRight": {
+              "type": "object",
+              "title": "{ (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV..."
+            },
+            "find": {
+              "type": "object",
+              "title": "{ <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => value is S, thisArg?: any): S | undefined; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, obj: (string | ... 1 more ... | SparkNode)[]) => unknown..."
+            },
+            "findIndex": {
+              "type": "object",
+              "title": "((predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => unknown, thisArg?: any) => number) & ((predicate: (value: SparkNode, index: number, obj: SparkNode[]) => unknown, thisArg?: any) => number)"
+            },
+            "fill": {
+              "type": "object",
+              "title": "((value: string | number | SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((value: SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[])"
+            },
+            "copyWithin": {
+              "type": "object",
+              "title": "((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[])"
+            },
+            "entries": {
+              "type": "object",
+              "title": "(() => ArrayIterator<[number, string | number | SparkNode]>) & (() => ArrayIterator<[number, SparkNode]>)"
+            },
+            "keys": {
+              "type": "object",
+              "title": "(() => ArrayIterator<number>) & (() => ArrayIterator<number>)"
+            },
+            "values": {
+              "type": "object",
+              "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
+            },
+            "includes": {
+              "type": "object",
+              "title": "((searchElement: string | number | SparkNode, fromIndex?: number) => boolean) & ((searchElement: SparkNode, fromIndex?: number) => boolean)"
+            },
+            "flatMap": {
+              "type": "object",
+              "title": "(<U, This = undefined>(callback: (this: This, value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U | readonly U[], thisArg?: This | undefined) => U[]) & (<U, This = undefined>(callback: (this: This, value: SparkNode, index: number, array: SparkNode[]) => U | readonly U[], t..."
+            },
+            "flat": {
+              "type": "object",
+              "title": "(<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]) & (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[])"
+            },
+            "at": {
+              "type": "object",
+              "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
+            },
+            "__@iterator@302806": {
+              "type": "object",
+              "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
+            },
+            "__@unscopables@302808": {
+              "type": "object",
+              "properties": {
+                "length": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "toString": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "toLocaleString": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "pop": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "push": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "concat": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "join": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "reverse": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "shift": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "slice": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "sort": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "splice": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "unshift": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "indexOf": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "lastIndexOf": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "every": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "some": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "forEach": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "map": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "filter": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "reduce": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "reduceRight": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "find": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "findIndex": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "fill": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "copyWithin": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "entries": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "keys": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "values": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "includes": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "flatMap": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "flat": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "at": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "__@iterator@302806": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "__@unscopables@302808": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "length",
+            "toString",
+            "toLocaleString",
+            "pop",
+            "push",
+            "concat",
+            "join",
+            "reverse",
+            "shift",
+            "slice",
+            "sort",
+            "splice",
+            "unshift",
+            "indexOf",
+            "lastIndexOf",
+            "every",
+            "some",
+            "forEach",
+            "map",
+            "filter",
+            "reduce",
+            "reduceRight",
+            "find",
+            "findIndex",
+            "fill",
+            "copyWithin",
+            "entries",
+            "keys",
+            "values",
+            "includes",
+            "flatMap",
+            "flat",
+            "at",
+            "__@iterator@302806",
+            "__@unscopables@302808"
+          ],
+          "additionalProperties": false
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.195Z",
+  "models": {
+    "RHeaderProps": {
+      "name": "RHeaderProps",
+      "jsdoc": "`RendererHeader` 运行时公开属性。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererHeader",
+        "type": "r-header",
+        "level": "container",
+        "layer": "zone-container",
+        "directory": "containers/zones"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 组件类型固定为 `r-header`。 */\n    type?: 'r-header';\n    /** 节点标识。 */\n    id?: string;\n    /** 头部内容节点列表。 */\n    children?: SparkNode[];\n    /** 头部区域附加 class */\n    class?: string;\n    /** 头部区域宽度 */\n    width?: string | number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 组件类型固定为 `r-header`。 */\n    type?: 'r-header';\n    /** 节点标识。 */\n    id?: string;\n    /** 头部内容节点列表。 */\n    children?: SparkNode[];\n    /** 头部区域附加 class */\n    class?: string;\n    /** 头部区域宽度 */\n    width?: string | number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型固定为 `r-header`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "节点标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "头部内容节点列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "jsdoc": "头部区域附加 class",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "头部区域宽度",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

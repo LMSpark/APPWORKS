@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/filter/data-view-filter",
+    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts",
+    "sourceFile": "packages/spark-data/src/query/filter/data-view-filter.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/filter/data-view-filter",
+    "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter\n职责：校验并持有不可变公开过滤树。\n边界：任何非法节点都拒绝整树，不暴露部分解析结果。\nAI用途：构造、序列化和校验完整字段过滤树。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataViewFilterParseResult",
+      "DataViewFilter"
+    ]
+  },
+  "$defs": {
+    "DataViewFilterParseResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterParseResult",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "value": {
+              "$ref": "#/$defs/DataViewFilter"
+            }
+          },
+          "required": [
+            "ok",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterIssue"
+              }
+            }
+          },
+          "required": [
+            "ok",
+            "issues"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DataViewFilter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilter",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fields.params": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fields.return": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+              },
+              {
+                "type": "object",
+                "title": "Pick<DataColumn, 'label'>"
+              }
+            ]
+          }
+        },
+        "method.editorContext.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editorContext.return": {
+          "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "$ref": "#/$defs/DataViewFilterParseResult"
+        },
+        "method.condition.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.condition.return": {
+          "$ref": "#/$defs/DataViewFilter"
+        },
+        "method.group.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.group.return": {
+          "$ref": "#/$defs/DataViewFilter"
+        },
+        "method.toJSON.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJSON.return": {
+          "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "method.serialize.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.serialize.return": {
+          "type": "string"
+        },
+        "method.referencedTableNames.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.referencedTableNames.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.loadEditorContext.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadEditorContext.return": {
+          "type": "object",
+          "title": "Promise<DataViewFilterFunctionContext>"
+        },
+        "method.bindInputParams.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindInputParams.return": {
+          "$ref": "#/$defs/DataViewFilter"
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterValidationContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "array",
+          "items": {
+            "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterIssue"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T21:23:29.458Z",
+  "models": {
+    "DataViewFilterParseResult": {
+      "name": "DataViewFilterParseResult",
+      "jsdoc": "解析成功返回完整冻结过滤树；失败只返回问题列表，没有部分树。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ok: true;\n    value: DataViewFilter;\n}> | Readonly<{\n    ok: false;\n    issues: readonly DataViewFilterIssue[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    ok: true;\n    value: DataViewFilter;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    ok: false;\n    issues: readonly DataViewFilterIssue[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilter": {
+      "name": "DataViewFilter",
+      "jsdoc": "不可变的 SPARK 公开过滤树；解析失败不代表清空，也不产生可查询的部分树。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只持有已校验冻结的树；外部通过解析或构造入口建立过滤器。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "fields",
+              "jsdoc": "由原字段元信息生成编辑校验目录；计算字段不作为来源查询条件，标签保留。",
+              "parameters": [
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataColumn[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intersection",
+                  "types": [
+                    {
+                      "type": "reference",
+                      "name": "DataViewFilterField",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    },
+                    {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataColumn",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "editorContext",
+              "jsdoc": "为定义编辑器合并内置系统参数与调用方候选，复用同一值函数目录。\n同名内置参数保留标准定义；显式函数覆盖（包括禁用声明）保留给下游，重复装配不扩大候选范围。\n@param context 调用方的模型、字段、参数及扩展函数上下文。\n@returns 保留扩展能力和候选的编辑上下文，不执行值函数或授予数据权限。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterFunctionContext",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+              }
+            },
+            {
+              "name": "parse",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterParseResult",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            },
+            {
+              "name": "condition",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterCondition",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            },
+            {
+              "name": "group",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterGroup",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            },
+            {
+              "name": "toJSON",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterTree",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+              }
+            },
+            {
+              "name": "serialize",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "referencedTableNames",
+              "jsdoc": "返回值函数显式引用的模型名称，去重保序；仅识别正式表参数，不递归猜测常量或未知扩展。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "loadEditorContext",
+              "jsdoc": "为当前过滤树读取显式引用模型的字段编辑目录，保留全部模型候选。\n未提供字段且声明 loadFields 的模型才读取；同次每个模型只读一次，不修改输入上下文。\n@param context 正式数据 owner 提供的可读模型及字段目录。\n@returns 补齐所需字段的编辑上下文；失败拒绝，不缓存空目录。调用方仍须核对编辑身份并执行 validate。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "bindInputParams",
+              "jsdoc": "Bind only explicit input-parameter values; preserve constants and other function execution domains.",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            },
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterValidationContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataViewFilterIssue[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

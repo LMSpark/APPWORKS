@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader\n职责：以原采用及同版内容根证明准备正式制件输入。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RecoveryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "RecoveryInput",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "candidateRevisionId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "previewRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "candidateRevisionId",
+            "requestKey",
+            "requestDigest",
+            "previewRef"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Observation"
+        },
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "candidateRevisionId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "requestDigest": {
+                  "type": "string"
+                },
+                "previewRef": {
+                  "type": "string"
+                },
+                "resultEvidenceRef": {
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "COMMITTED"
+                },
+                "adoptionRef": {
+                  "type": "string"
+                },
+                "mergeRevisionId": {
+                  "type": "string"
+                },
+                "commitCheckRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "candidateRevisionId",
+                "requestKey",
+                "requestDigest",
+                "previewRef",
+                "resultEvidenceRef",
+                "kind",
+                "adoptionRef",
+                "mergeRevisionId"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "candidateRevisionId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "requestDigest": {
+                  "type": "string"
+                },
+                "previewRef": {
+                  "type": "string"
+                },
+                "resultEvidenceRef": {
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "NOT_COMMITTED"
+                },
+                "executionFenceRef": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "candidateRevisionId",
+                "requestKey",
+                "requestDigest",
+                "previewRef",
+                "resultEvidenceRef",
+                "kind",
+                "executionFenceRef"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      ]
+    },
+    "Production": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Production",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "baselineId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "purpose": {
+              "enum": [
+                "REVIEW",
+                "FORMAL"
+              ]
+            },
+            "toolVersionRef": {
+              "type": "string"
+            },
+            "outputOptions": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "projectId",
+            "documentId",
+            "revisionId",
+            "baselineId",
+            "requestKey",
+            "purpose",
+            "toolVersionRef",
+            "outputOptions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Version"
+        },
+        {
+          "type": "object",
+          "title": "Evidence"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-19T00:22:11.178Z",
+  "models": {
+    "RecoveryInput": {
+      "name": "RecoveryInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof inspectAdoptionRecovery>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof inspectAdoptionRecovery>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Production": {
+      "name": "Production",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareProductionRequest>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareProductionRequest>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

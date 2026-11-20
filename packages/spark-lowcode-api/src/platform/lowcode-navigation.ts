@@ -1,0 +1,148 @@
+/**
+ * 运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。
+ * wire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；cfg:/vue: 协议须小写。
+ */
+import { isRecord } from '@spark-appworks/spark-utils'
+
+import { LowcodeApiError } from '../core/lowcode-api-error.js'
+
+/** 导航目标类型；由 NavigationUrl/url 解析得出。 */
+export type LowcodeNavigationTargetKind = 'cfg' | 'empty' | 'external' | 'route' | 'vue'
+
+/** Relations 上下文；wire 字段 TextParamName、ValParamName、selectValParam 等 PascalCase。 */
+export type LowcodeNavigationAuthorizationContext = Readonly<{
+  id: string
+  navigationId: string
+  title: string
+  childRowId: string
+  textParameterName: string
+  valueParameterName: string
+  workflowId: string
+  flowState: number | null
+  valueField: string
+  textField: string
+  titlePlacement: string
+}>
+
+/** 导航授权树节点；cfg/route/vue 目标携带 formKey（conId/conid）。 */
+export type LowcodeNavigationAuthorizationItem = Readonly<{
+  id: string
+  target: string
+  targetKind: LowcodeNavigationTargetKind
+  formKey: string | null
+  children: readonly LowcodeNavigationAuthorizationItem[]
+}>
+
+/** 导航授权完整证据：菜单树 + Relations 上下文列表。 */
+export type LowcodeNavigationAuthorizationEvidence = Readonly<{
+  items: readonly LowcodeNavigationAuthorizationItem[]
+  contexts: readonly LowcodeNavigationAuthorizationContext[]
+}>
+
+function record(value: unknown, context: string): Record<string, unknown> {
+  if (isRecord(value)) return value
+  throw new LowcodeApiError(0, `${context} 不是对象`)
+}
+
+function rows(value: unknown, context: string): readonly unknown[] {
+  if (value === undefined || value === null) return []
+  if (Array.isArray(value)) return value
+  throw new LowcodeApiError(0, `${context} 不是数组`)
+}
+
+function text(value: unknown): string {
+  return value === undefined || value === null ? '' : String(value).trim()
+}
+
+function targetKind(value: string): LowcodeNavigationTargetKind {
+  if (!value) return 'empty'
+  if (value.startsWith('cfg:')) return 'cfg'
+  if (value.startsWith('vue:')) return 'vue'
+  if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value)) return 'external'
+  return 'route'
+}
+
+function target(value: unknown): string {
+  const normalized = text(value)
+  if (!normalized) return ''
+  if (/^cfg:/i.test(normalized) && !normalized.startsWith('cfg:')) {
+    throw new LowcodeApiError(0, '配置页资源协议必须精确使用小写 cfg:')
+  }
+  if (/^vue:/i.test(normalized) && !normalized.startsWith('vue:')) {
+    throw new LowcodeApiError(0, 'Vue 导航资源协议必须精确使用小写 vue:')
+  }
+  if (normalized.startsWith('cfg:') || normalized.startsWith('vue:')) {
+    const resource = normalized.slice(4).replace(/[?#].*$/, '')
+    if (!resource || resource.includes('\\') || resource.includes('//')) {
+      throw new LowcodeApiError(0, `导航资源目标无效：${normalized}`)
+    }
+    if (normalized.startsWith('vue:') && resource.endsWith('.vue')) {
+      throw new LowcodeApiError(0, `Vue 导航资源目标无效：${normalized}`)
+    }
+  }
+  return normalized
+}
+
+function authorizationItem(value: unknown): LowcodeNavigationAuthorizationItem {
+  const raw = record(value, '运行导航授权项')
+  const id = text(raw['id'])
+  if (!id) throw new LowcodeApiError(0, '运行导航授权项缺少 id')
+  const normalizedTarget = target(raw['NavigationUrl'] ?? raw['url'])
+  const kind = targetKind(normalizedTarget)
+  return {
+    id,
+    target: normalizedTarget,
+    targetKind: kind,
+    formKey: kind === 'cfg' || kind === 'route' || kind === 'vue'
+      ? text(raw['conId'] ?? raw['conid']) || null
+      : null,
+    children: rows(raw['items'], '运行导航授权项 items').map(authorizationItem),
+  }
+}
+
+function authorizationContext(value: unknown): LowcodeNavigationAuthorizationContext | null {
+  const raw = record(value, '运行导航授权 Relations 项')
+  const navigationId = text(raw['prowid'])
+  const childRowId = text(raw['childrowid'])
+  if (!navigationId || !childRowId) return null
+  const rawFlowState = raw['flowstate']
+  const flowState = rawFlowState === undefined || rawFlowState === null ? null : Number(rawFlowState)
+  return {
+    id: text(raw['rowid']),
+    navigationId,
+    title: text(raw['title']),
+    childRowId,
+    textParameterName: text(raw['TextParamName']),
+    valueParameterName: text(raw['ValParamName']),
+    workflowId: text(raw['wfid']),
+    flowState: flowState !== null && Number.isFinite(flowState) ? flowState : null,
+    valueField: text(raw['selectValParam']),
+    textField: text(raw['selectTextParam']),
+    titlePlacement: text(raw['titleLocation']).toLowerCase(),
+  }
+}
+
+function collectIds(items: readonly LowcodeNavigationAuthorizationItem[], ids: Set<string>): void {
+  for (const item of items) {
+    if (ids.has(item.id)) throw new LowcodeApiError(0, `运行导航授权项 id 重复：${item.id}`)
+    ids.add(item.id)
+    collectIds(item.children, ids)
+  }
+}
+
+/**
+ * 归一化运行导航授权响应；合并 TopMenus 与 LeftMenus，校验 id 全局唯一。
+ * 配置页与 Vue 资源须分别精确使用小写 cfg:/vue: 前缀，否则抛错。
+ */
+export function normalizeLowcodeNavigationAuthorization(value: unknown): LowcodeNavigationAuthorizationEvidence {
+  const payload = record(value, '运行导航授权 Result')
+  const items = [
+    ...rows(payload['TopMenus'], '运行导航授权 TopMenus').map(authorizationItem),
+    ...rows(payload['LeftMenus'], '运行导航授权 LeftMenus').map(authorizationItem),
+  ]
+  collectIds(items, new Set<string>())
+  const contexts = rows(payload['Relations'], '运行导航授权 Relations')
+    .map(authorizationContext)
+    .filter((item): item is LowcodeNavigationAuthorizationContext => item !== null)
+  return { items, contexts }
+}

@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererForm/RendererForm.props",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererForm/RendererForm.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererForm/RendererForm.props\n职责：定义 RendererForm（r-form）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 table-level/data-view-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer form 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RFormProps"
+    ],
+    "componentName": "RendererForm",
+    "componentType": "r-form",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RFormProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RFormProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataSource": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "showDataViewMeta": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showAggregateSummary": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showSelectionSummary": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "onAddRow": {
+          "type": "object",
+          "title": "AddRowHandler"
+        },
+        "onEditRow": {
+          "type": "object",
+          "title": "EditRowHandler"
+        },
+        "onRemoveRow": {
+          "type": "object",
+          "title": "RemoveRowHandler"
+        },
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "gridMinWidth": {
+          "type": "string"
+        },
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "contextDataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "contextDataField": {
+          "type": "string"
+        },
+        "contextRowId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "autoColumns": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "labelWidth": {
+          "type": "string"
+        },
+        "formProps": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-13T05:19:32.985Z",
+  "models": {
+    "RFormProps": {
+      "name": "RFormProps",
+      "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererForm",
+        "type": "r-form",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 固定currentRow上下文的原记录ID，不修改视图行指针。首次找到记录后锁定原视图和原行对象；切换绑定、ID或同ID行替换后失效，重新打开须重建表单。字段、插槽共用原编辑覆盖；独立子视图不受约束。 */\n    contextRowId?: string | number;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。单行文本回车另发出组件 submit 事件，由监听方决定是否提交。 */\n    formProps?: Record<string, unknown>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 固定currentRow上下文的原记录ID，不修改视图行指针。首次找到记录后锁定原视图和原行对象；切换绑定、ID或同ID行替换后失效，重新打开须重建表单。字段、插槽共用原编辑覆盖；独立子视图不受约束。 */\n    contextRowId?: string | number;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。单行文本回车另发出组件 submit 事件，由监听方决定是否提交。 */\n    formProps?: Record<string, unknown>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "gridMinWidth",
+              "jsdoc": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表单容器使用的 DataView 数据线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextDataMember",
+              "jsdoc": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextDataField",
+              "jsdoc": "上下文成员内部业务字段或点路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextRowId",
+              "jsdoc": "固定currentRow上下文的原记录ID，不修改视图行指针。首次找到记录后锁定原视图和原行对象；切换绑定、ID或同ID行替换后失效，重新打开须重建表单。字段、插槽共用原编辑覆盖；独立子视图不受约束。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelWidth",
+              "jsdoc": "表单标签宽度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formProps",
+              "jsdoc": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。单行文本回车另发出组件 submit 事件，由监听方决定是否提交。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

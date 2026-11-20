@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/shared/ai/ai-data-entry-dialog",
+    "sourcePath": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
+    "sourceFile": "src/views/features/shared/ai/ai-data-entry-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/shared/ai/ai-data-entry-dialog",
+    "jsdoc": "@module app:views/features/shared/ai/ai-data-entry-dialog\n职责：以对话框承载标准AI批量新增组件；确认后的候选暂存在目标DataView，由本对话框经同一DataSet提交。\n边界：目标是当前PageRuntime可解析的完整视图键；AI会话owner依附目标DataSet，不另建草稿或提交通道。\nAI用途：功能页“AI添加”入口复用；可生成的字段由正式模型字段的AI操作设置与目标视图权限决定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T03:59:34.418Z",
+  "models": {}
+}

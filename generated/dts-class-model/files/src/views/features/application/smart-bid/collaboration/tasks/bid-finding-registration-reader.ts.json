@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-finding-registration-reader\n职责：第43项只以同项目已完成原检查办理固定登记输入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Registration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Registration",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "target": {
+              "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/ReviewFindingTarget"
+            }
+          },
+          "required": [
+            "projectId",
+            "requestKey",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "target": {
+              "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/ReviewFindingTarget"
+            },
+            "checkRef": {
+              "type": "string"
+            },
+            "ruleRef": {
+              "type": "string"
+            },
+            "authorityRef": {
+              "type": "string"
+            },
+            "reviewerId": {
+              "type": "string"
+            },
+            "checkedAt": {
+              "type": "string"
+            },
+            "finding": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "title": "Finding"
+            },
+            "observations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Observation"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "target",
+            "checkRef",
+            "ruleRef",
+            "authorityRef",
+            "reviewerId",
+            "checkedAt",
+            "finding",
+            "observations",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RecordInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RecordInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "checkRef": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/ReviewFindingTarget"
+        }
+      },
+      "required": [
+        "projectId",
+        "assertCurrent",
+        "checkRef",
+        "target"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T19:41:40.051Z",
+  "models": {
+    "Registration": {
+      "name": "Registration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareReviewFindingRegistration>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareReviewFindingRegistration>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RecordInput": {
+      "name": "RecordInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Registration[1], 'projectId' | 'target' | 'checkRef' | 'assertCurrent'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Registration[1], 'projectId' | 'target' | 'checkRef' | 'assertCurrent'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checkRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

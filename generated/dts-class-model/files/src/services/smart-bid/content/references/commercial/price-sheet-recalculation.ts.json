@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/price-sheet-recalculation",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/price-sheet-recalculation\n职责：动作28按已核计价规则复算数量乘单价及分项差异。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Rounding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Rounding",
+      "enum": [
+        "HALF_UP",
+        "TRUNCATE"
+      ]
+    },
+    "PriceLine": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PriceLine",
+      "properties": {
+        "lineRef": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string"
+        },
+        "unitPrice": {
+          "type": "string"
+        },
+        "reportedAmount": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lineRef",
+        "quantity",
+        "unitPrice",
+        "reportedAmount",
+        "unit",
+        "sourceRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.547Z",
+  "models": {
+    "Rounding": {
+      "name": "Rounding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'HALF_UP' | 'TRUNCATE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'HALF_UP'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'TRUNCATE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PriceLine": {
+      "name": "PriceLine",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    lineRef: string;\n    quantity: string;\n    unitPrice: string;\n    reportedAmount: string;\n    unit: string;\n    sourceRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    lineRef: string;\n    quantity: string;\n    unitPrice: string;\n    reportedAmount: string;\n    unit: string;\n    sourceRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "quantity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unitPrice",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reportedAmount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

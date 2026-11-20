@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:capability/helpers",
+    "sourcePath": "packages/spark-utils/src/capability/helpers.ts",
+    "sourceFile": "packages/spark-utils/src/capability/helpers.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "capability/helpers",
+    "jsdoc": "@module @spark-appworks/spark-utils:capability/helpers\n职责：提供框架无关的 helpers 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\n能力树遍历辅助工具 —— 纯基础设施，无业务语义。\n所有函数只操作 CapabilityContext / CapabilityKey 原语，\n不引用任何业务类型。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:51.060Z",
+  "models": {}
+}

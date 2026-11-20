@@ -1,0 +1,125 @@
+{
+  "dataSetName": "ProjectDS",
+  "tables": {
+    "Projects": {
+      "tableName": "Projects",
+      "columns": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "managerName",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "type": "string"
+        },
+        {
+          "name": "progress",
+          "type": "number"
+        },
+        {
+          "name": "startDate",
+          "type": "string"
+        },
+        {
+          "name": "endDate",
+          "type": "string"
+        },
+        {
+          "name": "budget",
+          "type": "number"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": "p1",
+              "code": "PRJ-2026-001",
+              "name": "智慧园区综合管理平台",
+              "managerName": "张工",
+              "status": "进行中",
+              "priority": "高",
+              "progress": 68,
+              "startDate": "2026-01-15",
+              "endDate": "2026-06-30",
+              "budget": 500000,
+              "description": "智慧园区一体化管理平台建设"
+            },
+            {
+              "id": "p2",
+              "code": "PRJ-2026-002",
+              "name": "ERP系统升级改造",
+              "managerName": "李工",
+              "status": "进行中",
+              "priority": "高",
+              "progress": 45,
+              "startDate": "2026-02-01",
+              "endDate": "2026-08-31",
+              "budget": 800000,
+              "description": "现有ERP系统升级至新架构"
+            },
+            {
+              "id": "p3",
+              "code": "PRJ-2026-003",
+              "name": "移动办公平台",
+              "managerName": "王工",
+              "status": "规划中",
+              "priority": "中",
+              "progress": 15,
+              "startDate": "2026-03-01",
+              "endDate": "2026-09-30",
+              "budget": 350000,
+              "description": "企业移动办公APP开发"
+            },
+            {
+              "id": "p4",
+              "code": "PRJ-2025-018",
+              "name": "数据中心迁移",
+              "managerName": "赵工",
+              "status": "已完结",
+              "priority": "高",
+              "progress": 100,
+              "startDate": "2025-06-01",
+              "endDate": "2026-01-31",
+              "budget": 1200000,
+              "description": "IDC数据中心搬迁至云端"
+            },
+            {
+              "id": "p5",
+              "code": "PRJ-2026-004",
+              "name": "供应链管理系统",
+              "managerName": "张工",
+              "status": "已暂停",
+              "priority": "低",
+              "progress": 20,
+              "startDate": "2026-01-20",
+              "endDate": "2026-12-31",
+              "budget": 600000,
+              "description": "供应链全流程数字化"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

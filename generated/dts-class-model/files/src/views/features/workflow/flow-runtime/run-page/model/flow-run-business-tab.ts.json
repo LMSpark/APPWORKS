@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-tab\n职责：办理页业务页签路由解析与业务组件暴露注册。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowRunBusinessTab",
+      "FlowRunBusinessTabSeed",
+      "FlowRunBusinessPageExpose"
+    ]
+  },
+  "$defs": {
+    "FlowRunBusinessTab": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunBusinessTab",
+      "properties": {
+        "tabKey": {
+          "type": "string"
+        },
+        "cacheKey": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "routePath": {
+          "type": "string"
+        },
+        "routeFound": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "routeLocation": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "import(\"vue-router\").RouteLocationResolvedGeneric"
+        },
+        "routeError": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tabKey",
+        "cacheKey",
+        "label",
+        "sourcePath",
+        "routePath",
+        "routeFound",
+        "routeLocation",
+        "routeError"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunBusinessTabSeed": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunBusinessTabSeed",
+      "properties": {
+        "tabKey": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "queryString": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tabKey",
+        "label",
+        "sourcePath",
+        "queryString"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunBusinessPageExpose": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunBusinessPageExpose",
+      "$defs": {
+        "method.flowSubmit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.flowSubmit.return": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "Promise<boolean | void | string>"
+            }
+          ]
+        },
+        "method.flowSubmitEnd.params": {
+          "type": "object",
+          "properties": {
+            "payload": true
+          },
+          "additionalProperties": false
+        },
+        "method.flowSubmitEnd.return": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "Promise<boolean | void | string>"
+            }
+          ]
+        },
+        "method.flowSubmitFailed.params": {
+          "type": "object",
+          "properties": {
+            "payload": true
+          },
+          "additionalProperties": false
+        },
+        "method.flowSubmitFailed.return": true,
+        "method.flowSubmitSucceeded.params": {
+          "type": "object",
+          "properties": {
+            "payload": true
+          },
+          "additionalProperties": false
+        },
+        "method.flowSubmitSucceeded.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T07:28:15.199Z",
+  "models": {
+    "FlowRunBusinessTab": {
+      "name": "FlowRunBusinessTab",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tabKey: string;\n    cacheKey: string;\n    label: string;\n    sourcePath: string;\n    routePath: string;\n    routeFound: boolean;\n    routeLocation: RouteLocationResolved | null;\n    routeError: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tabKey: string;\n    cacheKey: string;\n    label: string;\n    sourcePath: string;\n    routePath: string;\n    routeFound: boolean;\n    routeLocation: RouteLocationResolved | null;\n    routeError: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tabKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourcePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routeFound",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routeLocation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routeError",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunBusinessTabSeed": {
+      "name": "FlowRunBusinessTabSeed",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tabKey: string;\n    label: string;\n    sourcePath: string;\n    queryString: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tabKey: string;\n    label: string;\n    sourcePath: string;\n    queryString: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tabKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourcePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryString",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunBusinessPageExpose": {
+      "name": "FlowRunBusinessPageExpose",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    flowSubmit?: () => boolean | void | string | Promise<boolean | void | string>;\n    flowSubmitEnd?: (payload: unknown) => boolean | void | string | Promise<boolean | void | string>;\n    flowSubmitFailed?: (payload: unknown) => void;\n    flowSubmitSucceeded?: (payload: unknown) => void | Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    flowSubmit?: () => boolean | void | string | Promise<boolean | void | string>;\n    flowSubmitEnd?: (payload: unknown) => boolean | void | string | Promise<boolean | void | string>;\n    flowSubmitFailed?: (payload: unknown) => void;\n    flowSubmitSucceeded?: (payload: unknown) => void | Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "flowSubmit",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "void"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "flowSubmitEnd",
+              "parameters": [
+                {
+                  "name": "payload",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "void"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "flowSubmitFailed",
+              "parameters": [
+                {
+                  "name": "payload",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "flowSubmitSucceeded",
+              "parameters": [
+                {
+                  "name": "payload",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

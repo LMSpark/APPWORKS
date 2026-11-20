@@ -1,0 +1,1062 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host\n职责：将同次正文宿主的业务能力交页11脚本消费。\n边界：不创建运行实例、不查询/保存、不持有业务草稿或全局命令表。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentAuthoringScriptSession"
+    ]
+  },
+  "$defs": {
+    "Binding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Binding",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "runtime": {
+          "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "actorUserId": {
+          "type": "string"
+        },
+        "setPending": {
+          "type": "object",
+          "title": "(value: boolean) => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "dataViewKey",
+        "assertCurrent",
+        "draftId",
+        "runtime",
+        "actorUserId",
+        "setPending"
+      ],
+      "additionalProperties": false
+    },
+    "SaveReadInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveReadInput",
+      "properties": {
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectedDraftVersion",
+        "requestKey",
+        "requestDigest",
+        "contentDigest"
+      ],
+      "additionalProperties": false
+    },
+    "OriginalSave": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OriginalSave",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "UNKNOWN"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "state",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "NOT_SAVED"
+            },
+            "terminalRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "state",
+            "terminalRef",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "SAVED"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "draftId": {
+              "type": "string"
+            },
+            "authorId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            },
+            "draftVersion": {
+              "type": "string"
+            },
+            "receiptRef": {
+              "type": "string"
+            },
+            "contentDigest": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "state",
+            "projectId",
+            "draftId",
+            "authorId",
+            "requestKey",
+            "requestDigest",
+            "draftVersion",
+            "receiptRef",
+            "contentDigest",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SaveComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveComparison",
+      "properties": {
+        "savedVersion": {
+          "type": "string"
+        },
+        "receiptRef": {
+          "type": "string"
+        },
+        "currentState": {
+          "enum": [
+            "MATCHED",
+            "NEWER_EDITS"
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "savedVersion",
+        "receiptRef",
+        "currentState",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "CandidatePreviewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CandidatePreviewInput",
+      "properties": {
+        "declaredAddedNodeIds": true,
+        "volumeDestinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Destination"
+          }
+        },
+        "originalFormTemplate": {
+          "type": "object",
+          "properties": {
+            "documentId": {
+              "type": "string"
+            },
+            "templateRef": {
+              "type": "string"
+            },
+            "templateVersion": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "documentId",
+            "templateRef",
+            "templateVersion"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "declaredAddedNodeIds"
+      ],
+      "additionalProperties": false
+    },
+    "DraftCandidateInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DraftCandidateInput",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "targetScope": true,
+        "firstBatchId": {
+          "type": "string"
+        },
+        "targetScopeIndex": {
+          "type": "number"
+        },
+        "declaredAddedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "requestKey"
+      ],
+      "additionalProperties": false
+    },
+    "ContentAuthoringScriptSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringScriptSession",
+      "properties": {
+        "canLeave": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "canCancel": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "canEditDraft": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.select.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.select.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.setInputPending.params": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setInputPending.return": true,
+        "method.actionProps.params": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "path": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.actionProps.return": {
+          "type": "object",
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "onClick": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "disabled",
+            "onClick"
+          ],
+          "additionalProperties": false
+        },
+        "method.editorProps.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editorProps.return": {
+          "$ref": "../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        },
+        "method.readOriginalSave.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SaveReadInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readOriginalSave.return": {
+          "type": "object",
+          "title": "Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>"
+        },
+        "method.readVolumePlanningObligations.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readVolumePlanningObligations.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readBaselineSubmissionObligations>"
+        },
+        "method.readOriginalAdoption.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../model/adoption/content-adoption-reader.ts.json#/$defs/ContentAdoptionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readOriginalAdoption.return": {
+          "type": "object",
+          "title": "ReturnType<typeof inspectRegisteredAdoption>"
+        },
+        "method.readCurrentHead.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readCurrentHead.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>"
+        },
+        "method.readOriginalForm.params": {
+          "type": "object",
+          "properties": {
+            "selection": true
+          },
+          "additionalProperties": false
+        },
+        "method.readOriginalForm.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readRegisteredOriginalForm>"
+        },
+        "method.compareOriginalForms.params": {
+          "type": "object",
+          "properties": {
+            "selection": true
+          },
+          "additionalProperties": false
+        },
+        "method.compareOriginalForms.return": {
+          "type": "object",
+          "title": "ReturnType<typeof compareRegisteredOriginalForms>"
+        },
+        "method.previewCandidate.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "../../model/content-revision-reader.ts.json#/$defs/ContentRevisionSelection"
+            },
+            "options": {
+              "$ref": "#/$defs/CandidatePreviewInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewCandidate.return": {
+          "type": "object",
+          "title": "ReturnType<ContentCandidateBinding['previewScope']>"
+        },
+        "method.captureCandidateDraft.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureCandidateDraft.return": {
+          "type": "object",
+          "title": "ReturnType<ContentAuthoringCommands['captureCandidateDraft']>"
+        },
+        "method.prepareDraftCandidate.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DraftCandidateInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareDraftCandidate.return": {
+          "type": "object",
+          "title": "ReturnType<typeof prepareRegisteredDraftCandidateRequest>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T17:20:06.092Z",
+  "models": {
+    "Binding": {
+      "name": "Binding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ContentAuthoringBinding, 'runtime' | 'dataViewKey' | 'projectId' | 'draftId' | 'actorUserId' | 'assertCurrent' | 'setPending'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<ContentAuthoringBinding, 'runtime' | 'dataViewKey' | 'projectId' | 'draftId' | 'actorUserId' | 'assertCurrent' | 'setPending'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "actorUserId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setPending",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SaveReadInput": {
+      "name": "SaveReadInput",
+      "jsdoc": "定位原保存办理的请求和内容摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredOriginalContentDraftSave>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "expectedDraftVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contentDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "OriginalSave": {
+      "name": "OriginalSave",
+      "jsdoc": "从正式办理记录读取的原保存结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SaveComparison": {
+      "name": "SaveComparison",
+      "jsdoc": "原回执与当前草稿在同一版本下的比较结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof reconcileSavedContentDraft>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof reconcileSavedContentDraft>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "savedVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receiptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CandidatePreviewInput": {
+      "name": "CandidatePreviewInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<ContentCandidateBinding['previewScope']>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "declaredAddedNodeIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "volumeDestinations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalFormTemplate",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DraftCandidateInput": {
+      "name": "DraftCandidateInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestKey: string;\n    targetScope?: unknown;\n    firstBatchId?: string;\n    targetScopeIndex?: number;\n    declaredAddedNodeIds?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestKey: string;\n    targetScope?: unknown;\n    firstBatchId?: string;\n    targetScopeIndex?: number;\n    declaredAddedNodeIds?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "firstBatchId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetScopeIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "declaredAddedNodeIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PublishedContentAuthoringInvoke": {
+      "name": "PublishedContentAuthoringInvoke",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(name: string, input: unknown, signal: AbortSignal) => Promise<unknown>",
+        "members": {}
+      }
+    },
+    "ContentAuthoringScriptSession": {
+      "name": "ContentAuthoringScriptSession",
+      "jsdoc": "脚本句柄只有业务能力和选择代次，没有业务数据副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "canLeave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canEditDraft",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "select",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setInputPending",
+              "parameters": [
+                {
+                  "name": "pending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "actionProps",
+              "parameters": [
+                {
+                  "name": "label",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "JsonPath"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        disabled: boolean;\n        onClick: () => void;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "editorProps",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readOriginalSave",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveReadInput",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "OriginalSave",
+                        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        comparison?: SaveComparison;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readVolumePlanningObligations",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readBaselineSubmissionObligations"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readOriginalAdoption",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAdoptionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof inspectRegisteredAdoption"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readCurrentHead",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readOriginalForm",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<typeof readRegisteredOriginalForm>[1]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readRegisteredOriginalForm"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "compareOriginalForms",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<typeof compareRegisteredOriginalForms>[1]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof compareRegisteredOriginalForms"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewCandidate",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentRevisionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "CandidatePreviewInput",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "ContentCandidateBinding['previewScope']"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "captureCandidateDraft",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "ContentAuthoringCommands['captureCandidateDraft']"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareDraftCandidate",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DraftCandidateInput",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof prepareRegisteredDraftCandidateRequest"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

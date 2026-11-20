@@ -1,0 +1,2465 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/blueprint-workspace-dataview",
+    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
+    "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
+    "packageName": "app",
+    "modulePath": "services/project/blueprint-workspace-dataview",
+    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNodeFormData",
+      "BlueprintChildNodeCreate",
+      "BlueprintChildNodeCreateAtParent",
+      "BlueprintDataSpaceImpact",
+      "BlueprintNodeDataBatchItem",
+      "BlueprintLeafMoveBatchCommand",
+      "BlueprintLeafMoveBatchOptions",
+      "BlueprintWorkspaceDataView"
+    ]
+  },
+  "$defs": {
+    "SelectedNodeSaveProgress": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectedNodeSaveProgress",
+      "$defs": {
+        "method.beforeSubmit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeSubmit.return": true,
+        "method.accepted.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.accepted.return": true,
+        "method.rejected.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rejected.return": true
+      }
+    },
+    "OptionalFormFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OptionalFormFields",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "BlueprintNodeFormData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeFormData",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "BlueprintSource"
+        },
+        "kind": {
+          "enum": [
+            "module",
+            "page",
+            "embedded",
+            "service",
+            "content",
+            "unknown"
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "capability": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "navigation": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "dataSpace": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "prototype": {
+          "$ref": "#/$defs/OptionalFormFields"
+        }
+      },
+      "required": [
+        "source",
+        "kind",
+        "projectId",
+        "nodeId",
+        "parentNodeId",
+        "capability"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintChildNodeCreate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintChildNodeCreate",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "nodeId",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintChildNodeCreateAtParent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintChildNodeCreateAtParent",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "parentNodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "fields",
+        "parentNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintDataSpaceImpact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintDataSpaceImpact",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "navigationTarget": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "path",
+        "navigationTarget"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodeDataBatchItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeDataBatchItem",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "node": {
+          "$ref": "#/$defs/BlueprintNodeFormData"
+        }
+      },
+      "required": [
+        "nodeId",
+        "key",
+        "patch",
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintLeafMoveBatchCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintLeafMoveBatchCommand",
+      "properties": {
+        "kind": {
+          "enum": [
+            "move",
+            "reorder"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "previousParentNodeId": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "siblingIndex": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "nodeId",
+        "parentNodeId",
+        "depth",
+        "siblingIndex",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintLeafMoveBatchOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintLeafMoveBatchOptions",
+      "properties": {
+        "beforeTree": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintLeafMoveBatchCommand"
+          }
+        },
+        "expectedTree": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.beforeStage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeStage.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BlueprintWorkspaceDataView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintWorkspaceDataView",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "view": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "standardComponentBinding": {
+          "type": "object",
+          "properties": {
+            "dataViewKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "row": {
+          "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "hasTreeProjection": {
+          "type": "boolean"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "hasPendingBlueprintCommand": {
+          "type": "boolean"
+        },
+        "isBusy": {
+          "type": "boolean"
+        },
+        "isLazyTree": {
+          "type": "boolean"
+        },
+        "hasPendingRootCreate": {
+          "type": "boolean"
+        },
+        "hasPendingChildCreate": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebindScope.params": {
+          "type": "object",
+          "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebindScope.return": true,
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadProjectTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectTree.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.childrenLoaded.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childrenLoaded.return": {
+          "type": "boolean"
+        },
+        "method.loadProjectTreeLazy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectTreeLazy.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData | undefined>"
+        },
+        "method.loadChildren.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadChildren.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.locateNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.locateNode.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.readDataSpaceImpact.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDataSpaceImpact.return": {
+          "type": "object",
+          "title": "Promise<readonly BlueprintDataSpaceImpact[]>"
+        },
+        "method.loadProjectRecords.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectRecords.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeProjectBlueprintRecord[]>"
+        },
+        "method.removeLeafNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "expectedProjectId": {
+              "type": "string"
+            },
+            "expectedParentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeLeafNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.moveNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.moveNodeRelative.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "targetNodeId": {
+                  "type": "string"
+                },
+                "position": {
+                  "enum": [
+                    "before",
+                    "after",
+                    "inner"
+                  ]
+                }
+              },
+              "required": [
+                "nodeId",
+                "targetNodeId",
+                "position"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNodeRelative.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.applyLeafMoveBatch.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/BlueprintLeafMoveBatchOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyLeafMoveBatch.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addRootModule.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addRootModule.return": {
+          "type": "object",
+          "title": "Promise<string | number>"
+        },
+        "method.hasOutput.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasOutput.return": {
+          "type": "boolean"
+        },
+        "method.addChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreate"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
+        },
+        "method.addChildNodesAcrossParents.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreateAtParent"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNodesAcrossParents.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
+        },
+        "method.addAndUpdateChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreateAtParent"
+              }
+            },
+            "updates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeFormData"
+              }
+            },
+            "beforeStage": {
+              "type": "object",
+              "title": "() => boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addAndUpdateChildNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
+        },
+        "method.assertCanAddChild.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanAddChild.return": true,
+        "method.preflightChildNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightChildNode.return": {
+          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        },
+        "method.addChildNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            },
+            "explicitNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNode.return": {
+          "type": "object",
+          "title": "Promise<string | number>"
+        },
+        "method.addModuleNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "fields": {
+              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addModuleNode.return": {
+          "type": "object",
+          "title": "Promise<string | number>"
+        },
+        "method.nodeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.nodeData.return": {
+          "$ref": "#/$defs/BlueprintNodeFormData"
+        },
+        "method.preflightNodeData.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "#/$defs/BlueprintNodeFormData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightNodeData.return": {
+          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        },
+        "method.updateNodeData.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "#/$defs/BlueprintNodeFormData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeData.return": true,
+        "method.preflightNodeDataBatch.params": {
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeFormData"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightNodeDataBatch.return": {
+          "type": "object",
+          "title": "Promise<readonly BlueprintNodeDataBatchItem[]>"
+        },
+        "method.updateNodeDataBatch.params": {
+          "type": "object",
+          "properties": {
+            "prepared": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeDataBatchItem"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeDataBatch.return": true,
+        "method.saveNodes.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveNodes.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.treeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.treeProjection.return": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.childCreateActionState.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childCreateActionState.return": {
+          "enum": [
+            "enabled",
+            "hidden",
+            "disabled",
+            "unknown"
+          ]
+        },
+        "method.canRead.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canRead.return": {
+          "type": "boolean"
+        },
+        "method.canWrite.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canWrite.return": {
+          "type": "boolean"
+        },
+        "method.canWriteFields.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canWriteFields.return": {
+          "type": "boolean"
+        },
+        "method.value.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.value.return": true,
+        "method.update.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.update.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.rereadSelectedNode.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rereadSelectedNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveSelectedNode.params": {
+          "type": "object",
+          "properties": {
+            "progress": {
+              "$ref": "#/$defs/SelectedNodeSaveProgress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveSelectedNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.readSavedProjectNodes.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSavedProjectNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Readonly<{\n        row: Readonly<DataRow>;\n        hidden: readonly string[];\n    }>>>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T04:47:24.725Z",
+  "models": {
+    "SelectedNodeSaveProgress": {
+      "name": "SelectedNodeSaveProgress",
+      "jsdoc": "单节点交付进度。accepted 只在一条更新的回执已核对后通知，随后仍需正式回读。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    beforeSubmit(): void;\n    accepted(): void;\n    rejected(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    beforeSubmit(): void;\n    accepted(): void;\n    rejected(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "beforeSubmit",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "accepted",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "rejected",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "OptionalFormFields": {
+      "name": "OptionalFormFields",
+      "jsdoc": "Permission-filtered form projection; unreadable wire members are absent.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [Key in keyof T]?: T[Key] | undefined;\n}",
+        "members": {}
+      }
+    },
+    "BlueprintNodeFormData": {
+      "name": "BlueprintNodeFormData",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ProjectBlueprintTreeNodeData, 'capability' | 'navigation' | 'dataSpace' | 'prototype'> & {\n    capability: OptionalFormFields<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['navigation']>> | undefined;\n    dataSpace?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>> | undefined;\n    prototype?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>> | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ProjectBlueprintTreeNodeData, 'capability' | 'navigation' | 'dataSpace' | 'prototype'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    capability: OptionalFormFields<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['navigation']>> | undefined;\n    dataSpace?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>> | undefined;\n    prototype?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>> | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prototype",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintChildNodeCreate": {
+      "name": "BlueprintChildNodeCreate",
+      "jsdoc": "Stable row identity and wire fields for one preflighted leaf.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Stable explicit row identity, unique within the current project and this command. */\n    nodeId: string;\n    /** Candidate formal wire fields; the current DataView validates every field before staging. */\n    fields: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Stable explicit row identity, unique within the current project and this command. */\n    nodeId: string;\n    /** Candidate formal wire fields; the current DataView validates every field before staging. */\n    fields: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "Stable explicit row identity, unique within the current project and this command.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "Candidate formal wire fields; the current DataView validates every field before staging.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintChildNodeCreateAtParent": {
+      "name": "BlueprintChildNodeCreateAtParent",
+      "jsdoc": "A preflighted leaf row whose parent is an existing row in the current DataView.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "BlueprintChildNodeCreate & Readonly<{\n    parentNodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "BlueprintChildNodeCreate",
+            "targetName": "BlueprintChildNodeCreate"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    parentNodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintDataSpaceImpact": {
+      "name": "BlueprintDataSpaceImpact",
+      "jsdoc": "One blueprint node bound to a data space, with its full title path from the root.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Stable blueprint node identity (Base_NavigationInfo.rowid). */\n    nodeId: string;\n    /** Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \". */\n    path: string;\n    /** Visible NavigationUrl of the node; empty when unset or unreadable. */\n    navigationTarget: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Stable blueprint node identity (Base_NavigationInfo.rowid). */\n    nodeId: string;\n    /** Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \". */\n    path: string;\n    /** Visible NavigationUrl of the node; empty when unset or unreadable. */\n    navigationTarget: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "Stable blueprint node identity (Base_NavigationInfo.rowid).",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "Root-to-node titles (navigation title, else capability name, else node id) joined by \" / \".",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationTarget",
+              "jsdoc": "Visible NavigationUrl of the node; empty when unset or unreadable.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeDataBatchItem": {
+      "name": "BlueprintNodeDataBatchItem",
+      "jsdoc": "Fully preflighted target identity and patch, ready for synchronous overlay staging.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    key: string | number;\n    patch: Readonly<Record<string, unknown>>;\n    node: BlueprintNodeFormData;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    key: string | number;\n    patch: Readonly<Record<string, unknown>>;\n    node: BlueprintNodeFormData;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "patch",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintLeafMoveBatchCommand": {
+      "name": "BlueprintLeafMoveBatchCommand",
+      "jsdoc": "Explicit pure move/reorder command emitted by the project-planning diff.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** `move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order. */\n    kind: 'move' | 'reorder';\n    /** Existing rowid from the complete original project tree. */\n    nodeId: string;\n    /** Parent identity in the target tree; must also exist in the original same-project tree. */\n    parentNodeId: string;\n    /** Original parent identity captured by the replacement plan. */\n    previousParentNodeId?: string;\n    /** Target depth and sibling position from the explicit replacement plan. */\n    depth: number;\n    siblingIndex: number;\n    /** Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted. */\n    fields: Readonly<Record<string, string | number>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** `move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order. */\n    kind: 'move' | 'reorder';\n    /** Existing rowid from the complete original project tree. */\n    nodeId: string;\n    /** Parent identity in the target tree; must also exist in the original same-project tree. */\n    parentNodeId: string;\n    /** Original parent identity captured by the replacement plan. */\n    previousParentNodeId?: string;\n    /** Target depth and sibling position from the explicit replacement plan. */\n    depth: number;\n    siblingIndex: number;\n    /** Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted. */\n    fields: Readonly<Record<string, string | number>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "`move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "Existing rowid from the complete original project tree.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "jsdoc": "Parent identity in the target tree; must also exist in the original same-project tree.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousParentNodeId",
+              "jsdoc": "Original parent identity captured by the replacement plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "depth",
+              "jsdoc": "Target depth and sibling position from the explicit replacement plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "siblingIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintLeafMoveBatchOptions": {
+      "name": "BlueprintLeafMoveBatchOptions",
+      "jsdoc": "Named inputs for one preflighted AI move/reorder batch.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Complete original tree used by the planner. */\n    beforeTree: ProjectBlueprintTreeData;\n    /** Explicit wire move/reorder commands from the plan. */\n    commands: readonly BlueprintLeafMoveBatchCommand[];\n    /** Complete target tree represented by those commands. */\n    expectedTree: ProjectBlueprintTreeData;\n    /** Called after owner preflight and immediately before staging. */\n    beforeStage?: () => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Complete original tree used by the planner. */\n    beforeTree: ProjectBlueprintTreeData;\n    /** Explicit wire move/reorder commands from the plan. */\n    commands: readonly BlueprintLeafMoveBatchCommand[];\n    /** Complete target tree represented by those commands. */\n    expectedTree: ProjectBlueprintTreeData;\n    /** Called after owner preflight and immediately before staging. */\n    beforeStage?: () => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "beforeTree",
+              "jsdoc": "Complete original tree used by the planner.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commands",
+              "jsdoc": "Explicit wire move/reorder commands from the plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedTree",
+              "jsdoc": "Complete target tree represented by those commands.",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "beforeStage",
+              "jsdoc": "Called after owner preflight and immediately before staging.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintWorkspaceDataView": {
+      "name": "BlueprintWorkspaceDataView",
+      "jsdoc": "一个已查询目标的 DataView 编辑入口；正式元数据和查询权限均由原 DataSpace owner 提供。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, projectId: string, assertCurrent: () => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "standardComponentBinding",
+              "jsdoc": "Standard component binding for this owner's formal model view.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasTreeProjection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingBlueprintCommand",
+              "jsdoc": "Keep the owner mounted while a write receipt or its required readback is unresolved.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBusy",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isLazyTree",
+              "jsdoc": "是否处于按父节点懒加载的项目树模式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingRootCreate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingChildCreate",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "rebindScope",
+              "jsdoc": "Rebind the parked owner to a newly acquired same-project 蓝图 scope.",
+              "parameters": [
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "load",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadProjectTree",
+              "jsdoc": "Load the displayed tree through the same bound DataView owner used by edits.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "childrenLoaded",
+              "jsdoc": "懒加载模式下某节点的直接子行是否已由原 DataView 装载；完整树模式恒为 true。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadProjectTreeLazy",
+              "jsdoc": "沿同一 DataView owner 只读取根层与根节点的直接子行（下一层预读用于判定可展开），后续按父节点增量装载。\n@returns 当前已装载行的树投影；项目没有可读根节点时返回 undefined。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectBlueprintTreeData"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadChildren",
+              "jsdoc": "懒加载一个节点的直接子行，并预读这些子行的下一层以判定是否可展开；已装载的父节点不会重复查询。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "locateNode",
+              "jsdoc": "按 nodeId 沿父链定位：缺失的祖先逐级按 rowid 读取，再自顶向下装载各祖先的直接子行。\n@returns 自根到目标的节点身份链。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readDataSpaceImpact",
+              "jsdoc": "数据空间影响范围：沿原 DataView 读取当前项目中正式 conid 等于目标的全部节点及其完整父链（懒加载模式增量装载，\n与 locateNode 同口径补齐祖先的直接子行）；conid 不可读即失败，不以缺失字段推断“未绑定”。\n@returns 按功能路径排序的节点身份、功能路径与导航地址。",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly BlueprintDataSpaceImpact[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadProjectRecords",
+              "jsdoc": "Load the same permission-filtered records for consumers that need rows instead of a tree.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeProjectBlueprintRecord[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeLeafNode",
+              "jsdoc": "Delete one ordinary leaf through the current project tree DataView and confirm it by readback.",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedParentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveNode",
+              "jsdoc": "Temporarily widens this same DataView to project rows and stages a permission-checked move.",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveNodeRelative",
+              "jsdoc": "Resolve a renderer drop against fresh rows from this same DataView, then stage its permission-checked move.",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applyLeafMoveBatch",
+              "jsdoc": "Preflight, stage and save one AI pure leaf-move/reorder command through this DataView.",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintLeafMoveBatchOptions",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addRootModule",
+              "jsdoc": "Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id.",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasOutput",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "addChildNodes",
+              "jsdoc": "Preflight and submit several stable leaf IDs under one existing parent in one DataSet batch.",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreate[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addChildNodesAcrossParents",
+              "jsdoc": "Preflight and submit stable leaf IDs under multiple existing parents in one DataSet batch.",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreateAtParent[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addAndUpdateChildNodes",
+              "jsdoc": "Preflight, stage, and save creates plus existing leaf updates as one DataSet view batch.",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreateAtParent[]"
+                  }
+                },
+                {
+                  "name": "updates",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeFormData[]"
+                  }
+                },
+                {
+                  "name": "beforeStage",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCanAddChild",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "preflightChildNode",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addChildNode",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "explicitNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addModuleNode",
+              "jsdoc": "在已存在父节点下新增一个默认模块节点（同级/子级新增共用），排序值取已装载同级最大值 + 1。\n存在子节点未知回执时只核验原新增，不创建第二条（此时忽略 fields）。\nfields 只允许覆盖内容字段（名称/能力名/描述/阶段/类型），父级、排序与身份字段仍由 owner 决定。",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "nodeData",
+              "jsdoc": "Read the selected editable node as a permission-filtered compatibility projection.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "BlueprintNodeFormData",
+                "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+              }
+            },
+            {
+              "name": "preflightNodeData",
+              "jsdoc": "Validate a domain projection without writing, so multi-owner commands can preflight before creating files.",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeFormData",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeData",
+              "jsdoc": "Apply a domain projection by diffing through the canonical wire mapper and preflighting every changed field.",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeFormData",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "preflightNodeDataBatch",
+              "jsdoc": "Preflight every requested existing node before applying any edit overlay.",
+              "parameters": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeFormData[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeDataBatchItem[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeDataBatch",
+              "jsdoc": "Stage preflighted existing-node updates on their formal DataView row identities.",
+              "parameters": [
+                {
+                  "name": "prepared",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeDataBatchItem[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "saveNodes",
+              "jsdoc": "Save exactly the requested preflighted rows through this DataSet and verify every changed field.",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "treeProjection",
+              "jsdoc": "Build the display tree strictly from the current DataView rows and their edit overlays.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData"
+              }
+            },
+            {
+              "name": "childCreateActionState",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "enabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "hidden"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "disabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "canRead",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canWrite",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canWriteFields",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "value",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "update",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "丢弃 DataView 编辑覆盖或已暂存行修改；没有页面副本需要清空。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rereadSelectedNode",
+              "jsdoc": "已确认的发布在新实例只刷新原视图并重新定位节点，保留已有工作区的懒加载范围。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveSelectedNode",
+              "jsdoc": "Save only the selected node; any staged changes on other rows remain untouched.",
+              "parameters": [
+                {
+                  "name": "progress",
+                  "type": {
+                    "type": "reference",
+                    "name": "SelectedNodeSaveProgress",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSavedProjectNodes",
+              "jsdoc": "经场景声明的 savedProjectNodes 视图完整读取本项目已保存的全部蓝图节点，只读，不改变当前树、草稿与当前行。\n行数与总数不一致或返回跨项目行即拒绝，不以部分结果核验；hidden 为该行不可读的请求字段。",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        row: Readonly<DataRow>;\n        hidden: readonly string[];\n    }"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

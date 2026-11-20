@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/guards",
+    "sourcePath": "packages/spark-app/src/router/guards.ts",
+    "sourceFile": "packages/spark-app/src/router/guards.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/guards",
+    "jsdoc": "@module @spark-appworks/spark-app:router/guards\n职责：提供 spark-app 应用壳中的 guards 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nRouter Guards\n路由守卫（鉴权、权限检查、预加载）\n注意：路由守卫运行在 Vue setup 上下文之外，不能使用 inject()。\nAppContext 通过函数参数传入。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:50.950Z",
+  "models": {}
+}

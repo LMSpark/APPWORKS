@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/http",
+    "sourcePath": "packages/spark-project-model/src/io/http.ts",
+    "sourceFile": "packages/spark-project-model/src/io/http.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/http",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/http\n职责：提供项目模型和页面配置域中的 http 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nHTTP 客户端辅助：路径归一化、请求头拦截器。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T19:52:19.189Z",
+  "models": {}
+}

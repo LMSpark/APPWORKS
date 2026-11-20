@@ -1,0 +1,56 @@
+{
+  "dataSetName": "RemoteProjectsDataSet",
+  "tables": {
+    "Projects": {
+      "columns": [
+        {
+          "name": "tenantId",
+          "type": "string",
+          "label": "租户"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "isPrimaryKey": true,
+          "label": "项目ID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "项目名称"
+        },
+        {
+          "name": "projectType",
+          "type": "string",
+          "label": "类型"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "label": "描述"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "label": "更新时间"
+        }
+      ],
+      "api": {
+        "list": {
+          "url": "/tenants/{tenantId}/projects",
+          "method": "GET"
+        }
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoRefresh": true,
+          "autoCurrentFirst": true,
+          "autoSelectFirst": false,
+          "pageSize": 20
+        }
+      },
+      "tableName": "Projects"
+    }
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/smart-bid-action-module",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/smart-bid-action-module",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-action-module\n职责：为 47 个 SmartBid 业务模型公开同一套当前 PageRuntime 动作执行合同。\n边界：不建立动作注册表；模型类的方法名和源码声明由 ClassModel 编译器自动投影。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SmartBidActionRequest",
+      "SmartBidActionResult",
+      "SmartBidActionExecutor"
+    ]
+  },
+  "$defs": {
+    "SmartBidActionRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidActionRequest",
+      "properties": {
+        "registrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonParams"
+        }
+      },
+      "required": [
+        "registrationId",
+        "businessInstanceId",
+        "runtimeInstanceId",
+        "requestKey",
+        "prompt",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "SmartBidActionResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidActionResult",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+        }
+      },
+      "required": [
+        "operationId",
+        "requestKey",
+        "outcome"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T09:52:08.191Z",
+  "models": {
+    "SmartBidActionRequest": {
+      "name": "SmartBidActionRequest",
+      "jsdoc": "一个正式业务动作的固定调用输入；operationId 由公开方法绑定，调用方不能替换。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: JsonParams;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: JsonParams;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "registrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SmartBidActionResult": {
+      "name": "SmartBidActionResult",
+      "jsdoc": "模型公开方法的统一结果；outcome 由当前原 owner 提供，不解释业务成功。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    outcome: JsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    outcome: JsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SmartBidActionExecutor": {
+      "name": "SmartBidActionExecutor",
+      "jsdoc": "当前 PageRuntime 可信 owner；每次调用核本次场景、业务对象、权限、版本与原请求。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(input: SmartBidActionRequest & Readonly<{\n    operationId: string;\n}>) => Promise<JsonValue>",
+        "members": {}
+      }
+    }
+  }
+}

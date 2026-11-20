@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:contracts/lowcode-send-code",
+    "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-send-code.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/contracts/lowcode-send-code.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "contracts/lowcode-send-code",
+    "jsdoc": "lowcode-jdk17 验证码 wire 字面量（渠道 / 场景）。\n与 `backend-api-contracts/common.ts` 同形（`tools/verify-send-code-parity.mjs`）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SendCodeType",
+      "SendCodeScene"
+    ]
+  },
+  "$defs": {
+    "SendCodeType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SendCodeType",
+      "enum": [
+        "MOBILE",
+        "EMAIL"
+      ]
+    },
+    "SendCodeScene": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SendCodeScene",
+      "enum": [
+        "REGISTER",
+        "LOGIN",
+        "REGISTER_ENT",
+        "ENT_USER_LOGIN",
+        "RESET_PASSWORD",
+        "BIND",
+        "REBIND",
+        "EDIT_ENT",
+        "ENT_USER_BIND",
+        "ENT_USER_REBIND",
+        "CHANGE_PASSWORD",
+        "CHANGE_PASSWORD_BY_OLD_PASS",
+        "BIND_THIRD_ACCOUNT",
+        "UNBIND_THIRD_ACCOUNT",
+        "FACE",
+        "IDENTITY_VERIFY_BIND",
+        "ALIYUN_IDENTITY_VERIFY_BIND",
+        "ADMIN_RESET_PASSWORD"
+      ]
+    }
+  },
+  "generatedAt": "2026-08-10T12:27:41.966Z",
+  "models": {
+    "SendCodeType": {
+      "name": "SendCodeType",
+      "jsdoc": "验证码投递渠道。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'MOBILE' | 'EMAIL'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'MOBILE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'EMAIL'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SendCodeScene": {
+      "name": "SendCodeScene",
+      "jsdoc": "验证码业务场景全集（wire SendCodeScene）。\n门面注册子集见 `LowcodeVerificationScene = Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>`。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'REGISTER' | 'LOGIN' | 'REGISTER_ENT' | 'ENT_USER_LOGIN' | 'RESET_PASSWORD' | 'BIND' | 'REBIND' | 'EDIT_ENT' | 'ENT_USER_BIND' | 'ENT_USER_REBIND' | 'CHANGE_PASSWORD' | 'CHANGE_PASSWORD_BY_OLD_PASS' | 'BIND_THIRD_ACCOUNT' | 'UNBIND_THIRD_ACCOUNT' | 'FACE' | 'IDENTITY_VERIFY_BIND' | 'ALIYUN_IDENTITY_VERIFY_BIND' | 'ADMIN_RESET_PASSWORD'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'REGISTER'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'LOGIN'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'REGISTER_ENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ENT_USER_LOGIN'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'RESET_PASSWORD'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'BIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'REBIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'EDIT_ENT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ENT_USER_BIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ENT_USER_REBIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CHANGE_PASSWORD'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CHANGE_PASSWORD_BY_OLD_PASS'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'BIND_THIRD_ACCOUNT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'UNBIND_THIRD_ACCOUNT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'FACE'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'IDENTITY_VERIFY_BIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ALIYUN_IDENTITY_VERIFY_BIND'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ADMIN_RESET_PASSWORD'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

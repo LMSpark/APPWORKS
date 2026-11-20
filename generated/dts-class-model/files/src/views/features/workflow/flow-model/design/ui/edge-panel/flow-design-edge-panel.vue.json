@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel",
+    "sourcePath": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+    "sourceFile": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel",
+    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel\n职责：流程设计连线列表，绑定父级已刷新的 WFM_NODE_REALATION 正式视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T21:28:50.525Z",
+  "models": {}
+}

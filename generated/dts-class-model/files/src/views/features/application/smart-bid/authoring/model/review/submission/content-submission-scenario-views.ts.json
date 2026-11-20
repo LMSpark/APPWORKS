@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views\n职责：供正式共享场景装配原递交、回执、截止与阶段结果命名视图。\n边界：只提供视图配置，模型身份、字段与授权由正式场景确定。\nAI用途：查找各正式办理视图的固定查询参数与字段投影。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T19:32:25.128Z",
+  "models": {}
+}

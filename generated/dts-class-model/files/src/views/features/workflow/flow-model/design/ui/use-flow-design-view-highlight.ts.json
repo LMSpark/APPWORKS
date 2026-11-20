@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight",
+    "sourcePath": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
+    "sourceFile": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight",
+    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight\n职责：将图选中 id 同步到已绑定 DataView 的当前行（表格高亮）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T16:30:22.399Z",
+  "models": {}
+}

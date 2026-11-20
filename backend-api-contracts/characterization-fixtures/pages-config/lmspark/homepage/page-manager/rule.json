@@ -1,0 +1,130 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h2",
+        "children": [
+          "页面管理"
+        ]
+      },
+      {
+        "type": "el-alert",
+        "props": {
+          "type": "info",
+          "style": {
+            "marginBottom": "16px"
+          },
+          "title": "管理系统中所有页面的配置信息",
+          "closable": false,
+          "showIcon": true
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "el-button",
+            "children": [
+              "新增页面"
+            ],
+            "props": {
+              "type": "primary",
+              "on": {
+                "click": "handleAdd"
+              },
+              "size": "small"
+            }
+          },
+          {
+            "type": "el-button",
+            "children": [
+              "编辑"
+            ],
+            "props": {
+              "type": "success",
+              "on": {
+                "click": "handleEdit"
+              },
+              "size": "small"
+            }
+          },
+          {
+            "type": "el-button",
+            "children": [
+              "删除"
+            ],
+            "props": {
+              "type": "danger",
+              "on": {
+                "click": "handleDelete"
+              },
+              "size": "small"
+            }
+          }
+        ],
+        "props": {
+          "style": {
+            "marginBottom": "10px",
+            "display": "flex",
+            "gap": "8px"
+          }
+        }
+      },
+      {
+        "type": "el-table",
+        "children": [
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "id",
+              "label": "ID",
+              "width": "80"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "name",
+              "label": "页面名称"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "path",
+              "label": "路径"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "status",
+              "label": "状态"
+            }
+          },
+          {
+            "type": "el-table-column",
+            "props": {
+              "prop": "type",
+              "label": "类型"
+            }
+          }
+        ],
+        "props": {
+          "border": true,
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "dataViewKey": "Pages@default",
+          "dataMember": "rows"
+        }
+      }
+    ],
+    "props": {
+      "class": "page-container",
+      "style": {
+        "padding": "20px"
+      }
+    }
+  }
+]

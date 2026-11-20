@@ -1,0 +1,148 @@
+import type { LowcodeRealtimeEvent } from '@spark-appworks/spark-lowcode-api'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+const realtime = vi.hoisted(() => ({
+  connect: vi.fn(),
+  onEvent: null as ((event: LowcodeRealtimeEvent) => void) | null,
+  close: vi.fn(),
+}))
+
+vi.mock('@/lowcode/lowcode-runtime', async () => {
+  const { LowcodeApi } = await vi.importActual<typeof import('@spark-appworks/spark-lowcode-api')>('@spark-appworks/spark-lowcode-api')
+  const { HttpClientBase } = await vi.importActual<typeof import('@spark-appworks/spark-utils')>('@spark-appworks/spark-utils')
+  class UnusedHttpClient extends HttpClientBase {
+    protected override executeRequest(): never {
+      throw new Error('notification decoding must not issue HTTP requests')
+    }
+  }
+  const api = new LowcodeApi({ http: new UnusedHttpClient() })
+  return {
+    lowcodeApi: {
+      realtime: {
+        connect: realtime.connect,
+        decodeNotification: (event: LowcodeRealtimeEvent) => api.realtime.decodeNotification(event),
+      },
+    },
+  }
+})
+
+describe('lowcode SSE bridge', () => {
+  let stopSubscription: (() => void) | undefined
+
+  beforeEach(() => {
+    realtime.onEvent = null
+    realtime.close.mockReset()
+    realtime.connect.mockReset().mockImplementation((options: { onEvent(event: LowcodeRealtimeEvent): void }) => {
+      realtime.onEvent = options.onEvent
+      return { closed: new Promise<void>(() => undefined), close: realtime.close }
+    })
+  })
+
+  afterEach(() => {
+    stopSubscription?.()
+    stopSubscription = undefined
+    vi.resetModules()
+  })
+
+  it('waits for the authenticated lowcode connected event', async () => {
+    const sse = await import('@/services/sse-events')
+    stopSubscription = sse.onAnyServerEnvelopeEvent(() => undefined)
+    const pending = sse.waitForAppSseConnection(1_000)
+
+    expect(realtime.connect).toHaveBeenCalledWith(expect.objectContaining({ scope: 'spark-appworks' }))
+    realtime.onEvent?.({ event: 'connected', data: { connectionUid: 'C1' } })
+
+    await expect(pending).resolves.toBeUndefined()
+  })
+
+  it('unwraps SparkEnvelope messages carried by lowcode JsonSseMessage', async () => {
+    const sse = await import('@/services/sse-events')
+    const callback = vi.fn()
+    stopSubscription = sse.onAnyServerEnvelopeEvent(callback)
+    realtime.onEvent?.({ event: 'connected', data: { connectionUid: 'C1' } })
+
+    realtime.onEvent?.({
+      event: 'message',
+      data: {
+        messageType: 'AI',
+        title: 'turn-1',
+        content: JSON.stringify({
+          protocolVersion: 4,
+          ok: true,
+          data: {
+            text: '完成',
+          },
+          context: { requestId: 'server-event-1' },
+          event: { channel: 'ai', name: 'llm-frame', terminal: false },
+        }),
+      },
+    })
+
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'llm-frame',
+      ok: true,
+      data: { text: '完成' },
+    }))
+  })
+
+  it('routes backend notification messages by messageType, not by title', async () => {
+    const sse = await import('@/services/sse-events')
+    const notify = vi.fn()
+    const byTitle = vi.fn()
+    stopSubscription = sse.onNotificationEvent(notify)
+    const stopTitle = sse.onServerEvent('文档生成失败', byTitle)
+
+    realtime.onEvent?.({
+      event: 'message',
+      data: {
+        rowId: 'M1',
+        title: '文档生成失败',
+        content: '文档生成失败: 超时',
+        messageType: 'SYSTEM_ERROR',
+        createTime: '2026-10-17T10:00:00',
+      },
+    })
+    realtime.onEvent?.({ event: 'message', data: { title: 'llm', content: '{}', messageType: 'AI' } })
+
+    expect(notify).toHaveBeenCalledOnce()
+    expect(notify).toHaveBeenCalledWith(expect.objectContaining({
+      messageType: 'SYSTEM_ERROR',
+      title: '文档生成失败',
+      content: '文档生成失败: 超时',
+      messageId: 'M1',
+    }))
+    expect(byTitle).not.toHaveBeenCalled()
+    stopTitle()
+  })
+
+  it('rejects non-v4 SparkEnvelope messages instead of unwrapping them', async () => {
+    const sse = await import('@/services/sse-events')
+    const callback = vi.fn()
+    stopSubscription = sse.onAnyServerEnvelopeEvent(callback)
+
+    realtime.onEvent?.({
+      event: 'message',
+      data: {
+        messageType: 'AI',
+        title: 'llm-frame',
+        content: JSON.stringify({
+          protocolVersion: 3,
+          ok: true,
+          data: { text: '旧协议' },
+          event: { channel: 'ai', name: 'llm-frame', terminal: false },
+        }),
+      },
+    })
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('closes the lowcode stream when the last subscriber leaves', async () => {
+    const sse = await import('@/services/sse-events')
+    stopSubscription = sse.onAnyServerEnvelopeEvent(() => undefined)
+    stopSubscription()
+    stopSubscription = undefined
+
+    expect(realtime.close).toHaveBeenCalledOnce()
+  })
+})

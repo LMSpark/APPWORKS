@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/adoption/adoption-basis-checks",
+    "sourcePath": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+    "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/adoption/adoption-basis-checks",
+    "jsdoc": "@module app:services/smart-bid/content/adoption/adoption-basis-checks\n职责：比较动作38预演固定的依据和原责任域的观察结果。\n边界：仅诊断待重核的依据；正式提交同次检查、授权时限和原子写入由权威执行端完成。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "BasisIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BasisIssue",
+      "properties": {
+        "owner": {
+          "type": "string"
+        },
+        "scopeRef": true,
+        "expectedVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "actualVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "code": {
+          "enum": [
+            "SCOPE_CHECK_MISSING",
+            "SCOPE_CHECK_ADDED",
+            "SCOPE_VERSION_CHANGED",
+            "SCOPE_EVIDENCE_CHANGED"
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "scopeRef",
+        "expectedVersion",
+        "actualVersion",
+        "code"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-17T22:24:10.969Z",
+  "models": {
+    "BasisIssue": {
+      "name": "BasisIssue",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    owner: string;\n    scopeRef: unknown;\n    expectedVersion: string | null;\n    actualVersion: string | null;\n    code: 'SCOPE_CHECK_MISSING' | 'SCOPE_CHECK_ADDED' | 'SCOPE_VERSION_CHANGED' | 'SCOPE_EVIDENCE_CHANGED';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    owner: string;\n    scopeRef: unknown;\n    expectedVersion: string | null;\n    actualVersion: string | null;\n    code: 'SCOPE_CHECK_MISSING' | 'SCOPE_CHECK_ADDED' | 'SCOPE_VERSION_CHANGED' | 'SCOPE_EVIDENCE_CHANGED';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actualVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

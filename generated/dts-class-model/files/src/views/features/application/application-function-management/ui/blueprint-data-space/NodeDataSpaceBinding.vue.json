@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-data-space/NodeDataSpaceBinding\n职责：蓝图节点的主数据空间绑定：展示 conid 并从正式数据空间目录选择场景。\n边界：只写 conid 编辑覆盖并通知宿主；保存与回读核验由蓝图页数据空间页签负责。\nAI用途：调整数据空间绑定选择时定位本组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T20:47:08.083Z",
+  "models": {}
+}

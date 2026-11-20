@@ -1,0 +1,27 @@
+/**
+ * @module @spark-appworks/spark-component:components/containers/layout/navigation/RendererTabs/RendererTabs.props
+ * 职责：定义 RendererTabs（r-tabs）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。
+ * 边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
+ * AI用途：生成或修订页面配置时，用本模块判断 renderer tabs 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
+ */
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
+import type { RToolbarProps } from '../../action/RendererToolbar/RendererToolbar.types'
+
+/** Tabs Click Event 的事件载荷。 */
+export type TabsClickEvent = {
+  /** 当前点击标签页的 paneName */
+  paneName?: string | number
+  [key: string]: unknown}
+
+/** RTabs Props 的属性契约。 */
+export type RTabsProps = LayoutDataContextProps & {
+  /** 结构化工具栏 */
+    toolbar?: RToolbarProps
+    /** 工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。 */
+    toolbarPlacement?: 'outside' | 'header'
+    /** 当前激活标签页；提供时由父级控制，切换请求须经update:modelValue接纳才显示新面板；省略时组件维护默认选择。 */
+    modelValue?: string | number
+    /** 标签页切换回调（activeName 变更） */
+    onTabChange?: (name: string | number) => void
+    /** 标签页点击回调 */
+    onTabClick?: (pane: TabsClickEvent, event: Event) => void}

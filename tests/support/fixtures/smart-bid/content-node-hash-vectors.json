@@ -1,0 +1,329 @@
+{
+  "date": "2026-11-17",
+  "contract": "authoring-submission-specification.md section 1.1",
+  "reference": "https://www.rfc-editor.org/rfc/rfc8785.html#section-3.2.3",
+  "algorithm": "SHA-256 of UTF-8 JCS after NFC of all payload strings and keys; nodeId maps to id; class deduplicates and sorts by code point",
+  "scope": "Static node-payload canonicalization vectors. Not a claim of reference authorization, ownerRef validation, persistence, revision adoption, subtree/effective/root hashes, or production hasher implementation.",
+  "generation": "Python stdlib; payload has only integral index numbers. No claim about a general floating-point JCS serializer.",
+  "independentVerification": {
+    "engine": "Node.js node:crypto and node:assert/strict",
+    "result": "All 9 SHA-256 values and UTF-8 byte lengths matched the Python results; UTF-16 object-key order, code-point class order, own __proto__ key, normalized-key collision and lone-surrogate premises also passed.",
+    "productionImplementationTested": false
+  },
+  "vectors": [
+    {
+      "name": "basic-identity-and-decimal-string",
+      "input": {
+        "nodeId": "N1",
+        "parentId": "C1",
+        "index": 1,
+        "type": "paragraph",
+        "class": [
+          "body",
+          "body"
+        ],
+        "value": "\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002",
+        "data": {
+          "\u62a5\u4ef7": {
+            "type": "number",
+            "number": "1200.00",
+            "unit": "\u5143"
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"body\"],\"data\":{\"\u62a5\u4ef7\":{\"number\":\"1200.00\",\"type\":\"number\",\"unit\":\"\u5143\"}},\"id\":\"N1\",\"index\":1,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002\"}",
+        "utf8Length": 178,
+        "sha256": "af2a55242eaf6813d4ff45b7011bc8de005ba0acf1042f6e87dc633359426948"
+      }
+    },
+    {
+      "name": "nfc-precomposed",
+      "input": {
+        "nodeId": "\u00e9-n",
+        "parentId": "\u00e9-c",
+        "index": 2,
+        "type": "paragraph",
+        "class": [
+          "\u00e9",
+          "a"
+        ],
+        "value": "Caf\u00e9 {{\u00e9}}",
+        "data": {
+          "\u00e9": {
+            "type": "resource",
+            "resourceVersionId": "\u00e9-v"
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"a\",\"\u00e9\"],\"data\":{\"\u00e9\":{\"resourceVersionId\":\"\u00e9-v\",\"type\":\"resource\"}},\"id\":\"\u00e9-n\",\"index\":2,\"parentId\":\"\u00e9-c\",\"type\":\"paragraph\",\"value\":\"Caf\u00e9 {{\u00e9}}\"}",
+        "utf8Length": 163,
+        "sha256": "7fc98e528b5bbdcfad9500a00ad0da7c5fc804adb5fe1d43456c0ccbf7652bff"
+      }
+    },
+    {
+      "name": "nfc-decomposed-equivalent",
+      "input": {
+        "nodeId": "e\u0301-n",
+        "parentId": "e\u0301-c",
+        "index": 2,
+        "type": "paragraph",
+        "class": [
+          "e\u0301",
+          "a",
+          "\u00e9"
+        ],
+        "value": "Cafe\u0301 {{e\u0301}}",
+        "data": {
+          "e\u0301": {
+            "type": "resource",
+            "resourceVersionId": "e\u0301-v"
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"a\",\"\u00e9\"],\"data\":{\"\u00e9\":{\"resourceVersionId\":\"\u00e9-v\",\"type\":\"resource\"}},\"id\":\"\u00e9-n\",\"index\":2,\"parentId\":\"\u00e9-c\",\"type\":\"paragraph\",\"value\":\"Caf\u00e9 {{\u00e9}}\"}",
+        "utf8Length": 163,
+        "sha256": "7fc98e528b5bbdcfad9500a00ad0da7c5fc804adb5fe1d43456c0ccbf7652bff"
+      }
+    },
+    {
+      "name": "utf16-key-order-codepoint-class-order-and-own-prototype-key",
+      "input": {
+        "nodeId": "N3",
+        "parentId": "C1",
+        "index": 3,
+        "type": "paragraph",
+        "class": [
+          "\ud83d\ude00",
+          "\ue000",
+          "a",
+          "\ud83d\ude00"
+        ],
+        "value": "{{10}} {{2}} {{\ud83d\ude00}} {{\ue000}} {{__proto__}}",
+        "data": {
+          "\ue000": {
+            "type": "bool",
+            "bool": false
+          },
+          "\ud83d\ude00": {
+            "type": "bool",
+            "bool": false
+          },
+          "2": {
+            "type": "bool",
+            "bool": false
+          },
+          "10": {
+            "type": "bool",
+            "bool": false
+          },
+          "__proto__": {
+            "type": "bool",
+            "bool": false
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"a\",\"\ue000\",\"\ud83d\ude00\"],\"data\":{\"10\":{\"bool\":false,\"type\":\"bool\"},\"2\":{\"bool\":false,\"type\":\"bool\"},\"__proto__\":{\"bool\":false,\"type\":\"bool\"},\"\ud83d\ude00\":{\"bool\":false,\"type\":\"bool\"},\"\ue000\":{\"bool\":false,\"type\":\"bool\"}},\"id\":\"N3\",\"index\":3,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"{{10}} {{2}} {{\ud83d\ude00}} {{\ue000}} {{__proto__}}\"}",
+        "utf8Length": 325,
+        "sha256": "ca0e1a9ffbba3c2577dfcc5f0c75495176b11ccd5e81555f31b5d71d695e9821"
+      }
+    },
+    {
+      "name": "non-payload-metadata-excluded",
+      "input": {
+        "nodeId": "N1",
+        "parentId": "C1",
+        "index": 1,
+        "type": "paragraph",
+        "class": [
+          "body",
+          "body"
+        ],
+        "value": "\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002",
+        "data": {
+          "\u62a5\u4ef7": {
+            "type": "number",
+            "number": "1200.00",
+            "unit": "\u5143"
+          }
+        },
+        "childHashes": [
+          "not-a-node-payload-field"
+        ],
+        "hash": "not-an-input",
+        "templateRefs": [
+          {
+            "version": "2"
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"body\"],\"data\":{\"\u62a5\u4ef7\":{\"number\":\"1200.00\",\"type\":\"number\",\"unit\":\"\u5143\"}},\"id\":\"N1\",\"index\":1,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002\"}",
+        "utf8Length": 178,
+        "sha256": "af2a55242eaf6813d4ff45b7011bc8de005ba0acf1042f6e87dc633359426948"
+      }
+    },
+    {
+      "name": "move-changes-node-hash",
+      "input": {
+        "nodeId": "N1",
+        "parentId": "C2",
+        "index": 1,
+        "type": "paragraph",
+        "class": [
+          "body",
+          "body"
+        ],
+        "value": "\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002",
+        "data": {
+          "\u62a5\u4ef7": {
+            "type": "number",
+            "number": "1200.00",
+            "unit": "\u5143"
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"body\"],\"data\":{\"\u62a5\u4ef7\":{\"number\":\"1200.00\",\"type\":\"number\",\"unit\":\"\u5143\"}},\"id\":\"N1\",\"index\":1,\"parentId\":\"C2\",\"type\":\"paragraph\",\"value\":\"\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002\"}",
+        "utf8Length": 178,
+        "sha256": "b01c2ce5e9fe76bc30972fe2074d6bf8301a5d53bb86042b8266466a20a2901e"
+      }
+    },
+    {
+      "name": "sibling-order-changes-node-hash",
+      "input": {
+        "nodeId": "N1",
+        "parentId": "C1",
+        "index": 2,
+        "type": "paragraph",
+        "class": [
+          "body",
+          "body"
+        ],
+        "value": "\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002",
+        "data": {
+          "\u62a5\u4ef7": {
+            "type": "number",
+            "number": "1200.00",
+            "unit": "\u5143"
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[\"body\"],\"data\":{\"\u62a5\u4ef7\":{\"number\":\"1200.00\",\"type\":\"number\",\"unit\":\"\u5143\"}},\"id\":\"N1\",\"index\":2,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"\u6295\u6807\u91d1\u989d {{\u62a5\u4ef7}}\u3002\"}",
+        "utf8Length": 178,
+        "sha256": "cebdbdafdb393cb4c35655ec326182f29104ba5d2fa930e9b84a54dce6ea79fb"
+      }
+    },
+    {
+      "name": "business-array-order",
+      "input": {
+        "nodeId": "N4",
+        "parentId": "C1",
+        "index": 4,
+        "type": "paragraph",
+        "class": [],
+        "value": "{{\u53d7\u63a7\u503c}}",
+        "data": {
+          "\u53d7\u63a7\u503c": {
+            "type": "sensitive",
+            "field": "name",
+            "ownerRef": {
+              "path": [
+                "B",
+                "A"
+              ],
+              "id": "OWNER"
+            }
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[],\"data\":{\"\u53d7\u63a7\u503c\":{\"field\":\"name\",\"ownerRef\":{\"id\":\"OWNER\",\"path\":[\"B\",\"A\"]},\"type\":\"sensitive\"}},\"id\":\"N4\",\"index\":4,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"{{\u53d7\u63a7\u503c}}\"}",
+        "utf8Length": 191,
+        "sha256": "948b5392e086bdf70eed86d38796ea9517088b502313e21045ade98998f586f0"
+      }
+    },
+    {
+      "name": "reversed-business-array-order",
+      "input": {
+        "nodeId": "N4",
+        "parentId": "C1",
+        "index": 4,
+        "type": "paragraph",
+        "class": [],
+        "value": "{{\u53d7\u63a7\u503c}}",
+        "data": {
+          "\u53d7\u63a7\u503c": {
+            "type": "sensitive",
+            "field": "name",
+            "ownerRef": {
+              "path": [
+                "A",
+                "B"
+              ],
+              "id": "OWNER"
+            }
+          }
+        }
+      },
+      "expected": {
+        "canonical": "{\"class\":[],\"data\":{\"\u53d7\u63a7\u503c\":{\"field\":\"name\",\"ownerRef\":{\"id\":\"OWNER\",\"path\":[\"A\",\"B\"]},\"type\":\"sensitive\"}},\"id\":\"N4\",\"index\":4,\"parentId\":\"C1\",\"type\":\"paragraph\",\"value\":\"{{\u53d7\u63a7\u503c}}\"}",
+        "utf8Length": 191,
+        "sha256": "0db8cd951de419b8ea6aab2972f13c37364b1b91ba7bac66578f90e4c759a229"
+      }
+    }
+  ],
+  "reject": [
+    {
+      "name": "duplicate-key-after-NFC",
+      "input": {
+        "nodeId": "N2",
+        "parentId": "C1",
+        "index": 2,
+        "type": "paragraph",
+        "class": [
+          "\u00e9",
+          "a"
+        ],
+        "value": "Caf\u00e9 {{\u00e9}}",
+        "data": {
+          "\u00e9": {
+            "type": "bool",
+            "bool": false
+          },
+          "e\u0301": {
+            "type": "bool",
+            "bool": true
+          }
+        }
+      },
+      "reason": "NFC_KEY_COLLISION"
+    },
+    {
+      "name": "lone-surrogate",
+      "input": {
+        "nodeId": "N1",
+        "parentId": "C1",
+        "index": 1,
+        "type": "paragraph",
+        "class": [
+          "body",
+          "body"
+        ],
+        "value": "\ud800",
+        "data": {
+          "\u62a5\u4ef7": {
+            "type": "number",
+            "number": "1200.00",
+            "unit": "\u5143"
+          }
+        }
+      },
+      "reason": "INVALID_UNICODE"
+    }
+  ]
+}

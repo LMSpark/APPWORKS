@@ -1,0 +1,16 @@
+.smart-load-container {
+  padding: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.el-card {
+  margin-bottom: 20px;
+}
+
+.el-table {
+  margin-top: 10px;
+}

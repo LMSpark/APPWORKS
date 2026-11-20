@@ -1,0 +1,210 @@
+import { describe, expect, it } from 'vitest'
+import { DataView, SparkData } from '@spark-appworks/spark-data'
+import type { DataViewFieldProjection } from '../../../types'
+
+function staticView() {
+  return SparkData.createDataSet({
+    dataSetName: 'StaticFilterExpr',
+    tables: {
+      Orders: {
+        tableName: 'Orders', resourceType: 'static-data',
+        columns: [
+          { name: 'id', type: 'number', isPrimaryKey: true },
+          { name: 'price', type: 'number' }, { name: 'qty', type: 'number' },
+          { name: 'minTotal', type: 'number' },
+          { name: 'total', type: 'number', computeExpression: 'price * qty' },
+          { name: 'tag', type: 'string' },
+        ],
+        views: { default: { rows: [
+          { id: 1, price: 10, qty: 2, minTotal: 25, tag: '' },
+          { id: 2, price: 20, qty: 2, minTotal: 30, tag: null },
+          { id: 3, price: 5, qty: 3, minTotal: 20, tag: '$[draft]' },
+        ] } },
+      },
+    },
+  }).getView('Orders')!
+}
+
+describe('DataView SPARK public filter', () => {
+  it('filters computed fields with a current-row SPARK value function and restores source rows on clear', async () => {
+    const view = staticView()
+    await view.setFilter({ field: 'total', operator: 'gte', value: { Type: 'GetTableField', Field: 'minTotal' } })
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    expect(view.rows[0]?.['total']).toBe(40)
+    await view.setFilter(undefined)
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2, 3])
+    expect(view.rows.map(row => row['total'])).toEqual([20, 40, 15])
+  })
+
+  it('applies nested public groups and preserves separate null and empty operators', async () => {
+    const view = staticView()
+    await view.executeFilter({ logic: 'and', filters: [
+      { field: 'total', operator: 'gte', value: 15 },
+      { logic: 'or', filters: [{ field: 'tag', operator: 'is-empty' }, { field: 'tag', operator: 'is-null' }] },
+    ] })
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    await view.setFilter({ field: 'tag', operator: 'is-null' })
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+  })
+
+  it('owns an immutable snapshot across scripts, configuration and serialization', async () => {
+    const view = staticView()
+    const input = { field: 'total', operator: 'gte' as const, value: 30 }
+    view.filterExpression = input
+    input.value = 0
+    expect(view.filterExpression).toEqual({ field: 'total', operator: 'gte', value: 30 })
+    expect(Object.isFrozen(view.filterExpression)).toBe(true)
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    view.configure({ filterExpression: { field: 'total', operator: 'lt', value: 30 } })
+    expect(view.rows.map(row => row['id'])).toEqual([1, 3])
+    expect(view.toJson().filterExpression).toEqual(view.filterExpression)
+  })
+
+  it('rejects unknown current-row fields without replacing the applied result', async () => {
+    const view = staticView()
+    await view.setFilter({ field: 'total', operator: 'gte', value: 30 })
+    await expect(view.setFilter({ field: 'total', operator: 'gte', value: { Type: 'GetTableField', Field: 'missing' } })).rejects.toThrow('不存在的字段')
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    expect(view.filterExpression).toEqual({ field: 'total', operator: 'gte', value: 30 })
+  })
+
+  it('lets a remote filter reference a non-output resource field but not a renamed or unknown one', () => {
+    const projected = (field: string, output: boolean, resourceField = field): DataViewFieldProjection => ({
+      fieldId: field.toUpperCase(), source: 'resource', resourceFieldId: resourceField.toUpperCase(), resourceField, viewField: field,
+      type: 'string', label: field, output, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+      primaryKey: field === 'rowid', value: '', valueFunction: '', expression: '',
+    })
+    const view = SparkData.createDataSet({ dataSetName: 'RemoteFilter', scenarioId: 'SCENE', tables: {
+      Nav: { tableName: 'Nav', modelBinding: { modelId: 'NAV', modelName: 'Nav' }, columns: [
+        { name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'name', type: 'string' },
+        { name: 'conid', type: 'string' }, { name: 'secret', type: 'string' },
+      ], views: { default: { fieldProjection: [
+        projected('rowid', true), projected('name', true), projected('conid', false), projected('alias', false, 'secret'),
+      ] } } },
+    } }).getView('Nav')!
+    expect(view.columns.map(column => column.name)).not.toContain('conid')
+    view.filterExpression = { field: 'conid', operator: 'eq', value: 'S1' }
+    expect(view.filterExpression).toEqual({ field: 'conid', operator: 'eq', value: 'S1' })
+    expect(() => { view.filterExpression = { field: 'alias', operator: 'eq', value: 'x' } }).toThrow('不存在的字段 "alias"')
+    expect(() => { view.filterExpression = { field: 'missing', operator: 'eq', value: 'x' } }).toThrow('不存在的字段 "missing"')
+  })
+
+  it('rejects service functions before a local short-circuit can hide them', async () => {
+    const view = staticView()
+    await expect(view.setFilter({ logic: 'or', filters: [
+      { logic: 'and', filters: [] },
+      { field: 'tag', operator: 'eq', value: { Type: 'GetSysParam', Param: 'CURRENT_USER' } },
+    ] })).rejects.toThrow('DATA_VIEW_FILTER_LOCAL_FUNCTION')
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.rows).toHaveLength(3)
+  })
+
+  it('protects pending edits from direct script assignment and explicit clear', async () => {
+    const view = staticView()
+    view.updateEditingValue(1, 'price', 99)
+    expect(() => { view.filterExpression = { field: 'total', operator: 'gte', value: 30 } }).toThrow()
+    await expect(view.setFilter({ field: 'total', operator: 'gte', value: 30 })).rejects.toThrow()
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.hasEditingChanges()).toBe(true)
+  })
+
+  it('does not reset an unchanged filter page before rejecting pending edits', async () => {
+    const view = staticView()
+    view.page = 3
+    view.updateEditingValue(1, 'price', 99)
+    await expect(view.executeFilter(undefined, true)).rejects.toThrow()
+    expect(view.page).toBe(3)
+    expect(view.hasEditingChanges()).toBe(true)
+  })
+
+  it('preserves public string constants without interpreting former placeholders', async () => {
+    const view = staticView()
+    await view.setFilter({ field: 'tag', operator: 'eq', value: '$[draft]' })
+    expect(view.rows.map(row => row['id'])).toEqual([3])
+  })
+
+  it.each([
+    { field: 'id', op: '==', value: 1 },
+    { type: 'and', children: [{ field: 'id', op: '==', value: 1 }] },
+    { type: '!condition', field: 'id', op: '==', value: 1 },
+    { field: 'id', operator: 'eq' },
+    { logic: 'and', filters: [{ field: 'id', operator: 'eq', value: 1 }, { field: '', operator: 'eq', value: 2 }] },
+  ])('rejects obsolete or incomplete configuration without accepting a partial tree: %j', filterExpression => {
+    expect(() => DataView.fromJson({ filterExpression }, 'Orders', 'default')).toThrow()
+  })
+})
+
+describe('DataView resident scope filter', () => {
+  const scoped = () => {
+    const view = staticView()
+    view.configure({ scopeFilter: { field: 'qty', operator: 'eq', value: 2 } })
+    return view
+  }
+  type Params = Parameters<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>[1]
+  const remote = () => {
+    const ds = SparkData.createDataSet({ dataSetName: 'RemoteScope', scenarioId: 'SCENE', tables: {
+      Auth: { tableName: 'Auth', modelBinding: { modelId: 'AUTH', modelName: 'Auth' }, columns: [
+        { name: 'id', type: 'string', isPrimaryKey: true }, { name: 'ent', type: 'string' }, { name: 'status', type: 'string' },
+      ], views: { default: {
+        queryContext: { ent: 'E1' },
+        scopeFilter: { field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } },
+      } } },
+    } })
+    const view = ds.getView('Auth')!
+    const requests: Params[] = []
+    view.bindQueryExecutor({ executeQuery: async (_view, params) => {
+      requests.push(structuredClone(params))
+      return { rows: [], total: 0, rowKey: row => row['id'], assertIdentity: () => undefined, prepareNewRow: row => ({ ...row, id: 'NEW' }),
+        fieldAccess: () => ({ read: 'visible', write: 'allowed', required: false, component: 'editable', writeMode: 'editable' }),
+        readFieldAccess: () => 'visible', addActionState: () => 'enabled', editActionState: () => 'enabled',
+        deleteActionState: () => 'enabled', createChildActionState: () => 'hidden', viewActionState: () => 'hidden' }
+    } })
+    return { ds, view, requests }
+  }
+
+  it('narrows local rows and cannot be replaced or widened by setFilter', async () => {
+    const view = scoped()
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    await view.setFilter({ field: 'price', operator: 'gte', value: 15 })
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    await view.setFilter(undefined)
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.scopeFilter).toEqual({ field: 'qty', operator: 'eq', value: 2 })
+  })
+
+  it('ANDs the scope into every remote request, including after the user filter is cleared', async () => {
+    const { ds, view, requests } = remote()
+    try {
+      await view.refresh()
+      expect(requests[0]?.filter).toEqual({ field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } })
+      await view.setFilter({ field: 'status', operator: 'eq', value: 'PENDING' })
+      expect(requests.at(-1)?.filter).toEqual({ logic: 'and', filters: [
+        { field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } },
+        { field: 'status', operator: 'eq', value: 'PENDING' },
+      ] })
+      await view.setFilter(undefined)
+      expect(requests.at(-1)?.filter).toEqual({ field: 'ent', operator: 'eq', value: { Type: 'GetInputParam', ParamName: 'ent' } })
+    } finally {
+      ds.destroy()
+    }
+  })
+
+  it('supplies scope-determined values to new rows and survives serialization', async () => {
+    const { ds, view } = remote()
+    try {
+      await view.refresh()
+      const row = await view.addRow({ status: 'PENDING' })
+      expect(row).toMatchObject({ent: 'E1'})
+      const copy = DataView.fromJson(view.toJson(), 'Auth', 'default')
+      expect(copy.scopeFilter).toEqual(view.scopeFilter)
+      expect(copy.filterExpression).toBeUndefined()
+    } finally {
+      ds.destroy()
+    }
+  })
+
+  it('rejects an incomplete scope configuration', () => {
+    expect(() => DataView.fromJson({ scopeFilter: { field: 'id', operator: 'eq' } }, 'Orders', 'default')).toThrow()
+  })
+})

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250" viewBox="0 0 400 250" role="img" aria-label="Default product image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EEF3FF" />
+      <stop offset="100%" stop-color="#E6FFF6" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="250" fill="url(#bg)" />
+  <rect x="120" y="55" width="160" height="110" rx="12" fill="#C4D5FF" />
+  <circle cx="200" cy="110" r="22" fill="#ffffff" />
+  <path d="M178 170h44" stroke="#5B8DEF" stroke-width="8" stroke-linecap="round" />
+  <text x="200" y="214" text-anchor="middle" fill="#4669C7" font-size="18" font-family="Arial, sans-serif">SPARK</text>
+</svg>

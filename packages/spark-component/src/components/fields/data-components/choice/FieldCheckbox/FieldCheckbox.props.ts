@@ -1,0 +1,25 @@
+/**
+ * @module @spark-appworks/spark-component:components/fields/data-components/choice/FieldCheckbox/FieldCheckbox.props
+ * 职责：定义 FieldCheckbox（r-checkbox）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。
+ * 边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
+ * AI用途：生成或修订页面配置时，用本模块判断 field checkbox 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
+ */
+import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types'
+import type {DataRow} from '@spark-appworks/spark-data'
+
+/** RCheckbox Props 的属性契约。 */
+export type RCheckboxProps = SparkNodeProps & SparkFieldSemanticProps<boolean> & {
+  /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */
+  trueValue?: boolean | string | number
+  /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */
+  falseValue?: boolean | string | number
+  /** 明确指定null值的勾选呈现，缺省false；不填充原字段，用户主动切换仍仅写trueValue/falseValue，undefined及其他原值继续既有匹配规则。 */
+  nullChecked?: boolean
+  /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */
+  cellReadonly?: (row: Readonly<DataRow>) => boolean
+  /** 选中状态下展示的文本。 */
+    checkedText?: string
+    /** 未选中状态下展示的文本。 */
+    uncheckedText?: string
+    /** 复选框旁边的标签文本。 */
+    checkboxText?: string}

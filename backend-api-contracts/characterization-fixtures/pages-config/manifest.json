@@ -1,0 +1,37 @@
+{
+  "protocol": "spark-appworks.pages-config-manifest",
+  "schemaVersion": 1,
+  "projects": {
+    "lmspark/homepage": [
+      "async-demo",
+      "cascade-demo",
+      "dashboard",
+      "dataset-demo",
+      "dev",
+      "dynamic-columns",
+      "el-table-demo",
+      "filter-demo",
+      "home",
+      "master-detail",
+      "page-manager",
+      "permission-render",
+      "renderer-demo",
+      "section-grid-demo",
+      "settings",
+      "smart-load",
+      "test-order",
+      "tree-demo",
+      "tree-node-scope-demo",
+      "treetable-demo",
+      "tx-editing-rows",
+      "tx-transaction-commit",
+      "tx-transaction-retry",
+      "users",
+      "vxe-demo"
+    ],
+    "lmspark/engineering-pm": [
+      "project-list",
+      "r-table-series"
+    ]
+  }
+}

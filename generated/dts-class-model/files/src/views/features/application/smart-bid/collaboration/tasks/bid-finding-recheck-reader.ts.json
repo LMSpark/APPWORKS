@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/tasks/bid-finding-recheck-reader\n职责：第44项先按项目与预期版本读取原问题，再核其整改和复核证据。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Recheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Recheck",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "findingId": {
+              "type": "string"
+            },
+            "expectedFindingVersion": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "findingId",
+            "expectedFindingVersion",
+            "requestKey"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "finding": {
+              "type": "object",
+              "title": "Finding"
+            },
+            "decision": {
+              "type": "object",
+              "title": "Decision"
+            },
+            "evidence": {
+              "type": "object",
+              "title": "Evidence"
+            }
+          },
+          "required": [
+            "finding",
+            "decision",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "EvidenceSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EvidenceSource",
+      "properties": {
+        "evidence": {
+          "type": "object",
+          "title": "Evidence"
+        },
+        "decision": {
+          "type": "object",
+          "title": "Decision"
+        }
+      },
+      "required": [
+        "evidence",
+        "decision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T19:43:47.202Z",
+  "models": {
+    "Recheck": {
+      "name": "Recheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareReviewFindingRecheck>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareReviewFindingRecheck>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "EvidenceSource": {
+      "name": "EvidenceSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Recheck[1], 'finding'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<Recheck[1], 'finding'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "evidence",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decision",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

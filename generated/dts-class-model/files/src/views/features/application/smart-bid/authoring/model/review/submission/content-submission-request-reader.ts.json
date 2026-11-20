@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader\n职责：独立回读第51项原待发请求，为第52项提供同一请求证明。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "record": {
+          "type": "object",
+          "properties": {
+            "combinedWithdrawalTarget": {
+              "type": "string"
+            },
+            "withdrawalEvidenceRef": {
+              "type": "string"
+            },
+            "withdrawalRuleRef": {
+              "type": "string"
+            },
+            "withdrawalAuthorityVersionId": {
+              "type": "string"
+            },
+            "withdrawalAuthorityDecisionRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "enterpriseId": {
+              "type": "string"
+            },
+            "representativeId": {
+              "type": "string"
+            },
+            "objectRef": {
+              "type": "string"
+            },
+            "actionAt": {
+              "type": "string"
+            },
+            "channelId": {
+              "type": "string"
+            },
+            "windowEvidenceRef": {
+              "type": "string"
+            },
+            "priorAttemptRef": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "authorityVersionId": {
+              "type": "string"
+            },
+            "authorityDecisionRef": {
+              "type": "string"
+            },
+            "package": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "packageId": {
+                  "type": "string"
+                },
+                "packageHash": {
+                  "type": "string"
+                },
+                "selectionHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "packageId",
+                "packageHash",
+                "selectionHash"
+              ],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "assignmentId": {
+                    "type": "string"
+                  },
+                  "fieldId": {
+                    "type": "string"
+                  },
+                  "versionHash": {
+                    "type": "string"
+                  },
+                  "savedReadbackRequired": {
+                    "enum": [
+                      false,
+                      true
+                    ]
+                  }
+                },
+                "required": [
+                  "assignmentId",
+                  "fieldId",
+                  "versionHash",
+                  "savedReadbackRequired"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "requestKey",
+            "projectId",
+            "revisionId",
+            "attemptRef",
+            "enterpriseId",
+            "representativeId",
+            "objectRef",
+            "actionAt",
+            "channelId",
+            "windowEvidenceRef",
+            "priorAttemptRef",
+            "authorityVersionId",
+            "authorityDecisionRef",
+            "package",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "record",
+        "requestDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:44:15.319Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareSubmissionRequest>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareSubmissionRequest>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "record",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,307 @@
+import { describe, expect, it, vi } from 'vitest'
+import { DataSet } from '@spark-appworks/spark-data'
+import { PageRuntime } from '../src/page/runtime-page'
+import { PageTool } from '../src/page/page-tool'
+import { ScenarioViewFile } from '../src/scenario/scenario-view-file'
+function tool():PageTool { const result=new PageTool({pageId:'shared'});result.markLoaded();return result }
+function data(scenarioId:string):DataSet { return DataSet.fromJson({dataSetName:scenarioId,scenarioId,tables:{}}) }
+
+describe('PageRuntime deferred declared scenarios', () => {
+  it('loads the main workspace first and deduplicates explicit source loading with original inputs and ownership', async () => {
+    const calls: string[] = [], main = data('a')
+    const source = DataSet.fromJson({scenarioId: 'b', tables: {Choices: {modelBinding: {modelId: 'M', modelName: 'Choices'},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {queryContext: {keep: true}}}}}})
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['b', 'a'], deferredScenarioIds: ['b'],
+      scenarioInputs: {b: {target: 'T'}}, loadScenario: async id => {calls.push(id); return id === 'a' ? main : source}})
+    await runtime.load()
+    expect(calls).toEqual(['a']); expect(runtime.isLoaded).toBe(true)
+    expect(runtime.resolveView('b@Choices@default')).toBeUndefined()
+    const results = await Promise.all([runtime.ensureScenarioLoaded('b'), runtime.ensureScenarioLoaded('b')])
+    expect(results).toEqual([source, source]); expect(calls).toEqual(['a', 'b'])
+    expect(runtime.resolveView('b@Choices@default')?.queryContext).toEqual({keep: true, target: 'T'})
+    expect(Object.isFrozen(runtime.call.deferredScenarioIds)).toBe(true)
+    await expect(runtime.ensureScenarioLoaded('other')).rejects.toThrow('未声明')
+    runtime.dispose(); expect(main.destroyed).toBe(true); expect(source.destroyed).toBe(true)
+  })
+  it('rejects duplicate or undeclared deferred space identities', () => {
+    for (const deferredScenarioIds of [['b', 'b'], ['other'], ['']]) expect(() => new PageRuntime({pageId: 'editor',
+      scenarioIds: ['a', 'b'], deferredScenarioIds, loadScenario: async id => data(id)})).toThrow('延后')
+  })
+  it('keeps an attached scenario available when one observer fails', async()=>{
+    const runtime=new PageRuntime({pageId:'editor',scenarioIds:['a','b'],deferredScenarioIds:['b'],loadScenario:async id=>data(id)})
+    const observer=vi.fn()
+    const release=runtime.onDeferredScenarioLoaded(()=>{throw new Error('observer failed')})
+    runtime.onDeferredScenarioLoaded(observer)
+    try{
+      const [first,second]=await Promise.all([runtime.ensureScenarioLoaded('b'),runtime.ensureScenarioLoaded('b')])
+      expect(first).toBe(second)
+      expect(runtime.getDataSet('b')).toBe(first)
+      expect(observer).toHaveBeenCalledExactlyOnceWith(first)
+    }finally{release();runtime.dispose()}
+  })
+  it('destroys a late source after the page owner is disposed', async () => {
+    let finish: (ds: DataSet) => void = () => {}, started = false
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: id => id === 'a' ? Promise.resolve(data(id)) : new Promise(resolve => {finish = resolve; started = true})})
+    await runtime.load(); const pending = runtime.ensureScenarioLoaded('b')
+    const rejected = expect(pending).rejects.toThrow('DESTROYED')
+    await vi.waitFor(() => expect(started).toBe(true)); runtime.dispose()
+    const late = data('b'); finish(late); await rejected; expect(late.destroyed).toBe(true)
+  })
+  it('retains the main owner after a source failure and retries only the failed source', async () => {
+    const main = data('a'); let sourceCalls = 0
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'], loadScenario: async id => {
+      if (id === 'a') return main
+      if (++sourceCalls === 1) throw new Error('source unavailable')
+      return data(id)
+    }})
+    await runtime.load(); await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('source unavailable')
+    expect(runtime.getDataSet('a')).toBe(main); expect(main.destroyed).toBe(false)
+    expect((await runtime.ensureScenarioLoaded('b')).scenarioId).toBe('b'); expect(sourceCalls).toBe(2); runtime.dispose()
+  })
+  it('rejects a wrong returned identity without destroying an already owned main dataset', async () => {
+    const main = data('a'), wrong = data('other'); let calls = 0
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: async id => id === 'a' || calls++ === 0 ? main : wrong})
+    await runtime.load(); await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('身份')
+    expect(main.destroyed).toBe(false); expect(runtime.getDataSet('a')).toBe(main)
+    await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('身份'); expect(wrong.destroyed).toBe(true); runtime.dispose()
+  })
+  it('does not let an old source load clear or destroy the source accepted after a clean reload', async () => {
+    let finish: (ds: DataSet) => void = () => {}, sourceCalls = 0
+    const current = data('b'), runtime = new PageRuntime({tool: tool(), scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: id => id === 'a' ? Promise.resolve(data(id)) : ++sourceCalls === 1 ? new Promise(resolve => {finish = resolve}) : Promise.resolve(current)})
+    await runtime.load(); const old = runtime.ensureScenarioLoaded('b'), rejected = expect(old).rejects.toThrow('STALE')
+    await vi.waitFor(() => expect(sourceCalls).toBe(1)); await runtime.reload()
+    expect(runtime.getDataSet('b')).toBeUndefined(); await runtime.ensureScenarioLoaded('b')
+    const late = data('b'); finish(late); await rejected
+    expect(late.destroyed).toBe(true); expect(runtime.getDataSet('b')).toBe(current); expect(current.destroyed).toBe(false); runtime.dispose()
+  })
+  it('rejects a source request issued before reload even if the previous page load had already resolved', async () => {
+    let sourceCalls = 0
+    const runtime = new PageRuntime({tool: tool(), scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'], loadScenario: async id => {
+      if (id === 'b') sourceCalls++
+      return data(id)
+    }})
+    await runtime.load(); const source = runtime.ensureScenarioLoaded('b'), rejected = expect(source).rejects.toThrow('STALE')
+    await runtime.reload(); await rejected
+    expect(sourceCalls).toBe(0); expect(runtime.getDataSet('b')).toBeUndefined(); runtime.dispose()
+  })
+})
+describe('PageRuntime lifecycle',()=>{
+  it('exposes one explicit source contract and resolves publication before any materialization', async()=>{
+    const events:string[]=[]
+    const page=tool()
+    const runtime=new PageRuntime({
+      tool:page,scenarioIds:['scene'],
+      resolveSource:async()=>{
+        events.push('source')
+        return {mode:'published',sourceRevision:'manifest-proof',publicationRef:'rule=1;script=1;style=1;manifest=2',
+          scenarioIds:['scene']}
+      },
+      loadTool:async()=>{events.push('tool');return page},
+      loadScenario:async id=>{events.push(`scenario:${id}`);return data(id)},
+    })
+    expect(()=>runtime.source).toThrow('SOURCE_PENDING')
+    await runtime.load()
+    expect(events).toEqual(['source','tool','scenario:scene'])
+    expect(runtime.source).toEqual({
+      mode:'published',sourceRevision:'manifest-proof',
+      publicationRef:'rule=1;script=1;style=1;manifest=2',scenarioIds:['scene'],
+    })
+    runtime.dispose()
+  })
+  it('rejects preview configs that claim a publication or omit the temporary marker',()=>{
+    expect(()=>new PageRuntime({pageId:'preview',scenarioIds:['scene'],loadScenario:async id=>data(id),
+      source:{mode:'preview',sourceRevision:'published',publicationRef:'manifest=1',scenarioIds:['scene']}}))
+      .toThrow('publicationRef')
+    expect(()=>new PageRuntime({pageId:'preview',scenarioIds:['scene'],loadScenario:async id=>data(id),
+      source:{mode:'preview',sourceRevision:'working',publicationRef:null,scenarioIds:['scene']}}))
+      .toThrow('临时')
+  })
+  it('tracks a shared scenario file until reload or dispose without owning it', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const file=new ScenarioViewFile('TARGET',JSON.stringify({scenarioId:'TARGET',tables:{}}))
+    let changes=0
+    runtime.onContentChange(()=>{changes++})
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(1)
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(1)
+    file.setText(JSON.stringify({scenarioId:'TARGET',tables:{Orders:{modelBinding:{modelId:'M',modelName:'Orders'},views:{default:{}}}}}))
+    expect(runtime.isDirty).toBe(true)
+    expect(changes).toBe(2)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    file.markSaved(file.getText())
+    expect(runtime.isDirty).toBe(false)
+    await runtime.reload()
+    file.setText(JSON.stringify({scenarioId:'TARGET',tables:{}}))
+    expect(runtime.isDirty).toBe(false)
+    expect(changes).toBe(3)
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(4)
+    expect(runtime.isDirty).toBe(true)
+    runtime.dispose()
+    expect(file.isDirty).toBe(true)
+  })
+  it('keeps an opaque layout draft dirty and rejects config reload', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead(null)
+    content.setDraft('{"graphVersion":1,"nodes":[],"edges":[]}')
+    expect(runtime.isDirty).toBe(true)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    expect(runtime.getContent('design@DS-1')).toBe(content)
+    content.discardDraft()
+    expect(runtime.isDirty).toBe(false)
+    runtime.dispose()
+  })
+  it('settles a host write after a renderer leaves and preserves an unknown result', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead('old')
+    content.setDraft('new')
+    let complete:(value:void)=>void=()=>{}
+    const pending=content.startWrite({kind:'save',submitted:'new',expectedContent:'old',
+      run:()=>new Promise<void>(resolve=>{complete=resolve})})
+    expect(content.status).toBe('pending')
+    expect(runtime.isDirty).toBe(true)
+    complete()
+    await pending
+    expect(content.baseline).toBe('new')
+    expect(content.draft).toBeUndefined()
+    expect(runtime.isDirty).toBe(false)
+    content.setDraft('old')
+    await expect(content.startWrite({kind:'save',submitted:'old',expectedContent:'new',
+      run:async()=>{throw new Error('unknown')}})).rejects.toThrow('unknown')
+    expect(content.status).toBe('unknown')
+    expect(runtime.isDirty).toBe(true)
+    runtime.dispose()
+  })
+  it('keeps unknown dirty even when text equals the old baseline and ignores settlement after disposal', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead('old')
+    await expect(content.startWrite({kind:'save',submitted:'old',expectedContent:'old',
+      run:async()=>{throw new Error('result unknown')}})).rejects.toThrow('result unknown')
+    expect(content.isDirty).toBe(true)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    const remote=content.offerRemote('old',content.revision)
+    content.adoptRemote(remote,remote.revision)
+    expect(runtime.isDirty).toBe(false)
+    let finish:(value:void)=>void=()=>{}
+    const pending=content.startWrite({kind:'save',submitted:'new',expectedContent:'old',
+      run:()=>new Promise<void>(resolve=>{finish=resolve})})
+    runtime.dispose()
+    finish()
+    await pending
+    expect(content.baseline).toBe('old')
+  })
+  it('isolates datasets for two calls of the same shared tool',async()=>{const shared=tool();const a=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});const b=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});await Promise.all([a.load(),b.load()]);expect(a.instanceId).not.toBe(b.instanceId);expect(a.getDataSet('a')).not.toBe(b.getDataSet('a'));a.dispose();expect(b.getDataSet('a')?.destroyed).toBe(false);b.dispose()})
+  it('loads multiple declared scenarios and never defaults local binding to the first',async()=>{const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>data(id)});await runtime.load();expect(runtime.getDataSet('a')?.scenarioId).toBe('a');expect(runtime.getDataSet('b')?.scenarioId).toBe('b');expect(()=>runtime.resolveView('Orders@default')).toThrow('主场景');expect(runtime.resolveView('#b@Orders@default')).toBeUndefined();expect(()=>runtime.resolveView('#c@Orders@default')).toThrow('未声明');runtime.dispose()})
+  it('resolves scoped option sources only to declared and loaded peer datasets',async()=>{
+    const peer=():DataSet=>DataSet.fromJson({dataSetName:'b',scenarioId:'b',tables:{Fields:{tableName:'Fields',modelBinding:{modelId:'F',modelName:'Fields'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],deferredScenarioIds:['b'],loadScenario:async id=>id==='b'?peer():data(id)})
+    await runtime.load();const own=runtime.getDataSet('a')!
+    expect(()=>own.resolveOptionView({scope:'b',tableName:'Fields'})).toThrow('未装配')
+    const loaded=await runtime.ensureScenarioLoaded('b')
+    expect(own.resolveOptionView({scope:'b',tableName:'Fields'})).toBe(loaded.getView('Fields'))
+    expect(()=>own.resolveOptionView({scope:'c',tableName:'Fields'})).toThrow('未装配')
+    runtime.dispose()
+  })
+  it('invalidates loading and destroys late scenario data after disposal',async()=>{let resolve:(ds:DataSet)=>void=()=>{};const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:()=>new Promise(res=>{resolve=res})});const loading=runtime.load();const rejection=expect(loading).rejects.toThrow('DESTROYED');runtime.dispose();const ds=data('a');resolve(ds);await rejection;expect(ds.destroyed).toBe(true);expect(runtime.generation).toBe(2)})
+  it('destroys successful siblings when any declared scenario fails',async()=>{const ds=data('a');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>{if(id==='b')throw new Error('missing scene');return ds}});await expect(runtime.load()).rejects.toThrow('missing scene');expect(ds.destroyed).toBe(true);expect(runtime.isLoaded).toBe(false)})
+  it('rejects wrong scenario assembly and duplicate call declarations',async()=>{const ds=data('wrong');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async()=>ds});await expect(runtime.load()).rejects.toThrow('身份');expect(ds.destroyed).toBe(true);expect(()=>new PageRuntime({tool:tool(),scenarioIds:['a','a'],loadScenario:async id=>data(id)})).toThrow('重复')})
+  it('materializes local bindings against the explicit main scene without mutating the tool',async()=>{
+    const shared=tool();shared.hydrateFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'Orders@default'}}]))
+    const ds=DataSet.fromJson({dataSetName:'scene',scenarioId:'scene',tables:{Orders:{tableName:'Orders',columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'name',type:'string'}],views:{default:{rows:[{id:1,name:'Original'}]}}}}})
+    const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],mainScenarioId:'scene',loadScenario:async()=>ds});await runtime.load()
+    expect(JSON.stringify(runtime.materialize().rule)).toContain('scene@Orders@default');expect(shared.getFileText('rule.json')).not.toContain('scene@Orders')
+    ds.getView('Orders','default')!.updateEditingValue(1,'name','Draft');expect(runtime.isDirty).toBe(true)
+    runtime.markConfigPending();await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY');expect(runtime.configPending).toBe(true);expect(ds.destroyed).toBe(false)
+    runtime.dispose()
+  })
+  it('rejects a definition whose declared scene has no bound view',async()=>{
+    const shared=tool();shared.hydrateFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'#scene@Missing@default'}}]))
+    const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>data('scene')});await runtime.load();expect(()=>runtime.materialize()).toThrow('视图不存在');runtime.dispose()
+  })
+
+  it('collects bindings from structured zones and graph edges as well as ordinary children',()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'dialog',type:'r-dialog',props:{
+      dataViewKey:'main@Orders@default',
+      header:{dataViewKey:'header@Orders@default',children:[{id:'choice',type:'r-select',props:{optionDataViewKey:'options@Orders@default'}}]},
+      footer:{children:[{id:'graph',type:'r-graph',props:{edgeDataViewKey:'edges@Orders@default',additionalEdgeDataViewKey:'extra@Orders@default'}}]},
+    },children:[{id:'toolbar',type:'r-toolbar',props:{tail:{dataViewKey:'tail@Orders@default',children:[]}}}]}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()].sort()).toEqual([
+      'main@Orders@default','header@Orders@default','options@Orders@default','edges@Orders@default','extra@Orders@default','tail@Orders@default',
+    ].sort())
+  })
+
+  it.each(['dataViewKey','optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
+    'materializes and validates %s against the same explicit main scenario',async property=>{
+      const shared=tool()
+      shared.hydrateFileText('rule.json',JSON.stringify([{id:'zone',type:'r-dialog',props:{footer:{children:[{id:'field',type:'r-select',props:{[property]:'Orders@default'}}]}}}]))
+      const ds=DataSet.fromJson({scenarioId:'scene',tables:{Internal:{modelBinding:{modelId:'orders',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+      const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],mainScenarioId:'scene',loadScenario:async()=>ds})
+      await runtime.load()
+      try {
+        expect(JSON.stringify(runtime.materialize().rule)).toContain('scene@Orders@default')
+        expect(shared.getFileText('rule.json')).not.toContain('scene@Orders@default')
+      } finally {runtime.dispose()}
+    },
+  )
+
+  it('finds action/filter regions and graph sources without interpreting business values as bindings',async()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'table',type:'r-table',props:{
+      actions:{dataViewKey:'scene@Orders@default',children:[{id:'action',type:'r-button',props:{dataViewKey:'scene@Orders@default'}}]},
+      filter:{dataViewKey:'scene@Orders@default',children:[{id:'select',type:'r-select',props:{optionDataViewKey:'scene@Orders@default'}}]},
+      options:[{label:'Business configuration',value:{dataViewKey:'not-a-runtime-binding'}}],
+      payload:{dataViewKey:'ordinary-document-value',footer:{dataViewKey:'also-ordinary'}},
+    },children:[{id:'graph',type:'r-graph',props:{additionalNodeSources:[{dataViewKey:'scene@Orders@default',label:'extra'}]}}]}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()]).toEqual(['scene@Orders@default'])
+    const ds=DataSet.fromJson({scenarioId:'scene',tables:{Orders:{columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+    const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>ds})
+    await runtime.load()
+    try {
+      expect(()=>runtime.materialize()).not.toThrow()
+      expect(JSON.stringify(runtime.materialize().rule)).toContain('ordinary-document-value')
+    } finally {runtime.dispose()}
+  })
+
+  it('validates additional graph sources before a graph is rendered',async()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'graph',type:'r-graph',props:{additionalNodeSources:[{dataViewKey:'missing@Orders@default'}]}}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()]).toEqual(['missing@Orders@default'])
+    const runtime=new PageRuntime({tool:shared,scenarioIds:[],loadScenario:async id=>data(id)})
+    await runtime.load()
+    try {expect(()=>runtime.materialize()).toThrow('未声明')} finally {runtime.dispose()}
+  })
+
+  it.each(['optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
+    'rejects a missing view referenced only by %s before rendering',async property=>{
+      const shared=tool()
+      shared.hydrateFileText('rule.json',JSON.stringify([{id:'field',type:'r-select',props:{[property]:'scene@Missing@default'}}]))
+      const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>data('scene')})
+      await runtime.load()
+      try {expect(()=>runtime.materialize()).toThrow('视图不存在')} finally {runtime.dispose()}
+    },
+  )
+
+  it('keeps call identity while refreshing pending configuration and destroys the old scene',async()=>{
+    const sets:DataSet[]=[];const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async id=>{const ds=data(id);sets.push(ds);return ds}})
+    await runtime.load();const identity=runtime.instanceId;runtime.markConfigPending();expect(runtime.configPending).toBe(true)
+    await runtime.reload();expect(runtime.instanceId).toBe(identity);expect(sets[0]?.destroyed).toBe(true);expect(runtime.getDataSet('a')).toBe(sets[1]);expect(runtime.configPending).toBe(false);runtime.dispose()
+  })
+  it('does not let a late invalidated load clear the refreshed dataset',async()=>{
+    let complete:(ds:DataSet)=>void=()=>{};let calls=0;const current=data('a');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async()=>++calls===1?new Promise(resolve=>{complete=resolve}):current})
+    const old=runtime.load();const rejected=expect(old).rejects.toThrow('STALE');await runtime.reload();const late=data('a');complete(late);await rejected
+    expect(late.destroyed).toBe(true);expect(runtime.getDataSet('a')).toBe(current);expect(current.destroyed).toBe(false);runtime.dispose()
+  })
+
+})

@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-versions",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-versions.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-versions",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-versions\n职责：为本轮固定审定清单绑定逐件实件及逐栏拟填版本的原读取证明。\n边界：旧实件沿用决定由审定清单负责；字段必须来自当前修订的已采用答复。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "CoverageSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CoverageSelection",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReviewTarget"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "targets",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewTarget",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "requiredUseIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "requiredUseIds"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewVersion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ReviewVersion",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "FILE"
+            },
+            "source": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "producedFileId": {
+                  "type": "string"
+                },
+                "productionRequestRef": {
+                  "type": "string"
+                },
+                "revisionId": {
+                  "type": "string"
+                },
+                "documentId": {
+                  "type": "string"
+                },
+                "versionHash": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "projectId",
+                "producedFileId",
+                "productionRequestRef",
+                "revisionId",
+                "documentId",
+                "versionHash",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "FIELD"
+            },
+            "source": {
+              "type": "object",
+              "title": "ApprovedField"
+            }
+          },
+          "required": [
+            "kind",
+            "source"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T02:21:54.838Z",
+  "models": {
+    "CoverageSelection": {
+      "name": "CoverageSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readContentReviewCoverage>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ReviewTarget": {
+      "name": "ReviewTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<CoverageSelection['targets'][number], 'versionHash'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<CoverageSelection['targets'][number], 'versionHash'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requiredUseIds",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ReviewVersion": {
+      "name": "ReviewVersion",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'FILE';\n    source: Awaited<ReturnType<typeof readProducedFileReviewVersion>>;\n}> | Readonly<{\n    kind: 'FIELD';\n    source: Awaited<ReturnType<typeof readPlatformFieldReviewVersion>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'FILE';\n    source: Awaited<ReturnType<typeof readProducedFileReviewVersion>>;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'FIELD';\n    source: Awaited<ReturnType<typeof readPlatformFieldReviewVersion>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

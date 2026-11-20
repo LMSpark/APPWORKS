@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-graph",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-graph.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-graph.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-graph",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-graph\n职责：WorkflowDesigns 把投影视图的节点/连线行交给 RendererGraph：接点布局、中心坐标、端点映射、子图路径与新增行。\n边界：只读行或生成新增行草稿；新增行的结构经 design.json 投影得到，写入仍由页面通过 DataView 完成。\nAI用途：排查画布节点位置、连线接点、子图切换或新增节点/连线字段时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowNodeDraft",
+      "WorkflowLineDraft"
+    ]
+  },
+  "$defs": {
+    "WorkflowNodeDraft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowNodeDraft",
+      "properties": {
+        "nodeKind": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignNodeCreateKind"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "nodeKind",
+        "id",
+        "title",
+        "desc",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowLineDraft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowLineDraft",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "fromDock": {
+          "type": "number"
+        },
+        "toDock": {
+          "type": "number"
+        },
+        "existingIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "fromDock",
+        "toDock",
+        "existingIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T19:49:27.468Z",
+  "models": {
+    "WorkflowNodeDraft": {
+      "name": "WorkflowNodeDraft",
+      "jsdoc": "新增节点的命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 节点类别。 */\n    nodeKind: WorkflowDesignNodeCreateKind;\n    /** 节点 id，须在本图唯一。 */\n    id: string;\n    /** 标题。 */\n    title: string;\n    /** 描述。 */\n    desc: string;\n    /** 已有节点数，决定默认位置。 */\n    index: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 节点类别。 */\n    nodeKind: WorkflowDesignNodeCreateKind;\n    /** 节点 id，须在本图唯一。 */\n    id: string;\n    /** 标题。 */\n    title: string;\n    /** 描述。 */\n    desc: string;\n    /** 已有节点数，决定默认位置。 */\n    index: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeKind",
+              "jsdoc": "节点类别。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "节点 id，须在本图唯一。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "desc",
+              "jsdoc": "描述。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "已有节点数，决定默认位置。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowLineDraft": {
+      "name": "WorkflowLineDraft",
+      "jsdoc": "新增连线的命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 起点节点 id。 */\n    from: string;\n    /** 终点节点 id。 */\n    to: string;\n    /** 起点 dock，0 为自动。 */\n    fromDock: number;\n    /** 终点 dock，0 为自动。 */\n    toDock: number;\n    /** 本图已有连线 id。 */\n    existingIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 起点节点 id。 */\n    from: string;\n    /** 终点节点 id。 */\n    to: string;\n    /** 起点 dock，0 为自动。 */\n    fromDock: number;\n    /** 终点 dock，0 为自动。 */\n    toDock: number;\n    /** 本图已有连线 id。 */\n    existingIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "from",
+              "jsdoc": "起点节点 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "to",
+              "jsdoc": "终点节点 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fromDock",
+              "jsdoc": "起点 dock，0 为自动。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toDock",
+              "jsdoc": "终点 dock，0 为自动。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "existingIds",
+              "jsdoc": "本图已有连线 id。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

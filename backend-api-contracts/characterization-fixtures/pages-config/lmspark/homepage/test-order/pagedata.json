@@ -1,0 +1,63 @@
+{
+  "dataSetName": "PageDataSet",
+  "resourceRelations": [],
+  "tables": {
+    "test-order": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "名称"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "label": "价格"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "示例数据 A",
+              "status": "pending",
+              "price": 99.99
+            },
+            {
+              "id": 2,
+              "name": "示例数据 B",
+              "status": "processing",
+              "price": 149.5
+            },
+            {
+              "id": 3,
+              "name": "示例数据 C",
+              "status": "completed",
+              "price": 199
+            },
+            {
+              "id": 4,
+              "name": "示例数据 D",
+              "status": "cancelled",
+              "price": 0
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "test-order"
+    }
+  }
+}

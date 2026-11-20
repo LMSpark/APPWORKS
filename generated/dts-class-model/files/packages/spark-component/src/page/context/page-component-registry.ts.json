@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/context/page-component-registry",
+    "sourcePath": "packages/spark-component/src/page/context/page-component-registry.ts",
+    "sourceFile": "packages/spark-component/src/page/context/page-component-registry.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/context/page-component-registry",
+    "jsdoc": "@module @spark-appworks/spark-component:page/context/page-component-registry\n职责：维护 @spark-appworks/spark-component 中 page/context/page-component-registry 的模块能力，围绕 模块入口、副作用注册或内部组合逻辑 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 page/context/page-component-registry 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T19:58:50.847Z",
+  "models": {}
+}

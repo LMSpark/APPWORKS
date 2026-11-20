@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "dataSetName": "PageDataSet",
+  "tables": {
+    "LeaveRequest": {
+      "tableName": "LeaveRequest",
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "label": "ID"
+        },
+        {
+          "name": "applicantName",
+          "type": "string",
+          "label": "申请人"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        },
+        {
+          "name": "leaveType",
+          "type": "string",
+          "label": "请假类型"
+        },
+        {
+          "name": "startDate",
+          "type": "date",
+          "label": "开始日期"
+        },
+        {
+          "name": "endDate",
+          "type": "date",
+          "label": "结束日期"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "label": "请假天数"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "label": "请假事由"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "审批状态"
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime",
+          "label": "申请时间"
+        }
+      ],
+      "views": {
+        "default": {
+          "tableName": "LeaveRequest",
+          "viewId": "default",
+          "page": 1,
+          "pageSize": 20,
+          "rows": [],
+          "autoCurrentFirst": true,
+          "autoSelectFirst": true
+        }
+      }
+    }
+  }
+}

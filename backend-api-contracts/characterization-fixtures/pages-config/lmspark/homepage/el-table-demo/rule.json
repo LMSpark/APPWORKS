@@ -1,0 +1,190 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "el-alert",
+        "props": {
+          "type": "info",
+          "style": {
+            "marginBottom": "16px"
+          },
+          "title": "表格演示 —— DataSet 数据 + r-table 零代码操作列",
+          "closable": false,
+          "description": "数据来自 pagedata.json（DataSet），表格通过 r-table 零代码渲染。操作列包含详情/编辑/删除按钮。"
+        }
+      },
+      {
+        "type": "el-card",
+        "children": [
+          {
+            "type": "r-table",
+            "id": "usersTable",
+            "children": [
+              {
+                "type": "r-number",
+                "id": "colId",
+                "children": [],
+                "props": {
+                  "field": "id",
+                  "label": "ID",
+                  "width": 60,
+                  "sortable": true,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "id": "colName",
+                "children": [],
+                "props": {
+                  "field": "name",
+                  "label": "姓名",
+                  "width": 90,
+                  "sortable": true,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "id": "colEmail",
+                "children": [],
+                "props": {
+                  "field": "email",
+                  "label": "邮箱",
+                  "minWidth": 220,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "id": "colDepartment",
+                "children": [],
+                "props": {
+                  "field": "department",
+                  "label": "部门",
+                  "width": 110,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-number",
+                "id": "colSalary",
+                "children": [],
+                "props": {
+                  "field": "salary",
+                  "label": "薪资",
+                  "width": 110,
+                  "readonly": true,
+                  "align": "right"
+                }
+              },
+              {
+                "type": "r-date",
+                "id": "colJoinDate",
+                "children": [],
+                "props": {
+                  "field": "joinDate",
+                  "label": "入职日期",
+                  "dateType": "date",
+                  "valueFormat": "YYYY-MM-DD",
+                  "width": 150,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "id": "colIsActive",
+                "children": [],
+                "props": {
+                  "field": "isActive",
+                  "label": "在职",
+                  "width": 90,
+                  "readonly": true,
+                  "align": "center"
+                }
+              }
+            ],
+            "props": {
+              "toolbar": {
+                "type": "r-toolbar",
+                "children": [
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "label": "新增",
+                      "template": "toolbar-primary",
+                      "icon": "Plus",
+                      "action": "append-row"
+                    },
+                    "id": "btnAdd"
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "label": "刷新",
+                      "template": "toolbar-default",
+                      "icon": "Refresh",
+                      "action": "refresh"
+                    },
+                    "id": "btnRefresh"
+                  }
+                ],
+                "props": {},
+                "id": "usersToolbar"
+              },
+              "actions": {
+                "type": "r-toolbar",
+                "children": [
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "label": "详情",
+                      "template": "text",
+                      "action": "message-row"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "label": "编辑",
+                      "template": "text",
+                      "action": "message-row"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "label": "删除",
+                      "template": "text-danger",
+                      "action": "delete-row"
+                    }
+                  }
+                ],
+                "props": {
+                  "width": 180,
+                  "fixed": "right",
+                  "align": "center"
+                }
+              },
+              "dataViewKey": "Users@default",
+              "rowKey": "id",
+              "highlightCurrentRow": true,
+              "border": true,
+              "stripe": true
+            }
+          }
+        ],
+        "props": {
+          "bodyStyle": "padding:16px;"
+        }
+      }
+    ],
+    "props": {
+      "style": {
+        "padding": "20px",
+        "maxWidth": "1000px"
+      }
+    }
+  }
+]

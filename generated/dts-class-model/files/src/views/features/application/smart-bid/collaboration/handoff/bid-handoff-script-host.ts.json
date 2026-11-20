@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host\n职责：页08按当前项目与轮次回查原移交清单及原任务签收。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Read": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Read",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "lotId": {
+              "type": "string"
+            },
+            "roundId": {
+              "type": "string"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "handoffId": {
+              "type": "string"
+            },
+            "role": {
+              "enum": [
+                "current",
+                "previous"
+              ]
+            }
+          },
+          "required": [
+            "lotId",
+            "roundId",
+            "stageId",
+            "handoffId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "(scope: Readonly<{ projectId: string; lotId: string; roundId: string; stageId: string; }>, items: readonly Readonly<{ id: string; versionRef: string; originalAssigneeId: string; receiverId: string; openIssueRefs: readonly string[]; followupRef: string | null; nextDueAt: string | null; }>[]) => Promise<Pick<Readonly<..."
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-20T10:46:26.380Z",
+  "models": {
+    "Read": {
+      "name": "Read",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readRegisteredBidHandoff>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readRegisteredBidHandoff>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ReadReceipts": {
+      "name": "ReadReceipts",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(scope: Parameters<Read[2]>[0], items: Parameters<Read[2]>[1], signal: AbortSignal, role: 'current' | 'previous') => ReturnType<Read[2]>",
+        "members": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/submission/content-signature-request-reader\n职责：经原签署命名视图读取动作46的原请求结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "objectKind": {
+          "enum": [
+            "FILE",
+            "PACKAGE"
+          ]
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "objectHash": {
+          "type": "string"
+        },
+        "positionRef": {
+          "type": "string"
+        },
+        "signerRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "objectKind",
+        "objectRef",
+        "objectVersion",
+        "objectHash",
+        "positionRef",
+        "signerRef",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T18:20:40.346Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof recoverSignatureRequest>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectKind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "positionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signerRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

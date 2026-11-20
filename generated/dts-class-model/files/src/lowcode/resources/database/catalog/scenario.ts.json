@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/scenario",
+    "sourcePath": "src/lowcode/resources/database/catalog/scenario.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/scenario",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/scenario\n职责：校验数据库目录宿主明确提供的正式 Base_DataSet.rowid，不推断或替换页面身份。\nAI用途：维护目录装配时，确保一次查询只属于本次正式导航绑定的数据空间。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogLoadOptions",
+      "ResolveDatabaseCatalogDataSpaceIdInput"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogScope",
+      "properties": {
+        "dataSpace": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
+        },
+        "runtime": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        },
+        "fingerprint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "title": "ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>"
+        }
+      }
+    },
+    "DatabaseCatalogLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogLoadOptions",
+      "properties": {
+        "resolvedDataSpaceId": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolveDatabaseCatalogScenarioInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveDatabaseCatalogScenarioInput",
+      "properties": {
+        "dataSpace": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
+        },
+        "preferredScenarioId": {
+          "type": "string"
+        },
+        "metaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ResolveDatabaseCatalogDataSpaceIdInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveDatabaseCatalogDataSpaceIdInput",
+      "properties": {
+        "dataSpace": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
+        },
+        "preferredScenarioId": {
+          "type": "string"
+        },
+        "metaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "$ref": "#/$defs/DatabaseCatalogLoadOptions"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T20:55:15.559Z",
+  "models": {
+    "DatabaseCatalogScope": {
+      "name": "DatabaseCatalogScope",
+      "jsdoc": "元数据、模型运行与命令均属于同一次目录身份；应用切换后须重新装配。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n    /** 仅供数据资源适配器捕获本次正式请求范围。 */\n    readScope: () => ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次企业目录或应用范围内的正式元数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。 */\n    fingerprint: string;\n    /** 复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。 */\n    assertCurrent: () => void;\n    /** 仅供数据资源适配器捕获本次正式请求范围。 */\n    readScope: () => ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpace",
+              "jsdoc": "本次企业目录或应用范围内的正式元数据入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "jsdoc": "与本次身份一致的模型查询及保存责任方，继续执行原数据权限守卫。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fingerprint",
+              "jsdoc": "本次应用代次和认证上下文的内部比较值；仅用于失效检查，不作业务身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "复核原应用代次及认证上下文；切换或失效时抛错，中止旧请求。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readScope",
+              "jsdoc": "仅供数据资源适配器捕获本次正式请求范围。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof lowcodeApi.readAuthenticatedRequestScope"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogLoadOptions": {
+      "name": "DatabaseCatalogLoadOptions",
+      "jsdoc": "目录装配可选的宿主预检结果。\nresolvedDataSpaceId 仅用于传递已确认的同一目标；不能覆盖页面导航绑定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主已核验的正式 Base_DataSet.rowid；必须与当前页面目标一致。 */\n    resolvedDataSpaceId?: string;\n    /** 旧管理入口传入的正式数据库行主键；仅用于本 DataView 的精确过滤。 */\n    databaseId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主已核验的正式 Base_DataSet.rowid；必须与当前页面目标一致。 */\n    resolvedDataSpaceId?: string;\n    /** 旧管理入口传入的正式数据库行主键；仅用于本 DataView 的精确过滤。 */\n    databaseId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resolvedDataSpaceId",
+              "jsdoc": "宿主已核验的正式 Base_DataSet.rowid；必须与当前页面目标一致。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "jsdoc": "旧管理入口传入的正式数据库行主键；仅用于本 DataView 的精确过滤。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveDatabaseCatalogScenarioInput": {
+      "name": "ResolveDatabaseCatalogScenarioInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主本次目录或应用作用域中的正式数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 当前正式页面绑定的 DataSet.scenarioId。 */\n    preferredScenarioId: string;\n    /** 本次页面必须存在的正式模型集合。 */\n    metaNames: readonly string[];\n    /** 身份/应用发生变化时中止当前核验。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主本次目录或应用作用域中的正式数据入口。 */\n    dataSpace: DataSpaceApi;\n    /** 当前正式页面绑定的 DataSet.scenarioId。 */\n    preferredScenarioId: string;\n    /** 本次页面必须存在的正式模型集合。 */\n    metaNames: readonly string[];\n    /** 身份/应用发生变化时中止当前核验。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpace",
+              "jsdoc": "宿主本次目录或应用作用域中的正式数据入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preferredScenarioId",
+              "jsdoc": "当前正式页面绑定的 DataSet.scenarioId。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaNames",
+              "jsdoc": "本次页面必须存在的正式模型集合。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "身份/应用发生变化时中止当前核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResolveDatabaseCatalogDataSpaceIdInput": {
+      "name": "ResolveDatabaseCatalogDataSpaceIdInput",
+      "jsdoc": "loadCatalog 统一确认 DataSpace 身份；预检值只能与当前页面目标相同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpace: DataSpaceApi;\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    options: DatabaseCatalogLoadOptions;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpace: DataSpaceApi;\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    options: DatabaseCatalogLoadOptions;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preferredScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

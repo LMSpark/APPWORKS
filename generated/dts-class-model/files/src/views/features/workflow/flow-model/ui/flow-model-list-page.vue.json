@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-model/ui/flow-model-list-page",
+    "sourcePath": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+    "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-model/ui/flow-model-list-page",
+    "jsdoc": "@module app:views/features/workflow/flow-model/ui/flow-model-list-page\n职责：流程模型目录查询、分页、新建编辑删除与设计入口。\n边界：列表与选项绑定 87F0 正式 DataView；设计对话框消费 6E462 设计场景。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T02:08:19.381Z",
+  "models": {}
+}

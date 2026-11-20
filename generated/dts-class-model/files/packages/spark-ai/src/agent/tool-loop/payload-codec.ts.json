@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/payload-codec",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/payload-codec.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/payload-codec.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/payload-codec",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/payload-codec\n职责：支撑 Agent tool loop 的 payload codec 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ToolArgsParseError"
+    ]
+  },
+  "$defs": {
+    "ToolArgsParseError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ToolArgsParseError",
+      "properties": {
+        "code": {
+          "enum": [
+            "TOOL_ARGS_INVALID_JSON",
+            "TOOL_ARGS_NOT_OBJECT"
+          ]
+        },
+        "raw": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "enum": [
+                "TOOL_ARGS_INVALID_JSON",
+                "TOOL_ARGS_NOT_OBJECT"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "raw": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.223Z",
+  "models": {
+    "ToolArgsParseError": {
+      "name": "ToolArgsParseError",
+      "jsdoc": "Tool Args Parse Error 的错误信息。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Tool Args Parse Error 实例。",
+          "signatureText": "constructor(code: 'TOOL_ARGS_INVALID_JSON' | 'TOOL_ARGS_NOT_OBJECT', message: string, raw: string)",
+          "parameters": [
+            {
+              "name": "code",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "TOOL_ARGS_INVALID_JSON"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "TOOL_ARGS_NOT_OBJECT"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "raw",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

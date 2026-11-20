@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-draft-save-rule",
+    "sourcePath": "src/services/smart-bid/content-draft-save-rule.ts",
+    "sourceFile": "src/services/smart-bid/content-draft-save-rule.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-draft-save-rule",
+    "jsdoc": "@module app:services/smart-bid/content-draft-save-rule\n职责：向宿主提供WorkingDraft内容结构与规范载荷的原生领域保存规则。\n边界：宿主在本次模型实例注册；不查询、不保存、不做服务端版本/请求键/采用授权检查。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T06:05:56.181Z",
+  "models": {}
+}

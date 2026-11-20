@@ -1,0 +1,2137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:project/project-workspace",
+    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+    "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "project/project-workspace",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：不渲染 Vue 组件；定义数据空间由宿主正式装配，业务运行数据不在工作区维护。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ScenarioViewVersionAttempt",
+      "ScenarioViewVersionAttemptStatus",
+      "ScenarioViewVersionNotAppliedError",
+      "ScenarioViewVersionCreateCommand",
+      "ProjectWorkspaceOptions",
+      "ProjectWorkspace"
+    ]
+  },
+  "$defs": {
+    "ScenarioViewVersionAttempt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionAttempt",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "resourceId",
+        "scope",
+        "version",
+        "fileName",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioViewVersionAttemptStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionAttemptStatus",
+      "properties": {
+        "state": {
+          "enum": [
+            "idle",
+            "pending",
+            "unknown",
+            "confirmed",
+            "not-applied"
+          ]
+        },
+        "version": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "fileName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "message": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "version",
+        "fileName",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioViewVersionNotAppliedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionNotAppliedError",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "resourceId": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "version": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "ScenarioViewGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewGateway",
+      "properties": {
+        "submissionJournal": {
+          "$ref": "../scenario/scenario-submission-journal.ts.json#/$defs/ScenarioSubmissionJournal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "string"
+        },
+        "method.readText.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readText.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.writeText.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "expectedText": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.writeText.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.readVersion.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewVersionCreateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createVersion.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary>"
+        }
+      }
+    },
+    "ScenarioViewVersionCreateCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionCreateCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onAttempt.params": {
+          "type": "object",
+          "properties": {
+            "attempt": {
+              "$ref": "#/$defs/ScenarioViewVersionAttempt"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAttempt.return": true,
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ScenarioViewLoadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewLoadCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "forceReload": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "scenarioId"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioViewCreateCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewCreateCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ScenarioViewSaveCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewSaveCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onAttempt.params": {
+          "type": "object",
+          "properties": {
+            "attempt": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "number"
+                },
+                "fileName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "version",
+                "fileName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAttempt.return": true
+      }
+    },
+    "ScenarioViewAdoptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewAdoptCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "expectedRevision": {
+          "type": "number"
+        },
+        "previewText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.beforeApply.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeApply.return": true
+      }
+    },
+    "ScenarioViewVersionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectWorkspaceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspaceOptions",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "blueprint": {
+          "$ref": "../io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
+        },
+        "projectReferences": {
+          "$ref": "../io/project-reference-client.ts.json#/$defs/ProjectReferenceGateway"
+        },
+        "scenarioViews": {
+          "$ref": "#/$defs/ScenarioViewGateway"
+        }
+      },
+      "required": [
+        "projectId",
+        "blueprint"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.scenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "workspace": {
+              "$ref": "#/$defs/ProjectWorkspace"
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    },
+    "ProjectWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspace",
+      "properties": {
+        "project": {
+          "$ref": "project-blueprint.ts.json#/$defs/ProjectBlueprint"
+        },
+        "hasPendingScenarioVersionAttempt": {
+          "type": "boolean"
+        },
+        "dirtyScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectWorkspaceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioDefinitions.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSet"
+        },
+        "method.loadScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.saveDirtyScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveDirtyScenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
+        "method.getScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioViews.return": {
+          "anyOf": [
+            {
+              "$ref": "../scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.isScenarioSubmissionRecovered.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isScenarioSubmissionRecovered.return": {
+          "type": "boolean"
+        },
+        "method.loadScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewLoadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<ScenarioViewFile>"
+        },
+        "method.createScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewCreateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<ScenarioViewFile>"
+        },
+        "method.saveScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verifyScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<'confirmed'>"
+        },
+        "method.previewScenarioViewsRemote.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewScenarioViewsRemote.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.adoptScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewAdoptCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adoptScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listScenarioVersions.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listScenarioVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.getScenarioVersionStatus.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioVersionStatus.return": {
+          "$ref": "#/$defs/ScenarioViewVersionAttemptStatus"
+        },
+        "method.acknowledgeScenarioVersionAttempt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acknowledgeScenarioVersionAttempt.return": true,
+        "method.verifyScenarioVersionAttempt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyScenarioVersionAttempt.return": {
+          "type": "object",
+          "title": "Promise<ScenarioViewVersionAttemptStatus>"
+        },
+        "method.previewScenarioVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewVersionCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewScenarioVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createScenarioVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createScenarioVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getActivePageTool.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getActivePageTool.return": {
+          "anyOf": [
+            {
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.ingestBlueprintTree.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "selectedNodeId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ingestBlueprintTree.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.notifyPageFileChanged.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "anyOf": [
+                {
+                  "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
+                },
+                {
+                  "const": "__created"
+                },
+                {
+                  "const": "__deleted"
+                },
+                {
+                  "const": "__bulk"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.notifyPageFileChanged.return": true,
+        "method.probeLink.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.probeLink.return": {
+          "type": "object",
+          "title": "Promise<{\n        embeddable: boolean;\n        reason: string;\n    }>"
+        },
+        "method.listReferenceProjects.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listReferenceProjects.return": {
+          "type": "object",
+          "title": "Promise<ProjectSummary[]>"
+        },
+        "method.listReferenceProjectPages.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listReferenceProjectPages.return": {
+          "type": "object",
+          "title": "Promise<ProjectPageReference[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T05:25:24.530Z",
+  "models": {
+    "ScenarioViewVersionAttempt": {
+      "name": "ScenarioViewVersionAttempt",
+      "jsdoc": "宿主在任何可能写请求发出前交付的不可变快照身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    resourceId: string;\n    scope: string;\n    version: number;\n    fileName: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    resourceId: string;\n    scope: string;\n    version: number;\n    fileName: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewVersionAttemptStatus": {
+      "name": "ScenarioViewVersionAttemptStatus",
+      "jsdoc": "页面可见的快照状态；原文本、scope和owner身份留在工作区。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    state: 'idle' | 'pending' | 'unknown' | 'confirmed' | 'not-applied';\n    version: number | null;\n    fileName: string | null;\n    message: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    state: 'idle' | 'pending' | 'unknown' | 'confirmed' | 'not-applied';\n    version: number | null;\n    fileName: string | null;\n    message: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewVersionNotAppliedError": {
+      "name": "ScenarioViewVersionNotAppliedError",
+      "jsdoc": "资源适配只在可证明本次固定N未应用时抛出。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(resourceId: string, scope: string, version: number, message?: string)",
+          "parameters": [
+            {
+              "name": "resourceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "scope",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "version",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewGateway": {
+      "name": "ScenarioViewGateway",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。 */\n    submissionJournal?: ScenarioSubmissionJournal;\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。 */\n    submissionJournal?: ScenarioSubmissionJournal;\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "submissionJournal",
+              "jsdoc": "派发前同步保存原捕获；重开仅核验，不恢复权限凭据或自动写入。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "readText",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "writeText",
+              "jsdoc": "写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedText",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listVersions",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readVersion",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createVersion",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewVersionCreateCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageToolFileVersionSummary",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewVersionCreateCommand": {
+      "name": "ScenarioViewVersionCreateCommand",
+      "jsdoc": "给场景文件适配器的一次显式快照创建命令。版本由调用方按当前真实历史列表分配；适配器不得自行换号重试。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次快照所属的场景文件身份。 */\n    scenarioId: string;\n    /** 调用方预先分配并需原样回执的快照编号。 */\n    version: number;\n    /** 与已保存活动文件一致的精确快照原文。 */\n    text: string;\n    /** 适配器在首次可能写入前同步捕获原attempt。 */\n    onAttempt: (attempt: ScenarioViewVersionAttempt) => void;\n    /** 检查调用期间原工作区、scope和视图身份仍有效。 */\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次快照所属的场景文件身份。 */\n    scenarioId: string;\n    /** 调用方预先分配并需原样回执的快照编号。 */\n    version: number;\n    /** 与已保存活动文件一致的精确快照原文。 */\n    text: string;\n    /** 适配器在首次可能写入前同步捕获原attempt。 */\n    onAttempt: (attempt: ScenarioViewVersionAttempt) => void;\n    /** 检查调用期间原工作区、scope和视图身份仍有效。 */\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "jsdoc": "本次快照所属的场景文件身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "jsdoc": "调用方预先分配并需原样回执的快照编号。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "与已保存活动文件一致的精确快照原文。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onAttempt",
+              "jsdoc": "适配器在首次可能写入前同步捕获原attempt。",
+              "parameters": [
+                {
+                  "name": "attempt",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewVersionAttempt",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "检查调用期间原工作区、scope和视图身份仍有效。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewLoadCommand": {
+      "name": "ScenarioViewLoadCommand",
+      "jsdoc": "读取明确场景文件，强制重载不得覆盖dirty。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    forceReload?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    forceReload?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "forceReload",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewCreateCommand": {
+      "name": "ScenarioViewCreateCommand",
+      "jsdoc": "用户显式新建的单场景合法文本，远端必须确认不存在。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewSaveCommand": {
+      "name": "ScenarioViewSaveCommand",
+      "jsdoc": "保存已持有场景owner，写前比较基线并写后真实读回。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    assertCurrent?: () => void;\n    onAttempt?: (attempt: Readonly<{\n        version: number;\n        fileName: string;\n    }>) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    assertCurrent?: () => void;\n    onAttempt?: (attempt: Readonly<{\n        version: number;\n        fileName: string;\n    }>) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onAttempt",
+              "parameters": [
+                {
+                  "name": "attempt",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        version: number;\n        fileName: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewAdoptCommand": {
+      "name": "ScenarioViewAdoptCommand",
+      "jsdoc": "接纳已展示的远端原文；异步读取前后核对调用方，失效时保留本地文件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n    assertCurrent?: () => void;\n    /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */\n    beforeApply?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n    assertCurrent?: () => void;\n    /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */\n    beforeApply?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewText",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "beforeApply",
+              "jsdoc": "远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewVersionCommand": {
+      "name": "ScenarioViewVersionCommand",
+      "jsdoc": "场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspaceOptions": {
+      "name": "ProjectWorkspaceOptions",
+      "jsdoc": "Project Workspace Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n    /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */\n    scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "jsdoc": "project Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprint",
+              "jsdoc": "项目蓝图语义网关。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectReferences",
+              "jsdoc": "跨项目引用语义网关。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioViews",
+              "jsdoc": "场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "scenarioDefinitions",
+              "jsdoc": "按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。",
+              "parameters": [
+                {
+                  "name": "workspace",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectWorkspace",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                },
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspace": {
+      "name": "ProjectWorkspace",
+      "jsdoc": "项目 IO 编排层：将 ProjectBlueprint 的操作委托到远端 API。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "固定项目身份与真实IO能力，持有场景scope缓存并编排可验证保存。",
+          "signatureText": "constructor(options: ProjectWorkspaceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ProjectWorkspaceOptions",
+                "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "project",
+              "jsdoc": "project 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingScenarioVersionAttempt",
+              "jsdoc": "原场景owner仍持有待提交或结果未知的快照attempt时，宿主不得释放该工作区。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirtyScenarioIds",
+              "jsdoc": "写前比较与回读只能检测冲突；后端没有 CAS，不能承诺原子并发保护。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getScenarioDefinitions",
+              "jsdoc": "取得本工作区为目标空间持有的正式定义DataSet；编辑真源是其中的DataView。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadScenarioDefinitions",
+              "jsdoc": "按显式目标空间加载正式元数据DataSet，同工作区与请求代次复用同一实例。\n@param command scenarioId为被设计空间T；返回DataSet的身份是正式元数据空间C，二者不能互换。\n@returns 定义视图按消费需要loadFromServer，使用DataView编辑/取消及DataSet.saveChanges提交。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveDirtyScenarioDefinitions",
+              "jsdoc": "保存工作区已经修改的正式元数据视图；不加载未读视图，不经文件owner另行提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "@throws 原快照仍pending或unknown时拒绝释放owner。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getScenarioViews",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isScenarioSubmissionRecovered",
+              "jsdoc": "只标识由持久捕获恢复的文件owner；不表示提交已生效或允许写入。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewLoadCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewCreateCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "literal",
+                    "value": "confirmed"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewScenarioViewsRemote",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adoptScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewAdoptCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listScenarioVersions",
+              "jsdoc": "列出真实N__pagedata.json快照，编号不参与页面工具的发布引用。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getScenarioVersionStatus",
+              "jsdoc": "当前相同scenario/scope/file owner的历史快照提交状态。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewVersionAttemptStatus",
+                "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+              }
+            },
+            {
+              "name": "acknowledgeScenarioVersionAttempt",
+              "jsdoc": "已确认或明确未应用的场景快照回执已交付，原owner不再保留恢复入口。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "verifyScenarioVersionAttempt",
+              "jsdoc": "只读核验Workspace捕获的原编号和原文本；允许当前定义视图有后续草稿。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewVersionAttemptStatus",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewScenarioVersion",
+              "jsdoc": "读取并校验用户将要恢复的单场景快照，不改变工作文件或本地owner。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewVersionCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createScenarioVersion",
+              "jsdoc": "为真实已保存且干净的工作文件建立下一编号快照，捕获原attempt并核对精确原文。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getActivePageTool",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ingestBlueprintTree",
+              "jsdoc": "加载项目蓝图。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        selectedNodeId?: string | null;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "notifyPageFileChanged",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "PageToolFileName",
+                        "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__created"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__deleted"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__bulk"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "probeLink",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        embeddable: boolean;\n        reason: string;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listReferenceProjects",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectSummary",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listReferenceProjectPages",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectPageReference",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

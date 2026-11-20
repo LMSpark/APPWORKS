@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/template-content-rules",
+    "sourcePath": "src/services/smart-bid/content/references/template-content-rules.ts",
+    "sourceFile": "src/services/smart-bid/content/references/template-content-rules.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/template-content-rules",
+    "jsdoc": "@module app:services/smart-bid/content/references/template-content-rules\n职责：按节点实际选中的固定模板类解析角色和可交付性。\n边界：无显式可交付值时消费原规则提供的默认值；不继承版式字段所用的 basedOn。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T01:24:49.889Z",
+  "models": {}
+}

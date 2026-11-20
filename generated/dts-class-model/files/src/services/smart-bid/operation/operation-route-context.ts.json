@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/operation-route-context",
+    "sourcePath": "src/services/smart-bid/operation/operation-route-context.ts",
+    "sourceFile": "src/services/smart-bid/operation/operation-route-context.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/operation-route-context",
+    "jsdoc": "@module app:services/smart-bid/operation/operation-route-context\n职责：第03项固定本试次待发参数与来源，分开保存清单和实际输入摘要。\n边界：组织命名输入和来源上下文，正式数据由提供该上下文的 DataView 持有。\nAI用途：检查工位是否得到指定来源的命名输入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "attemptRef": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "targetDigest": {
+          "type": "string"
+        },
+        "configurationLockHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "attemptRef",
+        "requestKey",
+        "projectId",
+        "targetDigest",
+        "configurationLockHash"
+      ],
+      "additionalProperties": false
+    },
+    "Slot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Slot",
+      "properties": {
+        "slotId": {
+          "type": "string"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "slotId",
+        "required"
+      ],
+      "additionalProperties": false
+    },
+    "RequirementRead": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequirementRead",
+      "properties": {
+        "lineageId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lineageId",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "slotId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "ALLOWED",
+            "DENIED",
+            "MISSING",
+            "TRIMMED"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T01:47:29.729Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "读取工艺证据所需的项目、场景和当前会话约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOperationRouteReturn>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attemptRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targetDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configurationLockHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Slot": {
+      "name": "Slot",
+      "jsdoc": "当前工位的命名输入及其匹配条件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    slotId: string;\n    required: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    slotId: string;\n    required: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "slotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RequirementRead": {
+      "name": "RequirementRead",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    lineageId: string;\n    version: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Source": {
+      "name": "Source",
+      "jsdoc": "参与工艺上下文计算的来源证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    slotId: string;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n    requirementRead?: RequirementRead;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    slotId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'ALLOWED';\n    sourceRef: string;\n    versionRef: string;\n    useRef: string;\n    value: unknown;\n    requirementRead?: RequirementRead;\n}> | Readonly<{\n    state: 'MISSING' | 'TRIMMED' | 'DENIED';\n    reasonRef: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "slotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

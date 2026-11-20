@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/paper-output-registration",
+    "sourcePath": "src/services/smart-bid/content/review/production/paper-output-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/paper-output-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/paper-output-registration",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/paper-output-registration\n职责：动作41核原印制请求及独立清点所得的纸件页份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "inputDigest": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "baselineId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "purpose": {
+              "enum": [
+                "REVIEW",
+                "FORMAL"
+              ]
+            },
+            "toolVersionRef": {
+              "type": "string"
+            },
+            "outputOptions": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "rootHash": {
+              "type": "string"
+            },
+            "templateVersionRef": {
+              "type": "string"
+            },
+            "ruleVersionRef": {
+              "type": "string"
+            },
+            "formVersionRef": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "factRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "attachmentRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "inputDigest",
+            "projectId",
+            "documentId",
+            "revisionId",
+            "baselineId",
+            "requestKey",
+            "purpose",
+            "toolVersionRef",
+            "outputOptions",
+            "rootHash",
+            "templateVersionRef",
+            "ruleVersionRef",
+            "formVersionRef",
+            "factRefs",
+            "attachmentRefs"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "request",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "requestKey",
+        "documentId",
+        "inputDigest"
+      ],
+      "additionalProperties": false
+    },
+    "Copy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Copy",
+      "properties": {
+        "copyRef": {
+          "type": "string"
+        },
+        "pageRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "copyRef",
+        "pageRefs"
+      ],
+      "additionalProperties": false
+    },
+    "Paper": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Paper",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        },
+        "paperRef": {
+          "type": "string"
+        },
+        "copies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Copy"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "requestKey",
+        "documentId",
+        "inputDigest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T19:00:08.472Z",
+  "models": {
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareProductionRequest>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareProductionRequest>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Prepared['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Prepared['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Copy": {
+      "name": "Copy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    copyRef: string;\n    pageRefs: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    copyRef: string;\n    pageRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "copyRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Paper": {
+      "name": "Paper",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    productionRequestRef: string;\n    paperRef: string;\n    copies: readonly Copy[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    productionRequestRef: string;\n    paperRef: string;\n    copies: readonly Copy[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paperRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "copies",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

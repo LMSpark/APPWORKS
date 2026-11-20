@@ -1,0 +1,76 @@
+[
+  {
+    "id": "tender-followup-notices",
+    "type": "r-section",
+    "props": {"title": "后续通知"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看后续通知", "action": "host-command",
+        "command": "tender.followup.readNotices", "input": {"knownAt": {"$route": "followupKnownAt"}},
+        "resultAlertTitle": "后续通知"}}
+    ]
+  },
+  {
+    "id": "tender-followup-addendum",
+    "type": "r-section",
+    "props": {"title": "正式澄清与修改"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看变动原位", "action": "host-command",
+        "command": "tender.followup.readAddendum", "input": {"addendumId": {"$route": "addendumId"}},
+        "resultAlertTitle": "正式澄清与修改"}}
+    ]
+  },
+  {
+    "id": "tender-followup-submission-obligations",
+    "type": "r-section",
+    "props": {"title": "应递交事项"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看基线递交事项", "action": "host-command",
+        "command": "tender.followup.readBaselineObligations", "input": {"baselineId": {"$route": "frozenBaselineId"}},
+        "resultAlertTitle": "应递交事项"}}
+    ]
+  },
+  {
+    "id": "tender-followup-outbound-impact",
+    "type": "r-section",
+    "props": {"title": "递交批次反查"},
+    "children": [
+      {"type": "r-button", "props": {"label": "核对原办理批次", "action": "host-command",
+        "command": "tender.followup.traceOutboundBatches",
+        "input": {"addendumId": {"$route": "addendumId"}, "knownAt": {"$route": "followupKnownAt"}},
+        "resultAlertTitle": "递交批次反查"}}
+    ]
+  },
+  {
+    "id": "tender-followup-attempt-history",
+    "type": "r-section",
+    "props": {"title": "原正文工艺试次"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看原调用试次", "action": "host-command",
+        "command": "tender.followup.readOriginalAttempts", "input": {"revisionId": {"$route": "revisionId"}},
+        "resultAlertTitle": "原调用试次"}}
+    ]
+  },
+  {
+    "id": "tender-followup-call-impact",
+    "type": "r-section",
+    "props": {"title": "原调用条款引用"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看本次调用引用", "action": "host-command",
+        "command": "tender.followup.traceCallReferences",
+        "input": {"addendumId": {"$route": "addendumId"}, "runId": {"$route": "runId"},
+          "attemptRef": {"$route": "attemptRef"}, "requestKey": {"$route": "requestKey"}},
+        "resultAlertTitle": "原调用条款引用"}}
+    ]
+  },
+  {
+    "id": "tender-followup-chapter-impact",
+    "type": "r-section",
+    "props": {"title": "正文条款引用追查"},
+    "children": [
+      {"type": "r-button", "props": {"label": "查看原版章节引用", "action": "host-command",
+        "command": "tender.followup.traceChapterPins",
+        "input": {"addendumId": {"$route": "addendumId"}, "chapterRefs": {"$route": "chapterRefs", "parse": "json"}},
+        "resultAlertTitle": "正文条款引用追查"}}
+    ]
+  }
+]

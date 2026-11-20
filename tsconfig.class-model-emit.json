@@ -1,0 +1,40 @@
+{
+  "$comment": "ClassModel 内存 emit 配置；仅由 scripts/generate-dts-class-model.mjs 读取，outDir 为虚拟路径前缀",
+  "extends": "./tsconfig.typecheck.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "outDir": "class-model-emit",
+    "rootDir": "."
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.d.ts",
+    "packages/spark-utils/src/**/*.ts",
+    "packages/spark-json-document/src/**/*.ts",
+    "packages/spark-data/src/**/*.ts",
+    "packages/spark-project-model/src/**/*.ts",
+    "packages/spark-ai/src/**/*.ts",
+    "packages/spark-component/src/**/*.ts",
+    "packages/spark-component/src/**/*.vue",
+    "packages/spark-app/src/**/*.ts",
+    "packages/spark-app/src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/tests/**",
+    "**/__tests__/**",
+    "generated/**",
+    "config/**",
+    "scripts/**",
+    "tools/**"
+  ]
+}

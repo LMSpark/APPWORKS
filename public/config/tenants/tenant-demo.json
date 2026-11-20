@@ -1,0 +1,32 @@
+{
+    "tenant": {
+        "tenantId": "demo",
+        "tenantName": "演示租户",
+        "tenantCode": "DEMO",
+        "logo": "/assets/logo-demo.png",
+        "theme": {
+            "primaryColor": "#1890ff"
+        }
+    },
+    "plugins": {
+        "element-plus": {
+            "enabled": true,
+            "options": {
+                "size": "large",
+                "zIndex": 3000
+            }
+        }
+    },
+    "config": {
+        "apiBaseUrl": "/api",
+        "version": "1.0.0-demo"
+    },
+    "pageNode": {
+        "apiBaseUrl": "/api",
+        "homePath": "/dev"
+    },
+    "logger": {
+        "level": "info",
+        "enableRemote": true
+    }
+}

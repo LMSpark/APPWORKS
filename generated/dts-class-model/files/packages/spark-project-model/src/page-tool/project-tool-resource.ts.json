@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page-tool/project-tool-resource",
+    "sourcePath": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
+    "sourceFile": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page-tool/project-tool-resource",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page-tool/project-tool-resource\n职责：把蓝图工具清单投影为只读 DataView。\n边界：ProjectToolFile 的查询、写入、版本及 attempt 均由 spark-data FileResource 适配器承接。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectToolResource"
+    ]
+  },
+  "$defs": {
+    "ProjectToolResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectToolResource",
+      "properties": {
+        "resources": {
+          "type": "object",
+          "properties": {
+            "ProjectToolCatalog": {
+              "const": "project:tool-catalog"
+            },
+            "ProjectToolFile": {
+              "const": "project:tool-file"
+            }
+          },
+          "required": [
+            "ProjectToolCatalog",
+            "ProjectToolFile"
+          ],
+          "additionalProperties": false
+        },
+        "catalogResource": {
+          "type": "object",
+          "properties": {
+            "resourceType": {
+              "const": "logical-view"
+            },
+            "resourceId": {
+              "const": "project:tool-catalog"
+            }
+          },
+          "required": [
+            "resourceType",
+            "resourceId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "workspace": {
+                  "$ref": "../project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+                },
+                "metadataScenarioId": {
+                  "type": "string"
+                },
+                "blueprintTreeProjection": {
+                  "type": "object",
+                  "title": "() => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>"
+                }
+              },
+              "required": [
+                "workspace",
+                "metadataScenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryParameters.params": {
+          "type": "object",
+          "properties": {
+            "resourceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryParameters.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Pick<DataColumn, 'name' | 'type' | 'label' | 'required'>"
+          }
+        },
+        "method.assertDeclaration.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertDeclaration.return": true,
+        "method.queryBinding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryBinding.return": {
+          "$ref": "../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindReadonlyCommandQueryOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-08T02:49:10.829Z",
+  "models": {
+    "ProjectToolResource": {
+      "name": "ProjectToolResource",
+      "jsdoc": "本次注入的已加载蓝图视图树（含编辑覆盖）的只读工具投影；不证明后台工具或发布依赖全集。工具文件是独立 FileResource。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n    }>)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogResource",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "queryParameters",
+              "parameters": [
+                {
+                  "name": "resourceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Pick",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataColumn"
+                    },
+                    {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "literal",
+                          "value": "name"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "type"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "required"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "assertDeclaration",
+              "jsdoc": "保留的旧目录文件声明必须显式转换，不交给文件owner执行。",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "queryBinding",
+              "jsdoc": "为本次DataTable实例提供只读绑定；实际命名/派生查询各自核身份并复用公共参数、投影及权限链。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindReadonlyCommandQueryOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

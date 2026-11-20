@@ -1,0 +1,77 @@
+[
+  {
+    "type": "r-section",
+    "id": "section-demo",
+    "children": [
+      {
+        "type": "r-tree",
+        "id": "tree-demo",
+        "children": [
+          {
+            "type": "r-tree-node-summary",
+            "id": "tree-summary",
+            "props": {
+              "fields": [
+                {
+                  "field": "name",
+                  "label": "名称"
+                },
+                {
+                  "field": "type",
+                  "label": "类型"
+                },
+                {
+                  "field": "status",
+                  "label": "状态"
+                }
+              ]
+            }
+          }
+        ],
+        "props": {
+          "nodeKey": "id",
+          "onNodeClick": "handleNodeClick",
+          "onNodeExpand": "handleNodeExpand",
+          "onNodeCollapse": "handleNodeCollapse",
+          "treeProps": {
+            "nodeKey": "id",
+            "props": {
+              "label": "name",
+              "children": "children"
+            },
+            "showCheckbox": true,
+            "highlightCurrent": true,
+            "defaultExpandAll": true,
+            "draggable": true
+          },
+          "dataViewKey": "TreeData@default"
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "btn-get-current",
+        "props": {
+          "label": "获取当前选中节点",
+          "onClick": "getCurrentNode",
+          "buttonType": "primary",
+          "plain": true
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "btn-get-checked",
+        "props": {
+          "label": "获取勾选节点",
+          "onClick": "getCheckedNodes",
+          "buttonType": "success",
+          "plain": true
+        }
+      }
+    ],
+    "props": {
+      "title": "Tree 组件演示",
+      "description": "展示 r-tree 树形组件的完整功能，支持勾选、过滤、拖拽、节点点击等交互",
+      "className": "tree-demo-container"
+    }
+  }
+]

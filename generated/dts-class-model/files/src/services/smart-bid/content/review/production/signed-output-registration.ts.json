@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/signed-output-registration",
+    "sourcePath": "src/services/smart-bid/content/review/production/signed-output-registration.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/signed-output-registration.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/signed-output-registration",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/signed-output-registration\n职责：动作41按原签署回执关联签前件与实际签后文件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "FileScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileScope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "documentId",
+        "revisionId"
+      ],
+      "additionalProperties": false
+    },
+    "SignedReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SignedReceipt",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "signatureOperationRef": {
+          "type": "string"
+        },
+        "signatureRecordId": {
+          "type": "string"
+        },
+        "originalFileId": {
+          "type": "string"
+        },
+        "originalHash": {
+          "type": "string"
+        },
+        "signedObjectRef": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "documentId",
+        "revisionId"
+      ]
+    },
+    "Recovered": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Recovered",
+      "properties": {
+        "state": {
+          "const": "SIGNED"
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "objectKind": {
+              "enum": [
+                "FILE",
+                "PACKAGE"
+              ]
+            },
+            "objectRef": {
+              "type": "string"
+            },
+            "objectVersion": {
+              "type": "string"
+            },
+            "objectHash": {
+              "type": "string"
+            },
+            "positionRef": {
+              "type": "string"
+            },
+            "signerRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "requestDigest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "objectKind",
+            "objectRef",
+            "objectVersion",
+            "objectHash",
+            "positionRef",
+            "signerRef",
+            "requestKey",
+            "requestDigest"
+          ],
+          "additionalProperties": false
+        },
+        "operationRef": {
+          "type": "string"
+        },
+        "signatureRecordId": {
+          "type": "string"
+        },
+        "signedObjectRef": {
+          "type": "string"
+        },
+        "signedObjectHash": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "state",
+        "request",
+        "operationRef",
+        "signatureRecordId",
+        "signedObjectRef",
+        "signedObjectHash",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:32:07.537Z",
+  "models": {
+    "FileScope": {
+      "name": "FileScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    documentId: string;\n    revisionId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    documentId: string;\n    revisionId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SignedReceipt": {
+      "name": "SignedReceipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FileScope & Readonly<{\n    signatureOperationRef: string;\n    signatureRecordId: string;\n    originalFileId: string;\n    originalHash: string;\n    signedObjectRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FileScope",
+            "targetName": "FileScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    signatureOperationRef: string;\n    signatureRecordId: string;\n    originalFileId: string;\n    originalHash: string;\n    signedObjectRef: string;\n    resourceVersionId: string;\n    fileHash: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "signatureOperationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signatureRecordId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalFileId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signedObjectRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Recovered": {
+      "name": "Recovered",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<Awaited<ReturnType<typeof recoverSignatureRequest>>, {\n    state: 'SIGNED';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Extract<Awaited<ReturnType<typeof recoverSignatureRequest>>, {\n    state: 'SIGNED';\n}>",
+            "targetName": "Extract"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "request",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "operationRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signatureRecordId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signedObjectRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signedObjectHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

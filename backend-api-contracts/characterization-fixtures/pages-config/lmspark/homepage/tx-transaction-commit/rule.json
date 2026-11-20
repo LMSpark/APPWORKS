@@ -1,0 +1,253 @@
+[
+  {
+    "type": "div",
+    "id": "tx-transaction-commit-root",
+    "props": {
+      "class": "tx-test-page"
+    },
+    "children": [
+      {
+        "type": "h1",
+        "id": "tx-transaction-commit-title",
+        "props": {},
+        "children": [
+          "事务验证 2：后端多表统一事务"
+        ]
+      },
+      {
+        "type": "el-alert",
+        "id": "tx-transaction-commit-alert",
+        "props": {
+          "type": "warning",
+          "closable": false,
+          "showIcon": true
+        },
+        "children": [
+          "先创建测试动态表，再通过 /data/transactions 同步提交订单和明细，最后刷新两个 DataView。"
+        ]
+      },
+      {
+        "type": "div",
+        "id": "tx-transaction-commit-toolbar",
+        "props": {
+          "class": "tx-test-toolbar"
+        },
+        "children": [
+          {
+            "type": "r-button",
+            "id": "btn-append-tx-order",
+            "props": {
+              "label": "新增订单 staged",
+              "template": "primary",
+              "action": "append-row",
+              "appendPayload": {
+                "id": 9001,
+                "orderNo": "TX-BE-001",
+                "owner": "Morgan",
+                "status": "draft"
+              },
+              "successMessage": "订单已进入 staged 状态",
+              "dataViewKey": "SparkTxOrders@default",
+              "idField": "id"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-append-tx-item",
+            "props": {
+              "label": "新增明细 staged",
+              "template": "primary",
+              "action": "append-row",
+              "appendPayload": {
+                "id": 9101,
+                "orderId": 9001,
+                "sku": "SKU-TX",
+                "quantity": 1,
+                "status": "draft"
+              },
+              "successMessage": "明细已进入 staged 状态",
+              "dataViewKey": "SparkTxItems@default",
+              "idField": "id"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-save-tx-commit",
+            "props": {
+              "label": "提交多表事务",
+              "template": "success",
+              "action": "save-dataset",
+              "mode": "transaction",
+              "successMessage": "订单和明细已通过统一事务提交"
+            },
+            "children": []
+          },
+          {
+            "type": "r-button",
+            "id": "btn-reload-tx-data",
+            "props": {
+              "label": "刷新订单",
+              "action": "refresh",
+              "dataViewKey": "SparkTxOrders@default",
+              "idField": "id"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "type": "div",
+        "id": "tx-transaction-commit-grid",
+        "props": {
+          "class": "tx-test-grid"
+        },
+        "children": [
+          {
+            "type": "section",
+            "id": "spark-tx-orders-section",
+            "props": {},
+            "children": [
+              {
+                "type": "h2",
+                "id": "spark-tx-orders-heading",
+                "props": {},
+                "children": [
+                  "后端订单"
+                ]
+              },
+              {
+                "type": "r-table",
+                "id": "spark-tx-orders-table",
+                "props": {
+                  "dataViewKey": "SparkTxOrders@default",
+                  "border": true,
+                  "stripe": true,
+                  "highlightCurrentRow": true
+                },
+                "children": [
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-orders-id",
+                    "props": {
+                      "field": "id",
+                      "label": "ID",
+                      "width": 80
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-orders-no",
+                    "props": {
+                      "field": "orderNo",
+                      "label": "订单号",
+                      "width": 150
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-orders-owner",
+                    "props": {
+                      "field": "owner",
+                      "label": "负责人",
+                      "width": 120
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-orders-status",
+                    "props": {
+                      "field": "status",
+                      "label": "状态"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "id": "spark-tx-items-section",
+            "props": {},
+            "children": [
+              {
+                "type": "h2",
+                "id": "spark-tx-items-heading",
+                "props": {},
+                "children": [
+                  "后端明细"
+                ]
+              },
+              {
+                "type": "r-table",
+                "id": "spark-tx-items-table",
+                "props": {
+                  "dataViewKey": "SparkTxItems@default",
+                  "border": true,
+                  "stripe": true,
+                  "highlightCurrentRow": true
+                },
+                "children": [
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-items-id",
+                    "props": {
+                      "field": "id",
+                      "label": "ID",
+                      "width": 80
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-items-order",
+                    "props": {
+                      "field": "orderId",
+                      "label": "订单ID",
+                      "width": 100
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-items-sku",
+                    "props": {
+                      "field": "sku",
+                      "label": "SKU",
+                      "width": 120
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-items-qty",
+                    "props": {
+                      "field": "quantity",
+                      "label": "数量",
+                      "width": 100
+                    },
+                    "children": []
+                  },
+                  {
+                    "type": "r-text",
+                    "id": "spark-tx-items-status",
+                    "props": {
+                      "field": "status",
+                      "label": "状态"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

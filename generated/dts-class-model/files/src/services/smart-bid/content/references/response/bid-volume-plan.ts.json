@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/bid-volume-plan",
+    "sourcePath": "src/services/smart-bid/content/references/response/bid-volume-plan.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/bid-volume-plan.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/bid-volume-plan",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/bid-volume-plan\n职责：动作32按原应交义务策划分册、独立落点及披露范围。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "baselineId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "baselineId"
+      ],
+      "additionalProperties": false
+    },
+    "Destination": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Destination",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "obligationRef": {
+              "type": "string"
+            },
+            "targetRef": {
+              "type": "string"
+            },
+            "disclosureRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "const": "DOCUMENT"
+            },
+            "documentId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "obligationRef",
+            "targetRef",
+            "disclosureRefs",
+            "kind",
+            "documentId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "obligationRef": {
+              "type": "string"
+            },
+            "targetRef": {
+              "type": "string"
+            },
+            "disclosureRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "const": "INDEPENDENT"
+            }
+          },
+          "required": [
+            "obligationRef",
+            "targetRef",
+            "disclosureRefs",
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Obligation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Obligation",
+      "properties": {
+        "obligationRef": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "DOCUMENT",
+            "INDEPENDENT"
+          ]
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "allowedDisclosureRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "obligationRef",
+        "kind",
+        "required",
+        "allowedDisclosureRefs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T15:52:34.291Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    baselineId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Destination": {
+      "name": "Destination",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    obligationRef: string;\n    targetRef: string;\n    disclosureRefs: readonly string[];\n}> & (Readonly<{\n    kind: 'DOCUMENT';\n    documentId: string;\n}> | Readonly<{\n    kind: 'INDEPENDENT';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    obligationRef: string;\n    targetRef: string;\n    disclosureRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'DOCUMENT';\n    documentId: string;\n}> | Readonly<{\n    kind: 'INDEPENDENT';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "obligationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disclosureRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Obligation": {
+      "name": "Obligation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    obligationRef: string;\n    kind: Destination['kind'];\n    required: boolean;\n    allowedDisclosureRefs: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    obligationRef: string;\n    kind: Destination['kind'];\n    required: boolean;\n    allowedDisclosureRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "obligationRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedDisclosureRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

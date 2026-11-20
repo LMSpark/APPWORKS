@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ScriptHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "ScriptHost",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
+            },
+            "generation": {
+              "type": "number"
+            },
+            "destroyed": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "isLoaded": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "resolveView",
+            "generation",
+            "destroyed",
+            "isLoaded"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "executeTool": {
+              "type": "object",
+              "title": "(toolName: string, rawArgs: ClassModelToolArgs, host?: unknown) => Promise<ClassModelToolResult>"
+            }
+          },
+          "required": [
+            "executeTool"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Scope"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-20T19:41:15.113Z",
+  "models": {
+    "ScriptHost": {
+      "name": "ScriptHost",
+      "jsdoc": "工艺脚本宿主装配使用的参数合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createContentOperationScriptHost>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof createContentOperationScriptHost>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

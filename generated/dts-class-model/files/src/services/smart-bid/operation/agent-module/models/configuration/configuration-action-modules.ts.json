@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/models/configuration/configuration-action-modules",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/configuration-action-modules\n职责：公开业务配置启停动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ConfigurationRelease"
+    ]
+  },
+  "$defs": {
+    "ConfigurationRelease": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ConfigurationRelease",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.启用业务配置.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.启用业务配置.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        },
+        "method.停用业务配置.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.停用业务配置.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T10:11:50.217Z",
+  "models": {
+    "ConfigurationRelease": {
+      "name": "ConfigurationRelease",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "启用业务配置",
+              "jsdoc": "启用业务配置。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "停用业务配置",
+              "jsdoc": "停用业务配置。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

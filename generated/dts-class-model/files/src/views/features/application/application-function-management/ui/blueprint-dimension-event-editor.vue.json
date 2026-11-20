@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-dimension-event-editor",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-dimension-event-editor",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-dimension-event-editor\n职责：“数据模型事件维护”子对话框：编辑已保存数据模型来源绑定对应的唯一事件合同。\n边界：表单绑定 88A4 Bil_Dimension_Rule_Template.editByEvent，业务分类与字段候选经 optionDataViewKey 提供；校验、保存与回读由宿主流程状态承担。\nAI用途：调整事件维护布局时修改本组件，不在此另建查询或保存链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-12T12:48:42.564Z",
+  "models": {}
+}

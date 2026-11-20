@@ -1,0 +1,872 @@
+{
+  "dataSetName": "TreeDemoNavigationEditor",
+  "resourceRelations": [
+    {
+      "parentTable": "NavigationNodes",
+      "childTable": "NodeEditorProfiles",
+      "parentField": "editorProfileKey",
+      "childField": "profileKey",
+      "relationName": "NodeProfileToEditorProfile"
+    },
+    {
+      "parentTable": "NavigationNodes",
+      "childTable": "LinkTargetOptions",
+      "parentField": "nodeKind",
+      "childField": "nodeKind",
+      "relationName": "NodeKindToLinkTargets"
+    },
+    {
+      "parentTable": "NavigationNodes",
+      "childTable": "ChildPlacementOptions",
+      "parentField": "nodeKind",
+      "childField": "nodeKind",
+      "relationName": "NodeKindToChildPlacements"
+    },
+    {
+      "parentTable": "NavigationNodes",
+      "childTable": "RefNodeKindOptions",
+      "parentField": "editorProfileKey",
+      "childField": "profileKey",
+      "relationName": "NodeProfileToRefNodeKinds"
+    }
+  ],
+  "tables": {
+    "PageMeta": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "totalNodes",
+          "type": "number"
+        },
+        {
+          "name": "pageCount",
+          "type": "number"
+        },
+        {
+          "name": "groupCount",
+          "type": "number"
+        },
+        {
+          "name": "refCount",
+          "type": "number"
+        },
+        {
+          "name": "hiddenCount",
+          "type": "number"
+        },
+        {
+          "name": "statusText",
+          "type": "string"
+        },
+        {
+          "name": "lastSync",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "totalNodes": 0,
+              "pageCount": 0,
+              "groupCount": 0,
+              "refCount": 0,
+              "hiddenCount": 0,
+              "statusText": "等待服务端数据",
+              "lastSync": "-"
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "PageMeta"
+    },
+    "EditorFilters": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "searchKeyword",
+          "type": "string"
+        },
+        {
+          "name": "nodeKindFilter",
+          "type": "string"
+        },
+        {
+          "name": "placementFilter",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "searchKeyword": "",
+              "nodeKindFilter": "all",
+              "placementFilter": "all"
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "EditorFilters"
+    },
+    "NavigationNodes": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "nodeKind",
+          "type": "string"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "linkTarget",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "childPlacement",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "order",
+          "type": "number"
+        },
+        {
+          "name": "dividerAfter",
+          "type": "boolean",
+          "allowDBNull": true
+        },
+        {
+          "name": "hidden",
+          "type": "boolean"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean"
+        },
+        {
+          "name": "refId",
+          "type": "string",
+          "allowDBNull": true
+        },
+        {
+          "name": "editorProfileKey",
+          "type": "string",
+          "computeExpression": "if (nodeKind === 'system-directory' || nodeKind === 'module') return 'container'; if (nodeKind === 'system-page' || nodeKind === 'page' || nodeKind === 'sub-page') return 'page'; if (nodeKind === 'link') return 'link'; if (nodeKind === 'ref') return 'ref'; if (nodeKind === 'system-action') return 'action'; return 'page';"
+        }
+      ],
+      "api": {
+        "list": {
+          "url": "/navigation/nodes",
+          "method": "GET"
+        },
+        "nested": {
+          "url": "/navigation/nodes",
+          "method": "GET"
+        },
+        "children": {
+          "url": "/navigation/nodes",
+          "method": "GET"
+        },
+        "path": {
+          "url": "/navigation/nodes/path/{id}",
+          "method": "GET"
+        },
+        "subtree": {
+          "url": "/navigation/nodes/subtree",
+          "method": "POST"
+        },
+        "nestedSearch": {
+          "url": "/navigation/nodes/search",
+          "method": "GET"
+        },
+        "create": {
+          "url": "/navigation/nodes",
+          "method": "POST"
+        },
+        "update": {
+          "url": "/navigation/nodes/{id}",
+          "method": "PUT"
+        },
+        "delete": {
+          "url": "/navigation/nodes/{id}",
+          "method": "DELETE"
+        },
+        "move": {
+          "url": "/navigation/nodes/{id}/move",
+          "method": "PUT"
+        }
+      },
+      "views": {
+        "default": {
+          "rows": [],
+          "treeConfig": {
+            "idField": "id",
+            "parentIdField": "parentId",
+            "textField": "title",
+            "treeMode": "nested"
+          },
+          "autoLoad": true,
+          "autoCurrentFirst": true,
+          "autoCommit": true
+        }
+      },
+      "tableName": "NavigationNodes"
+    },
+    "NodeKindOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "label": "系统目录",
+              "value": "system-directory"
+            },
+            {
+              "id": 2,
+              "label": "模块",
+              "value": "module"
+            },
+            {
+              "id": 3,
+              "label": "系统页面",
+              "value": "system-page"
+            },
+            {
+              "id": 4,
+              "label": "系统动作",
+              "value": "system-action"
+            },
+            {
+              "id": 5,
+              "label": "页面",
+              "value": "page"
+            },
+            {
+              "id": 6,
+              "label": "链接",
+              "value": "link"
+            },
+            {
+              "id": 7,
+              "label": "子页面",
+              "value": "sub-page"
+            },
+            {
+              "id": 8,
+              "label": "引用",
+              "value": "ref"
+            }
+          ]
+        }
+      },
+      "tableName": "NodeKindOptions"
+    },
+    "NodeKindFilterOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "label": "全部类型",
+              "value": "all"
+            },
+            {
+              "id": 2,
+              "label": "系统目录",
+              "value": "system-directory"
+            },
+            {
+              "id": 3,
+              "label": "模块",
+              "value": "module"
+            },
+            {
+              "id": 4,
+              "label": "系统页面",
+              "value": "system-page"
+            },
+            {
+              "id": 5,
+              "label": "系统动作",
+              "value": "system-action"
+            },
+            {
+              "id": 6,
+              "label": "页面",
+              "value": "page"
+            },
+            {
+              "id": 7,
+              "label": "链接",
+              "value": "link"
+            },
+            {
+              "id": 8,
+              "label": "子页面",
+              "value": "sub-page"
+            },
+            {
+              "id": 9,
+              "label": "引用",
+              "value": "ref"
+            }
+          ]
+        }
+      },
+      "tableName": "NodeKindFilterOptions"
+    },
+    "ChildPlacementOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "nodeKind",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "nodeKind": "system-directory",
+              "label": "头部",
+              "value": "header"
+            },
+            {
+              "id": 2,
+              "nodeKind": "system-directory",
+              "label": "侧栏",
+              "value": "sidebar"
+            },
+            {
+              "id": 3,
+              "nodeKind": "system-directory",
+              "label": "工具栏",
+              "value": "toolbar"
+            },
+            {
+              "id": 4,
+              "nodeKind": "system-directory",
+              "label": "用户菜单",
+              "value": "user-menu"
+            },
+            {
+              "id": 5,
+              "nodeKind": "system-directory",
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 6,
+              "nodeKind": "system-directory",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 7,
+              "nodeKind": "module",
+              "label": "头部",
+              "value": "header"
+            },
+            {
+              "id": 8,
+              "nodeKind": "module",
+              "label": "侧栏",
+              "value": "sidebar"
+            },
+            {
+              "id": 9,
+              "nodeKind": "module",
+              "label": "工具栏",
+              "value": "toolbar"
+            },
+            {
+              "id": 10,
+              "nodeKind": "module",
+              "label": "用户菜单",
+              "value": "user-menu"
+            },
+            {
+              "id": 11,
+              "nodeKind": "module",
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 12,
+              "nodeKind": "module",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 13,
+              "nodeKind": "system-page",
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 14,
+              "nodeKind": "system-page",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 15,
+              "nodeKind": "page",
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 16,
+              "nodeKind": "page",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 17,
+              "nodeKind": "sub-page",
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 18,
+              "nodeKind": "sub-page",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 19,
+              "nodeKind": "link",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 20,
+              "nodeKind": "ref",
+              "label": "平铺",
+              "value": "flat"
+            },
+            {
+              "id": 21,
+              "nodeKind": "system-action",
+              "label": "平铺",
+              "value": "flat"
+            }
+          ]
+        }
+      },
+      "tableName": "ChildPlacementOptions"
+    },
+    "PlacementFilterOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "label": "全部布局",
+              "value": "all"
+            },
+            {
+              "id": 2,
+              "label": "头部",
+              "value": "header"
+            },
+            {
+              "id": 3,
+              "label": "侧栏",
+              "value": "sidebar"
+            },
+            {
+              "id": 4,
+              "label": "工具栏",
+              "value": "toolbar"
+            },
+            {
+              "id": 5,
+              "label": "用户菜单",
+              "value": "user-menu"
+            },
+            {
+              "id": 6,
+              "label": "父级容器",
+              "value": "parent"
+            },
+            {
+              "id": 7,
+              "label": "平铺",
+              "value": "flat"
+            }
+          ]
+        }
+      },
+      "tableName": "PlacementFilterOptions"
+    },
+    "LinkTargetOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "nodeKind",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "nodeKind": "system-directory",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 2,
+              "nodeKind": "module",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 3,
+              "nodeKind": "system-page",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 4,
+              "nodeKind": "page",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 5,
+              "nodeKind": "sub-page",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 6,
+              "nodeKind": "system-action",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 7,
+              "nodeKind": "ref",
+              "label": "当前页",
+              "value": "self"
+            },
+            {
+              "id": 8,
+              "nodeKind": "link",
+              "label": "Iframe",
+              "value": "iframe"
+            },
+            {
+              "id": 9,
+              "nodeKind": "link",
+              "label": "新标签页",
+              "value": "new-tab"
+            },
+            {
+              "id": 10,
+              "nodeKind": "link",
+              "label": "当前页",
+              "value": "self"
+            }
+          ]
+        }
+      },
+      "tableName": "LinkTargetOptions"
+    },
+    "RefNodeKindOptions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "profileKey",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "profileKey": "ref",
+              "label": "页面",
+              "value": "page"
+            },
+            {
+              "id": 2,
+              "profileKey": "ref",
+              "label": "系统页面",
+              "value": "system-page"
+            },
+            {
+              "id": 3,
+              "profileKey": "ref",
+              "label": "子页面",
+              "value": "sub-page"
+            },
+            {
+              "id": 4,
+              "profileKey": "ref",
+              "label": "模块",
+              "value": "module"
+            }
+          ]
+        }
+      },
+      "tableName": "RefNodeKindOptions"
+    },
+    "NodeEditorProfiles": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "profileKey",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "allowPath",
+          "type": "boolean"
+        },
+        {
+          "name": "allowLinkTarget",
+          "type": "boolean"
+        },
+        {
+          "name": "allowChildPlacement",
+          "type": "boolean"
+        },
+        {
+          "name": "allowRefId",
+          "type": "boolean"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "profileKey": "container",
+              "label": "容器节点",
+              "allowPath": true,
+              "allowLinkTarget": true,
+              "allowChildPlacement": true,
+              "allowRefId": false
+            },
+            {
+              "id": 2,
+              "profileKey": "page",
+              "label": "页面节点",
+              "allowPath": true,
+              "allowLinkTarget": true,
+              "allowChildPlacement": true,
+              "allowRefId": false
+            },
+            {
+              "id": 3,
+              "profileKey": "link",
+              "label": "外链节点",
+              "allowPath": true,
+              "allowLinkTarget": true,
+              "allowChildPlacement": true,
+              "allowRefId": false
+            },
+            {
+              "id": 4,
+              "profileKey": "ref",
+              "label": "引用节点",
+              "allowPath": false,
+              "allowLinkTarget": true,
+              "allowChildPlacement": true,
+              "allowRefId": true
+            },
+            {
+              "id": 5,
+              "profileKey": "action",
+              "label": "动作节点",
+              "allowPath": true,
+              "allowLinkTarget": true,
+              "allowChildPlacement": true,
+              "allowRefId": false
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "NodeEditorProfiles"
+    },
+    "ActionLogs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "time",
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "detail",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "time": "-",
+              "action": "页面初始化",
+              "target": "tree-demo",
+              "status": "waiting",
+              "detail": "等待远程导航数据加载"
+            }
+          ]
+        }
+      },
+      "tableName": "ActionLogs"
+    }
+  }
+}

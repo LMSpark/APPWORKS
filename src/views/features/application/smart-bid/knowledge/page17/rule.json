@@ -1,0 +1,50 @@
+[
+  {
+    "id": "bid-class-model-catalog",
+    "type": "r-section",
+    "props": {"title": "ClassModel 定义目录"},
+    "children": [
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看本次模型定义",
+              "action": "host-command",
+              "command": "bid.models.readCatalog",
+              "input": {},
+              "resultAlertTitle": "ClassModel 定义目录"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看定义签名与指南",
+              "action": "host-command",
+              "command": "bid.models.readCatalog",
+              "input": {},
+              "resultMethod": "readGuide",
+              "methodArgs": [{"$route": "modelKind"}, {"$route": "modelAction"}],
+              "resultAlertPath": "guide",
+              "resultAlertTitle": "模型或动作指南"
+            }
+          },
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查看属性指南",
+              "action": "host-command",
+              "command": "bid.models.readCatalog",
+              "input": {},
+              "resultMethod": "readAttributeGuide",
+              "methodArgs": [{"$route": "modelKind"}, {"$route": "modelAttribute"}],
+              "resultAlertPath": "guide",
+              "resultAlertTitle": "属性指南"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

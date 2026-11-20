@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/catalog",
+    "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/catalog",
+    "jsdoc": "@module app:lowcode/resources/structured-config/catalog",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-06T10:54:57.663Z",
+  "models": {}
+}

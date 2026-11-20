@@ -1,0 +1,37 @@
+{
+  "scenarioId": "47DA54EA853C8780976D43CF2369B096",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "enterprise_app_auth": {
+      "modelBinding": {"modelId": "e666fd6e-ffae-40b4-8622-b6bc2ec1e102", "modelName": "enterprise_app_auth"},
+      "columns": [{"name": "noteText", "type": "string", "label": "说明/失败原因",
+        "computeExpression": "(auth_status === 'FAILED' ? (init_error || review_comment) : (review_comment || init_error)) || '-'"}],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 20,
+        "scopeFilter": {"logic": "and", "filters": [
+          {"field": "request_type", "operator": "eq", "value": "REQUEST"},
+          {"field": "ent_shortname", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}}
+        ]},
+        "queryConfig": {"pagination": "paged", "cacheType": "none",
+          "fields": ["id", "ent_shortname", "app_id", "source_ent", "request_type", "auth_status", "requested_at", "review_comment", "init_error", "operator"]}
+      }}
+    },
+    "app_auth_status": {
+      "modelBinding": {"modelId": "a476cc7b-7d57-4f0c-addc-edd13527c54b", "modelName": "app_auth_status"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    },
+    "app_request_type": {
+      "modelBinding": {"modelId": "99e70568-a411-4506-965c-03c5a720c3e5", "modelName": "app_request_type"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["val", "txt", "ordIdx", "rowid"]}
+      }}
+    }
+  }
+}

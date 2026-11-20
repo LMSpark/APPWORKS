@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/scenarios/protocol",
+    "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+    "sourceFile": "src/lowcode/resources/repository/scenarios/protocol.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/scenarios/protocol",
+    "jsdoc": "@module app:lowcode/resources/repository/scenarios/protocol\n仓内场景开发宿主与浏览器资源适配器之间唯一的传输合同。\n本模块只包含路径、DTO 和运行时结构校验，不依赖 Node 或宿主实现。\nAI用途：浏览器客户端、Vite插件和Node存储共享同一端点及请求/响应形状。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RepositoryScenarioSuccess",
+      "RepositoryScenarioHistoryList",
+      "RepositoryScenarioVersionSuccess",
+      "RepositoryScenarioFailure"
+    ]
+  },
+  "$defs": {
+    "RepositoryScenarioSuccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioSuccess",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId",
+        "scenarioId",
+        "text",
+        "sourceRevision"
+      ],
+      "additionalProperties": false
+    },
+    "RepositoryScenarioHistoryList": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioHistoryList",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "lastModified": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "fileName",
+              "lastModified"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "resourceId",
+        "scenarioId",
+        "versions"
+      ],
+      "additionalProperties": false
+    },
+    "RepositoryScenarioVersionSuccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioVersionSuccess",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId",
+        "scenarioId",
+        "version",
+        "fileName",
+        "text",
+        "sourceRevision"
+      ],
+      "additionalProperties": false
+    },
+    "RepositoryScenarioFailure": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioFailure",
+      "properties": {
+        "resourceId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "unknown",
+            "not-applied"
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "resourceId",
+        "outcome",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.786Z",
+  "models": {
+    "RepositoryScenarioSuccess": {
+      "name": "RepositoryScenarioSuccess",
+      "jsdoc": "成功读取或写入时返回的仓内资源身份、精确原文及其 SHA-256 修订值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    text: string;\n    sourceRevision: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    text: string;\n    sourceRevision: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RepositoryScenarioHistoryList": {
+      "name": "RepositoryScenarioHistoryList",
+      "jsdoc": "仓内场景历史目录中的真实编号清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    versions: ReadonlyArray<Readonly<{\n        version: number;\n        fileName: string;\n        lastModified: number | null;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    versions: ReadonlyArray<Readonly<{\n        version: number;\n        fileName: string;\n        lastModified: number | null;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versions",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RepositoryScenarioVersionSuccess": {
+      "name": "RepositoryScenarioVersionSuccess",
+      "jsdoc": "精确编号的只读历史原文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    text: string;\n    sourceRevision: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    text: string;\n    sourceRevision: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RepositoryScenarioFailure": {
+      "name": "RepositoryScenarioFailure",
+      "jsdoc": "请求失败结果。`not-applied` 仅代表服务端能证明替换尚未开始；`unknown` 要求调用方只读核验，不能重放写入。\nresourceId 为 null 表示服务端尚未确认目标身份，客户端不得据此清除某个资源的待保存状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n    version?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n    version?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

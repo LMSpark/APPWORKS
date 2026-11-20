@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader\n职责：用固定审定范围、原批准及本次检查证明读取动作45覆盖结果。\n边界：只组合原证据；检查写入、审定决策及交付放行由原业务动作负责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "CoverageInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CoverageInput",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "ReviewTarget"
+          }
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ApprovalEvidence"
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewCheck"
+          }
+        }
+      },
+      "required": [
+        "targets",
+        "approvals",
+        "checks"
+      ],
+      "additionalProperties": false
+    },
+    "CoverageSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CoverageSelection",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "ReviewTarget"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "CoverageChecks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CoverageChecks",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "completed": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-check-evidence.ts.json#/$defs/CompletedCheck"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Finding"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ApprovalProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApprovalProof",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "FILE",
+                  "FIELD"
+                ]
+              },
+              "targetId": {
+                "type": "string"
+              },
+              "effectiveHash": {
+                "type": "string"
+              },
+              "versionHash": {
+                "type": "string"
+              },
+              "approvalRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "targetId",
+              "effectiveHash",
+              "versionHash",
+              "approvalRef"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "projectId",
+        "evidence",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "CompletedCoverageSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompletedCoverageSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "completed": {
+          "type": "array",
+          "items": {
+            "$ref": "content-review-findings-reader.ts.json#/$defs/CompletedCoverage"
+          }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "resolveAnchor": {
+          "type": "object",
+          "title": "(anchor: unknown) => Pick<Finding, \"kind\" | \"targetId\">"
+        }
+      },
+      "required": [
+        "projectId",
+        "revisionId",
+        "completed",
+        "assertCurrent",
+        "resolveAnchor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T02:10:37.702Z",
+  "models": {
+    "CoverageInput": {
+      "name": "CoverageInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof compareReviewCoverage>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "approvals",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "checks",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CoverageSelection": {
+      "name": "CoverageSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    targets: CoverageInput['targets'];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    targets: CoverageInput['targets'];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CoverageChecks": {
+      "name": "CoverageChecks",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    completed: Parameters<typeof projectReviewChecks>[0];\n    findings: Parameters<typeof projectReviewChecks>[1];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    revisionId: string;\n    completed: Parameters<typeof projectReviewChecks>[0];\n    findings: Parameters<typeof projectReviewChecks>[1];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "findings",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ApprovalProof": {
+      "name": "ApprovalProof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readApprovalCoverageEvidence>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof readApprovalCoverageEvidence>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "evidence",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CompletedCoverageSource": {
+      "name": "CompletedCoverageSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readFindingsForCompletedCoverage>[1]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "completed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolveAnchor",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

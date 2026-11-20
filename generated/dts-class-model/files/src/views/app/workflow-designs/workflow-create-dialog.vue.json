@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-create-dialog",
+    "sourcePath": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+    "sourceFile": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-create-dialog",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-create-dialog\n职责：标准组件编辑原首稿创建命令行，保存、取消和未知核验复用公共单记录生命周期。\n边界：不创建数据实例，不复制输入，不查询或写文件；确认后由宿主刷新与打开。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-09T15:44:53.521Z",
+  "models": {}
+}

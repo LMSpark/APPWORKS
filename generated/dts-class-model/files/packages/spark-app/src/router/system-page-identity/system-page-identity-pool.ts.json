@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/system-page-identity/system-page-identity-pool",
+    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/system-page-identity/system-page-identity-pool",
+    "jsdoc": "@module @spark-appworks/spark-app:router/system-page-identity/system-page-identity-pool\n职责：按导航身份与调用参数隔离原生系统页及其路由快照。\n边界：脏状态由页面owner提供；实例池不保存业务草稿，不阻止强制身份撤销。\nAI用途：定位原生页标签复用、关闭保护和生命周期释放。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SystemPageInstance",
+      "SystemPageIdentityPool"
+    ]
+  },
+  "$defs": {
+    "SystemPageInstance": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageInstance",
+      "properties": {
+        "instanceId": {
+          "type": "string"
+        },
+        "componentName": {
+          "type": "string"
+        },
+        "view": {
+          "type": "object",
+          "title": "Component"
+        },
+        "isDirty": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "instanceId",
+        "componentName",
+        "view",
+        "isDirty"
+      ],
+      "additionalProperties": false
+    },
+    "SystemPageDirtySource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageDirtySource",
+      "properties": {
+        "isDirty": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "isDirty"
+      ],
+      "additionalProperties": false
+    },
+    "SystemPageIdentityPool": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageIdentityPool",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            },
+            "owner": {
+              "$ref": "system-page-identity-resolver.ts.json#/$defs/SystemPageIdentityOwner"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "$ref": "#/$defs/SystemPageInstance"
+        },
+        "method.getById.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getById.return": {
+          "$ref": "#/$defs/SystemPageInstance"
+        },
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
+        "method.close.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.close.return": {
+          "type": "boolean"
+        },
+        "method.reconcile.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "system-page-identity-resolver.ts.json#/$defs/SystemPageIdentityOwner"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reconcile.return": {
+          "type": "boolean"
+        },
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T15:31:33.372Z",
+  "models": {
+    "SystemPageInstance": {
+      "name": "SystemPageInstance",
+      "jsdoc": "系统页实例的公开投影，不暴露导航owner、缓存键或内部脏源集合。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前调用实例身份，同页面不同参数分离。 */\n    instanceId: string;\n    /** KeepAlive使用的独立组件名称。 */\n    componentName: string;\n    /** 提供本次不可变路由快照的宿主组件。 */\n    view: Component;\n    /** 原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。 */\n    isDirty: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前调用实例身份，同页面不同参数分离。 */\n    instanceId: string;\n    /** KeepAlive使用的独立组件名称。 */\n    componentName: string;\n    /** 提供本次不可变路由快照的宿主组件。 */\n    view: Component;\n    /** 原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。 */\n    isDirty: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instanceId",
+              "jsdoc": "当前调用实例身份，同页面不同参数分离。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentName",
+              "jsdoc": "KeepAlive使用的独立组件名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "提供本次不可变路由快照的宿主组件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageDirtySource": {
+      "name": "SystemPageDirtySource",
+      "jsdoc": "原owner的只读释放条件；可用getter反映草稿、在途或待核验提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** true表示主动关闭或切换作用域前仍需处理；不表示数据权限。 */\n    isDirty: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** true表示主动关闭或切换作用域前仍需处理；不表示数据权限。 */\n    isDirty: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "isDirty",
+              "jsdoc": "true表示主动关闭或切换作用域前仍需处理；不表示数据权限。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageIdentityPool": {
+      "name": "SystemPageIdentityPool",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                },
+                {
+                  "name": "owner",
+                  "type": {
+                    "type": "reference",
+                    "name": "SystemPageIdentityOwner",
+                    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SystemPageInstance",
+                "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+              }
+            },
+            {
+              "name": "getById",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "SystemPageInstance",
+                  "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+                }
+              }
+            },
+            {
+              "name": "assertClean",
+              "jsdoc": "应用切换等主动释放前检查；身份撤销与强制退出仍直接清除实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "close",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "reconcile",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SystemPageIdentityOwner[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "reset",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

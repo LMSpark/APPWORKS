@@ -1,0 +1,33 @@
+{
+  "dataSetName": "SettingsDS",
+  "tables": {
+    "settings": {
+      "tableName": "settings",
+      "columns": [
+        {
+          "name": "siteName",
+          "type": "string"
+        },
+        {
+          "name": "siteUrl",
+          "type": "string"
+        },
+        {
+          "name": "maintenance",
+          "type": "boolean"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "siteName": "我的网站",
+              "siteUrl": "https://example.com",
+              "maintenance": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

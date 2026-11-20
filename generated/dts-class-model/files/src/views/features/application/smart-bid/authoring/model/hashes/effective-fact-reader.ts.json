@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/hashes/effective-fact-reader\n职责：一次查询同范围实际使用的固定事实版本并生成原依赖摘要。\n边界：不抓取全项目事实，不核本次用途，不写入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T00:18:15.087Z",
+  "models": {}
+}

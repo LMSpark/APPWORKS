@@ -1,0 +1,55 @@
+[
+  {
+    "id": "knowledge-guide-directory",
+    "type": "r-section",
+    "props": {"title": "知识目录与指南"},
+    "children": [
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "KnowledgeGuide@effectiveDirectory",
+          "autoColumns": false,
+          "showPagination": false,
+          "highlightCurrentRow": true,
+          "toolbar": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "读取知识目录",
+                  "action": "host-command",
+                  "command": "knowledge.directory.read",
+                  "input": {"directoryRef": {"$route": "directoryRef"}},
+                  "successMessage": "知识目录已读取"
+                }
+              }
+            ]
+          },
+          "actions": {
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "查看指南",
+                  "action": "host-command",
+                  "command": "knowledge.directory.read",
+                  "input": {"directoryRef": {"$route": "directoryRef"}},
+                  "resultMethod": "readGuide",
+                  "methodArgs": [{"$rowKey": true}, {"$row": true}],
+                  "resultAlertPath": "guide",
+                  "resultAlertTitle": "动作指南"
+                }
+              }
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "guideRef", "label": "指南", "readonly": true}},
+          {"type": "r-text", "props": {"field": "versionRef", "label": "版本", "readonly": true}},
+          {"type": "r-text", "props": {"field": "kind", "label": "类型", "readonly": true}},
+          {"type": "r-text", "props": {"field": "actionName", "label": "动作", "readonly": true}}
+        ]
+      }
+    ]
+  }
+]

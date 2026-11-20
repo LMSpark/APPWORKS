@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/layout/definition",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/layout/definition",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/definition\n职责：已实服验证的单组导出版式结构与坐标校验。\n边界：不查询、不规范化历史定义、不保存；未知成员保持原文归属。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelSingleExportLayout"
+    ]
+  },
+  "$defs": {
+    "ExcelSingleExportLayout": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelSingleExportLayout",
+      "properties": {
+        "document": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "rootTable": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "detailTable": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "form": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "list": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "block": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+        },
+        "indexes": {
+          "type": "object",
+          "properties": {
+            "form": {
+              "type": "number"
+            },
+            "list": {
+              "type": "number"
+            },
+            "block": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "form",
+            "list",
+            "block"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "document",
+        "rootTable",
+        "detailTable",
+        "form",
+        "list",
+        "block",
+        "indexes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T21:55:01.454Z",
+  "models": {
+    "ExcelSingleExportLayout": {
+      "name": "ExcelSingleExportLayout",
+      "jsdoc": "单组定义中的原对象与路径；仅供读取/显式命令操作其独立解析副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次解析的完整独立JSON对象。 */\n    document: JsonObject;\n    /** 主表物理路由定义。 */\n    rootTable: JsonObject;\n    /** 明细物理路由定义。 */\n    detailTable: JsonObject;\n    /** 固定格主表区域。 */\n    form: JsonObject;\n    /** 明细区域。 */\n    list: JsonObject;\n    /** 相对表尾区域。 */\n    block: JsonObject;\n    /** 三区域在原数组中的下标，不改写原顺序。 */\n    indexes: Readonly<{\n        form: number;\n        list: number;\n        block: number;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次解析的完整独立JSON对象。 */\n    document: JsonObject;\n    /** 主表物理路由定义。 */\n    rootTable: JsonObject;\n    /** 明细物理路由定义。 */\n    detailTable: JsonObject;\n    /** 固定格主表区域。 */\n    form: JsonObject;\n    /** 明细区域。 */\n    list: JsonObject;\n    /** 相对表尾区域。 */\n    block: JsonObject;\n    /** 三区域在原数组中的下标，不改写原顺序。 */\n    indexes: Readonly<{\n        form: number;\n        list: number;\n        block: number;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "本次解析的完整独立JSON对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootTable",
+              "jsdoc": "主表物理路由定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "detailTable",
+              "jsdoc": "明细物理路由定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "form",
+              "jsdoc": "固定格主表区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "list",
+              "jsdoc": "明细区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "block",
+              "jsdoc": "相对表尾区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "indexes",
+              "jsdoc": "三区域在原数组中的下标，不改写原顺序。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader\n职责：读取原采用记录并对照固定请求。\n边界：只提供原记录读取证明，原子结果凭据及执行终结仍须原责任域核实。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentAdoptionSelection"
+    ]
+  },
+  "$defs": {
+    "ContentAdoptionSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAdoptionSelection",
+      "properties": {
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "previewRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidateRevisionId",
+        "requestKey",
+        "requestDigest",
+        "previewRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:21:05.166Z",
+  "models": {
+    "ContentAdoptionSelection": {
+      "name": "ContentAdoptionSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidateRevisionId: string;\n    requestKey: string;\n    requestDigest: string;\n    previewRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidateRevisionId: string;\n    requestKey: string;\n    requestDigest: string;\n    previewRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidateRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

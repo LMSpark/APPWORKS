@@ -1,0 +1,318 @@
+import { describe, expect, it } from 'vitest'
+import { HttpClientBase, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
+
+import { LowcodeDesignApi } from './lowcode-design-api.js'
+
+function fixtureScope() {
+  return { token: 'scope-A', headers: { 'X-AppId': 'APP-A', 'tenant-id': 'tenant' } }
+}
+
+class FixtureHttpClient extends HttpClientBase {
+  public readonly requests: RequestConfig[] = []
+
+  public constructor(private readonly response: unknown) {
+    super()
+  }
+
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    this.requests.push(config)
+    return {
+      data: this.response,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+    }
+  }
+}
+
+describe('LowcodeDesignApi', () => {
+  it('lists only canonical snapshots for the exact file with actual timestamps', async () => {
+    const http = new FixtureHttpClient({ Code: 200, Result: [
+      { name: 'rule.json', lastModified: 10 }, { name: '2__rule.json', lastModified: 20 },
+      { name: '0__rule.json' }, { name: '01__rule.json' }, { name: '-1__rule.json' },
+      { name: '3__rule.json.bak' }, { name: '4__script.js' },
+    ] })
+    await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).listFileVersions({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).resolves.toEqual([
+      { version: 2, fileName: '2__rule.json', lastModified: 20 },
+      { version: 0, fileName: '0__rule.json', lastModified: null },
+    ])
+  })
+
+  it('rejects unsafe snapshot numbers instead of rounding their identities', async () => {
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ name: '9007199254740992__rule.json' }] })
+    await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).listFileVersions({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).rejects.toThrow('安全范围')
+  })
+
+  it('deletes with backend request parameters and confirms absence', async () => {
+    const http = new FixtureHttpClient({ Code: 200, Result: [] })
+    await new LowcodeDesignApi({ http, readScope: fixtureScope }).removeFile({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
+    })
+    expect(http.requests[0]).toMatchObject({ url: '/api/File/RemoveFile', method: 'POST', retry: 0,
+      params: { customPath: 'APP-A/page', fileName: '2__rule.json', appType: 'designfile' },
+      headers: fixtureScope().headers })
+    expect(http.requests[1]?.url).toBe('/api/File/list')
+  })
+
+  it.each([403, 404])('preserves deletion uncertainty when post-success listing returns %s', async code => {
+    class DeleteThenDeniedList extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        return {data: config.url === '/api/File/RemoveFile' ? {Code: 200} : {Code: code, Message: 'listing denied after delete'}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new DeleteThenDeniedList()
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({message: expect.stringContaining('核验'), fileResourceMutationMayHaveApplied: true, cause: {code}})
+    expect(http.requests.map(request => request.url)).toEqual(['/api/File/RemoveFile', '/api/File/list'])
+    expect(http.requests[0]?.retry).toBe(0)
+  })
+
+  it('does not confirm deletion while the file still exists', async () => {
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ name: '2__rule.json' }] })
+    await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).removeFile({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
+    })).rejects.toThrow('删除后仍存在')
+  })
+
+  it.each([1, 2])('does not confirm deletion when request %s changes the application scope', async stage => {
+    let token = 'scope-A'
+    let requests = 0
+    const http = new FixtureHttpClient({ Code: 200, Result: [] })
+    http.interceptors.request.use({ onRequest: config => {
+      if (++requests === stage) token = 'scope-B'
+      return config
+    } })
+    await expect(new LowcodeDesignApi({ http, readScope: () => ({ ...fixtureScope(), token }) }).removeFile({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
+    })).rejects.toMatchObject({message: expect.stringContaining('SPARK_EXECUTION_SCOPE_STALE'), fileResourceMutationMayHaveApplied: true})
+  })
+
+  it('keeps a malformed post-dispatch deletion envelope unconfirmed', async () => {
+    const http = new FixtureHttpClient('invalid deletion envelope')
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true, cause: {code: 0}})
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it.each([408, 500])('keeps a potentially applied deletion response %s unconfirmed without retrying', async code => {
+    const http = new FixtureHttpClient({Code: code, Message: 'mutation outcome not confirmed'})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true, cause: {code}})
+    expect(http.requests).toHaveLength(1)
+    expect(http.requests[0]?.retry).toBe(0)
+  })
+
+  it('preserves a publisher denial without a retry or confirmation list', async () => {
+    const http = new FixtureHttpClient({ Code: 403, Message: 'publisher only' })
+    await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).removeFile({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
+    })).rejects.toMatchObject({code: 403, message: expect.stringContaining('publisher only')})
+    expect(http.requests).toHaveLength(1)
+  })
+  it.each(['text', 'bytes', 'list'])('rejects a %s result after the request identity changes', async kind => {
+    let token = 'scope-A'
+    const response = kind === 'bytes' ? new Uint8Array([1]).buffer
+      : { Code: 200, Result: kind === 'text' ? '{}' : [] }
+    const http = new FixtureHttpClient(response)
+    http.interceptors.request.use({ onRequest: config => {
+      token = 'scope-B'
+      return config
+    } })
+    const api = new LowcodeDesignApi({ http, readScope: () => ({ ...fixtureScope(), token }) })
+    const locator = { appType: 'designfile', customPath: 'SysForm/scene', fileName: 'pagedata.json' }
+    const pending = kind === 'text' ? api.readTextFile(locator)
+      : kind === 'bytes' ? api.readFileBytes(locator) : api.listFiles({ appType: 'designfile', folderPath: 'SysForm/scene' })
+    await expect(pending).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(http.requests[0]?.headers?.['X-AppId']).toBe('APP-A')
+  })
+
+  it.each([{ bytes: [] }, { bytes: [239, 187, 191, 13, 10, 0, 255] }])('reads original bytes $bytes without text decoding', async ({ bytes }) => {
+    const source = new Uint8Array(bytes)
+    const http = new FixtureHttpClient(source.buffer)
+    const api = new LowcodeDesignApi({ http, readScope: fixtureScope })
+    await expect(api.readFileBytes({ appType: 'designfile', customPath: 'SysForm/scene', fileName: 'pagedata.json' })).resolves.toEqual(source)
+    expect(http.requests).toEqual([expect.objectContaining({
+      url: '/api/File/DownFile', method: 'POST', responseType: 'arraybuffer', cache: false,
+      meta: { rawEnvelope: true },
+      data: { customPath: 'SysForm/scene', fileName: 'pagedata.json', appType: 'designfile', isCrossEnt: false, isReplace: true, content: null, convertType: 0 },
+    })])
+  })
+
+  it.each(['typed-array', 'data-view'])('reads only the selected %s byte range without retaining its backing buffer', async kind => {
+    const source = new Uint8Array([222, 239, 187, 191, 0, 255, 111])
+    const selected = kind === 'typed-array' ? source.subarray(1, 6) : new DataView(source.buffer, 1, 5)
+    const api = new LowcodeDesignApi({ http: new FixtureHttpClient(selected), readScope: fixtureScope })
+    const bytes = await api.readFileBytes({ appType: 'jsondatapath', customPath: '', fileName: 'owned.json' })
+    expect([...bytes]).toEqual([239, 187, 191, 0, 255])
+    source[1] = 0
+    expect(bytes[0]).toBe(239)
+  })
+
+  it('rejects a JSON envelope where download bytes are required', async () => {
+    const api = new LowcodeDesignApi({ http: new FixtureHttpClient({ Code: 200, Result: '' }), readScope: fixtureScope })
+    await expect(api.readFileBytes({ appType: 'designfile', customPath: 'SysForm/scene', fileName: 'pagedata.json' })).rejects.toThrow('文件下载响应不是 ArrayBuffer')
+  })
+
+  it('reads text with the source-faithful FileInfo body', async () => {
+    const http = new FixtureHttpClient({ Code: 200, Result: '{"page":true}' })
+    const api = new LowcodeDesignApi({ http, readScope: fixtureScope })
+
+    await expect(api.readTextFile({
+      appType: 'designfile',
+      customPath: 'homepage/dashboard',
+      fileName: 'pagedata.json',
+    })).resolves.toBe('{"page":true}')
+
+    expect(http.requests).toEqual([expect.objectContaining({
+      url: '/api/File/content/text',
+      method: 'POST',
+      headers: { 'X-AppId': 'APP-A', 'tenant-id': 'tenant' },
+      data: {
+        customPath: 'homepage/dashboard',
+        fileName: 'pagedata.json',
+        appType: 'designfile',
+        isCrossEnt: false,
+        isReplace: true,
+        content: null,
+        convertType: 0,
+      },
+    })])
+  })
+
+  it('reads a validated file modification time with the source-faithful locator', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: '2026-11-19 13:20:30 123'})
+    const api = new LowcodeDesignApi({http, readScope: fixtureScope})
+    await expect(api.readFileLastModified({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).resolves.toBe('2026-11-19 13:20:30 123')
+    expect(http.requests).toEqual([expect.objectContaining({
+      url: '/api/File/lastModifiedTime',
+      method: 'POST',
+      headers: fixtureScope().headers,
+      data: expect.objectContaining({
+        customPath: 'APP-A/page', fileName: 'rule.json', appType: 'designfile',
+      }),
+    })])
+  })
+
+  it('uses a strict File V2 stat sha256 etag without reading V1 bytes', async () => {
+    const sha256='ab'.repeat(32)
+    const http = new FixtureHttpClient({Code: 200, Result: {size: 4, contentType: 'text/plain', lastModified: 10, etag: sha256}})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).readFileHash({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).resolves.toBe(sha256)
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat'])
+  })
+
+  it('falls back to a V1 byte hash when V2 stat exists without a content hash', async () => {
+    const bytes=new Uint8Array([1,2,3])
+    class StatWithoutEtag extends FixtureHttpClient {
+      protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        if(config.url==='/api/File/v2/stat')return {data:{Code:200,Result:{size:3,etag:''}},status:200,statusText:'OK',headers:{}}
+        return {data:bytes.buffer,status:200,statusText:'OK',headers:{}}
+      }
+    }
+    const http=new StatWithoutEtag(new Uint8Array())
+    const expected=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer))]
+      .map(value=>value.toString(16).padStart(2,'0')).join('')
+    await expect(new LowcodeDesignApi({http,readScope:fixtureScope}).readFileHash({
+      appType:'designfile',customPath:'APP-A/page',fileName:'rule.json',
+    })).resolves.toBe(expected)
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat','/api/File/DownFile'])
+  })
+
+  it('does not fall back after V2 stat responds in a stale scope', async () => {
+    let token='scope-A'
+    const http=new FixtureHttpClient({Code:200,Result:{etag:'ab'.repeat(32)}})
+    http.interceptors.request.use({onRequest:config=>{token='scope-B';return config}})
+    await expect(new LowcodeDesignApi({http,readScope:()=>({...fixtureScope(),token})}).readFileHash({
+      appType:'designfile',customPath:'APP-A/page',fileName:'rule.json',
+    })).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/stat'])
+  })
+
+  it.each([null, 1, '', '2026-11-19'])('rejects malformed file modification time %j', async result => {
+    const api = new LowcodeDesignApi({
+      http: new FixtureHttpClient({Code: 200, Result: result}),
+      readScope: fixtureScope,
+    })
+    await expect(api.readFileLastModified({
+      appType: 'designfile', customPath: 'APP-A/page', fileName: 'rule.json',
+    })).rejects.toThrow('yyyy-MM-dd HH:mm:ss SSS')
+  })
+
+  it('lists complete validated file entries from the actual list endpoint', async () => {
+    const http = new FixtureHttpClient({
+      Code: 200,
+      Result: [
+        { name: 'pagedata.json', lastModified: 123 },
+        { name: 'rule.json', lastModified: null },
+      ],
+    })
+    const api = new LowcodeDesignApi({ http, readScope: fixtureScope })
+
+    await expect(api.listFiles({
+      appType: 'designfile',
+      folderPath: 'homepage/dashboard',
+    })).resolves.toEqual([
+      { name: 'pagedata.json', lastModified: 123 },
+      { name: 'rule.json', lastModified: null },
+    ])
+  })
+  it.each([
+    [{lastModified: 1}], [{name: 'ok.json'}, null], Array(1),
+    [{name: 'same.json'}, {name: 'same.json'}],
+    [{name: '../other.json'}], [{name: '.'}], [{name: ''}],
+    [{name: 'ok.json', lastModified: 'unknown'}],
+    [{name: 'ok.json', lastModified: 0.5}],
+    [{name: 'ok.json', lastModified: Number.MAX_SAFE_INTEGER + 1}],
+  ].map(entries => ({entries})))('rejects the entire malformed directory batch %#', async ({entries}) => {
+    const http = new FixtureHttpClient({Code: 200, Result: entries})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: ''})).rejects.toThrow()
+  })
+
+  it('retains uncertainty after one delete when the confirmation list is malformed', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{lastModified: 1}]})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true})
+    expect(http.requests.map(request => request.url)).toEqual(['/api/File/RemoveFile', '/api/File/list'])
+  })
+
+  it('preserves exact whitespace in directory and file identities', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: 'text'})
+    await new LowcodeDesignApi({http, readScope: fixtureScope}).readTextFile({appType: 'jsondatapath', customPath: ' owned ', fileName: ' payload.json '})
+    expect(http.requests[0]?.data).toMatchObject({customPath: ' owned ', fileName: ' payload.json '})
+    const list = new FixtureHttpClient({Code: 200, Result: [{name: ' payload.json ', lastModified: 0}, {name: ' ', lastModified: null}]})
+    await expect(new LowcodeDesignApi({http: list, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: ' owned.with.dot '})).resolves.toHaveLength(2)
+    expect(list.requests[0]?.data).toMatchObject({folderPath: ' owned.with.dot '})
+  })
+
+  it.each(['readTextFile', 'readFileBytes', 'removeFile'] as const)('rejects known ambiguous dotted content paths before %s dispatch', async operation => {
+    const http = new FixtureHttpClient({Code: 200, Result: ''})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope})[operation]({appType: 'jsondatapath', customPath: 'owned.v1', fileName: 'payload.json'})).rejects.toThrow('customPath')
+    expect(http.requests).toEqual([])
+  })
+
+  it('confirms deletion only in the originally captured directory', async () => {
+    const locator = {appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json'}
+    class MutatingClient extends FixtureHttpClient {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (config.url === '/api/File/RemoveFile') Object.assign(locator, {appType: 'designfile', customPath: 'other', fileName: 'other.json'})
+        return super.executeRequest(config)
+      }
+    }
+    const http = new MutatingClient({Code: 200, Result: []})
+    await new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile(locator)
+    expect(http.requests[1]?.data).toEqual({appType: 'jsondatapath', folderPath: 'owned'})
+  })
+
+  it.each([undefined, null])('rejects a missing runtime folder identity instead of listing root: %s', async folderPath => {
+    const http = new FixtureHttpClient({Code: 200, Result: []})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: folderPath as unknown as string})).rejects.toThrow()
+    expect(http.requests).toEqual([])
+  })
+
+})

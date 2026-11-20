@@ -1,0 +1,1258 @@
+{
+  "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+  "tables": {
+    "Base_WorkflowDefinition": {
+      "modelBinding": {
+        "modelId": "ef912d1c-027e-4e0c-a703-d5ccce2574cc",
+        "modelName": "Base_WorkflowDefinition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": true,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name",
+              "workflow_key",
+              "description",
+              "status",
+              "sysid",
+              "tblid",
+              "tblName",
+              "dbName",
+              "activeType",
+              "tableOperate",
+              "filter",
+              "timeExp"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "6ef78ae1-e97e-4749-8f3a-5b2f01ba0995",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": ""},
+          "queryConfig": {"fields": ["rowid", "Type", "inputParams"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "Type", "operator": "eq", "value": "workflow"}
+            ]
+          }
+        }
+      }
+    },
+    "Base_WorkflowNodeDefinition": {
+      "modelBinding": {
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "modelName": "Base_WorkflowNodeDefinition"
+      },
+      "views": {
+        "start": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": ""},
+          "queryConfig": {"fields": ["rowid", "workflow_id", "position_type", "name", "output_mapping"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "workflow_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "position_type", "operator": "eq", "value": "0"}
+            ]
+          }
+        },
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "workflow_id",
+              "name",
+              "description",
+              "node_key",
+              "node_type",
+              "position_type",
+              "dataOperateModId",
+              "input_mapping",
+              "output_mapping",
+              "node_config",
+              "config"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "workflow_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "Base_WorkflowConnectors": {
+      "modelBinding": {
+        "modelId": "4f5525d8-07d9-47c2-ac31-dc59ca00966e",
+        "modelName": "Base_WorkflowConnectors"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "workflow_id",
+              "name",
+              "description",
+              "sourceID",
+              "targetID",
+              "params"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "workflow_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "WorkflowLayout": {
+      "resourceType": "file",
+      "resourceId": "workflow-definition:layout",
+      "columns": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "fileName",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {
+            "workflowId": ""
+          }
+        }
+      }
+    },
+    "Base_DataModel": {
+      "modelBinding": {
+        "modelId": "2ce52b10-5aeb-4422-98f7-5da8e05898f0",
+        "modelName": "Base_DataModel"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "autoSelectFirst": true,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": "",
+            "modelId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "Name",
+              "MetaName",
+              "description",
+              "Type",
+              "DbName",
+              "OutputType",
+              "requestType",
+              "Filter"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "dataSetId",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "workflowId"
+                }
+              },
+              {
+                "field": "rowid",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "modelId"
+                }
+              }
+            ]
+          }
+        },
+        "modelCatalog": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "dataSpaceId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "Name",
+              "MetaName",
+              "description",
+              "Type",
+              "DbId",
+              "DbName",
+              "JoinType",
+              "ForeignKeyFields",
+              "JoinFilter",
+              "PId",
+              "requestType",
+              "Filter",
+              "RequestComplete",
+              "OutputType",
+              "parentField",
+              "PrimaryKeyFields",
+              "hasChildField",
+              "selfType",
+              "topValue",
+              "cacheType",
+              "IsBusiness",
+              "IsBusinessMain",
+              "addApi",
+              "updateApi",
+              "deleteApi",
+              "items"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dataSpaceId"
+            }
+          }
+        }
+      }
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "modelName": "Base_DataModel_Field"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "dataModelId",
+              "Name",
+              "AsName",
+              "description",
+              "type",
+              "FieldType",
+              "IsOutput",
+              "IsPKey",
+              "Expression",
+              "allowAIAdd",
+              "ValueFun",
+              "OrderType",
+              "Order",
+              "Group"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        },
+        "modelInputFields": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "dataSpaceId": "",
+            "modelIds": []
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "dataModelId",
+              "Name",
+              "AsName",
+              "description",
+              "type",
+              "FieldType",
+              "IsOutput",
+              "IsPKey",
+              "Expression",
+              "ValueFun",
+              "allowAIAdd",
+              "OrderType",
+              "Order",
+              "Group"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "dataSetId",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "dataSpaceId"
+                }
+              },
+              {
+                "field": "dataModelId",
+                "operator": "in",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "modelIds"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "Base_DataModel_Relation": {
+      "modelBinding": {
+        "modelId": "7b1969e4-20a7-4710-8aa3-8e9dccca0a9c",
+        "modelName": "Base_DataModel_Relation"
+      },
+      "views": {
+        "connector": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": "", "sourceNodeId": "", "targetNodeId": ""},
+          "queryConfig": {"fields": ["rowid", "dataSetId", "parentModId", "childModId", "parentTable", "childTable", "depType", "filter", "cascadeDel", "description"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "parentModId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "sourceNodeId"}},
+              {"field": "childModId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "targetNodeId"}}
+            ]
+          }
+        },
+        "asParent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "parentModId",
+              "childModId",
+              "parentTable",
+              "childTable",
+              "description",
+              "depType",
+              "filter",
+              "cascadeDel"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        },
+        "asChild": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "parentModId",
+              "childModId",
+              "parentTable",
+              "childTable",
+              "description",
+              "depType",
+              "filter",
+              "cascadeDel"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        },
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "parentModId",
+              "childModId",
+              "parentTable",
+              "childTable",
+              "description",
+              "depType",
+              "filter",
+              "cascadeDel"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "View_TblList": {
+      "modelBinding": {
+        "modelId": "045d98fa-e0b7-4361-ae05-670abba38d9c",
+        "modelName": "View_TblList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "_Base_DictType": {
+      "modelBinding": {
+        "modelId": "642b9697-ac17-4e12-8e71-fe2ef60b8756",
+        "modelName": "_Base_DictType"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_DataServiceInterface": {
+      "modelBinding": {
+        "modelId": "d8a3cca4-2ddf-43e4-a03b-186f0c90d344",
+        "modelName": "Base_DataServiceInterface"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_JsonData": {
+      "modelBinding": {
+        "modelId": "ac898e41-1867-4465-9b83-22828666c494",
+        "modelName": "Base_JsonData"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_DataViewList": {
+      "modelBinding": {
+        "modelId": "76dc1bd7-6b56-4af7-aef5-3e7cd389099c",
+        "modelName": "Base_DataViewList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "View_ViewList": {
+      "modelBinding": {
+        "modelId": "c916ac15-27cf-4b4a-b9f1-bad9f25b26d7",
+        "modelName": "View_ViewList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_TblField": {
+      "modelBinding": {
+        "modelId": "03664d15-ee7e-4bdf-a896-005edbf783dd",
+        "modelName": "Base_TblField"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "_Base_ParamList": {
+      "modelBinding": {
+        "modelId": "3a9ac554-dfba-4c63-b6be-f3b0bf778121",
+        "modelName": "_Base_ParamList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "WorkflowExecution": {
+      "resourceType": "command",
+      "resourceId": "workflow:execution-test",
+      "columns": [
+        {
+          "name": "commandId",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "mode",
+          "type": "string"
+        },
+        {
+          "name": "nodeId",
+          "type": "string"
+        },
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        },
+        {
+          "name": "completeness",
+          "type": "string"
+        },
+        {
+          "name": "result",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "pagination": "none"
+          }
+        }
+      }
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "workflow-model-fields",
+      "parentTable": "Base_DataModel",
+      "parentViewId": "default",
+      "childTable": "Base_DataModel_Field",
+      "childViewId": "default",
+      "autoLoad": true,
+      "filterBindings": [
+        {
+          "targetField": "dataModelId",
+          "operator": "in"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "workflow-model-parent-relations",
+      "parentTable": "Base_DataModel",
+      "parentViewId": "default",
+      "childTable": "Base_DataModel_Relation",
+      "childViewId": "asParent",
+      "autoLoad": true,
+      "filterBindings": [
+        {
+          "targetField": "parentModId",
+          "operator": "in"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "workflow-model-child-relations",
+      "parentTable": "Base_DataModel",
+      "parentViewId": "default",
+      "childTable": "Base_DataModel_Relation",
+      "childViewId": "asChild",
+      "autoLoad": true,
+      "filterBindings": [
+        {
+          "targetField": "childModId",
+          "operator": "in"
+        }
+      ]
+    }
+  ]
+}

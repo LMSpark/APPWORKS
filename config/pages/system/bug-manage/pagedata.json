@@ -1,0 +1,49 @@
+{
+  "scenarioId": "5B54AEBD5BD1BBC72710D4022589A404",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_Bug_Info": {
+      "modelBinding": {"modelId": "bf126c2a-273c-4387-964b-a00bdfdeec14", "modelName": "Base_Bug_Info"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "",
+        "page": 1, "pageSize": 15,
+        "queryConfig": {"fields": ["rowid", "SystemID", "Title", "FormPath", "FkType", "checkName", "CompleteUserID",
+          "CompleteUserName", "State", "CreateTime", "CreateUserName", "Content"]}
+      }}
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "28f6cc08-2d27-4e7e-9804-56e98e365f9a", "modelName": "Base_AppSystemList"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "valueField": "rowid", "labelField": "AppDesc",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "AppDesc", "AppName"]}
+      }}
+    },
+    "FkType_Zd": {
+      "modelBinding": {"modelId": "509ed6b4-502c-466e-8435-ecc74e0c5ab1", "modelName": "FkType_Zd"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    },
+    "bug_State": {
+      "modelBinding": {"modelId": "1444e160-d486-46b7-b17b-a9a5f85bf479", "modelName": "bug_State"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "a6a06501-ea4b-4a14-9174-6988103ca9e1", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "valueField": "ID", "labelField": "UserName",
+        "queryConfig": {"allPages": true, "fields": ["ID", "UserName"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

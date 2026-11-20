@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldText/FieldText.props",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldText/FieldText.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/text/FieldText/FieldText.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldText/FieldText.props\n职责：定义 FieldText（r-text）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 field text 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RTextProps"
+    ],
+    "componentName": "FieldText",
+    "componentType": "r-text",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "RTextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RTextProps",
+      "properties": {
+        "filterTrim": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "filterAlternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "operator": {
+                "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+              }
+            },
+            "required": [
+              "field",
+              "operator"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "displayValueMap": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "displayFallbackFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "showCellControl": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "maxlength": {
+          "type": "number"
+        },
+        "emptyText": {
+          "type": "string"
+        },
+        "showPassword": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "prefixIcon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.displayFormatter.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.displayFormatter.return": {
+          "type": "string"
+        },
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        },
+        "method.cellAction.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellAction.return": true,
+        "method.cellActionEnabled.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellActionEnabled.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T17:53:48.651Z",
+  "models": {
+    "RTextProps": {
+      "name": "RTextProps",
+      "jsdoc": "RText Props 的属性契约；valuePath 时编辑源字段内的文本成员。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldText",
+        "type": "r-text",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & SparkFieldMemberProps & {\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 配置驱动的只读值映射；命中时替换显示文本，不改变 DataView 原值。 */\n    displayValueMap?: Readonly<Record<string, string>>;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。 */\n    cellAction?: (row: Readonly<DataRow>) => void;\n    /** 收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。 */\n    cellActionEnabled?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<string>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldMemberProps",
+            "targetName": "SparkFieldMemberProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */\n    filterTrim?: boolean;\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 配置驱动的只读值映射；命中时替换显示文本，不改变 DataView 原值。 */\n    displayValueMap?: Readonly<Record<string, string>>;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。 */\n    cellAction?: (row: Readonly<DataRow>) => void;\n    /** 收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。 */\n    cellActionEnabled?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n    /** 表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。 */\n    prefixIcon?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filterTrim",
+              "jsdoc": "常用文本筛选在生成条件前去除首尾空白；默认保留原输入。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterAlternatives",
+              "jsdoc": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayValueMap",
+              "jsdoc": "配置驱动的只读值映射；命中时替换显示文本，不改变 DataView 原值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayFallbackFields",
+              "jsdoc": "只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxlength",
+              "jsdoc": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showPassword",
+              "jsdoc": "表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefixIcon",
+              "jsdoc": "表单输入框前缀图标，取 Element Plus 图标组件名（同 RendererButton.icon）；未知名称不显示，只影响呈现。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "displayFormatter",
+              "jsdoc": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "cellAction",
+              "jsdoc": "表格只读单元格以链接呈现，点击时以该行调用；隐藏/脱敏单元格不呈现链接。只触发调用方动作，不改变值、行指针或权限；showCellControl时不生效。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cellActionEnabled",
+              "jsdoc": "收窄cellAction可用的行，返回false时按普通文本呈现；省略时所有可读行均可点击。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

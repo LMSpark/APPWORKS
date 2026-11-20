@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/response/original-form-mapping",
+    "sourcePath": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+    "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/response/original-form-mapping",
+    "jsdoc": "@module app:services/smart-bid/content/references/response/original-form-mapping\n职责：动作33核原表版本、填写方与业务字段到行栏的映射。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Cell": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Cell",
+      "properties": {
+        "cellRef": {
+          "type": "string"
+        },
+        "rowRef": {
+          "type": "string"
+        },
+        "columnRef": {
+          "type": "string"
+        },
+        "meaningRef": {
+          "type": "string"
+        },
+        "fillerRef": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "displayRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cellRef",
+        "rowRef",
+        "columnRef",
+        "meaningRef",
+        "fillerRef",
+        "unit",
+        "displayRef"
+      ],
+      "additionalProperties": false
+    },
+    "Mapping": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Mapping",
+      "properties": {
+        "fieldRef": {
+          "type": "string"
+        },
+        "cellRef": {
+          "type": "string"
+        },
+        "meaningRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fieldRef",
+        "cellRef",
+        "meaningRef"
+      ],
+      "additionalProperties": false
+    },
+    "Original": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Original",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "formRef": {
+          "type": "string"
+        },
+        "formVersion": {
+          "type": "string"
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Cell"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T16:00:20.509Z",
+  "models": {
+    "Cell": {
+      "name": "Cell",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    cellRef: string;\n    rowRef: string;\n    columnRef: string;\n    meaningRef: string;\n    fillerRef: string;\n    unit: string | null;\n    displayRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    cellRef: string;\n    rowRef: string;\n    columnRef: string;\n    meaningRef: string;\n    fillerRef: string;\n    unit: string | null;\n    displayRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "cellRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rowRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meaningRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fillerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Mapping": {
+      "name": "Mapping",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fieldRef: string;\n    cellRef: string;\n    meaningRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fieldRef: string;\n    cellRef: string;\n    meaningRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meaningRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Original": {
+      "name": "Original",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    formRef: string;\n    formVersion: string;\n    cells: readonly Cell[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    formRef: string;\n    formVersion: string;\n    cells: readonly Cell[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cells",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

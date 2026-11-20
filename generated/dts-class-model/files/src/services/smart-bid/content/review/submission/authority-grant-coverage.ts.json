@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/authority-grant-coverage",
+    "sourcePath": "src/services/smart-bid/content/review/submission/authority-grant-coverage.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-coverage.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/authority-grant-coverage",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/authority-grant-coverage\n职责：第27项按办理和获知时点核已有登记委托链的代表权。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Grant": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Grant",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "intent": {
+          "enum": [
+            "REGISTER",
+            "CHANGE",
+            "REVOKE"
+          ]
+        },
+        "decisionRef": {
+          "type": "string"
+        },
+        "decisionMakerId": {
+          "type": "string"
+        },
+        "decisionAuthorityRef": {
+          "type": "string"
+        },
+        "representativeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "objectRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "effectiveAt": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "expectedVersion",
+        "intent",
+        "decisionRef",
+        "decisionMakerId",
+        "decisionAuthorityRef",
+        "representativeId",
+        "projectId",
+        "actions",
+        "objectRefs",
+        "effectiveAt",
+        "expiresAt",
+        "knownAt"
+      ],
+      "additionalProperties": false
+    },
+    "Version": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Version",
+      "properties": {
+        "versionId": {
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/$defs/Grant"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T04:30:50.930Z",
+  "models": {
+    "Grant": {
+      "name": "Grant",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>['record']",
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "intent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionMakerId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "decisionAuthorityRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "representativeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "actions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "objectRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expiresAt",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Version": {
+      "name": "Version",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    versionId: string;\n    record: Grant;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    versionId: string;\n    record: Grant;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "record",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

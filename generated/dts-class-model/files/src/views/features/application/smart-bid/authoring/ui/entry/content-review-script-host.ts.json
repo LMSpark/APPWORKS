@@ -1,0 +1,614 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-review-script-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-review-script-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-review-script-host\n职责：为页12同次运行实例提供实填观察和审定覆盖证据。\n边界：只读取原选择与证据，批准及写入仍由正式办理方负责。\nAI用途：核对页12脚本命令、审定范围和证据失效条件。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Review": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Review",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Host"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "ReviewTarget"
+              }
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "FileTarget"
+              }
+            },
+            "approvalIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "revisionId",
+            "targets",
+            "files",
+            "approvalIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "openFile": {
+              "type": "object",
+              "title": "OpenAuthorized"
+            },
+            "readField": {
+              "type": "object",
+              "title": "(input: Readonly<{ projectId: string; revisionId: string; fieldId: string; }>) => Promise<Readonly<{ projectId: string; revisionId: string; assignmentId: string; ... 6 more ...; assertCurrent: () => void; }>>"
+            },
+            "readDecision": {
+              "type": "object",
+              "title": "(ref: string) => Promise<Readonly<{ projectId: string; revisionId: string; approvalRef: string; authorityRef: string; decisionTraceRef: string; approvalEffectiveHash: string; approvedTargets: unknown; assertCurrent: () => void; }>>"
+            },
+            "readCompleted": {
+              "type": "object",
+              "title": "(input: Readonly<{ projectId: string; revisionId: string; targets: readonly ReviewTarget[]; }>) => Promise<Readonly<{ projectId: string; revisionId: string; completed: readonly CompletedCoverage[]; assertCurrent: () => void; resolveAnchor: (anchor: unknown) => Pick<Finding, \"kind\" | \"targetId\">; }>>"
+            }
+          },
+          "required": [
+            "openFile",
+            "readField",
+            "readDecision",
+            "readCompleted"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Observation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "Observation",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Host"
+        },
+        {
+          "type": "object",
+          "title": "ApprovedField"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observationId": {
+              "type": "string"
+            },
+            "stage": {
+              "enum": [
+                "SAVED",
+                "SUBMITTED"
+              ]
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "receiptRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "observationId",
+            "stage",
+            "attemptRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "FormVerification": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "FormVerification",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "producedFileId": {
+                  "type": "string"
+                },
+                "productionRequestRef": {
+                  "type": "string"
+                },
+                "revisionId": {
+                  "type": "string"
+                },
+                "documentId": {
+                  "type": "string"
+                },
+                "versionHash": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "projectId",
+                "producedFileId",
+                "productionRequestRef",
+                "revisionId",
+                "documentId",
+                "versionHash",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            },
+            "observationId": {
+              "type": "string"
+            },
+            "locationRef": {
+              "type": "string"
+            },
+            "observedValueJson": {
+              "type": "string"
+            },
+            "unit": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "file",
+            "observationId",
+            "locationRef",
+            "observedValueJson",
+            "unit",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "formRef": {
+              "type": "string"
+            },
+            "formVersion": {
+              "type": "string"
+            },
+            "mappings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fieldRef": {
+                    "type": "string"
+                  },
+                  "cell": {
+                    "type": "object",
+                    "properties": {
+                      "cellRef": {
+                        "type": "string"
+                      },
+                      "rowRef": {
+                        "type": "string"
+                      },
+                      "columnRef": {
+                        "type": "string"
+                      },
+                      "meaningRef": {
+                        "type": "string"
+                      },
+                      "fillerRef": {
+                        "type": "string"
+                      },
+                      "unit": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "displayRef": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "cellRef",
+                      "rowRef",
+                      "columnRef",
+                      "meaningRef",
+                      "fillerRef",
+                      "unit",
+                      "displayRef"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "fieldRef",
+                  "cell"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "formRef",
+            "formVersion",
+            "mappings",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fieldRef": {
+              "type": "string"
+            },
+            "formRef": {
+              "type": "string"
+            },
+            "formVersion": {
+              "type": "string"
+            },
+            "cellRef": {
+              "type": "string"
+            },
+            "locationRef": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "producedFileId": {
+              "type": "string"
+            },
+            "fileHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "fieldRef",
+            "formRef",
+            "formVersion",
+            "cellRef",
+            "locationRef",
+            "revisionId",
+            "producedFileId",
+            "fileHash",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ProductionRecovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "ProductionRecovery",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Request"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "lookup": {
+              "type": "object",
+              "title": "(request: Request) => Promise<Outcome | undefined>"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "lookup",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SignedRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "SignedRegistration",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "producedFileId": {
+              "type": "string"
+            },
+            "objectVersion": {
+              "type": "string"
+            },
+            "versionHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "documentId",
+            "revisionId",
+            "producedFileId",
+            "objectVersion",
+            "versionHash",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "$ref": "../../../../../../../services/smart-bid/content/review/production/signed-output-registration.ts.json#/$defs/SignedReceipt"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "recovered": {
+              "$ref": "../../../../../../../services/smart-bid/content/review/production/signed-output-registration.ts.json#/$defs/Recovered"
+            },
+            "open": {
+              "type": "object",
+              "title": "(input: Readonly<{ projectId: string; resourceVersionId: string; }>) => Promise<Readonly<{ projectId: string; resourceVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+            }
+          },
+          "required": [
+            "recovered",
+            "open"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PaperRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "PaperRegistration",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "title": "Prepared"
+        },
+        {
+          "$ref": "../../../../../../../services/smart-bid/content/review/production/paper-output-registration.ts.json#/$defs/Paper"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "documentId": {
+              "type": "string"
+            },
+            "inputDigest": {
+              "type": "string"
+            },
+            "productionRequestRef": {
+              "type": "string"
+            },
+            "paperRef": {
+              "type": "string"
+            },
+            "copies": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../services/smart-bid/content/review/production/paper-output-registration.ts.json#/$defs/Copy"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "witnessRef": {
+              "type": "string"
+            },
+            "complete": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "projectId",
+            "revisionId",
+            "requestKey",
+            "documentId",
+            "inputDigest",
+            "productionRequestRef",
+            "paperRef",
+            "copies",
+            "assertCurrent",
+            "witnessRef",
+            "complete"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-20T11:30:15.702Z",
+  "models": {
+    "Review": {
+      "name": "Review",
+      "jsdoc": "审定覆盖工作区的宿主、固定范围与证据读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readContentReviewWorkspace>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readContentReviewWorkspace>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Observation": {
+      "name": "Observation",
+      "jsdoc": "平台实填观察和原批准依据的读取合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readPlatformFieldObservation>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof readPlatformFieldObservation>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FormVerification": {
+      "name": "FormVerification",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof verifyOriginalFormFileAnswer>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof verifyOriginalFormFileAnswer>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProductionRecovery": {
+      "name": "ProductionRecovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof recoverProductionRequest>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof recoverProductionRequest>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SignedRegistration": {
+      "name": "SignedRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof prepareSignedOutputRegistration>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof prepareSignedOutputRegistration>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PaperRegistration": {
+      "name": "PaperRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof preparePaperOutputRegistration>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof preparePaperOutputRegistration>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

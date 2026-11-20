@@ -1,0 +1,44 @@
+{
+  "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "CacheCategories": {
+      "modelBinding": {"modelId": "84e3c2b4-0df0-4b5d-b148-885c7c812baf", "modelName": "缓存过滤条件"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": true, "autoSelectFirst": false,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["txt", "val", "rowid", "ordIdx"]}
+      }}
+    },
+    "CacheEntries": {
+      "modelBinding": {"modelId": "4f22a823-4da7-472c-8b0e-5dc8a7c23b18", "modelName": "获取缓存信息"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 50,
+        "queryConfig": {"pagination": "paged", "cacheType": "none", "sourceInputMode": "direct", "fields": ["cacheKey", "cacheValue"]}
+      }}
+    },
+    "CacheDeleteDefinition": {
+      "modelBinding": {"modelId": "2f47b3e2-f619-4330-b355-4f217fc5cfd5", "modelName": "根据键删除缓存中的值"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+        "queryConfig": {"pagination": "none", "cacheType": "none", "sourceInputMode": "direct", "fields": ["Code", "Type", "Result", "Time", "Extras", "Message"]}
+      }}
+    },
+    "CacheDeleteRequest": {
+      "resourceType": "command", "resourceId": "system:cache-delete",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "key", "type": "string"},
+        {"name": "outcome", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    }
+  },
+  "viewCascades": [{
+    "kind": "query", "cascadeId": "cache-category-input",
+    "parentTable": "CacheCategories", "parentViewId": "default",
+    "childTable": "CacheEntries", "childViewId": "default",
+    "filterBindings": [], "inputBindings": [{"sourceField": "val", "target": "queryContext.prefix"}]
+  }]
+}

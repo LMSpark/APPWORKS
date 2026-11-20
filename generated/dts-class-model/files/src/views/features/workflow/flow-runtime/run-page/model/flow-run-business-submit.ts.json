@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/model/flow-run-business-submit\n职责：按业务页生命周期编排提交，区分服务提交与成功后的页面回调错误。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-16T13:46:51.656Z",
+  "models": {}
+}

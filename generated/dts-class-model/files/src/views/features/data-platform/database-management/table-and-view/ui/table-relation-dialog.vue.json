@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog\n职责：表关系窄编辑工作区；所有字段均绑定原 Base_TblRln DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.970Z",
+  "models": {}
+}

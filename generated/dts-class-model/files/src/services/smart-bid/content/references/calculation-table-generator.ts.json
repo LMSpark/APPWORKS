@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/calculation-table-generator",
+    "sourcePath": "src/services/smart-bid/content/references/calculation-table-generator.ts",
+    "sourceFile": "src/services/smart-bid/content/references/calculation-table-generator.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/calculation-table-generator",
+    "jsdoc": "@module app:services/smart-bid/content/references/calculation-table-generator\n职责：按固定模板类解析计算表的显式生成器键。\n边界：调用方负责提供节点所属逻辑册的原模板类；生成器版本与可用性由注册表核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T00:07:59.096Z",
+  "models": {}
+}

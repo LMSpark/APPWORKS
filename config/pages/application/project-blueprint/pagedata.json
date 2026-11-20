@@ -1,0 +1,326 @@
+{
+  "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+  "tables": {
+    "Base_NavigationInfo": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+        "modelName": "Base_NavigationInfo"
+      },
+      "columns": [
+        {
+          "name": "NavigationUrl",
+          "trim": "reject",
+          "pattern": "^(?:vue:(?:/[^/A-Z\\\\\\s?#]+)+(?<!\\.vue)(?:[?#].*)?|cfg:(?!\\.{1,2}(?:\\?|$))[^/\\\\%\\s?#]+(?:\\?[^\\s#]+)?)$",
+          "patternMessage": "导航地址须为规范的 vue:/页面路径 或 cfg:工具ID，可附带调用参数"
+        }
+      ],
+      "views": {
+        "savedProjectNodes": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "filterExpression": {"field": "SysId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "projectId"}},
+          "queryConfig": {"allPages": true, "maxRows": 50000}
+        },
+        "default": {
+          "autoLoad": false,
+          "treeConfig": {
+            "idField": "rowid",
+            "parentIdField": "prowid",
+            "textField": "FunName",
+            "rootParentValue": "000000"
+          }
+        },
+        "catalogBindings": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        },
+        "navigationRoot": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "SysId",
+              "prowid"
+            ],
+            "allPages": true,
+            "distinct": true,
+            "maxRows": 2
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+        "modelName": "Base_AppSystemList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "catalogApps": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {
+            "allPages": true,
+            "distinct": true
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    },
+    "Base_Navigation_Desc_Version": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p007",
+        "modelName": "Base_Navigation_Desc_Version"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        }
+      }
+    },
+    "Base_Navigation_DataRelation": {
+      "modelBinding": {
+        "modelId": "6ab982ff-afa3-4d06-99ef-1c500b7587c6",
+        "modelName": "Base_Navigation_DataRelation"
+      },
+      "columns": [
+        {"name": "prowid", "required": true, "immutable": true},
+        {"name": "title", "required": true, "trim": "reject"},
+        {"name": "dataSetId", "required": true,
+          "optionsView": {"tableName": "Base_DataSet", "viewId": "navHostDataSets", "valueField": "rowid", "labelField": "Name"}},
+        {"name": "dataName", "required": true,
+          "optionsView": {"tableName": "Base_DataModel", "viewId": "navHostResources", "valueField": "MetaName", "labelField": "Name",
+            "context": {"dataSetId": "dataSetId"}, "fill": {"dataType": "Type"}}},
+        {"name": "selectTextParam", "required": true},
+        {"name": "TextParamName", "required": true, "trim": "reject"},
+        {"name": "selectValParam", "required": true},
+        {"name": "ValParamName", "required": true, "trim": "reject"}
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "byNode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 200,
+          "filterExpression": {"field": "prowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "nodeId"}},
+          "queryConfig": {"allPages": true, "maxRows": 200},
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "7AB874097A1E8711A42FD845939A6E05p006", "modelName": "Base_DataSet"},
+      "views": {"default": {"autoLoad": false}, "navHostDataSets": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+        "valueField": "rowid", "labelField": "Name",
+        "filterExpression": {"field": "sysid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+        "queryConfig": {"allPages": true, "fields": ["rowid", "Name"]}
+      }}
+    },
+    "Base_DataModel": {
+      "modelBinding": {"modelId": "039526c0-65f8-482a-9b3d-ceeed1a86e49", "modelName": "Base_DataModel"},
+      "views": {
+        "default": {"autoLoad": false},
+        "navHostResources": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "MetaName", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "navHostResource": {"autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "pageSize": 2, "valueField": "rowid", "labelField": "Name", "queryConfig": {"maxRows": 2, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "dimensionSourceModels": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}},
+        "dimensionSourceModelNames": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "Name", "labelField": "Name", "filterExpression": {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataSetId", "Name", "MetaName", "Type"]}}
+      }
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {"modelId": "4e8929b0-bb04-4015-a476-b4d85674a2d5", "modelName": "Base_DataModel_Field"},
+      "columns": [
+        {"name": "canonicalName", "type": "string", "label": "输出名", "computeExpression": "AsName || (String(Name || '').toLowerCase() === 'rowid' ? 'rowid' : Name)"}
+      ],
+      "views": {
+        "default": {"autoLoad": false},
+        "dimensionSourceFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSourceFieldNames": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSourceKeyFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCollectionKeyFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCollectionPrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionSpacePrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "rowid", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "dataSetId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "dataSetId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCommitFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"logic": "or", "filters": [{"field": "ValueFun", "operator": "is-null"}, {"field": "ValueFun", "operator": "is-empty"}, {"field": "ValueFun", "operator": "eq", "value": "null"}, {"field": "ValueFun", "operator": "eq", "value": "\"\""}]}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "dimensionCommitPrimaryFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "canonicalName", "labelField": "canonicalName", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}, {"field": "IsOutput", "operator": "eq", "value": 1}, {"field": "IsPKey", "operator": "eq", "value": 1}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "AsName", "FieldType", "description"]}},
+        "navHostFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000, "valueField": "Name", "labelField": "description", "filterExpression": {"logic": "and", "filters": [{"field": "dataModelId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "modelId"}}, {"field": "type", "operator": "eq", "value": "dataModel"}]}, "queryConfig": {"allPages": true, "fields": ["rowid", "dataModelId", "Name", "description", "FieldType", "AsName"]}}
+      }
+    },
+    "Base_Desktop_System": {
+      "modelBinding": {"modelId": "7AB874097A1E8711A42FD845939A6E05p008", "modelName": "Base_Desktop_System"},
+      "views": {"default": {"autoLoad": false}, "byNode": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 2,
+        "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "nodeId"}},
+        "queryConfig": {"allPages": true, "maxRows": 2}
+      }}
+    },
+    "ProjectToolVersion": {
+      "resourceType": "file",
+      "resourceId": "project:tool-version",
+      "columns": [
+        {
+          "name": "versionKey",
+          "label": "版本身份",
+          "type": "string",
+          "required": true,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "pageId",
+          "label": "工具ID",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "label": "文件名",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "version",
+          "label": "版本号",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "snapshotFileName",
+          "label": "快照文件名",
+          "type": "string"
+        },
+        {
+          "name": "lastModified",
+          "label": "修改时间",
+          "type": "number"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryContext": {
+            "pageId": "",
+            "fileName": "rule.json"
+          },
+          "queryConfig": {
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "ProjectToolFile": {
+      "resourceType": "file",
+      "resourceId": "project:tool-file",
+      "columns": [
+        { "name": "fileKey", "label": "文件身份", "type": "string", "required": true, "isPrimaryKey": true },
+        { "name": "pageId", "label": "工具ID", "type": "string" },
+        { "name": "fileName", "label": "文件名", "type": "string" },
+        { "name": "versionId", "label": "发布版本", "type": "string" },
+        { "name": "text", "label": "原文", "type": "string" },
+        { "name": "localDirty", "label": "工具已有本地修改", "type": "boolean" }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryContext": { "pageId": "", "fileName": "rule.json", "versionId": "" },
+          "queryConfig": { "allPages": true, "maxRows": 1 }
+        }
+      }
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "nav-host-selected-resource",
+      "parentTable": "Base_Navigation_DataRelation",
+      "parentViewId": "byNode",
+      "childTable": "Base_DataModel",
+      "childViewId": "navHostResource",
+      "filterBindings": [
+        {"sourceField": "dataSetId", "targetField": "dataSetId"},
+        {"sourceField": "dataName", "targetField": "MetaName"}
+      ]
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-resource",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "dataName",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_Navigation_DataRelation", "viewId": "byNode", "field": "dataSetId", "parameter": "dataSetId"}],
+      "optionsView": {"tableName": "Base_DataModel", "viewId": "navHostResources"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-text-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectTextParam",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-value-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectValParam",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    },
+    {
+      "kind": "field",
+      "cascadeId": "nav-host-parent-field",
+      "tableName": "Base_Navigation_DataRelation",
+      "viewId": "byNode",
+      "targetField": "selectPid",
+      "valueFormat": "native",
+      "valuePolicy": {"mode": "retain-valid", "clearValue": ""},
+      "parents": [{"tableName": "Base_DataModel", "viewId": "navHostResource", "field": "rowid", "parameter": "modelId"}],
+      "optionsView": {"tableName": "Base_DataModel_Field", "viewId": "navHostFields"}
+    }
+  ]
+}

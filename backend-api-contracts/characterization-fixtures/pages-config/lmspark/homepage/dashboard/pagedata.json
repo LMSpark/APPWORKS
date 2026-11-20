@@ -1,0 +1,46 @@
+{
+  "dataSetName": "DashboardDS",
+  "tables": {
+    "pageTypes": {
+      "columns": [
+        {
+          "name": "type",
+          "type": "string",
+          "label": "页面类型"
+        },
+        {
+          "name": "tech",
+          "type": "string",
+          "label": "技术实现"
+        },
+        {
+          "name": "example",
+          "type": "string",
+          "label": "示例页面"
+        }
+      ],
+      "tableName": "pageTypes",
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "type": "Vue 组件",
+              "tech": "Vue SFC + TypeScript",
+              "example": "管理仪表板"
+            },
+            {
+              "type": "配置页面",
+              "tech": "JSON DSL + PageRenderer",
+              "example": "工作台"
+            },
+            {
+              "type": "SPARK 组件",
+              "tech": "SPARK 组件系统",
+              "example": "表格演示"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

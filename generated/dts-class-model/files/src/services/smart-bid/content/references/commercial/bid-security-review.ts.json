@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/commercial/bid-security-review",
+    "sourcePath": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+    "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/commercial/bid-security-review",
+    "jsdoc": "@module app:services/smart-bid/content/references/commercial/bid-security-review\n职责：动作26按本标担保条款及截至所问时点的凭据核办理进度。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Proof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Proof",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "scopeRef": {
+          "type": "string"
+        },
+        "requirementVersion": {
+          "type": "string"
+        },
+        "liablePartyRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scopeRef",
+        "requirementVersion",
+        "liablePartyRef"
+      ],
+      "additionalProperties": false
+    },
+    "Milestone": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Milestone",
+      "enum": [
+        "ISSUED",
+        "RECEIVED",
+        "LINKED",
+        "HANDED_OVER"
+      ]
+    },
+    "Money": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Money",
+      "properties": {
+        "minorUnits": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "minorUnits",
+        "currency"
+      ],
+      "additionalProperties": false
+    },
+    "Requirement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Requirement",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "EXEMPT"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "CONDITIONAL_EXEMPT"
+            },
+            "conditionRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind",
+            "conditionRefs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "clauseRef": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "REQUIRED"
+            },
+            "methodRef": {
+              "type": "string"
+            },
+            "milestones": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Milestone"
+              }
+            },
+            "deadline": {
+              "type": "number"
+            },
+            "amount": {
+              "$ref": "#/$defs/Money"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "clauseRef",
+            "kind",
+            "methodRef",
+            "milestones",
+            "deadline"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Receipt",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "receiptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "number"
+            },
+            "knownAt": {
+              "type": "number"
+            },
+            "kind": {
+              "const": "EXEMPTION_PROOF"
+            },
+            "conditionRef": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "receiptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind",
+            "conditionRef"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeRef": {
+              "type": "string"
+            },
+            "requirementVersion": {
+              "type": "string"
+            },
+            "liablePartyRef": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "receiptRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "number"
+            },
+            "knownAt": {
+              "type": "number"
+            },
+            "kind": {
+              "enum": [
+                "ISSUED",
+                "RECEIVED",
+                "LINKED",
+                "HANDED_OVER",
+                "REQUESTED"
+              ]
+            },
+            "methodRef": {
+              "type": "string"
+            },
+            "amount": {
+              "$ref": "#/$defs/Money"
+            }
+          },
+          "required": [
+            "scopeRef",
+            "requirementVersion",
+            "liablePartyRef",
+            "assertCurrent",
+            "receiptRef",
+            "effectiveAt",
+            "knownAt",
+            "kind",
+            "methodRef"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T14:30:06.539Z",
+  "models": {
+    "Proof": {
+      "name": "Proof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scopeRef: string;\n    requirementVersion: string;\n    liablePartyRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scopeRef: string;\n    requirementVersion: string;\n    liablePartyRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirementVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "liablePartyRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Milestone": {
+      "name": "Milestone",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'ISSUED' | 'RECEIVED' | 'LINKED' | 'HANDED_OVER'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ISSUED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'RECEIVED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'LINKED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'HANDED_OVER'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Money": {
+      "name": "Money",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    minorUnits: string;\n    currency: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    minorUnits: string;\n    currency: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "minorUnits",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currency",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Requirement": {
+      "name": "Requirement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Proof & Readonly<{\n    clauseRef: string;\n}> & (Readonly<{\n    kind: 'EXEMPT';\n}> | Readonly<{\n    kind: 'CONDITIONAL_EXEMPT';\n    conditionRefs: readonly string[];\n}> | Readonly<{\n    kind: 'REQUIRED';\n    methodRef: string;\n    milestones: readonly Milestone[];\n    deadline: number;\n    amount?: Money;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    clauseRef: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'EXEMPT';\n}> | Readonly<{\n    kind: 'CONDITIONAL_EXEMPT';\n    conditionRefs: readonly string[];\n}> | Readonly<{\n    kind: 'REQUIRED';\n    methodRef: string;\n    milestones: readonly Milestone[];\n    deadline: number;\n    amount?: Money;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "clauseRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Proof & Readonly<{\n    receiptRef: string;\n    effectiveAt: number;\n    knownAt: number;\n}> & (Readonly<{\n    kind: 'EXEMPTION_PROOF';\n    conditionRef: string;\n}> | Readonly<{\n    kind: Milestone | 'REQUESTED';\n    methodRef: string;\n    amount?: Money;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Proof",
+            "targetName": "Proof"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    receiptRef: string;\n    effectiveAt: number;\n    knownAt: number;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    kind: 'EXEMPTION_PROOF';\n    conditionRef: string;\n}> | Readonly<{\n    kind: Milestone | 'REQUESTED';\n    methodRef: string;\n    amount?: Money;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "receiptRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/index",
+    "sourcePath": "packages/spark-utils/src/http/index.ts",
+    "sourceFile": "packages/spark-utils/src/http/index.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/index",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/index\n职责：提供框架无关的 index 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nHTTP 模块 — 请求 + 文件加载\n@example\n```ts\nimport { createRequest, createFileLoader } from '@spark-appworks/spark-utils'\nconst http = createRequest({ baseURL: '/api', timeout: 5000 })\nconst data = await http.get<User[]>('/users')\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-05T10:07:52.907Z",
+  "models": {}
+}

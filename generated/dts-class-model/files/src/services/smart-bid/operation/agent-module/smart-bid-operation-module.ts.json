@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/smart-bid-operation-module",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/smart-bid-operation-module",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-operation-module\n职责：SmartBid 前端 Agent 的 ClassModel 根模块，将正式 action guide 编排为当前 PageRuntime owner 的一次工具执行。\n边界：不持久化业务状态、不解析低层 CRUD、不读取凭据；执行回调由可信宿主按当前 DataView/file/command owner 提供。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SmartBidOperationCommand",
+      "SmartBidOperationResult",
+      "SmartBidOperationModule"
+    ]
+  },
+  "$defs": {
+    "SmartBidOperationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidOperationCommand",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "registrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonParams"
+        }
+      },
+      "required": [
+        "operationId",
+        "registrationId",
+        "businessInstanceId",
+        "runtimeInstanceId",
+        "requestKey",
+        "prompt",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "SmartBidOperationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidOperationResult",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+        }
+      },
+      "required": [
+        "operationId",
+        "requestKey",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "SmartBidOperationModule": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidOperationModule",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "executeOperation": {
+              "type": "object",
+              "title": "ExecuteOperation"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatchOperation.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/SmartBidOperationCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatchOperation.return": {
+          "type": "object",
+          "title": "Promise<SmartBidOperationResult>"
+        },
+        "method.dispatchAction.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "actionName": {
+                  "type": "string"
+                },
+                "input": {
+                  "$ref": "smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+                }
+              },
+              "required": [
+                "kind",
+                "actionName",
+                "input"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatchAction.return": {
+          "type": "object",
+          "title": "Promise<SmartBidActionResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T14:06:26.886Z",
+  "models": {
+    "SmartBidOperationCommand": {
+      "name": "SmartBidOperationCommand",
+      "jsdoc": "同次 Agent turn 固定的业务动作输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operationId: string;\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: JsonParams;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    operationId: string;\n    registrationId: string;\n    businessInstanceId: string;\n    runtimeInstanceId: string;\n    requestKey: string;\n    prompt: string;\n    inputs: JsonParams;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "registrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SmartBidOperationResult": {
+      "name": "SmartBidOperationResult",
+      "jsdoc": "当前 PageRuntime owner 的一次权威执行结果；具体 owner 再补行、文件或命令回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    outcome: JsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    outcome: JsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExecuteOperation": {
+      "name": "ExecuteOperation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(command: SmartBidOperationCommand) => Promise<JsonValue>",
+        "members": {}
+      }
+    },
+    "SmartBidOperationModule": {
+      "name": "SmartBidOperationModule",
+      "jsdoc": "SmartBid 前端 Agent 根模块。\n公开方法由 ClassModel 编译器自动生成 tool schema；运行时 registration 仅绑定本次实例。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(executeOperation: ExecuteOperation)",
+          "parameters": [
+            {
+              "name": "executeOperation",
+              "type": {
+                "type": "reference",
+                "name": "ExecuteOperation",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "dispatchOperation",
+              "jsdoc": "按正式 action guide 输入执行当前 PageRuntime 的原 owner，并返回原结果。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidOperationCommand",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SmartBidOperationResult",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispatchAction",
+              "jsdoc": "按生成 ClassModel 的 exact kind/actionName 解析到已编译模型方法，不建立第二套动作注册表。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        kind: string;\n        actionName: string;\n        input: SmartBidActionRequest;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SmartBidActionResult",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

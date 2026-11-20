@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/ag-ui/ag-ui-mapper",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-mapper.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-mapper.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/ag-ui/ag-ui-mapper",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/conversation/ag-ui/ag-ui-mapper\n职责：把 SPARK agent transport/trace 事件投影为 AG-UI core 事件和工具定义。\n边界：纯 mapper，不持有运行状态、不调用 LLM、不依赖 app 或 component 层。\nAI用途：接入 AG-UI、外部 agent UI 或调试事件流时，用本模块完成协议映射。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkAgUiAdapter"
+    ]
+  },
+  "$defs": {
+    "SparkAgUiAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAgUiAdapter",
+      "properties": {
+        "createSparkAgUiCustomEvent": {
+          "type": "object",
+          "title": "(name: SparkAgUiCustomEventName, value: unknown, metadata?: SparkAgUiEventMetadata) => CustomEvent"
+        },
+        "createSparkAgUiReasoningEndEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; }>) => ReasoningEndEvent"
+        },
+        "createSparkAgUiReasoningMessageContentEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; delta: string; }>) => ReasoningMessageContentEvent"
+        },
+        "createSparkAgUiReasoningMessageEndEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; }>) => ReasoningMessageEndEvent"
+        },
+        "createSparkAgUiReasoningMessageStartEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; }>) => ReasoningMessageStartEvent"
+        },
+        "createSparkAgUiReasoningStartEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; }>) => ReasoningStartEvent"
+        },
+        "createSparkAgUiRunErrorEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ message: string; code?: string; }>) => RunErrorEvent"
+        },
+        "createSparkAgUiRunFinishedEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiRunRef & SparkAgUiEventMetadata & Readonly<{ result?: unknown; }>) => RunFinishedEvent"
+        },
+        "createSparkAgUiRunStartedEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiRunRef & SparkAgUiEventMetadata & Readonly<{ input?: RunAgentInput; }>) => RunStartedEvent"
+        },
+        "createSparkAgUiStreamCustomEvent": {
+          "type": "object",
+          "title": "(event: AiAgentStreamEvent, metadata?: SparkAgUiEventMetadata) => CustomEvent"
+        },
+        "createSparkAgUiTextMessageContentEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; delta: string; }>) => TextMessageContentEvent"
+        },
+        "createSparkAgUiTextMessageEndEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; }>) => TextMessageEndEvent"
+        },
+        "createSparkAgUiTextMessageStartEvent": {
+          "type": "object",
+          "title": "(input: SparkAgUiEventMetadata & Readonly<{ messageId: string; role?: SparkAgUiTextMessageRole; name?: string; }>) => TextMessageStartEvent"
+        },
+        "createSparkAgUiToolCallEvents": {
+          "type": "object",
+          "title": "(record: AiAgentToolCallRecord, metadata?: SparkAgUiEventMetadata) => readonly AGUIEvent[]"
+        },
+        "stringifySparkAgUiPayload": {
+          "type": "object",
+          "title": "(value: unknown) => string"
+        },
+        "toSparkAgUiAssistantMessageId": {
+          "type": "object",
+          "title": "(turnId: string) => string"
+        },
+        "toSparkAgUiReasoningMessageId": {
+          "type": "object",
+          "title": "(turnId: string) => string"
+        },
+        "toSparkAgUiTool": {
+          "type": "object",
+          "title": "(tool: AiAgentTransportToolSpec) => Tool"
+        },
+        "toSparkAgUiTools": {
+          "type": "object",
+          "title": "(tools: readonly AiAgentTransportToolSpec[]) => readonly Tool[]"
+        }
+      },
+      "required": [
+        "createSparkAgUiCustomEvent",
+        "createSparkAgUiReasoningEndEvent",
+        "createSparkAgUiReasoningMessageContentEvent",
+        "createSparkAgUiReasoningMessageEndEvent",
+        "createSparkAgUiReasoningMessageStartEvent",
+        "createSparkAgUiReasoningStartEvent",
+        "createSparkAgUiRunErrorEvent",
+        "createSparkAgUiRunFinishedEvent",
+        "createSparkAgUiRunStartedEvent",
+        "createSparkAgUiStreamCustomEvent",
+        "createSparkAgUiTextMessageContentEvent",
+        "createSparkAgUiTextMessageEndEvent",
+        "createSparkAgUiTextMessageStartEvent",
+        "createSparkAgUiToolCallEvents",
+        "stringifySparkAgUiPayload",
+        "toSparkAgUiAssistantMessageId",
+        "toSparkAgUiReasoningMessageId",
+        "toSparkAgUiTool",
+        "toSparkAgUiTools"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.675Z",
+  "models": {
+    "SparkAgUiAdapter": {
+      "name": "SparkAgUiAdapter",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof sparkAgUi",
+        "members": {
+          "attributes": [
+            {
+              "name": "createSparkAgUiCustomEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageContentEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningMessageStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiReasoningStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunErrorEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunFinishedEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiRunStartedEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiStreamCustomEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageContentEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageEndEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiTextMessageStartEvent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createSparkAgUiToolCallEvents",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stringifySparkAgUiPayload",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiAssistantMessageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiReasoningMessageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toSparkAgUiTools",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

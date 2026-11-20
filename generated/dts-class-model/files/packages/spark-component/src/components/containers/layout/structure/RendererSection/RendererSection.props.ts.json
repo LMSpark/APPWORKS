@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/structure/RendererSection/RendererSection.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/structure/RendererSection/RendererSection.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererSection/RendererSection.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/structure/RendererSection/RendererSection.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/structure/RendererSection/RendererSection.props\n职责：定义 RendererSection（r-section）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer section 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RSectionProps"
+    ],
+    "componentName": "RendererSection",
+    "componentType": "r-section",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RSectionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RSectionProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "header": {
+          "$ref": "../../../zones/RendererHeader.types.ts.json#/$defs/RHeaderProps"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "collapsible": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "defaultCollapsed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "lazy": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "bordered": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "useCard": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "cardShadow": {
+          "enum": [
+            "never",
+            "always",
+            "hover"
+          ]
+        },
+        "bodyClass": {
+          "type": "string"
+        },
+        "expandText": {
+          "type": "string"
+        },
+        "collapseText": {
+          "type": "string"
+        },
+        "showToggleIcon": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "expandIconText": {
+          "type": "string"
+        },
+        "collapseIconText": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "retryable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "retryText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-14T03:10:28.050Z",
+  "models": {
+    "RSectionProps": {
+      "name": "RSectionProps",
+      "jsdoc": "RSection Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererSection",
+        "type": "r-section",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n    /** 分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示 */\n    status?: string;\n    /** 分区错误提示，非空时在头部下方以 role=\"alert\" 显示 */\n    error?: string;\n    /** 有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作 */\n    retryable?: boolean;\n    /** 重试按钮文案 */\n    retryText?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 分区标题 */\n    title?: string;\n    /** 分区描述 */\n    description?: string;\n    /** 是否可折叠 */\n    collapsible?: boolean;\n    /** 默认折叠 */\n    defaultCollapsed?: boolean;\n    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */\n    lazy?: boolean;\n    /** 显示边框 */\n    bordered?: boolean;\n    /** 使用卡片样式 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n    /** 展开文案 */\n    expandText?: string;\n    /** 收起文案 */\n    collapseText?: string;\n    /** 显示切换图标 */\n    showToggleIcon?: boolean;\n    /** 展开图标文案 */\n    expandIconText?: string;\n    /** 收起图标文案 */\n    collapseIconText?: string;\n    /** 分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示 */\n    status?: string;\n    /** 分区错误提示，非空时在头部下方以 role=\"alert\" 显示 */\n    error?: string;\n    /** 有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作 */\n    retryable?: boolean;\n    /** 重试按钮文案 */\n    retryText?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "分区标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "分区描述",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapsible",
+              "jsdoc": "是否可折叠",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultCollapsed",
+              "jsdoc": "默认折叠",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lazy",
+              "jsdoc": "首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bordered",
+              "jsdoc": "显示边框",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "useCard",
+              "jsdoc": "使用卡片样式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cardShadow",
+              "jsdoc": "卡片阴影模式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expandText",
+              "jsdoc": "展开文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapseText",
+              "jsdoc": "收起文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showToggleIcon",
+              "jsdoc": "显示切换图标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expandIconText",
+              "jsdoc": "展开图标文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapseIconText",
+              "jsdoc": "收起图标文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "分区状态提示（如读取中、待核验），非空时在头部下方以 role=\"status\" 显示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "分区错误提示，非空时在头部下方以 role=\"alert\" 显示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryable",
+              "jsdoc": "有错误提示时是否提供重试按钮；点击发出 retry 事件，由宿主决定重新执行的动作",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryText",
+              "jsdoc": "重试按钮文案",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

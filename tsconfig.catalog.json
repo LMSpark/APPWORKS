@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.typecheck.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.d.ts",
+    "packages/spark-component/src/**/*.ts",
+    "packages/spark-component/src/**/*.vue",
+    "packages/spark-data/src/**/*.ts",
+    "packages/spark-utils/src/**/*.ts",
+    "packages/spark-project-model/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

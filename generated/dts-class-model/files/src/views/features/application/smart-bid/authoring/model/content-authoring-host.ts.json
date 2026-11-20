@@ -1,0 +1,643 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-authoring-host",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-authoring-host",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-authoring-host\n职责：以当前认证作者及明确项目装配正文编制的原生运行实例。\n边界：仅编排原 PageRuntime/DataView；不复制草稿、不提交CRUD、不替代服务端授权或权威保存。\nAI用途：导航宿主已核实页面身份后，打开正文工作区并将原实例交正文组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentAuthoringTarget",
+      "ContentAuthoringBinding",
+      "ContentAuthoringHost"
+    ]
+  },
+  "$defs": {
+    "ContentAuthoringTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "applicationId",
+        "pageId",
+        "scenarioId",
+        "projectId",
+        "draftId"
+      ],
+      "additionalProperties": false
+    },
+    "ContentAuthoringBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringBinding",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "actorUserId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.setPending.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPending.return": true,
+        "method.readRevisions.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-revision-reader.ts.json#/$defs/ContentRevisionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRevisions.return": {
+          "type": "object",
+          "title": "Promise<ContentRevisionReadBinding>"
+        },
+        "method.readNodeVersion.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-node-version-reader.ts.json#/$defs/ContentNodeVersionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readNodeVersion.return": {
+          "type": "object",
+          "title": "Promise<ContentNodeVersionBinding>"
+        },
+        "method.readSnapshotIndex.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "hashes/content-snapshot-reader.ts.json#/$defs/ContentSnapshotSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSnapshotIndex.return": {
+          "type": "object",
+          "title": "Promise<ContentSnapshotIndexBinding>"
+        },
+        "method.readSnapshotNodes.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "$ref": "hashes/content-snapshot-reader.ts.json#/$defs/ContentSnapshotIndexBinding"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readSnapshotNodes.return": {
+          "type": "object",
+          "title": "Promise<ContentSnapshotNodesBinding>"
+        },
+        "method.readCandidateContent.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-revision-reader.ts.json#/$defs/ContentRevisionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readCandidateContent.return": {
+          "type": "object",
+          "title": "Promise<ContentCandidateBinding>"
+        },
+        "method.readFactVersion.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-fact-version-reader.ts.json#/$defs/ContentFactVersionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFactVersion.return": {
+          "type": "object",
+          "title": "Promise<ContentFactVersionBinding>"
+        },
+        "method.readBaselineFact.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "content-baseline-reader.ts.json#/$defs/ContentBaselineFactSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readBaselineFact.return": {
+          "type": "object",
+          "title": "Promise<ContentBaselineFactBinding>"
+        },
+        "method.readOriginalAdoption.params": {
+          "type": "object",
+          "properties": {
+            "selection": {
+              "$ref": "adoption/content-adoption-reader.ts.json#/$defs/ContentAdoptionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readOriginalAdoption.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readContentAdoption>"
+        }
+      }
+    },
+    "ContentAuthoringHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentAuthoringHost",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/ContentAuthoringBinding"
+        },
+        "hasPending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "borrowedRuntime": {
+              "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ContentAuthoringTarget"
+            },
+            "tool": {
+              "$ref": "../../../../../../../packages/spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<ContentAuthoringBinding>"
+        },
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:56:36.676Z",
+  "models": {
+    "ContentAuthoringTarget": {
+      "name": "ContentAuthoringTarget",
+      "jsdoc": "导航宿主核实的应用、页面和数据空间，以及本次明确选中的业务目标。作者不由调用参数提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    pageId: string;\n    scenarioId: string;\n    projectId: string;\n    draftId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationId: string;\n    pageId: string;\n    scenarioId: string;\n    projectId: string;\n    draftId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringBinding": {
+      "name": "ContentAuthoringBinding",
+      "jsdoc": "直接交给正文组件的原实例绑定；pending只表示尚未写回字段的交互，不保存业务数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n    /** 只读原请求关联的采用行；实际原办理结果另核。 */\n    readOriginalAdoption: (selection: ContentAdoptionSelection) => ReturnType<typeof readContentAdoption>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    dataViewKey: string;\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    assertCurrent: () => void;\n    setPending: (value: boolean) => void;\n    /** 查询原候选/头修订索引；完整快照与采用另核。 */\n    readRevisions: (selection: ContentRevisionSelection) => Promise<ContentRevisionReadBinding>;\n    /** 原节点版本读取；完整快照成员关系仍由快照装配核对。 */\n    readNodeVersion: (selection: ContentNodeVersionSelection) => Promise<ContentNodeVersionBinding>;\n    /** 读取并核同版清单摘要；业务闭包及修订匹配仍另核。 */\n    readSnapshotIndex: (selection: ContentSnapshotSelection) => Promise<ContentSnapshotIndexBinding>;\n    /** 沿完整成员视图装配本次已核清单节点；其它分组和采用另核。 */\n    readSnapshotNodes: (snapshot: ContentSnapshotIndexBinding) => Promise<ContentSnapshotNodesBinding>;\n    /** 候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。 */\n    readCandidateContent: (selection: ContentRevisionSelection) => Promise<ContentCandidateBinding>;\n    /** 只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。 */\n    readFactVersion: (selection: ContentFactVersionSelection) => Promise<ContentFactVersionBinding>;\n    readBaselineFact: (selection: ContentBaselineFactSelection) => Promise<ContentBaselineFactBinding>;\n    /** 只读原请求关联的采用行；实际原办理结果另核。 */\n    readOriginalAdoption: (selection: ContentAdoptionSelection) => ReturnType<typeof readContentAdoption>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actorUserId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setPending",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readRevisions",
+              "jsdoc": "查询原候选/头修订索引；完整快照与采用另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentRevisionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentRevisionReadBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readNodeVersion",
+              "jsdoc": "原节点版本读取；完整快照成员关系仍由快照装配核对。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentNodeVersionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentNodeVersionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-node-version-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSnapshotIndex",
+              "jsdoc": "读取并核同版清单摘要；业务闭包及修订匹配仍另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentSnapshotSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentSnapshotIndexBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readSnapshotNodes",
+              "jsdoc": "沿完整成员视图装配本次已核清单节点；其它分组和采用另核。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentSnapshotIndexBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/hashes/content-snapshot-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentSnapshotNodesBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-snapshot-nodes.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readCandidateContent",
+              "jsdoc": "候选索引、同版依据、清单摘要和完整节点串联；完整业务闭包及采用另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentRevisionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentCandidateBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-candidate-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFactVersion",
+              "jsdoc": "只读原事实键版本；基线归属和本次使用准用仍须原责任域核验。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentFactVersionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentFactVersionBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readBaselineFact",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentBaselineFactSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentBaselineFactBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readOriginalAdoption",
+              "jsdoc": "只读原请求关联的采用行；实际原办理结果另核。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAdoptionSelection",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readContentAdoption"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentAuthoringHost": {
+      "name": "ContentAuthoringHost",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "由导航实例池传入时，运行实例继续由实例池负责装载和释放。",
+          "signatureText": "constructor(borrowedRuntime?: PageRuntime | undefined)",
+          "parameters": [
+            {
+              "name": "borrowedRuntime",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "binding",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPending",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ContentAuthoringTarget",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts"
+                  }
+                },
+                {
+                  "name": "tool",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageTool"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ContentAuthoringBinding",
+                    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "close",
+              "jsdoc": "正常离页前调用；未保存编辑必须先通过原组件取消或正式保存，不能隐式丢弃。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

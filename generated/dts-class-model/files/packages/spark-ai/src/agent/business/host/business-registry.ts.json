@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/business/host/business-registry",
+    "sourcePath": "packages/spark-ai/src/agent/business/host/business-registry.ts",
+    "sourceFile": "packages/spark-ai/src/agent/business/host/business-registry.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/business/host/business-registry",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/business/host/business-registry\n职责：维护 AiAgentRegistration 的内存注册表，按 moduleId 注册、查询、列出和删除业务定义。\n边界：只保证注册项唯一性和 sessionStore 显式注入，不创建业务 task、不启动 session，也不解析 alias。\nAI用途：排查业务是否已注册、moduleId 是否冲突或 registration 缺少 sessionStore 时，用本模块确认注册表规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentRegistry"
+    ]
+  },
+  "$defs": {
+    "AiAgentRegistry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRegistry",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.register.params": {
+          "type": "object",
+          "properties": {
+            "registration": {
+              "$ref": "../registration-types.ts.json#/$defs/AiAgentRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.register.return": true,
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "moduleId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "$ref": "../registration-types.ts.json#/$defs/AiAgentRegistration"
+        },
+        "method.list.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../registration-types.ts.json#/$defs/AiAgentRegistration"
+          }
+        },
+        "method.delete.params": {
+          "type": "object",
+          "properties": {
+            "moduleId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.delete.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.690Z",
+  "models": {
+    "AiAgentRegistry": {
+      "name": "AiAgentRegistry",
+      "jsdoc": "Host 内部业务注册表，按 moduleId 保存 AI 业务定义并保护注册期不变量。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "Host 内部业务注册表，按 moduleId 保存 AI 业务定义并保护注册期不变量。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "register",
+              "jsdoc": "注册一份业务定义到 moduleId 索引，供 Host.run 和 session 解析时使用。\n@param registration 包含输入契约、工具运行时、会话存储和生命周期钩子的业务注册项。\n@throws moduleId 已存在或 registration 未显式提供 sessionStore 时抛错，避免运行期出现半注册业务。",
+              "parameters": [
+                {
+                  "name": "registration",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentRegistration",
+                    "sourcePath": "packages/spark-ai/src/agent/business/registration-types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "TInput",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "get",
+              "jsdoc": "按 moduleId 查询已注册业务；未命中时返回 undefined，由调用方决定是否 fail-fast。",
+              "parameters": [
+                {
+                  "name": "moduleId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "AiAgentRegistration",
+                  "sourcePath": "packages/spark-ai/src/agent/business/registration-types.ts",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "TInput",
+                      "refersToTypeParameter": true
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "list",
+              "jsdoc": "列出当前所有业务注册项，供 Host 诊断、dry-run 和对外摘要使用。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "AiAgentRegistration",
+                  "sourcePath": "packages/spark-ai/src/agent/business/registration-types.ts",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "TInput",
+                      "refersToTypeParameter": true
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "delete",
+              "jsdoc": "删除一个业务注册项，供 Host.unregister 同步维护 alias 映射和注册表状态。",
+              "parameters": [
+                {
+                  "name": "moduleId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

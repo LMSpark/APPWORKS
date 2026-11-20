@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/cache-management/ui/cache-delete-confirmation",
+    "sourcePath": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
+    "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/cache-management/ui/cache-delete-confirmation",
+    "jsdoc": "@module app:views/features/system/cache-management/ui/cache-delete-confirmation\n职责：确认原命令视图中已暂存的单键删除，取消及提交复用公共单记录生命周期。\n边界：不查询、不复制键值、不创建owner；未知仅核验原捕获。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-07T01:05:27.268Z",
+  "models": {}
+}

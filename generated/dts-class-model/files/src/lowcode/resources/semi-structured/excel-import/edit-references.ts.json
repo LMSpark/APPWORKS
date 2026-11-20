@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/edit-references",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/edit-references.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/edit-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/edit-references",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/edit-references\n职责：按本次删除映射或改变关联的精确身份重读正式依赖。\n边界：只使用原DataSet的查询视图，不保存、不缓存草稿，不把经典映射当成物理列。\nAI用途：配置结构命令派发前校验父子映射归属及晚到引用；普通标题编辑无需调用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelEditTarget"
+    ]
+  },
+  "$defs": {
+    "ExcelEditTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelEditTarget",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "view",
+        "ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T06:12:42.137Z",
+  "models": {
+    "ExcelEditTarget": {
+      "name": "ExcelEditTarget",
+      "jsdoc": "已由原编辑视图捕获的提交范围，不含记录副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次原DataSet中持有变更的正式视图。 */\n    view: DataView;\n    /** 用户已选择提交的稳定主键范围。 */\n    ids: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次原DataSet中持有变更的正式视图。 */\n    view: DataView;\n    /** 用户已选择提交的稳定主键范围。 */\n    ids: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "本次原DataSet中持有变更的正式视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "jsdoc": "用户已选择提交的稳定主键范围。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

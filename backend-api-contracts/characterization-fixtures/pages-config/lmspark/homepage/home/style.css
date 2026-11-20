@@ -1,0 +1,108 @@
+/* ============================================================
+   HOME 页面专属样式 —— CSS 隔离演示
+   这些样式通过 scopeCSS 被限制在 [data-page="home"].spark-page-container 内
+   切换到其他页面后，下面的样式 **完全不生效**
+   ============================================================ */
+
+/* 🎨 CSS 隔离演示 Banner */
+.css-isolation-banner {
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 40%, #48dbfb 70%, #ff9ff3 100%);
+  border-radius: 12px;
+  padding: 20px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.35);
+  animation: bannerPulse 3s ease-in-out infinite;
+}
+
+.css-isolation-banner .badge {
+  background: rgba(255, 255, 255, 0.9);
+  color: #e84393;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.css-isolation-banner .banner-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.css-isolation-banner .scope-code {
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+@keyframes bannerPulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(255, 107, 107, 0.35); }
+  50%       { box-shadow: 0 12px 48px rgba(255, 107, 107, 0.6); }
+}
+
+/* 统计卡片 —— 强化视觉，其他页面不会有这个彩色左边框 */
+.home-stats-card {
+  border-left: 5px solid #667eea;
+  background: linear-gradient(135deg, #f5f7ff 0%, #fff 100%);
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.home-stats-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+/* 内容卡片 —— 醒目的紫色顶部边框（其他页面无此样式） */
+.content-section {
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  border-top: 4px solid #764ba2;
+  box-shadow: 0 2px 12px rgba(118, 75, 162, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.content-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(118, 75, 162, 0.25);
+}
+
+/* 测试按钮 */
+.test-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  font-weight: bold;
+}
+
+.test-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* 💥 CSS 隔离测试：点击 "CSS 测试" 后的激活效果
+   这个 class 只在 home 页面内作用，其他页面加了这个 class 也不会变色 */
+.content-section.css-test-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #fff !important;
+  border-top-color: #feca57 !important;
+  transform: scale(1.04);
+  box-shadow: 0 12px 36px rgba(102, 126, 234, 0.5);
+  transition: all 0.4s ease;
+}
+
+.content-section.css-test-active div {
+  color: #fff !important;
+}

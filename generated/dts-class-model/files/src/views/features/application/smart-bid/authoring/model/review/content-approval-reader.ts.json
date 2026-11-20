@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/content-approval-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/content-approval-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/content-approval-reader\n职责：按项目和原批准 ID 读取动作45的固定 Approval 记录。\n边界：不选最近批准、不判断当前用途、不推断项目批准所覆盖的平台栏。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T03:47:54.477Z",
+  "models": {}
+}

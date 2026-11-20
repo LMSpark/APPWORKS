@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page\n职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-19T01:28:49.562Z",
+  "models": {}
+}

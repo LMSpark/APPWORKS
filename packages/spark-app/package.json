@@ -1,0 +1,70 @@
+{
+  "name": "@spark-appworks/spark-app",
+  "version": "0.3.7",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.vue.js"
+  ],
+  "private": false,
+  "license": "MIT",
+  "description": "SPARK Application Layer - 应用层基础设施（AppContext、Router Guards、Error Boundary、Bootstrap）",
+  "keywords": [
+    "spark",
+    "application",
+    "context",
+    "router",
+    "bootstrap"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "dependencies": {
+    "@spark-appworks/spark-ai": "workspace:*",
+    "@spark-appworks/spark-component": "workspace:*",
+    "@spark-appworks/spark-data": "workspace:*",
+    "@spark-appworks/spark-json-document": "workspace:*",
+    "@spark-appworks/spark-project-model": "workspace:*",
+    "@spark-appworks/spark-utils": "workspace:*"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && vite build && vue-tsc -p tsconfig.build.json",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint \"src/**/*.{ts,tsx,js}\" --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx,js}\" --fix"
+  },
+  "peerDependencies": {
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

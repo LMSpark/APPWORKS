@@ -1,0 +1,513 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/submission/authority-grant-decision",
+    "sourcePath": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+    "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/submission/authority-grant-decision",
+    "jsdoc": "@module app:services/smart-bid/content/review/submission/authority-grant-decision\n职责：第55项按原决定、委托链和准予登记范围构造确定的委托决定版本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "GrantScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GrantScope",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId"
+      ],
+      "additionalProperties": false
+    },
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "intent": {
+          "enum": [
+            "REGISTER",
+            "CHANGE",
+            "REVOKE"
+          ]
+        },
+        "decisionRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "expectedVersion",
+        "intent",
+        "decisionRef"
+      ],
+      "additionalProperties": false
+    },
+    "DecisionSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DecisionSource",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "decisionRef": {
+          "type": "string"
+        },
+        "intent": {
+          "enum": [
+            "REGISTER",
+            "CHANGE",
+            "REVOKE"
+          ]
+        },
+        "decisionMakerId": {
+          "type": "string"
+        },
+        "decisionAuthorityRef": {
+          "type": "string"
+        },
+        "representativeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "objectRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "effectiveAt": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "enterpriseId",
+        "grantId"
+      ]
+    },
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "record": {
+          "$ref": "authority-grant-coverage.ts.json#/$defs/Grant"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "record",
+        "requestDigest",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "RegistrationIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegistrationIdentity",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "requestDigest"
+      ],
+      "additionalProperties": false
+    },
+    "RegistrationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegistrationResult",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "REGISTERED",
+            "REJECTED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "enterpriseId",
+        "grantId",
+        "requestKey",
+        "requestDigest"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T10:08:26.161Z",
+  "models": {
+    "GrantScope": {
+      "name": "GrantScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    grantId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    grantId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "GrantScope & Readonly<{\n    requestKey: string;\n    expectedVersion: string | null;\n    intent: 'REGISTER' | 'CHANGE' | 'REVOKE';\n    decisionRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "GrantScope",
+            "targetName": "GrantScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requestKey: string;\n    expectedVersion: string | null;\n    intent: 'REGISTER' | 'CHANGE' | 'REVOKE';\n    decisionRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "intent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DecisionSource": {
+      "name": "DecisionSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "GrantScope & Readonly<{\n    decisionRef: string;\n    intent: Request['intent'];\n    decisionMakerId: string;\n    decisionAuthorityRef: string;\n    representativeId: string;\n    projectId: string | null;\n    actions: readonly string[];\n    objectRefs: readonly string[];\n    effectiveAt: string;\n    expiresAt: string;\n    knownAt: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "GrantScope",
+            "targetName": "GrantScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    decisionRef: string;\n    intent: Request['intent'];\n    decisionMakerId: string;\n    decisionAuthorityRef: string;\n    representativeId: string;\n    projectId: string | null;\n    actions: readonly string[];\n    objectRefs: readonly string[];\n    effectiveAt: string;\n    expiresAt: string;\n    knownAt: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "decisionRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "intent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionMakerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "decisionAuthorityRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "representativeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effectiveAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expiresAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof prepareAuthorityGrantDecision>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "record",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RegistrationIdentity": {
+      "name": "RegistrationIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "GrantScope & Readonly<{\n    requestKey: string;\n    requestDigest: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "GrantScope",
+            "targetName": "GrantScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requestKey: string;\n    requestDigest: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RegistrationResult": {
+      "name": "RegistrationResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RegistrationIdentity & Readonly<{\n    assertCurrent: () => void;\n}> & (Readonly<{\n    status: 'REGISTERED';\n    versionId: string;\n    record: Prepared['record'];\n}> | Readonly<{\n    status: 'REJECTED';\n    decisionRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RegistrationIdentity",
+            "targetName": "RegistrationIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    status: 'REGISTERED';\n    versionId: string;\n    record: Prepared['record'];\n}> | Readonly<{\n    status: 'REJECTED';\n    decisionRef: string;\n}> | Readonly<{\n    status: 'UNKNOWN';\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

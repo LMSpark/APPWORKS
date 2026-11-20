@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader\n职责：按原冻结的精确版本核读页18返回核验所用的动作指南。\n边界：按原清单锁定指南版本，核对其来源与身份。\nAI用途：排查回查是否误读到其他版本的指南。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Frozen": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Frozen",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "usable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requirementReads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lineageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "fieldPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lineageId",
+              "version",
+              "fieldPath"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "scope",
+        "assertCurrent",
+        "inputDigest",
+        "guideVersionRef",
+        "guideRef",
+        "guideDigest",
+        "usable"
+      ],
+      "additionalProperties": false
+    },
+    "Original": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Original",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "runId": {
+              "type": "string"
+            },
+            "attemptRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "targetDigest": {
+              "type": "string"
+            },
+            "configurationLockHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "runId",
+            "attemptRef",
+            "requestKey",
+            "projectId",
+            "targetDigest",
+            "configurationLockHash"
+          ],
+          "additionalProperties": false
+        },
+        "guideVersionRef": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "guideVersionRef",
+        "guideRef",
+        "guideDigest"
+      ],
+      "additionalProperties": false
+    },
+    "Guide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Guide",
+      "properties": {
+        "rootKind": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "guide": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideVersionRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rootKind",
+        "kind",
+        "actionName",
+        "guideRef",
+        "guideDigest",
+        "guide",
+        "assertCurrent",
+        "guideVersionRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T01:44:53.848Z",
+  "models": {
+    "Frozen": {
+      "name": "Frozen",
+      "jsdoc": "原调用冻结的工艺证据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<Awaited<ReturnType<typeof readRegisteredFrozenOperationContext>>['manifest']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requirementReads",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Original": {
+      "name": "Original",
+      "jsdoc": "按原调用身份读取的指南结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Frozen, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Frozen, 'scope' | 'guideRef' | 'guideVersionRef' | 'guideDigest'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Guide": {
+      "name": "Guide",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof readOperationActionGuide>> & Readonly<{\n    guideVersionRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Awaited<ReturnType<typeof readOperationActionGuide>>",
+            "targetName": "Awaited"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    guideVersionRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "guideVersionRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

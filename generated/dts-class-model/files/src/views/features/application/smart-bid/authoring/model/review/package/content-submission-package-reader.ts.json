@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader\n职责：由 SPARK data 的原装封记录定位第50项应重开的固定原包。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "packed": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission-package-members.ts.json#/$defs/RegisteredMember"
+          }
+        },
+        "reopen": {
+          "type": "object",
+          "title": "() => Promise<ArrayBuffer>"
+        },
+        "selectionId": {
+          "type": "string"
+        },
+        "selectionVersion": {
+          "type": "string"
+        },
+        "selectionHash": {
+          "type": "string"
+        },
+        "requiredPositions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "projectId",
+        "assertCurrent",
+        "packageId",
+        "packageHash",
+        "packed",
+        "reopen",
+        "selectionId",
+        "selectionVersion",
+        "selectionHash",
+        "requiredPositions"
+      ],
+      "additionalProperties": false
+    },
+    "Selection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Selection",
+      "properties": {
+        "packageId": {
+          "type": "string"
+        },
+        "packingRequestRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "packageId",
+        "packingRequestRef"
+      ],
+      "additionalProperties": false
+    },
+    "ResourceScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResourceScope",
+      "properties": {
+        "packageId": {
+          "type": "string"
+        },
+        "packingRequestRef": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "resourceVersionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "packageId",
+        "packingRequestRef",
+        "projectId",
+        "resourceVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "PackingEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PackingEvidence",
+      "properties": {
+        "candidate": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "selectionId": {
+              "type": "string"
+            },
+            "selectionVersion": {
+              "type": "string"
+            },
+            "selectionHash": {
+              "type": "string"
+            },
+            "packageHash": {
+              "type": "string"
+            },
+            "packed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "manifestId": {
+                    "type": "string"
+                  },
+                  "manifestVersion": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "string"
+                  },
+                  "fileVersionId": {
+                    "type": "string"
+                  },
+                  "fileHash": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "manifestId",
+                  "manifestVersion",
+                  "position",
+                  "fileVersionId",
+                  "fileHash"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "projectId",
+            "assertCurrent",
+            "selectionId",
+            "selectionVersion",
+            "selectionHash",
+            "packageHash",
+            "packed"
+          ],
+          "additionalProperties": false
+        },
+        "openAuthorized": {
+          "type": "object",
+          "title": "(scope: ResourceScope) => Promise<Readonly<{ projectId: string; resourceVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+        }
+      },
+      "required": [
+        "candidate",
+        "openAuthorized"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-19T00:40:36.253Z",
+  "models": {
+    "Source": {
+      "name": "Source",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readFrozenDeliveryZipPackageMembers>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packageHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "packed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "reopen",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionHash",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requiredPositions",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Selection": {
+      "name": "Selection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    packageId: string;\n    packingRequestRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    packageId: string;\n    packingRequestRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "packageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "packingRequestRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResourceScope": {
+      "name": "ResourceScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Selection & Readonly<{\n    projectId: string;\n    resourceVersionId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Selection",
+            "targetName": "Selection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    projectId: string;\n    resourceVersionId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceVersionId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PackingEvidence": {
+      "name": "PackingEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidate: Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>, 'bytes'>;\n    openAuthorized: Parameters<typeof readRegisteredSubmissionZipSource>[2];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidate: Omit<Awaited<ReturnType<typeof packFrozenDeliveryZip>>, 'bytes'>;\n    openAuthorized: Parameters<typeof readRegisteredSubmissionZipSource>[2];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "openAuthorized",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+[data-page="vxe-demo"] .vxe-demo-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page .el-row {
+  margin-bottom: 0;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page .el-col {
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page .r-form,
+[data-page="vxe-demo"] .vxe-demo-page .r-detail {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #ebeef5;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page .r-table {
+  margin-bottom: 20px;
+}
+
+[data-page="vxe-demo"] .vxe-demo-page .el-pagination {
+  margin-top: 20px;
+  justify-content: flex-end;
+}

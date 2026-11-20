@@ -1,0 +1,490 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/auth/platform-auth-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/auth/platform-auth-resource\n职责：登录前的企业目录只读投影，以及登录、注册账号、注册租户、发送验证码四个服务命令；供公开场景同一DataSet的命令视图提交。\n边界：会话仍由平台门面保存；回执不含密码与令牌；注册结果未知时只经同账号登录核验，不重发注册，也不提供放弃重提。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PlatformAuthResource"
+    ]
+  },
+  "$defs": {
+    "PlatformAuthApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PlatformAuthApi",
+      "$defs": {
+        "method.login.params": {
+          "type": "object",
+          "properties": {
+            "credentials": {
+              "$ref": "../../lowcode-platform-api.ts.json#/$defs/LowcodeLoginCredentials"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.listEnterprises.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listEnterprises.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeEnterpriseCatalogItem[]>"
+        },
+        "method.registerUser.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../lowcode-platform-api.ts.json#/$defs/LowcodeUserRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerUser.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.registerEnterprise.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../lowcode-platform-api.ts.json#/$defs/LowcodeEnterpriseRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerEnterprise.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.sendVerificationCode.params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "../../lowcode-platform-api.ts.json#/$defs/LowcodeVerificationRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sendVerificationCode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PlatformAuthResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PlatformAuthResourceInput",
+      "properties": {
+        "platform": {
+          "$ref": "#/$defs/PlatformAuthApi"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "PlatformAuthResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PlatformAuthResource",
+      "properties": {
+        "resources": {
+          "type": "object",
+          "properties": {
+            "enterpriseCatalog": {
+              "const": "platform:enterprise-catalog"
+            },
+            "login": {
+              "const": "platform:login"
+            },
+            "userRegistration": {
+              "const": "platform:user-registration"
+            },
+            "enterpriseRegistration": {
+              "const": "platform:enterprise-registration"
+            },
+            "verificationCode": {
+              "const": "platform:verification-code"
+            }
+          },
+          "required": [
+            "enterpriseCatalog",
+            "login",
+            "userRegistration",
+            "enterpriseRegistration",
+            "verificationCode"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PlatformAuthResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enterpriseCatalog.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enterpriseCatalog.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindReadonlyCommandQueryOptions"
+        },
+        "method.login.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        },
+        "method.userRegistration.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.userRegistration.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        },
+        "method.enterpriseRegistration.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enterpriseRegistration.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        },
+        "method.verificationCode.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verificationCode.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-13T05:31:29.350Z",
+  "models": {
+    "PlatformAuthApi": {
+      "name": "PlatformAuthApi",
+      "jsdoc": "公开平台门面中本资源使用的方法；返回值除企业目录外不进入回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    login: (credentials: LowcodeLoginCredentials) => Promise<unknown>;\n    listEnterprises: () => Promise<readonly LowcodeEnterpriseCatalogItem[]>;\n    registerUser: (input: LowcodeUserRegistration) => Promise<unknown>;\n    registerEnterprise: (input: LowcodeEnterpriseRegistration) => Promise<unknown>;\n    sendVerificationCode: (request: LowcodeVerificationRequest) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    login: (credentials: LowcodeLoginCredentials) => Promise<unknown>;\n    listEnterprises: () => Promise<readonly LowcodeEnterpriseCatalogItem[]>;\n    registerUser: (input: LowcodeUserRegistration) => Promise<unknown>;\n    registerEnterprise: (input: LowcodeEnterpriseRegistration) => Promise<unknown>;\n    sendVerificationCode: (request: LowcodeVerificationRequest) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "login",
+              "parameters": [
+                {
+                  "name": "credentials",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeLoginCredentials",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listEnterprises",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeEnterpriseCatalogItem[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerUser",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeUserRegistration",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerEnterprise",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeEnterpriseRegistration",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sendVerificationCode",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeVerificationRequest",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PlatformAuthResourceInput": {
+      "name": "PlatformAuthResourceInput",
+      "jsdoc": "platform为公开平台门面；assertCurrent在页面实例释放后抛错，阻止迟到命令写回。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    platform: PlatformAuthApi;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    platform: PlatformAuthApi;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "platform",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PlatformAuthResource": {
+      "name": "PlatformAuthResource",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: PlatformAuthResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "PlatformAuthResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resources",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "enterpriseCatalog",
+              "jsdoc": "公开企业目录；行只含身份、名称与英文简称。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindReadonlyCommandQueryOptions"
+              }
+            },
+            {
+              "name": "login",
+              "jsdoc": "登录命令：会话由平台门面保存，回执只含命令键、企业与账号。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            },
+            {
+              "name": "userRegistration",
+              "jsdoc": "注册账号后以同账号登录；登录失败时回执为已注册并说明原因。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            },
+            {
+              "name": "enterpriseRegistration",
+              "jsdoc": "注册租户后以管理员登录；新企业待审核时登录失败，回执为已注册并说明原因。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            },
+            {
+              "name": "verificationCode",
+              "jsdoc": "发送验证码；可重复发送，失败一律视为明确失败。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

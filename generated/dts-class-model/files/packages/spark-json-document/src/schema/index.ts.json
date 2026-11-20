@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/index",
+    "sourcePath": "packages/spark-json-document/src/schema/index.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/index.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/index",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/index\n职责：提供 JSON Document/schema 处理中的 index 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\nschema/index.ts — JSON Schema 公共入口\n【导出策略】类型和值分列导出，便于消费方按需导入 type-only。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:51.033Z",
+  "models": {}
+}

@@ -1,0 +1,41 @@
+{
+  "stats": {
+    "totalUsers": "1,234",
+    "todayOrders": "89",
+    "revenue": "¥98,765",
+    "pending": "12"
+  },
+  "tableData": [
+    {
+      "id": 1,
+      "name": "张三",
+      "email": "zhangsan@example.com",
+      "status": "激活",
+      "date": "2024-01-01"
+    },
+    {
+      "id": 2,
+      "name": "李四",
+      "email": "lisi@example.com",
+      "status": "禁用",
+      "date": "2024-01-02"
+    },
+    {
+      "id": 3,
+      "name": "王五",
+      "email": "wangwu@example.com",
+      "status": "激活",
+      "date": "2024-01-03"
+    }
+  ],
+  "formOptions": {
+    "statusOptions": [
+      { "label": "激活", "value": "激活" },
+      { "label": "禁用", "value": "禁用" }
+    ],
+    "genderOptions": [
+      { "label": "男", "value": "男" },
+      { "label": "女", "value": "女" }
+    ]
+  }
+}

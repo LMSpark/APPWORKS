@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/projection/cross-reference-projection",
+    "sourcePath": "src/services/smart-bid/content/projection/cross-reference-projection.ts",
+    "sourceFile": "src/services/smart-bid/content/projection/cross-reference-projection.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/projection/cross-reference-projection",
+    "jsdoc": "@module app:services/smart-bid/content/projection/cross-reference-projection\n职责：将固定呈现目标的标题或编号关联到每处 xref。\n边界：编号和标题解析由本次呈现提供；不改原节点或提前填页码。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T01:02:37.267Z",
+  "models": {}
+}

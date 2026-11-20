@@ -1,0 +1,392 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/content-scoped-preview",
+    "sourcePath": "src/services/smart-bid/content/content-scoped-preview.ts",
+    "sourceFile": "src/services/smart-bid/content/content-scoped-preview.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/content-scoped-preview",
+    "jsdoc": "@module app:services/smart-bid/content/content-scoped-preview\n职责：组合完整三版比较与V2目标解析，核候选相对基准的实际差异是否越界。\n边界：纯JSON诊断，不合并/保存；响应仅核宿主提供的身份投影，载荷和当前授权仍另核。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ContentResponseChangeIdentity",
+      "ScopedContentPreviewInput",
+      "ContentScopeViolation",
+      "ScopedContentPreview"
+    ]
+  },
+  "$defs": {
+    "ContentResponseChangeIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentResponseChangeIdentity",
+      "properties": {
+        "assignmentId": {
+          "type": "string"
+        },
+        "basisResponseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "responseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "assignmentId",
+        "basisResponseId",
+        "responseId"
+      ],
+      "additionalProperties": false
+    },
+    "ScopedContentPreviewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScopedContentPreviewInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "basis": true,
+        "current": true,
+        "candidate": true,
+        "targetScope": true,
+        "responses": {
+          "type": "array",
+          "items": {
+            "$ref": "content-target-scope.ts.json#/$defs/ContentScopeResponse"
+          }
+        },
+        "declaredAddedNodeIds": true,
+        "responseChanges": true
+      },
+      "required": [
+        "projectId",
+        "basis",
+        "current",
+        "candidate",
+        "targetScope",
+        "responses",
+        "declaredAddedNodeIds",
+        "responseChanges"
+      ],
+      "additionalProperties": false
+    },
+    "ContentScopeViolation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentScopeViolation",
+      "properties": {
+        "code": {
+          "enum": [
+            "NODE_OUTSIDE_SCOPE",
+            "STRUCTURE_PARENT_OUTSIDE_SCOPE",
+            "ADDITION_OUTSIDE_SCOPE",
+            "UNDECLARED_ADDITION",
+            "UNEXPECTED_ADDITION_DECLARATION",
+            "RESPONSE_OUTSIDE_SCOPE",
+            "RESPONSE_BASIS_MISMATCH",
+            "RESPONSE_ID_REUSE"
+          ]
+        },
+        "ownerKind": {
+          "enum": [
+            "NODE",
+            "RESPONSE"
+          ]
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "relatedId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "ownerKind",
+        "ownerId",
+        "relatedId"
+      ],
+      "additionalProperties": false
+    },
+    "ScopedContentPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScopedContentPreview",
+      "properties": {
+        "targetScope": {
+          "$ref": "content-target-scope.ts.json#/$defs/ContentTargetScope"
+        },
+        "comparison": {
+          "$ref": "../content-tree-comparison.ts.json#/$defs/ContentTreeComparison"
+        },
+        "scopeCheckPassed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "violations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentScopeViolation"
+          }
+        },
+        "changedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "addedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "responseChanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContentResponseChangeIdentity"
+          }
+        },
+        "requiresCurrentAuthorityChecks": {
+          "const": true
+        },
+        "requiresResponsePayloadChecks": {
+          "const": true
+        },
+        "requiresMergedSnapshotValidation": {
+          "const": true
+        }
+      },
+      "required": [
+        "targetScope",
+        "comparison",
+        "scopeCheckPassed",
+        "violations",
+        "changedNodeIds",
+        "addedNodeIds",
+        "responseChanges",
+        "requiresCurrentAuthorityChecks",
+        "requiresResponsePayloadChecks",
+        "requiresMergedSnapshotValidation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T22:13:35.073Z",
+  "models": {
+    "ContentResponseChangeIdentity": {
+      "name": "ContentResponseChangeIdentity",
+      "jsdoc": "由宿主从实际响应变更提取，不得由AI另交一份无关的“通过清单”。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assignmentId: string;\n    basisResponseId: string | null;\n    responseId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assignmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basisResponseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScopedContentPreviewInput": {
+      "name": "ScopedContentPreviewInput",
+      "jsdoc": "完整树及变更清单都须显式取得，空数组与缺失不同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n    targetScope: unknown;\n    responses: readonly ContentScopeResponse[];\n    declaredAddedNodeIds: unknown;\n    responseChanges: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    basis: unknown;\n    current: unknown;\n    candidate: unknown;\n    targetScope: unknown;\n    responses: readonly ContentScopeResponse[];\n    declaredAddedNodeIds: unknown;\n    responseChanges: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "basis",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responses",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "declaredAddedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseChanges",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentScopeViolation": {
+      "name": "ContentScopeViolation",
+      "jsdoc": "确定的范围错误；scopeCheckPassed只汇总这些错误，不授予采用权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    code: 'NODE_OUTSIDE_SCOPE' | 'STRUCTURE_PARENT_OUTSIDE_SCOPE' | 'ADDITION_OUTSIDE_SCOPE' | 'UNDECLARED_ADDITION' | 'UNEXPECTED_ADDITION_DECLARATION' | 'RESPONSE_OUTSIDE_SCOPE' | 'RESPONSE_BASIS_MISMATCH' | 'RESPONSE_ID_REUSE';\n    ownerKind: 'NODE' | 'RESPONSE';\n    ownerId: string;\n    relatedId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    code: 'NODE_OUTSIDE_SCOPE' | 'STRUCTURE_PARENT_OUTSIDE_SCOPE' | 'ADDITION_OUTSIDE_SCOPE' | 'UNDECLARED_ADDITION' | 'UNEXPECTED_ADDITION_DECLARATION' | 'RESPONSE_OUTSIDE_SCOPE' | 'RESPONSE_BASIS_MISMATCH' | 'RESPONSE_ID_REUSE';\n    ownerKind: 'NODE' | 'RESPONSE';\n    ownerId: string;\n    relatedId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relatedId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScopedContentPreview": {
+      "name": "ScopedContentPreview",
+      "jsdoc": "业务范围与三方冲突分别展示；不得把本结果作为服务端采用/授权凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    targetScope: ContentTargetScope;\n    comparison: ContentTreeComparison;\n    scopeCheckPassed: boolean;\n    violations: readonly ContentScopeViolation[];\n    changedNodeIds: readonly string[];\n    addedNodeIds: readonly string[];\n    responseChanges: readonly ContentResponseChangeIdentity[];\n    requiresCurrentAuthorityChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresMergedSnapshotValidation: true;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    targetScope: ContentTargetScope;\n    comparison: ContentTreeComparison;\n    scopeCheckPassed: boolean;\n    violations: readonly ContentScopeViolation[];\n    changedNodeIds: readonly string[];\n    addedNodeIds: readonly string[];\n    responseChanges: readonly ContentResponseChangeIdentity[];\n    requiresCurrentAuthorityChecks: true;\n    requiresResponsePayloadChecks: true;\n    requiresMergedSnapshotValidation: true;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targetScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "comparison",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeCheckPassed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "violations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "addedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseChanges",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresCurrentAuthorityChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresResponsePayloadChecks",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresMergedSnapshotValidation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

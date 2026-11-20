@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/baseline-tender-records",
+    "sourcePath": "src/services/smart-bid/content/references/baseline-tender-records.ts",
+    "sourceFile": "src/services/smart-bid/content/references/baseline-tender-records.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/baseline-tender-records",
+    "jsdoc": "@module app:services/smart-bid/content/references/baseline-tender-records\n职责：校验基线固定的核定记录引用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "TenderRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TenderRecord",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "ordinal": {
+          "type": "number"
+        },
+        "recordVersion": {
+          "type": "string"
+        },
+        "recordHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "type",
+        "ordinal",
+        "recordVersion",
+        "recordHash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T21:09:33.748Z",
+  "models": {
+    "TenderRecord": {
+      "name": "TenderRecord",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof readTenderRecordReference>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof readTenderRecordReference>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ordinal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recordVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recordHash",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

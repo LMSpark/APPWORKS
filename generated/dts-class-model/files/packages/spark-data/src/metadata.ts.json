@@ -1,0 +1,655 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:metadata",
+    "sourcePath": "packages/spark-data/src/metadata.ts",
+    "sourceFile": "packages/spark-data/src/metadata.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "metadata",
+    "jsdoc": "@module @spark-appworks/spark-data:metadata\n职责：提供数据层 metadata 能力，围绕 TableMetadataLike 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 metadata 的数据语义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "TableMetadataLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableMetadataLike",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "views": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "required": [
+            "default"
+          ],
+          "additionalProperties": {
+            "$ref": "types.ts.json#/$defs/ViewMetadata"
+          }
+        },
+        "resourceType": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "toString": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "charAt": {
+                  "type": "object",
+                  "title": "(pos: number) => string"
+                },
+                "charCodeAt": {
+                  "type": "object",
+                  "title": "(index: number) => number"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "(...strings: string[]) => string"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "localeCompare": {
+                  "type": "object",
+                  "title": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }"
+                },
+                "match": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }"
+                },
+                "replace": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: s..."
+                },
+                "search": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "(start?: number, end?: number) => string"
+                },
+                "split": {
+                  "type": "object",
+                  "title": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }"
+                },
+                "substring": {
+                  "type": "object",
+                  "title": "(start: number, end?: number) => string"
+                },
+                "toLowerCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleLowerCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "toUpperCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleUpperCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "trim": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "substr": {
+                  "type": "object",
+                  "title": "(from: number, length?: number) => string"
+                },
+                "valueOf": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "codePointAt": {
+                  "type": "object",
+                  "title": "(pos: number) => number | undefined"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "endsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, endPosition?: number) => boolean"
+                },
+                "normalize": {
+                  "type": "object",
+                  "title": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }"
+                },
+                "repeat": {
+                  "type": "object",
+                  "title": "(count: number) => string"
+                },
+                "startsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "title": "(name: string) => string"
+                },
+                "big": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "blink": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "bold": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fixed": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fontcolor": {
+                  "type": "object",
+                  "title": "(color: string) => string"
+                },
+                "fontsize": {
+                  "type": "object",
+                  "title": "{ (size: number): string; (size: string): string; }"
+                },
+                "italics": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "link": {
+                  "type": "object",
+                  "title": "(url: string) => string"
+                },
+                "small": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "strike": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sub": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sup": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "padStart": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "padEnd": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "trimEnd": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimStart": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimLeft": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimRight": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "matchAll": {
+                  "type": "object",
+                  "title": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>"
+                },
+                "replaceAll": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "(index: number) => string | undefined"
+                },
+                "__@iterator@302806": {
+                  "type": "object",
+                  "title": "() => StringIterator<string>"
+                }
+              },
+              "required": [
+                "toString",
+                "charAt",
+                "charCodeAt",
+                "concat",
+                "indexOf",
+                "lastIndexOf",
+                "localeCompare",
+                "match",
+                "replace",
+                "search",
+                "slice",
+                "split",
+                "substring",
+                "toLowerCase",
+                "toLocaleLowerCase",
+                "toUpperCase",
+                "toLocaleUpperCase",
+                "trim",
+                "length",
+                "substr",
+                "valueOf",
+                "codePointAt",
+                "includes",
+                "endsWith",
+                "normalize",
+                "repeat",
+                "startsWith",
+                "anchor",
+                "big",
+                "blink",
+                "bold",
+                "fixed",
+                "fontcolor",
+                "fontsize",
+                "italics",
+                "link",
+                "small",
+                "strike",
+                "sub",
+                "sup",
+                "padStart",
+                "padEnd",
+                "trimEnd",
+                "trimStart",
+                "trimLeft",
+                "trimRight",
+                "matchAll",
+                "replaceAll",
+                "at",
+                "__@iterator@302806"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "const": "database-table"
+            },
+            {
+              "const": "database-view"
+            },
+            {
+              "const": "third-party-api"
+            },
+            {
+              "const": "static-data"
+            },
+            {
+              "const": "dictionary"
+            },
+            {
+              "const": "logical-view"
+            }
+          ]
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "modelBinding": {
+          "$ref": "types.ts.json#/$defs/TableModelBinding"
+        },
+        "businessCategory": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "toString": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "charAt": {
+                  "type": "object",
+                  "title": "(pos: number) => string"
+                },
+                "charCodeAt": {
+                  "type": "object",
+                  "title": "(index: number) => number"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "(...strings: string[]) => string"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "localeCompare": {
+                  "type": "object",
+                  "title": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }"
+                },
+                "match": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }"
+                },
+                "replace": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: s..."
+                },
+                "search": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "(start?: number, end?: number) => string"
+                },
+                "split": {
+                  "type": "object",
+                  "title": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }"
+                },
+                "substring": {
+                  "type": "object",
+                  "title": "(start: number, end?: number) => string"
+                },
+                "toLowerCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleLowerCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "toUpperCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleUpperCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "trim": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "substr": {
+                  "type": "object",
+                  "title": "(from: number, length?: number) => string"
+                },
+                "valueOf": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "codePointAt": {
+                  "type": "object",
+                  "title": "(pos: number) => number | undefined"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "endsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, endPosition?: number) => boolean"
+                },
+                "normalize": {
+                  "type": "object",
+                  "title": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }"
+                },
+                "repeat": {
+                  "type": "object",
+                  "title": "(count: number) => string"
+                },
+                "startsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "title": "(name: string) => string"
+                },
+                "big": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "blink": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "bold": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fixed": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fontcolor": {
+                  "type": "object",
+                  "title": "(color: string) => string"
+                },
+                "fontsize": {
+                  "type": "object",
+                  "title": "{ (size: number): string; (size: string): string; }"
+                },
+                "italics": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "link": {
+                  "type": "object",
+                  "title": "(url: string) => string"
+                },
+                "small": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "strike": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sub": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sup": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "padStart": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "padEnd": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "trimEnd": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimStart": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimLeft": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimRight": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "matchAll": {
+                  "type": "object",
+                  "title": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>"
+                },
+                "replaceAll": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "(index: number) => string | undefined"
+                },
+                "__@iterator@302806": {
+                  "type": "object",
+                  "title": "() => StringIterator<string>"
+                }
+              },
+              "required": [
+                "toString",
+                "charAt",
+                "charCodeAt",
+                "concat",
+                "indexOf",
+                "lastIndexOf",
+                "localeCompare",
+                "match",
+                "replace",
+                "search",
+                "slice",
+                "split",
+                "substring",
+                "toLowerCase",
+                "toLocaleLowerCase",
+                "toUpperCase",
+                "toLocaleUpperCase",
+                "trim",
+                "length",
+                "substr",
+                "valueOf",
+                "codePointAt",
+                "includes",
+                "endsWith",
+                "normalize",
+                "repeat",
+                "startsWith",
+                "anchor",
+                "big",
+                "blink",
+                "bold",
+                "fixed",
+                "fontcolor",
+                "fontsize",
+                "italics",
+                "link",
+                "small",
+                "strike",
+                "sub",
+                "sup",
+                "padStart",
+                "padEnd",
+                "trimEnd",
+                "trimStart",
+                "trimLeft",
+                "trimRight",
+                "matchAll",
+                "replaceAll",
+                "at",
+                "__@iterator@302806"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "const": "master"
+            },
+            {
+              "const": "child"
+            },
+            {
+              "const": "reference"
+            }
+          ]
+        },
+        "api": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "tableName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "columns",
+        "views"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-11T08:46:53.335Z",
+  "models": {
+    "TableMetadataLike": {
+      "name": "TableMetadataLike",
+      "jsdoc": "Table Metadata Like 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<TableMetadata, 'tableName'> & {\n    /** 数据表名。 */\n    tableName?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<TableMetadata, 'tableName'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 数据表名。 */\n    tableName?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "数据表名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

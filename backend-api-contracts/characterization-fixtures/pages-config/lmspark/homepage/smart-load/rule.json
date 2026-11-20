@@ -1,0 +1,233 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "el-alert",
+        "props": {
+          "type": "info",
+          "title": "智能依赖加载演示",
+          "closable": false,
+          "description": "点击按钮请求 OrderDetails 数据，内核会自动分析依赖链 (OrderDetails → Products → Categories) 并智能加载"
+        }
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "el-button",
+            "children": [
+              "📦 请求订单明细数据"
+            ],
+            "props": {
+              "type": "primary",
+              "on": {
+                "click": "handleRequestOrderDetails"
+              }
+            }
+          },
+          {
+            "type": "el-button",
+            "children": [
+              "🛍️ 请求产品数据"
+            ],
+            "props": {
+              "type": "success",
+              "on": {
+                "click": "handleRequestProducts"
+              }
+            }
+          },
+          {
+            "type": "el-button",
+            "children": [
+              "📁 请求分类数据"
+            ],
+            "props": {
+              "type": "warning",
+              "on": {
+                "click": "handleRequestCategories"
+              }
+            }
+          },
+          {
+            "type": "el-button",
+            "children": [
+              "🗑️ 清空所有数据"
+            ],
+            "props": {
+              "type": "danger",
+              "on": {
+                "click": "handleClearAll"
+              }
+            }
+          }
+        ],
+        "props": {
+          "class": "button-group",
+          "style": {
+            "margin": "20px 0"
+          }
+        }
+      },
+      {
+        "type": "el-row",
+        "children": [
+          {
+            "type": "el-col",
+            "children": [
+              {
+                "type": "el-card",
+                "children": [
+                  {
+                    "type": "r-table",
+                    "children": [
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "id",
+                          "label": "ID",
+                          "width": "60"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "name",
+                          "label": "分类名称"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "border": true,
+                      "size": "small",
+                      "dataViewKey": "Categories@default"
+                    }
+                  }
+                ],
+                "props": {
+                  "header": "分类表 (Categories) - 根表"
+                }
+              }
+            ],
+            "props": {
+              "span": 8
+            }
+          },
+          {
+            "type": "el-col",
+            "children": [
+              {
+                "type": "el-card",
+                "children": [
+                  {
+                    "type": "r-table",
+                    "children": [
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "id",
+                          "label": "ID",
+                          "width": "60"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "categoryId",
+                          "label": "分类ID",
+                          "width": "80"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "name",
+                          "label": "产品名"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "price",
+                          "label": "价格",
+                          "width": "80"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "border": true,
+                      "size": "small",
+                      "dataViewKey": "Products@default"
+                    }
+                  }
+                ],
+                "props": {
+                  "header": "产品表 (Products) - 依赖 Categories"
+                }
+              }
+            ],
+            "props": {
+              "span": 8
+            }
+          },
+          {
+            "type": "el-col",
+            "children": [
+              {
+                "type": "el-card",
+                "children": [
+                  {
+                    "type": "r-table",
+                    "children": [
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "id",
+                          "label": "ID",
+                          "width": "60"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "productId",
+                          "label": "产品ID",
+                          "width": "80"
+                        }
+                      },
+                      {
+                        "type": "el-table-column",
+                        "props": {
+                          "prop": "quantity",
+                          "label": "数量"
+                        }
+                      }
+                    ],
+                    "props": {
+                      "border": true,
+                      "size": "small",
+                      "dataViewKey": "OrderDetails@default"
+                    }
+                  }
+                ],
+                "props": {
+                  "header": "订单明细表 (OrderDetails) - 依赖 Products"
+                }
+              }
+            ],
+            "props": {
+              "span": 8
+            }
+          }
+        ],
+        "props": {
+          "gutter": 20
+        }
+      }
+    ],
+    "props": {
+      "class": "smart-load-container"
+    }
+  }
+]

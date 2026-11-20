@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/DisplayIcon/display-icon-name",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/DisplayIcon/display-icon-name.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/DisplayIcon/display-icon-name",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/DisplayIcon/display-icon-name\n职责：把配置或导航记录中的图标名解析为 Element Plus 图标名，承接历史导航数据中的旧图标类名。\n边界：只做名称解析，不渲染、不注册图标。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DisplayIconName"
+    ],
+    "componentName": "DisplayIcon",
+    "componentType": "display-icon",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "DisplayIconName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DisplayIconName",
+      "properties": {
+        "icon": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-14T07:10:03.198Z",
+  "models": {
+    "DisplayIconName": {
+      "name": "DisplayIconName",
+      "jsdoc": "解析结果：icon 为可渲染的图标名；text 为无对应图标时直接显示的文本（如 emoji）。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayIcon",
+        "type": "display-icon",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    icon?: string;\n    text?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    icon?: string;\n    text?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

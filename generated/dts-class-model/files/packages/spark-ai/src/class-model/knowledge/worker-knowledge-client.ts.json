@@ -1,0 +1,392 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/knowledge/worker-knowledge-client",
+    "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/knowledge/worker-knowledge-client",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/knowledge/worker-knowledge-client\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 worker-knowledge-client 能力，围绕 WorkerClassModelKnowledgeProvider 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/worker-knowledge-client 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "CreateWorkerDtsClassModelKnowledgeProviderOptions",
+      "WorkerClassModelKnowledgeProvider"
+    ]
+  },
+  "$defs": {
+    "CreateWorkerDtsClassModelKnowledgeProviderOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateWorkerDtsClassModelKnowledgeProviderOptions",
+      "properties": {
+        "workerUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "URL"
+            }
+          ]
+        },
+        "workerInit": {
+          "type": "object",
+          "title": "WorkerOptions"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.createWorker.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "title": "URL"
+                }
+              ]
+            },
+            "options": {
+              "type": "object",
+              "title": "WorkerOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createWorker.return": {
+          "type": "object",
+          "title": "Worker"
+        }
+      }
+    },
+    "WorkerClassModelKnowledgeProvider": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkerClassModelKnowledgeProvider",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "worker": {
+              "type": "object",
+              "title": "Worker"
+            },
+            "init": {
+              "$ref": "worker-knowledge-api.ts.json#/$defs/ClassModelKnowledgeWorkerInitInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<JsonValue>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "requestedClassName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.modelGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelModelGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.modelGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.attributeGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelAttributeGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.attributeGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.methodGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelMethodGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.methodGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.507Z",
+  "models": {
+    "CreateWorkerDtsClassModelKnowledgeProviderOptions": {
+      "name": "CreateWorkerDtsClassModelKnowledgeProviderOptions",
+      "jsdoc": "Create Worker Dts Class Model Knowledge Provider Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ClassModelKnowledgeWorkerInitInput & Readonly<{\n    /** Worker 脚本的 URL，用于在主线程创建 Web Worker 实例；必须指向知识链路的 worker 入口文件。 */\n    workerUrl: string | URL;\n    /** 传递给 Worker 构造函数的选项（如 type: 'module'），默认为 { type: 'module' }。 */\n    workerInit?: WorkerOptions;\n    /** 自定义 Worker 创建函数，用于替代默认的 new Worker()；在非浏览器环境或需要拦截 Worker 生命周期时注入。 */\n    createWorker?: (url: string | URL, options?: WorkerOptions) => Worker;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ClassModelKnowledgeWorkerInitInput",
+            "targetName": "ClassModelKnowledgeWorkerInitInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** Worker 脚本的 URL，用于在主线程创建 Web Worker 实例；必须指向知识链路的 worker 入口文件。 */\n    workerUrl: string | URL;\n    /** 传递给 Worker 构造函数的选项（如 type: 'module'），默认为 { type: 'module' }。 */\n    workerInit?: WorkerOptions;\n    /** 自定义 Worker 创建函数，用于替代默认的 new Worker()；在非浏览器环境或需要拦截 Worker 生命周期时注入。 */\n    createWorker?: (url: string | URL, options?: WorkerOptions) => Worker;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workerUrl",
+              "jsdoc": "Worker 脚本的 URL，用于在主线程创建 Web Worker 实例；必须指向知识链路的 worker 入口文件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workerInit",
+              "jsdoc": "传递给 Worker 构造函数的选项（如 type: 'module'），默认为 { type: 'module' }。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "createWorker",
+              "jsdoc": "自定义 Worker 创建函数，用于替代默认的 new Worker()；在非浏览器环境或需要拦截 Worker 生命周期时注入。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "URL"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "WorkerOptions"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Worker"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkerClassModelKnowledgeProvider": {
+      "name": "WorkerClassModelKnowledgeProvider",
+      "jsdoc": "主线程 knowledge provider。\n成熟 Worker 通信由 Comlink 负责；主线程只传 metadata/catalog URL 和小查询参数。\n注意：本文件不得 import spark-json-document，也不得 import generated metadata JSON。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Worker Class Model Knowledge Provider 实例。",
+          "signatureText": "constructor(worker: Worker, init: ClassModelKnowledgeWorkerInitInput)",
+          "parameters": [
+            {
+              "name": "worker",
+              "type": {
+                "type": "reference",
+                "name": "Worker"
+              }
+            },
+            {
+              "name": "init",
+              "type": {
+                "type": "reference",
+                "name": "ClassModelKnowledgeWorkerInitInput",
+                "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-api.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "ClassModelKnowledgeProvider",
+            "targetName": "ClassModelKnowledgeProvider"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "query",
+              "jsdoc": "查询参数。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeQueryInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "显式刷新 worker 内 knowledge bundle，并让 worker 重新加载 manifest。",
+              "parameters": [
+                {
+                  "name": "requestedClassName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "modelGuide",
+              "jsdoc": "执行 model Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelModelGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "attributeGuide",
+              "jsdoc": "执行 attribute Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelAttributeGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "methodGuide",
+              "jsdoc": "执行 method Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelMethodGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion",
+    "sourcePath": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion",
+    "jsdoc": "app 的 views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-deletion 模块。\n导出 DtsTypeDeclarationModel symbol: DimensionRuleDeletion（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DimensionRuleDeletion"
+    ]
+  },
+  "$defs": {
+    "Id": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Id",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "context": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "ids",
+        "context"
+      ],
+      "additionalProperties": false
+    },
+    "DeleteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DeleteCommand",
+      "properties": {
+        "rule": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "rule",
+        "children",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionRuleDeletion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionRuleDeletion",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Target"
+          }
+        },
+        "phase": {
+          "enum": [
+            "continue",
+            "done",
+            "pending",
+            "verify",
+            "settle",
+            "reload",
+            "broken"
+          ]
+        },
+        "failure": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "dataSet",
+        "targets",
+        "phase",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-11T17:25:32.866Z",
+  "models": {
+    "Id": {
+      "name": "Id",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Target": {
+      "name": "Target",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids: readonly Id[];\n    context: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids: readonly Id[];\n    context: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DeleteCommand": {
+      "name": "DeleteCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rule: DataView;\n    children: readonly DataView[];\n    id: Id;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rule: DataView;\n    children: readonly DataView[];\n    id: Id;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rule",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DimensionRuleDeletion": {
+      "name": "DimensionRuleDeletion",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: Id;\n    dataSet: DataSet;\n    targets: readonly Target[];\n    phase: 'continue' | 'pending' | 'verify' | 'settle' | 'reload' | 'broken' | 'done';\n    failure?: Error | undefined;\n    message: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "phase",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "failure",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

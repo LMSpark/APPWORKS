@@ -1,0 +1,30 @@
+{
+    "tenant": {
+        "tenantId": "enterprise",
+        "tenantName": "企业租户",
+        "tenantCode": "ENTERPRISE",
+        "logo": "/assets/logo-enterprise.png",
+        "theme": {
+            "primaryColor": "#722ed1"
+        }
+    },
+    "config": {
+        "apiBaseUrl": "/api/enterprise",
+        "version": "1.0.0-enterprise",
+        "features": {
+            "enableAI": true,
+            "enableExport": true,
+            "enableOffline": true
+        }
+    },
+    "pageNode": {
+        "apiBaseUrl": "/api/enterprise",
+        "source": "local",
+        "homePath": "/home"
+    },
+    "logger": {
+        "level": "warn",
+        "enableRemote": true,
+        "showTimestamp": false
+    }
+}

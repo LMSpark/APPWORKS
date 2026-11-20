@@ -1,0 +1,493 @@
+<!--
+@module app:views/DataBaseManage/DataBaseManage/index
+职责：数据库目录主列表；服务器与数据库均绑定本页正式 DataView，数据库单行新增通过原 DataSet 保存。
+AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正式表视图页面。
+-->
+<template>
+  <RendererSection class="database-directory-page" title="数据库列表" :bordered="false" :grid-columns="1" :grid-gap="16"
+    :status="loading ? '正在读取数据库目录…' : ''" :error="error" :retryable="!loading && !!error" retry-text="重试" @retry="reloadPage">
+    <DisplayAlert v-if="message" alert-type="info" :closable="false" :show-icon="true" :title="message" />
+    <template v-if="ready">
+      <div class="database-directory-page__layout">
+        <RendererSection title="服务器" aria-label="服务器选择" class="database-directory-page__servers" :bordered="true" :grid-columns="1">
+          <DisplayAlert v-if="serverError" alert-type="error" :closable="false" :show-icon="true" :title="serverError" />
+          <RendererTable :data-view-key="serverKey" :children="DATABASE_SERVER_LIST_FIELDS"
+            :stripe="true" :border="true" :on-row-click="chooseServer" :highlight-current-row="true"
+            :show-pagination="true" :show-data-view-meta="false" />
+        </RendererSection>
+        <RendererSection title="数据库" aria-label="数据库列表" class="database-directory-page__databases" :bordered="true" :grid-columns="1">
+          <DisplayAlert v-if="databaseError" alert-type="error" :closable="false" :show-icon="true" :title="databaseError" />
+          <RendererTable :data-view-key="databaseKey" :children="DATABASE_DIRECTORY_LIST_FIELDS"
+            :toolbar="toolbar" :filter="listFilter" :stripe="true" :border="true" :on-row-click="chooseDatabase"
+            :highlight-current-row="true" :show-pagination="true" :show-data-view-meta="false" />
+        </RendererSection>
+      </div>
+      <DisplayAlert v-if="connectionTestError && !connectionTestOpen" alert-type="error" :closable="false" :show-icon="true" :title="connectionTestError" />
+      <RendererDialog :data-view-key="connectionTestInputKey" :model-value="connectionTestOpen" title="测试数据库连接" :width="560"
+        @update:model-value="closeConnectionTest">
+        <p>当前目标数据库：{{ selectedDatabase?.['Name'] ?? '' }}</p>
+        <p>数据库与服务器参数来自当前选中的目录记录。账号和密码仅用于本次测试。</p>
+        <RendererForm :data-view-key="connectionTestInputKey" :children="CONNECTION_TEST_FIELDS" />
+        <RendererForm :data-view-key="connectionTestResultKey" :children="CONNECTION_TEST_RESULT_FIELDS" :readonly="true" />
+        <DisplayAlert v-if="connectionTestError" alert-type="error" :closable="false" :show-icon="true" :title="connectionTestError" />
+        <template #footer>
+          <RendererButton label="取消" @click="closeConnectionTest(false)" />
+          <RendererButton label="测试连接" :disabled="connectionTesting" @click="runConnectionTest" />
+        </template>
+      </RendererDialog>
+      <RegisterDatabaseDialog v-if="editing" :catalog-key="databaseKey" :server-label="selectedServerLabel"
+        :editing="editing" :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredHint"
+        :can-load-unregistered="canLoadUnregistered" @cancel="cancelEdit" @save="saveEdit"
+        @load-unregistered="loadUnregisteredNames" />
+      <RendererDialog v-if="deleteConfirmation" :data-view-key="databaseKey" :model-value="true" title="删除数据库目录记录" :width="480"
+        :close-disabled="busy || deleteUnconfirmed" @update:model-value="closeDeleteConfirmation">
+        <p v-if="deleteConfirmation">确定删除数据库目录中的“{{ deleteConfirmation.name }}”记录吗？</p>
+        <p>有有效表或视图时，服务会拒绝删除；不会删除物理数据库。</p>
+        <DisplayAlert v-if="deleteUnconfirmed" alert-type="warning" :closable="false" :show-icon="true"
+          title="删除结果尚未确认。核验只确认原提交，不会再次写入；请使用下方核验操作。" />
+        <DisplayAlert v-if="actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
+        <template #footer>
+          <RendererButton label="取消" :disabled="busy || deleteUnconfirmed" @click="closeDeleteConfirmation(false)" />
+          <RendererButton :label="deleteUnconfirmed ? '核验删除结果' : '确认删除'" button-type="danger"
+            :disabled="busy || !deleteConfirmation" @click="deleteCapturedDatabase" />
+        </template>
+      </RendererDialog>
+      <DisplayAlert v-if="actionError && !editing" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
+    </template>
+  </RendererSection>
+</template>
+
+<script setup lang="ts">
+import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
+import {NativePageRuntimeSession, normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree,
+  useSystemPageDirtySource, type RuntimeNavigationItem} from '@spark-appworks/spark-app'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
+
+const {DisplayAlert, PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent} = SparkComponent
+import {useRoute} from 'vue-router'
+import {readDatabaseCatalogScope} from '@/lowcode/resources/database/catalog/scenario'
+import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
+  DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/directory'
+import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
+import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/lowcode/resources/database/directory'
+import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
+import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
+import {
+  databaseCatalogDbBeginCreate,
+  databaseCatalogDbBeginEdit,
+  databaseCatalogDbCanEdit,
+  databaseCatalogDbCanCreate,
+  databaseCatalogDbCanDelete,
+  databaseCatalogDbDelete,
+  databaseCatalogDbCancelEdit,
+  databaseCatalogDbEditing,
+  databaseCatalogDbSaveEdit,
+  databaseCatalogQueryUnregisteredDbNames,
+  databaseCatalogServerSelectedId,
+  requireDatabaseCatalogDbView,
+  requireDatabaseCatalogServerView,
+  type DatabaseCatalogDbEditState,
+} from '@/lowcode/resources/database/catalog/db-view-ops'
+import RegisterDatabaseDialog from '@/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue'
+
+const TABLE_VIEW_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'
+const route = useRoute()
+const nav = useNav()
+const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
+const scopeFingerprint = computed(() => readDatabaseCatalogScope().fingerprint)
+const {sparkProvide, sparkRemove} = useSparkComponent({type: 'database-directory-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
+const dataSet = shallowRef<DataSet>()
+const serverView = shallowRef<DataView>()
+const databaseView = shallowRef<DataView>()
+const edit = shallowRef<DatabaseCatalogDbEditState>()
+const deleteConfirmation = shallowRef<{id: string | number; name: string}>()
+const ready = ref(false), loading = ref(false), error = ref(''), reloadNonce = ref(0), revision = ref(0)
+const reloadPage = () => {reloadNonce.value++}
+const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref('')
+const connectionTestOpen = ref(false), connectionTesting = ref(false), connectionTestError = ref('')
+let unsubscribe: (() => void) | undefined
+let generation = 0
+let actionGeneration = 0
+let active = true
+
+const databaseKey = computed(() => buildDataViewKey('_base_dbInfo', 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const serverKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const connectionTestInputKey = computed(() => buildDataViewKey(DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const connectionTestResultKey = computed(() => buildDataViewKey(DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const CONNECTION_TEST_FIELDS: SparkNode[] = [
+  {type: 'r-text', props: {field: 'Type', label: '数据库类型', readonly: true}},
+  {type: 'r-text', props: {field: 'ServerName', label: '服务器', readonly: true}},
+  {type: 'r-text', props: {field: 'ip_address', label: '主机地址', readonly: true}},
+  {type: 'r-text', props: {field: 'Port', label: '端口', readonly: true}},
+  {type: 'r-text', props: {field: 'UserName', label: '账号'}},
+  {type: 'r-text', props: {field: 'Password', label: '密码', showPassword: true}},
+]
+const CONNECTION_TEST_RESULT_FIELDS: SparkNode[] = [{type: 'r-text', props: {field: 'ok', label: '测试结果'}}]
+const listFilter = computed<RFilterProps>(() => ({autoQuery: true, collapsible: true, defaultCollapsed: true}))
+const databaseError = computed(() => {revision.value; return databaseView.value?.loadingError?.message ?? ''})
+const serverError = computed(() => {revision.value; return serverView.value?.loadingError?.message ?? ''})
+const editing = computed(() => {revision.value; const view = databaseView.value; return view ? databaseCatalogDbEditing(view, edit.value) : undefined})
+const deleteUnconfirmed = computed(() => {revision.value; return !!databaseView.value?.hasUnconfirmedSave})
+const selectedServerLabel = computed(() => {
+  revision.value
+  const view = serverView.value
+  if (!view) return ''
+  const id = databaseCatalogServerSelectedId(view)
+  const row = view.rows.find(item => String(view.getPkKey(item) ?? '') === id)
+  return typeof row?.['ServerName'] === 'string' ? row['ServerName'] : id
+})
+const canLoadUnregistered = computed(() => Boolean(serverView.value && databaseCatalogServerSelectedId(serverView.value) && !busy.value))
+const toolbar = computed<RToolbarProps>(() => {
+  revision.value
+  const databases = databaseView.value
+  const servers = serverView.value
+  return {children: [
+    {type: 'r-button', props: {label: '新增数据库', disabled: busy.value || !!edit.value || !databases || !servers
+      || !databaseCatalogDbCanCreate(databases, servers, edit.value), onClick: beginCreate}},
+    {type: 'r-button', props: {label: '编辑数据库', disabled: busy.value || !!edit.value || !databases
+      || !databaseCatalogDbCanEdit(databases, edit.value), onClick: beginEdit}},
+    {type: 'r-button', props: {label: '删除', disabled: busy.value || !!edit.value || !databases
+      || !databaseCatalogDbCanDelete(databases, selectedDatabase.value ? databases.getPkKey(selectedDatabase.value) : undefined), onClick: beginDelete}},
+    {type: 'r-button', props: {label: '测试数据库连接', disabled: busy.value || !!edit.value || connectionTesting.value || !selectedDatabase.value, onClick: beginConnectionTest}},
+    {type: 'r-button', props: {label: '管理', disabled: busy.value || !selectedDatabase.value, onClick: openTableView}},
+    {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
+  ]}
+})
+function hasPendingWork(): boolean {
+  if (busy.value || loading.value) return true
+  const ds = dataSet.value
+  if (!ds) return false
+  return Object.values(ds.tables).some(table => table.tableName !== DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE
+    && Object.values(table.views).some(view =>
+      view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+}
+useSystemPageDirtySource({get isDirty() {return hasPendingWork()}})
+const selectedDatabase = computed(() => {
+  revision.value
+  const view = databaseView.value
+  const selected = view?.getSelectedValues() ?? []
+  if (!view || selected.length !== 1) return undefined
+  return view.rows.find(row => view.getPkKey(row) === selected[0])
+})
+
+function chooseServer(row: DataRow): void {
+  const view = serverView.value
+  const original = toRaw(row)
+  if (busy.value || edit.value || !view?.rows.includes(original)) return
+  view.setSelectedRows([original])
+  revision.value++
+}
+
+function chooseDatabase(row: DataRow): void {
+  const view = databaseView.value
+  const original = toRaw(row)
+  if (busy.value || edit.value || !view?.rows.includes(original)) return
+  view.setSelectedRows([original])
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  if (connectionTestOpen.value && dataSet.value) {
+    try {
+      const id = view.getPkKey(original)
+      if (typeof id !== 'string' && typeof id !== 'number') throw new Error('所选数据库缺少正式主键')
+      captureDatabaseDirectoryConnectionTestTarget(dataSet.value, id)
+      connectionTestError.value = ''
+    } catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+  }
+  revision.value++
+}
+
+function beginConnectionTest(): void {
+  try {
+    const ds = dataSet.value, view = databaseView.value, row = selectedDatabase.value
+    if (!ds || !view || !row) throw new Error('请先明确选择数据库目录记录')
+    const id = view.getPkKey(row)
+    if (typeof id !== 'string' && typeof id !== 'number') throw new Error('所选数据库缺少正式主键')
+    captureDatabaseDirectoryConnectionTestTarget(ds, id)
+    connectionTestError.value = ''; connectionTestOpen.value = true
+  } catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+}
+
+async function runConnectionTest(): Promise<void> {
+  const ds = dataSet.value, result = ds?.getView(DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE, 'default')
+  if (!ds || !result || connectionTesting.value) return
+  connectionTesting.value = true; connectionTestError.value = ''
+  try {await result.refresh(); if (result.loadingError) throw result.loadingError}
+  catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {connectionTesting.value = false; revision.value++}
+}
+
+function closeConnectionTest(open: boolean): void {
+  if (open) return
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  connectionTestOpen.value = false; connectionTestError.value = ''
+}
+
+type ScopedNavigationNode = Readonly<{item: RuntimeNavigationItem; ancestorUnavailable: boolean}>
+
+function findNodesById(options: {items: readonly RuntimeNavigationItem[]; id: string;
+  matches?: ScopedNavigationNode[]; ancestorUnavailable?: boolean}): ScopedNavigationNode[] {
+  const {items, id, matches = [], ancestorUnavailable = false} = options
+  for (const item of items) {
+    if (item.id === id) matches.push({item, ancestorUnavailable})
+    if (item.children?.length) findNodesById({items: item.children, id, matches,
+      ancestorUnavailable: ancestorUnavailable || item.hidden === true || item.disabled === true})
+  }
+  return matches
+}
+
+function findNavigationPaths(options: {items: readonly RuntimeNavigationItem[]; id: string;
+  prefix?: readonly RuntimeNavigationItem[]; matches?: RuntimeNavigationItem[][]}): RuntimeNavigationItem[][] {
+  const {items, id, prefix = [], matches = []} = options
+  for (const item of items) {
+    const path = [...prefix, item]
+    if (item.id === id) matches.push(path)
+    if (item.children?.length) findNavigationPaths({items: item.children, id, prefix: path, matches})
+  }
+  return matches
+}
+
+function canonicalNavigationPath(path: string): string {
+  return normalizeNavRuntimePath(path.split(/[?#]/, 1)[0] ?? '')
+}
+
+function findNavigationTargets(options: {items: readonly RuntimeNavigationItem[]; path: string;
+  matches?: ScopedNavigationNode[]; ancestorUnavailable?: boolean}): ScopedNavigationNode[] {
+  const {items, path, matches = [], ancestorUnavailable = false} = options
+  for (const item of items) {
+    const target = resolveNavNodeRuntimeTarget(item)
+    const unavailable = ancestorUnavailable || item.hidden === true || item.disabled === true
+    if (target.kind === 'route' && canonicalNavigationPath(target.path) === path) {
+      matches.push({item, ancestorUnavailable})
+    }
+    if (item.children?.length) findNavigationTargets({items: item.children, path, matches, ancestorUnavailable: unavailable})
+  }
+  return matches
+}
+
+function appendDatabaseId(path: string, databaseId: string): string {
+  const hashIndex = path.indexOf('#')
+  const hash = hashIndex < 0 ? '' : path.slice(hashIndex)
+  const withoutHash = hashIndex < 0 ? path : path.slice(0, hashIndex)
+  const queryIndex = withoutHash.indexOf('?')
+  const pathName = queryIndex < 0 ? withoutHash : withoutHash.slice(0, queryIndex)
+  const query = new URLSearchParams(queryIndex < 0 ? '' : withoutHash.slice(queryIndex + 1))
+  query.set('databaseId', databaseId)
+  return `${pathName}?${query.toString()}${hash}`
+}
+
+function openTableView(): void {
+  try {
+    const view = databaseView.value
+    const row = selectedDatabase.value
+    if (!view || !row) throw new Error('请先选择数据库')
+    const databaseId = view.getPkKey(row)
+    if (typeof databaseId !== 'string' && typeof databaseId !== 'number' || String(databaseId).trim() === '') {
+      throw new Error('所选数据库缺少正式主键')
+    }
+    if (!nav) throw new Error('表和视图管理导航尚未就绪')
+    const routeNodeId = route.meta['nodeId']
+    const activePath = nav.activePath.value
+    if (route.meta['systemPageIdentityHost'] !== true || route.meta['systemPageIdentityState'] !== 'resolved'
+      || typeof routeNodeId !== 'string' || routeNodeId.trim() === '' || activePath.length === 0
+      || activePath.at(-1)?.id !== routeNodeId) {
+      throw new Error('当前数据库目录导航身份尚未解析')
+    }
+    const moduleId = activePath[0]?.id
+    const roots = getNavTree()?.items ?? []
+    const modules = typeof moduleId === 'string' ? roots.filter(item => item.id === moduleId) : []
+    const module = modules[0]
+    if (modules.length !== 1 || !module) throw new Error('表和视图管理导航节点缺失、重复或不可用')
+    const sourceNodes = findNodesById({items: [module], id: routeNodeId})
+    const source = sourceNodes[0]
+    if (sourceNodes.length !== 1 || !source || source.ancestorUnavailable || source.item.hidden || source.item.disabled) {
+      throw new Error('表和视图管理导航节点缺失、重复或不可用')
+    }
+    const currentBranchPaths = findNavigationPaths({items: [module], id: routeNodeId})
+    const currentBranchPath = currentBranchPaths[0]
+    if (currentBranchPaths.length !== 1 || !currentBranchPath || currentBranchPath.length !== activePath.length
+      || currentBranchPath.some((item, index) => item.id !== activePath[index]?.id)) {
+      throw new Error('表和视图管理导航节点缺失、重复或不可用')
+    }
+    const targetPath = canonicalNavigationPath(TABLE_VIEW_PATH)
+    const matches = findNavigationTargets({items: [module], path: targetPath})
+    const target = matches[0]
+    const targetKind = target ? resolveNavNodeRuntimeTarget(target.item) : undefined
+    if (matches.length !== 1 || !target || target.ancestorUnavailable || target.item.hidden || target.item.disabled
+      || targetKind?.kind !== 'route' || targetKind.routeKind !== 'page') {
+      throw new Error('表和视图管理导航节点缺失、重复或不可用')
+    }
+    if (typeof target.item.path !== 'string') throw new Error('表和视图管理导航节点路径无效')
+    actionError.value = ''
+    const targetUrl = new URL(target.item.path, window.location.origin)
+    const applicationPrefix = route.path.match(/^\/apps\/[^/]+/)?.[0] ?? ''
+    const destination = appendDatabaseId(`${applicationPrefix}${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`, String(databaseId))
+    nav.navigateToPath(destination, target.item)
+  } catch (cause) {
+    actionError.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
+async function act(operation: () => void | Promise<void>, success = ''): Promise<void> {
+  const ds = dataSet.value
+  const view = databaseView.value
+  if (!ds || !view || busy.value) return
+  const action = ++actionGeneration
+  const current = () => dataSet.value === ds && databaseView.value === view && action === actionGeneration
+  busy.value = true; actionError.value = ''; message.value = ''
+  try {await operation(); if (current()) message.value = success}
+  catch (cause) {if (current()) actionError.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {if (current()) {busy.value = false; revision.value++}}
+}
+
+async function beginCreate(): Promise<void> {
+  await act(async () => {
+    const db = databaseView.value
+    const server = serverView.value
+    if (!db || !server) return
+    const ds = dataSet.value
+    const action = actionGeneration
+    unregisteredHint.value = ''
+    const next = await databaseCatalogDbBeginCreate(db, server)
+    if (dataSet.value === ds && databaseView.value === db && actionGeneration === action) edit.value = next
+  })
+}
+
+async function beginEdit(): Promise<void> {
+  await act(() => {
+    const view = databaseView.value
+    const target = selectedDatabase.value
+    if (!view || !target) throw new Error('请先选择可编辑的数据库')
+    edit.value = databaseCatalogDbBeginEdit(view, target)
+    unregisteredHint.value = ''
+  })
+}
+
+async function beginDelete(): Promise<void> {
+  const view = databaseView.value
+  const target = selectedDatabase.value
+  const id = view && target ? view.getPkKey(target) : undefined
+  if (!view || !target || (typeof id !== 'string' && typeof id !== 'number')) {
+    actionError.value = '请先选择可删除的数据库目录记录'
+    return
+  }
+  if (!databaseCatalogDbCanDelete(view, id)) {
+    actionError.value = '当前不能删除此数据库目录记录'
+    return
+  }
+  deleteConfirmation.value = {id, name: scalarName(target['Name'], id)}
+  actionError.value = ''
+}
+
+function scalarName(value: unknown, fallback: string | number): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : String(fallback)
+}
+
+async function deleteCapturedDatabase(): Promise<void> {
+  const captured = deleteConfirmation.value
+  if (!captured) return
+  await act(async () => {
+    const ds = dataSet.value
+    const view = databaseView.value
+    if (!ds || !view) throw new Error('数据库目录已失效')
+    await databaseCatalogDbDelete(ds, view, captured.id)
+    if (dataSet.value === ds && databaseView.value === view && deleteConfirmation.value?.id === captured.id) {
+      deleteConfirmation.value = undefined
+    }
+  }, `已删除数据库目录记录：${captured.name}`)
+}
+
+function closeDeleteConfirmation(open: boolean): void {
+  if (!open && !busy.value && !deleteUnconfirmed.value) deleteConfirmation.value = undefined
+}
+
+async function cancelEdit(): Promise<void> {
+  await act(() => {
+    const view = databaseView.value
+    const current = edit.value
+    if (!view || !current) return
+    edit.value = databaseCatalogDbCancelEdit(view, current)
+    unregisteredHint.value = ''
+  })
+}
+
+async function saveEdit(): Promise<void> {
+  const mode = edit.value?.mode
+  await act(async () => {
+    const ds = dataSet.value
+    const view = databaseView.value
+    const current = edit.value
+    if (!ds || !view || !current) return
+    const action = actionGeneration
+    const next = await databaseCatalogDbSaveEdit(ds, view, current) ?? undefined
+    if (dataSet.value !== ds || databaseView.value !== view || actionGeneration !== action) return
+    edit.value = next
+    if (!edit.value) unregisteredHint.value = ''
+  }, mode === 'add' ? '数据库已新增' : '数据库已保存')
+}
+
+async function loadUnregisteredNames(): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    const server = serverView.value
+    const serverId = server ? databaseCatalogServerSelectedId(server) : ''
+    if (!ds || !serverId) throw new Error('请先明确选择服务器')
+    const action = actionGeneration
+    const names = await databaseCatalogQueryUnregisteredDbNames(ds, serverId, {
+      commandInput: DATABASE_DIRECTORY_COMMAND_INPUT_TABLE,
+      unregisteredDbNames: DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE,
+    })
+    if (dataSet.value !== ds || serverView.value !== server || actionGeneration !== action) return
+    unregisteredHint.value = names.length ? `未登记物理库名：${names.join('、')}` : '该服务器下没有未登记的物理库名'
+  })
+}
+
+function release(): void {
+  actionGeneration++
+  busy.value = false; actionError.value = ''; message.value = ''; unregisteredHint.value = ''
+  unsubscribe?.(); unsubscribe = undefined
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  connectionTestOpen.value = false; connectionTesting.value = false
+  session.dispose()
+  edit.value = undefined; serverView.value = undefined; databaseView.value = undefined
+  deleteConfirmation.value = undefined
+  dataSet.value?.destroy(); dataSet.value = undefined
+}
+
+watch([scenarioId, scopeFingerprint, reloadNonce], async ([id, scope]) => {
+  const own = ++generation
+  ready.value = false; loading.value = true; error.value = ''
+  release()
+  try {
+    if (!id) throw new Error('数据库管理页面缺少导航绑定的正式数据空间 ID')
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(id)
+    if (!active || own !== generation) {ds.destroy(); return}
+    const servers = requireDatabaseCatalogServerView(ds)
+    const databases = requireDatabaseCatalogDbView(ds)
+    dataSet.value = ds; serverView.value = servers; databaseView.value = databases
+    const formKey = ds.scenarioId ?? id
+    const current = session.acquire({pageId: 'database-directory-page', scenarioIds: [formKey], targetId: `${formKey}:${scope}`,
+      loadScenario: async () => ds})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
+    unsubscribe = ds.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
+      requestStateChanged: () => revision.value++, editingChanged: () => revision.value++})
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
+  } catch (cause) {
+    if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}
+  } finally {if (active && own === generation) loading.value = false}
+}, {immediate: true})
+
+onBeforeUnmount(() => {active = false; generation++; release()})
+</script>
+
+<style scoped>
+.database-directory-page { padding: 8px; color: var(--el-text-color-primary); }
+.database-directory-page__layout { display: grid; grid-template-columns: minmax(300px, 38%) 1fr; gap: 20px; align-items: start; }
+.database-directory-page__servers, .database-directory-page__databases { min-width: 0; }
+@media (max-width: 960px) { .database-directory-page__layout { grid-template-columns: 1fr; } }
+</style>

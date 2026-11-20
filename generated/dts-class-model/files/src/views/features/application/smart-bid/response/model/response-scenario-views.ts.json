@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/response/model/response-scenario-views",
+    "sourcePath": "src/views/features/application/smart-bid/response/model/response-scenario-views.ts",
+    "sourceFile": "src/views/features/application/smart-bid/response/model/response-scenario-views.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/response/model/response-scenario-views",
+    "jsdoc": "@module app:views/features/application/smart-bid/response/model/response-scenario-views\n职责：按正式模型组织页10原报价、分项、担保和答复分工视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T20:34:48.613Z",
+  "models": {}
+}

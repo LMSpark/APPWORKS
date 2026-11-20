@@ -1,0 +1,79 @@
+{
+  "dataSetName": "PageDataSet",
+  "resourceRelations": [],
+  "tables": {
+    "Pages": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "isPrimaryKey": true,
+          "label": "ID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "页面名称"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "label": "路径"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "label": "状态"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "label": "类型"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [
+            {
+              "id": 1,
+              "name": "用户管理",
+              "path": "/user",
+              "status": "active",
+              "type": "system"
+            },
+            {
+              "id": 2,
+              "name": "角色管理",
+              "path": "/role",
+              "status": "active",
+              "type": "system"
+            },
+            {
+              "id": 3,
+              "name": "权限管理",
+              "path": "/permission",
+              "status": "inactive",
+              "type": "system"
+            },
+            {
+              "id": 4,
+              "name": "仪表盘",
+              "path": "/dashboard",
+              "status": "active",
+              "type": "custom"
+            },
+            {
+              "id": 5,
+              "name": "设置",
+              "path": "/settings",
+              "status": "active",
+              "type": "system"
+            }
+          ],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "Pages"
+    }
+  }
+}

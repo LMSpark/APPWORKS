@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/content-effective-hash",
+    "sourcePath": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/content-effective-hash.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/content-effective-hash",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/content-effective-hash\n职责：组合树、显示引用和全部适用业务依赖的有效内容摘要。\n边界：输入须来自同一审核范围的已核固定记录；相同摘要仍须重新核使用许可。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T00:52:32.220Z",
+  "models": {}
+}

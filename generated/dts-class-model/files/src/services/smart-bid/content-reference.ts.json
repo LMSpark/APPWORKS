@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-reference",
+    "sourcePath": "src/services/smart-bid/content-reference.ts",
+    "sourceFile": "src/services/smart-bid/content-reference.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-reference",
+    "jsdoc": "@module app:services/smart-bid/content-reference\n职责：按投标业务规格§1.2检查引用值形状，不解析事实或受控原对象。\n边界：通过不表示版本、权限或业务值有效；敏感ownerRef只核存在，具体身份交原对象合同。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T14:21:21.543Z",
+  "models": {}
+}

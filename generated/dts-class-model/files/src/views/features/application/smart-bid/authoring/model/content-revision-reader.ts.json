@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-revision-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-revision-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-revision-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-revision-reader\n职责：在正文宿主的原运行实例内读取精确候选和当前头修订索引。\n边界：只查询原DataView，不复制修订、读取快照载荷或执行保存/采用；不提供并发提交保证。\nAI用途：正文预演先核项目头及精确索引，再沿snapshotHash读取已验证的完整快照资源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentRevisionReadHost",
+      "ContentRevisionSelection",
+      "ContentRevisionReadBinding"
+    ]
+  },
+  "$defs": {
+    "ContentRevisionReadHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentRevisionReadHost",
+      "properties": {
+        "runtime": {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
+            }
+          },
+          "required": [
+            "resolveView"
+          ],
+          "additionalProperties": false
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ContentRevisionSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentRevisionSelection",
+      "properties": {
+        "candidateRevisionId": {
+          "type": "string"
+        },
+        "expectedHead": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "candidateRevisionId",
+        "expectedHead"
+      ],
+      "additionalProperties": false
+    },
+    "ContentRevisionReadBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentRevisionReadBinding",
+      "properties": {
+        "candidateDataViewKey": {
+          "type": "string"
+        },
+        "headDataViewKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-17T22:29:38.241Z",
+  "models": {
+    "ContentRevisionReadHost": {
+      "name": "ContentRevisionReadHost",
+      "jsdoc": "当前正文宿主提供的运行实例和作用域，不从候选重建认证信息。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: Pick<PageRuntime, 'resolveView'>;\n    scenarioId: string;\n    projectId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: Pick<PageRuntime, 'resolveView'>;\n    scenarioId: string;\n    projectId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentRevisionSelection": {
+      "name": "ContentRevisionSelection",
+      "jsdoc": "空项目首稿必须明确传null；非空头只接受完整精确ID。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidateRevisionId: string;\n    expectedHead: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidateRevisionId: string;\n    expectedHead: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidateRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedHead",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentRevisionReadBinding": {
+      "name": "ContentRevisionReadBinding",
+      "jsdoc": "下游继续绑定原视图；这只是修订索引，完整快照及当次采用另核。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidateDataViewKey: string;\n    headDataViewKey: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidateDataViewKey: string;\n    headDataViewKey: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidateDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headDataViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

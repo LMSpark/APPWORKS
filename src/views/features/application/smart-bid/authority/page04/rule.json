@@ -1,0 +1,30 @@
+[
+  {
+    "id": "authority-grant-registration",
+    "type": "r-section",
+    "props": {"title": "代表委托登记回查"},
+    "children": [
+      {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "查询原登记结果",
+              "action": "host-command",
+              "command": "authority.grant.readRegistration",
+              "routeQueryRequired": ["grantId", "requestKey", "requestDigest"],
+              "input": {
+                "grantId": {"$route": "grantId"},
+                "requestKey": {"$route": "requestKey"},
+                "requestDigest": {"$route": "requestDigest"}
+              },
+              "resultAlertTitle": "代表委托登记回查",
+              "errorMessage": "原委托登记无法核验"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

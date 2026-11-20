@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/data-row-utils",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/data-row-utils.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/data-row-utils.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/data-row-utils",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/data-row-utils\n职责：支撑 data-row-utils（未注册组件类型）在 table-level/data-view-container 中的运行时协作，补齐配置、状态或渲染器之间的连接逻辑。\n边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。\nAI用途：需要判断 data row utils 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.376Z",
+  "models": {}
+}

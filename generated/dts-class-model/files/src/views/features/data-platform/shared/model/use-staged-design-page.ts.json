@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/shared/model/use-staged-design-page",
+    "sourcePath": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
+    "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/shared/model/use-staged-design-page",
+    "jsdoc": "@module app:views/features/data-platform/shared/model/use-staged-design-page\n编辑器页共用：公共 PageRuntime 会话 + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "StagedDesignPageConfig"
+    ]
+  },
+  "$defs": {
+    "StagedDesignPageConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StagedDesignPageConfig",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "scopeId": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "scopeField": {
+          "type": "string"
+        },
+        "designViewTable": {
+          "type": "string"
+        },
+        "missingScopeMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.runtimeOptions.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "scopeId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runtimeOptions.return": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeOptions"
+        },
+        "method.prepareRuntime.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareRuntime.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.hasPendingIntent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingIntent.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-10T05:01:28.743Z",
+  "models": {
+    "StagedDesignPageConfig": {
+      "name": "StagedDesignPageConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    /** 设计视图 queryContext 中的目标字段。 */\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由公共会话创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    /** 原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。 */\n    hasPendingIntent?: () => boolean;\n    missingScopeMessage: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    /** 设计视图 queryContext 中的目标字段。 */\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由公共会话创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    /** 原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。 */\n    hasPendingIntent?: () => boolean;\n    missingScopeMessage: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeField",
+              "jsdoc": "设计视图 queryContext 中的目标字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designViewTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "missingScopeMessage",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "runtimeOptions",
+              "jsdoc": "本次正式场景、输入和装配回调；唯一PageRuntime由公共会话创建并释放。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n        scopeId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntimeOptions"
+              }
+            },
+            {
+              "name": "prepareRuntime",
+              "jsdoc": "输入注入后、读取设计前的必要领域查询，不预装配其它工作区。",
+              "parameters": [
+                {
+                  "name": "runtime",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageRuntime"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasPendingIntent",
+              "jsdoc": "原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-append-user/ui/use-flow-append-user",
+    "sourcePath": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
+    "sourceFile": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-append-user/ui/use-flow-append-user",
+    "jsdoc": "@module app:views/features/workflow/flow-append-user/ui/use-flow-append-user\n职责：列表、参数及追加/撤回均复用原DataView与命令owner。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "UseFlowAppendUserOptions"
+    ]
+  },
+  "$defs": {
+    "UseFlowAppendUserOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseFlowAppendUserOptions",
+      "$defs": {
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json#/$defs/FlowAppendUserContext"
+            },
+            {
+              "$ref": "../../../../../lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts.json#/$defs/FlowAppendUserContext"
+            }
+          ]
+        },
+        "method.embedded.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.embedded.return": {
+          "type": "boolean"
+        },
+        "method.userDirectoryViewKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.userDirectoryViewKey.return": {
+          "type": "string"
+        },
+        "method.stepViewKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stepViewKey.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-16T18:09:26.010Z",
+  "models": {
+    "UseFlowAppendUserOptions": {
+      "name": "UseFlowAppendUserOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n    stepViewKey: () => string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    context: () => FlowAppendUserContext | Partial<FlowAppendUserContext>;\n    embedded?: () => boolean;\n    userDirectoryViewKey?: () => string | undefined;\n    stepViewKey: () => string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "context",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "FlowAppendUserContext"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "FlowAppendUserContext"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "embedded",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "userDirectoryViewKey",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "stepViewKey",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

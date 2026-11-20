@@ -1,0 +1,7 @@
+.spark-page-container[data-page="dynamic-columns"] h3 {
+  margin-bottom: 10px;
+}
+
+.spark-page-container[data-page="dynamic-columns"] .el-button {
+  margin-bottom: 12px;
+}

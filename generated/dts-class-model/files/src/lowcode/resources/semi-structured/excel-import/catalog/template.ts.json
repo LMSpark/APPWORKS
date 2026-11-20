@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/catalog/template",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/catalog/template",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/catalog/template\n职责：原File选择、声明模板命令及原方案templatePath写回编排。\n边界：业务值只在DataView；RAM只持File、身份、阶段和原查询证明，不建立查询/保存owner。\nAI用途：沿选取、原命令确认和原方案路径发布编排页面交互，未知只恢复首轮提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ExcelTemplatePhase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ExcelTemplatePhase",
+      "enum": [
+        "complete",
+        "selected",
+        "retained",
+        "upload",
+        "publication"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-07T14:50:36.794Z",
+  "models": {
+    "ExcelTemplatePhase": {
+      "name": "ExcelTemplatePhase",
+      "jsdoc": "模板交互阶段；文件确认与方案发布分开，retained明确表示已保留而未发布。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'selected' | 'upload' | 'publication' | 'complete' | 'retained'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'selected'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'upload'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'publication'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'complete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'retained'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

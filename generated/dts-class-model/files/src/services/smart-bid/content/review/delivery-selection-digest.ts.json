@@ -1,0 +1,417 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/delivery-selection-digest",
+    "sourcePath": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+    "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/delivery-selection-digest",
+    "jsdoc": "@module app:services/smart-bid/content/review/delivery-selection-digest\n职责：按第48项合同计算固定跨册成员摘要与完整选件摘要。\n边界：由权威冻结入口核依赖及并发；此处也供第49、50项独立回读校验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "GroupScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GroupScope",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        },
+        "obligationGroupId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseId",
+        "projectId",
+        "lotId",
+        "roundId",
+        "stageId",
+        "obligationGroupId"
+      ],
+      "additionalProperties": false
+    },
+    "Member": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Member",
+      "properties": {
+        "manifestId": {
+          "type": "string"
+        },
+        "manifestVersion": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifestId",
+        "manifestVersion",
+        "position",
+        "fileVersionId",
+        "fileHash"
+      ],
+      "additionalProperties": false
+    },
+    "Selection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Selection",
+      "properties": {
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "selectionId": {
+          "type": "string"
+        },
+        "selectionVersion": {
+          "type": "string"
+        },
+        "expectedSelectionVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "groupScope": {
+          "$ref": "#/$defs/GroupScope"
+        },
+        "targetBasisRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Member"
+          }
+        },
+        "compatibilityRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkedStateRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "requestKey",
+        "requestDigest",
+        "selectionId",
+        "selectionVersion",
+        "expectedSelectionVersion",
+        "groupScope",
+        "targetBasisRefs",
+        "members",
+        "compatibilityRefs",
+        "checkedStateRefs"
+      ],
+      "additionalProperties": false
+    },
+    "FreezeUse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FreezeUse",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "fileVersionId": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "evidenceRef": {
+          "type": "string"
+        },
+        "usage": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "allowed": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T17:09:02.542Z",
+  "models": {
+    "GroupScope": {
+      "name": "GroupScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n    obligationGroupId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    stageId: string;\n    obligationGroupId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "obligationGroupId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Member": {
+      "name": "Member",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    manifestId: string;\n    manifestVersion: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    manifestId: string;\n    manifestVersion: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "manifestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifestVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Selection": {
+      "name": "Selection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestKey: string;\n    requestDigest: string;\n    selectionId: string;\n    selectionVersion: string;\n    expectedSelectionVersion: string | null;\n    groupScope: GroupScope;\n    targetBasisRefs: readonly string[];\n    members: readonly Member[];\n    compatibilityRefs: readonly string[];\n    checkedStateRefs: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestKey: string;\n    requestDigest: string;\n    selectionId: string;\n    selectionVersion: string;\n    expectedSelectionVersion: string | null;\n    groupScope: GroupScope;\n    targetBasisRefs: readonly string[];\n    members: readonly Member[];\n    compatibilityRefs: readonly string[];\n    checkedStateRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedSelectionVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "groupScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetBasisRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "members",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compatibilityRefs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkedStateRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FreezeUse": {
+      "name": "FreezeUse",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n    evidenceRef: string;\n    usage: string | null;\n    allowed: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    position: string;\n    fileVersionId: string;\n    fileHash: string;\n    evidenceRef: string;\n    usage: string | null;\n    allowed: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "evidenceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowed",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

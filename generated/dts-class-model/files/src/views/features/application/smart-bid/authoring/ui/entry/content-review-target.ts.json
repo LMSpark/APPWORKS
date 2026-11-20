@@ -1,0 +1,745 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/content-review-target",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-review-target",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-review-target\n职责：按正式发布身份为审定、知识和配置业务页准备业务宿主。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "SubmissionSources": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SubmissionSources",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "readDeadline": {
+          "type": "object",
+          "title": "ReadDeadline"
+        },
+        "readPackageSelection": {
+          "type": "object",
+          "title": "PackageSelection"
+        },
+        "paperEvidence": {
+          "type": "object",
+          "properties": {
+            "readFrozen": {
+              "type": "object",
+              "title": "(scope: Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>) => Promise<Evidence<Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<...>>>"
+            },
+            "readWitness": {
+              "type": "object",
+              "title": "(scope: Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>) => Promise<Evidence<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<...>>>"
+            }
+          },
+          "required": [
+            "readFrozen",
+            "readWitness"
+          ],
+          "additionalProperties": false
+        },
+        "readPaperPackingSelection": {
+          "type": "object",
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; frozen: Evidence<Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<...>>; }> & (Readonly<{ state: \"PREPARE\"; packed: Evidence<...>; }> | Re..."
+        },
+        "readPackageRelease": {
+          "type": "object",
+          "title": "(original: Readonly<Pick<PackageProof, \"projectId\" | \"packageId\" | \"packageHash\" | \"selectionHash\">>, signal: AbortSignal) => Promise<Readonly<{ rules: Readonly<{ projectId: string; packageId: string; packageHash: string; selectionHash: string; }> & Readonly<...>; evidence: readonly Evidence[]; signature?: Readonly<..."
+        },
+        "readSubmissionPreparation": {
+          "type": "object",
+          "title": "SubmissionPreparation"
+        },
+        "readSignatureSelection": {
+          "type": "object",
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: Request; basis: Basis; authority: Readonly<{ versions: readonly Readonly<{ versionId: string; record: Readonly<{ enterpriseId: string; grantId: string; requestKey: string; ... 11 more ...; knownAt: string; }>; assertCurr..."
+        },
+        "readOriginalSignatureSelection": {
+          "type": "object",
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: OriginalSignature; assertCurrent: () => void; }>>"
+        },
+        "readFreezeSelection": {
+          "type": "object",
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; selection: Readonly<{ requestKey: string; requestDigest: string; selectionId: string; selectionVersion: string; expectedSelectionVersion: string | null; ... 4 more ...; checkedStateRefs: readonly string[]; }>; uses: readonly Read..."
+        },
+        "readPackingSelection": {
+          "type": "object",
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<PackingSelection>"
+        },
+        "submitAction": {
+          "type": "object",
+          "title": "SmartBidPageActionSubmit"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RootBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RootBinding",
+      "properties": {
+        "classModel": true,
+        "rootKind": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ConfigurationHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "ConfigurationHost",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
+            },
+            "generation": {
+              "type": "number"
+            },
+            "destroyed": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "isLoaded": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "resolveView",
+            "generation",
+            "destroyed",
+            "isLoaded"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scopeId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "configurationScope": {
+              "enum": [
+                "PLATFORM",
+                "ENTERPRISE",
+                "PROJECT"
+              ]
+            }
+          },
+          "required": [
+            "scopeId",
+            "assertCurrent",
+            "scenarioId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "readDisableImpact": {
+              "type": "object",
+              "title": "ImpactReader"
+            },
+            "readCandidate": {
+              "type": "object",
+              "title": "CandidateReader"
+            },
+            "readDisableDecision": {
+              "type": "object",
+              "title": "DisableReader"
+            },
+            "submitEnable": {
+              "type": "object",
+              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
+            },
+            "submitDisable": {
+              "type": "object",
+              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ResponseHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "ResponseHost",
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
+            },
+            "generation": {
+              "type": "number"
+            },
+            "destroyed": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "isLoaded": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "resolveView",
+            "generation",
+            "destroyed",
+            "isLoaded"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/Scope"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "readPriceEvidence": {
+              "type": "object",
+              "title": "(request: Readonly<{ scopeRef: string; approvalRef: string; version: string; }> & Readonly<{ purposeRef: string; rateOnly: boolean; }>, approval: NonNullable<Price | undefined>) => Promise<ReviewEvidence>"
+            },
+            "readSecurityReceipts": {
+              "type": "object",
+              "title": "(requirement: Requirement, asOf: number) => Promise<readonly Receipt[]>"
+            },
+            "appointmentBasis": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "enterpriseId": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "read": {
+                  "type": "object",
+                  "title": "(appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{ appointmentRef: string; request: Readonly<{ personId: string; employerId: string; }> & Readonly<{ enterpriseId: string; projectId: string; positionRef: string; scopeRef: string; purposeRef: string; }> & Readonly<...>; evidence: Readonly<...>; }>>"
+                }
+              },
+              "required": [
+                "projectId",
+                "enterpriseId",
+                "assertCurrent",
+                "read"
+              ],
+              "additionalProperties": false
+            },
+            "commitmentBasis": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "read": {
+                  "type": "object",
+                  "title": "(commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{ commitmentRef: string; coverage: Readonly<{ projectId: string; scopeRef: string; purposeRef: string; fields: readonly Readonly<{ key: string; kind: \"PRICE\" | \"PERSON\" | \"OTHER\"; value: string; unit: string | null; }>[]; approvals: readonly Approval[]..."
+                }
+              },
+              "required": [
+                "projectId",
+                "assertCurrent",
+                "read"
+              ],
+              "additionalProperties": false
+            },
+            "assignmentBasis": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "baselineId": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "projectId",
+                "baselineId",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            },
+            "fixedFacts": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "object",
+                  "properties": {
+                    "scopeRef": true,
+                    "baselineId": {
+                      "type": "string"
+                    },
+                    "stageRef": true
+                  },
+                  "required": [
+                    "scopeRef",
+                    "baselineId",
+                    "stageRef"
+                  ],
+                  "additionalProperties": false
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "readUse": {
+                  "type": "object",
+                  "title": "(target: Parameters<typeof checkFixedFactUse>[0], fact: Parameters<typeof checkFixedFactUse>[1]) => Promise<Parameters<typeof checkFixedFactUse>[2]>"
+                }
+              },
+              "required": [
+                "projectId",
+                "basis",
+                "assertCurrent",
+                "readUse"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "readPriceEvidence",
+            "readSecurityReceipts"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PublishedScopeBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishedScopeBinding",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "options": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "EnterpriseScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnterpriseScope",
+      "properties": {
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "assertCurrent",
+        "scenarioId"
+      ],
+      "additionalProperties": false
+    },
+    "EnterpriseBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnterpriseBinding",
+      "properties": {
+        "enterpriseId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T19:41:39.051Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SubmissionSources": {
+      "name": "SubmissionSources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readDeadline",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPackageSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paperEvidence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPaperPackingSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPackageRelease",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readSubmissionPreparation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readSignatureSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readOriginalSignatureSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readFreezeSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPackingSelection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitAction",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RootBinding": {
+      "name": "RootBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    classModel: ClassModel;\n    rootKind: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    classModel: ClassModel;\n    rootKind: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "classModel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootKind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ConfigurationHost": {
+      "name": "ConfigurationHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createConfigurationReleaseScriptHost>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof createConfigurationReleaseScriptHost>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ResponseHost": {
+      "name": "ResponseHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof createBidResponseScriptHost>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Parameters<typeof createBidResponseScriptHost>",
+            "targetName": "Parameters"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PublishedScopeBinding": {
+      "name": "PublishedScopeBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    options: Options;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    options: Options;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "EnterpriseScope": {
+      "name": "EnterpriseScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Scope, 'projectId'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<Scope, 'projectId'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "EnterpriseBinding": {
+      "name": "EnterpriseBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

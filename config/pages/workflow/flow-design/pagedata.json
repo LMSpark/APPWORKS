@@ -1,0 +1,378 @@
+{
+  "scenarioId": "__SCENARIO__",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "WFM_FLOW_MODLE": {
+      "modelBinding": {
+        "modelName": "WFM_FLOW_MODLE",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p000"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TITLE",
+              "MEMO",
+              "sysid"
+            ]
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
+          }
+        },
+        "fileTarget": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "sysid"
+            ]
+          }
+        }
+      }
+    },
+    "WFM_FLOW_NODE": {
+      "modelBinding": {
+        "modelName": "WFM_FLOW_NODE",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p001"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "pageSize": 50,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "FLOWID",
+              "TITLE",
+              "TYPEID",
+              "MEMO"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "FLOWID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
+          }
+        }
+      }
+    },
+    "WFM_NODE_REALATION": {
+      "modelBinding": {
+        "modelName": "WFM_NODE_REALATION",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p002"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "pageSize": 50,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "FLOWID",
+              "UpNodeID",
+              "NextNodeID",
+              "TITLE",
+              "ConditionExpress",
+              "description"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          },
+          "commitMode": "staged",
+          "filterExpression": {
+            "field": "FLOWID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
+          }
+        }
+      }
+    },
+    "WFM_WORKFORM": {
+      "modelBinding": {
+        "modelName": "WFM_WORKFORM",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p012"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 50,
+          "queryContext": {
+            "FlowID": "",
+            "WFMID": "",
+            "FLOWID": ""
+          },
+          "filterExpression": {
+            "field": "FlowID",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "FORMID",
+              "FormName",
+              "URL",
+              "mobileUrl",
+              "BusField",
+              "TitleField",
+              "BusTable",
+              "FlowID",
+              "Width",
+              "Height",
+              "CnPath"
+            ]
+          },
+          "commitMode": "staged"
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {
+        "modelName": "Base_AppSystemList",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p016"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 200,
+          "valueField": "rowid",
+          "labelField": "AppDesc",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "AppDesc",
+              "AppName"
+            ]
+          }
+        }
+      }
+    },
+    "Base_NavigationInfo": {
+      "modelBinding": {
+        "modelName": "Base_NavigationInfo",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p015"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "folderName"
+            ]
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "rowid"
+            }
+          }
+        }
+      }
+    },
+    "_Base_FunctionNode": {
+      "modelBinding": {
+        "modelName": "_Base_FunctionNode",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p013"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "pageSize": 50,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Nodetext",
+              "prowid"
+            ]
+          }
+        },
+        "flowDesignOptions": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 100,
+          "queryContext": {
+            "FLOWID": ""
+          },
+          "filterExpression": {
+            "field": "prowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "FLOWID"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "Nodetext",
+              "prowid"
+            ]
+          }
+        }
+      }
+    },
+    "FunctionNodeAuth": {
+      "modelBinding": {
+        "modelName": "FunctionNodeAuth",
+        "modelId": "6E462C4A39EE0D96F4D1A28FFE887C89p014"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 20,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "pageID",
+              "FunCodeID",
+              "contenttype",
+              "functionoption",
+              "QID",
+              "granttype",
+              "masterId",
+              "mastervaluefield",
+              "status",
+              "businessId",
+              "QName",
+              "valueType"
+            ]
+          },
+          "commitMode": "staged"
+        },
+        "nodeAuth": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 20,
+          "queryContext": {
+            "FLOWID": "",
+            "pageID": "",
+            "selectedNodeId": ""
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "pageID",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "FLOWID"
+                }
+              },
+              {
+                "field": "FunCodeID",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "selectedNodeId"
+                }
+              },
+              {
+                "field": "contenttype",
+                "operator": "eq",
+                "value": 1
+              }
+            ]
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "pageID",
+              "FunCodeID",
+              "contenttype",
+              "functionoption",
+              "QID",
+              "granttype",
+              "masterId",
+              "mastervaluefield",
+              "status",
+              "businessId",
+              "QName",
+              "valueType"
+            ]
+          },
+          "commitMode": "staged"
+        }
+      }
+    },
+    "FlowDesignDocument": {
+      "resourceType": "file",
+      "resourceId": "workflow-flow:design-document",
+      "columns": [
+        {
+          "name": "fileKey",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "flowModelId",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {
+            "flowModelId": ""
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

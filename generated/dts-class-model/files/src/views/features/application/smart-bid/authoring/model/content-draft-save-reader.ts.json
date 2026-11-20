@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-draft-save-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-draft-save-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-draft-save-reader\n职责：从正式办理记录的命名视图回查页11原保存结果。\n边界：只读原办理命名视图，草稿编辑与原保存命令各自维护状态。\nAI用途：检查保存结果未知时是否可以从原办理视图确认结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "requestDigest": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "draftId",
+        "expectedDraftVersion",
+        "requestKey",
+        "requestDigest",
+        "contentDigest",
+        "authorId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-18T23:44:27.335Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "独立于当前草稿内容的原保存回查请求。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof readOriginalContentDraftSave>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expectedDraftVersion",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contentDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "authorId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

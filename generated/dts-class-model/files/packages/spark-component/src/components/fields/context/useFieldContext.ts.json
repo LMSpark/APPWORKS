@@ -1,0 +1,758 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/useFieldContext",
+    "sourcePath": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/useFieldContext",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldContext\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldContext 的字段上下文投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldContext 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldContextProps"
+    ]
+  },
+  "$defs": {
+    "FieldContextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldContextProps",
+      "properties": {
+        "bindingError": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editingContextRow": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
+        },
+        "isCurrentFieldEditable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "displayLabel": {
+          "type": "string"
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "resizable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "enum": [
+            false,
+            true,
+            "custom"
+          ]
+        },
+        "mergedChildren": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "isCurrentFieldHidden": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "shouldRenderCurrentField": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "currentDisplayValue": {
+          "type": "string"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "../columnFormRules.ts.json#/$defs/FormItemRule"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "editingContextRow",
+        "isCurrentFieldEditable",
+        "displayLabel",
+        "fieldName",
+        "width",
+        "sortable",
+        "mergedChildren",
+        "isCurrentFieldHidden",
+        "shouldRenderCurrentField",
+        "currentDisplayValue",
+        "validationRules"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.saveEditingRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveEditingRow.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.isTableCellHidden.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isTableCellHidden.return": {
+          "type": "boolean"
+        },
+        "method.getTableCellDisplayValue.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTableCellDisplayValue.return": {
+          "type": "string"
+        }
+      }
+    },
+    "FieldPermissionForContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldPermissionForContext",
+      "properties": {
+        "bindingError": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "contextData": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        },
+        "isCurrentFieldEditable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "fieldName": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "displayLabel": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "isCurrentFieldHidden": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "shouldRenderCurrentField": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "currentDisplayValue": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "validationRules": {
+          "type": "object",
+          "title": "ComputedRef<FormItemRule[]>"
+        }
+      },
+      "required": [
+        "contextData",
+        "isCurrentFieldEditable",
+        "fieldName",
+        "displayLabel",
+        "isCurrentFieldHidden",
+        "shouldRenderCurrentField",
+        "currentDisplayValue",
+        "validationRules"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.saveEditingRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveEditingRow.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.isTableCellHidden.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isTableCellHidden.return": {
+          "type": "boolean"
+        },
+        "method.getTableCellDisplayValue.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTableCellDisplayValue.return": {
+          "type": "string"
+        }
+      }
+    },
+    "FieldContextInputProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldContextInputProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "header": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "width": {
+          "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "resizable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "enum": [
+            false,
+            true,
+            "custom"
+          ]
+        },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T02:44:28.577Z",
+  "models": {
+    "FieldContextProps": {
+      "name": "FieldContextProps",
+      "jsdoc": "Field Context Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 数据绑定的配置诊断，独立于值和权限呈现。 */\n    bindingError?: string;\n    /** 类型标识。 */\n    type: string;\n    /** 表格单元格是否允许双击进入字段控件。 */\n    editOnDblclick?: boolean;\n    /** 结束单元格编辑时保存原视图当前行。 */\n    saveOnCellExit?: boolean;\n    /** 原字段绑定提供的原生按行保存，不复制草稿。 */\n    saveEditingRow?: (row: DataRow) => Promise<void>;\n    /** 字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。 */\n    editingContextRow: DataRow | null;\n    /** 当前字段经权限和交互锁定后是否可编辑。 */\n    isCurrentFieldEditable: boolean;\n    /** display Label 字段。 */\n    displayLabel: string;\n    /** 绑定字段名。 */\n    fieldName: string;\n    /** width 字段。 */\n    width: number | undefined;\n    /** 表格字段的最小宽度，由标准字段属性显式传递；未配置时由表格分配。 */\n    minWidth?: number;\n    /** 表格单元格溢出提示，仅消费权限处理后的显示内容。 */\n    showOverflowTooltip?: boolean;\n    /** 标题下的标准组件区域，由所属组件提供自己的数据绑定。 */\n    header?: SparkNode;\n    /** resizable 字段。 */\n    resizable?: boolean;\n    /** title Align 字段。 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** value Align 字段。 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** header Cell Class Name 名称。 */\n    headerCellClassName?: string;\n    /** cell Class Name 名称。 */\n    cellClassName?: string;\n    /** title Class Name 名称。 */\n    titleClassName?: string;\n    /** value Class Name 名称。 */\n    valueClassName?: string;\n    /** sortable 字段。 */\n    sortable: boolean | 'custom';\n    /** merged Children 字段。 */\n    mergedChildren: SparkNode[];\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: boolean;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: boolean;\n    /** current Display Value 字段。 */\n    currentDisplayValue: string;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: FormItemRule[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "bindingError",
+              "jsdoc": "数据绑定的配置诊断，独立于值和权限呈现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editOnDblclick",
+              "jsdoc": "表格单元格是否允许双击进入字段控件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveOnCellExit",
+              "jsdoc": "结束单元格编辑时保存原视图当前行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editingContextRow",
+              "jsdoc": "字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "当前字段经权限和交互锁定后是否可编辑。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "displayLabel",
+              "jsdoc": "display Label 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldName",
+              "jsdoc": "绑定字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "width",
+              "jsdoc": "width 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "minWidth",
+              "jsdoc": "表格字段的最小宽度，由标准字段属性显式传递；未配置时由表格分配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "jsdoc": "表格单元格溢出提示，仅消费权限处理后的显示内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "jsdoc": "标题下的标准组件区域，由所属组件提供自己的数据绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "resizable 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "jsdoc": "title Align 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "jsdoc": "value Align 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "jsdoc": "header Cell Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "jsdoc": "cell Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "jsdoc": "title Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "jsdoc": "value Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "jsdoc": "sortable 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mergedChildren",
+              "jsdoc": "merged Children 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldHidden",
+              "jsdoc": "是否 is Current Field Hidden。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shouldRenderCurrentField",
+              "jsdoc": "是否 should Render Current Field。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentDisplayValue",
+              "jsdoc": "current Display Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationRules",
+              "jsdoc": "validation Rules 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "saveEditingRow",
+              "jsdoc": "原字段绑定提供的原生按行保存，不复制草稿。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isTableCellHidden",
+              "jsdoc": "是否 is Table Cell Hidden。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getTableCellDisplayValue",
+              "jsdoc": "get Table Cell Display Value 回调。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldPermissionForContext": {
+      "name": "FieldPermissionForContext",
+      "jsdoc": "Field Permission For Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    saveEditingRow?: (row: DataRow) => Promise<void>;\n    /** 停算配置的只读诊断，不改变字段值可见性。 */\n    bindingError?: ComputedRef<string | undefined>;\n    /** 原字段绑定的行上下文；不复制运行数据。 */\n    contextData: ComputedRef<DataRow | null>;\n    /** 原查询许可与界面限制共同确定的可编辑性。 */\n    isCurrentFieldEditable: ComputedRef<boolean>;\n    /** 绑定字段名。 */\n    fieldName: ComputedRef<string>;\n    /** display Label 字段。 */\n    displayLabel: ComputedRef<string>;\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** current Display Value 字段。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "bindingError",
+              "jsdoc": "停算配置的只读诊断，不改变字段值可见性。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextData",
+              "jsdoc": "原字段绑定的行上下文；不复制运行数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "原查询许可与界面限制共同确定的可编辑性。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldName",
+              "jsdoc": "绑定字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "displayLabel",
+              "jsdoc": "display Label 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldHidden",
+              "jsdoc": "是否 is Current Field Hidden。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shouldRenderCurrentField",
+              "jsdoc": "是否 should Render Current Field。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentDisplayValue",
+              "jsdoc": "current Display Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationRules",
+              "jsdoc": "validation Rules 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "saveEditingRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isTableCellHidden",
+              "jsdoc": "是否 is Table Cell Hidden。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getTableCellDisplayValue",
+              "jsdoc": "get Table Cell Display Value 回调。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldContextInputProps": {
+      "name": "FieldContextInputProps",
+      "jsdoc": "Field Context Input Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>> & {\n    /** 类型标识。 */\n    type: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 类型标识。 */\n    type: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

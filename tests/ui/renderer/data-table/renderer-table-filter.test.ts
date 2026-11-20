@@ -1,0 +1,181 @@
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {config, DOMWrapper, flushPromises, mount} from '@vue/test-utils'
+import {defineComponent, h, shallowRef} from 'vue'
+import ElementPlus from 'element-plus'
+import {FieldText, RendererTable, Spark, JsonTreeEditor, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import RendererFilter from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.vue'
+import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
+import type {RFilterProps} from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.types'
+import {DataSet} from '@spark-appworks/spark-data'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {ApiBackend} from '../../../runtime/page/api-provider/api-provider.fixture'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+
+const originalStubs = config.global.stubs
+const cleanups: Array<() => void> = []
+afterEach(() => {
+  cleanups.splice(0).reverse().forEach(cleanup => cleanup())
+  config.global.stubs = originalStubs
+  vi.unstubAllGlobals()
+})
+
+async function fixture(filter?: RFilterProps,remote=false) {
+  const stubs = {...config.global.stubs}
+  for (const name of ['el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
+  config.global.stubs = stubs
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+  const dataSet = DataSet.fromJson({scenarioId: 'SPACE', dataSetName: 'FilterFixture', tables: {
+    Orders: {tableName: 'Orders', resourceType: 'static-data',...(remote?{modelBinding:{modelId:'ORDERS',modelName:'Orders'}}:{}),
+      columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'Name', type: 'string'}],
+      views: {
+        default: {rows: [{id: 1, Name: 'first'}, {id: 2, Name: 'kept'}]},
+        other: {},
+      }},
+  }})
+  const http=new ApiBackend();http.primaryKeys['Orders']='id';http.records['Orders']=[{id:1,Name:'first'},{id:2,Name:'kept'}]
+  if(remote){const view=dataSet.getView('Orders','default')!;view.bindQueryExecutor(new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})}));await view.refresh();if(view.loadingError)throw view.loadingError}
+  const runtime = new PageRuntime({pageId: 'filter-test', scenarioIds: ['SPACE'], loadScenario: async () => dataSet})
+  await runtime.load()
+  cleanups.push(() => runtime.dispose())
+  const registry = Spark.createRegistry()
+  registry.register({type: 'r-filter', component: RendererFilter})
+  registry.register({type: 'r-text', component: FieldText})
+  registry.register({type: 'r-field-scope', component: RendererFieldScope})
+  const filterConfig = shallowRef(filter)
+  const Host = defineComponent({setup() {
+    useSparkComponent({type: 'filter-test-host'}).sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(RendererTable, {dataViewKey: 'SPACE@Orders@default', autoColumns: true, showPagination: false, showDataViewMeta: false,
+      ...(filterConfig.value !== undefined ? {filter: filterConfig.value} : {})})
+  }})
+  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs: {JsonTreeEditor: true}}})
+  cleanups.push(() => wrapper.unmount())
+  await flushPromises()
+  return {wrapper, filterConfig,http, view: dataSet.getView('Orders', 'default')!, other: dataSet.getView('Orders', 'other')!}
+}
+
+async function applyName(wrapper: ReturnType<typeof mount>, value: string) {
+  const body = new DOMWrapper(document.body)
+  await body.get('[data-action="open"]').trigger('click')
+  await body.get('[data-action="json"]').trigger('click')
+  wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'Name', operator: 'eq', value})); await flushPromises()
+  await body.get('[data-action="apply"]').trigger('click')
+  await flushPromises()
+}
+
+describe('container unified DataView filter', () => {
+  it.each(['explicit','inherited'] as const)('accepts %s manual filtering without querying and executes the expression-only search once',async mode=>{
+    const f=await fixture(mode==='explicit'?{autoQuery:false}:{},true)
+    if(mode==='inherited')f.view.queryConfig={...f.view.queryConfig,autoQuery:false}
+    const initial=f.http.reads.length
+    await applyName(f.wrapper,'kept')
+    expect(f.view.filterExpression).toEqual({field:'Name',operator:'eq',value:'kept'})
+    expect(f.http.reads).toHaveLength(initial);expect(f.view.rows.map(row=>row['id'])).toEqual([1,2])
+    await f.wrapper.getComponent(RendererFilter).vm.search();await flushPromises()
+    expect(f.http.reads).toHaveLength(initial+1);expect(f.view.rows.map(row=>row['id'])).toEqual([2])
+  })
+  it('continues querying exactly once when automatic filtering is enabled',async()=>{
+    const f=await fixture({autoQuery:true},true),initial=f.http.reads.length
+    await applyName(f.wrapper,'kept')
+    expect(f.http.reads).toHaveLength(initial+1);expect(f.view.rows.map(row=>row['id'])).toEqual([2])
+  })
+
+  it('queries a manual reset and restarts repeated searches on the first page when configured', async () => {
+    const f = await fixture({autoQuery: false, queryOnReset: true, firstPageOnSearch: true,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = 'kept'
+    await flushPromises()
+    const initial = f.http.reads.length
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.http.reads).toHaveLength(initial + 1)
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+    f.view.page = 2
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.view.page).toBe(1)
+    expect(f.http.reads).toHaveLength(initial + 2)
+    f.view.page = 2
+    await filter.findAll('button').find(button => button.text() === '重置')!.trigger('click')
+    await flushPromises()
+    expect(f.view.page).toBe(1)
+    expect(f.view.filterExpression).toBeUndefined()
+    expect(f.view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(f.http.reads).toHaveLength(initial + 3)
+  })
+
+  it('executes a configured automatic reset only once', async () => {
+    const f = await fixture({autoQuery: true, queryOnReset: true,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = 'kept'
+    await flushPromises()
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+    const initial = f.http.reads.length
+    await filter.findAll('button').find(button => button.text() === '重置')!.trigger('click')
+    await flushPromises()
+    expect(f.view.filterExpression).toBeUndefined()
+    expect(f.view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(f.http.reads).toHaveLength(initial + 1)
+  })
+
+  it('can hide the expression editor without hiding the common filter panel', async () => {
+    const f = await fixture({autoQuery: false, showExpressionEditor: false,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    expect(filter.find('[data-action="open"]').exists()).toBe(false)
+    expect(filter.findAll('button').map(button => button.text())).toEqual(expect.arrayContaining(['查询', '重置']))
+  })
+
+  it('only trims text filters when explicitly configured', async () => {
+    const f = await fixture({autoQuery: false,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称', filterTrim: true}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = '  kept  '
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.view.filterExpression).toEqual({field: 'Name', operator: 'contains', value: 'kept'})
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+  })
+
+  it('renders filter:{} and applies and clears the bound DataView through the full editor', async () => {
+    const {wrapper, view} = await fixture({})
+    expect(wrapper.find('[data-action="open"]').exists()).toBe(true)
+    await applyName(wrapper, 'kept')
+    expect(view.rows.map(row => row['id'])).toEqual([2])
+    expect(wrapper.find('.el-table__body').text()).toContain('kept')
+    expect(wrapper.find('.el-table__body').text()).not.toContain('first')
+    const body = new DOMWrapper(document.body)
+    await body.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="clear"]').trigger('click')
+    await flushPromises()
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+  })
+
+  it('uses the explicit filter view and switches without overwriting the previous view filter', async () => {
+    const {wrapper, filterConfig, view, other} = await fixture({dataViewKey: 'SPACE@Orders@other', class: 'custom-filter'})
+    await applyName(wrapper, 'kept')
+    expect(other.rows.map(row => row['id'])).toEqual([2])
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(wrapper.find('.custom-filter [data-action="open"]').exists()).toBe(true)
+    filterConfig.value = {}
+    await flushPromises()
+    await applyName(wrapper, 'first')
+    expect(view.rows.map(row => row['id'])).toEqual([1])
+    expect(other.filterExpression).toEqual({field: 'Name', operator: 'eq', value: 'kept'})
+    expect(other.rows.map(row => row['id'])).toEqual([2])
+  })
+
+  it('omits the filter only when unconfigured and updates the configured region reactively', async () => {
+    const {wrapper, filterConfig, view} = await fixture()
+    expect(wrapper.findComponent(RendererFilter).exists()).toBe(false)
+    filterConfig.value = {children: [{type: 'r-text', props: {text: 'filter description'}}], class: 'configured-filter'}
+    await flushPromises()
+    expect(wrapper.find('.configured-filter [data-action="open"]').exists()).toBe(true)
+    filterConfig.value = undefined
+    await flushPromises()
+    expect(wrapper.findComponent(RendererFilter).exists()).toBe(false)
+    expect(view.rows).toHaveLength(2)
+  })
+})

@@ -1,0 +1,441 @@
+<!--
+@module @spark-appworks/spark-component:components/containers/zones/RendererFilter
+职责：实现 RendererFilter（r-filter）的 Vue 渲染入口，把配置 props、数据上下文和事件桥接成用户可见的组件界面。
+边界：负责 container/zone-container 的视图组合与事件转发，不定义跨组件数据模型，也不替代 zero-code 行为 API。
+AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
+-->
+<template>
+  <div v-if="isPanelMode && standaloneChildren.length > 0" class="renderer-table-filters" :class="props.class">
+    <div v-if="props.collapsible" class="renderer-table-filters__header">
+      <div class="renderer-table-filters__heading">
+        <span class="renderer-table-filters__title">筛选条件</span>
+        <el-tag
+          v-if="activeFilterCount > 0"
+          size="small"
+          type="info"
+          class="renderer-table-filters__count"
+        >{{ activeFilterCount }} 项筛选</el-tag>
+      </div>
+      <button
+        type="button"
+        class="renderer-table-filters__toggle"
+        :class="{ 'is-collapsed': filtersCollapsed }"
+        :aria-expanded="!filtersCollapsed"
+        @click="handleToggleCollapsed"
+      >
+        <span class="renderer-table-filters__toggle-icon" aria-hidden="true">></span>
+        <span class="renderer-table-filters__toggle-text">{{ filtersCollapsed ? '展开筛选' : '收起筛选' }}</span>
+      </button>
+    </div>
+
+    <DataViewMetaBar
+      :rows="dataState.rows.value"
+      :columns="dataState.columns.value"
+      :selected-rows="dataState.selectedRows.value"
+      :total="dataState.total.value"
+      :count-reported="dataState.countReported.value"
+      :query-unavailable="dataState.queryUnavailable.value"
+      :paginated="dataState.paginated.value"
+      :page="dataState.page.value"
+      :page-size="dataState.pageSize.value"
+      :request-state="dataState.requestState.value"
+      :mutating="dataState.mutating.value"
+      :loading-error="dataState.loadingError.value"
+      :mutating-error="dataState.mutatingError.value"
+      :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
+      :selection-aggregate-result="dataState.selectionAggregateResult.value"
+      :show-data-view-meta="props.showDataViewMeta !== false"
+      :show-aggregate-summary="props.showAggregateSummary !== false"
+      :show-selection-summary="props.showSelectionSummary !== false"
+    />
+
+    <div v-show="!filtersCollapsed" class="renderer-table-filters__content">
+      <div class="renderer-table-filters__body">
+        <SparkComponentRenderer :config="fieldScopeConfig" />
+      </div>
+      <div class="renderer-table-filters__actions" :style="resolvedActionsStyle">
+        <el-button type="primary" size="small" :disabled="!dataState.supportsQueryFiltering.value" @click="handleSearch">查询</el-button>
+        <el-button size="small" :disabled="!dataState.supportsQueryFiltering.value" @click="handleReset">重置</el-button>
+        <el-tag
+          v-if="activeFilterCount > 0 && !props.collapsible"
+          size="small"
+          type="info"
+          class="renderer-table-filters__count"
+        >{{ activeFilterCount }} 项筛选</el-tag>
+      </div>
+    </div>
+  </div>
+
+  <div v-else-if="standaloneChildren.length > 0" class="renderer-filter" :class="props.class">
+    <SparkComponentRenderer
+      v-for="(child, i) in standaloneChildren"
+      :key="nodeId(child) ?? `r-filter-${i}`"
+      :config="child"
+    />
+  </div>
+  <div v-if="dataState.resolvedView.value" class="renderer-filter" :class="props.class">
+    <FilterExpressionEditor
+      v-if="props.showExpressionEditor !== false"
+      :key="viewInstanceRevision"
+      :model-value="appliedFilter"
+      :display="props.expressionDisplay ?? 'dialog'"
+      :columns="dataState.columns.value"
+      :function-context="props.filterFunctionContext ?? {}"
+      :disabled="applyingExpression || !dataState.supportsQueryFiltering.value"
+      :apply-error="expressionError"
+      @update:model-value="applyExpression"
+    />
+    <p v-if="!dataState.supportsQueryFiltering.value" role="status">当前视图沿父查询计划读取，请在父查询中配置过滤。</p>
+    <p v-if="expressionError || filterError" data-filter-error role="alert">{{ expressionError || filterError }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+/**
+ * @description 统一过滤组件，按 dataViewKey 或父级 DATA_SOURCE 绑定 DataView。
+ * 绑定后显示完整表达式编辑器，以 DataView.executeFilter 应用；不要求 children。
+ * children 中含带 field 的过滤项时附加常用筛选面板，复用 useFilterPanel 同步 DataView，
+ * 容器不另建过滤表达式、查询或权限逻辑。
+ */
+import { computed, ref, toRef, watch } from 'vue'
+import { SUBTREE_FIELD_POLICY } from '../../../permission'
+import {
+  DATA_SOURCE,
+  SparkComponentRenderer,
+  useSparkPageComponent,
+} from '../../internal'
+import { type SparkNode, type DataViewFilterTree, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
+import { useContainerDataSource } from '../data-views/view-data-source'
+import DataViewMetaBar from '../data-views/DataViewMetaBar.vue'
+import { useFilterPanel } from '../runtime/container-filter'
+import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge'
+import FilterExpressionEditor from '../filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
+import type { RFilterProps as Props, RendererFilterApi } from './RendererFilter.types'
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'r-filter',
+  autoQuery: undefined,
+  showExpressionEditor: true,
+})
+
+const { sparkConsume, sparkProvide, logger } = useSparkPageComponent(props)
+
+// ── 子节点归一化 ─────────────────────────────────────────────────────────
+const standaloneChildren = computed(() => getSparkNodeChildren(props.children))
+
+/**
+ * 是否进入面板模式：children 中至少有一个带 `field` 的节点视为过滤项。
+ * 仅承载 wrapper 子节点（无 field）的情况退回 standalone 渲染。
+ */
+const isPanelMode = computed(() => {
+  return standaloneChildren.value.some((node) => {
+    const field = nodeInputProp(node, 'field')
+    return typeof field === 'string' && field.trim().length > 0
+  })
+})
+
+// ── DataView 自治解析 ───────────────────────────────────────────────────
+const inheritedDataSource = sparkConsume(DATA_SOURCE)
+
+const dataState = useContainerDataSource({
+  dataViewKey: toRef(props, 'dataViewKey'),
+  sparkConsume,
+  inheritedDataSource,
+  skipEffects: true,
+})
+watch([dataState.resolvedView, dataState.supportsQueryFiltering, () => props.autoQuery], ([view, filtering, autoQuery], _previous, onCleanup) => {
+  if (!view || !filtering || autoQuery === undefined) return
+  const original = view.queryConfig.autoQuery
+  view.queryConfig = {...view.queryConfig, autoQuery}
+  onCleanup(() => {
+    if (view.destroyed || !view.supportsQueryFiltering || view.queryConfig.autoQuery !== autoQuery) return
+    const next = {...view.queryConfig}
+    if (original === undefined) delete next.autoQuery
+    else next.autoQuery = original
+    view.queryConfig = next
+  })
+}, {immediate: true, flush: 'sync'})
+// 面板模式下必须能解析到 DataView，否则 fail-fast。
+watch(
+  [isPanelMode, dataState.resolvedView],
+  ([panelMode, view]) => {
+    if (panelMode && !view) {
+      throw new Error(
+        'RendererFilter: 面板模式必须能解析到 DataView，请通过 dataViewKey 显式绑定，'
+        + '或确保父容器通过 DATA_SOURCE 能力向下注入。',
+      )
+    }
+  },
+  { immediate: true },
+)
+
+// ── 过滤状态自治（仅面板模式下生效） ────────────────────────────────────
+const {
+  filterModel,
+  activeFilterCount,
+  searchFilters,
+  resetFilters,
+  filterError,
+} = useFilterPanel({
+  filterChildren: () => isPanelMode.value ? standaloneChildren.value : [],
+  dataView: dataState.resolvedView,
+  logger,
+  autoQuery: () => props.autoQuery ?? dataState.resolvedView.value?.queryConfig.autoQuery ?? true,
+  firstPageOnSearch: () => props.firstPageOnSearch === true,
+})
+
+const expressionError = ref<string | null>(null)
+const applyingExpression = ref(false)
+const filterRevision = ref(0)
+const viewInstanceRevision = ref(0)
+watch(dataState.resolvedView, () => {
+  viewInstanceRevision.value += 1
+  filterRevision.value += 1
+  expressionError.value = null
+}, { immediate: true })
+useDataViewEventBridge({
+  resolvedView: dataState.resolvedView,
+  onConfigChanged: () => { filterRevision.value += 1 },
+})
+const appliedFilter = computed(() => {
+  filterRevision.value
+  return dataState.resolvedView.value?.filterExpression
+})
+
+async function applyExpression(tree: DataViewFilterTree | undefined, options: Readonly<{forceQuery?: boolean}> = {}): Promise<void> {
+  const view = dataState.resolvedView.value
+  if (!view) { expressionError.value = 'RendererFilter: 未绑定 DataView'; return }
+  if (!view.supportsQueryFiltering) return
+  applyingExpression.value = true
+  expressionError.value = null
+  try {
+    if (options.forceQuery || (props.autoQuery ?? view.queryConfig.autoQuery ?? true)) {
+      if (options.forceQuery === true && props.firstPageOnSearch === true) await view.executeFilter(tree, true)
+      else await view.executeFilter(tree)
+    }
+    else view.filterExpression = tree
+  } catch (error) {
+    if (view === dataState.resolvedView.value) expressionError.value = error instanceof Error ? error.message : String(error)
+    logger.error('RendererFilter: 应用完整过滤失败', error)
+  } finally {
+    applyingExpression.value = false
+  }
+}
+
+// ── 折叠状态自治 ────────────────────────────────────────────────────────
+const filtersCollapsed = ref<boolean>(props.defaultCollapsed ?? false)
+watch(() => props.defaultCollapsed, (next) => {
+  filtersCollapsed.value = next ?? false
+})
+function toggleFiltersCollapsed() {
+  if (props.collapsible !== true) return
+  filtersCollapsed.value = !filtersCollapsed.value
+}
+
+// ── 渲染态计算 ──────────────────────────────────────────────────────────
+const resolvedGridColumns = computed(() => props.gridColumns ?? 24)
+const resolvedGridGap = computed(() => props.gridGap ?? 12)
+const resolvedGridAutoRows = computed(() => props.gridAutoRows ?? 'minmax(32px, auto)')
+
+function isWideFilterConfig(config: SparkNode): boolean {
+  const filterMode = nodeInputProp(config, 'filterMode')
+  if (filterMode === 'range') return true
+  return config.type === 'r-multi-select' || config.type === 'r-date'
+}
+
+function getSmartAutoFitMinWidth(configs: SparkNode[]): string {
+  const count = configs.length
+  const hasWideField = configs.some(isWideFilterConfig)
+
+  if (count <= 1) return hasWideField ? '360px' : '320px'
+  if (count === 2) return hasWideField ? '300px' : '260px'
+  if (count === 3) return hasWideField ? '240px' : '220px'
+  if (count === 4) return hasWideField ? '220px' : '200px'
+  return hasWideField ? '210px' : '190px'
+}
+
+const resolvedAutoFitMinWidth = computed(() => {
+  const raw = (props.autoFitMinWidth ?? '').trim()
+  if (raw.length > 0) return raw
+  return getSmartAutoFitMinWidth(standaloneChildren.value)
+})
+const resolvedItemSpan = computed(() => props.itemSpan ?? 1)
+const resolvedActionSpan = computed(() => {
+  const fallback = resolvedItemSpan.value
+  const raw = props.actionSpan ?? fallback
+  const normalized = Number.isFinite(raw) ? Number(raw) : fallback
+  const min = Math.max(1, Math.floor(normalized))
+  return Math.min(min, Math.max(1, Math.floor(resolvedGridColumns.value)))
+})
+
+const resolvedActionsStyle = computed<Record<string, string>>(() => {
+  const minWidthRaw = resolvedAutoFitMinWidth.value
+  const gap = typeof resolvedGridGap.value === 'number' ? `${resolvedGridGap.value}px` : `${resolvedGridGap.value}`
+
+  if (minWidthRaw.length > 0) {
+    return {
+      '--renderer-filter-action-span': String(resolvedActionSpan.value),
+      '--renderer-filter-min-width': minWidthRaw,
+      '--renderer-filter-gap': gap,
+    }
+  }
+
+  const widthPercent = Math.max(0, Math.min(100, (resolvedActionSpan.value / Math.max(1, resolvedGridColumns.value)) * 100))
+  return {
+    width: `${widthPercent}%`,
+  }
+})
+
+const fieldScopeConfig = computed<SparkNode>(() => ({
+  type: 'r-field-scope',
+  props: {
+    model: filterModel,
+    children: standaloneChildren.value,
+    gridColumns: resolvedGridColumns.value,
+    gridGap: resolvedGridGap.value,
+    gridAutoRows: resolvedGridAutoRows.value,
+    autoFitMinWidth: resolvedAutoFitMinWidth.value,
+    defaultColSpan: resolvedItemSpan.value,
+    autoFillLastRow: true,
+    labelPosition: 'left',
+    labelWidth: '80px',
+    compact: true,
+  },
+}))
+
+// r-filter 下的组件是筛选条件输入，需要始终可写；局部字段策略不改变页面权限模式。
+sparkProvide(SUBTREE_FIELD_POLICY, 'unrestricted')
+
+async function handleSearch(): Promise<void> {
+  if (isPanelMode.value && standaloneChildren.value.length > 0) await searchFilters()
+  else await applyExpression(dataState.resolvedView.value?.filterExpression, {forceQuery: true})
+}
+
+async function handleReset(): Promise<void> {
+  await resetFilters(props.queryOnReset === true)
+}
+
+function handleToggleCollapsed() {
+  toggleFiltersCollapsed()
+}
+
+// 面向脚本/测试暴露过滤模型与活跃数，便于读取/赋值或断言。
+const api:RendererFilterApi={search:handleSearch}
+defineExpose({
+  ...api,
+  filterModel,
+  activeFilterCount,
+})
+</script>
+
+<style scoped>
+.renderer-filter {
+  width: 100%;
+}
+.renderer-filter [role="alert"] { color: var(--el-color-danger); white-space: pre-wrap; }
+
+.renderer-table-filters {
+  width: 100%;
+  background: var(--el-fill-color-lighter, #f5f7fa);
+  border: 1px solid var(--el-border-color-lighter, #e4e7ed);
+  border-radius: 4px;
+  padding: 12px 16px;
+}
+
+.renderer-table-filters__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.renderer-table-filters__heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.renderer-table-filters__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--el-text-color-primary, #303133);
+}
+
+.renderer-table-filters__toggle {
+  border: 1px solid var(--el-border-color, #dcdfe6);
+  background: var(--el-bg-color, #ffffff);
+  color: var(--el-text-color-regular, #606266);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  line-height: 1.3;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.renderer-table-filters__toggle:hover {
+  border-color: var(--el-color-primary-light-5, #79bbff);
+  color: var(--el-color-primary, #409eff);
+  background: var(--el-color-primary-light-9, #ecf5ff);
+}
+
+.renderer-table-filters__toggle:focus-visible {
+  outline: 2px solid var(--el-color-primary-light-5, #79bbff);
+  outline-offset: 1px;
+}
+
+.renderer-table-filters__toggle-icon {
+  display: inline-block;
+  width: 10px;
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+  transition: transform 0.2s ease;
+}
+
+.renderer-table-filters__toggle.is-collapsed .renderer-table-filters__toggle-icon {
+  transform: rotate(0deg);
+}
+
+.renderer-table-filters__toggle-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.renderer-table-filters__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.renderer-table-filters__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.renderer-table-filters__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-left: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--el-border-color-extra-light, #f0f2f5);
+  inline-size: calc(
+    var(--renderer-filter-action-span, 1) * var(--renderer-filter-min-width, 220px)
+    + (var(--renderer-filter-action-span, 1) - 1) * var(--renderer-filter-gap, 12px)
+  );
+  max-inline-size: 100%;
+}
+
+.renderer-table-filters__count {
+  margin-left: 4px;
+}
+</style>

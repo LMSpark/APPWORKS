@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/file-resource/directory",
+    "sourcePath": "packages/spark-data/src/query/file-resource/directory.ts",
+    "sourceFile": "packages/spark-data/src/query/file-resource/directory.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/file-resource/directory",
+    "jsdoc": "@module @spark-appworks/spark-data:file-resource-directory\n职责：核定目录目标、来源字段及完整basename集合，由公共只读查询工厂处理查询与权限。\n边界：固定目录上下文不可通过查询参数改写；每次请求保留自己的来源与scope，不提供保存入口。\nAI用途：目录和派生/选项视图沿同一DataView读取，失败不以过滤后的空集合冒完整目录。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-08T03:35:47.574Z",
+  "models": {}
+}

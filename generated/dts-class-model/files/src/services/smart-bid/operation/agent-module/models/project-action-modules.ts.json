@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/models/project-action-modules",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/models/project-action-modules.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/models/project-action-modules",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/models/project-action-modules\n职责：公开投标项目、主体、成员、决策和移交动作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "TenderLot",
+      "BidSubject",
+      "ProjectSubject",
+      "ParticipationDecision",
+      "ContentProject",
+      "BidHandoff"
+    ]
+  },
+  "$defs": {
+    "TenderLot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TenderLot",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.定位标段.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.定位标段.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    },
+    "BidSubject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BidSubject",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.识别企业.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.识别企业.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    },
+    "ProjectSubject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectSubject",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.核成员组合.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.核成员组合.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    },
+    "ParticipationDecision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ParticipationDecision",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.登记投标决策.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.登记投标决策.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    },
+    "ContentProject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentProject",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.绑定编制范围.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.绑定编制范围.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    },
+    "BidHandoff": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BidHandoff",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "execute": {
+              "type": "object",
+              "title": "SmartBidActionExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.核本轮移交.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../smart-bid-action-module.ts.json#/$defs/SmartBidActionRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.核本轮移交.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T09:52:41.040Z",
+  "models": {
+    "TenderLot": {
+      "name": "TenderLot",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "定位标段",
+              "jsdoc": "定位标段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BidSubject": {
+      "name": "BidSubject",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "识别企业",
+              "jsdoc": "识别企业。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectSubject": {
+      "name": "ProjectSubject",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "核成员组合",
+              "jsdoc": "核成员组合。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ParticipationDecision": {
+      "name": "ParticipationDecision",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "登记投标决策",
+              "jsdoc": "登记投标决策。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentProject": {
+      "name": "ContentProject",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "绑定编制范围",
+              "jsdoc": "绑定编制范围。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BidHandoff": {
+      "name": "BidHandoff",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(execute: SmartBidActionExecutor)",
+          "parameters": [
+            {
+              "name": "execute",
+              "type": {
+                "type": "reference",
+                "name": "SmartBidActionExecutor",
+                "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "核本轮移交",
+              "jsdoc": "核本轮移交。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidActionRequest",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        operationId: string;\n        requestKey: string;\n        outcome: import(\"@spark-appworks/spark-json-document\").JsonValue;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

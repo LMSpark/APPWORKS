@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/useNavigation",
+    "sourcePath": "packages/spark-app/src/navigation/useNavigation.ts",
+    "sourceFile": "packages/spark-app/src/navigation/useNavigation.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/useNavigation",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/useNavigation\n职责：提供应用壳层 useNavigation 能力，围绕 UseNavigationOptions 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/useNavigation。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "UseNavigationOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseNavigationOptions",
+      "properties": {
+        "actionRegistry": {
+          "$ref": "action-registry.ts.json#/$defs/NavigationActionRegistry"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onCrossAppNavigate.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onCrossAppNavigate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getHeaders.return": {
+          "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-08T17:45:20.100Z",
+  "models": {
+    "UseNavigationOptions": {
+      "name": "UseNavigationOptions",
+      "jsdoc": "Use Navigation Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 跨应用导航回调：检测到 @app:projectId/path 格式时调用，由调用方实现项目切换逻辑 */\n    onCrossAppNavigate?: (projectId: string, path: string) => Promise<void>;\n    /** 返回额外请求头（如 Authorization），用于远程上下文数据加载 */\n    getHeaders?: () => Record<string, string>;\n    /** system-action 命令执行器 */\n    actionRegistry?: NavigationActionRegistry;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "actionRegistry",
+              "jsdoc": "system-action 命令执行器",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onCrossAppNavigate",
+              "jsdoc": "跨应用导航回调：检测到\n@app :projectId/path 格式时调用，由调用方实现项目切换逻辑",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getHeaders",
+              "jsdoc": "返回额外请求头（如 Authorization），用于远程上下文数据加载",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

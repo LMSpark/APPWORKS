@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content-tree-editor-layout",
+    "sourcePath": "src/services/smart-bid/content-tree-editor-layout.ts",
+    "sourceFile": "src/services/smart-bid/content-tree-editor-layout.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content-tree-editor-layout",
+    "jsdoc": "@module app:services/smart-bid/content-tree-editor-layout\n职责：以标准表单和JSON字段配置表达人工内容树及选中正文。\n边界：只读取原视图决定呈现；不查询、不持有草稿、不保存，选择由宿主管理。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentTreeEditorLayoutInput",
+      "ContentTreeDraftActionHooks"
+    ]
+  },
+  "$defs": {
+    "ContentTreeEditorLayoutInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeEditorLayoutInput",
+      "properties": {
+        "view": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "draftId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "selectedPath": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onSelectedPathChange.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "anyOf": [
+                {
+                  "$ref": "../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSelectedPathChange.return": true,
+        "method.onEditingChange.params": {
+          "type": "object",
+          "properties": {
+            "editing": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEditingChange.return": true
+      }
+    },
+    "ContentTreeDraftActionHooks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentTreeDraftActionHooks",
+      "properties": {
+        "pending": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.beforeChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeChange.return": true,
+        "method.afterChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.afterChange.return": true,
+        "method.onError.params": {
+          "type": "object",
+          "properties": {
+            "cause": true
+          },
+          "additionalProperties": false
+        },
+        "method.onError.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T06:05:56.202Z",
+  "models": {
+    "ContentTreeEditorLayoutInput": {
+      "name": "ContentTreeEditorLayoutInput",
+      "jsdoc": "本次宿主的正式绑定及临时选择；结构操作后宿主须清除选择。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    dataViewKey: string;\n    draftId: string | number;\n    projectId: string;\n    selectedPath: JsonPath | null;\n    onSelectedPathChange: (path: JsonPath | null) => void;\n    onEditingChange: (editing: boolean) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    dataViewKey: string;\n    draftId: string | number;\n    projectId: string;\n    selectedPath: JsonPath | null;\n    onSelectedPathChange: (path: JsonPath | null) => void;\n    onEditingChange: (editing: boolean) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectedPath",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onSelectedPathChange",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "JsonPath"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onEditingChange",
+              "parameters": [
+                {
+                  "name": "editing",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentTreeDraftActionHooks": {
+      "name": "ContentTreeDraftActionHooks",
+      "jsdoc": "结构操作仅产生原草稿编辑；宿主核本次会话与未确认输入，失败由同一工作区展示。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pending: boolean;\n    beforeChange: () => void;\n    afterChange: () => void;\n    onError: (cause: unknown) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pending: boolean;\n    beforeChange: () => void;\n    afterChange: () => void;\n    onError: (cause: unknown) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "beforeChange",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "afterChange",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onError",
+              "parameters": [
+                {
+                  "name": "cause",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,192 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h2",
+        "children": [
+          "过滤面板演示 · Dock 版"
+        ],
+        "props": {
+          "style": "margin-bottom: 16px;"
+        }
+      },
+      {
+        "type": "p",
+        "children": [
+          "Dock 版规则：过滤项统一通过 dock=filter 子节点声明，支持文本、数字、下拉、多选、日期等字段类型。"
+        ],
+        "props": {
+          "style": "color: #909399; margin-bottom: 20px;"
+        }
+      },
+      {
+        "type": "r-table",
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "label": "姓名",
+              "width": 100,
+              "filterable": true,
+              "sortable": false,
+              "field": "name"
+            }
+          },
+          {
+            "type": "r-select",
+            "props": {
+              "label": "部门",
+              "width": 120,
+              "filterable": true,
+              "sortable": true,
+              "options": [
+                {
+                  "label": "技术部",
+                  "value": "技术部"
+                },
+                {
+                  "label": "产品部",
+                  "value": "产品部"
+                },
+                {
+                  "label": "设计部",
+                  "value": "设计部"
+                },
+                {
+                  "label": "市场部",
+                  "value": "市场部"
+                }
+              ],
+              "field": "department"
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "label": "职位",
+              "width": 130,
+              "filterable": true,
+              "sortable": true,
+              "field": "position"
+            }
+          },
+          {
+            "type": "r-number",
+            "props": {
+              "label": "薪资",
+              "width": 100,
+              "filterable": true,
+              "sortable": true,
+              "filterMode": "range",
+              "field": "salary"
+            }
+          },
+          {
+            "type": "r-multi-select",
+            "props": {
+              "label": "状态",
+              "width": 100,
+              "filterable": true,
+              "sortable": true,
+              "options": [
+                {
+                  "label": "在职",
+                  "value": "在职"
+                },
+                {
+                  "label": "离职",
+                  "value": "离职"
+                }
+              ],
+              "field": "status"
+            }
+          },
+          {
+            "type": "r-date",
+            "props": {
+              "label": "入职日期",
+              "width": 130,
+              "filterable": true,
+              "sortable": true,
+              "field": "hireDate"
+            }
+          }
+        ],
+        "props": {
+          "border": true,
+          "stripe": true,
+          "highlightCurrentRow": true,
+          "filterCollapsible": true,
+          "sortable": true,
+          "filter": {
+            "type": "r-filter",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "姓名",
+                  "field": "name"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "部门",
+                  "options": [
+                    {
+                      "label": "技术部",
+                      "value": "技术部"
+                    },
+                    {
+                      "label": "产品部",
+                      "value": "产品部"
+                    },
+                    {
+                      "label": "设计部",
+                      "value": "设计部"
+                    },
+                    {
+                      "label": "市场部",
+                      "value": "市场部"
+                    }
+                  ],
+                  "field": "department"
+                }
+              },
+              {
+                "type": "r-multi-select",
+                "props": {
+                  "label": "状态",
+                  "options": [
+                    {
+                      "label": "在职",
+                      "value": "在职"
+                    },
+                    {
+                      "label": "离职",
+                      "value": "离职"
+                    }
+                  ],
+                  "field": "status"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "薪资",
+                  "filterMode": "range",
+                  "field": "salary"
+                }
+              }
+            ]
+          },
+          "dataViewKey": "Employees@default"
+        }
+      }
+    ],
+    "props": {
+      "style": "padding: 20px;"
+    }
+  }
+]

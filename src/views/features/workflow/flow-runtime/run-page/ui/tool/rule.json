@@ -1,0 +1,534 @@
+[
+  {
+    "type": "r-section",
+    "props": {
+      "title": "步骤历史",
+      "class": "flow-run-history",
+      "bordered": false,
+      "gridColumns": 1
+    },
+    "children": [
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@WFOBJ_FLOW_RELATIONLINE_STEP@default",
+          "stripe": true,
+          "showDataViewMeta": false,
+          "pagination": {
+            "pageSizes": [
+              10,
+              20,
+              50
+            ],
+            "showJumper": true
+          }
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "field": "description",
+              "label": "摘要",
+              "readonly": true,
+              "minWidth": 220,
+              "showOverflowTooltip": true
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "ReceiveUserName",
+              "label": "办理人",
+              "readonly": true,
+              "minWidth": 120
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "STARTTIME",
+              "label": "开始时间",
+              "readonly": true,
+              "minWidth": 160
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "StepState",
+              "label": "状态",
+              "readonly": true,
+              "minWidth": 80
+            }
+          }
+        ]
+      }
+    ],
+    "id": "history"
+  },
+  {
+    "id": "pageActions",
+    "type": "r-toolbar",
+    "props": {
+      "wrap": true,
+      "gap": 8
+    },
+    "children": [
+      {
+        "type": "r-button",
+        "id": "chart",
+        "props": {
+          "label": "流程图",
+          "onClick": "runChart"
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "append",
+        "props": {
+          "label": "加签",
+          "onClick": "runAppend"
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "revoke",
+        "props": {
+          "label": "撤回",
+          "onClick": "runRevoke"
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "handle",
+        "props": {
+          "label": "办理",
+          "buttonType": "primary",
+          "onClick": "runHandle"
+        }
+      },
+      {
+        "type": "r-button",
+        "id": "verify",
+        "props": {
+          "label": "核验原办理结果",
+          "onClick": "runVerify"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendParticipants",
+    "type": "r-table",
+    "props": {
+      "autoColumns": false,
+      "showPagination": false,
+      "showDataViewMeta": false,
+      "maxHeight": 380,
+      "actions": {
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "label": "撤回",
+              "link": true,
+              "buttonType": "primary",
+              "disabled": "$[appendRevokeDisabled]",
+              "onClick": "runRevokeAppend"
+            }
+          }
+        ]
+      }
+    },
+    "children": [
+      {
+        "type": "r-text",
+        "props": {
+          "field": "ReceiveUserName",
+          "label": "办理人",
+          "readonly": true,
+          "minWidth": 180
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "StepState",
+          "label": "步骤状态",
+          "readonly": true,
+          "minWidth": 120,
+          "optionValueField": "value",
+          "optionLabelField": "label"
+        }
+      },
+      {
+        "type": "r-select",
+        "props": {
+          "field": "STATUS",
+          "label": "办理状态",
+          "readonly": true,
+          "minWidth": 120,
+          "optionValueField": "value",
+          "optionLabelField": "label"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendInput",
+    "type": "r-form",
+    "props": {
+      "autoColumns": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-user-picker",
+        "props": {
+          "field": "receiveUsers",
+          "label": "办理人",
+          "multiple": true,
+          "valueMode": "array",
+          "optionLabelField": "name",
+          "optionValueField": "value"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendLimits",
+    "type": "r-form",
+    "props": {
+      "autoColumns": false,
+      "showDataViewMeta": false
+    },
+    "children": [
+      {
+        "type": "r-number",
+        "props": {
+          "field": "minNum",
+          "label": "最少人数",
+          "readonly": true
+        }
+      },
+      {
+        "type": "r-number",
+        "props": {
+          "field": "maxNum",
+          "label": "最多人数",
+          "readonly": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendActions",
+    "type": "r-toolbar",
+    "props": {
+      "wrap": true,
+      "gap": 8
+    },
+    "children": [
+      {
+        "id": "openAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "添加办理人",
+          "buttonType": "primary",
+          "onClick": "runOpenAppendInput"
+        }
+      },
+      {
+        "id": "verifyAppendList",
+        "type": "r-button",
+        "props": {
+          "label": "核验原命令结果",
+          "onClick": "runVerifyAppendList"
+        }
+      }
+    ]
+  },
+  {
+    "id": "appendInputActions",
+    "type": "r-toolbar",
+    "props": {
+      "wrap": true,
+      "gap": 8,
+      "justify": "end"
+    },
+    "children": [
+      {
+        "id": "verifyAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "核验原命令结果",
+          "onClick": "runVerifyAppendInput"
+        }
+      },
+      {
+        "id": "cancelAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "取消",
+          "onClick": "runCancelAppendInput"
+        }
+      },
+      {
+        "id": "confirmAppendInput",
+        "type": "r-button",
+        "props": {
+          "label": "确认",
+          "buttonType": "primary",
+          "onClick": "runConfirmAppendInput"
+        }
+      }
+    ]
+  },
+  {
+    "id": "approvalSection",
+    "type": "r-section",
+    "props": {"title": "办理", "bordered": false, "gridColumns": 1},
+    "children": [
+      {
+        "id": "approvalNodes",
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalNodeInput@default",
+          "autoColumns": false,
+          "showPagination": false,
+          "showDataViewMeta": false
+        },
+        "children": [
+          {
+            "type": "r-column-group",
+            "props": {
+              "title": "选择"
+            },
+            "children": [
+              {
+                "type": "r-checkbox",
+                "props": {
+                  "field": "selected",
+                  "label": "",
+                  "saveOnCellExit": false
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "title",
+              "label": "下一节点",
+              "readonly": true
+            }
+          },
+          {
+            "type": "r-column-group",
+            "props": {
+              "title": "办理人"
+            },
+            "children": [
+              {
+                "type": "r-user-picker",
+                "props": {
+                  "field": "ExecUserList",
+                  "multiple": true,
+                  "valueMode": "array",
+                  "readonly": "$[peopleReadonly]",
+                  "optionValueField": "value",
+                  "optionLabelField": "name",
+                  "editOnDblclick": false,
+                  "label": "",
+                  "saveOnCellExit": false
+                }
+              }
+            ]
+          },
+          {
+            "type": "r-column-group",
+            "props": {
+              "title": "返回原办理人"
+            },
+            "children": [
+              {
+                "type": "r-checkbox",
+                "props": {
+                  "field": "checkedReturn",
+                  "readonly": "$[returnReadonly]",
+                  "label": "",
+                  "saveOnCellExit": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "approvalInput",
+        "type": "r-form",
+        "props": {
+          "dataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalInput@default",
+          "autoColumns": false,
+          "showDataViewMeta": false
+        },
+        "children": [
+          {
+            "type": "r-textarea",
+            "props": {
+              "field": "idea",
+              "label": "办理意见",
+              "rows": 4
+            }
+          },
+          {
+            "type": "r-select",
+            "props": {
+              "field": "forceNodeId",
+              "optionDataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@ApprovalForceTargets@default",
+              "label": "强制退回目标",
+              "optionValueField": "id",
+              "optionLabelField": "title"
+            }
+          },
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "notifySms",
+              "label": "短信通知"
+            }
+          },
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "notifyQywx",
+              "label": "企业微信通知"
+            }
+          },
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "notifyDingTalk",
+              "label": "钉钉通知"
+            }
+          },
+          {
+            "type": "r-checkbox",
+            "props": {
+              "field": "notifyWechat",
+              "label": "微信通知"
+            }
+          }
+        ]
+      },
+      {
+        "id": "approvalActions",
+        "type": "r-toolbar",
+        "props": {
+          "wrap": true,
+          "gap": 8
+        },
+        "children": [
+          {
+            "type": "r-button",
+            "id": "submit",
+            "props": {
+              "label": "提交",
+              "buttonType": "primary",
+              "onClick": "runSubmit"
+            }
+          },
+          {
+            "type": "r-button",
+            "id": "back",
+            "props": {
+              "label": "普通退回",
+              "onClick": "runBack"
+            }
+          },
+          {
+            "type": "r-button",
+            "id": "forceBack",
+            "props": {
+              "label": "强制退回",
+              "onClick": "runForceBack"
+            }
+          },
+          {
+            "type": "r-button",
+            "id": "backToCreator",
+            "props": {
+              "label": "退回发起人",
+              "onClick": "runBackToCreator"
+            }
+          },
+          {
+            "type": "r-button",
+            "id": "close",
+            "props": {
+              "label": "关闭",
+              "onClick": "runClose"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "businessFormTabs",
+    "type": "r-tabs",
+    "props": {"class": "flow-run-page__tabs"},
+    "children": [
+      {"id": "businessFormPane", "type": "r-tab-pane", "props": {"lazy": true}}
+    ]
+  },
+  {
+    "id": "appendDialog",
+    "type": "r-dialog",
+    "props": {
+      "title": "追加办理人",
+      "width": "92vw",
+      "appendToBody": true,
+      "destroyOnClose": true
+    }
+  },
+  {
+    "id": "chartDialog",
+    "type": "r-dialog",
+    "props": {
+      "title": "流程图",
+      "width": "94vw",
+      "top": "3vh",
+      "appendToBody": true,
+      "destroyOnClose": true
+    },
+    "children": [
+      {
+        "id": "chartContent",
+        "type": "r-section",
+        "props": {
+          "bordered": false,
+          "gridColumns": 1
+        },
+        "children": [
+          {
+            "id": "flowChart",
+            "type": "r-graph",
+            "props": {
+              "class": "flow-run-page__chart",
+              "labelField": "TITLE",
+              "edgeSourceField": "UpNodeID",
+              "edgeTargetField": "NextNodeID",
+              "backgroundPattern": "dots",
+              "disabled": true,
+              "nodeBadgeRules": [
+                {"field": "runGraphBadge", "value": "waiting", "label": "待办", "tone": "warning"},
+                {"field": "runGraphBadge", "value": "completed", "label": "已完成", "tone": "success"}
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

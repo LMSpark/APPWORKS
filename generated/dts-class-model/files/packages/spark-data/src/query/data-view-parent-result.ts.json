@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-parent-result",
+    "sourcePath": "packages/spark-data/src/query/data-view-parent-result.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-parent-result.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-parent-result",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-parent-result\n职责：定位显式父结果依赖并等待原父查询，验证同实例模型与依赖无环。\n边界：不读取存储、不复制业务行或授权、不发第二套请求。\nAI用途：具名子视图沿原查询owner消费父行的正式子集合。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewParentResult"
+    ]
+  },
+  "$defs": {
+    "DataViewParentResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewParentResult",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "config": {
+              "type": "object",
+              "title": "NonNullable<ViewMetadata['queryConfig']>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "$ref": "../data-view.ts.json#/$defs/DataView"
+        },
+        "method.validateRequest.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateRequest.return": true,
+        "method.validateProjection.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "expected": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataViewFieldProjection"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateProjection.return": true,
+        "method.request.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.request.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T19:48:25.389Z",
+  "models": {
+    "DataViewParentResult": {
+      "name": "DataViewParentResult",
+      "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "NonNullable",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "ViewMetadata['queryConfig']"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "validateRequest",
+              "jsdoc": "子来源不能夹带未执行的独立远程过滤、排序、树或聚合。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateProjection",
+              "jsdoc": "只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "expected",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewFieldProjection[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "request",
+              "jsdoc": "等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

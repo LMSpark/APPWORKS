@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/hashes/fact-display-occurrences",
+    "sourcePath": "src/services/smart-bid/content/hashes/fact-display-occurrences.ts",
+    "sourceFile": "src/services/smart-bid/content/hashes/fact-display-occurrences.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/hashes/fact-display-occurrences",
+    "jsdoc": "@module app:services/smart-bid/content/hashes/fact-display-occurrences\n职责：将同版事实显示摘要关联到原正文及表格中的每一次使用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DisplayFacts": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "DisplayFacts",
+      "items": {
+        "type": "object",
+        "properties": {
+          "factId": {
+            "type": "string"
+          },
+          "displayHash": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "factId",
+          "displayHash"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T00:49:51.593Z",
+  "models": {
+    "DisplayFacts": {
+      "name": "DisplayFacts",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyArray<Readonly<{\n    factId: string;\n    displayHash: string;\n}>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyArray<Readonly<{\n    factId: string;\n    displayHash: string;\n}>>",
+            "targetName": "ReadonlyArray"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

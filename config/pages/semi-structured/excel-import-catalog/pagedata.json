@@ -1,0 +1,59 @@
+{
+  "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+  "tables": {
+    "Base_Import_solution": {
+      "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p000", "modelName": "Base_Import_solution"},
+      "columns": [
+        {"name": "solutionName", "required": true, "trim": "normalize", "maxLength": 200},
+        {"name": "description", "maxLength": 500},
+        {"name": "dataSetId", "optionsView": {"tableName": "Base_DataSet", "viewId": "default", "valueField": "rowid"}}
+      ],
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "templatePath", "description", "dataSetId", "createuser", "createtime"]},
+        "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "rowid", "direction": "asc"}]
+      }, "editorTarget": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryContext": {"importConfigId": ""},
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "description", "dataSetId", "templatePath", "transform_enabled"]},
+        "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}}
+      }}
+    },
+    "TemplateUpload": {
+      "resourceType": "command", "resourceId": "excel:template-upload",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "schemeId", "type": "string"},
+        {"name": "originalName", "type": "string"},
+        {"name": "size", "type": "number"},
+        {"name": "templatePath", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "BusinessCodeAssignment": {
+      "resourceType": "command", "resourceId": "business-code:assignment",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "rowId", "type": "string"},
+        {"name": "ruleId", "type": "string"},
+        {"name": "code", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "c2f87e1b-09d8-4770-a93a-a21696bd5dc3", "modelName": "Base_DataSet"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "Name", "pageSize": 500,
+        "queryConfig": {"fields": ["rowid", "Name"], "allPages": true}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p001", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "UserName",
+        "queryConfig": {"fields": ["ID", "rowid", "UserName"], "allPages": true}
+      }}
+    }
+  },
+  "resourceRelations": [], "viewCascades": []
+}

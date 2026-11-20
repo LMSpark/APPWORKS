@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/fields/merge-inputs",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/merge-inputs",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/merge-inputs\n职责：原合并输入的范围核对、连接目录、来源增删及输出配置生成命令。\n边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowMergeSourceOptions"
+    ]
+  },
+  "$defs": {
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowMergeSourceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowMergeSourceOptions",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Target"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        "method.add.params": {
+          "type": "object",
+          "properties": {
+            "parentPath": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.add.return": {
+          "$ref": "../../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+        },
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "$ref": "../../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.477Z",
+  "models": {
+    "Target": {
+      "name": "Target",
+      "jsdoc": "本次原生合并输入命令的唯一目标，不承载可编辑业务副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次宿主提供的元数据DataSet。 */\n    dataSet: DataSet;\n    /** 正式工作流身份；必须匹配原查询上下文。 */\n    workflowId: string;\n    /** 该流程内的正式合并节点身份。 */\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次宿主提供的元数据DataSet。 */\n    dataSet: DataSet;\n    /** 正式工作流身份；必须匹配原查询上下文。 */\n    workflowId: string;\n    /** 该流程内的正式合并节点身份。 */\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次宿主提供的元数据DataSet。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "正式工作流身份；必须匹配原查询上下文。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "该流程内的正式合并节点身份。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowMergeSourceOptions": {
+      "name": "WorkflowMergeSourceOptions",
+      "jsdoc": "本次来源选择的标准只读目录；业务草稿仍唯一属于原节点DataView。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建本次选项目录，不查询或保存正式记录。@param input 元数据DataSet、流程ID及合并节点ID。",
+          "signatureText": "constructor(input: Target)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Target",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "标准表格绑定的候选视图，value为原节点身份、label为可读标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "本次目录完整视图键；不作正式来源模型身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refresh",
+              "jsdoc": "捕获同一图/查询/输入基线并替换只读候选；失败清空，不能继续借用旧选择。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        error: string;\n    }"
+              }
+            },
+            {
+              "name": "add",
+              "jsdoc": "选中源加入根或指定父项下，仅写原输入编辑域；字段采用正式已发布输出，返回原数组新路径。",
+              "parameters": [
+                {
+                  "name": "parentPath",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "JsonPath"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonPath"
+              }
+            },
+            {
+              "name": "remove",
+              "jsdoc": "沿本次同一捕获基线移除指定输入子树；不会删除任何来源业务记录。",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放自有目录及捕获基线，不取消、保存或删除正式工作流记录。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

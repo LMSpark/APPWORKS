@@ -1,0 +1,13 @@
+[
+  {"type":"r-table","props":{"class":"bug-page","dataViewKey":"5B54AEBD5BD1BBC72710D4022589A404@Base_Bug_Info@default","autoColumns":false,"stripe":true,"showRowIndex":true,"showDataViewMeta":false,"pagination":{"pageSizes":[15,30,50,100],"showJumper":true},"filter":{"autoQuery":false,"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[{"type":"r-text","props":{"field":"Title","label":"BUG简述","placeholder":"请输入BUG简述","filterTrim":true}}]},"actions":{"children":[{"type":"r-button","props":{"label":"详情","onBeforeRender":"bindDetail","onClick":"openDetail"}}]}},"children":[
+    {"type":"r-select","props":{"field":"SystemID","label":"系统名称","readonly":true,"minWidth":120,"optionDataViewKey":"5B54AEBD5BD1BBC72710D4022589A404@Base_AppSystemList@default","sortable":false}},
+    {"type":"r-text","props":{"field":"Title","label":"BUG简述","readonly":true,"minWidth":220,"showOverflowTooltip":true}},
+    {"type":"r-text","props":{"field":"FormPath","label":"表单路径","readonly":true,"minWidth":200,"showOverflowTooltip":true}},
+    {"type":"r-select","props":{"field":"FkType","label":"反馈类型","readonly":true,"minWidth":120,"optionDataViewKey":"5B54AEBD5BD1BBC72710D4022589A404@FkType_Zd@default"}},
+    {"type":"r-text","props":{"field":"checkName","label":"核查人","readonly":true,"minWidth":100,"showOverflowTooltip":true}},
+    {"type":"r-text","props":{"field":"CompleteUserName","label":"完成人","readonly":true,"minWidth":100,"showOverflowTooltip":true}},
+    {"type":"r-select","props":{"field":"State","label":"状态","readonly":true,"minWidth":120,"optionDataViewKey":"5B54AEBD5BD1BBC72710D4022589A404@bug_State@default"}},
+    {"type":"r-text","props":{"field":"CreateTime","label":"创建时间","readonly":true,"minWidth":170,"showOverflowTooltip":true}},
+    {"type":"r-text","props":{"field":"CreateUserName","label":"创建人","readonly":true,"minWidth":100,"showOverflowTooltip":true}}
+  ]}
+]

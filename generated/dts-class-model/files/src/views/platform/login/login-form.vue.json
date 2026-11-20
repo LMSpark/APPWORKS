@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/platform/login/login-form",
+    "sourcePath": "src/views/platform/login/login-form.vue",
+    "sourceFile": "src/views/platform/login/login-form.vue",
+    "packageName": "app",
+    "modulePath": "views/platform/login/login-form",
+    "jsdoc": "@module app:views/platform/login/login-form\n职责：标准组件编辑登录命令行；回车或“登录”经公共单记录生命周期保存该行。\n边界：不创建数据实例、不直接调用认证接口；明确失败后原编辑身份失效，通知宿主改开新命令行，保存成功后由宿主读取回执。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T05:36:24.630Z",
+  "models": {}
+}

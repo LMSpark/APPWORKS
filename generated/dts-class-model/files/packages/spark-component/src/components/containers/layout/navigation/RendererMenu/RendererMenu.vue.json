@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererMenu/RendererMenu.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererMenu/RendererMenu",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererMenu/RendererMenu\n职责：实现 RendererMenu（r-menu）的 Vue 渲染入口，按菜单项树呈现纵向/横向导航菜单并回传选择。\n边界：菜单项、激活与当前页由调用方给出；组件不创建导航数据、不判定权限、不跳转路由。\nAI用途：需要理解 r-menu 的渲染结构、类名或选择事件时，优先查看本模块。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererMenu",
+    "componentType": "r-menu",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T07:24:28.536Z",
+  "models": {}
+}

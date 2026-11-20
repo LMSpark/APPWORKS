@@ -1,0 +1,76 @@
+[
+  {
+    "id": "json-data-catalog",
+    "type": "r-section",
+    "props": {"title": "JSON 文件数据管理", "class": "json-data-catalog", "bordered": false, "gridColumns": 1, "onBeforeRender": "bindCatalogSection"},
+    "children": [
+      {"type": "r-button", "props": {"label": "重新读取目录", "onBeforeRender": "bindCatalogReload", "onClick": "reloadJsonCatalog"}},
+      {"type": "r-button", "props": {"label": "新增", "onBeforeRender": "bindCatalogCreate", "onClick": "createJsonDocument"}},
+      {"type": "r-button", "props": {"label": "导入JSON", "onBeforeRender": "bindCatalogCreate", "onClick": "importJsonDocument"}},
+      {"type": "r-button", "props": {"label": "保存目录", "onBeforeRender": "bindCatalogSave", "onClick": "saveJsonCatalog"}},
+      {"type": "r-button", "props": {"label": "取消目录修改", "onBeforeRender": "bindCatalogCancel", "onClick": "cancelJsonCatalog"}},
+      {
+        "id": "json-data-definitions",
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "FFDEF2AED3E19A38C0FCDDC748CF939B@Base_JsonData@default",
+          "border": true,
+          "stripe": true,
+          "showRowIndex": true,
+          "showDataViewMeta": false,
+          "highlightCurrentRow": true,
+          "onRowClick": "selectCatalogRow",
+          "actionColumn": {"label":"操作", "width":180, "fixed":true},
+          "actions": {"children":[
+            {"type":"r-button","props":{"label":"编辑文件","link":true,"buttonType":"primary","onClick":"openJsonDocument","onBeforeRender":"bindCatalogRowAction"}}
+          ]}
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "name", "label": "名称", "placeholder": "请输入文件名称", "maxlength": 200, "minWidth": 220, "showOverflowTooltip": true, "onBeforeRender": "bindCatalogField"}},
+          {"type": "r-text", "props": {"field": "description", "label": "摘要", "placeholder": "请输入摘要", "maxlength": 500, "minWidth": 260, "showOverflowTooltip": true, "onBeforeRender": "bindCatalogField"}},
+          {"type": "r-text", "props": {"field": "path", "label": "文件地址", "readonly": true, "minWidth": 280, "showOverflowTooltip": true}},
+          {"type": "r-select", "props": {"field": "createuser", "label": "创建人", "readonly": true, "width": 140, "onBeforeRender": "bindCatalogCreator"}},
+          {"type": "r-text", "props": {"field": "createtime", "label": "创建时间", "readonly": true, "width": 140}}
+        ]
+      },
+      {
+        "id": "json-document-dialog",
+        "type": "r-dialog",
+        "props": {
+          "title": "JSON 编辑",
+          "width": 1180,
+          "destroyOnClose": true,
+          "onBeforeRender": "bindDocumentDialog",
+          "on": {"update:modelValue":"changeDocumentDialog"},
+          "footer": {"children": [
+            {"type": "r-button", "props": {"label": "保存内容", "onBeforeRender": "bindJsonSave", "onClick": "saveJsonDocument"}},
+            {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindJsonCancel", "onClick": "cancelJsonDocument"}},
+            {"type": "r-button", "props": {"label": "放弃修改并关闭", "onBeforeRender": "bindDiscardAndClose", "onClick": "discardAndCloseJsonDocument"}},
+            {"type": "r-button", "props": {"label": "关闭正文", "onBeforeRender": "bindDocumentClose", "onClick": "closeJsonDocument"}}
+          ]}
+        },
+        "children": [
+          {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindDocumentError"}},
+          {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindDocumentSaveStatus"}},
+          {
+            "id": "json-document-create-metadata",
+            "type": "r-form",
+            "props": {"autoColumns": false, "showDataViewMeta": false, "gridColumns":2, "onBeforeRender": "bindCreationMetadata"},
+            "children": [
+              {"type":"r-text","props":{"field":"name","label":"名称","maxlength":200,"onBeforeRender":"bindCreationField"}},
+              {"type":"r-text","props":{"field":"description","label":"摘要","maxlength":500,"onBeforeRender":"bindCreationField"}}
+            ]
+          },
+          {
+            "id": "json-document-preview",
+            "type": "r-form",
+            "props": {"autoColumns": false, "showDataViewMeta": false, "onBeforeRender": "bindJsonDocument"},
+            "children": [
+              {"type": "r-json", "props": {"field": "content", "label": "JSON 内容", "mode": "tree", "onBeforeRender": "bindJsonField"}}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

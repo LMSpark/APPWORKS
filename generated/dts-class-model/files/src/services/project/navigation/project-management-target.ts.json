@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/navigation/project-management-target",
+    "sourcePath": "src/services/project/navigation/project-management-target.ts",
+    "sourceFile": "src/services/project/navigation/project-management-target.ts",
+    "packageName": "app",
+    "modulePath": "services/project/navigation/project-management-target",
+    "jsdoc": "@module app:services/project/navigation/project-management-target\n职责：项目管理系统页的唯一导航身份及蓝图来源节点路由。\n边界：仅构造路由；应用选择、未保存保护及节点归属由现有路由守卫和目标宿主处理。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-17T11:05:06.000Z",
+  "models": {}
+}

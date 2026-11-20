@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/review-coverage",
+    "sourcePath": "src/services/smart-bid/content/review/review-coverage.ts",
+    "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/review-coverage",
+    "jsdoc": "@module app:services/smart-bid/content/review/review-coverage\n职责：逐项比较动作45的本轮审定范围、原批准与阻断检查。\n边界：输入来自授权读取；只确定覆盖及差距，不批准或保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewTarget",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "requiredUseIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "requiredUseIds"
+      ],
+      "additionalProperties": false
+    },
+    "ApprovalEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApprovalEvidence",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "approvalRef"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewCheck",
+      "properties": {
+        "kind": {
+          "enum": [
+            "FILE",
+            "FIELD"
+          ]
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string"
+        },
+        "versionHash": {
+          "type": "string"
+        },
+        "checkRef": {
+          "type": "string"
+        },
+        "openBlockerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkedUses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "useCheckRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "useCheckRef"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "targetId",
+        "effectiveHash",
+        "versionHash",
+        "checkRef",
+        "openBlockerIds",
+        "checkedUses"
+      ],
+      "additionalProperties": false
+    },
+    "CoverageState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CoverageState",
+      "enum": [
+        "COVERED",
+        "NO_APPROVAL",
+        "CHANGED",
+        "CHECK_REQUIRED",
+        "BLOCKED",
+        "USE_CHECK_REQUIRED"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T03:46:59.601Z",
+  "models": {
+    "Target": {
+      "name": "Target",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'FILE' | 'FIELD';\n    targetId: string;\n    effectiveHash: string;\n    versionHash: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'FILE' | 'FIELD';\n    targetId: string;\n    effectiveHash: string;\n    versionHash: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effectiveHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versionHash",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewTarget": {
+      "name": "ReviewTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    requiredUseIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    requiredUseIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requiredUseIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApprovalEvidence": {
+      "name": "ApprovalEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    approvalRef: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    approvalRef: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "approvalRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReviewCheck": {
+      "name": "ReviewCheck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    checkRef: string;\n    openBlockerIds: readonly string[];\n    checkedUses: ReadonlyArray<Readonly<{\n        id: string;\n        useCheckRef: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    checkRef: string;\n    openBlockerIds: readonly string[];\n    checkedUses: ReadonlyArray<Readonly<{\n        id: string;\n        useCheckRef: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "checkRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "openBlockerIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkedUses",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CoverageState": {
+      "name": "CoverageState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'COVERED' | 'NO_APPROVAL' | 'CHANGED' | 'CHECK_REQUIRED' | 'BLOCKED' | 'USE_CHECK_REQUIRED'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'COVERED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'NO_APPROVAL'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CHANGED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'CHECK_REQUIRED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'BLOCKED'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'USE_CHECK_REQUIRED'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

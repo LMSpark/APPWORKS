@@ -1,0 +1,82 @@
+node_modules
+
+# Local IDE/workspace state（.cursor/skills/ 是随项目的 AI 技能，需入库）
+.cursor/*
+!.cursor/skills/
+.vscode/*
+!.vscode/launch.json.example
+.idea/
+.fleet/
+.husky/
+.github/
+.changeset/
+.claude/
+CLAUDE.md
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+.cursorignore
+.cursorindexingignore
+/%SystemDrive%/
+
+# Build artifacts
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+dist/
+
+# VS and IDE
+.vs/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Temporary files
+*.cache
+__pycache__/
+*.py[cod]
+tsc-output.txt
+tmpclaude-*
+temp-*.mjs
+tmp-*.mjs
+scratch-*.mjs
+debug-*.mjs
+probe-*.mjs
+/sp[0-9]*.mjs
+/sp[0-9]*.js
+/prune_script.ps1
+/ffmpeg-smoke-test.mp4
+/virtual-scroll-page-loader-demo.html
+/scripts/claude-restore/
+/scripts/setup-claude-deepseek.ps1
+/scripts/claude-model.ps1
+/scripts/render-appworks-*.py
+/scripts/synthesize-video-narration.ps1
+
+# Local env overrides（不提交 API Key）
+.env
+.env.local
+.env.*.local
+/data/
+temp-*.json
+temp-*.txt
+temp-*.cjs
+temp-*.mts
+temp-catalog-per-comp/
+.eslintcache
+
+# AI / e2e 本地运行产物（报告、联调日志等，不提交）
+artifacts/
+/cache/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# ClassModel 实验 runtime ref 树（默认不生成；勿入库）
+generated/dts-class-model/runtime/

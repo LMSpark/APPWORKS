@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:layout/NavContextSelector",
+    "sourcePath": "src/layout/NavContextSelector.vue",
+    "sourceFile": "src/layout/NavContextSelector.vue",
+    "packageName": "app",
+    "modulePath": "layout/NavContextSelector",
+    "jsdoc": "@module app:layout/NavContextSelector\n职责：在应用头部呈现导航上下文（项目）选择，选择结果写回唯一 useNav 上下文。\n边界：选项与当前值镜像 RuntimeNavigationContextState，经本地 DataView 绑定标准 FieldSelect；不持久化、不创建导航数据。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavContextSelector。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T07:29:14.477Z",
+  "models": {}
+}

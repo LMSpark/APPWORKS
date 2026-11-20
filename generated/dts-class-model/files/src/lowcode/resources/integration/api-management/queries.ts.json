@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/integration/api-management/queries",
+    "sourcePath": "src/lowcode/resources/integration/api-management/queries.ts",
+    "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/integration/api-management/queries",
+    "jsdoc": "@module app:lowcode/resources/integration/api-management/queries\n职责：在原实例上精确读取接口定义引用；不读取接口响应或执行接口。\n边界：只创建短生命周期查询视图，返回公开字段，不复制权限凭据或保存状态。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiDefinitionQuery"
+    ]
+  },
+  "$defs": {
+    "ApiDefinitionQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiDefinitionQuery",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filter": {
+          "$ref": "../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T19:49:25.496Z",
+  "models": {
+    "ApiDefinitionQuery": {
+      "name": "ApiDefinitionQuery",
+      "jsdoc": "本次正式定义查询及原执行范围。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原宿主持有的空间实例，不另行装配。 */\n    dataSet: DataSet;\n    /** 正式模型名称，不能用内部表键或物理来源名替代。 */\n    modelName: string;\n    /** 本次必须可读的正式字段，不复制权限凭据。 */\n    fields: readonly string[];\n    /** 仅按本次命令明确身份限制的筛选。 */\n    filter: DataViewFilterTree;\n    /** 异步前后核原宿主、空间与查询范围。 */\n    check(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原宿主持有的空间实例，不另行装配。 */\n    dataSet: DataSet;\n    /** 正式模型名称，不能用内部表键或物理来源名替代。 */\n    modelName: string;\n    /** 本次必须可读的正式字段，不复制权限凭据。 */\n    fields: readonly string[];\n    /** 仅按本次命令明确身份限制的筛选。 */\n    filter: DataViewFilterTree;\n    /** 异步前后核原宿主、空间与查询范围。 */\n    check(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "原宿主持有的空间实例，不另行装配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "jsdoc": "正式模型名称，不能用内部表键或物理来源名替代。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "本次必须可读的正式字段，不复制权限凭据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "jsdoc": "仅按本次命令明确身份限制的筛选。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "异步前后核原宿主、空间与查询范围。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

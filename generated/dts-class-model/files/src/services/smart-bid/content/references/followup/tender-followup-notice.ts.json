@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/references/followup/tender-followup-notice",
+    "sourcePath": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+    "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/references/followup/tender-followup-notice",
+    "jsdoc": "@module app:services/smart-bid/content/references/followup/tender-followup-notice\n职责：第57项固定正式后续通知及其已证边界，供下游分派和期限跟踪。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Scope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Scope",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "subjectId",
+        "stageId"
+      ],
+      "additionalProperties": false
+    },
+    "Notice": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Notice",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "roundId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "stageId": {
+          "type": "string"
+        },
+        "noticeId": {
+          "type": "string"
+        },
+        "documentVersionId": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "issuerRef": {
+          "type": "string"
+        },
+        "channelId": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "REVIEW",
+            "OTHER",
+            "INQUIRY",
+            "CLARIFICATION",
+            "REPRICE_INVITATION"
+          ]
+        },
+        "change": {
+          "enum": [
+            "INITIAL",
+            "SUPPLEMENT",
+            "CORRECTION",
+            "CANCELLATION"
+          ]
+        },
+        "previousNoticeRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "originalObjectRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "issuedAt": {
+          "type": "string"
+        },
+        "knownAt": {
+          "type": "string"
+        },
+        "replyDueAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "permittedScopeRef": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "projectId",
+        "lotId",
+        "roundId",
+        "subjectId",
+        "stageId"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-18T10:23:47.695Z",
+  "models": {
+    "Scope": {
+      "name": "Scope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    subjectId: string;\n    stageId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    lotId: string;\n    roundId: string;\n    subjectId: string;\n    stageId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lotId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roundId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Notice": {
+      "name": "Notice",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Scope & Readonly<{\n    noticeId: string;\n    documentVersionId: string;\n    sourceRef: string;\n    issuerRef: string;\n    channelId: string;\n    kind: 'INQUIRY' | 'CLARIFICATION' | 'REVIEW' | 'REPRICE_INVITATION' | 'OTHER';\n    change: 'INITIAL' | 'SUPPLEMENT' | 'CORRECTION' | 'CANCELLATION';\n    previousNoticeRef: string | null;\n    originalObjectRef: string | null;\n    issuedAt: string;\n    knownAt: string;\n    replyDueAt: string | null;\n    permittedScopeRef: string | null;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Scope",
+            "targetName": "Scope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    noticeId: string;\n    documentVersionId: string;\n    sourceRef: string;\n    issuerRef: string;\n    channelId: string;\n    kind: 'INQUIRY' | 'CLARIFICATION' | 'REVIEW' | 'REPRICE_INVITATION' | 'OTHER';\n    change: 'INITIAL' | 'SUPPLEMENT' | 'CORRECTION' | 'CANCELLATION';\n    previousNoticeRef: string | null;\n    originalObjectRef: string | null;\n    issuedAt: string;\n    knownAt: string;\n    replyDueAt: string | null;\n    permittedScopeRef: string | null;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "noticeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentVersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issuerRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "change",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousNoticeRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalObjectRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issuedAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "replyDueAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permittedScopeRef",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

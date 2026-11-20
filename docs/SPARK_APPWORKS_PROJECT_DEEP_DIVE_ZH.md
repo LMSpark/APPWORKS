@@ -1,0 +1,74 @@
+# SPARK AppWorks 项目深度解析
+
+SPARK AppWorks 是纯浏览器应用工场，连接外部 lowcode-jdk17 网关。项目需求、工具定义、场景数据与运行调用各有独立 owner；领域事实见 [模型层级](../packages/spark-project-model/src/MODEL-HIERARCHY.md)。
+
+## 项目与工具
+
+```mermaid
+flowchart TB
+  W[ProjectWorkspace] --> B[ProjectBlueprint]
+  B --> D[ProjectBlueprintDesign]
+  B --> S[ProjectSession]
+  D --> N[正式蓝图节点]
+  D --> T[PageTool 三文件]
+  W --> F[ScenarioViewFile]
+  R[PageRuntime 一次调用] --> T
+  R --> DS[多个独立场景 DataSet]
+  F --> A[正式模型装配]
+  A --> DS
+  R --> UI[SparkPageRenderer]
+```
+
+nodeId 定位蓝图节点，pageId 定位可复用工具，scenarioId 定位业务场景，instanceId 定位一次运行调用。节点 DTO 使用 nodeId/parentNodeId/projectId/kind/capability，按需附 navigation/dataSpace/prototype/source；children 是树投影。kind 为 module/page/embedded/service/content，不能以菜单形态替代领域类型。
+
+ProjectBlueprintDesign 索引节点与工具；ProjectSession 保存选中、活动工具、草稿及 dirty。capability.description 是短需求，策划输入和有效约束通过 readProjectPlanningInput/readBlueprintPlanningInputs/readPlanningProjection 读取。
+
+PageTool 不继承节点，多个节点可共用工具。openPageDesign(pageId) 返回 rule.json/script.js/style.css 的 DataView 投影；三份正文与编辑覆盖由正式 ProjectToolFile DataView 承载，PageTool 不另持文本草稿、历史或保存基线。工具定义没有业务数据。
+
+## 场景配置与真实数据
+
+ScenarioViewFile 位于 SysForm/<scenarioId>/pagedata.json，持原文、savedText、校验后的 ScenarioViewConfig 和撤销历史。文件声明单场景 tables、正式 modelBinding、命名 views 和 viewCascades；不复制后端模型定义。
+
+loadScenarioDataSet 使用配置引用的模型 Name，通过正式 readModel/readRelations 装配 DataSet。稳定 tableName 用于绑定，modelId 与查询 Name 校验正式身份。模型关系保留完整过滤表达式；输入级联只来自显式 viewCascades，两者不互相推导。持久来源、视图配置和完整链路统一见[数据空间主合同](architecture/DATAFLOW_ARCHITECTURE.md)。
+
+DataView 查询与保存共用 DataSpaceRuntimeApi 私有原 query context；API 持 Name/AsName 映射、凭据、差异和回执。组件只消费 DataView.fieldAccess 和动作状态。E 是写白名单，R 必填限于 E；h/m 联合模型与真实行判断，树 c 独立控制新增子行。前端 _pk 不提交；应用和租户来自请求 scope。后端签名强验证不能被页面或 API 映射绕过。
+
+dirty 拒绝覆盖，失败 stale 暂停编辑。同模型多视图允许不同记录同批保存，保留各自查询基线；重复记录拒绝合存。同场景一次保存不保证事务。
+
+## 每次调用独立
+
+PageRuntime 以 tool/scenarioIds/loadScenario 构造，持本次调用的数据集 Map。load 拒绝共享数据集或场景身份错误，失败与销毁清理已装配内容。resolveView 使用 scenarioId@modelName@viewId（空间、模型名称、视图）；正式模型取 modelBinding.modelName，本地模型取自身 tableName。局部 modelName@viewId 仅在明确 mainScenarioId 后可物化，绝不选择首空间。
+
+SparkPageRenderer 接收 pageRuntime 和 routeSnapshot。脚本 Render、CSS、组件 registry、timer 与异步代次属于 instanceId。关闭调用后旧动作和回调失效，共用工具的另一调用仍然独立。容器经 PAGE_RUNTIME 解析视图，提供 DATA_SOURCE 和行 DATA_ROW；脚本 $page 暴露同一 getDataSet/resolveView 入口。
+
+## DevSystem 与 AI
+
+ProjectWorkspace 编排蓝图、工具、场景配置及引用 IO；DevSystem 是模型消费层。AI 绑定同一 ProjectWorkspace 根，经 project.openPageDesign(pageId) 编辑工具；只有明确 scenarioId 才编辑场景配置。各 run 使用 requestId、独立 Host 与编辑器，完成校验与 Delivery 分别报告实际结果。
+
+AI通过ProjectWorkspace.loadScenarioDefinitions按目标T取得正式元数据DataSet C，经定义DataView查询、编辑和取消，交付从DataSet提交本目标已修改的定义视图；原文件owner只在资源适配内部使用。DevSystem的ScenarioDefinitionDocument也绑定同一工作区的五类定义视图，文本应用、撤销、历史恢复和预览使用当前定义；有效文本仅为投影。历史能力由DataViewSource转接内部存储。线上与整页验收仍未完成；数据空间设计器的原生定义链见[数据链路合同](architecture/DATAFLOW_ARCHITECTURE.md)。
+
+工具dirtyFiles、定义DataView的编辑/待提交状态、PageRuntime.isDirty分别表示内容、配置和运行业务修改。工作区保存从DataSet提交，内部文件owner继续比较原文和字节回读；没有后端CAS，不承诺原子并发保护或部分失败全回滚。
+
+工具工作文件使用裸名；版本为真实 N__filename 快照。source.VersionId 保存 rule/script/style 发布引用；恢复工作文件不切换发布引用，dirty 目标拒绝恢复。
+
+## 包职责
+
+| 包 | 职责 |
+|---|---|
+| spark-utils / spark-json-document | 共享原语、正式字面量、JSON与不可变树 |
+| spark-project-model | 项目蓝图、工具、场景文件、运行调用与IO编排 |
+| spark-data | DataSet/DataTable/DataView、编辑、关系、树算法 |
+| spark-lowcode-api | 平台正式定义、请求scope、原query/save owner与wire合同 |
+| spark-component | 能力系统、组件、页面渲染与权限消费 |
+| spark-app | 应用壳、路由、认证、主题与调用宿主 |
+| spark-ai | 浏览器tool loop、ClassModel与工作流 |
+
+宿主 src/lowcode 将领域模型与平台 API 接线；AppWorks 不启动服务器、不保存平台密钥。
+
+## 继续阅读
+
+- [系统总览](architecture/system-architecture.md)
+- [模型架构](architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)
+- [数据流](architecture/DATAFLOW_ARCHITECTURE.md)
+- [配置指南](guides/CONFIG_SYSTEM.md)
+- [AI runtime](../packages/spark-ai/README.md)

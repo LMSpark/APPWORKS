@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/platform/LoginView",
+    "sourcePath": "src/views/platform/LoginView.vue",
+    "sourceFile": "src/views/platform/LoginView.vue",
+    "packageName": "app",
+    "modulePath": "views/platform/LoginView",
+    "jsdoc": "@module app:views/platform/LoginView\n职责：登录页宿主：装配登录公开场景的独立运行实例并提供给子组件；登录卡片只承载登录，注册账号与注册租户分层到右侧抽屉。\n边界：认证经公开场景的命令视图提交，本页只新增命令行、读取回执并进入企业落点；不直接调用认证接口，不保存凭据。\nAI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注册时，用本模块定位宿主编排。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-14T10:52:34.191Z",
+  "models": {}
+}

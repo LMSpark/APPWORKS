@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/lowcode-application-catalog",
+    "sourcePath": "src/lowcode/lowcode-application-catalog.ts",
+    "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/lowcode-application-catalog",
+    "jsdoc": "@module app:lowcode/lowcode-application-catalog\n职责：从正式目录场景配置装配应用目录和导航根 DataView。\n边界：查询字段、分页和排序由仓内场景 DataView 声明；正式应用与导航数据仍由 SPARK data 查询。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-13T03:50:41.693Z",
+  "models": {}
+}

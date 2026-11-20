@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/draft/content-draft-candidate-request",
+    "sourcePath": "src/services/smart-bid/content/draft/content-draft-candidate-request.ts",
+    "sourceFile": "src/services/smart-bid/content/draft/content-draft-candidate-request.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/draft/content-draft-candidate-request",
+    "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-candidate-request\n职责：将已保存草稿和已核编制范围形成确定的候选生成请求。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Draft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Draft",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "draftId": {
+          "type": "string"
+        },
+        "actorUserId": {
+          "type": "string"
+        },
+        "draftVersion": {
+          "type": "string"
+        },
+        "baseRevisionId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "draftJson": {
+          "type": "string"
+        },
+        "contentDigest": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Basis": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Basis",
+      "properties": {
+        "revisionId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "stageRef": true,
+        "inputSnapshotHash": {
+          "type": "string"
+        },
+        "batchId": {
+          "type": "string"
+        },
+        "lockHash": {
+          "type": "string"
+        },
+        "nodePayloads": {
+          "type": "array",
+          "items": true
+        },
+        "factVersions": {
+          "type": "array",
+          "items": {
+            "$ref": "../references/baseline/baseline-fact-members.ts.json#/$defs/BaselineFactMember"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-19T00:17:21.848Z",
+  "models": {
+    "Draft": {
+      "name": "Draft",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    draftVersion: string;\n    baseRevisionId: string | null;\n    draftJson: string;\n    contentDigest: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    draftId: string;\n    actorUserId: string;\n    draftVersion: string;\n    baseRevisionId: string | null;\n    draftJson: string;\n    contentDigest: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actorUserId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseRevisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftJson",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentDigest",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Basis": {
+      "name": "Basis",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Omit<Parameters<typeof resolveContentTargetScope>[0], 'scope'> & {\n    revisionId: string | null;\n    baselineId: string;\n    stageRef: unknown;\n    inputSnapshotHash?: string;\n    batchId?: string;\n    lockHash?: string;\n    nodePayloads: readonly unknown[];\n    factVersions: readonly BaselineFactMember[];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Omit<Parameters<typeof resolveContentTargetScope>[0], 'scope'> & {\n    revisionId: string | null;\n    baselineId: string;\n    stageRef: unknown;\n    inputSnapshotHash?: string;\n    batchId?: string;\n    lockHash?: string;\n    nodePayloads: readonly unknown[];\n    factVersions: readonly BaselineFactMember[];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputSnapshotHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "batchId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lockHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodePayloads",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factVersions",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

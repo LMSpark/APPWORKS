@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/content/review/production/production-recovery",
+    "sourcePath": "src/services/smart-bid/content/review/production/production-recovery.ts",
+    "sourceFile": "src/services/smart-bid/content/review/production/production-recovery.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/content/review/production/production-recovery",
+    "jsdoc": "@module app:services/smart-bid/content/review/production/production-recovery\n职责：按原制作请求复核完成、在办或未知结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "purpose": {
+          "enum": [
+            "REVIEW",
+            "FORMAL"
+          ]
+        },
+        "revisionId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "inputDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "purpose",
+        "revisionId",
+        "requestKey",
+        "documentId",
+        "inputDigest"
+      ],
+      "additionalProperties": false
+    },
+    "File": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "File",
+      "properties": {
+        "producedFileId": {
+          "type": "string"
+        },
+        "productionRequestRef": {
+          "type": "string"
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "completedScopeRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "producedFileId",
+        "productionRequestRef",
+        "fileHash",
+        "completedScopeRefs"
+      ],
+      "additionalProperties": false
+    },
+    "Outcome": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Outcome",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/Request"
+        },
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "PARTIAL",
+            "NOT_EFFECTIVE"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T16:38:06.762Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Awaited<ReturnType<typeof prepareProductionRequest>>['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest' | 'purpose'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<Awaited<ReturnType<typeof prepareProductionRequest>>['request'], 'projectId' | 'documentId' | 'revisionId' | 'requestKey' | 'inputDigest' | 'purpose'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "purpose",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revisionId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "documentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "File": {
+      "name": "File",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    producedFileId: string;\n    productionRequestRef: string;\n    fileHash: string;\n    completedScopeRefs: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    producedFileId: string;\n    productionRequestRef: string;\n    fileHash: string;\n    completedScopeRefs: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "producedFileId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "productionRequestRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileHash",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completedScopeRefs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Outcome": {
+      "name": "Outcome",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}> & (Readonly<{\n    state: 'UNKNOWN' | 'IN_PROGRESS';\n}> | Readonly<{\n    state: 'COMPLETED';\n    files: readonly File[];\n}> | Readonly<{\n    state: 'PARTIAL';\n    files: readonly File[];\n    missingScopeRefs: readonly string[];\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    request: Request;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "(Readonly<{\n    state: 'UNKNOWN' | 'IN_PROGRESS';\n}> | Readonly<{\n    state: 'COMPLETED';\n    files: readonly File[];\n}> | Readonly<{\n    state: 'PARTIAL';\n    files: readonly File[];\n    missingScopeRefs: readonly string[];\n}> | Readonly<{\n    state: 'NOT_EFFECTIVE';\n    terminalRef: string;\n}>)"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

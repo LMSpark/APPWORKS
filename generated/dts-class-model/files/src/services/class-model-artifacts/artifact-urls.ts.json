@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/class-model-artifacts/artifact-urls",
+    "sourcePath": "src/services/class-model-artifacts/artifact-urls.ts",
+    "sourceFile": "src/services/class-model-artifacts/artifact-urls.ts",
+    "packageName": "app",
+    "modulePath": "services/class-model-artifacts/artifact-urls",
+    "jsdoc": "@module app:services/class-model-artifacts/artifact-urls\n职责：提供主应用 ClassModel 静态 bundle 的 HTTP manifest URL。\n边界：只解析发布路径；bundle 真源在 generated/dts-class-model/（入库，可人工评审）。\nAI用途：Worker 按需 fetch shard 时，用本模块定位 manifest 入口 URL。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:20:17.721Z",
+  "models": {}
+}

@@ -1,0 +1,727 @@
+[
+  {
+    "type": "div",
+    "children": [
+      {
+        "type": "h1",
+        "children": [
+          "r-table 组件系列 · Dock 版高覆盖演示"
+        ]
+      },
+      {
+        "type": "p",
+        "children": [
+          "本页集中演示 Dock 版结构：工具栏、过滤面板、分组列、行权限动作、汇总行、当前行表单、主从联动。"
+        ],
+        "props": {
+          "class": "r-table-series-page__desc"
+        }
+      },
+      {
+        "type": "r-section",
+        "children": [
+          {
+            "type": "r-table",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "订单号",
+                  "width": 150,
+                  "field": "orderNo"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "客户",
+                  "width": 120,
+                  "field": "customer"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "状态",
+                  "width": 110,
+                  "options": [
+                    {
+                      "label": "草稿",
+                      "value": "draft"
+                    },
+                    {
+                      "label": "待审核",
+                      "value": "pending"
+                    },
+                    {
+                      "label": "已完成",
+                      "value": "done"
+                    },
+                    {
+                      "label": "已取消",
+                      "value": "cancelled"
+                    }
+                  ],
+                  "field": "status"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "优先级",
+                  "width": 110,
+                  "options": [
+                    {
+                      "label": "低",
+                      "value": "low"
+                    },
+                    {
+                      "label": "中",
+                      "value": "medium"
+                    },
+                    {
+                      "label": "高",
+                      "value": "high"
+                    }
+                  ],
+                  "field": "priority"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "负责人",
+                  "width": 110,
+                  "field": "owner"
+                }
+              },
+              {
+                "type": "r-date",
+                "props": {
+                  "label": "下单日期",
+                  "width": 140,
+                  "field": "orderDate"
+                }
+              },
+              {
+                "type": "r-column-group",
+                "children": [
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "订单金额",
+                      "width": 120,
+                      "filterMode": "range",
+                      "field": "amount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "税额",
+                      "width": 100,
+                      "field": "taxAmount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "含税总额",
+                      "width": 130,
+                      "field": "totalAmount"
+                    }
+                  }
+                ],
+                "props": {
+                  "label": "金额信息"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "区域",
+                  "width": 120,
+                  "options": [
+                    {
+                      "label": "华东",
+                      "value": "east"
+                    },
+                    {
+                      "label": "华南",
+                      "value": "south"
+                    },
+                    {
+                      "label": "华北",
+                      "value": "north"
+                    },
+                    {
+                      "label": "西部",
+                      "value": "west"
+                    }
+                  ],
+                  "field": "region"
+                }
+              }
+            ],
+            "props": {
+              "border": true,
+              "stripe": true,
+              "highlightCurrentRow": true,
+              "filterCollapsible": true,
+              "filterDefaultCollapsed": false,
+              "filter": {
+                "type": "r-filter",
+                "children": [
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "label": "订单号",
+                      "field": "orderNo"
+                    }
+                  },
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "label": "客户",
+                      "field": "customer"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "label": "状态",
+                      "options": [
+                        {
+                          "label": "草稿",
+                          "value": "draft"
+                        },
+                        {
+                          "label": "待审核",
+                          "value": "pending"
+                        },
+                        {
+                          "label": "已完成",
+                          "value": "done"
+                        },
+                        {
+                          "label": "已取消",
+                          "value": "cancelled"
+                        }
+                      ],
+                      "field": "status"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "label": "优先级",
+                      "options": [
+                        {
+                          "label": "低",
+                          "value": "low"
+                        },
+                        {
+                          "label": "中",
+                          "value": "medium"
+                        },
+                        {
+                          "label": "高",
+                          "value": "high"
+                        }
+                      ],
+                      "field": "priority"
+                    }
+                  },
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "label": "负责人",
+                      "field": "owner"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "金额",
+                      "filterMode": "range",
+                      "field": "amount"
+                    }
+                  },
+                  {
+                    "type": "r-date",
+                    "props": {
+                      "label": "下单日期",
+                      "field": "orderDate"
+                    }
+                  },
+                  {
+                    "type": "r-select",
+                    "props": {
+                      "label": "区域",
+                      "options": [
+                        {
+                          "label": "华东",
+                          "value": "east"
+                        },
+                        {
+                          "label": "华南",
+                          "value": "south"
+                        },
+                        {
+                          "label": "华北",
+                          "value": "north"
+                        },
+                        {
+                          "label": "西部",
+                          "value": "west"
+                        }
+                      ],
+                      "field": "region"
+                    }
+                  }
+                ]
+              },
+              "toolbar": {
+                "type": "r-toolbar",
+                "children": [
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "append-row",
+                      "permAction": "create",
+                      "label": "新增订单",
+                      "buttonType": "primary",
+                      "appendPayload": {
+                        "customer": "新客户",
+                        "status": "draft",
+                        "priority": "medium",
+                        "owner": "系统",
+                        "amount": 8800,
+                        "orderDate": "2026-03-18",
+                        "region": "east",
+                        "_perm": {
+                          "allowDelete": true,
+                          "editableFields": [
+                            "status",
+                            "priority",
+                            "owner",
+                            "amount"
+                          ]
+                        }
+                      },
+                      "successMessage": "已新增订单"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "refresh",
+                      "label": "刷新列表",
+                      "successMessage": "列表已刷新"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "delete-current",
+                      "permAction": "delete",
+                      "label": "删除当前",
+                      "buttonType": "danger",
+                      "confirmTitle": "删除确认",
+                      "confirmMessage": "确认删除当前订单吗？",
+                      "successMessage": "当前订单已删除"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "patch-current",
+                      "permAction": "edit",
+                      "label": "更新当前订单",
+                      "patch": {
+                        "status": "done",
+                        "priority": "low"
+                      },
+                      "successMessage": "当前订单已更新"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "message-current",
+                      "permAction": "edit",
+                      "label": "查看当前",
+                      "message": "当前订单 {orderNo} | 客户 {customer} | 状态 {status} | 优先级 {priority}"
+                    }
+                  }
+                ],
+                "props": {
+                  "position": "top"
+                }
+              },
+              "actions": {
+                "type": "r-toolbar",
+                "children": [
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "message-row",
+                      "permAction": "edit",
+                      "label": "查看",
+                      "buttonSize": "small",
+                      "message": "订单 {orderNo} | 客户 {customer} | 优先级 {priority}"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "patch-row",
+                      "label": "提级",
+                      "buttonSize": "small",
+                      "patch": {
+                        "priority": "high"
+                      },
+                      "successMessage": "订单优先级已提升",
+                      "permAction": "edit"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "patch-row",
+                      "label": "降级",
+                      "buttonSize": "small",
+                      "patch": {
+                        "priority": "low"
+                      },
+                      "successMessage": "订单优先级已降低",
+                      "permAction": "edit"
+                    }
+                  },
+                  {
+                    "type": "r-button",
+                    "props": {
+                      "action": "delete-row",
+                      "label": "删除",
+                      "buttonSize": "small",
+                      "buttonType": "danger",
+                      "confirmTitle": "删除确认",
+                      "confirmMessage": "确认删除当前订单吗？",
+                      "permAction": "delete"
+                    }
+                  }
+                ],
+                "props": {
+                  "permDeniedBehavior": "disable",
+                  "width": 300,
+                  "label": "操作"
+                }
+              },
+              "dataViewKey": "Orders@default"
+            }
+          }
+        ],
+        "props": {
+          "title": "订单主表（完整能力）",
+          "description": "支持工具栏、筛选、多级列头、行级权限动作与当前行高亮"
+        }
+      },
+      {
+        "type": "r-section",
+        "children": [
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "r-detail",
+                "children": [
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "总订单数",
+                      "colSpan": 12,
+                      "field": "orderCount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "金额合计",
+                      "colSpan": 12,
+                      "field": "amount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "税额合计",
+                      "colSpan": 12,
+                      "field": "taxAmount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "含税总额",
+                      "colSpan": 12,
+                      "field": "totalAmount"
+                    }
+                  }
+                ],
+                "props": {
+                  "dataViewKey": "Orders@default",
+                  "contextDataMember": "aggregateResult"
+                }
+              },
+              {
+                "type": "r-detail",
+                "children": [
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "勾选订单数",
+                      "colSpan": 12,
+                      "field": "orderCount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "勾选金额合计",
+                      "colSpan": 12,
+                      "field": "amount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "勾选税额合计",
+                      "colSpan": 12,
+                      "field": "taxAmount"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "勾选含税总额",
+                      "colSpan": 12,
+                      "field": "totalAmount"
+                    }
+                  }
+                ],
+                "props": {
+                  "dataViewKey": "Orders@default",
+                  "contextDataMember": "selectionAggregateResult"
+                }
+              }
+            ],
+            "props": {
+              "class": "summary-grid"
+            }
+          }
+        ],
+        "props": {
+          "title": "汇总区（aggregateResult / selectionAggregateResult）",
+          "description": "左侧展示全量汇总，右侧展示勾选行汇总"
+        }
+      },
+      {
+        "type": "r-section",
+        "children": [
+          {
+            "type": "r-form",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "订单号",
+                  "colSpan": 8,
+                  "field": "orderNo"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "客户",
+                  "colSpan": 8,
+                  "field": "customer"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "负责人",
+                  "colSpan": 8,
+                  "field": "owner"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "状态",
+                  "colSpan": 8,
+                  "options": [
+                    {
+                      "label": "草稿",
+                      "value": "draft"
+                    },
+                    {
+                      "label": "待审核",
+                      "value": "pending"
+                    },
+                    {
+                      "label": "已完成",
+                      "value": "done"
+                    },
+                    {
+                      "label": "已取消",
+                      "value": "cancelled"
+                    }
+                  ],
+                  "field": "status"
+                }
+              },
+              {
+                "type": "r-select",
+                "props": {
+                  "label": "优先级",
+                  "colSpan": 8,
+                  "options": [
+                    {
+                      "label": "低",
+                      "value": "low"
+                    },
+                    {
+                      "label": "中",
+                      "value": "medium"
+                    },
+                    {
+                      "label": "高",
+                      "value": "high"
+                    }
+                  ],
+                  "field": "priority"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "订单金额",
+                  "colSpan": 8,
+                  "field": "amount"
+                }
+              }
+            ],
+            "props": {
+              "gridColumns": 24,
+              "gridGap": 12,
+              "dataViewKey": "Orders@default",
+              "contextDataMember": "currentRow"
+            }
+          }
+        ],
+        "props": {
+          "title": "当前行编辑（r-form）",
+          "description": "字段是否可编辑由当前行 _perm.editableFields 自动控制"
+        }
+      },
+      {
+        "type": "r-section",
+        "children": [
+          {
+            "type": "r-table",
+            "children": [
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "SKU",
+                  "width": 140,
+                  "field": "sku"
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "label": "商品",
+                  "width": 180,
+                  "field": "product"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "数量",
+                  "width": 90,
+                  "filterMode": "range",
+                  "field": "qty"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "单价",
+                  "width": 100,
+                  "field": "unitPrice"
+                }
+              },
+              {
+                "type": "r-number",
+                "props": {
+                  "label": "行金额",
+                  "width": 120,
+                  "field": "lineAmount"
+                }
+              }
+            ],
+            "props": {
+              "border": true,
+              "stripe": true,
+              "highlightCurrentRow": true,
+              "filterCollapsible": true,
+              "filterDefaultCollapsed": true,
+              "filter": {
+                "type": "r-filter",
+                "children": [
+                  {
+                    "type": "r-text",
+                    "props": {
+                      "label": "商品",
+                      "field": "product"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "数量",
+                      "filterMode": "range",
+                      "field": "qty"
+                    }
+                  },
+                  {
+                    "type": "r-number",
+                    "props": {
+                      "label": "行金额",
+                      "filterMode": "range",
+                      "field": "lineAmount"
+                    }
+                  }
+                ]
+              },
+              "dataViewKey": "OrderItems@default"
+            }
+          }
+        ],
+        "props": {
+          "title": "订单明细（主从联动）",
+          "description": "当前订单变化后，明细表按 relation 自动过滤"
+        }
+      }
+    ],
+    "props": {
+      "class": "r-table-series-page",
+      "style": {
+        "padding": "20px"
+      }
+    }
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "dataSetName": "PermissionRenderDemo",
+  "resourceRelations": [],
+  "tables": {
+    "PermissionUsers": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "姓名"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "label": "邮箱"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "label": "部门"
+        }
+      ],
+      "views": {
+        "default": {
+          "rows": [],
+          "autoCurrentFirst": true
+        }
+      },
+      "tableName": "PermissionUsers"
+    }
+  }
+}

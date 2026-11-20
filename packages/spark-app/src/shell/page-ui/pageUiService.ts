@@ -1,0 +1,169 @@
+/**
+ * @module @spark-appworks/spark-app:shell/page-ui/pageUiService
+ * 职责：提供应用壳层 pageUiService 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接导航、认证、插件、主题或 AI 宿主接线。
+ * 边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。
+ * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 page-ui/pageUiService。
+ */
+import { reactive } from 'vue'
+import type { PageServiceCapability } from '@spark-appworks/spark-component'
+
+type PageDialogOptions = Parameters<PageServiceCapability['showDialog']>[0]
+type PageDialogResult = Awaited<ReturnType<PageServiceCapability['showDialog']>>
+type PageSelectEntitiesOptions = Parameters<PageServiceCapability['selectEntities']>[0]
+type PageSelectorOption = Awaited<ReturnType<PageServiceCapability['selectEntities']>>[number]
+type PageSelectorValue = PageSelectorOption['value']
+type PageSelectorCurrentValue = PageSelectorValue | PageSelectorValue[]
+
+type DialogState = {
+  visible: boolean
+  title: string
+  content: string
+  confirmText: string
+  cancelText: string
+  showCancelButton: boolean
+  dangerouslyUseHTMLString: boolean
+  width: string}
+
+type SelectorState = {
+  visible: boolean
+  title: string
+  placeholder: string
+  multiple: boolean
+  searchable: boolean
+  confirmText: string
+  cancelText: string
+  emptyText: string
+  searchKeyword: string
+  options: PageSelectorOption[]
+  selectedValues: string[]}
+
+const dialogState = reactive<DialogState>({
+  visible: false,
+  title: '',
+  content: '',
+  confirmText: '确定',
+  cancelText: '取消',
+  showCancelButton: false,
+  dangerouslyUseHTMLString: false,
+  width: '560px',
+})
+
+const selectorState = reactive<SelectorState>({
+  visible: false,
+  title: '',
+  placeholder: '请输入关键字',
+  multiple: false,
+  searchable: true,
+  confirmText: '确定',
+  cancelText: '取消',
+  emptyText: '暂无可选项',
+  searchKeyword: '',
+  options: [],
+  selectedValues: [],
+})
+
+let dialogResolver: ((result: PageDialogResult) => void) | null = null
+let selectorResolver: ((result: PageSelectorOption[]) => void) | null = null
+
+function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): string[] {
+  if (Array.isArray(value)) return value.map(item => String(item))
+  if (typeof value === 'string') {
+    if (!value.trim()) return []
+    return value.split(',').map(item => item.trim()).filter(Boolean)
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') return [String(value)]
+  return []
+}
+
+async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]> {
+  if (selectorResolver) {
+    selectorResolver([])
+  }
+
+  selectorState.title = options.title ?? `选择${options.entityName ?? '项目'}`
+  selectorState.placeholder = options.placeholder ?? '请输入关键字'
+  selectorState.multiple = options.multiple === true
+  selectorState.searchable = options.searchable !== false
+  selectorState.confirmText = options.confirmText ?? '确定'
+  selectorState.cancelText = options.cancelText ?? '取消'
+  selectorState.emptyText = options.emptyText ?? '暂无可选项'
+  selectorState.searchKeyword = ''
+  selectorState.options = options.options?.slice() ?? []
+  selectorState.selectedValues = normalizeSelectorKeys(options.currentValue)
+  selectorState.visible = true
+
+  return await new Promise<PageSelectorOption[]>((resolve) => {
+    selectorResolver = resolve
+  })
+}
+
+async function showDialog(options: PageDialogOptions): Promise<PageDialogResult> {
+  if (dialogResolver) {
+    dialogResolver('close')
+  }
+
+  dialogState.title = options.title ?? '提示'
+  dialogState.content = options.content ?? options.message ?? ''
+  dialogState.confirmText = options.confirmText ?? '确定'
+  dialogState.cancelText = options.cancelText ?? '取消'
+  dialogState.showCancelButton = options.showCancelButton === true
+  dialogState.dangerouslyUseHTMLString = options.dangerouslyUseHTMLString === true
+  dialogState.width = options.width ?? '560px'
+  dialogState.visible = true
+
+  return await new Promise<PageDialogResult>((resolve) => {
+    dialogResolver = resolve
+  })
+}
+
+function resolveDialog(result: PageDialogResult): void {
+  const resolver = dialogResolver
+  dialogResolver = null
+  dialogState.visible = false
+  if (resolver) resolver(result)
+}
+
+function resolveSelector(result: PageSelectorOption[]): void {
+  const resolver = selectorResolver
+  selectorResolver = null
+  selectorState.visible = false
+  selectorState.searchKeyword = ''
+  if (resolver) resolver(result)
+}
+
+export const appPageUiState = {
+  dialog: dialogState,
+  selector: selectorState,
+}
+
+export const appPageUiService: Pick<PageServiceCapability, 'showDialog' | 'selectEntities'> = {
+  showDialog,
+  selectEntities,
+}
+
+export function confirmAppDialog(): void {
+  resolveDialog('confirm')
+}
+
+export function cancelAppDialog(): void {
+  resolveDialog('cancel')
+}
+
+export function closeAppDialog(): void {
+  resolveDialog('close')
+}
+
+export function confirmAppSelector(): void {
+  const selected = selectorState.selectedValues
+    .map((selectedValue) => selectorState.options.find((option: PageSelectorOption) => String(option.value) === selectedValue) ?? null)
+    .filter((option): option is PageSelectorOption => option !== null)
+  resolveSelector(selectorState.multiple ? selected : selected.slice(0, 1))
+}
+
+export function cancelAppSelector(): void {
+  resolveSelector([])
+}
+
+export function closeAppSelector(): void {
+  resolveSelector([])
+}

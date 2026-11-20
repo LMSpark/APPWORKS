@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/dimension-source/source-contracts",
+    "sourcePath": "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/dimension-source/source-contracts.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/dimension-source/source-contracts",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/source-contracts\n职责：平台注册事件来源合同注册表；维度来源绑定选择 platform-event 时只能引用这里登记的合同。\n边界：合同由平台代码登记、只读冻结，不经页面维护；字段 name 是映射保存的 source_field_name，dimension 角色字段才可映射到维度定义。\nAI用途：新增平台事件来源时在注册表追加冻结合同，并保证 id 唯一、事件编码不与数据模型事件冲突。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DimensionSourceContractField",
+      "DimensionSourceContract"
+    ]
+  },
+  "$defs": {
+    "DimensionSourceContractFieldRole": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DimensionSourceContractFieldRole",
+      "enum": [
+        "attribute",
+        "time",
+        "identity",
+        "dimension",
+        "relation"
+      ]
+    },
+    "DimensionSourceContractField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceContractField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "valueType": {
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "datetime"
+          ]
+        },
+        "semanticRole": {
+          "$ref": "#/$defs/DimensionSourceContractFieldRole"
+        },
+        "dimensionCode": {
+          "type": "string"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "valueType",
+        "semanticRole",
+        "required"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionSourceContract": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceContract",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "businessCategory": {
+          "type": "string"
+        },
+        "dimensionCategory": {
+          "type": "string"
+        },
+        "eventCode": {
+          "type": "string"
+        },
+        "payloadVersion": {
+          "type": "number"
+        },
+        "projectionVersion": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DimensionSourceContractField"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "businessCategory",
+        "dimensionCategory",
+        "eventCode",
+        "payloadVersion",
+        "projectionVersion",
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-12T12:38:41.415Z",
+  "models": {
+    "DimensionSourceContractFieldRole": {
+      "name": "DimensionSourceContractFieldRole",
+      "jsdoc": "平台事件载荷字段的语义角色；只有 dimension 字段可映射到维度定义。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'identity' | 'attribute' | 'dimension' | 'relation' | 'time'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'identity'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'attribute'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dimension'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'relation'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'time'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DimensionSourceContractField": {
+      "name": "DimensionSourceContractField",
+      "jsdoc": "平台事件载荷字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    valueType: 'string' | 'number' | 'boolean' | 'datetime';\n    semanticRole: DimensionSourceContractFieldRole;\n    /** dimension 角色字段对应的维度定义编码。 */\n    dimensionCode?: string;\n    required: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    valueType: 'string' | 'number' | 'boolean' | 'datetime';\n    semanticRole: DimensionSourceContractFieldRole;\n    /** dimension 角色字段对应的维度定义编码。 */\n    dimensionCode?: string;\n    required: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "semanticRole",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dimensionCode",
+              "jsdoc": "dimension 角色字段对应的维度定义编码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceContract": {
+      "name": "DimensionSourceContract",
+      "jsdoc": "平台注册事件来源合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    businessCategory: string;\n    dimensionCategory: string;\n    eventCode: string;\n    payloadVersion: number;\n    projectionVersion: number;\n    fields: readonly DimensionSourceContractField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    businessCategory: string;\n    dimensionCategory: string;\n    eventCode: string;\n    payloadVersion: number;\n    projectionVersion: number;\n    fields: readonly DimensionSourceContractField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessCategory",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dimensionCategory",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "payloadVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectionVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

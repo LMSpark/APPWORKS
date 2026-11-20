@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/adoption/content-adoption-snapshot-reader\n职责：沿原采用关联的合并修订回读快照及完整节点。\n边界：只读历史结果，不从现头重建，不证明原处理是否原子生效。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T10:02:25.660Z",
+  "models": {}
+}

@@ -1,0 +1,64 @@
+/**
+ * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader
+ * 职责：冷回读冻结输入摘要，供页18核验原试次。
+ * 边界：按原试次身份读取固定清单，本次视图仅用于查询。
+ * AI用途：定位原试次输入或清单身份不匹配的原因。
+ */
+import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {snapshotReferenceFields,snapshotReferenceIdentity as identity,visitSnapshotReferences}
+ from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {hasContentScopeCondition,type ContentRevisionReadHost} from '../content-revision-reader'
+import type {recoverRegisteredOperationRouteAttempt} from './content-operation-result-reader'
+
+/** 原调用固定的输入、工具版本和证据清单。 */
+type Manifest=Parameters<typeof recoverRegisteredOperationRouteAttempt>[1]
+const keys=['projectId','runId','attemptRef','requestKey'] as const
+const fields=[...keys,'targetDigest','configurationLockHash','guideRef','guideVersionRef','guideDigest','usable','inputDigest']
+const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{64}$/u.test(value)
+const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='ContextManifest'&&
+ view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
+ keys.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
+
+/** 只读原待发摘要；不恢复发起能力，也不读取待发载荷。 */
+export async function readRegisteredFrozenOperationContext(host:ContentRevisionReadHost,input:Manifest['scope']):Promise<Readonly<{manifest?:Manifest;assertCurrent:()=>void}>>{
+ const {runtime,scenarioId,projectId}=host
+ host.assertCurrent()
+ const scope=Object.freeze({...input})
+ const context={projectId,runId:scope.runId,attemptRef:scope.attemptRef,requestKey:scope.requestKey}
+ if(![scenarioId,...Object.values(context)].every(identity)||scope.projectId!==projectId||
+  !digest(scope.targetDigest)||!digest(scope.configurationLockHash))throw Error('OPERATION_FROZEN_READ_SCOPE')
+ const key=buildDataViewKey('ContextManifest','originalFrozen',scenarioId),view=runtime.resolveView(key)
+ if(!view||!valid(view)||view.hasEditingChanges())throw Error('OPERATION_FROZEN_VIEW_REQUIRED')
+ view.queryContext={...view.queryContext,...context}
+ const assertScope=()=>{
+  host.assertCurrent()
+  if(runtime.resolveView(key)!==view||!valid(view)||view.hasEditingChanges()||view.loadingError||
+   keys.some(field=>view.queryContext[field]!==context[field]))throw Error('OPERATION_FROZEN_READ_STALE')
+ }
+ await view.refresh()
+ assertScope()
+ if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
+  throw Error('OPERATION_FROZEN_READ_INCOMPLETE')
+ const assertRead=view.captureReadResult(),row=view.rows[0]
+ if(!row)return Object.freeze({assertCurrent:()=>{assertScope();assertRead()}})
+ const rawReads=row['requirementReads']
+ const hasReads=rawReads!==null&&rawReads!==undefined
+ const assertRow=view.captureReadRow(row,hasReads?[...fields,'requirementReads']:fields)
+ const assertCurrent=()=>{assertScope();assertRead();assertRow()}
+ const {guideRef,guideVersionRef,guideDigest,usable,inputDigest}=row
+ if(Object.entries(scope).some(([field,value])=>row[field]!==value)||!identity(guideRef)||!identity(guideVersionRef)||!digest(guideDigest)||
+  typeof usable!=='boolean'||(usable?!digest(inputDigest):inputDigest!==null))throw Error('OPERATION_FROZEN_READ_SCOPE')
+ assertCurrent()
+ const requirementReads:Array<Readonly<{fieldPath:string;lineageId:string;version:string}>>=[],seen=new Set<string>()
+ if(hasReads)visitSnapshotReferences(rawReads,value=>{
+  const error='OPERATION_FROZEN_REQUIREMENT_READS'
+  const {fieldPath,lineageId,version}=snapshotReferenceFields(value,['fieldPath','lineageId','version'],error)
+  if(!identity(fieldPath)||!identity(lineageId)||!identity(version)||seen.has(fieldPath))throw Error(error)
+  seen.add(fieldPath)
+  requirementReads.push(Object.freeze({fieldPath,lineageId,version}))
+ },'OPERATION_FROZEN_REQUIREMENT_READS')
+ const manifest=Object.freeze({scope,guideRef,guideVersionRef,guideDigest,usable,inputDigest:usable&&digest(inputDigest)?inputDigest:null,
+  requirementReads:Object.freeze(requirementReads),assertCurrent})
+ return Object.freeze({manifest,assertCurrent})
+}

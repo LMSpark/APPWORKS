@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+    "sourcePath": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+    "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+    "packageName": "app",
+    "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile\n职责：流程办理移动端入口，按本次导航身份复用办理工具和数据视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-18T23:45:40.560Z",
+  "models": {}
+}

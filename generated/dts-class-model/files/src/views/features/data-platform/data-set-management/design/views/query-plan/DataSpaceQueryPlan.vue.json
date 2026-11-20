@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan\n职责：以标准JSON字段和过滤组件编排原queryConfig子计划及具体父结果来源。\n边界：不查询业务行、不保存、不建立节点草稿；所有修改属于原DataViewDefinition行。\nAI用途：查询计划目录、逐层行编辑与字段/过滤设置；外层负责原DataSet保存和取消。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T05:09:16.154Z",
+  "models": {}
+}

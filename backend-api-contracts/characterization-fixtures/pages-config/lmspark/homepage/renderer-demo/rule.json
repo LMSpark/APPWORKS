@@ -1,0 +1,492 @@
+{
+  "type": "div",
+  "id": "div__0_0",
+  "children": [
+    {
+      "type": "h2",
+      "children": [
+        "用户管理"
+      ],
+      "id": "h2__0_0_0"
+    },
+    {
+      "type": "div",
+      "children": [
+        {
+          "type": "div",
+          "children": [
+            {
+              "type": "h3",
+              "children": [
+                "用户主表"
+              ],
+              "id": "h3__0_0_1_0",
+              "props": {
+                "style": "margin-top: 0; margin-bottom: 16px;"
+              }
+            },
+            {
+              "type": "r-table",
+              "id": "r-table__0_0_1_1",
+              "children": [
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_1_1_0",
+                  "children": [],
+                  "props": {
+                    "field": "name",
+                    "label": "姓名",
+                    "width": 120
+                  }
+                },
+                {
+                  "type": "r-number",
+                  "id": "r-number__0_0_1_1_1",
+                  "children": [],
+                  "props": {
+                    "field": "age",
+                    "label": "年龄",
+                    "width": 100
+                  }
+                },
+                {
+                  "type": "r-date",
+                  "id": "r-date__0_0_1_1_2",
+                  "children": [],
+                  "props": {
+                    "field": "createTime",
+                    "label": "创建时间",
+                    "width": 150
+                  }
+                }
+              ],
+              "props": {
+                "border": true,
+                "stripe": true,
+                "highlightCurrentRow": true,
+                "dataViewKey": "users@default",
+                "rowKey": "id"
+              }
+            }
+          ],
+          "id": "div__0_0_1",
+          "props": {
+            "style": "border: 1px solid #e4e7ed; border-radius: 4px; padding: 16px;"
+          }
+        },
+        {
+          "type": "div",
+          "children": [
+            {
+              "type": "h3",
+              "children": [
+                "学籍字典"
+              ],
+              "id": "h3__0_0_2_0",
+              "props": {
+                "style": "margin-top: 0; margin-bottom: 16px;"
+              }
+            },
+            {
+              "type": "r-table",
+              "id": "r-table__0_0_2_1",
+              "children": [
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_2_1_0",
+                  "children": [],
+                  "props": {
+                    "field": "code",
+                    "label": "学籍代码",
+                    "width": 120
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_2_1_1",
+                  "children": [],
+                  "props": {
+                    "field": "name",
+                    "label": "学籍名称",
+                    "width": 120
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_2_1_2",
+                  "children": [],
+                  "props": {
+                    "field": "level",
+                    "label": "学历层次",
+                    "width": 100
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_2_1_3",
+                  "children": [],
+                  "props": {
+                    "field": "description",
+                    "label": "描述",
+                    "width": 200
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_2_1_4",
+                  "children": [],
+                  "props": {
+                    "field": "status",
+                    "label": "状态",
+                    "width": 80
+                  }
+                }
+              ],
+              "props": {
+                "border": true,
+                "stripe": true,
+                "dataViewKey": "education_dict@default",
+                "rowKey": "id"
+              }
+            }
+          ],
+          "id": "div__0_0_2",
+          "props": {
+            "style": "border: 1px solid #e4e7ed; border-radius: 4px; padding: 16px;"
+          }
+        }
+      ],
+      "id": "div__0_0_0",
+      "props": {
+        "style": "display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;"
+      }
+    },
+    {
+      "type": "div",
+      "id": "div__0_0_3",
+      "children": [
+        {
+          "type": "h3",
+          "children": [
+            "用户简历从表（关联当前用户）"
+          ],
+          "id": "h3__0_0_3_0",
+          "props": {
+            "style": "margin-top: 0; margin-bottom: 16px;"
+          }
+        },
+        {
+          "type": "div",
+          "id": "resume_actions_div",
+          "children": [
+            {
+              "type": "r-button",
+              "id": "add_resume_btn",
+              "children": [],
+              "props": {
+                "label": "新增简历",
+                "template": "primary",
+                "icon": "plus",
+                "action": "append-row"
+              }
+            },
+            {
+              "type": "r-button",
+              "id": "edit_resume_btn",
+              "children": [],
+              "props": {
+                "label": "编辑简历",
+                "template": "default",
+                "icon": "edit",
+                "action": "patch-row"
+              }
+            },
+            {
+              "type": "r-button",
+              "id": "delete_resume_btn",
+              "children": [],
+              "props": {
+                "label": "删除简历",
+                "template": "danger",
+                "icon": "delete",
+                "action": "delete-row"
+              }
+            },
+            {
+              "type": "r-button",
+              "id": "refresh_resume_btn",
+              "children": [],
+              "props": {
+                "label": "刷新",
+                "template": "default",
+                "icon": "refresh",
+                "action": "refresh"
+              }
+            }
+          ],
+          "props": {
+            "style": "display: flex; gap: 8px; margin-bottom: 16px;"
+          }
+        },
+        {
+          "type": "r-table",
+          "id": "r-table__0_0_3_1",
+          "children": [
+            {
+              "type": "r-text",
+              "id": "r-text__0_0_3_1_0",
+              "children": [],
+              "props": {
+                "field": "title",
+                "label": "简历标题",
+                "width": 150
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "r-text__0_0_3_1_1",
+              "children": [],
+              "props": {
+                "field": "expectedPosition",
+                "label": "期望职位",
+                "width": 120
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "r-text__0_0_3_1_2",
+              "children": [],
+              "props": {
+                "field": "expectedCity",
+                "label": "期望城市",
+                "width": 100
+              }
+            },
+            {
+              "type": "r-number",
+              "id": "r-number__0_0_3_1_3",
+              "children": [],
+              "props": {
+                "field": "expectedSalary",
+                "label": "期望薪资",
+                "width": 100
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "r-text__0_0_3_1_4",
+              "children": [],
+              "props": {
+                "field": "status",
+                "label": "简历状态",
+                "width": 100
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "summary_column",
+              "children": [],
+              "props": {
+                "label": "个人简介",
+                "width": 200,
+                "field": "summary"
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "work_experience_column",
+              "children": [],
+              "props": {
+                "label": "工作经历",
+                "width": 250,
+                "field": "workExperience"
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "education_background_column",
+              "children": [],
+              "props": {
+                "label": "教育背景",
+                "width": 200,
+                "field": "educationBackground"
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "skills_column",
+              "children": [],
+              "props": {
+                "label": "技能特长",
+                "width": 150,
+                "field": "skills"
+              }
+            },
+            {
+              "type": "r-text",
+              "id": "create_time_column",
+              "children": [],
+              "props": {
+                "label": "创建时间",
+                "width": 120,
+                "field": "createTime"
+              }
+            }
+          ],
+          "props": {
+            "border": true,
+            "stripe": true,
+            "highlightCurrentRow": true,
+            "dataViewKey": "user_resumes@default",
+            "rowKey": "id"
+          }
+        }
+      ],
+      "props": {
+        "style": "border: 1px solid #e4e7ed; border-radius: 4px; padding: 16px; margin-top: 24px;"
+      }
+    },
+    {
+      "type": "div",
+      "children": [
+        {
+          "type": "div",
+          "children": [
+            {
+              "type": "h3",
+              "children": [
+                "用户详情"
+              ],
+              "id": "h3__0_0_4_0",
+              "props": {
+                "style": "margin-top: 0; margin-bottom: 16px;"
+              }
+            },
+            {
+              "type": "r-detail",
+              "id": "r-detail__0_0_4_1",
+              "children": [
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_4_1_0",
+                  "children": [],
+                  "props": {
+                    "field": "name",
+                    "label": "姓名"
+                  }
+                },
+                {
+                  "type": "r-number",
+                  "id": "r-number__0_0_4_1_1",
+                  "children": [],
+                  "props": {
+                    "field": "age",
+                    "label": "年龄"
+                  }
+                },
+                {
+                  "type": "r-date",
+                  "id": "r-date__0_0_4_1_2",
+                  "children": [],
+                  "props": {
+                    "field": "createTime",
+                    "label": "创建时间"
+                  }
+                }
+              ],
+              "props": {
+                "dataViewKey": "users@default",
+                "contextDataMember": "currentRow"
+              }
+            }
+          ],
+          "id": "div__0_0_4",
+          "props": {
+            "style": "border: 1px solid #e4e7ed; border-radius: 4px; padding: 16px;"
+          }
+        },
+        {
+          "type": "div",
+          "children": [
+            {
+              "type": "h3",
+              "children": [
+                "简历详情"
+              ],
+              "id": "h3__0_0_5_0",
+              "props": {
+                "style": "margin-top: 0; margin-bottom: 16px;"
+              }
+            },
+            {
+              "type": "r-detail",
+              "id": "r-detail__0_0_5_1",
+              "children": [
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_5_1_0",
+                  "children": [],
+                  "props": {
+                    "field": "title",
+                    "label": "简历标题"
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_5_1_1",
+                  "children": [],
+                  "props": {
+                    "field": "expectedPosition",
+                    "label": "期望职位"
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_5_1_2",
+                  "children": [],
+                  "props": {
+                    "field": "expectedCity",
+                    "label": "期望城市"
+                  }
+                },
+                {
+                  "type": "r-number",
+                  "id": "r-number__0_0_5_1_3",
+                  "children": [],
+                  "props": {
+                    "field": "expectedSalary",
+                    "label": "期望薪资"
+                  }
+                },
+                {
+                  "type": "r-text",
+                  "id": "r-text__0_0_5_1_4",
+                  "children": [],
+                  "props": {
+                    "field": "status",
+                    "label": "简历状态"
+                  }
+                }
+              ],
+              "props": {
+                "dataViewKey": "user_resumes@default",
+                "contextDataMember": "currentRow"
+              }
+            }
+          ],
+          "id": "div__0_0_5",
+          "props": {
+            "style": "border: 1px solid #e4e7ed; border-radius: 4px; padding: 16px;"
+          }
+        }
+      ],
+      "id": "div__0_0_6",
+      "props": {
+        "style": "display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;"
+      }
+    }
+  ],
+  "props": {
+    "style": "padding: 20px;"
+  }
+}

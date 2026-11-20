@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+    "sourcePath": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+    "sourceFile": "src/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users\n职责：保留服务端办理人候选范围和明确声明的选择约束，不扩大空候选。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FlowRunExecUsers"
+    ]
+  },
+  "$defs": {
+    "FlowRunExecUsers": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunExecUsers",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "minNum": {
+          "type": "number"
+        },
+        "maxNum": {
+          "type": "number"
+        },
+        "allowChange": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "nodeId",
+        "users"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-16T13:40:19.875Z",
+  "models": {
+    "FlowRunExecUsers": {
+      "name": "FlowRunExecUsers",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    minNum?: number;\n    maxNum?: number;\n    allowChange?: boolean;\n    users: ReadonlyArray<Readonly<{\n        id: string;\n        name: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    minNum?: number;\n    maxNum?: number;\n    allowChange?: boolean;\n    users: ReadonlyArray<Readonly<{\n        id: string;\n        name: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minNum",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxNum",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowChange",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "users",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

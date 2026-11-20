@@ -1,0 +1,505 @@
+/* ════════════════════════════════════════════════════════
+   CYBER GRID — 赛博朋克数据仪表盘
+   ════════════════════════════════════════════════════════ */
+
+/* ── 全局动画 ── */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes glow-scan {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes border-flow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 300% 0%; }
+}
+
+@keyframes float-up {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes data-stream {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100vh; }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes rotate-hue {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* ── 容器：深色底 + 扫描线 ── */
+[data-page="section-grid-demo"] .section-grid-demo {
+  background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #0f172a 100%);
+  min-height: 100vh;
+  padding: 32px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 矩阵网格背景 */
+[data-page="section-grid-demo"] .section-grid-demo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 170, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 170, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: data-stream 20s linear infinite;
+  pointer-events: none;
+}
+
+/* 扫描线叠加 */
+[data-page="section-grid-demo"] .section-grid-demo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 170, 0.015) 2px,
+    rgba(0, 255, 170, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── 标题 ── */
+[data-page="section-grid-demo"] .section-grid-demo h1 {
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 2.2em;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #00ffaa, #00d4ff, #a855f7, #00ffaa);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: glow-scan 4s linear infinite;
+  text-shadow: none;
+  margin-bottom: 8px !important;
+  position: relative;
+  z-index: 2;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo p {
+  color: rgba(148, 226, 213, 0.7);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-bottom: 32px !important;
+  line-height: 1.8;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Section 卡片：玻璃拟态 + 霓虹边框 ── */
+[data-page="section-grid-demo"] .section-grid-demo .r-section {
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid transparent;
+  border-radius: 16px !important;
+  padding: 28px !important;
+  margin-bottom: 28px !important;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(0, 255, 170, 0.08),
+    0 0 60px rgba(0, 212, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: float-up 6s ease-in-out infinite;
+}
+
+/* 霓虹流光边框 */
+[data-page="section-grid-demo"] .section-grid-demo .r-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(90deg, #00ffaa, #00d4ff, #a855f7, #ff6b9d, #00ffaa);
+  background-size: 300% 100%;
+  animation: border-flow 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Section 标题发光 */
+[data-page="section-grid-demo"] .section-grid-demo .r-section .section-header .section-title {
+  color: #00ffaa !important;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2em;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 255, 170, 0.5), 0 0 30px rgba(0, 255, 170, 0.2);
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .r-section .section-header .section-description {
+  color: rgba(148, 226, 213, 0.5) !important;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* ── 工具栏按钮：霓虹风格 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-button--primary {
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.2), rgba(0, 212, 255, 0.2)) !important;
+  border: 1px solid rgba(0, 255, 170, 0.5) !important;
+  color: #00ffaa !important;
+  text-shadow: 0 0 8px rgba(0, 255, 170, 0.4);
+  transition: all 0.3s ease;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--primary:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.4), rgba(0, 212, 255, 0.4)) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.4), 0 0 40px rgba(0, 255, 170, 0.2);
+  transform: scale(1.05);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--danger {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 85, 85, 0.2)) !important;
+  border: 1px solid rgba(255, 107, 157, 0.5) !important;
+  color: #ff6b9d !important;
+  text-shadow: 0 0 8px rgba(255, 107, 157, 0.4);
+  transition: all 0.3s ease;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--danger:hover {
+  box-shadow: 0 0 20px rgba(255, 107, 157, 0.4);
+  transform: scale(1.05);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button:not(.el-button--primary):not(.el-button--danger):not(.is-link) {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid rgba(0, 212, 255, 0.3) !important;
+  color: #00d4ff !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button:not(.el-button--primary):not(.el-button--danger):not(.is-link):hover {
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* ── 表格：赛博数据矩阵 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-table {
+  background-color: #0b1022 !important;
+  --el-table-bg-color: #0b1022;
+  --el-table-tr-bg-color: #0d1328;
+  --el-table-header-bg-color: #0f1730;
+  --el-table-row-hover-bg-color: rgba(0, 255, 170, 0.12);
+  --el-table-current-row-bg-color: rgba(0, 212, 255, 0.18);
+  --el-table-border-color: rgba(0, 255, 170, 0.25);
+  --el-table-text-color: #e2e8f0;
+  --el-table-header-text-color: #00ffaa;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 20px !important;
+}
+
+/* 强制覆盖 el-table 所有内部背景 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table,
+[data-page="section-grid-demo"] .section-grid-demo .el-table__inner-wrapper,
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper,
+[data-page="section-grid-demo"] .section-grid-demo .el-table__header-wrapper {
+  background-color: #0b1022 !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table::before,
+[data-page="section-grid-demo"] .section-grid-demo .el-table--border::after {
+  background-color: rgba(0, 255, 170, 0.2) !important;
+}
+
+/* 表头：深色实底 + 字体发光 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table__header-wrapper th {
+  background: linear-gradient(180deg, #0f2a1e 0%, #0c1a2e 100%) !important;
+  border-bottom: 2px solid rgba(0, 255, 170, 0.5) !important;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__header-wrapper th .cell {
+  color: #3fffb8 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 170, 0.6), 0 0 20px rgba(0, 255, 170, 0.3);
+  font-weight: 800;
+}
+
+/* 数据行 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper tr {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper tr td {
+  background-color: #0d1328 !important;
+  border-bottom: 1px solid rgba(0, 255, 170, 0.15) !important;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper tr .cell {
+  color: #d4dce8 !important;
+  font-weight: 500;
+}
+
+/* 悬浮行高光 + 辉光 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper tr:hover > td {
+  background: rgba(0, 255, 170, 0.12) !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper tr:hover .cell {
+  color: #ffffff !important;
+  text-shadow: 0 0 8px rgba(0, 255, 170, 0.4);
+}
+
+/* 当前行：强霓虹高亮 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper .current-row > td {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.22), rgba(168, 85, 247, 0.14), rgba(0, 255, 170, 0.12)) !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__body-wrapper .current-row .cell {
+  color: #4de8ff !important;
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
+  font-weight: 600;
+}
+
+/* 斑马纹：交替深色 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table--striped .el-table__body tr.el-table__row--striped td {
+  background: #101a32 !important;
+}
+
+/* ── 行内链接按钮：霓虹色 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-button.is-link {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--primary.is-link {
+  color: #00d4ff !important;
+}
+[data-page="section-grid-demo"] .section-grid-demo .el-button--primary.is-link:hover {
+  color: #00ffaa !important;
+  text-shadow: 0 0 12px rgba(0, 255, 170, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--warning.is-link {
+  color: #fbbf24 !important;
+}
+[data-page="section-grid-demo"] .section-grid-demo .el-button--warning.is-link:hover {
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-button--danger.is-link {
+  color: #ff6b9d !important;
+}
+[data-page="section-grid-demo"] .section-grid-demo .el-button--danger.is-link:hover {
+  text-shadow: 0 0 12px rgba(255, 107, 157, 0.6);
+}
+
+/* ── Switch 开关：霓虹双色 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-switch.is-checked .el-switch__core {
+  background: linear-gradient(135deg, #00ffaa, #00d4ff) !important;
+  border-color: #00ffaa !important;
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.4);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-switch:not(.is-checked) .el-switch__core {
+  background: rgba(100, 116, 139, 0.3) !important;
+  border-color: rgba(100, 116, 139, 0.5) !important;
+}
+
+/* ── 详情区块：全息面板 ── */
+[data-page="section-grid-demo"] .section-grid-demo .r-section .r-detail {
+  margin-top: 24px !important;
+  padding: 24px !important;
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.04), rgba(0, 212, 255, 0.04), rgba(168, 85, 247, 0.04)) !important;
+  border: 1px solid rgba(0, 255, 170, 0.15) !important;
+  border-radius: 12px !important;
+  position: relative;
+}
+
+/* 详情标签 */
+[data-page="section-grid-demo"] .section-grid-demo .field-display .field-label {
+  color: rgba(0, 255, 170, 0.7);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* 详情值 */
+[data-page="section-grid-demo"] .section-grid-demo .field-display .field-value {
+  color: #e2e8f0;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ── 对齐演示列：特殊视觉强调 ── */
+
+/* ID 列（居中） — 青色调 */
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-header-center .cell {
+  text-align: center;
+  color: #00d4ff !important;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-center .cell {
+  text-align: center;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-center {
+  position: relative;
+}
+
+/* ID 列：左侧发光条 */
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-center::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #00d4ff, transparent);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-value-center {
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+  color: #4de8ff;
+  font-weight: 800;
+  font-size: 15px;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.7), 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+/* 姓名列（右对齐） — 紫色调 */
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-header-right .cell {
+  text-align: right;
+  color: #a855f7 !important;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-right .cell {
+  text-align: right;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-right {
+  position: relative;
+}
+
+/* 姓名列：右侧发光条 */
+[data-page="section-grid-demo"] .section-grid-demo .demo-col-cell-right::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #a855f7, transparent);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .demo-value-right {
+  text-align: right;
+  display: inline-block;
+  width: 100%;
+  color: #d4a0ff;
+  font-weight: 700;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.6), 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+/* ── 操作列：横排霓虹按钮 ── */
+[data-page="section-grid-demo"] .section-grid-demo .renderer-table-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 操作列固定列背景 */
+[data-page="section-grid-demo"] .section-grid-demo .el-table__fixed-right {
+  background: #0b1022 !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-table__fixed-right td,
+[data-page="section-grid-demo"] .section-grid-demo .el-table__fixed-right th {
+  background: #0b1022 !important;
+}
+
+/* ── 滚动条：霓虹 ── */
+[data-page="section-grid-demo"] .section-grid-demo ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffaa, #00d4ff);
+  border-radius: 3px;
+}
+
+/* ── 选择框：霓虹 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-checkbox__input.is-checked .el-checkbox__inner {
+  background: linear-gradient(135deg, #00ffaa, #00d4ff) !important;
+  border-color: #00ffaa !important;
+  box-shadow: 0 0 8px rgba(0, 255, 170, 0.4);
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-checkbox__inner {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(0, 255, 170, 0.3) !important;
+}
+
+/* ── 表格外边框辉光 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-table--border {
+  border: 1px solid rgba(0, 255, 170, 0.35) !important;
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.1), 0 0 60px rgba(0, 212, 255, 0.05), inset 0 0 30px rgba(0, 212, 255, 0.04);
+}
+
+/* ── Input / Select 控件深色 ── */
+[data-page="section-grid-demo"] .section-grid-demo .el-input__wrapper {
+  background: rgba(15, 23, 42, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(0, 255, 170, 0.2) inset !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-input__inner {
+  color: #e2e8f0 !important;
+  font-family: 'Courier New', monospace;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px rgba(0, 255, 170, 0.4) inset, 0 0 12px rgba(0, 255, 170, 0.1) !important;
+}
+
+[data-page="section-grid-demo"] .section-grid-demo .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px #00ffaa inset, 0 0 16px rgba(0, 255, 170, 0.2) !important;
+}

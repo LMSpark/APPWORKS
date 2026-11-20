@@ -1,0 +1,156 @@
+[
+  {
+    "type": "r-table",
+    "children": [
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "code",
+          "label": "项目编号",
+          "width": 120
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "name",
+          "label": "项目名称",
+          "minWidth": 200
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "managerName",
+          "label": "项目经理",
+          "width": 120
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "status",
+          "label": "状态",
+          "width": 100
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "priority",
+          "label": "优先级",
+          "width": 80
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "progress",
+          "label": "进度",
+          "width": 100
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "startDate",
+          "label": "开始日期",
+          "width": 120
+        }
+      },
+      {
+        "type": "el-table-column",
+        "props": {
+          "prop": "endDate",
+          "label": "结束日期",
+          "width": 120
+        }
+      }
+    ],
+    "props": {
+      "border": true,
+      "stripe": true,
+      "highlightCurrentRow": true,
+      "filter": {
+        "type": "r-filter",
+        "children": [
+          {
+            "type": "r-select",
+            "props": {
+              "label": "状态",
+              "placeholder": "按状态筛选",
+              "options": [
+                {
+                  "label": "规划中",
+                  "value": "规划中"
+                },
+                {
+                  "label": "进行中",
+                  "value": "进行中"
+                },
+                {
+                  "label": "已暂停",
+                  "value": "已暂停"
+                },
+                {
+                  "label": "已完结",
+                  "value": "已完结"
+                }
+              ],
+              "field": "status"
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "label": "项目名称",
+              "placeholder": "搜索项目名称...",
+              "field": "name"
+            }
+          }
+        ]
+      },
+      "toolbar": {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-tail",
+            "children": [
+              {
+                "type": "r-button",
+                "props": {
+                  "label": "新增项目",
+                  "buttonType": "primary",
+                  "icon": "Plus"
+                }
+              }
+            ]
+          }
+        ],
+        "props": {
+          "position": "top"
+        }
+      },
+      "actions": {
+        "type": "r-toolbar",
+        "children": [
+          {
+            "type": "r-button",
+            "props": {
+              "action": "message-row",
+              "label": "查看",
+              "buttonSize": "small",
+              "message": "项目 {code} | 名称 {name} | 负责人 {managerName} | 状态 {status}"
+            }
+          }
+        ],
+        "props": {
+          "label": "操作",
+          "width": 150,
+          "fixed": "right"
+        }
+      },
+      "dataViewKey": "Projects@default"
+    }
+  }
+]

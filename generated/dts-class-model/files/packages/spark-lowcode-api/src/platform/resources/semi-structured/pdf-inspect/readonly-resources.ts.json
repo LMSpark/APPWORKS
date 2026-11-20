@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/readonly-resources",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/readonly-resources.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/pdf-inspect/readonly-resources",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/readonly-resources\n职责：PDF限制、原任务结果/恢复及服务端分页历史接入公共只读DataView绑定。\n边界：不创建任务，不对服务历史重复分页，不忽略不支持的查询语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PdfInspectionReadonlyKind"
+    ]
+  },
+  "$defs": {
+    "PdfInspectionReadonlyKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PdfInspectionReadonlyKind",
+      "enum": [
+        "history",
+        "limits",
+        "result",
+        "recover"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-17T16:44:21.040Z",
+  "models": {
+    "PdfInspectionReadonlyKind": {
+      "name": "PdfInspectionReadonlyKind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'limits' | 'history' | 'result' | 'recover'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'limits'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'history'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'result'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'recover'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

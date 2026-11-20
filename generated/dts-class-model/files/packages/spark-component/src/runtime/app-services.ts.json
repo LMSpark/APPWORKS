@@ -1,0 +1,1754 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:runtime/app-services",
+    "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
+    "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "runtime/app-services",
+    "jsdoc": "@module @spark-appworks/spark-component:runtime/app-services\n职责：提供 app services 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：承接页面宿主交互与默认文件传输；文件字段值仍由标准字段链写入 DataView，二进制传输不是 DataSet 文件保存。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n页面运行时服务类型定义。\n描述页面在运行时可调用的宿主能力：消息提示、对话框、文件选择/上传、\n实体选择器、路由导航等。\n┌──────────────────────────────────────────────────────┐\n│  类型分组（按页面运行时交互流程）                      │\n│                                                      │\n│  1. 枚举联合：PageMessageType / PageDialogResult      │\n│  2. 消息/对话框：PageDialogOptions                    │\n│  3. 文件操作：  PageBrowseFilesOptions                │\n│                PageSelectedFile                       │\n│                PageUploadFilesOptions                 │\n│                PageUploadedFile                       │\n│  4. 实体选择器：PageSelectorOption                    │\n│                PageSelectEntitiesOptions              │\n│                PageSelectorOption                     │\n│  5. 服务契约：  PageServiceCapability                 │\n│                PageRouterService                      │\n│                PageRuntimeServicesCapability          │\n│  6. 能力注册：  PAGE_RUNTIME_SERVICES                 │\n└──────────────────────────────────────────────────────┘",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageMessageType",
+      "PageDialogResult",
+      "PageDialogOptions",
+      "PageBrowseFilesOptions",
+      "PageSelectedFile",
+      "PageUploadFilesOptions",
+      "PageUploadedFile",
+      "PageUploadError",
+      "PageSelectorOption",
+      "PageSelectEntitiesOptions",
+      "PageServiceCapability",
+      "PageRouterService",
+      "PageRuntimeServicesCapability"
+    ]
+  },
+  "$defs": {
+    "PageMessageType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageMessageType",
+      "enum": [
+        "info",
+        "error",
+        "warning",
+        "success"
+      ]
+    },
+    "PageDialogResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageDialogResult",
+      "enum": [
+        "cancel",
+        "close",
+        "confirm"
+      ]
+    },
+    "PageDialogOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDialogOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "confirmText": {
+          "type": "string"
+        },
+        "cancelText": {
+          "type": "string"
+        },
+        "showCancelButton": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dangerouslyUseHTMLString": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "type": {
+          "enum": [
+            "info",
+            "error",
+            "warning",
+            "success"
+          ]
+        },
+        "width": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageBrowseFilesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageBrowseFilesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "multiple": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "currentValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageSelectedFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectedFile",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "number"
+        },
+        "file": {
+          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+        }
+      },
+      "required": [
+        "name",
+        "size",
+        "type",
+        "lastModified",
+        "file"
+      ],
+      "additionalProperties": false
+    },
+    "PageUploadFilesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageUploadFilesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "multiple": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "currentValue": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "POST",
+            "PUT",
+            "PATCH"
+          ]
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "data": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "title": "Blob"
+              }
+            ]
+          }
+        },
+        "withCredentials": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+          }
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "PageUploadedFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageUploadedFile",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "number"
+        },
+        "file": {
+          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+        },
+        "response": true,
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "size",
+        "type",
+        "lastModified",
+        "file",
+        "response"
+      ],
+      "additionalProperties": false
+    },
+    "PageUploadError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageUploadError",
+      "properties": {
+        "confirmedFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageUploadedFile"
+          }
+        },
+        "unconfirmedFile": {
+          "$ref": "#/$defs/PageSelectedFile"
+        },
+        "response": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "confirmedFiles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PageUploadedFile"
+                  }
+                },
+                "unconfirmedFile": {
+                  "$ref": "#/$defs/PageSelectedFile"
+                },
+                "response": true
+              },
+              "required": [
+                "message",
+                "confirmedFiles",
+                "unconfirmedFile"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "PageSelectorOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectorOption",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "raw": true
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "PageSelectEntitiesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectEntitiesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "entityName": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "multiple": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "searchable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "confirmText": {
+          "type": "string"
+        },
+        "cancelText": {
+          "type": "string"
+        },
+        "emptyText": {
+          "type": "string"
+        },
+        "currentValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageSelectorOption"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageServiceCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageServiceCapability",
+      "$defs": {
+        "method.copyText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.copyText.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.showMessage.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "$ref": "#/$defs/PageMessageType"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showMessage.return": true,
+        "method.showConfirm.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "confirmText": {
+                  "type": "string"
+                },
+                "cancelText": {
+                  "type": "string"
+                },
+                "type": {
+                  "$ref": "#/$defs/PageMessageType"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showConfirm.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.showPrompt.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string"
+                },
+                "defaultValue": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showPrompt.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.showAlert.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "$ref": "#/$defs/PageMessageType"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showAlert.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.showDialog.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageDialogOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showDialog.return": {
+          "type": "object",
+          "title": "Promise<PageDialogResult>"
+        },
+        "method.selectEntities.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageSelectEntitiesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectEntities.return": {
+          "type": "object",
+          "title": "Promise<PageSelectorOption[]>"
+        },
+        "method.browseFiles.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageBrowseFilesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.browseFiles.return": {
+          "type": "object",
+          "title": "Promise<PageSelectedFile[]>"
+        },
+        "method.uploadFiles.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageUploadFilesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadFiles.return": {
+          "type": "object",
+          "title": "Promise<PageUploadedFile[]>"
+        },
+        "method.showLoading.params": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showLoading.return": true,
+        "method.navigate.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "params": {
+              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.navigate.return": true
+      }
+    },
+    "PageRouterService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRouterService",
+      "properties": {
+        "currentRoute": true
+      },
+      "required": [
+        "currentRoute"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.push.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "query": {
+                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.push.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.replace.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "query": {
+                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replace.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.back.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.back.return": true
+      }
+    },
+    "PageRuntimeServicesCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimeServicesCapability",
+      "properties": {
+        "router": {
+          "$ref": "#/$defs/PageRouterService"
+        },
+        "logger": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        },
+        "tenant": {
+          "type": "object",
+          "properties": {
+            "tenantId": {
+              "type": "string"
+            },
+            "tenantName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tenantId"
+          ],
+          "additionalProperties": true
+        },
+        "authService": true,
+        "pageService": {
+          "type": "object",
+          "properties": {
+            "copyText": {
+              "type": "object",
+              "title": "(text: string) => Promise<void>"
+            },
+            "showMessage": {
+              "type": "object",
+              "title": "(message: string, type?: PageMessageType) => void"
+            },
+            "showConfirm": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { confirmText?: string; cancelText?: string; type?: PageMessageType; }) => Promise<boolean>"
+            },
+            "showPrompt": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { placeholder?: string; defaultValue?: string; }) => Promise<string | null>"
+            },
+            "showAlert": {
+              "type": "object",
+              "title": "(message: string, title?: string, options?: { type?: PageMessageType; }) => Promise<void>"
+            },
+            "showDialog": {
+              "type": "object",
+              "title": "(options: PageDialogOptions) => Promise<PageDialogResult>"
+            },
+            "selectEntities": {
+              "type": "object",
+              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[]>"
+            },
+            "browseFiles": {
+              "type": "object",
+              "title": "(options?: PageBrowseFilesOptions) => Promise<PageSelectedFile[]>"
+            },
+            "uploadFiles": {
+              "type": "object",
+              "title": "(options: PageUploadFilesOptions) => Promise<PageUploadedFile[]>"
+            },
+            "showLoading": {
+              "type": "object",
+              "title": "(show: boolean, text?: string) => void"
+            },
+            "navigate": {
+              "type": "object",
+              "title": "(path: string, params?: Record<string, unknown>) => void"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-14T10:07:43.003Z",
+  "models": {
+    "PageMessageType": {
+      "name": "PageMessageType",
+      "jsdoc": "消息类型：成功 / 错误 / 警告 / 信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'success' | 'error' | 'warning' | 'info'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'success'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'error'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'warning'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'info'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDialogResult": {
+      "name": "PageDialogResult",
+      "jsdoc": "对话框操作结果：确认 / 取消 / 关闭",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'confirm' | 'cancel' | 'close'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'confirm'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cancel'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'close'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDialogOptions": {
+      "name": "PageDialogOptions",
+      "jsdoc": "对话框配置选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 对话框标题 */\n    title?: string;\n    /** 对话框正文内容（纯文本） */\n    message?: string;\n    /** 自定义内容（HTML 字符串，需配合 dangerouslyUseHTMLString） */\n    content?: string;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 是否显示取消按钮 */\n    showCancelButton?: boolean;\n    /** 是否允许渲染 HTML 字符串 */\n    dangerouslyUseHTMLString?: boolean;\n    /** 消息类型（影响图标和配色） */\n    type?: PageMessageType;\n    /** 对话框宽度 */\n    width?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "对话框正文内容（纯文本）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "自定义内容（HTML 字符串，需配合 dangerouslyUseHTMLString）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmText",
+              "jsdoc": "确认按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelText",
+              "jsdoc": "取消按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showCancelButton",
+              "jsdoc": "是否显示取消按钮",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dangerouslyUseHTMLString",
+              "jsdoc": "是否允许渲染 HTML 字符串",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "消息类型（影响图标和配色）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "对话框宽度",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageBrowseFilesOptions": {
+      "name": "PageBrowseFilesOptions",
+      "jsdoc": "文件浏览配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 浏览对话框标题 */\n    title?: string;\n    /** 接受的文件类型（如 '.jpg,.png' 或 'image/*'） */\n    accept?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 当前已选值（用于回显） */\n    currentValue?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "浏览对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accept",
+              "jsdoc": "接受的文件类型（如 '.jpg,.png' 或 'image/*'）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "jsdoc": "是否允许多选",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentValue",
+              "jsdoc": "当前已选值（用于回显）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectedFile": {
+      "name": "PageSelectedFile",
+      "jsdoc": "已选择的文件信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 文件名 */\n    name: string;\n    /** 文件大小（字节） */\n    size: number;\n    /** MIME 类型 */\n    type: string;\n    /** 最后修改时间戳 */\n    lastModified: number;\n    /** 原始 File 对象 */\n    file: File;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "文件名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "size",
+              "jsdoc": "文件大小（字节）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "MIME 类型",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lastModified",
+              "jsdoc": "最后修改时间戳",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "file",
+              "jsdoc": "原始 File 对象",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageUploadFilesOptions": {
+      "name": "PageUploadFilesOptions",
+      "jsdoc": "文件上传配置（在浏览选项基础上增加上传端点信息）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageBrowseFilesOptions & {\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageBrowseFilesOptions",
+            "targetName": "PageBrowseFilesOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "上传目标 URL",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "method",
+              "jsdoc": "HTTP 方法",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldName",
+              "jsdoc": "文件字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "jsdoc": "附加请求头",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "附加表单数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "withCredentials",
+              "jsdoc": "是否携带 Cookie / 认证信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "jsdoc": "待上传的文件列表",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageUploadedFile": {
+      "name": "PageUploadedFile",
+      "jsdoc": "已上传的文件：在选择文件基础上增加服务端响应",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageSelectedFile & {\n    /** 服务端返回的响应体 */\n    response: unknown;\n    /** 上传后可访问的文件 URL */\n    url?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageSelectedFile",
+            "targetName": "PageSelectedFile"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 服务端返回的响应体 */\n    response: unknown;\n    /** 上传后可访问的文件 URL */\n    url?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "response",
+              "jsdoc": "服务端返回的响应体",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "url",
+              "jsdoc": "上传后可访问的文件 URL",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageUploadError": {
+      "name": "PageUploadError",
+      "jsdoc": "默认上传未确认当前文件时拒绝整个调用，并保留此前确认成功的文件及本次未确认文件。\n这不是回滚或重试凭据；调用方须按文件逐项处理已确认和未确认结果。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "构造保留部分确认事实的上传错误；message 用于页面提示，response 可保留原始服务响应或传输错误。",
+          "signatureText": "constructor(input: Readonly<{\n        message: string;\n        confirmedFiles: readonly PageUploadedFile[];\n        unconfirmedFile: PageSelectedFile;\n        response?: unknown;\n    }>)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        message: string;\n        confirmedFiles: readonly PageUploadedFile[];\n        unconfirmedFile: PageSelectedFile;\n        response?: unknown;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "confirmedFiles",
+              "jsdoc": "当前调用中已有明确服务端地址回执的文件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unconfirmedFile",
+              "jsdoc": "当前请求已发出但没有得到明确成功地址的文件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "response",
+              "jsdoc": "对应失败或未确认响应；传输异常时保留服务层提供的响应/错误。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectorOption": {
+      "name": "PageSelectorOption",
+      "jsdoc": "选择器候选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 展示文本 */\n    label: string;\n    /** 选中值 */\n    value: string | number | boolean;\n    /** 描述信息 */\n    description?: string;\n    /** 是否禁用 */\n    disabled?: boolean;\n    /** 原始数据（未加工的选项数据） */\n    raw?: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "展示文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "选中值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "描述信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "是否禁用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "jsdoc": "原始数据（未加工的选项数据）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectEntitiesOptions": {
+      "name": "PageSelectEntitiesOptions",
+      "jsdoc": "实体选择器配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 选择器标题 */\n    title?: string;\n    /** 实体名称（用于空状态提示等） */\n    entityName?: string;\n    /** 搜索框占位符 */\n    placeholder?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 是否可搜索 */\n    searchable?: boolean;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 空状态文案 */\n    emptyText?: string;\n    /** 当前已选值 */\n    currentValue?: string | number | boolean | Array<string | number | boolean>;\n    /** 静态选项列表（不传则动态加载） */\n    options?: PageSelectorOption[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "选择器标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entityName",
+              "jsdoc": "实体名称（用于空状态提示等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "搜索框占位符",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "jsdoc": "是否允许多选",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "searchable",
+              "jsdoc": "是否可搜索",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmText",
+              "jsdoc": "确认按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelText",
+              "jsdoc": "取消按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "空状态文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentValue",
+              "jsdoc": "当前已选值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "静态选项列表（不传则动态加载）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageServiceCapability": {
+      "name": "PageServiceCapability",
+      "jsdoc": "页面服务：消息提示、对话框、文件操作、实体选择、导航等。\n所有方法由宿主（如 Vue Router、Element Plus 等）实现，\n页面通过 ScriptContext 调用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果；用户取消或关闭为 false，对话框自身异常向调用方抛出。 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗；用户取消或关闭为 null，对话框自身异常向调用方抛出。 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作）；用户关闭正常完成，对话框自身异常向调用方抛出。 */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /**\n     * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n     * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。\n     */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "copyText",
+              "jsdoc": "写入剪贴板文本；仅在宿主确认写入成功后完成。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showMessage",
+              "jsdoc": "显示提示消息",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageMessageType",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "showConfirm",
+              "jsdoc": "显示确认对话框，返回用户操作结果；用户取消或关闭为 false，对话框自身异常向调用方抛出。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showPrompt",
+              "jsdoc": "显示输入弹窗；用户取消或关闭为 null，对话框自身异常向调用方抛出。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        placeholder?: string;\n        defaultValue?: string;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showAlert",
+              "jsdoc": "显示提示框（无取消操作）；用户关闭正常完成，对话框自身异常向调用方抛出。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        type?: PageMessageType;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showDialog",
+              "jsdoc": "显示自定义对话框",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDialogOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDialogResult",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectEntities",
+              "jsdoc": "打开实体选择器",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageSelectEntitiesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageSelectorOption",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "browseFiles",
+              "jsdoc": "打开文件浏览对话框",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageBrowseFilesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageSelectedFile",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "uploadFiles",
+              "jsdoc": "通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageUploadFilesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageUploadedFile",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showLoading",
+              "jsdoc": "显示 / 隐藏全局 Loading",
+              "parameters": [
+                {
+                  "name": "show",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "navigate",
+              "jsdoc": "路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRouterService": {
+      "name": "PageRouterService",
+      "jsdoc": "路由服务：query 与页面服务一致，保留标量数组；复杂对象须先显式序列化。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 导航到目标（字符串路径或路由对象）；无效 query 以 Promise 拒绝。 */\n    push(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 替换当前路由；无效 query 以 Promise 拒绝。 */\n    replace(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 后退 */\n    back(): void;\n    /** 当前路由信息 */\n    currentRoute: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "currentRoute",
+              "jsdoc": "当前路由信息",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "push",
+              "jsdoc": "导航到目标（字符串路径或路由对象）；无效 query 以 Promise 拒绝。",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        path: string;\n        query?: Record<string, unknown>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "replace",
+              "jsdoc": "替换当前路由；无效 query 以 Promise 拒绝。",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        path: string;\n        query?: Record<string, unknown>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "back",
+              "jsdoc": "后退",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntimeServicesCapability": {
+      "name": "PageRuntimeServicesCapability",
+      "jsdoc": "页面运行时能力集合。\n由宿主环境提供，ScriptContext 中通过 capability 查询获取。\n各字段均为可选，由消费方在使用前判断是否存在。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 路由服务 */\n    router?: PageRouterService;\n    /** 日志 API */\n    logger?: LoggerApi;\n    /** 租户上下文 */\n    tenant?: {\n        tenantId: string;\n        tenantName?: string;\n        [key: string]: unknown;\n    };\n    /** 认证服务 */\n    authService?: unknown;\n    /** 页面服务（部分实现） */\n    pageService?: Partial<PageServiceCapability>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "router",
+              "jsdoc": "路由服务",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "logger",
+              "jsdoc": "日志 API",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenant",
+              "jsdoc": "租户上下文",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authService",
+              "jsdoc": "认证服务",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageService",
+              "jsdoc": "页面服务（部分实现）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

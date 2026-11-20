@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/model/content-baseline-reader",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/model/content-baseline-reader",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/content-baseline-reader\n职责：从原基线视图核项目、阶段及固定事实成员，再读取原事实版本。\n边界：不冻结、不选择活动基线或最新事实，不证明当前用途许可，不写数据。\nAI用途：目标修订提供固定baselineId和stageRef，正文绑定沿原查询证明消费。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ContentBaselineRequirementPinsBinding",
+      "ContentBaselineFactSelection",
+      "ContentBaselineFactBinding"
+    ]
+  },
+  "$defs": {
+    "ContentBaselineRequirementPinsBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentBaselineRequirementPinsBinding",
+      "properties": {
+        "baselineDataViewKey": {
+          "type": "string"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../services/smart-bid/content/references/baseline-requirement-members.ts.json#/$defs/BaselineRequirementPinIssue"
+          }
+        },
+        "requiresRevisionMatchCheck": {
+          "const": true
+        },
+        "requiresUseCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ContentBaselineFactSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentBaselineFactSelection",
+      "properties": {
+        "factId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "baselineId": {
+          "type": "string"
+        },
+        "stageRef": true
+      },
+      "required": [
+        "factId",
+        "baselineId",
+        "stageRef"
+      ],
+      "additionalProperties": false
+    },
+    "ContentBaselineFactBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContentBaselineFactBinding",
+      "properties": {
+        "baselineDataViewKey": {
+          "type": "string"
+        },
+        "factDataViewKey": {
+          "type": "string"
+        },
+        "sourceDataViewKey": {
+          "type": "string"
+        },
+        "baselineMembershipVerified": {
+          "const": true
+        },
+        "requiresRevisionMatchCheck": {
+          "const": true
+        },
+        "requiresUseCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-18T22:44:08.670Z",
+  "models": {
+    "ContentBaselineRequirementPinsBinding": {
+      "name": "ContentBaselineRequirementPinsBinding",
+      "jsdoc": "原基线挂接诊断；不是要求原记录或当前用途证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baselineDataViewKey: string;\n    issues: readonly BaselineRequirementPinIssue[];\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baselineDataViewKey: string;\n    issues: readonly BaselineRequirementPinIssue[];\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baselineDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issues",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresUseCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ContentBaselineFactSelection": {
+      "name": "ContentBaselineFactSelection",
+      "jsdoc": "阶段引用来自目标修订；不是权限或冻结证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    factId: string;\n    version?: number;\n    baselineId: string;\n    stageRef: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    factId: string;\n    version?: number;\n    baselineId: string;\n    stageRef: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "factId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stageRef",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContentBaselineFactBinding": {
+      "name": "ContentBaselineFactBinding",
+      "jsdoc": "仅原基线成员和原事实版本读取成立；准用继续由责任域核验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    sourceDataViewKey?: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baselineDataViewKey: string;\n    factDataViewKey: string;\n    sourceDataViewKey?: string;\n    baselineMembershipVerified: true;\n    requiresRevisionMatchCheck: true;\n    requiresUseCheck: true;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baselineDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "factDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceDataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineMembershipVerified",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresRevisionMatchCheck",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresUseCheck",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

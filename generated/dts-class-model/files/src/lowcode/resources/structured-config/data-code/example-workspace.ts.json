@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/example-workspace",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/example-workspace.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/example-workspace.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/example-workspace",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/example-workspace\n职责：示例函数接入只读语义DataView，显式刷新后写回原主视图编辑覆盖。\n边界：不持第二草稿、不提交设计；失败、并发编辑、失效目标不覆盖原示例。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeExampleWorkspace"
+    ]
+  },
+  "$defs": {
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "client": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "object",
+              "title": "(input: CodeExampleInput) => Promise<string>"
+            }
+          },
+          "required": [
+            "read"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "dataSet",
+        "client"
+      ],
+      "additionalProperties": false
+    },
+    "CodeExampleWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeExampleWorkspace",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/Options"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T13:28:17.907Z",
+  "models": {
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    client: Pick<CodeExampleClient, 'read'>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    client: Pick<CodeExampleClient, 'read'>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "client",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeExampleWorkspace": {
+      "name": "CodeExampleWorkspace",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: Options)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Options",
+                "sourcePath": "src/lowcode/resources/structured-config/data-code/example-workspace.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refresh",
+              "jsdoc": "生成结果仍是草稿；原主DataView负责取消及之后的设计保存。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

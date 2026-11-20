@@ -1,0 +1,1574 @@
+{
+  "scenarioId": "88A4D51B01702C3856F4632E234BF34B",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Bil_Dimension_Source_Binding": {
+      "modelBinding": {
+        "modelId": "95B6BCF23F3C15E16E2A9390642E7C57",
+        "modelName": "Bil_Dimension_Source_Binding"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_code",
+              "source_application_id",
+              "source_node_id",
+              "source_kind",
+              "source_model_meta_name",
+              "source_contract_id",
+              "event_code",
+              "payload_version",
+              "binding_version",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "byEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_code",
+              "source_application_id",
+              "source_node_id",
+              "source_kind",
+              "source_model_meta_name",
+              "source_contract_id",
+              "event_code",
+              "payload_version",
+              "binding_version",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "validationByEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byNode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "source_application_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "applicationId"
+                }
+              },
+              {
+                "field": "source_node_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "nodeId"
+                }
+              }
+            ]
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byId": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "binding_code",
+          "required": true,
+          "trim": "reject"
+        },
+        {
+          "name": "source_application_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "source_node_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "source_kind",
+          "required": true,
+          "immutable": true,
+          "pattern": "^(data-model|platform-event)$",
+          "patternMessage": "来源类型不受支持"
+        },
+        {
+          "name": "source_model_id",
+          "immutable": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModels",
+            "valueField": "rowid",
+            "labelField": "Name",
+            "fill": {
+              "source_model_meta_name": "Name"
+            }
+          }
+        },
+        {
+          "name": "source_contract_id",
+          "immutable": true
+        },
+        {
+          "name": "event_code",
+          "required": true,
+          "trim": "reject"
+        },
+        {
+          "name": "payload_version",
+          "required": true,
+          "min": 1
+        },
+        {
+          "name": "binding_version",
+          "required": true,
+          "min": 1
+        },
+        {
+          "name": "projection_role",
+          "pattern": "^(business-result|source-voucher)?$",
+          "patternMessage": "来源投影角色不受支持"
+        },
+        {
+          "name": "account_field_id",
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionSourceKeyFields",
+            "valueField": "rowid",
+            "labelField": "canonicalName",
+            "fill": {
+              "account_field_name": "canonicalName"
+            }
+          }
+        }
+      ]
+    },
+    "Bil_Dimension_Source_Collection": {
+      "modelBinding": {
+        "modelId": "9CB04D73585EFB93209DD2AC68885544",
+        "modelName": "Bil_Dimension_Source_Collection"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "parentsByBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "valueField": "id",
+          "labelField": "collection_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_id",
+              "collection_name",
+              "source_model_meta_name",
+              "sort_no"
+            ]
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "binding_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "collection_name",
+          "required": true,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "patternMessage": "集合名称须为安全字段名"
+        },
+        {
+          "name": "parent_collection_id",
+          "optionsView": {
+            "tableName": "Bil_Dimension_Source_Collection",
+            "viewId": "parentsByBinding",
+            "valueField": "id",
+            "labelField": "collection_name"
+          }
+        },
+        {
+          "name": "source_model_id",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModels",
+            "valueField": "rowid",
+            "labelField": "Name",
+            "fill": {
+              "source_model_meta_name": "Name"
+            }
+          }
+        },
+        {
+          "name": "source_model_meta_name",
+          "required": true
+        },
+        {
+          "name": "parent_key_field_id",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionSpacePrimaryFields",
+            "valueField": "rowid",
+            "labelField": "canonicalName",
+            "fill": {
+              "parent_key_field_name": "canonicalName"
+            }
+          }
+        },
+        {
+          "name": "parent_key_field_name",
+          "required": true
+        },
+        {
+          "name": "child_key_field_id",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionCollectionKeyFields",
+            "valueField": "rowid",
+            "labelField": "canonicalName",
+            "context": {
+              "modelId": "source_model_id"
+            },
+            "fill": {
+              "child_key_field_name": "canonicalName"
+            }
+          }
+        },
+        {
+          "name": "child_key_field_name",
+          "required": true
+        },
+        {
+          "name": "child_pk_field_id",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionCollectionPrimaryFields",
+            "valueField": "rowid",
+            "labelField": "canonicalName",
+            "context": {
+              "modelId": "source_model_id"
+            },
+            "fill": {
+              "child_pk_field_name": "canonicalName"
+            }
+          }
+        },
+        {
+          "name": "child_pk_field_name",
+          "required": true
+        },
+        {
+          "name": "sort_no",
+          "required": true,
+          "min": 1
+        }
+      ]
+    },
+    "Bil_Dimension_Source_Commit_Policy": {
+      "modelBinding": {
+        "modelId": "E84D5E4B6B4AEF085C3383E24594D3A9",
+        "modelName": "Bil_Dimension_Source_Commit_Policy"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "policy_version",
+              "direction": "desc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "draftByBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "policy_version",
+              "direction": "desc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "binding_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "policy_version",
+          "required": true,
+          "immutable": true,
+          "min": 1
+        },
+        {
+          "name": "protocol_version",
+          "required": true,
+          "immutable": true,
+          "min": 1
+        },
+        {
+          "name": "binding_version",
+          "required": true,
+          "immutable": true,
+          "min": 1
+        },
+        {
+          "name": "field_count",
+          "required": true,
+          "min": 1
+        },
+        {
+          "name": "source_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "root_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "intent_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "successor_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "fact_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "head_meta_name",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel",
+            "viewId": "dimensionSourceModelNames",
+            "valueField": "Name",
+            "labelField": "Name"
+          }
+        },
+        {
+          "name": "source_key_field",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionCommitPrimaryFields",
+            "valueField": "canonicalName",
+            "labelField": "canonicalName"
+          }
+        },
+        {
+          "name": "source_commit_field",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionCommitFields",
+            "valueField": "canonicalName",
+            "labelField": "canonicalName"
+          }
+        }
+      ]
+    },
+    "Bil_Dimension_Source_Commit_Field": {
+      "modelBinding": {
+        "modelId": "22D284F79EA6D72127A733608FDC17AA",
+        "modelName": "Bil_Dimension_Source_Commit_Field"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byPolicy": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "policy_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "policyId"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "draftByPolicy": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "policy_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "policyId"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "policy_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "field_id",
+          "required": true,
+          "unique": true,
+          "trim": "reject"
+        },
+        {
+          "name": "source_field",
+          "required": true,
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionCommitFields",
+            "valueField": "canonicalName",
+            "labelField": "canonicalName"
+          }
+        },
+        {
+          "name": "value_type",
+          "required": true,
+          "pattern": "^(string|number|boolean|datetime)$",
+          "patternMessage": "来源事实类型不受支持"
+        }
+      ]
+    },
+    "Bil_Dimension_Source_Mapping": {
+      "modelBinding": {
+        "modelId": "4ACB124EE5A8D935AFD0A8B5FA4E21F9",
+        "modelName": "Bil_Dimension_Source_Mapping"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_id",
+              "sort_no",
+              "mapping_kind",
+              "source_field_name",
+              "target_definition_code",
+              "target_member_code",
+              "mapping_value",
+              "required_flag",
+              "version_no"
+            ]
+          }
+        },
+        "byBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "binding_id",
+              "sort_no",
+              "mapping_kind",
+              "source_field_name",
+              "target_definition_code",
+              "target_member_code",
+              "mapping_value",
+              "required_flag",
+              "version_no"
+            ]
+          }
+        },
+        "editByBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          },
+          "fieldOptions": {
+            "source_field_id": {
+              "scope": "7AB874097A1E8711A42FD845939A6E05",
+              "tableName": "Base_DataModel_Field",
+              "viewId": "dimensionSourceFields",
+              "valueField": "rowid",
+              "labelField": "canonicalName",
+              "fill": {
+                "source_field_name": "canonicalName"
+              }
+            }
+          }
+        },
+        "byDefinition": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "logic": "or",
+            "filters": [
+              {
+                "field": "target_definition_id",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "definitionId"
+                }
+              },
+              {
+                "field": "target_definition_code",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "definitionCode"
+                }
+              }
+            ]
+          },
+          "queryConfig": {
+            "fields": [
+              "id"
+            ]
+          }
+        },
+        "platformByBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "binding_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bindingId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true
+          },
+          "fieldOptions": {
+            "source_field_id": {
+              "tableName": "DimensionSourceContractField",
+              "valueField": "value",
+              "labelField": "label",
+              "fill": {
+                "source_field_name": "name",
+                "target_definition_code": "dimensionCode"
+              }
+            },
+            "target_definition_id": {
+              "tableName": "Bil_Dimension_Definition",
+              "viewId": "byCode",
+              "valueField": "id",
+              "labelField": "definition_code",
+              "context": {
+                "definitionCode": "target_definition_code"
+              }
+            }
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "binding_id",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "source_field_id",
+          "required": true
+        },
+        {
+          "name": "source_field_name",
+          "required": true
+        },
+        {
+          "name": "target_definition_id",
+          "required": true,
+          "optionsView": {
+            "tableName": "Bil_Dimension_Definition",
+            "viewId": "default",
+            "valueField": "id",
+            "labelField": "definition_code",
+            "fill": {
+              "target_definition_code": "definition_code"
+            }
+          }
+        },
+        {
+          "name": "target_definition_code",
+          "required": true
+        },
+        {
+          "name": "mapping_kind",
+          "required": true,
+          "pattern": "^(direct|constant)$",
+          "patternMessage": "映射类型不受支持"
+        },
+        {
+          "name": "sort_no",
+          "required": true,
+          "min": 1
+        },
+        {
+          "name": "version_no",
+          "required": true,
+          "min": 1
+        }
+      ]
+    },
+    "Bil_Dimension_Rule_Template": {
+      "modelBinding": {
+        "modelId": "42A5231B93317242190DD8ED03982BA3",
+        "modelName": "Bil_Dimension_Rule_Template"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "event_code",
+          "labelField": "template_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "template_code",
+              "template_name",
+              "event_code",
+              "biz_category",
+              "source_table",
+              "priority",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "byCategory": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "biz_category",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bizCategory"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        },
+        "editByEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true
+          }
+        },
+        "byTemplateCode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "template_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "templateCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "template_code"
+            ]
+          }
+        }
+      },
+      "columns": [
+        {
+          "name": "template_code",
+          "required": true,
+          "trim": "reject"
+        },
+        {
+          "name": "template_name",
+          "required": true
+        },
+        {
+          "name": "event_code",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "biz_category",
+          "required": true,
+          "optionsView": {
+            "tableName": "Bil_Dimension_Biz_Category",
+            "viewId": "enabled",
+            "valueField": "biz_category_code",
+            "labelField": "biz_category_name"
+          }
+        },
+        {
+          "name": "biz_no_field",
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionSourceFieldNames",
+            "valueField": "canonicalName",
+            "labelField": "canonicalName"
+          }
+        },
+        {
+          "name": "biz_date_field",
+          "optionsView": {
+            "scope": "7AB874097A1E8711A42FD845939A6E05",
+            "tableName": "Base_DataModel_Field",
+            "viewId": "dimensionSourceFieldNames",
+            "valueField": "canonicalName",
+            "labelField": "canonicalName"
+          }
+        }
+      ]
+    },
+    "Bil_Dimension_Rule": {
+      "modelBinding": {
+        "modelId": "B118E0F01FB54940D02DEC9818ABAF6F",
+        "modelName": "Bil_Dimension_Rule"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1000,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_code",
+              "rule_name",
+              "event_code",
+              "biz_category",
+              "account_set_id",
+              "priority",
+              "voucher_required",
+              "auto_voucher_write",
+              "stop_after_match",
+              "status",
+              "updatetime",
+              "description"
+            ]
+          }
+        },
+        "byCategory": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "biz_category",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "bizCategory"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        },
+        "byEvent": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "event_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "eventCode"
+            }
+          },
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "event_code",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule_Condition": {
+      "modelBinding": {
+        "modelId": "6E3EB3747EEAC37E1C6828272850FF16",
+        "modelName": "Bil_Dimension_Rule_Condition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "result_id",
+              "sort_no",
+              "field_code",
+              "operator",
+              "value_source",
+              "compare_value",
+              "compare_field",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byRule": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "rule_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "ruleId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "result_id",
+              "sort_no",
+              "field_code",
+              "operator",
+              "value_source",
+              "compare_value",
+              "compare_field",
+              "account_set_id",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Rule_Result": {
+      "modelBinding": {
+        "modelId": "2C26824BC6B8A4ADCE3BBD87B217BBB9",
+        "modelName": "Bil_Dimension_Rule_Result"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "sort_no",
+              "dim_category",
+              "collection_path",
+              "dim_code_type",
+              "dim_code",
+              "value_type",
+              "value_expr",
+              "value_name_type",
+              "value_name_expr",
+              "amount_type",
+              "amount_expr",
+              "direction_type",
+              "direction_expr",
+              "currency_type",
+              "currency_expr",
+              "period_type",
+              "period_expr",
+              "source_id_type",
+              "source_id_expr",
+              "required_flag",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byRule": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "rowid",
+          "labelField": "dim_code",
+          "filterExpression": {
+            "field": "rule_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "ruleId"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "rule_id",
+              "sort_no",
+              "dim_category",
+              "collection_path",
+              "dim_code_type",
+              "dim_code",
+              "value_type",
+              "value_expr",
+              "value_name_type",
+              "value_name_expr",
+              "amount_type",
+              "amount_expr",
+              "direction_type",
+              "direction_expr",
+              "currency_type",
+              "currency_expr",
+              "period_type",
+              "period_expr",
+              "source_id_type",
+              "source_id_expr",
+              "required_flag",
+              "account_set_id",
+              "description"
+            ]
+          }
+        },
+        "byDimCode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "filterExpression": {
+            "field": "dim_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dimCode"
+            }
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Definition": {
+      "modelBinding": {
+        "modelId": "134EAF4667DC59C57F7B394DE2FA135F",
+        "modelName": "Bil_Dimension_Definition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1000,
+          "valueField": "definition_code",
+          "labelField": "definition_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "category_code",
+              "definition_code",
+              "definition_name",
+              "value_type",
+              "member_domain",
+              "cardinality",
+              "null_policy",
+              "version_no",
+              "effective_from",
+              "effective_to",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "byCode": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 50,
+          "filterExpression": {
+            "field": "definition_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "definitionCode"
+            }
+          },
+          "valueField": "id",
+          "labelField": "definition_code",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "id",
+              "definition_code",
+              "definition_name",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Dict_Type": {
+      "modelBinding": {
+        "modelId": "F4E2F41B78A5F1958FDE442704564BC3",
+        "modelName": "Bil_Dimension_Dict_Type"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "dict_type_name",
+              "status",
+              "sort_no",
+              "description"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Dict_Item": {
+      "modelBinding": {
+        "modelId": "36E67FE02A120A4D262310EBB3B7CB55",
+        "modelName": "Bil_Dimension_Dict_Item"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "item_code",
+              "item_name",
+              "item_value",
+              "parent_code",
+              "status",
+              "sort_no"
+            ]
+          }
+        },
+        "byType": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "dict_type_code",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dictTypeCode"
+            }
+          },
+          "sortExpression": [
+            {
+              "field": "sort_no",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "dict_type_code",
+              "item_code",
+              "item_name",
+              "item_value",
+              "parent_code",
+              "status",
+              "sort_no"
+            ]
+          }
+        }
+      }
+    },
+    "Bil_Dimension_Biz_Category": {
+      "modelBinding": {
+        "modelId": "F4F2E36E50621C9389D4B1008CF56DAD",
+        "modelName": "Bil_Dimension_Biz_Category"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "biz_category_code",
+          "labelField": "biz_category_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "biz_category_code",
+              "biz_category_name",
+              "sort_no",
+              "status",
+              "description"
+            ]
+          }
+        },
+        "enabled": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {
+            "field": "status",
+            "operator": "eq",
+            "value": 1
+          },
+          "valueField": "biz_category_code",
+          "labelField": "biz_category_name",
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "biz_category_code",
+              "biz_category_name",
+              "status"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "dimension-binding-mapping",
+      "parentTable": "Bil_Dimension_Source_Binding",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Source_Mapping",
+      "childViewId": "byBinding",
+      "filterBindings": [],
+      "inputBindings": [
+        {
+          "sourceField": "id",
+          "target": "queryContext.bindingId"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "dimension-event-binding",
+      "parentTable": "Bil_Dimension_Rule_Template",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Source_Binding",
+      "childViewId": "byEvent",
+      "filterBindings": [],
+      "inputBindings": [
+        {
+          "sourceField": "event_code",
+          "target": "queryContext.eventCode"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "dimension-dictionary-items",
+      "parentTable": "Bil_Dimension_Dict_Type",
+      "parentViewId": "default",
+      "childTable": "Bil_Dimension_Dict_Item",
+      "childViewId": "byType",
+      "filterBindings": [],
+      "inputBindings": [
+        {
+          "sourceField": "dict_type_code",
+          "target": "queryContext.dictTypeCode"
+        }
+      ]
+    },
+    {
+      "kind": "field",
+      "cascadeId": "dimensionCollectionChildKey",
+      "tableName": "Bil_Dimension_Source_Collection",
+      "viewId": "byBinding",
+      "valueFormat": "native",
+      "targetField": "child_key_field_id",
+      "parents": [
+        {
+          "tableName": "Bil_Dimension_Source_Collection",
+          "viewId": "byBinding",
+          "field": "source_model_id",
+          "parameter": "modelId"
+        }
+      ],
+      "optionsView": {
+        "scope": "7AB874097A1E8711A42FD845939A6E05",
+        "tableName": "Base_DataModel_Field",
+        "viewId": "dimensionCollectionKeyFields"
+      },
+      "valuePolicy": {
+        "mode": "retain-valid",
+        "clearValue": ""
+      }
+    },
+    {
+      "kind": "field",
+      "cascadeId": "dimensionCollectionChildPrimary",
+      "tableName": "Bil_Dimension_Source_Collection",
+      "viewId": "byBinding",
+      "valueFormat": "native",
+      "targetField": "child_pk_field_id",
+      "parents": [
+        {
+          "tableName": "Bil_Dimension_Source_Collection",
+          "viewId": "byBinding",
+          "field": "source_model_id",
+          "parameter": "modelId"
+        }
+      ],
+      "optionsView": {
+        "scope": "7AB874097A1E8711A42FD845939A6E05",
+        "tableName": "Base_DataModel_Field",
+        "viewId": "dimensionCollectionPrimaryFields"
+      },
+      "valuePolicy": {
+        "mode": "retain-valid",
+        "clearValue": ""
+      }
+    }
+  ]
+}

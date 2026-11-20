@@ -1,0 +1,918 @@
+/**
+ * @module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-context
+ * 职责：持有原查询快照、行身份与保存基线。
+ * 边界：消费者不能替换凭据；保存回执创建独立基线，_pk 不提交。
+ * AI用途：从实际查询行消费权限并构造可验证的保存请求。
+ */
+import { DataSpaceDesignApi } from '../../design/data-space-design-api'
+import type { DataColumn, DataViewNewRowIdentity } from '@spark-appworks/spark-data'
+import type { DataSpaceQueryIdentity } from '../data-space-runtime-contract'
+import { DataSpaceRowPermission } from '../protocol/data-space-permission'
+import type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from '../protocol/data-space-permission'
+import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
+import { snapshotDataSpaceSaveActionOrder } from '../save/data-space-save-order'
+import type { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
+import {isRecord} from '@spark-appworks/spark-utils'
+
+/** 操作入口的隐藏、禁用或可用状态；业务可用性不扩大权限。 */
+type DataSpaceActionState = 'hidden' | 'disabled' | 'enabled'
+/** 只读业务行；公开行不包含私有系统权限凭据。 */
+type DataSpaceRow = Readonly<Record<string, unknown>>
+/** 保存请求或回执的可写行副本，封包前排除 _pk 与消费者伪造凭据。 */
+type DataSpaceSaveRow = Record<string, unknown>
+/** 按动作分组的候选行变更；更新和删除必须对应唯一原查询行。 */
+type DataSpaceSaveChanges = Readonly<{
+  added?: readonly DataSpaceRow[]
+  changed?: readonly DataSpaceRow[]
+  deleted?: readonly DataSpaceRow[]
+  actionOrder?: ReturnType<typeof snapshotDataSpaceSaveActionOrder>
+}>
+type DataSpaceSaveRecoveryIdentity = Readonly<Record<string, unknown>>
+type DataSpaceSaveRecoveryEntry = Readonly<{
+  action: 'added' | 'changed' | 'deleted'
+  identity: DataSpaceSaveRecoveryIdentity
+  changedFields: readonly string[]
+  changeDigest: string
+}>
+type DataSpaceSaveRecovery = Readonly<{
+  primaryKey: string
+  primaryKeyFields: readonly string[]
+  expectedIdentities: Readonly<{
+    added: readonly DataSpaceSaveRecoveryIdentity[]
+    changed: readonly DataSpaceSaveRecoveryIdentity[]
+    deleted: readonly DataSpaceSaveRecoveryIdentity[]
+  }>
+  entries: readonly DataSpaceSaveRecoveryEntry[]
+  changeDigest: string
+}>
+/** 单模型 CRUD 协议分组；系统凭据从私有原查询基线重新附入。 */
+type DataSpaceSaveRequest = Readonly<{
+  TableName: string
+  CrudModel: Readonly<{ Added: DataSpaceSaveRow[]; Changed: DataSpaceSaveRow[]; Deleted: DataSpaceSaveRow[] }>
+}>
+/** 后端实际动作行回执，尚需上下文核对模型与行身份。 */
+type DataSpaceSaveReceipt = ReturnType<typeof readDataSpaceSaveReceipt>[number]
+/** 提交范围与实际回执的配对，用于核对动作数量和原行身份。 */
+type DataSpaceSaveReceiptCommand = Readonly<{
+  requested: DataSpaceSaveChanges
+  receipt: DataSpaceSaveReceipt
+}>
+/** 逐更新回执行的实际字段名，用于消费者确认已返回的字段。 */
+type DataSpaceSaveChangedFields = ReadonlyArray<readonly string[]>
+/** 核对后的动作回执、新独立上下文及实际更新字段；原上下文不被就地改写。 */
+type DataSpaceSaveAcceptedReceipt = DataSpaceSaveReceipt & Readonly<{
+  context: DataSpaceQueryContext
+  changedFields: DataSpaceSaveChangedFields
+}>
+/** 原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。 */
+type DataSpaceQueryContextOptions = Readonly<{
+  /** 原来源探测已确认的下一页状态；不从本页长度推算。 */
+  nextPageAvailable?: boolean
+  identity: DataSpaceQueryIdentity
+  snapshot: ReturnType<DataSpaceQueryTable['applyResult']>
+  scope: string
+  readScope: () => string
+  missingAuthPolicy?: DataSpaceMissingAuthPolicy
+  /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */
+  resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy'
+  /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */
+  readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext
+  /** 本次正式输出列；不修改共享模型字段。 */
+  columns?: readonly DataColumn[]
+  /** 原正式视图捕获的完整普通新行输入范围，不改变输出列和原行读取授权。 */
+  newRowFields?: readonly string[]
+}>
+
+function canonicalKey(value: unknown): string {
+  return value === undefined || value === null ? '' : String(value).trim()
+}
+
+function canonicalSaveRecoveryValue(value: unknown): string {
+  if (value === undefined) return 'undefined'
+  if (value === null) return 'null'
+  if (typeof value === 'string') return `s:${JSON.stringify(value)}`
+  if (typeof value === 'number') return `n:${Object.is(value, -0) ? '-0' : String(value)}`
+  if (typeof value === 'boolean') return value ? 'b:true' : 'b:false'
+  if (Array.isArray(value)) return `[${value.map(canonicalSaveRecoveryValue).join(',')}]`
+  if (typeof value === 'object') {
+    if (!isRecord(value)) throw new Error('SAVE_RECOVERY_DIGEST_UNSUPPORTED: object')
+    return `{${Object.keys(value).sort().map(key =>
+      `${JSON.stringify(key)}:${canonicalSaveRecoveryValue(value[key])}`).join(',')}}`
+  }
+  throw new Error(`SAVE_RECOVERY_DIGEST_UNSUPPORTED: ${typeof value}`)
+}
+
+function saveRecoveryDigest(value: unknown): string {
+  const canonical = canonicalSaveRecoveryValue(value)
+  let hash = 0xcbf29ce484222325n
+  for (let index = 0; index < canonical.length; index += 1) {
+    hash ^= BigInt(canonical.charCodeAt(index))
+    hash = (hash * 0x100000001b3n) & 0xffffffffffffffffn
+  }
+  return `${canonical.length.toString(16)}:${hash.toString(16).padStart(16, '0')}`
+}
+
+/** 后代授权行必须由正式模型路径owner承接；此处不删凭据后冒充已消费子行权限。 */
+function assertPublicQueryValue(value: unknown, path: string): void {
+  const pending = [{value, path}], visited = new WeakSet<object>()
+  while (pending.length > 0) {
+    const current = pending.pop()
+    if (current === undefined) break
+    if (current.value === null || typeof current.value !== 'object' || visited.has(current.value)) continue
+    visited.add(current.value)
+    for (const [key, child] of Object.entries(current.value)) {
+      const childPath = Array.isArray(current.value) && /^\d+$/.test(key)
+        ? `${current.path}[${key}]` : `${current.path}[${JSON.stringify(key)}]`
+      if (key === 'lingma_sys_key' || key === 'lingma_sys_params') {
+        throw new Error(`SPARK_NESTED_RESULT_UNSUPPORTED: 后代授权行缺少正式模型路径owner: ${childPath}`)
+      }
+      pending.push({value: child, path: childPath})
+    }
+  }
+}
+
+const denied = Object.freeze({ read: 'invisible', write: 'denied', component: 'hidden',
+  required: false, writeMode: 'readonly' } as const)
+
+/** 持有本次查询的实体键或只读投影及逐行读取语义；消费者不得取得签名或替换基线。 */
+export class DataSpaceQueryContext {
+  readonly #nextPageAvailable: boolean | undefined
+  readonly #readChild: DataSpaceQueryContextOptions['readChild']
+  readonly #identity: DataSpaceQueryIdentity
+  readonly #snapshot: DataSpaceQueryContextOptions['snapshot']
+  readonly #scope: string
+  readonly #readScope: () => string
+  readonly #missingAuthPolicy: DataSpaceQueryContextOptions['missingAuthPolicy']
+  readonly #readonlyKind: 'join' | 'navigation' | 'hierarchy' | undefined
+  readonly #columns: readonly DataColumn[] | undefined
+  readonly #newRowFields: readonly string[] | undefined
+  readonly #rows: readonly DataSpaceRow[]
+  readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
+  readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
+  readonly #explicitNewRowIds = new Set<string | number>()
+  readonly #pendingSavedRowKeys = new Set<string>()
+  #invalid = false
+  #aggregateResult = false
+  #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
+
+  /** 保留原快照并登记行权限；剔除根凭据，拒收尚无路径owner的后代授权行，重复身份不授予权限。 */
+  public constructor(options: DataSpaceQueryContextOptions) {
+    if (options.nextPageAvailable !== undefined && typeof options.nextPageAvailable !== 'boolean') throw new Error('SPARK_NEXT_PAGE_RESULT: 下一页状态必须是布尔值')
+    this.#nextPageAvailable = options.nextPageAvailable
+    if (!options.scope.trim()) throw new Error('SPARK_QUERY_CONTEXT_STALE: scope 不能为空')
+    this.#readChild = options.readChild
+    this.#identity = Object.freeze({ ...options.identity })
+    this.#snapshot = options.snapshot
+    this.#scope = options.scope
+    this.#readScope = options.readScope
+    this.#readonlyKind = options.resultKind === 'entity' ? undefined : options.resultKind
+    this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#readonlyKind ? 'visible-readonly' : undefined)
+    this.#columns = options.columns === undefined ? undefined
+      : Object.freeze(options.columns.map(column => Object.freeze(structuredClone(column))))
+    this.#newRowFields = options.newRowFields === undefined ? undefined : Object.freeze([...options.newRowFields])
+    this.#rows = Object.freeze(options.snapshot.rows.map((row, index) => {
+      const permission = new DataSpaceRowPermission({ row,
+        ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
+      const key = canonicalKey(this.rowKeyValue(row))
+      if (key) this.#permissions.set(key, this.#permissions.has(key) ? null : permission)
+      const consumer: Record<string, unknown> = {}
+      for (const [field, value] of Object.entries(row)) {
+        if (this.#columns !== undefined && !this.#columns.some(column => column.name === field)) continue
+        if (field === 'lingma_sys_key' || field === 'lingma_sys_params') continue
+        assertPublicQueryValue(value, `$[${index}][${JSON.stringify(field)}]`)
+        consumer[field] = value
+      }
+      const publicRow = Object.freeze(consumer)
+      this.#rowPermissions.set(publicRow, permission)
+      return publicRow
+    }))
+    this.assertCurrent()
+  }
+
+  /** 按正式直接子模型名读取独立只读结果；仅接受本结果原行或空父选择。 */
+  public childResult(parent: DataSpaceRow | null, modelName: string): DataSpaceQueryContext {
+    this.assertCurrent()
+    if (parent !== null && !this.#rows.includes(parent)) throw new Error('SPARK_NESTED_PARENT: 父行不是本次查询原行')
+    if (!this.#readChild) throw new Error('SPARK_NESTED_MODEL: 本结果没有正式子查询')
+    return this.#readChild(parent, modelName)
+  }
+
+  public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: Readonly<{aggregateResult?: boolean}> = {}): void {
+    this.assertIdentity({scenarioId: this.#identity.scenarioId, metaName: model.metaName})
+    if (this.#newRowFields !== undefined) {
+      DataSpaceDesignApi.resolveNewRowFields(model, this.#newRowFields)
+    }
+    const key = model.primaryKey === '' ? undefined : DataSpaceDesignApi.resolveOutputFields(model)
+      .find(field => field.canonicalName === model.primaryKey && field.primaryKey)
+    // 字典等来源的查询回执不报告主键，此时以正式模型主键为准；只拒绝回执报告了不同主键的情况。
+    if (model.primaryKey !== '' && (!key || this.#snapshot.primaryKey !== '' && ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey))) {
+      throw new Error('SPARK_MODEL_PRIMARY_KEY: 原查询主键与正式模型不一致')
+    }
+    if (this.#model && (JSON.stringify(this.#model) !== JSON.stringify(model)
+      || this.#aggregateResult !== (options.aggregateResult === true))) {
+      throw new Error('SPARK_MODEL_CONTEXT_CONFLICT: 同一原查询上下文不能替换正式模型')
+    }
+    this.#model = model
+    this.#aggregateResult = options.aggregateResult === true
+    this.#permissions.clear()
+    for (const row of this.#snapshot.rows) {
+      const rowKey = canonicalKey(this.rowKeyValue(row))
+      if (rowKey) this.#permissions.set(rowKey, this.#permissions.has(rowKey) ? null
+        : new DataSpaceRowPermission({row, ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})}))
+    }
+    this.markSavedRowsPending(this.#pendingSavedRowKeys)
+  }
+
+  private markSavedRowsPending(keys: Iterable<string>): void {
+    for (const key of keys) {
+      this.#pendingSavedRowKeys.add(key)
+      this.#permissions.set(key, new DataSpaceRowPermission({missingAuthPolicy: 'visible-readonly'}))
+    }
+  }
+
+  /** 新增行待回读的生命周期标记，作用域切换后仍供原实例释放守卫判断。 */
+  public get hasPendingSavedRowPermissions(): boolean {return this.#pendingSavedRowKeys.size > 0}
+
+  /** 本次只读页已确认的下一页状态；读取仍核原查询scope。 */
+  public get nextPageAvailable(): boolean | undefined {this.assertCurrent(); return this.#nextPageAvailable}
+
+  /** 从原私有冻结结果派生独立分页元数据，不修改共享读结果或重建页面权限。仅用于未知总数的无键平面只读页。 */
+  public withNextPageAvailable(value: boolean): DataSpaceQueryContext {
+    this.assertCurrent()
+    if (typeof value !== 'boolean' || this.#snapshot.countReported || this.keyField !== '' || this.#readonlyKind
+      || this.#aggregateResult || this.#readChild || this.hasPendingSavedRowPermissions) throw new Error('SPARK_NEXT_PAGE_RESULT: 仅支持未知总数、无键的平面只读结果')
+    const next = new DataSpaceQueryContext({identity: this.#identity, snapshot: this.#snapshot, scope: this.#scope,
+      readScope: () => {this.assertCurrent(); return this.#readScope()}, nextPageAvailable: value,
+      ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    return next
+  }
+
+  /** 仅用于同一运行owner的精确回读，保留正式主键值类型。 */
+  public get pendingSavedRowIds(): readonly unknown[] {
+    this.assertCurrent()
+    return Object.freeze(this.#snapshot.rows.filter(row => this.#pendingSavedRowKeys.has(canonicalKey(this.rowKeyValue(row))))
+      .map(row => this.rowKeyValue(row)))
+  }
+
+  /** 同owner正式查询的私有快照接回指定新增行；不采用保存回执中自带的权限，不改变其他行和总数。 */
+  public withSavedRowPermissions(queried: DataSpaceQueryContext, ids?: readonly unknown[]): DataSpaceQueryContext {
+    this.assertCurrent(); queried.assertCurrent(); queried.assertIdentity(this.#identity)
+    if (queried.#scope !== this.#scope || queried.keyField !== this.keyField
+      || JSON.stringify(queried.#model) !== JSON.stringify(this.#model)) throw new Error('SPARK_SAVED_ROW_SCOPE: 新增行查询身份或模型不一致')
+    const expected = ids === undefined ? this.#pendingSavedRowKeys : new Set(ids.map(canonicalKey))
+    if (ids !== undefined && (expected.size !== ids.length || [...expected].some(key => !this.#pendingSavedRowKeys.has(key)))) {
+      throw new Error('SPARK_SAVED_ROW_IDENTITY: 回读目标不是原待确认行权限身份')
+    }
+    const originalKeys = new Set(this.#snapshot.rows.map(row => canonicalKey(this.rowKeyValue(row))))
+    const found = new Map<string, DataSpaceRow>(), seen = new Set<string>()
+    for (const row of queried.#snapshot.rows) {
+      const key = canonicalKey(queried.rowKeyValue(row))
+      if (seen.has(key) || (!expected.has(key) && (ids === undefined || !originalKeys.has(key)))) {
+        throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行查询身份重复、不可读或超出范围')
+      }
+      seen.add(key)
+      if (!expected.has(key)) continue
+      if (queried.fieldAccess(queried.rowKeyValue(row), queried.keyField).read !== 'visible') throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行主键不可读')
+      found.set(key, row)
+    }
+    if (found.size !== expected.size || queried.total !== seen.size) throw new Error('SPARK_SAVED_ROW_INCOMPLETE: 新增行查询未完整返回')
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: this.#snapshot.rows.map(row => found.get(canonicalKey(this.rowKeyValue(row))) ?? row), Count: this.#snapshot.total},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const next = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
+      resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    next.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !expected.has(key)))
+    this.assertCurrent(); queried.assertCurrent()
+    return next
+  }
+
+  /**
+   * 同owner同模型的完整增量查询并入本基线：原行及其凭据、待确认新增行权限保持不变，仅追加尚未出现的正式行。
+   * 结果级新增凭据和新增许可沿用本基线；增量行逐行凭据随原快照保留，用于后续修改、删除和子行新增。
+   */
+  public withAppendedRows(queried: DataSpaceQueryContext): DataSpaceQueryContext {
+    this.assertCurrent(); queried.assertCurrent(); queried.assertIdentity(this.#identity)
+    const keyField = this.keyField
+    if (!keyField || queried.#scope !== this.#scope || queried.keyField !== keyField || this.#readonlyKind || queried.#readonlyKind
+      || this.#aggregateResult || queried.#aggregateResult || this.#readChild || queried.#readChild
+      || JSON.stringify(queried.#model) !== JSON.stringify(this.#model) || JSON.stringify(queried.#columns) !== JSON.stringify(this.#columns)
+      || JSON.stringify(queried.#newRowFields) !== JSON.stringify(this.#newRowFields)
+      || (queried.#snapshot.primaryKey !== '' && this.#snapshot.primaryKey !== '' && queried.#snapshot.primaryKey !== this.#snapshot.primaryKey)) {
+      throw new Error('SPARK_APPEND_SCOPE: 增量查询身份、模型或结果类型与原基线不一致')
+    }
+    if (this.#snapshot.total !== this.#snapshot.rows.length || queried.#snapshot.total !== queried.#snapshot.rows.length) {
+      throw new Error('SPARK_APPEND_INCOMPLETE: 增量合并要求原基线与增量结果均为完整集合')
+    }
+    const existing = new Set<string>()
+    for (const row of this.#snapshot.rows) {
+      const key = canonicalKey(this.rowKeyValue(row))
+      if (!key || existing.has(key)) throw new Error('SPARK_APPEND_IDENTITY: 原基线行身份缺失或重复')
+      existing.add(key)
+    }
+    const appended: DataSpaceRow[] = [], seen = new Set<string>()
+    for (const row of queried.#snapshot.rows) {
+      const key = canonicalKey(queried.rowKeyValue(row))
+      if (!key || seen.has(key)) throw new Error('SPARK_APPEND_IDENTITY: 增量结果行身份缺失或重复')
+      seen.add(key)
+      if (!existing.has(key)) appended.push(row)
+    }
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: [...this.#snapshot.rows, ...appended], Count: this.#snapshot.total + appended.length},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const next = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
+      resultKind: 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    next.markSavedRowsPending(this.#pendingSavedRowKeys)
+    for (const id of this.#explicitNewRowIds) next.#explicitNewRowIds.add(id)
+    this.assertCurrent(); queried.assertCurrent()
+    return next
+  }
+
+  private get keyField(): string { return this.#readonlyKind || this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
+
+  /** 查询结果语义；连接投影与聚合分别标明，均不改变来源模型。 */
+  public get resultKind(): 'entity' | 'join' | 'navigation' | 'hierarchy' | 'aggregate' { return this.#readonlyKind ?? (this.#aggregateResult ? 'aggregate' : 'entity') }
+  /** 来源实际报告的键；连接结果保留根键作为来源信息，不用于实体操作。 */
+  public get reportedPrimaryKey(): string { return this.#snapshot.primaryKey }
+  /** 本次正式投影列；只存在于本结果生命周期。 */
+  public get columns(): readonly DataColumn[] | undefined { return this.#columns }
+  /** 本结果可用于实体操作的键；连接及汇总为空，来源报告键另由reportedPrimaryKey保留。 */
+  public get resultPrimaryKey(): string { return this.keyField }
+
+  public get rows(): readonly DataSpaceRow[] { this.assertCurrent(); return this.#rows }
+  public get total(): number { this.assertCurrent(); return this.#snapshot.total }
+  public get countReported(): boolean { this.assertCurrent(); return this.#snapshot.countReported }
+  public get allowAdd(): boolean { this.assertCurrent(); return this.keyField === '' ? false : this.#snapshot.allowAdd }
+
+  /** 新行只显示本地输入；正式行读取仍由原输出和逐行权限决定，范围本身不授予新增许可。 */
+  public newRowFieldAccess(fieldName: string): Pick<DataSpaceFieldAccess, 'read' | 'write' | 'required'> {
+    this.assertCurrent()
+    const fields = this.#model && (this.#newRowFields === undefined
+      ? DataSpaceDesignApi.resolveOutputFields(this.#model) : DataSpaceDesignApi.resolveFields(this.#model))
+    const field = fields?.find(candidate => candidate.canonicalName === fieldName)
+    const supported = this.#newRowFields === undefined
+      ? this.#model === undefined || field !== undefined
+      : this.#newRowFields.includes(fieldName) && field !== undefined
+    const allowed = supported && !field?.computed && !field?.primaryKey && this.allowAdd
+      && !this.#readonlyKind && !this.#aggregateResult
+    return {read: supported ? 'visible' : 'invisible', write: allowed ? 'allowed' : 'denied', required: false}
+  }
+
+  public prepareNewRow(input: DataSpaceRow): Record<string, unknown> {
+    this.assertCurrent()
+    const keyField = this.keyField
+    if (!keyField || keyField === '_pk' || /[,+]/.test(keyField)) throw new Error('SPARK_NEW_ROW_KEY: 新增缺少唯一正式 keyField')
+    return this.prepareNewRowForKey(input, keyField)
+  }
+
+  private prepareNewRowForKey(input: DataSpaceRow, keyField: string): Record<string, unknown> {
+    const row = {...input}
+    delete row['_pk']
+    delete row['lingma_sys_key']
+    delete row['lingma_sys_params']
+    if (!canonicalKey(row[keyField])) {
+      const bytes = new Uint8Array(16)
+      globalThis.crypto.getRandomValues(bytes)
+      row[keyField] = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase()
+    }
+    return row
+  }
+
+  /**
+   * Prepare a formal new row with caller-supplied identity kept separate from ordinary field input.
+   * The identity must match this exact query result key and is never replaced by an owner-generated key.
+   */
+  public prepareNewRowWithIdentity(input: DataSpaceRow, identity: DataViewNewRowIdentity): Record<string, unknown> {
+    this.assertCurrent()
+    const keyField = this.keyField
+    if (!keyField || keyField === '_pk' || /[,+]/.test(keyField) || identity.field !== keyField
+      || Object.hasOwn(input, identity.field)
+      || (typeof identity.value !== 'string' && typeof identity.value !== 'number')
+      || (typeof identity.value === 'string' && identity.value.trim().length === 0)
+      || (typeof identity.value === 'number' && !Number.isFinite(identity.value))) {
+      throw new Error('SPARK_NEW_ROW_IDENTITY: 显式身份必须与原查询的唯一正式主键一致')
+    }
+    const row = this.prepareNewRowForKey({...input, [identity.field]: identity.value}, keyField)
+    if (!Object.is(row[identity.field], identity.value)) throw new Error('SPARK_NEW_ROW_IDENTITY: 新增准备改变了请求身份')
+    this.#explicitNewRowIds.add(identity.value)
+    return row
+  }
+
+  public rowKey(row: DataSpaceRow): unknown { this.assertCurrent(); return this.rowKeyValue(row) }
+
+  public invalidate(): void { this.#invalid = true }
+
+  public assertIdentity(identity: DataSpaceQueryIdentity): void {
+    this.assertCurrent()
+    if (identity.scenarioId !== this.#identity.scenarioId || identity.metaName !== this.#identity.metaName) {
+      throw new Error('SPARK_QUERY_CONTEXT_IDENTITY: 查询上下文不属于目标场景模型')
+    }
+  }
+
+  public addActionState(available = true): DataSpaceActionState {
+    this.assertCurrent()
+    return this.allowAdd ? available ? 'enabled' : 'disabled' : 'hidden'
+  }
+
+  public editActionState(rowKey: unknown, available = true): DataSpaceActionState {
+    return this.rowAction(rowKey, available, 'edit')
+  }
+
+  public deleteActionState(rowKey: unknown, available = true): DataSpaceActionState {
+    return this.rowAction(rowKey, available, 'delete')
+  }
+
+  public createChildActionState(rowKey: unknown, available = true): DataSpaceActionState {
+    return this.rowAction(rowKey, available, 'child')
+  }
+
+  public viewActionState(rowKey: unknown, available = true): DataSpaceActionState {
+    this.assertCurrent()
+    const key = canonicalKey(rowKey)
+    return available && key && this.#permissions.get(key) ? 'enabled' : 'disabled'
+  }
+
+  public fieldAccess(rowKey: unknown, fieldName: string): DataSpaceFieldAccess {
+    this.assertCurrent()
+    const permission = this.#permissions.get(canonicalKey(rowKey))
+    const access = permission ? permission.fieldAccess(fieldName) : denied
+    return this.isFieldReadOnly(fieldName) ? {...access, write: 'denied', writeMode: 'readonly',
+      component: access.read === 'invisible' ? 'hidden' : 'readonly'} : access
+  }
+
+  /**
+   * 正式模型的值函数输出不可作为写入字段；使用输出别名匹配，新增与既有行共享此结构约束。
+   * 这不是数据授权：false不授予写权限，读取与必填仍消费原查询结果；Expression脱敏规则不构成只读依据。
+   */
+  public isFieldReadOnly(fieldName: string): boolean {
+    this.assertCurrent()
+    return this.#model?.fields.some(field => field.output && field.canonicalName === fieldName && field.computed) ?? false
+  }
+
+  /** Read only the captured read state for the exact public row returned by this query context. */
+  public readFieldAccess(row: DataSpaceRow, fieldName: string): DataSpaceFieldAccess['read'] {
+    this.assertCurrent()
+    if (this.#columns !== undefined && !this.#columns.some(column => column.name === fieldName)) return 'invisible'
+    return this.#rowPermissions.get(row)?.fieldAccess(fieldName).read ?? 'invisible'
+  }
+
+  /** 原查询强引用基线决定更新差异和删除原行；业务候选值交后端强验证。 */
+  public prepareSaveChanges(changes: DataSpaceSaveChanges): DataSpaceSaveChanges {
+    this.assertCurrent()
+    this.assertModelSaveAllowed(changes)
+    const changed = (changes.changed ?? []).flatMap(row => {
+      const original = this.originalMutationRow(row)
+      const keyField = this.keyField
+      const patch: DataSpaceSaveRow = { [keyField]: original[keyField] }
+      for (const [field, value] of Object.entries(row)) {
+        if (field === keyField || field === '_pk' || field.startsWith('lingma_sys_') || value === undefined) continue
+        if (!this.sameSaveValue(original[field], value)) patch[field] = value
+      }
+      return Object.keys(patch).length > 1 ? [patch] : []
+    })
+    const selected = new Set<string>()
+    const deleted = (changes.deleted ?? []).map(row => {
+      const original = this.originalMutationRow(row)
+      const key = canonicalKey(this.rowKeyValue(original))
+      if (selected.has(key)) throw new Error(`SPARK 删除行标识重复: ${key}`)
+      selected.add(key)
+      return structuredClone(original)
+    })
+    this.assertCurrent()
+    return { ...changes, changed, deleted }
+  }
+
+  private originalMutationRow(row: DataSpaceRow): DataSpaceRow {
+    const key = canonicalKey(this.rowKeyValue(row))
+    if (!key || this.keyField === '_pk') throw new Error('SPARK 保存缺少正式主键查询基线')
+    const originals = this.#rows.filter(item => canonicalKey(this.rowKeyValue(item)) === key)
+    const original = originals[0]
+    if (originals.length > 1) throw new Error(`SPARK 保存行主键在原查询基线中不唯一: ${key}`)
+    if (original === undefined) throw new Error(`SPARK 保存未找到唯一原查询基线: ${key}`)
+    return original
+  }
+
+  private sameSaveValue(left: unknown, right: unknown): boolean {
+    if (Object.is(left, right)) return true
+    try { return JSON.stringify(left) === JSON.stringify(right) } catch { return false }
+  }
+
+  public resolveSaveReceipt(command: DataSpaceSaveReceiptCommand): DataSpaceSaveReceipt {
+    this.assertCurrent()
+    const requested = command.requested
+    const receipt = {...command.receipt, added: command.receipt.added.map(row => this.canonicalReceiptRow(row)),
+      changed: command.receipt.changed.map(row => this.canonicalReceiptRow(row)), deleted: command.receipt.deleted.map(row => this.canonicalReceiptRow(row))}
+    if (receipt.metaName !== this.#identity.metaName) throw new Error('SPARK 保存回执行身份不匹配')
+    for (const action of ['added', 'changed', 'deleted'] as const) {
+      if (receipt[action].length !== (requested[action]?.length ?? 0)) throw new Error('SPARK 保存回执行身份数量不匹配')
+    }
+    const keyField = this.keyField
+    for (const [index, actual] of receipt.added.entries()) {
+      const submitted = requested.added?.[index]
+      if (submitted === undefined) throw new Error('SPARK 保存回执行身份数量不匹配')
+      const submittedId = submitted[keyField]
+      if ((typeof submittedId === 'string' || typeof submittedId === 'number') && this.#explicitNewRowIds.has(submittedId)
+        && !Object.is(this.rowKeyValue(actual), submittedId)) {
+        throw new Error('SPARK_SAVE_RECEIPT_EXPLICIT_IDENTITY: 显式正式身份不能被保存回执改写')
+      }
+    }
+    const resolveExisting = (action: 'changed' | 'deleted'): DataSpaceSaveRow[] => {
+      const selected = new Set((requested[action] ?? []).map(row => canonicalKey(this.rowKeyValue(row))))
+      const received = new Set<string>()
+      return receipt[action].map((row, index) => {
+        const actualKey = canonicalKey(this.rowKeyValue(row))
+        const fallback = action === 'changed' ? requested.changed?.[index] : undefined
+        const key = actualKey || canonicalKey(fallback === undefined ? undefined : this.rowKeyValue(fallback))
+        if (!key || !selected.has(key) || received.has(key)) throw new Error('SPARK 保存回执行身份缺失、重复或超出提交范围')
+        received.add(key)
+        const original = this.originalMutationRow({ [keyField]: key })
+        return action === 'changed'
+          ? { ...this.consumerSaveRow(original), ...this.consumerSaveRow(row), [keyField]: original[keyField] }
+          : this.consumerSaveRow(row)
+      })
+    }
+    const result = { metaName: receipt.metaName, added: receipt.added.map(row => this.consumerSaveRow(row)),
+      changed: resolveExisting('changed'), deleted: resolveExisting('deleted') }
+    this.assertCurrent()
+    return result
+  }
+
+  private canonicalReceiptRow(row: DataSpaceRow): DataSpaceSaveRow {
+    if (!this.#model) return this.consumerSaveRow(row)
+    const outputFields = this.#newRowFields === undefined ? DataSpaceDesignApi.resolveOutputFields(this.#model)
+      : DataSpaceDesignApi.resolveFields(this.#model)
+    const result: DataSpaceSaveRow = {}
+    for (const [name, value] of Object.entries(row)) {
+      if (name === '_pk' || name.startsWith('lingma_sys_')) continue
+      const matches = outputFields.filter(candidate => candidate.name === name)
+      if (matches.length > 1) throw new Error(`SPARK_MODEL_RECEIPT_FIELD: ${name}`)
+      const field = matches[0]
+      result[field?.canonicalName ?? name] = value
+    }
+    return result
+  }
+
+  private consumerSaveRow(row: DataSpaceRow): DataSpaceSaveRow {
+    const copy: DataSpaceSaveRow = structuredClone(row)
+    delete copy['_pk']
+    delete copy['lingma_sys_key']
+    delete copy['lingma_sys_params']
+    if (this.#newRowFields !== undefined && this.#model) {
+      const outputs = new Set(DataSpaceDesignApi.resolveOutputFields(this.#model).map(field => field.canonicalName))
+      for (const field of Object.keys(copy)) if (!outputs.has(field)) Reflect.deleteProperty(copy, field)
+    }
+    return copy
+  }
+
+  /** 回执推进独立基线；原上下文及其权限不被共享视图的保存就地改写。 */
+  public acceptSaveReceipt(command: DataSpaceSaveReceiptCommand): DataSpaceSaveAcceptedReceipt {
+    const receipt = this.resolveSaveReceipt(command)
+    const deleted = new Set(receipt.deleted.map(row => canonicalKey(this.rowKeyValue(row))))
+    const changed = new Map(receipt.changed.map(row => [canonicalKey(this.rowKeyValue(row)), row]))
+    const retained = this.#snapshot.rows.filter(row => !deleted.has(canonicalKey(this.rowKeyValue(row))))
+      .map(row => ({ ...row, ...changed.get(canonicalKey(this.rowKeyValue(row))) }))
+    const keys = new Set(retained.map(row => canonicalKey(this.rowKeyValue(row))))
+    const added = receipt.added.map(row => {
+      const key = canonicalKey(this.rowKeyValue(row))
+      if (!key || this.keyField === '_pk' || keys.has(key)) throw new Error('SPARK 新增回执行身份缺失或重复')
+      keys.add(key)
+      return { ...row }
+    })
+    const total = Math.max(0, this.#snapshot.total + added.length - deleted.size)
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({ Result: {
+      data: { Items: [...retained, ...added], Count: total }, primaryKeyField: this.#snapshot.primaryKey,
+      allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    } })
+    const context = new DataSpaceQueryContext({ identity: this.#identity,
+      snapshot: Object.freeze({ ...snapshot, countReported: this.#snapshot.countReported }),
+      scope: this.#scope, readScope: this.#readScope,
+      resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
+    if (this.#model) context.bindFormalModel(this.#model)
+    context.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !deleted.has(key)))
+    context.markSavedRowsPending(added.map(row => canonicalKey(this.rowKeyValue(row))))
+    for (const row of receipt.added) {
+      const id = this.rowKeyValue(row)
+      if (typeof id === 'string' || typeof id === 'number') this.#explicitNewRowIds.delete(id)
+    }
+    this.assertCurrent()
+    const changedFields = Object.freeze(command.receipt.changed.map(row =>
+      Object.freeze(Object.keys(this.canonicalReceiptRow(row)))))
+    return { ...receipt, context, changedFields }
+  }
+
+  /**
+   * Verify one original unknown batch by exact primary-key readback and advance a private baseline.
+   * The queried result is consumed only as proof; it is never treated as a replay receipt.
+   */
+  public acceptVerifiedSaveRecovery(command: Readonly<{
+    requested: DataSpaceSaveChanges
+    recovery: DataSpaceSaveRecovery
+    queried: DataSpaceQueryContext
+  }>): DataSpaceSaveAcceptedReceipt {
+    this.assertCurrent()
+    const {requested, recovery, queried} = command
+    this.captureSaveRecovery(requested, recovery)
+    queried.assertCurrent()
+    queried.assertIdentity(this.#identity)
+    if (queried.#scope !== this.#scope || queried.keyField !== this.keyField
+      || queried.#readonlyKind || this.#readonlyKind || JSON.stringify(queried.#model) !== JSON.stringify(this.#model)) {
+      throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读身份或查询模型不一致')
+    }
+    if (recovery.primaryKey !== this.keyField || recovery.primaryKeyFields.length !== 1
+      || recovery.primaryKeyFields[0] !== this.keyField) {
+      throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存捕获缺少唯一正式主键')
+    }
+    const submitted = new Map<string, DataSpaceSaveRecoveryEntry>()
+    for (const entry of recovery.entries) {
+      const id = canonicalSaveRecoveryValue(entry.identity[this.keyField])
+      if (submitted.has(id)) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存主键重复')
+      submitted.set(id, entry)
+    }
+    const found = new Map<string, DataSpaceRow>()
+    const foundRaw = new Map<string, DataSpaceRow>()
+    for (const [index, raw] of queried.#snapshot.rows.entries()) {
+      const publicRow = queried.#rows[index]
+      const id = canonicalSaveRecoveryValue(queried.rowKeyValue(raw))
+      if (publicRow === undefined || !submitted.has(id) || found.has(id)) {
+        throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读返回重复或越界记录')
+      }
+      found.set(id, publicRow)
+      foundRaw.set(id, raw)
+    }
+    const addedEntries = recovery.entries.filter(entry => entry.action === 'added')
+    const changedEntries = recovery.entries.filter(entry => entry.action === 'changed')
+    const deletedEntries = recovery.entries.filter(entry => entry.action === 'deleted')
+    const rowFor = (entry: DataSpaceSaveRecoveryEntry, required: boolean): DataSpaceRow | undefined => {
+      const id = canonicalSaveRecoveryValue(entry.identity[this.keyField])
+      const row = found.get(id)
+      if ((row === undefined) === required) {
+        throw new Error(entry.action === 'added'
+          ? 'SPARK_SAVE_RECOVERY_UNKNOWN: 新增记录未能从精确回读完整证明'
+          : entry.action === 'changed'
+            ? 'SPARK_SAVE_RECOVERY_UNKNOWN: 修改记录未能从精确回读完整证明'
+            : 'SPARK_SAVE_RECOVERY_CONFLICT: 删除记录仍存在')
+      }
+      return row
+    }
+    const compareRows = [...addedEntries, ...changedEntries].map(entry => {
+      const row = rowFor(entry, true)
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读记录缺失')
+      const requestedRow = (entry.action === 'added' ? requested.added : requested.changed)?.[
+        (entry.action === 'added' ? addedEntries : changedEntries).indexOf(entry)]
+      if (requestedRow === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原保存捕获记录缺失')
+      for (const field of entry.changedFields) {
+        if (!Object.hasOwn(row, field) || queried.readFieldAccess(row, field) !== 'visible'
+          || canonicalSaveRecoveryValue(row[field]) !== canonicalSaveRecoveryValue(requestedRow[field])) {
+          throw new Error(`SPARK_SAVE_RECOVERY_UNKNOWN: 原提交字段无法核验: ${field}`)
+        }
+      }
+      const raw = foundRaw.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (raw === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 精确回读原始记录缺失')
+      return {entry, row, raw}
+    })
+    for (const entry of deletedEntries) rowFor(entry, false)
+    const changedByKey = new Map(compareRows.filter(item => item.entry.action === 'changed')
+      .map(item => [canonicalSaveRecoveryValue(item.entry.identity[this.keyField]), item]))
+    const addedRows = compareRows.filter(item => item.entry.action === 'added').map(item => item.raw)
+    const deletedKeys = new Set(deletedEntries.map(entry => canonicalSaveRecoveryValue(entry.identity[this.keyField])))
+    const retained = this.#snapshot.rows.filter(row => !deletedKeys.has(canonicalSaveRecoveryValue(this.rowKeyValue(row))))
+      .map(row => {
+        const proof = changedByKey.get(canonicalSaveRecoveryValue(this.rowKeyValue(row)))
+        if (proof === undefined) return row
+        const patch = Object.fromEntries(proof.entry.changedFields.map(field => [field, structuredClone(proof.raw[field])]))
+        return {...row, ...patch}
+      })
+    const keys = new Set(retained.map(row => canonicalSaveRecoveryValue(this.rowKeyValue(row))))
+    for (const row of addedRows) {
+      const key = canonicalSaveRecoveryValue(this.rowKeyValue(row))
+      if (!key || keys.has(key)) throw new Error('SPARK_SAVE_RECOVERY_CONFLICT: 新增记录与现有主键冲突')
+      keys.add(key)
+    }
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: [...retained, ...addedRows], Count: this.#snapshot.total + addedRows.length - deletedKeys.size},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const context = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}),
+      scope: this.#scope, readScope: this.#readScope, resultKind: 'entity',
+      ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#newRowFields === undefined ? {} : {newRowFields: this.#newRowFields}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) context.bindFormalModel(this.#model)
+    const added = addedEntries.map(entry => {
+      const row = found.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 新增记录回读缺失')
+      return this.consumerSaveRow(row)
+    })
+    const changed = changedEntries.map(entry => {
+      const row = found.get(canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 修改记录回读缺失')
+      const original = this.#rows.find(item =>
+        canonicalSaveRecoveryValue(this.rowKeyValue(item)) === canonicalSaveRecoveryValue(entry.identity[this.keyField]))
+      if (original === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原修改基线缺失')
+      return {...this.consumerSaveRow(original), ...Object.fromEntries(
+        entry.changedFields.map(field => [field, structuredClone(row[field])]))}
+    })
+    const deleted = deletedEntries.map((_entry, index) => {
+      const row = requested.deleted?.[index]
+      if (row === undefined) throw new Error('SPARK_SAVE_RECOVERY_UNKNOWN: 原删除捕获缺失')
+      return this.consumerSaveRow(row)
+    })
+    const changedFields = changedEntries.map(entry => Object.freeze([...entry.changedFields]))
+    this.assertCurrent()
+    return {metaName: this.#identity.metaName, added, changed, deleted, changedFields, context}
+  }
+
+  /** Capture the exact formal identities and intended changes before any save request is dispatched. */
+  public captureSaveRecovery(changes: DataSpaceSaveChanges, expected?: DataSpaceSaveRecovery): DataSpaceSaveRecovery {
+    this.assertCurrent()
+    const keyField = this.keyField
+    if (!keyField || keyField === '_pk' || /[,+]/.test(keyField)) {
+      throw new Error('SAVE_RECOVERY_KEY_REQUIRED: 保存缺少唯一正式主键')
+    }
+    const makeIdentity = (row: DataSpaceRow, original: boolean): DataSpaceSaveRecoveryIdentity => {
+      const baseline = original ? this.originalMutationRow(row) : row
+      const value = baseline[keyField]
+      if ((typeof value !== 'string' && typeof value !== 'number')
+        || (typeof value === 'string' && value.trim() === '')
+        || (typeof value === 'number' && !Number.isFinite(value))) {
+        throw new Error('SAVE_RECOVERY_KEY_REQUIRED: 新增、修改或删除缺少可精确恢复的正式主键')
+      }
+      return Object.freeze({[keyField]: structuredClone(value)})
+    }
+    const entry = (action: DataSpaceSaveRecoveryEntry['action'], row: DataSpaceRow): DataSpaceSaveRecoveryEntry => {
+      const identity = makeIdentity(row, action !== 'added')
+      const changedFields = action === 'changed'
+        ? Object.keys(row).filter(field => field !== keyField && field !== '_pk' && !field.startsWith('lingma_sys_')).sort()
+        : action === 'added'
+          ? Object.keys(row).filter(field => field !== keyField && field !== '_pk' && !field.startsWith('lingma_sys_')).sort()
+          : []
+      const values = Object.freeze(Object.fromEntries(changedFields.map(field => [field, structuredClone(row[field])])))
+      return Object.freeze({action, identity, changedFields: Object.freeze(changedFields),
+        changeDigest: saveRecoveryDigest({action, identity, changedFields, values})})
+    }
+    const added = Object.freeze((changes.added ?? []).map(row => entry('added', row)))
+    const changed = Object.freeze((changes.changed ?? []).map(row => entry('changed', row)))
+    const deleted = Object.freeze((changes.deleted ?? []).map(row => entry('deleted', row)))
+    const entries = Object.freeze([...added, ...changed, ...deleted])
+    const recovery = Object.freeze({
+      primaryKey: keyField, primaryKeyFields: Object.freeze([keyField]),
+      expectedIdentities: Object.freeze({
+        added: Object.freeze(added.map(item => item.identity)),
+        changed: Object.freeze(changed.map(item => item.identity)),
+        deleted: Object.freeze(deleted.map(item => item.identity)),
+      }),
+      entries, changeDigest: saveRecoveryDigest({primaryKey: keyField, primaryKeyFields: [keyField], entries}),
+    })
+    if (expected !== undefined
+      && canonicalSaveRecoveryValue(expected) !== canonicalSaveRecoveryValue(recovery)) {
+      throw new Error('SPARK_SAVE_RECOVERY_MISMATCH: 保存捕获与正式查询基线不一致')
+    }
+    return recovery
+  }
+
+  /** API 保存边界使用私有原查询凭据封包；不按前端权限集合裁剪业务值。 */
+  public buildSaveRequest(changes: DataSpaceSaveChanges): DataSpaceSaveRequest[] {
+    this.assertCurrent()
+    this.assertModelSaveAllowed(changes)
+    this.captureSaveRecovery(changes)
+    const order = Object.hasOwn(changes, 'actionOrder') ? snapshotDataSpaceSaveActionOrder(changes.actionOrder) : undefined
+    const added = (changes.added ?? []).map(row => this.prepareSaveRow(row, 'add'))
+    const changed = (changes.changed ?? []).map(row => this.prepareSaveRow(row, 'change'))
+    const deleted = (changes.deleted ?? []).map(row => this.prepareSaveRow(row, 'delete'))
+    const groups: DataSpaceSaveRow[][] = []
+    let previous: string | undefined
+    for (const row of added) {
+      const key = JSON.stringify(Object.keys(row).filter(field => field !== 'lingma_sys_key'
+        && row[field] !== undefined && row[field] !== null).sort())
+      if (previous !== key) groups.push([])
+      groups.at(-1)?.push(row)
+      previous = key
+    }
+    const insertGroups = groups.length > 1 ? groups : [added]
+    const request = (crud: DataSpaceSaveRequest['CrudModel']): DataSpaceSaveRequest => ({
+      TableName: this.#identity.metaName, CrudModel: crud,
+    })
+    const result = order ? order.flatMap(action => {
+      if (action === 'added') return added.length ? insertGroups.map(Added => request({ Added, Changed: [], Deleted: [] })) : []
+      if (action === 'changed') return changed.length ? [request({ Added: [], Changed: changed, Deleted: [] })] : []
+      return deleted.length ? [request({ Added: [], Changed: [], Deleted: deleted })] : []
+    }) : insertGroups.map((Added, index) => request({ Added,
+      Changed: index === insertGroups.length - 1 ? changed : [], Deleted: index === 0 ? deleted : [] }))
+    this.assertCurrent()
+    return result
+  }
+
+  private assertModelSaveAllowed(changes: DataSpaceSaveChanges): void {
+    if (this.#readonlyKind && ((changes.added?.length ?? 0) > 0 || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
+      throw new Error(this.#readonlyKind === 'join' ? 'SPARK_JOIN_RESULT_READONLY: 连接投影不能作为实体保存基线'
+        : 'SPARK_NESTED_RESULT_READONLY: 层级结果不能作为实体保存基线')
+    }
+    if (this.keyField === '' && ((changes.added?.length ?? 0) > 0
+      || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
+      throw new Error('SPARK_MODEL_KEYLESS_READONLY: 无可写记录身份的查询结果不可保存行变更')
+    }
+  }
+
+  private prepareSaveRow(row: DataSpaceRow, mode: 'add' | 'change' | 'delete'): DataSpaceSaveRow {
+    const copy: DataSpaceSaveRow = structuredClone(row)
+    delete copy['_pk']
+    delete copy['lingma_sys_key']
+    delete copy['lingma_sys_params']
+    const addition = mode === 'add' ? this.addCredential(copy) : undefined
+    let token: unknown = addition === undefined ? this.#snapshot.systemKey : addition.token
+    if (mode !== 'add') {
+      const key = canonicalKey(this.rowKeyValue(copy))
+      if (!key) return copy
+      if (this.#pendingSavedRowKeys.has(key)) throw new Error('SPARK_SAVED_ROW_PERMISSIONS_PENDING: 新增已确认，请先取得正式行查询权限')
+      const originals = this.#snapshot.rows.filter(item => canonicalKey(this.rowKeyValue(item)) === key)
+      if (originals.length > 1) throw new Error(`SPARK 保存行主键在原查询结果中不唯一: ${key}`)
+      token = originals[0]?.['lingma_sys_key']
+    }
+    const wire: DataSpaceSaveRow = {}
+    const outputFields = this.#model ? mode === 'add' && this.#newRowFields !== undefined && addition?.child !== true
+      ? DataSpaceDesignApi.resolveFields(this.#model).filter(field => field.primaryKey || this.#newRowFields?.includes(field.canonicalName))
+      : DataSpaceDesignApi.resolveOutputFields(this.#model) : undefined
+    for (const [name, value] of Object.entries(copy)) {
+      if (!this.#model) { wire[name] = value; continue }
+      const field = outputFields?.find(candidate => candidate.canonicalName === name)
+      if (!field || field.computed) {
+        if (mode === 'delete') continue
+        throw new Error(`SPARK_MODEL_SAVE_FIELD: ${name}`)
+      }
+      wire[field.name] = value
+    }
+    if (Boolean(token)) wire['lingma_sys_key'] = token
+    return wire
+  }
+
+  private rowKeyValue(row: DataSpaceRow): unknown {
+    return this.keyField ? row[this.keyField] : undefined
+  }
+
+  /** 正式自引用父字段决定根/子新增；子行只回放唯一原父行的 c 凭据，不用表令牌兼容分支。 */
+  private addCredential(row: DataSpaceRow): Readonly<{token: unknown; child: boolean}> {
+    const model = this.#model
+    if (model === undefined) return {token: this.#snapshot.systemKey, child: false}
+    const read = (name: string): unknown => {
+      const key = Object.keys(model.raw).find(fieldName => fieldName.toLowerCase() === name.toLowerCase())
+      return key === undefined ? undefined : model.raw[key]
+    }
+    const declared = canonicalKey(read('ParentField'))
+    if (!declared) return {token: this.#snapshot.systemKey, child: false}
+    const parents = DataSpaceDesignApi.resolveOutputFields(model)
+      .filter(field => field.name.toLowerCase() === declared.toLowerCase())
+    const parentField = parents[0]
+    if (parents.length !== 1 || parentField === undefined || !parentField.output || parentField.computed
+      || parentField.canonicalName === this.keyField) {
+      throw new Error('SPARK_CHILD_ADD_PARENT: 正式自引用父字段无法唯一解析')
+    }
+    const parentValue = row[parentField.canonicalName]
+    const topValue = read('TopValue')
+    if (parentValue === undefined || parentValue === null || String(parentValue).trim() === ''
+      || (topValue !== undefined && topValue !== null && String(parentValue) === String(topValue))) {
+      return {token: this.#snapshot.systemKey, child: false}
+    }
+    const key = canonicalKey(parentValue)
+    if (canonicalKey(this.rowKeyValue(row)) === key) throw new Error('SPARK_CHILD_ADD_PARENT: 新增行不能以自身为父行')
+    const originals = this.#snapshot.rows.filter(parent => canonicalKey(this.rowKeyValue(parent)) === key)
+    const parent = originals[0]
+    if (originals.length !== 1 || parent === undefined || this.#permissions.get(key)?.allowAddChild() !== true) {
+      throw new Error('SPARK_CHILD_ADD_PARENT: 未找到唯一且明确允许新增子行的原查询父行')
+    }
+    const token = parent['lingma_sys_key']
+    if (typeof token !== 'string' || !token.trim()) throw new Error('SPARK_CHILD_ADD_PARENT: 原查询父行缺少凭据')
+    return {token, child: true}
+  }
+
+  private rowAction(keyValue: unknown, available: boolean, action: 'edit' | 'delete' | 'child'): DataSpaceActionState {
+    this.assertCurrent()
+    if (this.keyField === '') return 'hidden'
+    const key = canonicalKey(keyValue)
+    if (!key) return 'disabled'
+    const permission = this.#permissions.get(key)
+    const authorized = permission && (action === 'edit' ? permission.allowEdit()
+      : action === 'delete' ? permission.allowDelete() : permission.allowAddChild())
+    return authorized ? available ? 'enabled' : 'disabled' : 'hidden'
+  }
+
+  private assertCurrent(): void {
+    if (this.#invalid || this.#readScope() !== this.#scope) {
+      throw new Error('SPARK_QUERY_CONTEXT_STALE: 查询上下文已失效')
+    }
+  }
+}

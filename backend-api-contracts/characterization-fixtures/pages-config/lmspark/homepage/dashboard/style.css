@@ -1,0 +1,70 @@
+[data-page="dashboard"] .dashboard-page {
+  padding: 24px;
+}
+
+[data-page="dashboard"] .dashboard-content {
+  margin-top: 24px;
+}
+
+[data-page="dashboard"] .stats-row {
+  margin-bottom: 24px;
+}
+
+/* 统计卡片渐变色 */
+[data-page="dashboard"] .stats-card {
+  color: white;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+[data-page="dashboard"] .stats-card :deep(.el-card__body) {
+  padding: 20px;
+}
+
+[data-page="dashboard"] .stats-card--users {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+[data-page="dashboard"] .stats-card--visits {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+[data-page="dashboard"] .stats-card--hot {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+[data-page="dashboard"] .stats-card--revenue {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+[data-page="dashboard"] .stats-content {
+  display: flex;
+  align-items: center;
+}
+
+[data-page="dashboard"] .stats-icon {
+  font-size: 40px;
+  margin-right: 16px;
+}
+
+[data-page="dashboard"] .stats-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+[data-page="dashboard"] .stats-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+[data-page="dashboard"] .feature-row {
+  margin-bottom: 24px;
+}
+
+[data-page="dashboard"] .quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

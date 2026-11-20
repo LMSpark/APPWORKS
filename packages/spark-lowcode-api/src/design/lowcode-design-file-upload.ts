@@ -62,7 +62,8 @@ function uploadSha256(receipt:Readonly<Record<string,unknown>>):string|null{
 }
 
 function v2UploadUnavailable(error:unknown):boolean{
-  return error instanceof LowcodeApiError&&[404,405].includes(error.code)
+  return error instanceof LowcodeApiError&&([404,405].includes(error.code)
+    || error.code===500&&error.message.includes('No static resource api/File/v2/UploadFile'))
     ||isRequestError(error)&&[404,405].includes(error.status??0)
 }
 

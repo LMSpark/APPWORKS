@@ -176,12 +176,15 @@ describe('LowcodeDesignFileUpload', () => {
     expect(http.requests).toHaveLength(1)
   })
 
-  it('falls back to V1 upload only when V2 endpoint is definitely unavailable',async()=>{
+  it.each([
+    {code:404,message:'not registered'},
+    {code:500,message:'No static resource api/File/v2/UploadFile.'},
+  ])('falls back to V1 upload when V2 endpoint is definitely unavailable: $code',async ({code,message})=>{
     class V2Unavailable extends FixtureHttpClient{
       protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
         if(config.url==='/api/File/v2/UploadFile'){
           this.requests.push(config)
-          return {data:{Code:404,Message:'not registered'},status:200,statusText:'OK',headers:{}}
+          return {data:{Code:code,Message:message},status:200,statusText:'OK',headers:{}}
         }
         return super.executeRequest(config)
       }

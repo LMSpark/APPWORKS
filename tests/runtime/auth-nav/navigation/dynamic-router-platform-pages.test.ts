@@ -548,6 +548,20 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(dynamic.getPageRuntimeNames()).toEqual([])
   })
 
+  it('renames a business route parameter that collides with the application scope', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const navigation: RuntimeNavigation = { title: 'App', childPlacement: 'header', items: [
+      { id: 'overview', title: 'Overview', itemKind: 'system-page', path: '/bid/projects/:projectId/overview' },
+    ] }
+    const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, loadNavigation: async () => navigation,
+      applicationPathPrefix: '/apps/:projectId', componentMap: { '/bid/projects/:projectId/overview': DummyPage } })
+    await dynamic.registerRoutes()
+    const host = router.getRoutes().find(route => route.path.includes('/bid/projects/:businessProjectId/overview'))
+    expect(host?.path).toBe('/apps/:projectId/bid/projects/:businessProjectId/overview')
+    await router.push('/apps/APP/bid/projects/BID-1/overview')
+    expect(router.currentRoute.value.params).toMatchObject({projectId: 'APP', businessProjectId: 'BID-1'})
+  })
+
   it('uses one path host and resolves the selected same-path system-page owner per navigation', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const navigation: RuntimeNavigation = { id: 'root', projectId: 'APP', title: 'App', childPlacement: 'header', items: [

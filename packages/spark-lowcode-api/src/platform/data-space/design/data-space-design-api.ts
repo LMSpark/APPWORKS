@@ -295,8 +295,10 @@ export class DataSpaceDesignApi {
 
   /** Parses one serialized model-field ValueFun object without a filter wire envelope. */
   public static parseValueFunction(serialized: string | null | undefined): DataViewFilterValueFunction | undefined {
-    if (serialized === null || serialized === undefined || serialized.trim() === '') return undefined
-    return parseDataSpaceValueFunction(serialized, 'ValueFun')
+    if (serialized === null || serialized === undefined) return undefined
+    const normalized = serialized.trim()
+    if (normalized === '' || normalized === '""' || normalized === 'null') return undefined
+    return parseDataSpaceValueFunction(normalized, 'ValueFun')
   }
 
   /** Resolves consumable output columns while preserving the complete formal field list. */

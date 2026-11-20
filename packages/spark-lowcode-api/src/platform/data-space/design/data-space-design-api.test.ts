@@ -126,6 +126,8 @@ describe('DataSpaceDesignApi', () => {
     expect(DataSpaceDesignApi.parseValueFunction(null)).toBeUndefined()
     expect(DataSpaceDesignApi.parseValueFunction(undefined)).toBeUndefined()
     expect(DataSpaceDesignApi.parseValueFunction('  ')).toBeUndefined()
+    expect(DataSpaceDesignApi.parseValueFunction('""')).toBeUndefined()
+    expect(DataSpaceDesignApi.parseValueFunction('null')).toBeUndefined()
     expect(() => DataSpaceDesignApi.parseValueFunction('{')).toThrow('ValueFun 不是有效 JSON')
     expect(() => DataSpaceDesignApi.parseValueFunction('{"Value":false}')).toThrow('ValueFun 缺少 Type')
     expect(() => DataSpaceDesignApi.parseValueFunction('"plain text"')).toThrow()

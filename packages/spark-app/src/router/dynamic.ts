@@ -313,7 +313,10 @@ constructor(options: DynamicRouterOptions) {
     if (!this.applicationPathPrefix) return normalizedPath
     if (normalizedPath.startsWith(this.applicationPathPrefix)) return normalizedPath
     if (this.applicationPathRegex?.test(normalizedPath)) return normalizedPath
-    return this.normalizePath(`${this.applicationPathPrefix}${normalizedPath}`)
+    const prefixParams = new Set([...this.applicationPathPrefix.matchAll(/:([A-Za-z0-9_]+)/g)].map(match => match[1]))
+    const scopedPath = normalizedPath.replace(/:([A-Za-z0-9_]+)/g, (segment, name: string) =>
+      prefixParams.has(name) ? `:business${name[0]?.toUpperCase() ?? ''}${name.slice(1)}` : segment)
+    return this.normalizePath(`${this.applicationPathPrefix}${scopedPath}`)
   }
 
   private addRoutePathPrefix(prefix: string, path: string): string {

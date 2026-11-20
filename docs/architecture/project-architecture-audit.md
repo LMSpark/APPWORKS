@@ -295,7 +295,7 @@ flowchart LR
 | 优先级 | 断点 | 当前源码事实 | 风险 | 解除条件 |
 |---|---|---|---|---|
 | 已关闭（源码/fixture） | 普通 CRUD 原请求无权威终态 | save capture 固定正式主键、字段与 digest；unknown 仅按原 key exact readback，确认后接纳，不能证明时保留 unknown；不会重发 | 源码层已闭环，但服务侧仍无 durable request terminal | 保留精确回读；真实 service write、丢回执与重开仍按页面逐项验收 |
-| 部分实服验证 | 正式导航与授权菜单 | 表和视图管理已由真实授权菜单进入并冷重开返回 33 条；SmartBid 16 条 `/bid/` 蓝图记录的 9 个唯一场景全部缺 pagedata，14 条 `VersionId=null`，2 条连场景都为空 | 前端通过不代表全部业务节点 READY | 服务发布 cfg/manifest 或提供原生页与 pagedata；每节点取得 READY 后逐个冷开 |
+| 部分实服验证 | 正式导航与授权菜单 | 正确的新 SmartBid 应用 D849 已有 10181 字节 Page11 pagedata、完整三文件与 manifest；新应用仅根节点，当前查询权限拒绝创建 cfg 子节点 | 前端与文件发布已通过不代表菜单可达 | 提供蓝图新增权限或由正式设计账号创建唯一 cfg 节点；之后验证 READY 与冷开 |
 | P1 | 混合 owner 分阶段恢复 | `saveChangesInPhases` 有顺序保护，无跨来源事务；数据库、pagedata、工具、业务数据分别确认 | partial 后续可能误重放或误报整体失败 | 每阶段固定原视图集合和 receipt；unknown 只核原捕获；UI 显示逐阶段结果 |
 | 已关闭（源码/fixture） | 四文件逐文件缓存无原子集 | publication manifest 固定 rule/script/style/pagedata snapshot 与 SHA-256；PageRuntime 只在整组 proof 通过后物化 | 实服 SmartBid 尚无发布 manifest | 服务节点指向该 manifest 后由真实冷开验收 |
 | P1 | 时间戳版本碰撞 | `readRuntimeFile` 以修改时间判定命中，不是内容 hash | 同毫秒不同内容可能命中旧缓存 | 后端返回 ETag/hash，或相同时间时强制正文读取 |

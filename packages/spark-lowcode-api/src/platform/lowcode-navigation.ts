@@ -2,6 +2,8 @@
  * 运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。
  * wire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；cfg:/vue: 协议须小写。
  */
+import { isRecord } from '@spark-appworks/spark-utils'
+
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
 /** 导航目标类型；由 NavigationUrl/url 解析得出。 */
@@ -36,10 +38,6 @@ export type LowcodeNavigationAuthorizationEvidence = Readonly<{
   items: readonly LowcodeNavigationAuthorizationItem[]
   contexts: readonly LowcodeNavigationAuthorizationContext[]
 }>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function record(value: unknown, context: string): Record<string, unknown> {
   if (isRecord(value)) return value

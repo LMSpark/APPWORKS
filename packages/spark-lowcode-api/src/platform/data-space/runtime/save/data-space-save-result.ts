@@ -4,6 +4,8 @@
  * 边界：逐模型核对提交分组和返回桶，不把端点成功当作行保存成功。
  * AI用途：识别字段失败并返回待上下文身份核对的实际行。
  */
+import { isRecord } from '@spark-appworks/spark-utils'
+
 import type { DataSpaceQueryContext } from '../query/data-space-query-context'
 
 /** 单模型实际提交的 CRUD 分组，用于核对后端回执桶的顺序与数量。 */
@@ -23,10 +25,6 @@ type DataSpaceSaveSuccessOptions = Readonly<{
   fallback?: string
   treatErrorMessageAsFailure?: boolean
 }>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 function record(value: unknown): Record<string, unknown> { return isRecord(value) ? value : {} }
 function text(value: unknown, fallback = ''): string { return String(value ?? '').trim() || fallback }

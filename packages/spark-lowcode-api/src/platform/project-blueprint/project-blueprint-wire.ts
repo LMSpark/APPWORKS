@@ -4,16 +4,12 @@
  * 边界：conType 决定 kind，未知值保留诊断；不构造查询或授权，不从父节点推断模型。
  * AI用途：核对正式节点与后端字段的读写对应，避免 source 成为权限或模型定义来源。
  */
-import { isProjectBlueprintNodeKind, type ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
+import { isProjectBlueprintNodeKind, isRecord, type ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 import {
   createLowcodeProjectBlueprintRecord,
   type LowcodeProjectBlueprintRecord,
 } from './project-blueprint.js'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function firstText(row: Record<string, unknown>, keys: readonly string[]): string {
   for (const key of keys) {

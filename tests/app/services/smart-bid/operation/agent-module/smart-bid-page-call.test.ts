@@ -26,3 +26,18 @@ it.each(['知识目录与指南','ClassModel 登记','配置编审与启用','�
  const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title}})
  expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
 })
+
+it('preserves auxiliary scenario bindings for standard action pages',()=>{
+ const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
+  query:{...route.query,additionalScenarioIds:'AUX'}})
+ expect(prepared).toBeDefined()
+ const host=prepared?.createHost({pageId:'TOOL',call:{instanceId:'RUNTIME',scenarioIds:['SPACE','AUX']}} as never)
+ expect(host).toMatchObject({runtime:expect.anything()})
+})
+
+it('rejects blank command identities on standard action pages',async()=>{
+ const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'}})
+ const host=prepared?.createHost({pageId:'TOOL',call:{instanceId:'RUNTIME',scenarioIds:['SPACE']}} as never)
+ await expect(host?.invoke('smart-bid.dispatch',{operationId:' ',requestKey:'',prompt:'采用',inputs:{}},
+  new AbortController().signal)).rejects.toThrow('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
+})

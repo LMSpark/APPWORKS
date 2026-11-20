@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding",
+    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+    "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding\n职责：统一已发布 SmartBid 页面入口的导航身份校验与本次 PageRuntime 绑定。\n边界：只处理公共发布身份和生命周期；项目、业务范围、命令及 owner 仍由调用方 policy 提供。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PublishedPageEntry",
+      "PublishedPageSession"
+    ]
+  },
+  "$defs": {
+    "PublishedPageEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishedPageEntry",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "applicationId",
+        "nodeId",
+        "pageId",
+        "scenarioId"
+      ],
+      "additionalProperties": false
+    },
+    "PublishedPagePolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishedPagePolicy",
+      "properties": {
+        "identityError": {
+          "type": "string"
+        },
+        "conflictError": {
+          "type": "string"
+        },
+        "forbiddenQuery": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowMissingBlueprintScenario": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "requireScenarioQuery": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "identityError",
+        "conflictError"
+      ],
+      "additionalProperties": false
+    },
+    "PublishedPageSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishedPageSession",
+      "properties": {
+        "scenarioInputs": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T19:20:50.092Z",
+  "models": {
+    "PublishedPageEntry": {
+      "name": "PublishedPageEntry",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    pageId: string;\n    scenarioId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    pageId: string;\n    scenarioId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PublishedPagePolicy": {
+      "name": "PublishedPagePolicy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identityError: string;\n    conflictError: string;\n    forbiddenQuery?: readonly string[];\n    allowMissingBlueprintScenario?: boolean;\n    requireScenarioQuery?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identityError: string;\n    conflictError: string;\n    forbiddenQuery?: readonly string[];\n    allowMissingBlueprintScenario?: boolean;\n    requireScenarioQuery?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identityError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conflictError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "forbiddenQuery",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowMissingBlueprintScenario",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requireScenarioQuery",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PublishedPageSession": {
+      "name": "PublishedPageSession",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioInputs: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioInputs: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioInputs",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

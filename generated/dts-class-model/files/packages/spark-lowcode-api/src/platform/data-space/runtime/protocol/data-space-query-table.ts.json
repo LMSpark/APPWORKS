@@ -8,7 +8,7 @@
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/protocol/data-space-query-table",
     "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-query-table\n职责：构造模型查询封包并解码原结果快照。\n边界：保留后端权限与正式主键，不从普通 id 字段猜测身份。\nAI用途：核对请求模型 Name、输出投影与结果元数据。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSpaceQueryTable"
     ]
@@ -104,7 +104,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-11T06:51:23.739Z",
+  "generatedAt": "2026-11-20T20:30:07.429Z",
   "models": {
     "DataSpaceQuerySnapshot": {
       "name": "DataSpaceQuerySnapshot",

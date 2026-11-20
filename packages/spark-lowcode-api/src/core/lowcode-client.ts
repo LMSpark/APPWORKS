@@ -2,15 +2,11 @@
  * lowcode HTTP 薄封装：发起请求并强制解包 `AjaxResult`。
  * HTTP 4xx/5xx 若仍携带 AjaxResult 体则按业务码处理；非 AjaxResult 或 `Code !== 200` 一律抛 `LowcodeApiError`。
  */
-import { isRequestError, type HttpClientBase, type Method, type RequestConfig } from '@spark-appworks/spark-utils'
+import { isRecord, isRequestError, type HttpClientBase, type Method, type RequestConfig } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from './lowcode-api-error.js'
 
 const LOWCODE_SUCCESS_CODE = 200
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 /** 面向 lowcode 后端的通用请求客户端，返回值仅为 AjaxResult.Result 载荷。 */
 export class LowcodeClient {

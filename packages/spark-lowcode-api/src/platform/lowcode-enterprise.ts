@@ -2,7 +2,9 @@
  * 企业目录归一化：GetBaseData 的 wire 字段映射。
  * 企业 wire 键多为 PascalCase（ShortName、ShortCName 等）；目录按 ShortName 去重。
  */
-import { LowcodeApiError } from '../core/lowcode-api-error.js'
+import {isRecord} from '@spark-appworks/spark-utils'
+
+import {readLowcodeQueryItems} from '../core/lowcode-query-items.js'
 
 /** 企业目录条目；shortName 为登录 entName 与域标识。 */
 export type LowcodeEnterpriseCatalogItem = Readonly<{
@@ -11,10 +13,6 @@ export type LowcodeEnterpriseCatalogItem = Readonly<{
   shortName: string
   shortCode: string
 }>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function firstText(row: Record<string, unknown>, keys: readonly string[]): string {
   for (const key of keys) {
@@ -25,12 +23,7 @@ function firstText(row: Record<string, unknown>, keys: readonly string[]): strin
 }
 
 function queryItems(value: unknown): readonly unknown[] {
-  if (!isRecord(value)) throw new LowcodeApiError(0, '企业目录 Result 不是对象')
-  const data = isRecord(value['data']) ? value['data'] : isRecord(value['Data']) ? value['Data'] : value
-  const items = data['Items'] ?? data['items']
-  if (items === undefined || items === null) return []
-  if (Array.isArray(items)) return items
-  throw new LowcodeApiError(0, '企业目录 Result.items 不是数组')
+  return readLowcodeQueryItems(value,{label:'企业目录',itemKeys:['Items','items']})
 }
 
 /** 构造 Base_Enterprise_Info 企业目录 GetBaseData 查询体。 */

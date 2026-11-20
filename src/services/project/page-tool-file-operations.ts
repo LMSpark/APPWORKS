@@ -1,6 +1,6 @@
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import {PageTool, PAGE_TOOL_FILE_NAMES, type PageToolFileName} from '@spark-appworks/spark-project-model'
-import {createPageFileDirectoryEntryView, createPageFileDirectoryView, createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
+import {createPageFileDirectoryEntryView, createPageFileDirectoryView, createPageFileResourceView, isSafePageToolFileBasename, isValidPageToolFilePageId} from '@/services/project/page-tool-file-dataview'
 
 const TABLE='ProjectToolFile'
 const FILES=PAGE_TOOL_FILE_NAMES
@@ -26,11 +26,9 @@ export async function readPageToolFileText(
   return row['text']
 }
 function defaults(pageId:string):Record<PageToolFileName,string>{const page=new PageTool({pageId});page.markLoaded();return {'rule.json':page.getFileText('rule.json'),'script.js':page.getFileText('script.js'),'style.css':page.getFileText('style.css')}}
-function safeFileName(value:unknown):value is string{return typeof value==='string'&&value.length>0&&value===value.trim()
-  &&value!=='.'&&value!=='..'&&!/[\\/\u0000-\u001f\u007f]/.test(value)}
 function assertPageTarget(input:PageFileOperationScope):void{
   input.assertCurrent()
-  if(!input.appId.trim()||!input.pageId.trim()||input.pageId!==input.pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(input.pageId)){
+  if(!input.appId.trim()||!isValidPageToolFilePageId(input.pageId)){
     throw new Error('PAGE_TOOL_FILE_SCOPE: 应用或工具身份无效')
   }
   if(input.dataSet.destroyed||!(input.dataSet.scenarioId??'').trim())throw new Error('PAGE_TOOL_FILE_DATASET: 正式 DataSet 不可用')
@@ -38,7 +36,7 @@ function assertPageTarget(input:PageFileOperationScope):void{
 function assertDirectoryEntryNames(names:readonly unknown[]):asserts names is readonly string[]{
   const seen=new Set<string>()
   for(const name of names){
-    if(!safeFileName(name)||seen.has(name))throw new Error('PAGE_TOOL_FILE_DIRECTORY: 文件目录含非法或重复 basename')
+    if(!isSafePageToolFileBasename(name)||seen.has(name))throw new Error('PAGE_TOOL_FILE_DIRECTORY: 文件目录含非法或重复 basename')
     seen.add(name)
   }
 }

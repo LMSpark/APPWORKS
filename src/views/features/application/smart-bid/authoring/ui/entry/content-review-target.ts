@@ -3,8 +3,6 @@
  * 职责：按正式发布身份为审定、知识和配置业务页准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {isRecord} from '@spark-appworks/spark-utils'
-import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
@@ -24,13 +22,13 @@ import {createResourceAllocationScriptHost} from '../../../authority/resource-al
 import {createConfigurationReleaseScriptHost} from '../../../configuration/configuration-release-script-host'
 import {verifyPublishedEnterpriseOwner,type PublishedEnterpriseBinding} from '../../../authority/published-enterprise-owner'
 import {withSmartBidPageActionSubmit} from './publication/smart-bid-action-source'
+import {bindPublishedPageRuntime,matchesPublishedPageBinding,type PublishedPageEntry} from './publication/published-page-binding'
 
 
-type PublishedEntry=Readonly<{applicationId:string;scenarioId:string;nodeId:string;pageId:string}>
 type Scope=Readonly<{projectId:string;scenarioId:string;assertCurrent:()=>void}>
 
 /** 正式导航绑定和会话固定后，才在实例池所建运行时装配审定数据来源。 */
-export function preparePublishedContentReviewCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedContentReviewCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createContentReviewScriptHost>[2],
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>createContentReviewScriptHost(runtime,scope,
@@ -39,7 +37,7 @@ export function preparePublishedContentReviewCall(route:ContentAuthoringRoute,en
 }
 
 /** 页13递交的签署、封装和渠道证据在本次正式运行实例中装配。 */
-export function preparePublishedContentSubmissionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedContentSubmissionCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>,
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>createContentSubmissionScriptHost(runtime,scope,
@@ -50,14 +48,14 @@ export function preparePublishedContentSubmissionCall(route:ContentAuthoringRout
 type SubmissionSources=NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>
 
 /** 页14必须提供截止对账的原始证据来源，供本次正式运行实例读取。 */
-export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources,
 ){
  return preparePublishedContentSubmissionCall(route,entry,createSources)
 }
 
 /** 页15使用正式运行实例读取原问题、登记及复验。 */
-export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createBidFindingsScriptHost>[2],
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>createBidFindingsScriptHost(runtime,scope,
@@ -68,7 +66,7 @@ export function preparePublishedBidFindingsCall(route:ContentAuthoringRoute,entr
 type RootBinding<ClassModel>=Readonly<{classModel:ClassModel;rootKind:string;assertCurrent:()=>void}>
 
 /** 页16消费正式绑定的知识目录及模型根。 */
-export function preparePublishedKnowledgeDirectoryCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedKnowledgeDirectoryCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindRoot:(runtime:PageRuntime,scope:Scope)=>RootBinding<Parameters<typeof createKnowledgeDirectoryScriptHost>[1]>,
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -79,7 +77,7 @@ export function preparePublishedKnowledgeDirectoryCall(route:ContentAuthoringRou
 }
 
 /** 页17从发布实例的可信模型根读取目录及指南。 */
-export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindRoot:(runtime:PageRuntime,scope:Scope)=>RootBinding<Parameters<typeof createBidClassModelCatalogHost>[1]>,
 ){
  return preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -92,7 +90,7 @@ export function preparePublishedBidClassModelCatalogCall(route:ContentAuthoringR
 type ConfigurationHost=Parameters<typeof createConfigurationReleaseScriptHost>
 
 /** 页19配置作用域和影响证据由当前运行实例的正式绑定提供。 */
-export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindScope:(runtime:PageRuntime,scope:Scope)=>NonNullable<ConfigurationHost[2]>&Readonly<{
   scopeId:string;assertCurrent:()=>void
   configurationScope?:NonNullable<ConfigurationHost[1]['configurationScope']>
@@ -112,7 +110,7 @@ export function preparePublishedConfigurationReleaseCall(route:ContentAuthoringR
 }
 
 /** 页07由本次正式实例绑定企业及原占用快照读取方。 */
-export function preparePublishedResourceAllocationCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedResourceAllocationCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
   bindSources:(runtime:PageRuntime,scope:Scope)=>Parameters<typeof createResourceAllocationScriptHost>[2]&
   Partial<PublishedEnterpriseBinding>&Readonly<{assertCurrent:()=>void}>,
 ){
@@ -133,7 +131,7 @@ export function preparePublishedResourceAllocationCall(route:ContentAuthoringRou
 type ResponseHost=Parameters<typeof createBidResponseScriptHost>
 
 /** 页10绑定已发布项目及本轮响应范围，原证据由同一实例读取。 */
-export function preparePublishedBidResponseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedBidResponseCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindResponse:(runtime:PageRuntime,scope:Scope)=>Readonly<{
   context:Omit<ResponseHost[1],'scenarioId'>;sources:ResponseHost[2]
  }>,
@@ -155,21 +153,21 @@ export function preparePublishedBidResponseCall(route:ContentAuthoringRoute,entr
 type PublishedScopeBinding<Options>=Readonly<{projectId:string;options:Options;assertCurrent:()=>void}>
 
 /** 页08原移交与签收按本轮正式绑定的标段和阶段读取。 */
-export function preparePublishedBidHandoffCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedBidHandoffCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindHandoff:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createBidHandoffScriptHost>[2]>,
 ){
  return preparePublishedTenderScopeCall(route,entry,{bind:bindHandoff,createHost:createBidHandoffScriptHost})
 }
 
 /** 页09沿同一项目、轮次和主体查询正式通知。 */
-export function preparePublishedTenderFollowupCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedTenderFollowupCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindFollowup:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Parameters<typeof createTenderFollowupScriptHost>[2]>,
 ){
  return preparePublishedTenderScopeCall(route,entry,{bind:bindFollowup,createHost:createTenderFollowupScriptHost})
 }
 
 function preparePublishedTenderScopeCall<Options,Host>(
- route:ContentAuthoringRoute,entry:PublishedEntry,
+ route:ContentAuthoringRoute,entry:PublishedPageEntry,
  {bind,createHost}:Readonly<{bind:(runtime:PageRuntime,scope:Scope)=>PublishedScopeBinding<Options>
   createHost:(runtime:PageRuntime,scope:Scope,options:Options)=>Host}>,
 ){
@@ -189,7 +187,7 @@ type EnterpriseScope=Omit<Scope,'projectId'>
 type EnterpriseBinding=Readonly<{enterpriseId:string;assertCurrent:()=>void}>
 
 /** 页04从企业级发布实例取得委托企业。 */
-export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindEnterprise?:(runtime:PageRuntime,scope:EnterpriseScope)=>EnterpriseBinding,
 ){
  return preparePublishedEnterpriseCall(route,entry,{forbidden:['enterpriseId'],createHost:(runtime,scope)=>{
@@ -202,7 +200,7 @@ export function preparePublishedAuthorityGrantCall(route:ContentAuthoringRoute,e
 }
 
 /** 页05从企业级发布实例读取已选原资料及其历史。 */
-export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindResource:(runtime:PageRuntime,scope:EnterpriseScope)=>Readonly<{resourceId:string;assertCurrent:()=>void}>,
 ){
  return preparePublishedEnterpriseCall(route,entry,{forbidden:['resourceId','enterpriseId'],createHost:(runtime,scope)=>{
@@ -214,7 +212,7 @@ export function preparePublishedResourceVersionCall(route:ContentAuthoringRoute,
 }
 
 /** 页06按当前项目及可信企业读取原用途决定。 */
-export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindEnterprise?:(runtime:PageRuntime,scope:Scope)=>EnterpriseBinding,
 ){
  const prepared=preparePublishedCall(route,entry,(runtime,scope)=>{
@@ -228,7 +226,7 @@ export function preparePublishedResourceUseCall(route:ContentAuthoringRoute,entr
  return prepared
 }
 
-function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,
+function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  {forbidden,createHost}:Readonly<{forbidden:readonly string[];createHost:(runtime:PageRuntime,scope:EnterpriseScope)=>Host}>,
 ){
  if(!matchesPublishedNavigation(route,entry))return undefined
@@ -239,7 +237,7 @@ function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:
  return bindPublishedRuntime(entry,session,runtime=>createHost(runtime,{scenarioId,assertCurrent:session.assertCurrent}))
 }
 
-function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
+function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedPageEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
  if(!matchesPublishedNavigation(route,entry))return undefined
  const {projectId}=route.query
  if(!identity(projectId))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
@@ -249,30 +247,19 @@ function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedE
  return bindPublishedRuntime(entry,session,runtime=>createHost(runtime,scope))
 }
 
-function matchesPublishedNavigation(route:ContentAuthoringRoute,entry:PublishedEntry):boolean{
- const {applicationId,scenarioId,nodeId,pageId}=entry
- if(![applicationId,scenarioId,nodeId,pageId].every(identity))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_REQUIRED')
- if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['nodeId']!==nodeId)return false
- const {tool,type,blueprintScenarioId,programmaticTool}=route.meta
- if(type!=='config-page'||programmaticTool===true||!isRecord(tool)||tool['projectId']!==applicationId||
-  tool['pageId']!==pageId||route.meta['pageId']!==pageId||blueprintScenarioId!==scenarioId||
-  route.query['scenarioId']!==scenarioId||
-  ['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'].some(key=>Object.hasOwn(route.query,key))||
-  Object.entries({applicationId,pageId}).some(([key,value])=>Object.hasOwn(route.query,key)&&route.query[key]!==value))
-  throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
- return true
+function matchesPublishedNavigation(route:ContentAuthoringRoute,entry:PublishedPageEntry):boolean{
+ return matchesPublishedPageBinding(route,entry,{
+  identityError:'CONTENT_REVIEW_PUBLICATION_IDENTITY_REQUIRED',
+  conflictError:'CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT',
+  forbiddenQuery:['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'],
+  requireScenarioQuery:true,
+ })
 }
 
-function bindPublishedRuntime<Host>(entry:PublishedEntry,session:ReturnType<typeof captureContentAuthoringSession>,
+function bindPublishedRuntime<Host>(entry:PublishedPageEntry,session:ReturnType<typeof captureContentAuthoringSession>,
  createHost:(runtime:PageRuntime)=>Host,
 ){
- const {pageId,scenarioId}=entry
- return Object.freeze({scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
-  createHost(runtime:PageRuntime){
-   session.assertCurrent()
-   if(runtime.pageId!==pageId||!runtime.call.scenarioIds.includes(scenarioId))
-    throw Error('CONTENT_REVIEW_PUBLICATION_RUNTIME_CONFLICT')
-   return createHost(runtime)
-  },
+ return bindPublishedPageRuntime({
+  entry,session,createHost,runtimeConflictError:'CONTENT_REVIEW_PUBLICATION_RUNTIME_CONFLICT',
  })
 }

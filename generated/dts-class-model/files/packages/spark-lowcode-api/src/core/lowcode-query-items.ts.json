@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:core/lowcode-query-items",
+    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-query-items.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-query-items.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "core/lowcode-query-items",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:core/lowcode-query-items\n职责：统一低代码查询响应 data/Data 与 Items/items/Result/result 包裹解析。\n边界：不规范化领域行；调用方声明允许的键和 item 严格度。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "LowcodeQueryItemsOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeQueryItemsOptions",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "itemKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requireRecords": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "itemKeys"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T20:30:07.366Z",
+  "models": {
+    "LowcodeQueryItemsOptions": {
+      "name": "LowcodeQueryItemsOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    label: string;\n    itemKeys: readonly string[];\n    requireRecords?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    label: string;\n    itemKeys: readonly string[];\n    requireRecords?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemKeys",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requireRecords",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

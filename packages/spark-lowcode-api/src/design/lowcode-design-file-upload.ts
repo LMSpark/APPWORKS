@@ -4,7 +4,7 @@
  * 边界：文本保留UTF-8，二进制保留原File；二进制ACK与字节核验分开，不等于业务路径已保存。
  * AI用途：上传后核对实际 filePath 最终名与原字节，再接纳文件写入结果。
  */
-import { isRequestError, type HttpClientBase, type RequestConfig } from '@spark-appworks/spark-utils'
+import { isRecord, isRequestError, type HttpClientBase, type RequestConfig } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeDesignApi,type LowcodeFileLocator } from './lowcode-design-api.js'
@@ -71,10 +71,6 @@ function requiredText(value: string, name: string): string {
   const normalized = value.trim()
   if (!normalized) throw new LowcodeApiError(0, `${name} 不能为空`)
   return normalized
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /** 保存 designfile 工作文本并回读；版本上传保持禁止覆盖。 */

@@ -146,7 +146,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-05T10:07:52.893Z",
+  "generatedAt": "2026-11-20T20:30:07.389Z",
   "models": {
     "LowcodeNavigationTargetKind": {
       "name": "LowcodeNavigationTargetKind",

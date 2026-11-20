@@ -139,50 +139,18 @@ export function dataSetCommandQueryResultFromLocalRows(
   rows: readonly DataRow[],
   guard: DataSetCommandScopeGuard,
 ): Promise<QueryResult> {
-  return readonlyRowsQueryResult({view, rows, guard, fields: readonlyQueryFields(view.columns), primaryKey: view.primaryKey, params: {page: 1, allPages: true, treeMode: 'flat'}})
+  return Promise.resolve(DataViewLocalQuery.readonlyResult({
+   view,rows,guard,fields:readonlyQueryFields(view.columns),primaryKey:view.primaryKey,
+   params:{page:1,allPages:true,treeMode:'flat'},
+  }))
 }
 
 function readonlyQueryFields(columns: readonly DataColumn[]): ReadonlySet<string> {
   return new Set(columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
 }
 
-function readonlyRowsQueryResult(input: Readonly<{view: DataView; rows: readonly DataRow[]; guard: DataSetCommandScopeGuard; fields: ReadonlySet<string>; primaryKey: string; params: QueryParams;serverTotal?:number}>): Promise<QueryResult> {
-  const {view, rows, guard, fields, primaryKey, params} = input
-  const assertCurrent = () => {
-    guard()
-    if (view.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
-  }
-  assertCurrent()
-  if(input.serverTotal!==undefined&&(!Number.isSafeInteger(input.serverTotal)||input.serverTotal<rows.length))throw Error('DATA_SET_READONLY_PAGE: 服务总数无效')
-  if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
-  const {rows: outputRows, total, output} = DataViewLocalQuery.select({
-    rows: [...rows],
-    fields,
-    primaryKeys: primaryKey ? [primaryKey] : [],
-    params:input.serverTotal===undefined?params:{...(params.fields?{fields:params.fields}:{}),allPages:true,treeMode:'flat'},
-  })
-  const rowKey = (row: Readonly<DataRow>) => {assertCurrent(); return primaryKey ? row[primaryKey] : undefined}
-  const keys = new Set(outputRows.map(rowKey))
-  const allowed = (key: unknown, field: string) => key !== undefined && keys.has(key) && output.has(field)
-  return Promise.resolve({
-    rows: outputRows,
-    total:input.serverTotal??total,
-    rowKey,
-    assertIdentity: assertCurrent,
-    fieldAccess: (key, field) => ({
-      read: allowed(key, field) ? 'visible' : 'invisible',
-      write: 'denied',
-      component: allowed(key, field) ? 'readonly' : 'hidden',
-      required: false,
-      writeMode: 'readonly',
-    }),
-    readFieldAccess: (row, field) => (outputRows.includes(row) && output.has(field) ? 'visible' : 'invisible'),
-    addActionState: () => 'hidden',
-    editActionState: () => 'hidden',
-    deleteActionState: () => 'hidden',
-    createChildActionState: () => 'hidden',
-    viewActionState: (key, available = true) => (keys.has(key) ? (available ? 'enabled' : 'disabled') : 'hidden'),
-  })
+function readonlyRowsQueryResult(input:Parameters<typeof DataViewLocalQuery.readonlyResult>[0]):Promise<QueryResult>{
+ return Promise.resolve(DataViewLocalQuery.readonlyResult(input))
 }
 
 type QueryExecutor = Parameters<DataView['bindQueryExecutor']>[0]

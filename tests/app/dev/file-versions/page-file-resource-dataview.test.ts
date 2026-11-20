@@ -294,7 +294,10 @@ describe('formal ProjectToolFile DataView',()=>{
     }finally{dataSet.destroy();workspace.dispose()}
   })
 
-  it('rejects a page or file context change before reading the new target',async()=>{
+  it.each([
+    ['pageId',{pageId:'OTHER'}],
+    ['fileName',{fileName:'script.js'}],
+  ] as const)('rejects a mismatched %s context change before reading the new target',async(_field,change)=>{
     const files=new Map<string,string>([['APP/PAGE/rule.json','baseline']]),read=vi.fn(async(appId:string,pageId:string,fileName:string)=>files.get(`${appId}/${pageId}/${fileName}`)??null)
     const io={list:vi.fn(async()=>[]),read,upload:vi.fn(async()=>{}),remove:vi.fn(async()=>{}),
       listVersions:vi.fn(async()=>[]),uploadVersion:vi.fn(async()=>{}),readVersion:vi.fn(async()=>null)} as unknown as ReturnType<typeof createPageToolFilesIo>
@@ -304,8 +307,9 @@ describe('formal ProjectToolFile DataView',()=>{
       const view=createPageFileResourceView({dataSet,appId:'APP',pageId:'PAGE',fileName:'rule.json',assertCurrent:()=>{}})
       await view.refresh()
       expect(read).toHaveBeenCalledWith('APP','PAGE','rule.json')
-      view.queryContext={...view.queryContext,appId:'OTHER',pageId:'OTHER',fileName:'script.js'}
+      view.queryContext={...view.queryContext,...change}
       await view.refresh()
+      expect(view.loadingError?.message).toContain('FILE_RESOURCE_IDENTITY')
       expect(read).toHaveBeenCalledTimes(1)
       expect(view.rows).toMatchObject([expect.objectContaining({pageId:'PAGE',fileName:'rule.json',text:'baseline'})])
     }finally{dataSet.destroy()}

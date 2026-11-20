@@ -4,7 +4,7 @@
  * 边界：活动设计读取使用原元数据DataView，初始化读取复用runtime query；不执行设计写入。
  * AI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { DataViewFilter, type DataSet, type DataView, type DataViewFieldProjection, type TableResourceType } from '@spark-appworks/spark-data'
 import type { DataSpaceRuntimeApi } from '../runtime/data-space-runtime-api.js'
 import type { DataSpaceRequestScope, DataSpaceQueryOptions } from '../runtime/data-space-runtime-contract.js'
@@ -186,10 +186,6 @@ function projectFormalModel(row: DataSpaceFormalRow, fieldRows: readonly DataSpa
     sourceId: formalText(row, ['DbId', 'dbId', 'DBID', 'dbid', 'PId', 'pid']),
     sourceType: formalText(row, ['Type', 'type']), primaryKey: key?.canonicalName ?? '',
     businessMain: binary(row['IsBusinessMain'] ?? row['isBusinessMain']), fields, raw: row })
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function text(value: unknown): string {

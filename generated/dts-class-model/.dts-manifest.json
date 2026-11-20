@@ -2704,7 +2704,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-19T18:39:16.922Z"
+      "sourceModifiedAt": "2026-11-20T19:27:22.304Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2764,12 +2764,12 @@
     "packages/spark-data/src/query/data-view-array-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-array-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-array-query.ts.json",
-      "sourceModifiedAt": "2026-10-18T13:22:29.861Z"
+      "sourceModifiedAt": "2026-11-20T20:35:43.935Z"
     },
     "packages/spark-data/src/query/data-view-local-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-local-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-local-query.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:42:27.072Z"
+      "sourceModifiedAt": "2026-11-20T20:35:43.932Z"
     },
     "packages/spark-data/src/query/data-view-option-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
@@ -3094,7 +3094,7 @@
     "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json",
-      "sourceModifiedAt": "2026-10-25T07:25:48.262Z"
+      "sourceModifiedAt": "2026-11-20T19:29:17.599Z"
     },
     "packages/spark-lowcode-api/src/contracts/lowcode-send-code.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/contracts/lowcode-send-code.ts",
@@ -3114,17 +3114,22 @@
     "packages/spark-lowcode-api/src/core/lowcode-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/core/lowcode-client.ts.json",
-      "sourceModifiedAt": "2026-10-24T13:43:20.082Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.370Z"
+    },
+    "packages/spark-lowcode-api/src/core/lowcode-query-items.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-query-items.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/core/lowcode-query-items.ts.json",
+      "sourceModifiedAt": "2026-11-20T20:30:07.366Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-19T17:17:02.913Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.374Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-11-20T03:50:54.236Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.378Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts",
@@ -3159,7 +3164,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-20T03:59:54.227Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.420Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
@@ -3204,7 +3209,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts.json",
-      "sourceModifiedAt": "2026-11-11T06:51:23.739Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.429Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
@@ -3214,7 +3219,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json",
-      "sourceModifiedAt": "2026-11-19T16:37:04.681Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.426Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts",
@@ -3284,12 +3289,12 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts.json",
-      "sourceModifiedAt": "2026-10-06T21:30:24.085Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.433Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.607Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.382Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-application.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
@@ -3299,22 +3304,22 @@
     "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json",
-      "sourceModifiedAt": "2026-11-13T03:37:34.432Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.386Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json",
-      "sourceModifiedAt": "2026-10-05T10:07:52.893Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.389Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
-      "sourceModifiedAt": "2026-11-17T11:23:46.711Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.393Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-session-store.ts.json",
-      "sourceModifiedAt": "2026-10-15T05:49:40.713Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.396Z"
     },
     "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
@@ -3334,7 +3339,7 @@
     "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/permission/permission-wire.ts.json",
-      "sourceModifiedAt": "2026-08-10T07:32:10.538Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.442Z"
     },
     "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
@@ -3359,7 +3364,7 @@
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts.json",
-      "sourceModifiedAt": "2026-11-20T05:04:12.661Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.415Z"
     },
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
@@ -3414,7 +3419,7 @@
     "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.531Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.437Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
@@ -3469,7 +3474,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json",
-      "sourceModifiedAt": "2026-11-02T01:02:39.809Z"
+      "sourceModifiedAt": "2026-11-20T20:31:35.363Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
@@ -3499,7 +3504,7 @@
     "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:20:14.563Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.410Z"
     },
     "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-draft-runner.ts",
@@ -3509,7 +3514,7 @@
     "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:20:14.564Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.402Z"
     },
     "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
@@ -3524,7 +3529,7 @@
     "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json",
-      "sourceModifiedAt": "2026-10-17T09:25:27.235Z"
+      "sourceModifiedAt": "2026-11-20T20:30:07.406Z"
     },
     "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts": {
       "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
@@ -5209,12 +5214,12 @@
     "src/services/project/page-tool-file-dataview.ts": {
       "sourceFile": "src/services/project/page-tool-file-dataview.ts",
       "shardFile": "files/src/services/project/page-tool-file-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-19T16:51:11.301Z"
+      "sourceModifiedAt": "2026-11-20T20:35:43.940Z"
     },
     "src/services/project/page-tool-file-operations.ts": {
       "sourceFile": "src/services/project/page-tool-file-operations.ts",
       "shardFile": "files/src/services/project/page-tool-file-operations.ts.json",
-      "sourceModifiedAt": "2026-11-17T18:23:15.021Z"
+      "sourceModifiedAt": "2026-11-20T20:30:21.628Z"
     },
     "src/services/project/page-tool-publication.ts": {
       "sourceFile": "src/services/project/page-tool-publication.ts",
@@ -5820,6 +5825,11 @@
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
       "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json",
       "sourceModifiedAt": "2026-11-20T09:52:08.191Z"
+    },
+    "src/services/smart-bid/operation/agent-module/smart-bid-command.ts": {
+      "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
+      "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-command.ts.json",
+      "sourceModifiedAt": "2026-11-20T19:52:18.104Z"
     },
     "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts": {
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts",
@@ -6514,17 +6524,17 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts.json",
-      "sourceModifiedAt": "2026-11-19T05:59:49.008Z"
+      "sourceModifiedAt": "2026-11-20T19:29:17.590Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-20T11:17:18.109Z"
+      "sourceModifiedAt": "2026-11-20T19:24:27.198Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts.json",
-      "sourceModifiedAt": "2026-11-20T12:51:15.824Z"
+      "sourceModifiedAt": "2026-11-20T19:41:15.113Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace.ts",
@@ -6539,22 +6549,27 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts.json",
-      "sourceModifiedAt": "2026-11-20T12:11:11.041Z"
+      "sourceModifiedAt": "2026-11-20T19:41:39.051Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host.ts.json",
       "sourceModifiedAt": "2026-11-20T11:42:05.025Z"
     },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts": {
+      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+      "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts.json",
+      "sourceModifiedAt": "2026-11-20T19:20:50.092Z"
+    },
     "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json",
-      "sourceModifiedAt": "2026-11-20T12:04:15.470Z"
+      "sourceModifiedAt": "2026-11-20T19:24:41.489Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts.json",
-      "sourceModifiedAt": "2026-11-20T15:34:33.582Z"
+      "sourceModifiedAt": "2026-11-20T19:50:09.845Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",

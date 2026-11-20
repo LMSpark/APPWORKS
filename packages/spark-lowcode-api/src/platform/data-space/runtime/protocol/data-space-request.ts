@@ -4,7 +4,7 @@
  * 边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。
  * AI用途：使用原封包和上下文组装统一 CRUD 请求。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeApiError } from '../../../../core/lowcode-api-error'
 import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from '../data-space-runtime-contract'
 import { DataSpaceQueryTable } from './data-space-query-table'
@@ -52,10 +52,6 @@ type DataSpaceRequestSaveCommand = Readonly<{
 }>
 /** 逐模型实际动作回执及新基线，不以 HTTP 成功代替保存确认。 */
 type DataSpaceRequestSaveResult = Array<ReturnType<DataSpaceQueryContext['acceptSaveReceipt']>>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 function decodeEnvelope(input: unknown, operation: '查询' | '保存' = '查询'): unknown {
   let decoded = input

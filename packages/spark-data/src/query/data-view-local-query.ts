@@ -5,9 +5,24 @@
  * AI用途：数组及文件资源适配器共享查询算法，业务页面不实现另一套查询。
  */
 import type {DataRow, QueryParams} from '../types'
+import type {DataView} from '../data-view'
 import {DataViewFilter} from './filter/data-view-filter'
 import {DataViewFilterLocal} from './filter/data-view-filter-local'
 import {DataViewQuery} from './data-view-query'
+
+type DataViewQueryResult=Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>
+type DataViewLocalReadonlyIdentity=Readonly<{scenarioId:string;metaName:string}>
+export type DataViewLocalReadonlyResultOptions=Readonly<{
+ view:DataView
+ rows:readonly DataRow[]
+ fields:ReadonlySet<string>
+ primaryKey:string
+ params:QueryParams
+ guard:()=>void
+ assertIdentity?:(identity:DataViewLocalReadonlyIdentity)=>void
+ guardConsumers?:boolean
+ serverTotal?:number
+}>
 
 /** 已加载资源的查询执行器；结果仍由DataView接纳，行值保持原生类型。 */
 export class DataViewLocalQuery {
@@ -77,5 +92,55 @@ export class DataViewLocalQuery {
     if (requested.some(field => !fields.has(field))) throw new Error('本地资源输出投影引用未知字段')
     const output = new Set([...requested, ...primaryKeys])
     return {total, output, rows: structuredClone(rows.map(row => Object.fromEntries(Object.entries(row).filter(([field]) => output.has(field)))))}
+  }
+
+  /** 将本地查询结果接纳为只读 DataView result；查询、身份和字段权限只在一处维护。 */
+  static readonlyResult(input:DataViewLocalReadonlyResultOptions):DataViewQueryResult{
+    const {view,rows,guard,fields,primaryKey,params}=input
+    const assertCurrent=()=>{
+      guard()
+      if(view.primaryKey!==primaryKey)throw Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
+    }
+    const assertIdentity=(identity:DataViewLocalReadonlyIdentity)=>{
+      assertCurrent()
+      input.assertIdentity?.(identity)
+    }
+    assertCurrent()
+    if(input.serverTotal!==undefined&&(!Number.isSafeInteger(input.serverTotal)||input.serverTotal<rows.length))
+      throw Error('DATA_SET_READONLY_PAGE: 服务总数无效')
+    if(primaryKey&&!fields.has(primaryKey))throw Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
+    const selected=this.select({
+      rows:[...rows],fields,primaryKeys:primaryKey?[primaryKey]:[],
+      params:input.serverTotal===undefined?params:{...(params.fields?{fields:params.fields}:{}),allPages:true,treeMode:'flat'},
+    })
+    const guardConsumer=()=>{if(input.guardConsumers)assertCurrent()}
+    const rowKey=(row:Readonly<DataRow>)=>{assertCurrent();return primaryKey?row[primaryKey]:undefined}
+    const keys=new Set(selected.rows.map(rowKey))
+    const allowed=(key:unknown,field:string)=>key!==undefined&&keys.has(key)&&selected.output.has(field)
+    return {
+      rows:selected.rows,
+      total:input.serverTotal??selected.total,
+      rowKey,
+      assertIdentity,
+      fieldAccess:(key,field)=>{
+        guardConsumer()
+        return {
+          read:allowed(key,field)?'visible':'invisible',
+          write:'denied',
+          component:allowed(key,field)?'readonly':'hidden',
+          required:false,
+          writeMode:'readonly',
+        }
+      },
+      readFieldAccess:(row,field)=>{
+        guardConsumer()
+        return selected.rows.includes(row)&&selected.output.has(field)?'visible':'invisible'
+      },
+      addActionState:()=>{guardConsumer();return 'hidden'},
+      editActionState:()=>{guardConsumer();return 'hidden'},
+      deleteActionState:()=>{guardConsumer();return 'hidden'},
+      createChildActionState:()=>{guardConsumer();return 'hidden'},
+      viewActionState:(key,available=true)=>{guardConsumer();return keys.has(key)?(available?'enabled':'disabled'):'hidden'},
+    }
   }
 }

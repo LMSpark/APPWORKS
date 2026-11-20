@@ -48,19 +48,14 @@ export class DataViewArrayQuery {
   executeQuery(view:DataView,params:QueryParams):Promise<QueryResult> {
     this.assertCurrent()
     if(view.dataTable!==this.view.dataTable || view.destroyed)throw new Error('数组查询不属于此模型')
-    const {rows,total,output}=DataViewLocalQuery.select({rows:this.#rows,fields:this.#fields,
-      primaryKeys:view.primaryKey?[view.primaryKey]:[],params})
-    const rowKey=(row:Readonly<DataRow>)=>view.primaryKey?row[view.primaryKey]:undefined
-    const keys=new Set(rows.map(rowKey))
-    const allowed=(key:unknown,field:string)=>{this.assertCurrent();return key!==undefined && keys.has(key) && output.has(field)}
-    const result:QueryResult={rows,total,rowKey,
-      assertIdentity:identity=>{this.assertCurrent();if(identity.scenarioId!==this.#identity.scenarioId||identity.metaName!==this.#identity.metaName)throw new Error('数组结果身份不匹配')},
-      fieldAccess:(key,field)=>({read:allowed(key,field)?'visible':'invisible',write:'denied',component:allowed(key,field)?'readonly':'hidden',required:false,writeMode:'readonly'}),
-      readFieldAccess:(row,field)=>{this.assertCurrent();return rows.includes(row) && output.has(field)?'visible':'invisible'},
-      addActionState:()=>{this.assertCurrent();return 'hidden'},editActionState:()=>{this.assertCurrent();return 'hidden'},
-      deleteActionState:()=>{this.assertCurrent();return 'hidden'},createChildActionState:()=>{this.assertCurrent();return 'hidden'},
-      viewActionState:(key,available=true)=>{this.assertCurrent();return keys.has(key)?available?'enabled':'disabled':'hidden'},
-    }
-    return Promise.resolve(result)
+    return Promise.resolve(DataViewLocalQuery.readonlyResult({
+      view,rows:this.#rows,fields:this.#fields,primaryKey:view.primaryKey,params,
+      guard:()=>this.assertCurrent(),
+      guardConsumers:true,
+      assertIdentity:identity=>{
+        if(identity.scenarioId!==this.#identity.scenarioId||identity.metaName!==this.#identity.metaName)
+          throw new Error('数组结果身份不匹配')
+      },
+    }))
   }
 }

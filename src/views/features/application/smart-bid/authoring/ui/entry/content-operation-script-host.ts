@@ -10,7 +10,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {openContentOperationWorkspace} from './content-operation-workspace'
 import type {SmartBidOperationModule,SmartBidOperationCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
-import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
+import {createSmartBidCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-command'
 
 /** 工艺页面连接命令的输入形状。 */
 type Open=Parameters<typeof openContentOperationWorkspace>
@@ -40,7 +40,6 @@ function exposeVerifiedJson(readJson:()=>string,digest:string,{assertCurrent,err
   return inputJson
  }
 }
-
 export function createContentOperationScriptHost<Runtime extends Open[0]>(runtime:Runtime,classModel:Open[1],
  scope:Scope){
  return {runtime,assertCurrent:scope.assertCurrent,
@@ -52,10 +51,12 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
      scope.assertCurrent()
      if(signal.aborted||runtime.destroyed||!runtime.isLoaded)throw Error('OPERATION_WORKSPACE_STALE')
     }})
-    const command=readOperationCommand(input,{
-     projectId:scope.projectId,
+    const command=createSmartBidCommand(input,{
+     businessInstanceId:scope.projectId,
      ...(scope.registrationId===undefined?{}:{registrationId:scope.registrationId}),
      ...(scope.runtimeInstanceId===undefined?{}:{runtimeInstanceId:scope.runtimeInstanceId}),
+     inputError:'OPERATION_PAGE_DISPATCH_INPUT_REQUIRED',
+     scopeError:'OPERATION_PAGE_DISPATCH_SCOPE_REQUIRED',
     })
     if(scope.dispatchOperation){
       return withCurrent(await scope.dispatchOperation({workspace,input:command,signal}))
@@ -139,25 +140,4 @@ export function createContentOperationScriptHost<Runtime extends Open[0]>(runtim
    })
   },
  }
-}
-
-function readOperationCommand(value:unknown,scope:Readonly<{
- projectId:string;registrationId?:string;runtimeInstanceId?:string
-}>):SmartBidOperationCommand{
- if(!isRecord(value)||typeof value['operationId']!=='string'||typeof value['requestKey']!=='string'||
-  typeof value['prompt']!=='string')
-  throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
- const registrationId=scope.registrationId??value['registrationId']
- const businessInstanceId=scope.projectId
- const runtimeInstanceId=scope.runtimeInstanceId??value['runtimeInstanceId']
- if(typeof registrationId!=='string'||typeof runtimeInstanceId!=='string'||
-  (Object.hasOwn(value,'registrationId')&&value['registrationId']!==registrationId)||
-  (Object.hasOwn(value,'businessInstanceId')&&value['businessInstanceId']!==businessInstanceId)||
-  (Object.hasOwn(value,'runtimeInstanceId')&&value['runtimeInstanceId']!==runtimeInstanceId))
-  throw Error('OPERATION_PAGE_DISPATCH_SCOPE_REQUIRED')
- const inputs=coerceStrictJsonValue(value['inputs'])
- if(inputs===undefined||inputs===null||typeof inputs!=='object'||Array.isArray(inputs))
-  throw Error('OPERATION_PAGE_DISPATCH_INPUT_REQUIRED')
- return Object.freeze({operationId:value['operationId'],registrationId,businessInstanceId,runtimeInstanceId,
-  requestKey:value['requestKey'],prompt:value['prompt'],inputs})
 }

@@ -8,7 +8,7 @@ import {
   bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView,
   type DataColumn, type DataRow, type DataSet, type DataView,
 } from '@spark-appworks/spark-data'
-import type {HttpClientBase} from '@spark-appworks/spark-utils'
+import {isRecord, type HttpClientBase} from '@spark-appworks/spark-utils'
 
 import {LowcodeApiError} from '../../core/lowcode-api-error.js'
 import {LowcodeClient} from '../../core/lowcode-client.js'
@@ -66,10 +66,6 @@ class AiAgentConfigResultUnknownError extends Error {
     super(message, options)
     this.name = 'AiAgentConfigResultUnknownError'
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function requiredText(value: unknown, field: string): string {

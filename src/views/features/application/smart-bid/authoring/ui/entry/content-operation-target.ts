@@ -4,39 +4,32 @@
  * 边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。
  * AI用途：排查入口是否缺少授权节点、工具或场景身份。
  */
-import {isRecord} from '@spark-appworks/spark-utils'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentOperationScriptHost} from './content-operation-script-host'
 import {SmartBidOperationModule} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
 import {createSmartBidRuntimeActionExecutor} from '@/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner'
+import {bindPublishedPageRuntime,matchesPublishedPageBinding,type PublishedPageEntry} from './publication/published-page-binding'
 
-/** 正式导航发布的应用、节点、工具和场景身份。 */
-type PublishedEntry=Readonly<{applicationId:string;nodeId:string;pageId:string;scenarioId:string}>
 /** 工艺脚本宿主装配使用的参数合同。 */
 type ScriptHost=Parameters<typeof createContentOperationScriptHost>
 
 /** 只认蓝图回读确认的节点、工具和空间；查询仅接受明确业务项目及浏览参数。 */
-export function resolvePublishedContentOperationTarget(route:ContentAuthoringRoute,entry:PublishedEntry){
- const {applicationId,nodeId,pageId,scenarioId}=entry
- if(![applicationId,nodeId,pageId,scenarioId].every(identity))throw Error('OPERATION_PAGE_PUBLICATION_REQUIRED')
- if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['nodeId']!==nodeId)return undefined
- const tool=route.meta['tool'],projectId=route.query['projectId'],navigationScenario=route.meta['blueprintScenarioId']
- if(route.meta['type']!=='config-page'||route.meta['programmaticTool']===true||route.meta['pageId']!==pageId||
-  !isRecord(tool)||tool['projectId']!==applicationId||tool['pageId']!==pageId||
-  navigationScenario!==scenarioId||!identity(projectId)||
-  ['additionalScenarioIds','actorUserId','currentUserId','userId','scenarioInputs','rootKind'].some(key=>Object.hasOwn(route.query,key)))
-  throw Error('OPERATION_PAGE_PUBLICATION_CONFLICT')
- for(const [key,value] of Object.entries({applicationId,pageId,scenarioId})){
-  if(Object.hasOwn(route.query,key)&&route.query[key]!==value)throw Error('OPERATION_PAGE_PUBLICATION_CONFLICT')
- }
+export function resolvePublishedContentOperationTarget(route:ContentAuthoringRoute,entry:PublishedPageEntry){
+ if(!matchesPublishedPageBinding(route,entry,{
+  identityError:'OPERATION_PAGE_PUBLICATION_REQUIRED',
+  conflictError:'OPERATION_PAGE_PUBLICATION_CONFLICT',
+  forbiddenQuery:['additionalScenarioIds','actorUserId','currentUserId','userId','scenarioInputs','rootKind'],
+ }))return undefined
+ const projectId=route.query['projectId']
+ if(!identity(projectId))throw Error('OPERATION_PAGE_PUBLICATION_CONFLICT')
+ const {applicationId,pageId,scenarioId}=entry
  return Object.freeze({applicationId,pageId,scenarioId,projectId})
 }
 
-export function preparePublishedContentOperationCall(route:ContentAuthoringRoute,entry:PublishedEntry,
+export function preparePublishedContentOperationCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindRoot:(runtime:PageRuntime,target:NonNullable<ReturnType<typeof resolvePublishedContentOperationTarget>>)=>Readonly<{
   classModel:ScriptHost[1];rootKind:string;assertCurrent:()=>void
   resolveOriginalGuide?:NonNullable<ScriptHost[2]['resolveOriginalGuide']>
@@ -47,14 +40,14 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
  if(!target)return undefined
  if(route.query['scenarioId']!==target.scenarioId)throw Error('OPERATION_PAGE_PUBLICATION_SCENARIO_REQUIRED')
  const session=captureContentAuthoringSession(target)
- return {
-  scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
-  createHost(runtime:PageRuntime){
-   session.assertCurrent()
+ return bindPublishedPageRuntime({
+  entry,session,exactScenarioSet:true,runtimeConflictError:'OPERATION_PAGE_PUBLICATION_RUNTIME_CONFLICT',
+  validateRuntime(runtime){
    const inputs=runtime.call.scenarioInputs?.[target.scenarioId]
-   if(runtime.pageId!==target.pageId||runtime.call.scenarioIds.length!==1||runtime.call.scenarioIds[0]!==target.scenarioId||
-    inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
+   if(inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
     throw Error('OPERATION_PAGE_PUBLICATION_RUNTIME_CONFLICT')
+  },
+  createHost(runtime:PageRuntime){
    const binding=bindRoot(runtime,target)
    if(!identity(binding.rootKind))throw Error('OPERATION_PAGE_ROOT_REQUIRED')
    const {classModel,rootKind,resolveOriginalGuide,dispatchOperation,operationModule}=binding
@@ -67,5 +60,5 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
     operationModule:actionModule,
     assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()}})
   },
- }
+ })
 }

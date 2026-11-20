@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/smart-bid-command",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/smart-bid-command",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-command\n职责：统一 SmartBid 动作命令的 scope、JSON inputs 与稳定身份封装。\n边界：不解析 owner、不执行 claim/dispatch、不决定 receipt；只构造同一命令合同。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "SmartBidCommandScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidCommandScope",
+      "properties": {
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "registrationId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        },
+        "inputError": {
+          "type": "string"
+        },
+        "scopeError": {
+          "type": "string"
+        },
+        "requireIdentity": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "businessInstanceId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T19:52:18.104Z",
+  "models": {
+    "SmartBidCommandScope": {
+      "name": "SmartBidCommandScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    businessInstanceId: string;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n    inputError?: string;\n    scopeError?: string;\n    requireIdentity?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    businessInstanceId: string;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n    inputError?: string;\n    scopeError?: string;\n    requireIdentity?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "businessInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "registrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requireIdentity",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

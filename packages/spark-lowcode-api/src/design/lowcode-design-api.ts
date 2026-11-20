@@ -4,7 +4,7 @@
  * 边界：请求后核对 scope；列表不推断发布指针，删除回列确认不提供 CAS。
  * AI用途：按实际 N__filename 历史定位文件，上传确认交给文件上传 owner。
  */
-import { isRequestError, type HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, isRequestError, type HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
@@ -75,10 +75,6 @@ function fileInfo(locator: LowcodeFileLocator): Readonly<Record<string, unknown>
     content: null,
     convertType: 0,
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function decodeFileEntries(values: readonly unknown[]): readonly LowcodeFileEntry[] {

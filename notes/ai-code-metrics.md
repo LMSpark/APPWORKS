@@ -1,5 +1,21 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-21 公共 guard / readonly / 文件身份继续收敛
+
+- 复杂度：复杂；跨 spark-data、spark-lowcode-api 与应用 ProjectTool 文件链，删除 19 个等价 record guard、1 份 readonly result 构造、1 组文件身份校验；未改变 owner/receipt、wire 错误或写入语义。
+- 总耗时：跨压缩会话未持续计量，不推算。返工：主控复核 1 次，收紧 array guard 仅对消费者启用并扩展运行时 pageId validator，避免改变 command 默认行为。审查：三域委派 + 主控控制路径复核。
+- 验证：spark-data 1428/1428、spark-lowcode-api 1667/1667、ProjectTool 31/31；根 typecheck、全仓 lint、ClassModel/consumer ledger 生成、`verify:rules`、生产 build、docs 与 diff-check 通过。首轮 verify:rules 因 ledger stale 按正式生成器刷新后复验。
+- 30 天存活：待 2026-12-21 后复查；重点检查本地 helper 是否回流重复 guard，以及 array/file/command 是否因后续功能修改而被错误合并。
+- 人工干预：用户要求再一轮循环收敛；未改 Java、未创建 worktree、未做真实服务写入或 commit/push。
+
+### 2026-11-21 SmartBid / SPARK data 四链重复收敛
+
+- 复杂度：复杂；跨 SmartBid 发布入口、spark-data 命令查询及 spark-lowcode-api 响应解析，共收敛 4 条已证实重复链，保留不同错误码、严格度、route policy、owner/receipt 与恢复语义。
+- 总耗时：跨压缩会话未持续计量，不推算。返工：2 次兼容修正（auxiliary scenario policy、blank/padded identity）。审查：2 轮，第一轮发现 2 个问题，修正后复审发现 padded identity 误受理。
+- 验证：SmartBid 141 文件 881 项、spark-data 60 文件 1425 项、spark-lowcode-api 60 文件 1667 项通过；定向回归另有 79/69/6 项，用于定位控制边界，不与完整套件累计。根 `typecheck`、全仓 lint、ClassModel 生成、`verify:rules`、生产 build 与 diff-check 全部通过。
+- 30 天存活：待 2026-12-21 后复查；重点检查公共 binding 是否重新分叉、command identity 是否被 string 解析后绕过、readonly/lowcode parser 是否继续保持 caller policy。
+- 人工干预：用户要求一次性收敛并循环迭代；未修改 Java、未创建 worktree、未做真实服务写入或 commit/push。已删除本轮实施计划，研读锚点与唯一业务台账保留为交接证据。
+
 ### 蓝图执行目标与原生宿主接入检查点
 
 - 复杂度：复杂；分离执行应用和被设计目标，保持独占owner/认证/文件守卫，接入正式宿主参数及原生页真实PageRuntime和标准字段。属于全量AppWorks迁移的执行中批次，不是完整页面或全平台结题。

@@ -6,12 +6,9 @@
 import {ClassModelRuntime,createDtsBundleClassModelKnowledgeProvider} from '@spark-appworks/spark-ai/class-model'
 import {ClassModelAgentAdapter,createAiAgentHost,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {isRecord} from '@spark-appworks/spark-utils'
 import {getDtsClassModelManifestUrl} from '@/services/class-model-artifacts/artifact-urls'
-import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../../model/content-authoring-host'
-import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
 import type {ContentAuthoringRoute} from '../content-authoring-target'
 import {preparePublishedContentOperationCall} from '../content-operation-target'
 import {preparePublishedBidClassModelCatalogCall,preparePublishedConfigurationReleaseCall,
@@ -26,6 +23,8 @@ import {
 import {createSmartBidPageActionSubmit} from './smart-bid-action-source'
 import type {JsonValue} from '@spark-appworks/spark-json-document'
 import type {SmartBidOperationCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
+import {createSmartBidCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-command'
+import {bindPublishedPageRuntime,matchesPublishedPageBinding} from './published-page-binding'
 
 const applicationId='D8490EC99436A8B9AFDE205BE3153802'
 const operationTitle='AI 作业与核验'
@@ -42,11 +41,15 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
  if(standardActionPages.has(String(route.meta['title'])))return preparePublishedSmartBidActionCall(route)
  if(![knowledgeTitle,catalogTitle,operationTitle,configurationTitle,submissionTitle,deadlineTitle]
   .includes(String(route.meta['title'])))return undefined
- if(resolveExecutionProjectId(route.path)!==applicationId)throw Error('SMART_BID_PUBLICATION_APPLICATION_REQUIRED')
  const nodeId=route.meta['nodeId'],pageId=route.meta['pageId'],scenarioId=route.meta['blueprintScenarioId']
- if(!identity(nodeId)||!identity(pageId)||!identity(scenarioId)||!isRecord(route.meta['tool']))
-  throw Error('SMART_BID_PUBLICATION_IDENTITY_REQUIRED')
- const entry={applicationId,nodeId,pageId,scenarioId}
+ const entry={applicationId,nodeId:typeof nodeId==='string'?nodeId:'',
+  pageId:typeof pageId==='string'?pageId:'',scenarioId:typeof scenarioId==='string'?scenarioId:''}
+ if(!matchesPublishedPageBinding(route,entry,{
+  identityError:'SMART_BID_PUBLICATION_IDENTITY_REQUIRED',
+  conflictError:'SMART_BID_PUBLICATION_IDENTITY_CONFLICT',
+  forbiddenQuery:['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'],
+  requireScenarioQuery:true,
+ }))return undefined
  if(route.meta['title']===submissionTitle)
   return preparePublishedContentSubmissionCall(route,entry,()=>({}))
  if(route.meta['title']===deadlineTitle)
@@ -73,29 +76,32 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
 
 function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
  const projectId=route.query['projectId'],scenarioId=route.meta['blueprintScenarioId']
- if(resolveExecutionProjectId(route.path)!==applicationId||!identity(projectId)||!identity(scenarioId)||
-  route.query['scenarioId']!==scenarioId||route.meta['type']!=='config-page'||!isRecord(route.meta['tool'])||
-  !identity(route.meta['nodeId'])||!identity(route.meta['pageId'])||route.meta['pageId']!==route.meta['tool']['pageId']||
-  route.meta['tool']['projectId']!==applicationId)throw Error('SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED')
+ if(!identity(projectId)||!identity(scenarioId)||!identity(route.meta['nodeId'])||!identity(route.meta['pageId']))
+  throw Error('SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED')
+ const entry={applicationId,nodeId:route.meta['nodeId'],pageId:route.meta['pageId'],scenarioId}
+ if(!matchesPublishedPageBinding(route,entry,{
+  identityError:'SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED',
+  conflictError:'SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED',
+  forbiddenQuery:['actorUserId','currentUserId','userId','scenarioInputs','rootKind'],
+  requireScenarioQuery:true,
+ }))return undefined
  const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})
- return Object.freeze({scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
+ return bindPublishedPageRuntime({entry,session,
+  runtimeConflictError:'SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT',
   createHost(runtime:PageRuntime){
    session.assertCurrent()
-   if(runtime.pageId!==route.meta['pageId']||!runtime.call.scenarioIds.includes(scenarioId))
-    throw Error('SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT')
    const execute=createSmartBidRuntimeActionExecutor({runtime,scenarioId,assertCurrent:session.assertCurrent})
    return Object.freeze({runtime,assertCurrent:session.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
-    if(name!=='smart-bid.dispatch'||!isRecord(input)||!identity(input['operationId'])||
-     !identity(input['requestKey'])||typeof input['prompt']!=='string'||!isRecord(input['inputs']))
-     throw Error('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
-    const inputs=coerceStrictJsonValue(input['inputs'])
-    if(!isRecord(inputs))throw Error('SMART_BID_PAGE_ACTION_INPUT_REQUIRED')
+    if(name!=='smart-bid.dispatch')throw Error('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
+    const command=createSmartBidCommand(input,{
+     registrationId:operationRegistrationId,businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,
+     inputError:'SMART_BID_PAGE_ACTION_COMMAND_REQUIRED',scopeError:'SMART_BID_PAGE_ACTION_COMMAND_REQUIRED',
+     requireIdentity:true,
+    })
     if(signal.aborted)throw Error('SMART_BID_PAGE_ACTION_STALE')
-    const result=await execute({operationId:input['operationId'],registrationId:operationRegistrationId,
-     businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,requestKey:input['requestKey'],
-     prompt:input['prompt'],inputs})
+    const result=await execute(command)
     session.assertCurrent()
-    return Object.freeze({operationId:input['operationId'],requestKey:input['requestKey'],outcome:result,
+    return Object.freeze({operationId:command.operationId,requestKey:command.requestKey,outcome:result,
      assertCurrent:session.assertCurrent})
    }})
   },

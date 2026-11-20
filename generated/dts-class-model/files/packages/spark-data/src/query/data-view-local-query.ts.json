@@ -10,10 +10,216 @@
     "jsdoc": "@module @spark-appworks/spark-data:query/data-view-local-query\n职责：在资源已读取的记录上执行同一DataView过滤、排序、分页和输出投影。\n边界：不读取来源，不维护编辑态，不决定读写授权。\nAI用途：数组及文件资源适配器共享查询算法，业务页面不实现另一套查询。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "DataViewLocalReadonlyResultOptions",
       "DataViewLocalQuery"
     ]
   },
   "$defs": {
+    "DataViewQueryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryResult",
+      "properties": {
+        "undefinedChanges": {
+          "const": "clear"
+        },
+        "countReported": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "nextPageAvailable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "hasPendingSavedRowPermissions": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "pendingSavedRowIds": {
+          "type": "array",
+          "items": true
+        },
+        "resultKind": {
+          "enum": [
+            "join",
+            "entity",
+            "navigation",
+            "hierarchy",
+            "aggregate"
+          ]
+        },
+        "reportedPrimaryKey": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "childResult": {
+          "type": "object",
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "assertIdentity": {
+          "type": "object",
+          "title": "(identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>) => void"
+        },
+        "rowKey": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => unknown"
+        },
+        "prepareNewRow": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "newRowFieldAccess": {
+          "type": "object",
+          "title": "(field: string) => Pick<Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>, \"read\" | \"write\" | \"required\">"
+        },
+        "prepareNewRowWithIdentity": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, identity: DataViewNewRowIdentity) => Record<string, unknown>"
+        },
+        "isFieldReadOnly": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        },
+        "fieldAccess": {
+          "type": "object",
+          "title": "(rowKey: unknown, field: string) => Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>"
+        },
+        "readFieldAccess": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, field: string) => \"masked\" | \"invisible\" | \"visible\""
+        },
+        "addActionState": {
+          "type": "object",
+          "title": "(available?: boolean) => DataViewActionState"
+        },
+        "editActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "deleteActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "createChildActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "viewActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        }
+      },
+      "required": [
+        "rows",
+        "total",
+        "assertIdentity",
+        "rowKey",
+        "fieldAccess",
+        "readFieldAccess",
+        "addActionState",
+        "editActionState",
+        "deleteActionState",
+        "createChildActionState",
+        "viewActionState"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewLocalReadonlyIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewLocalReadonlyIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "metaName"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewLocalReadonlyResultOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewLocalReadonlyResultOptions",
+      "properties": {
+        "view": {
+          "$ref": "../data-view.ts.json#/$defs/DataView"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataRow"
+          }
+        },
+        "fields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "../types.ts.json#/$defs/QueryParams"
+        },
+        "guardConsumers": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "serverTotal": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true,
+        "method.assertIdentity.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "#/$defs/DataViewLocalReadonlyIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertIdentity.return": true
+      }
+    },
     "DataViewLocalQuery": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -139,12 +345,278 @@
             "output"
           ],
           "additionalProperties": false
+        },
+        "method.readonlyResult.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataViewLocalReadonlyResultOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readonlyResult.return": {
+          "$ref": "#/$defs/DataViewQueryResult"
         }
       }
     }
   },
-  "generatedAt": "2026-11-08T01:42:27.072Z",
+  "generatedAt": "2026-11-20T20:35:43.932Z",
   "models": {
+    "DataViewQueryResult": {
+      "name": "DataViewQueryResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "undefinedChanges",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextPageAvailable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingSavedRowIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reportedPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultPrimaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertIdentity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepareNewRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newRowFieldAccess",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prepareNewRowWithIdentity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isFieldReadOnly",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readFieldAccess",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleteActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createChildActionState",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewActionState",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewLocalReadonlyIdentity": {
+      "name": "DataViewLocalReadonlyIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewLocalReadonlyResultOptions": {
+      "name": "DataViewLocalReadonlyResultOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    rows: readonly DataRow[];\n    fields: ReadonlySet<string>;\n    primaryKey: string;\n    params: QueryParams;\n    guard: () => void;\n    assertIdentity?: (identity: DataViewLocalReadonlyIdentity) => void;\n    guardConsumers?: boolean;\n    serverTotal?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    rows: readonly DataRow[];\n    fields: ReadonlySet<string>;\n    primaryKey: string;\n    params: QueryParams;\n    guard: () => void;\n    assertIdentity?: (identity: DataViewLocalReadonlyIdentity) => void;\n    guardConsumers?: boolean;\n    serverTotal?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "params",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guardConsumers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "serverTotal",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "guard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertIdentity",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewLocalReadonlyIdentity",
+                    "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataViewLocalQuery": {
       "name": "DataViewLocalQuery",
       "jsdoc": "已加载资源的查询执行器；结果仍由DataView接纳，行值保持原生类型。",
@@ -216,6 +688,25 @@
                     "name": "{\n        rows: DataRow[];\n        total: number;\n        output: ReadonlySet<string>;\n    }"
                   }
                 ]
+              }
+            },
+            {
+              "name": "readonlyResult",
+              "jsdoc": "将本地查询结果接纳为只读 DataView result；查询、身份和字段权限只在一处维护。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewLocalReadonlyResultOptions",
+                    "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewQueryResult",
+                "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts"
               }
             }
           ]

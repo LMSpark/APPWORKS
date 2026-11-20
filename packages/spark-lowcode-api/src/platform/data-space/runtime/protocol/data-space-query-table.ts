@@ -4,6 +4,8 @@
  * 边界：保留后端权限与正式主键，不从普通 id 字段猜测身份。
  * AI用途：核对请求模型 Name、输出投影与结果元数据。
  */
+import { isRecord } from '@spark-appworks/spark-utils'
+
 import type { DataSpaceQueryIdentity, DataSpaceQueryOptions } from '../data-space-runtime-contract'
 import { encodeDataSpaceQueryOptions } from '../query/data-space-query-options'
 import type { DataSpaceWireQueryOptions, DataSpaceWireQueryRequest } from './data-space-wire-contract'
@@ -19,10 +21,6 @@ type DataSpaceQuerySnapshot = Readonly<{
   allowAdd: boolean
   systemKey: string
 }>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 function explicitEnvelope(value: Record<string, unknown>): boolean {
   const type = String(value['Type'] ?? value['type'] ?? '').toLowerCase()

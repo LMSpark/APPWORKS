@@ -10,6 +10,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {parseDataViewKey} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {createPublishedContentAuthoringHost} from './content-authoring-script-host'
+import {bindPublishedPageRuntime,matchesPublishedPageBinding} from './publication/published-page-binding'
 
 const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
 const originalSaveReceiptDataViewKey=`${scenarioId}@SaveReceipt@originalSave`
@@ -27,17 +28,22 @@ export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute
  if(!target)return undefined
  const session=captureContentAuthoringSession(target)
  const receiptDataViewKey=entry?.receiptDataViewKey??originalSaveReceiptDataViewKey
- return {scenarioInputs:session.scenarioInputs,assertCurrent:session.assertCurrent,
-  createHost(runtime:PageRuntime){
-   session.assertCurrent()
+ const nodeId=route.meta['nodeId']
+ if(!identity(nodeId))throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_CONFLICT')
+ return bindPublishedPageRuntime({
+  entry:{applicationId,nodeId,pageId:target.pageId,scenarioId:target.scenarioId},
+  session,exactScenarioSet:true,runtimeConflictError:'CONTENT_AUTHORING_PUBLICATION_RUNTIME_CONFLICT',
+  validateRuntime(runtime:PageRuntime){
    const inputs=runtime.call.scenarioInputs?.[target.scenarioId]
-   if(runtime.pageId!==target.pageId||runtime.call.scenarioIds.length!==1||runtime.call.scenarioIds[0]!==target.scenarioId||
-    inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
+   if(inputs?.['projectId']!==target.projectId||inputs['currentUserId']!==session.actorUserId)
     throw Error('CONTENT_AUTHORING_PUBLICATION_RUNTIME_CONFLICT')
+  },
+  createHost(runtime:PageRuntime){
    return createPublishedContentAuthoringHost(runtime,target,{
     assertSession:session.assertCurrent,receiptDataViewKey,
    })
-  }}
+  },
+ })
 }
 
 /** Select only the registered tool before preparing its authenticated runtime inputs. */
@@ -64,15 +70,16 @@ export function resolvePublishedContentAuthoringTarget(
 /** 空缺或冲突身份在任何查询前拒绝。 */
 export function resolveContentAuthoringTarget(route:ContentAuthoringRoute):ContentAuthoringTarget {
  const tool=route.meta['tool'],nodeId=route.meta['nodeId'],projectId=route.query['projectId'],draftId=route.query['draftId']
- const publishedScenario=route.meta['blueprintScenarioId']
- if(resolveExecutionProjectId(route.path)!==applicationId||route.meta['type']!=='config-page'||route.meta['programmaticTool']===true
-  ||!identity(nodeId)||!isRecord(tool)||tool['projectId']!==applicationId||!identity(tool['pageId'])
-  ||route.meta['pageId']!==tool['pageId']||route.query['scenarioId']!==scenarioId||!identity(projectId)||!identity(draftId)
-  ||['actorUserId','currentUserId','userId','scenarioInputs'].some(key=>Object.hasOwn(route.query,key)))throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_REQUIRED')
- const pageId=tool['pageId']
- if(publishedScenario!==undefined&&publishedScenario!==scenarioId)throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
- for(const [key,value] of Object.entries({applicationId,scenarioId,pageId})){
-  if(Object.hasOwn(route.query,key)&&route.query[key]!==value)throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
- }
+ const pageId=isRecord(tool)?tool['pageId']:undefined
+ const matches=matchesPublishedPageBinding(route,{applicationId,
+  nodeId:typeof nodeId==='string'?nodeId:'',pageId:typeof pageId==='string'?pageId:'',scenarioId},{
+   identityError:'CONTENT_AUTHORING_ENTRY_IDENTITY_REQUIRED',
+   conflictError:'CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT',
+   allowMissingBlueprintScenario:true,
+   requireScenarioQuery:true,
+   forbiddenQuery:['actorUserId','currentUserId','userId','scenarioInputs'],
+  })
+ if(!matches||!identity(nodeId)||!identity(pageId)||!identity(projectId)||!identity(draftId))
+  throw Error('CONTENT_AUTHORING_ENTRY_IDENTITY_REQUIRED')
  return Object.freeze({applicationId,pageId,scenarioId,projectId,draftId})
 }

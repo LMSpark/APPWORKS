@@ -8,7 +8,7 @@
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/save/data-space-save-result",
     "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-result\n职责：解析统一保存封包中的实际动作回执。\n边界：逐模型核对提交分组和返回桶，不把端点成功当作行保存成功。\nAI用途：识别字段失败并返回待上下文身份核对的实际行。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {
@@ -119,7 +119,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T21:30:24.085Z",
+  "generatedAt": "2026-11-20T20:30:07.433Z",
   "models": {
     "DataSpaceSavePlan": {
       "name": "DataSpaceSavePlan",

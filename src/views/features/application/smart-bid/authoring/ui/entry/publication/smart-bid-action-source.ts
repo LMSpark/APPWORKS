@@ -7,6 +7,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {coerceStrictJsonValue,type JsonParams,type JsonValue} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {createSmartBidRuntimeActionExecutor} from '@/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner'
+import {createSmartBidCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-command'
 
 export type SmartBidPageAction=Readonly<{
  operationId:string;requestKey:string;prompt:string;inputs:unknown
@@ -20,11 +21,10 @@ export function createSmartBidPageActionSubmit(runtime:PageRuntime,projectId:str
   assertCurrent})
  return async action=>{
   assertCurrent()
-  const inputs=coerceStrictJsonValue(action.inputs)
-  if(!isRecord(inputs))throw Error('SMART_BID_PAGE_ACTION_INPUT_REQUIRED')
-  const command=Object.freeze({operationId:action.operationId,registrationId:'SmartBidOperationModule',
-   businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,requestKey:action.requestKey,
-   prompt:action.prompt,inputs})
+  const command=createSmartBidCommand(action,{
+   registrationId:'SmartBidOperationModule',businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,
+   inputError:'SMART_BID_PAGE_ACTION_INPUT_REQUIRED',
+  })
   const outcome=await execute(command)
   assertCurrent()
   return outcome

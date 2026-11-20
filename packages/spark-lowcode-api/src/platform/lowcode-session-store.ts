@@ -2,6 +2,8 @@
  * 低代码会话持久化：内存缓存 + 可选 storage 后端。
  * 持久化 JSON 结构须与 {@link LowcodeSession} 一致；解析失败 fail-fast，不静默降级。
  */
+import { isRecord } from '@spark-appworks/spark-utils'
+
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import type { LowcodeSession } from './lowcode-platform-api.js'
 
@@ -21,10 +23,6 @@ export type LowcodeSessionStoreOptions = Readonly<{
   storage?: LowcodeSessionStorage
   sessionKey?: string
 }>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function requiredString(record: Record<string, unknown>, key: string, context: string): string {
   const value = record[key]

@@ -2,7 +2,7 @@
  * 权限设计态 wire 共享层：FormKey、GetData 查询封装与响应行解析工具。
  * 仅供 design 读路径复用；runtime 不依赖本模块。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 import { LowcodeClient } from '../../core/lowcode-client.js'
@@ -12,7 +12,7 @@ export const PERMISSION_DESIGN_FORM_KEY = '8D1AB14DD8277F3E7017CD38F77B09FD'
 
 /** 判断 wire 值是否为对象记录；非对象数组会被拒绝。 */
 export function isPermissionRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+  return isRecord(value)
 }
 
 /** 权限 wire 文本归一化；undefined/null 转为空串。 */

@@ -1,3 +1,5 @@
+import { isRecord } from '@spark-appworks/spark-utils'
+
 /**
  * @module @spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards
  * 设计资源 HTTP 响应解包与对象校验（无 type assertion）。
@@ -13,10 +15,6 @@ export function unwrapAjaxResult(body: unknown): unknown {
   }
   if (body !== null && typeof body === 'object' && 'Result' in body) return (body).Result
   return body
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export function requireRecord(value: unknown, message: string): Record<string, unknown> {

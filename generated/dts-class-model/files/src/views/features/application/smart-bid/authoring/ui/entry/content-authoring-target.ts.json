@@ -63,7 +63,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-19T05:59:49.008Z",
+  "generatedAt": "2026-11-20T19:29:17.590Z",
   "models": {
     "ContentAuthoringRoute": {
       "name": "ContentAuthoringRoute",

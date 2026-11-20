@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1511,
+  "scannedFileCount": 1514,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9628,6 +9628,7 @@
         "jsdoc": "@module @spark-appworks/spark-data:query/data-view-local-query\n职责：在资源已读取的记录上执行同一DataView过滤、排序、分页和输出投影。\n边界：不读取来源，不维护编辑态，不决定读写授权。\nAI用途：数组及文件资源适配器共享查询算法，业务页面不实现另一套查询。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "DataViewLocalReadonlyResultOptions",
           "DataViewLocalQuery"
         ]
       }
@@ -10794,6 +10795,19 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/core/lowcode-query-items.ts": {
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-query-items.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:core/lowcode-query-items",
+        "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-query-items.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-query-items.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "core/lowcode-query-items",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:core/lowcode-query-items\n职责：统一低代码查询响应 data/Data 与 Items/items/Result/result 包裹解析。\n边界：不规范化领域行；调用方声明允许的键和 item 严格度。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
       "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
       "module": {
@@ -11074,7 +11088,7 @@
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/data-space/runtime/protocol/data-space-query-table",
         "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-query-table\n职责：构造模型查询封包并解码原结果快照。\n边界：保留后端权限与正式主键，不从普通 id 字段猜测身份。\nAI用途：核对请求模型 Name、输出投影与结果元数据。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DataSpaceQueryTable"
         ]
@@ -11308,7 +11322,7 @@
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/data-space/runtime/save/data-space-save-result",
         "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-result\n职责：解析统一保存封包中的实际动作回执。\n边界：逐模型核对提交分组和返回桶，不把端点成功当作行保存成功。\nAI用途：识别字段失败并返回待上下文身份核对的实际行。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -18975,6 +18989,19 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/agent-module/smart-bid-command.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-command.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-command",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-command",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-command\n职责：统一 SmartBid 动作命令的 scope、JSON inputs 与稳定身份封装。\n边界：不解析 owner、不执行 claim/dispatch、不决定 receipt；只构造同一命令合同。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts": {
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-model-resolver.ts.json",
       "module": {
@@ -20940,7 +20967,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -20994,6 +21021,22 @@
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host\n职责：页14按原请求查办理及回执配对，供页13递交辅助共用。\n边界：仅查当前 PageRuntime 的原办理，正式递交和撤回由原服务执行。\nAI用途：核对查询命令是否保留原请求和渠道身份。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts.json",
+      "module": {
+        "name": "app:views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding\n职责：统一已发布 SmartBid 页面入口的导航身份校验与本次 PageRuntime 绑定。\n边界：只处理公共发布身份和生命周期；项目、业务范围、命令及 owner 仍由调用方 policy 提供。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PublishedPageEntry",
+          "PublishedPageSession"
+        ]
       }
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts": {
@@ -26788,6 +26831,10 @@
       "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts",
       "file": "files/packages/spark-data/src/query/data-view-local-query.ts.json"
     },
+    "DataViewLocalReadonlyResultOptions": {
+      "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts",
+      "file": "files/packages/spark-data/src/query/data-view-local-query.ts.json"
+    },
     "DataViewMemberBinding": {
       "sourcePath": "packages/spark-data/src/core/data-view-key.ts",
       "file": "files/packages/spark-data/src/core/data-view-key.ts.json"
@@ -29963,6 +30010,14 @@
     "PublishedEnterpriseBinding": {
       "sourcePath": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
       "file": "files/src/views/features/application/smart-bid/authority/published-enterprise-owner.ts.json"
+    },
+    "PublishedPageEntry": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts.json"
+    },
+    "PublishedPageSession": {
+      "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
+      "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts.json"
     },
     "QualificationReview": {
       "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",

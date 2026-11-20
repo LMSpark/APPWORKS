@@ -91,7 +91,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-24T13:43:20.082Z",
+  "generatedAt": "2026-11-20T20:30:07.370Z",
   "models": {
     "LowcodeClient": {
       "name": "LowcodeClient",

@@ -2,7 +2,7 @@
  * @module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client
  * 职责：逻辑视图对象数组的 read/write（ViewData 合同），保存须有正式成功回执。
  */
-import type {HttpClientBase} from '@spark-appworks/spark-utils'
+import {isRecord, type HttpClientBase} from '@spark-appworks/spark-utils'
 import {DesignResourceRejection, unwrapAjaxResult} from '../../shared/http-record-guards.js'
 import type {DataSpaceRequestScope} from '../../../data-space/runtime/data-space-runtime-contract.js'
 
@@ -14,14 +14,10 @@ function parseLogicViewDesign(value: unknown): Array<Record<string, unknown>> {
   const rows: Array<Record<string, unknown>> = []
   const items: readonly unknown[] = value
   for (const item of items) {
-    if (!isDesignRecord(item)) throw new DesignResourceRejection('逻辑视图设计必须是对象数组')
+    if (!isRecord(item)) throw new DesignResourceRejection('逻辑视图设计必须是对象数组')
     rows.push(item)
   }
   return rows
-}
-
-function isDesignRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export class LogicViewDesignClient {

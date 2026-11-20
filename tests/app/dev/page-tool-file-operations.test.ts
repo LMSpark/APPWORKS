@@ -129,6 +129,15 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
     }finally{scope.dataSet.destroy()}
   })
 
+  it.each([' PAGE','PAGE/child','PAGE?release','PAGE\u0000'])(`rejects an unsafe pageId %j before querying the directory`,async pageId=>{
+    const files=new Map([['PAGE/rule.json','{}']]),scope=createScope(files,async()=>{})
+    const io=storage.io as ReturnType<typeof createPageToolFilesIo>
+    try{
+      await expect(listPageToolFileNames({...scope,pageId})).rejects.toThrow('PAGE_TOOL_FILE_SCOPE: 应用或工具身份无效')
+      expect(io.list).not.toHaveBeenCalled()
+    }finally{scope.dataSet.destroy()}
+  })
+
   it('fails closed when a listed non-text resource cannot be read as a FileResource baseline',async()=>{
     const files=new Map([['PAGE/image.bin','opaque']]),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
     const scope=createScope(files,remove),io=storage.io as ReturnType<typeof createPageToolFilesIo>,save=vi.spyOn(scope.dataSet,'saveChanges')

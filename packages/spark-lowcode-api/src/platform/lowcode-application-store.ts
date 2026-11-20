@@ -2,6 +2,8 @@
  * 当前选中应用上下文持久化：应用元数据 + 导航根 rowid。
  * 默认使用浏览器 localStorage；损坏数据会被清除而非返回半成品上下文。
  */
+import { isRecord } from '@spark-appworks/spark-utils'
+
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import type { LowcodeApplication } from './lowcode-application.js'
 import type { LowcodeSessionStorage } from './lowcode-session-store.js'
@@ -24,10 +26,6 @@ export type LowcodeApplicationStoreOptions = Readonly<{
 
 function browserStorage(): LowcodeSessionStorage | undefined {
   return typeof localStorage === 'undefined' ? undefined : localStorage
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function optionalString(record: Record<string, unknown>, key: string): string | undefined {

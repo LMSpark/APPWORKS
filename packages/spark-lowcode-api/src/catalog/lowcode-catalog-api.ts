@@ -5,6 +5,7 @@
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
+import {readLowcodeQueryItems} from '../core/lowcode-query-items.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
 import type { DataSpaceDatabaseResourceType } from '../platform/data-space/data-space.js'
 
@@ -103,19 +104,10 @@ export type LowcodeDatabaseResource = Readonly<{
 
 type CatalogTable = 'Base_serverInfo' | '_base_dbInfo' | '_Base_TblList' | '_Base_ViewList' | 'Base_TblField'
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
 function queryItems(value: unknown, table: CatalogTable): ReadonlyArray<Record<string, unknown>> {
-  if (!isRecord(value)) throw new LowcodeApiError(0, `${table} Result 不是对象`)
-  const data = isRecord(value['data']) ? value['data'] : isRecord(value['Data']) ? value['Data'] : value
-  const items = data['Items'] ?? data['items'] ?? data['Result'] ?? data['result']
-  if (items === undefined || items === null) return []
-  if (!Array.isArray(items) || !items.every(isRecord)) {
-    throw new LowcodeApiError(0, `${table} Result.items 不是对象数组`)
-  }
-  return items
+  return readLowcodeQueryItems(value,{
+   label:table,itemKeys:['Items','items','Result','result'],requireRecords:true,
+  })
 }
 
 function textValue(row: Record<string, unknown>, keys: readonly string[]): string {

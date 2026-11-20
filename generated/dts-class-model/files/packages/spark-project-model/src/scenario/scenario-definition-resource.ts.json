@@ -354,7 +354,8 @@
           }
         },
         "context": {
-          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryResult"
+          "type": "object",
+          "title": "DataViewQueryResult"
         }
       },
       "required": [

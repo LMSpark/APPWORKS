@@ -2,7 +2,7 @@
  * lowcode 实时通道与 AI 门面：SSE 连接、AI chat/turn 与事件解码。
  * SSE 依赖构造时注入的 fetch 与会话 Bearer；Agent 响应须为 SparkEnvelope v4。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
@@ -434,10 +434,6 @@ function readTimestamp(value: unknown): number | undefined {
 
 function readRecord(value: unknown): Record<string, unknown> | null {
   return isRecord(value) ? value : null
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function readText(value: unknown): string | undefined {

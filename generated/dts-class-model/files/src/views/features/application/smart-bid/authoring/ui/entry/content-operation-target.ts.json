@@ -8,36 +8,10 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/ui/entry/content-operation-target",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/content-operation-target\n职责：仅从正式发布导航和可信业务根准备页18工具实例。\n边界：只消费发布导航和当前会话，工作区装配交给本次 PageRuntime。\nAI用途：排查入口是否缺少授权节点、工具或场景身份。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {
-    "PublishedEntry": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PublishedEntry",
-      "properties": {
-        "applicationId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "pageId": {
-          "type": "string"
-        },
-        "scenarioId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "applicationId",
-        "nodeId",
-        "pageId",
-        "scenarioId"
-      ],
-      "additionalProperties": false
-    },
     "ScriptHost": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "array",
@@ -95,47 +69,8 @@
       ]
     }
   },
-  "generatedAt": "2026-11-20T12:51:15.824Z",
+  "generatedAt": "2026-11-20T19:41:15.113Z",
   "models": {
-    "PublishedEntry": {
-      "name": "PublishedEntry",
-      "jsdoc": "正式导航发布的应用、节点、工具和场景身份。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    pageId: string;\n    scenarioId: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    applicationId: string;\n    nodeId: string;\n    pageId: string;\n    scenarioId: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "applicationId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "nodeId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "pageId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "scenarioId",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "ScriptHost": {
       "name": "ScriptHost",
       "jsdoc": "工艺脚本宿主装配使用的参数合同。",

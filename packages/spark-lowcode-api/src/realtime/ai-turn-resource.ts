@@ -5,7 +5,7 @@
  * AI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。提供四个轮次 DataView；候选解析、预览和确认由 AiDataEntrySession 领域与组件消费，不属于轮次 owner。
  */
 import {bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type DataColumn, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import type {HttpClientBase} from '@spark-appworks/spark-utils'
+import {isRecord, type HttpClientBase} from '@spark-appworks/spark-utils'
 
 import {LowcodeApiError} from '../core/lowcode-api-error.js'
 import {LowcodeClient} from '../core/lowcode-client.js'
@@ -46,10 +46,6 @@ class AiTurnResultUnknownError extends Error {
     super(message, options)
     this.name = 'AiTurnResultUnknownError'
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function requiredText(value: unknown, name: string): string {

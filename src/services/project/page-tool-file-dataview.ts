@@ -13,9 +13,17 @@ import {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
 const TABLE='ProjectToolFile'
 type PageFileIo=ReturnType<typeof createPageToolFilesIo>
 export type PagePublicationFileName=PageToolFileName|'publication-manifest.json'
+export function isSafePageToolFileBasename(value:unknown):value is string{
+  return typeof value==='string'&&value.length>0&&value===value.trim()
+    &&value!=='.'&&value!=='..'&&!/[\\/\u0000-\u001f\u007f]/.test(value)
+}
+export function isValidPageToolFilePageId(value:unknown):value is string{
+  return typeof value==='string'&&value.length>0&&value===value.trim()&&
+    !/[\\/%\u0000-\u001f\u007f?#]/.test(value)
+}
 function pageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:string}{
-  const pageId=String(resource.fields['pageId']??''),fileName=resource.fields['fileName']
-  if(!pageId||!isSafeFileName(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 来源文件身份无效')
+  const pageId=resource.fields['pageId'],fileName=resource.fields['fileName']
+  if(!isValidPageToolFilePageId(pageId)||!isSafePageToolFileBasename(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 来源文件身份无效')
   return {pageId,fileName}
 }
 function isPageToolFileName(value:unknown):value is PageToolFileName{
@@ -24,8 +32,6 @@ function isPageToolFileName(value:unknown):value is PageToolFileName{
 function isPublicationFileName(value:unknown):value is PagePublicationFileName{
   return isPageToolFileName(value)||value==='publication-manifest.json'
 }
-function isSafeFileName(value:unknown):value is string{return typeof value==='string'&&value.length>0&&value===value.trim()
-  &&value!=='.'&&value!=='..'&&!/[\\/\u0000-\u001f\u007f]/.test(value)}
 function mutationMayHaveApplied(error:unknown):Error{
   return Object.assign(new Error(error instanceof Error?error.message:String(error),{cause:error}),{fileResourceMutationMayHaveApplied:true})
 }
@@ -67,8 +73,7 @@ export function createPageToolFileResourceExecutor(input:Readonly<{
   return createFileResourceAdapterExecutor({resourceId:ProjectToolResource.resources.ProjectToolFile,contentField:'text',
     target:view=>{
       const appId=view.queryContext['appId']??input.appId,pageId=view.queryContext['pageId'],fileName=view.queryContext['fileName'],versionId=view.queryContext['versionId']??''
-      if(appId!==input.appId||typeof pageId!=='string'||!pageId.trim()||pageId!==pageId.trim()
-        ||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId)||!isPageToolFileName(fileName)
+      if(appId!==input.appId||!isValidPageToolFilePageId(pageId)||!isPageToolFileName(fileName)
         ||typeof versionId!=='string'||versionId!==''&&!versionId.trim())throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定应用、工具、文件和发布版本')
       return {key:JSON.stringify([appId,pageId,fileName,versionId]),fields:{pageId,fileName,versionId}}
     },
@@ -89,7 +94,7 @@ export function createPageFileDirectoryEntryView(input:Readonly<{
   fileName:string
   assertCurrent:()=>void
 }>):DataView{
-  if(!isSafeFileName(input.fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 目录文件名无效')
+  if(!isSafePageToolFileBasename(input.fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 目录文件名无效')
   return createPageFileView({...input,io:createPageToolFilesIo(input.appId),allowDirectoryEntry:true})
 }
 
@@ -102,7 +107,7 @@ export function createPageFileDirectoryView(input:Readonly<{
 }>):DataView{
   const {dataSet,appId,pageId,assertCurrent}=input,io=createPageToolFilesIo(input.appId)
   const table=assertProjectToolFileTable(dataSet)
-  if(!pageId.trim()||pageId!==pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
+  if(!isValidPageToolFilePageId(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
   const view=table.getOrCreateView(`directory-${encodeURIComponent(pageId)}`)
   view.queryContext={...view.queryContext,appId,pageId,customPath:`${appId}/${pageId}`}
   bindFileDirectoryQueryAdapter(view,{resourceId:ProjectToolResource.resources.ProjectToolFile,
@@ -136,13 +141,13 @@ function createPageFileView(input:Readonly<{
   const {dataSet,appId,pageId,io,assertCurrent}=input,resourceFileName=input.fileName
   const isAllowedFile=(value:unknown)=>input.allowDirectoryEntry||isPageToolFileName(value)
     ||input.allowPublicationManifest===true&&value==='publication-manifest.json'
-  if(!isSafeFileName(resourceFileName)||!isAllowedFile(resourceFileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件名无效')
-  if(!pageId.trim()||pageId!==pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
+  if(!isSafePageToolFileBasename(resourceFileName)||!isAllowedFile(resourceFileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件名无效')
+  if(!isValidPageToolFilePageId(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
   const formalTable=assertProjectToolFileTable(dataSet)
   const target=(view:DataView)=>{
     const targetAppId=view.queryContext['appId']??appId,targetPageId=String(view.queryContext['pageId']??''),fileName=view.queryContext['fileName']
     if(targetAppId!==appId)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 应用身份与绑定资源不一致')
-    if(!targetPageId||!isSafeFileName(fileName)||!isAllowedFile(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
+    if(!isValidPageToolFilePageId(targetPageId)||!isSafePageToolFileBasename(fileName)||!isAllowedFile(fileName))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
     const versionId=view.queryContext['versionId']??''
     if(typeof versionId!=='string'||versionId!==''&&!versionId.trim())throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 发布目标无效')
     return {key:JSON.stringify([targetAppId,targetPageId,fileName,versionId]),fields:{pageId:targetPageId,fileName,versionId}}

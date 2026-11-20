@@ -3,7 +3,7 @@
  * 会话与应用上下文分别委托 {@link LowcodeSessionStore}、{@link LowcodeApplicationStore} 持久化；
  * 登录成功会清空应用上下文，避免跨企业/跨应用残留导航身份。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
@@ -144,10 +144,6 @@ type LowcodeApplicationActivation = Readonly<{
 }> & LowcodeApplicationSelectionReceipt
 
 const STALE_APPLICATION_SELECTION = 'LOWCODE_APPLICATION_SELECTION_STALE: 应用选择已失效，请重新选择。'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function readRequiredString(record: Record<string, unknown>, key: string, context: string): string {
   const value = record[key]

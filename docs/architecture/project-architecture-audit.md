@@ -1,6 +1,6 @@
 # 项目架构与数据链路审计
 
-> 源码核对日期：2026-11-19。本文只记录能从当前源码、测试和正式合同核对的架构事实。旧台账中的历史缺口只有在当前源码仍可复现时才视为现状。
+> 源码核对日期：2026-11-21。本文只记录能从当前源码、测试和正式合同核对的架构事实。旧台账中的历史缺口只有在当前源码仍可复现时才视为现状。
 
 ## 1. 结论
 
@@ -10,12 +10,12 @@ SPARK AppWorks 已形成一条较完整的前端闭环：
 授权导航
   -> DynamicRouter / PageRuntimePool
   -> PageRuntime（一次调用）
-  -> PageTool（rule / script / style）
+  -> PageTool（rule / script / style；业务页 script 默认空）
   -> ScenarioViewConfig（pagedata.json）
   -> DataSet -> DataTable -> DataView
-  -> 标准组件 / 页面脚本
-  -> 原查询 owner / 文件 owner / 命令 owner
-  -> 回执接纳、unknown 核验、精确取消
+  -> 标准组件 / 声明式工具栏与动作
+  -> DataView 内部资源 owner 与 receipt 接纳
+  -> unknown 核验、精确取消
 ```
 
 当前架构的核心价值不是“把页面写成配置”，而是：
@@ -23,8 +23,17 @@ SPARK AppWorks 已形成一条较完整的前端闭环：
 1. **身份明确**：应用、导航节点、工具、场景、模型、视图、运行实例分别定位。
 2. **数据单链**：页面和标准组件只消费 DataView，不应新增第二套查询、权限或保存体系。
 3. **来源可适配**：数据库、文件、命令和只读投影接入同一 `DataSet/DataTable/DataView` 链。
-4. **运行隔离**：一次页面调用持有独立 `PageRuntime`、独立 DataSet 与独立脚本/样式作用域。
+4. **运行隔离**：一次页面调用持有独立 `PageRuntime`、独立 DataSet 与独立样式作用域。
 5. **失败可解释**：查询失败、明确未应用、结果未知、回读失败、部分成功按不同状态处理。
+6. **页面零脚本默认**：业务意图进入 `rule.json`、标准动作和 SPARK data；`script.js` 仅保留四文件契约。新增页面脚本必须先证明公共能力和数据合同都无法承接。
+
+`owner / receipt` 不是额外数据层，也不是页面可分别消费的两份真源。二者已固化在
+SPARK data 的 DataView 及其保存/查询适配中：
+
+- **owner** 是 DataView 内部已经绑定的资源执行适配，页面不能绕过 DataView 另调 owner；
+- **receipt** 是 DataView 内部一次查询/保存/命令结果的接纳证据，页面不能把它持有成第二份业务状态；
+- 对页面而言，数据链只到 `PageRuntime -> DataSet -> DataView`；
+- 未知结果时 receipt 仍指向原请求捕获，用于核验，不改变 owner 或制造自动重发。
 
 最大断点不在基础数据结构，而在**跨来源终态与正式服务证据**：
 
@@ -85,7 +94,7 @@ flowchart BT
 | `spark-app` | 启动、DynamicRouter、RuntimeNavigation、标签页、插件 | 不解释具体业务模型 |
 | `spark-lowcode-api` | lowcode 平台请求、wire 合同、DataSpaceRuntimeApi | 不编排页面 UI |
 | `src/lowcode` | 应用请求身份、系统/用户场景装配、资源 owner、命令绑定 | 只连接正式 owner，不另建数据链 |
-| `src/views` | 页面语义、布局、必要业务编排 | 不拼 HTTP、权限表、草稿或第二保存器 |
+| `src/views` | 页面语义、`rule.json` 布局、必要窄业务宿主 | 不持页面 rows/草稿/权限真源，不拼 HTTP，不默认编写页面脚本 |
 | `spark-ai` | Agent、ClassModel、工具循环、Agent Workflow | 不替代源码/真实服务事实 |
 
 ## 3. 身份模型
@@ -140,7 +149,7 @@ sequenceDiagram
   Runtime->>Scene: 逐场景读取 pagedata.json
   Scene->>Scene: 校验场景身份并装配 DataSet
   Runtime->>Renderer: 提供独立 pageRuntime + routeSnapshot
-  Renderer->>Renderer: 绑定组件、脚本、样式与自动查询
+  Renderer->>Renderer: 绑定组件、标准动作、样式与自动查询
 ```
 
 ### 4.1 PageRuntimePool
@@ -227,6 +236,9 @@ DataView 在发布结果前核对：
 - 分页/主键/权限响应是否完整
 - 旧请求是否被新查询、编辑或实例销毁替代
 
+页面脚本不是查询消费层。标准字段、表格、工具栏与动作通过
+`dataViewKey/dataMember/dataField` 直接解析 DataView；宿主命令只在标准动作不能表达的领域调用上建立窄桥。
+
 ## 7. 写入链
 
 ```mermaid
@@ -295,7 +307,7 @@ flowchart LR
 | 优先级 | 断点 | 当前源码事实 | 风险 | 解除条件 |
 |---|---|---|---|---|
 | 已关闭（源码/fixture） | 普通 CRUD 原请求无权威终态 | save capture 固定正式主键、字段与 digest；unknown 仅按原 key exact readback，确认后接纳，不能证明时保留 unknown；不会重发 | 源码层已闭环，但服务侧仍无 durable request terminal | 保留精确回读；真实 service write、丢回执与重开仍按页面逐项验收 |
-| 部分实服验证 | 正式导航与授权菜单 | 正确的新 SmartBid 应用 D849 已有 10181 字节 Page11 pagedata、完整三文件与 manifest；新应用仅根节点，当前查询权限拒绝创建 cfg 子节点 | 前端与文件发布已通过不代表菜单可达 | 提供蓝图新增权限或由正式设计账号创建唯一 cfg 节点；之后验证 READY 与冷开 |
+| 部分实服验证 | 正式导航与授权菜单 | 正确的新 SmartBid 应用 D849 已有 28/28 蓝图（根 + 6 模块 + 21 能力）与 Page11 正式 proof；并非 19 个业务页均已绑定同版四文件 | 蓝图可达不等于全部业务页、场景 command owner 或持久结果已闭环 | 逐页绑定正式 `nodeId/pageId/scenarioId`，回读四文件/manifest，完成 cold-open 与业务回读 |
 | P1 | 混合 owner 分阶段恢复 | `saveChangesInPhases` 有顺序保护，无跨来源事务；数据库、pagedata、工具、业务数据分别确认 | partial 后续可能误重放或误报整体失败 | 每阶段固定原视图集合和 receipt；unknown 只核原捕获；UI 显示逐阶段结果 |
 | 已关闭（源码/fixture） | 四文件逐文件缓存无原子集 | publication manifest 固定 rule/script/style/pagedata snapshot 与 SHA-256；PageRuntime 只在整组 proof 通过后物化 | 实服 SmartBid 尚无发布 manifest | 服务节点指向该 manifest 后由真实冷开验收 |
 | P1 | 时间戳版本碰撞 | `readRuntimeFile` 以修改时间判定命中，不是内容 hash | 同毫秒不同内容可能命中旧缓存 | 后端返回 ETag/hash，或相同时间时强制正文读取 |
@@ -306,6 +318,36 @@ flowchart LR
 | P2 | 服务专项闭环仍缺 | 逻辑视图 SaveView、部分设计 URL、物理预览身份、聚合迁移、PDF/审批/SmartBid 部分页面 | 测试 mock 不能证明服务能力 | 按资源逐个取得正式请求、真实回执、精确回读和下游消费 |
 
 ## 10. 建议方案
+
+### 10.0 标准业务页面开发流程
+
+业务页以“业务语义闭环”为交付单位，不以组件或按钮数量计数。固定顺序如下：
+
+1. **核完整业务语义**：确定调用方、输入、前置条件、读取/修改范围、可见输出、持久结果、下游消费者、取消及异常。
+2. **策划数据合同**：先确定 DataSet、DataTable、columns、多个命名 DataView、参数、关系、级联、字段权限和命令回执。
+3. **查 ClassModel**：沿目录、概要、成员和指南确认标准组件、属性、事件、动作与子节点；源码变更后先正式生成。
+4. **补公共能力**：若标准组件或动作缺项，优先扩展公共框架。业务页面不得用专用脚本复制一套查询、权限、结果或保存器。
+5. **配置页面四文件**：
+   - `rule.json`：结构、标准字段、DataView 绑定、工具栏及声明式动作；
+   - `script.js`：默认空，仅保留公共能力无法承接的窄业务编排；
+   - `style.css`：本运行实例样式；
+   - 共享 `pagedata.json`：正式模型绑定、视图、关系、级联、文件/命令资源。
+6. **接 PageRuntime 原 owner**：查询、编辑、取消、保存、文件和命令使用当前实例；不得拼 HTTP 或从 route 猜数据身份。
+7. **验证行为与持久结果**：标准组件测试、DataView owner 测试、页面运行测试、发布 proof、冷重开、真实回读和下游消费分别证明。
+8. **清理替代链**：删除旧脚本函数、临时数组、页面 owner、兼容分支和过程产物；同一业务只保留一种查询、编辑、取消和保存入口。
+
+标准声明式动作至少覆盖：
+
+| 动作 | 公共职责 |
+|---|---|
+| `refresh` / `clear-rows` | 当前 DataView 的只读刷新与结果清理 |
+| `submit-current-form` / `save-dataset` | 当前表单或明确视图集合的 SPARK data 保存 |
+| `discard-changes` | 当前行或全部视图的编辑/脏状态取消 |
+| `host-command` | 调用本次 PageRuntime 的窄宿主命令，解析 route/row/JSON/prompt 输入，并核 `assertCurrent` |
+| host result projection | 将原命令结果投影到独立结果 DataView 或 Alert；不生成业务旁路 |
+
+页面必须能通过配置回答五个问题：绑定什么 DataView、由什么动作触发、输入从哪里取、结果到哪里显示、未知/失败怎样保持。任一答案需要页面脚本保存状态时，先判断是公共框架缺口还是数据合同缺口，不先补脚本。
+owner 与 receipt 不进入这五个页面问题；它们由 DataView 的内部查询/保存责任承接。
 
 ### 10.1 先做基础合同，不先改页面
 
@@ -330,7 +372,7 @@ flowchart LR
 
 ```text
 授权菜单进入
--> 三文件/场景读取
+-> 三工具文件 + 共享场景读取
 -> 正式 DataView 查询
 -> 标准组件绑定
 -> 一次业务操作
@@ -364,7 +406,7 @@ Phase A  服务终态与四文件读取合同
    -> Phase B  原捕获恢复与分阶段回执统一
    -> Phase C  一个正式页面端到端样板
    -> Phase D  标准组件/页面旁路清理
-   -> Phase E  其他 20 包逐页迁移
+   -> Phase E  19 页逐页完成正式场景 owner 与四文件发布
    -> Phase F  正式浏览器实服与下游回读
 ```
 
@@ -383,7 +425,40 @@ Phase A  服务终态与四文件读取合同
 | 下游消费 | 另一 DataView/页面按主键读取相同业务结果 |
 | 失败 | 超时/拒绝/部分成功/回读失败分别保留状态与可用动作 |
 
-## 13. 当前结论
+## 13. 重复逻辑审计与收敛边界
+
+源码复核后的结论是：相似代码不等于重复链路。能合并的对象必须满足相同身份、相同 owner、相同接纳语义和相同恢复语义；只要 proof 来源或业务终态不同，就应保留独立领域实现。
+
+### 13.1 高价值收敛候选
+
+| 优先级 | 重复点 | 收敛边界 | 不可合并内容 |
+|---|---|---|---|
+| P1 | SmartBid 已发布页面重复校验 application/node/page/tool/scenario/query 身份 | 提取统一 published identity parser 与 runtime binding；页面传入允许的 scope policy | 页面业务对象、命令集合与允许参数 |
+| P1 | page action 与 operation dispatch 重复构造 operation command envelope | 统一 operationId、registrationId、runtimeInstanceId、requestKey、取消与 stale 校验 | claim、派发资格、原试次与 DataView 内部接纳语义 |
+| P1 | command 只读查询在 DataViewLocalQuery 外重复行/字段可读接纳 | 结果行、字段可见性和 identity proof 收敛到 DataView 层 | command transport、submit/verify 与只写动作拒绝 |
+| P2 | lowcode catalog 与 enterprise 分别解析 Items/Result 包裹 | 提取低代码响应包裹解析器，允许 caller 声明可接受键 | 领域行规范化、错误严格度和输出字段 |
+| P2 | SmartBid 页面按标题选择 host | 提取声明式 page/host registry；身份与路由仍由 PageRuntime proof 校验 | 业务 host 的数据来源、验证器和结果语义 |
+
+### 13.2 相似但不能合并的链路
+
+| 链路 | 必须保留分开处理的原因 |
+|---|---|
+| DataView unknown-save 与 command adapter | DataView 保存公共捕获/接纳状态；command adapter 只提供 immutable request proof 与 submit/verify transport |
+| 草稿恢复、递交恢复、Agent route recovery | 分别以内容摘要/版本、尝试事件、工具调用与回传证据为 proof，终态语义不同 |
+| lowcode 定义会话 | 保存目标是正式定义资源与批次变更，不是普通业务记录编辑 |
+| PDF recovery journal | 它是持久化指针/租约记录，不是 DataView command receipt |
+| SmartBid guide/verification readers | 原指南、当前指南、候选验证和原实发结果的身份、权限与用途不同 |
+| SSE/ClassModel 基础设施 | 已经是 spark-ai/src 应用公共设施；不要因某业务 route 再复制一套 tool loop 或 subscriber registry |
+
+### 13.3 收敛顺序
+
+1. 先提取 published identity 与 runtime binding。
+2. 再提取 command envelope/cancellation/stale 校验。
+3. 再收敛只读 query result 的行与字段接纳。
+4. 最后抽低代码响应 envelope；每个 caller 显式声明严格度。
+5. 不合并领域 recovery，也不把 owner/receipt 从 DataView 内部重新拉到页面。
+
+## 14. 当前结论
 
 项目底座的核心方向已经成立：
 

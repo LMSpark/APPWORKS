@@ -5,7 +5,7 @@
  */
 import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {validateContentDraftPayload} from './content-draft-save-rule'
+import {decodeContentDraftPayload,encodeContentDraftPayload,validateContentDraftPayload} from './content-draft-save-rule'
 import {readContentNodeLinks,type ContentTableData} from './content/content-node-links'
 
 type Node = {nodeId: string; parentId: string; index: number; type: string; class: string[]; value: string; data: Record<string, unknown>}
@@ -40,8 +40,8 @@ export class ContentTreeDraftEditor {
       || this.view.fieldAccess(row, 'projectId').read !== 'visible'
       || this.view.fieldAccess(row, 'draft').read !== 'visible'
       || this.view.fieldAccess(row, 'draft').write !== 'allowed') throw Error('当前项目草稿不可编辑')
-    const draft: unknown = structuredClone(row['draft'])
-    if (!isRecord(draft) || !Array.isArray(draft['nodes']) || !Array.isArray(draft['responseChanges'])) throw Error('草稿内容结构无效')
+    const originalDraft = row['draft'], draft = decodeContentDraftPayload(originalDraft)
+    if (!Array.isArray(draft['nodes']) || !Array.isArray(draft['responseChanges'])) throw Error('草稿内容结构无效')
     const nodes: Node[] = draft['nodes'].map((value: unknown) => {
       if (!isRecord(value) || typeof value['nodeId'] !== 'string' || typeof value['parentId'] !== 'string'
         || typeof value['index'] !== 'number' || typeof value['type'] !== 'string' || typeof value['value'] !== 'string'
@@ -60,7 +60,7 @@ export class ContentTreeDraftEditor {
       }
     }
     visit(this.projectId)
-    this.view.updateEditingValue(this.draftId, 'draft', {...draft, nodes: ordered})
+    this.view.updateEditingValue(this.draftId, 'draft', encodeContentDraftPayload(originalDraft, {...draft, nodes: ordered}))
   }
 
   /** 新增逻辑册并建立首章及标题，册不是文件格式。 */

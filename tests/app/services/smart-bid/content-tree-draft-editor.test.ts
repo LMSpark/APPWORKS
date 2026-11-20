@@ -4,18 +4,34 @@ import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/pl
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-editor'
 
-async function fixture(writable = true) {
+async function fixture(writable = true, wireText = false) {
+  const initialDraft={nodes: [], responseChanges: [{id: 'R'}]}
   const ds = DataSet.fromJson({scenarioId: 'DRAFTS', tables: {WorkingDraft: {modelBinding: {modelId: 'M', modelName: 'WorkingDraft'},
-    columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'projectId', type: 'string'}, {name: 'draft', type: 'object'}],
+    columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'projectId', type: 'string'}, {name: 'draft', type: wireText?'json':'object'}],
     views: {default: {commitMode: 'staged', rows: []}}}}})
   const view = ds.getView('WorkingDraft')!, query = new DataSpaceQueryTable({scenarioId: 'DRAFTS', metaName: 'WorkingDraft'})
   let scope = 'original'
   const context = new DataSpaceQueryContext({identity: query.identity, scope, readScope: () => scope,
-    snapshot: query.applyResult({Result: {primaryKeyField: 'id', data: {Items: [{id: 'D', projectId: 'P', draft: {nodes: [], responseChanges: [{id: 'R'}]},
+    snapshot: query.applyResult({Result: {primaryKeyField: 'id', data: {Items: [{id: 'D', projectId: 'P', draft: wireText?JSON.stringify(initialDraft):initialDraft,
       lingma_sys_params: {r: [], e: writable ? ['draft'] : [], h: [], m: [], d: false}}], Count: 1}}})})
   view.bindQueryExecutor({executeQuery: async () => context}); await view.refresh()
   return {ds, view, editor: new ContentTreeDraftEditor(view, 'D', 'P'), invalidate: () => {scope = 'changed'}}
 }
+
+it('keeps service JSON text storage while editing the same draft contract', async () => {
+  const {ds,view,editor}=await fixture(true,true), before=view.rows[0]?.['draft']
+  try{
+    editor.addDocument({documentId:'B',chapterId:'C',headingId:'H',title:'报价'})
+    const edited=view.getEditingRow('D')?.['draft']
+    expect(typeof edited).toBe('string')
+    const draft=JSON.parse(String(edited))
+    expect(draft.responseChanges).toEqual([{id:'R'}])
+    expect(draft.nodes.map((node:{nodeId:string})=>node.nodeId)).toEqual(['B','C','H'])
+    expect(view.rows[0]?.['draft']).toBe(before)
+    view.discardEditingRows()
+    expect(view.getEditingRow('D')?.['draft']).toBe(before)
+  }finally{ds.destroy()}
+})
 
 it('inserts an ordinary JSON table with fixed fact references and cancels through the original draft',async()=>{
  const f=await fixture()

@@ -9,6 +9,7 @@ import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {ContentTreeDraftEditor} from './content-tree-draft-editor'
 import {contentReferenceEditorSchema,contentTableEditorSchema} from './content/references/content-reference-editor-schema'
+import {decodeContentDraftPayload} from './content-draft-save-rule'
 
 /** 本次宿主的正式绑定及临时选择；结构操作后宿主须清除选择。 */
 export type ContentTreeEditorLayoutInput = Readonly<{
@@ -29,32 +30,33 @@ function selection(input: ContentTreeEditorLayoutInput) {
   const row = view.getEditingRow(draftId)
   if (!row || !projectId.trim() || row['projectId'] !== projectId
     || view.fieldAccess(row, 'projectId').read !== 'visible' || view.fieldAccess(row, 'draft').read !== 'visible') throw Error('当前项目草稿不可读取')
-  const draft: unknown = row['draft']
-  if (!isRecord(draft) || !Array.isArray(draft['nodes'])) throw Error('草稿内容结构无效')
+  const rawDraft = row['draft'], draft = decodeContentDraftPayload(rawDraft)
+  if (!Array.isArray(draft['nodes'])) throw Error('草稿内容结构无效')
   const selected: unknown = selectedPath?.length === 1 && typeof selectedPath[0] === 'number' ? draft['nodes'][selectedPath[0]] : undefined
   if (selectedPath !== null && !isRecord(selected)) throw Error('所选内容路径已失效')
   const nodes:readonly unknown[]=draft['nodes']
-  return {row,nodes,selected:isRecord(selected)?selected:undefined}
+  return {row,nodes,selected:isRecord(selected)?selected:undefined,valueFormat:typeof rawDraft==='string'?'text' as const:'native' as const}
 }
 
 /** 配置只编辑文本节点的value，节点身份、结构、引用和其他草稿成员始终保留。 */
 export function contentTreeEditorLayout(input: ContentTreeEditorLayoutInput): RFormProps {
-  const {dataViewKey,draftId,projectId,selectedPath}=input,{selected}=selection(input)
+  const {dataViewKey,draftId,projectId,selectedPath}=input,{selected,valueFormat}=selection(input)
   const editableText = isRecord(selected) && ['heading', 'paragraph', 'caption'].includes(String(selected['type']))
   const tableNode=selected?.['type']==='table'
-  const originalDraft=input.view.rows.find(row=>input.view.getPkKey(row)===draftId)?.['draft']
-  const originalNode:unknown=isRecord(originalDraft)&&Array.isArray(originalDraft['nodes'])
+  const originalValue=input.view.rows.find(row=>input.view.getPkKey(row)===draftId)?.['draft']
+  const originalDraft=originalValue===undefined?undefined:decodeContentDraftPayload(originalValue)
+  const originalNode:unknown=Array.isArray(originalDraft?.['nodes'])
    ?originalDraft['nodes'].find((node:unknown)=>isRecord(node)&&node['nodeId']===selected?.['nodeId']):undefined
   const originalData=isRecord(originalNode)?originalNode['data']:undefined
   const originalGenerator=isRecord(originalData)&&Array.isArray(originalData['header'])&&originalData['header'].length===0
   const editableTable=tableNode&&!originalGenerator
   return {dataViewKey, contextRowId: draftId, autoColumns: false, gridMinWidth: '360px', children: [
-    {type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat: 'native', valuePath: ['nodes'],
+    {type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat, valuePath: ['nodes'],
       mode: 'outline', outlineIdField: 'nodeId', outlineParentField: 'parentId', outlineRootValue: projectId,
       selectedPath, onSelectedPathChange: input.onSelectedPathChange}, children: [
       {type: 'r-text', props: {field: 'type', label: '类型'}}, {type: 'r-text', props: {field: 'value', label: '内容'}},
     ]},
-    ...(selectedPath === null ? [] : [{type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat: 'native',
+    ...(selectedPath === null ? [] : [{type: 'r-json', props: {field: 'draft', dataMember: 'currentRow', valueFormat,
       valuePath: ['nodes', ...selectedPath], mode: 'form', readonly: !editableText&&!editableTable,
       schema:tableNode?contentTableEditorSchema():contentReferenceEditorSchema(typeof selected?.['value']==='string'?selected['value']:'',selected?.['data']),
       onEditingChange: input.onEditingChange}}]),

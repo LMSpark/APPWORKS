@@ -19,6 +19,7 @@ import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevi
 import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/draft/content-draft-candidate-basis'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
 import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
+import {decodeContentDraftPayload} from '@/services/smart-bid/content-draft-save-rule'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
 /** 定位原保存办理的请求和内容摘要。 */
 type SaveReadInput=Parameters<typeof readRegisteredOriginalContentDraftSave>[1]
@@ -286,8 +287,8 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      const props=isRecord(node)&&isRecord(node['props'])?node['props']:undefined
      if(!props)throw Error('CONTENT_PAGE_EDITOR_REQUIRED')
      const readNodeId=()=>{
-      const draft=original.view.getEditingRow(original.draftId)?.['draft'],index=path[0]
-      const nodes=isRecord(draft)?draft['nodes']:undefined
+      const draft=decodeContentDraftPayload(original.view.getEditingRow(original.draftId)?.['draft']),index=path[0]
+      const nodes=draft['nodes']
       const selected:unknown=Array.isArray(nodes)&&typeof index==='number'?nodes[index]:undefined
       return isRecord(selected)?selected['nodeId']:undefined
      }

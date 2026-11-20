@@ -18,8 +18,9 @@ import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-ap
 import {isRecord} from '@spark-appworks/spark-utils'
 registerAllRenderers()
 function draftNodes(draft:unknown):unknown[]{
- if(!isRecord(draft)||!Array.isArray(draft['nodes']))throw Error('DRAFT_NODES_REQUIRED')
- return draft['nodes']
+ const value=typeof draft==='string'?JSON.parse(draft):draft
+ if(!isRecord(value)||!Array.isArray(value['nodes']))throw Error('DRAFT_NODES_REQUIRED')
+ return value['nodes']
 }
 
 it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as const)(
@@ -41,10 +42,10 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   views:{default:{},...planningViews[model as keyof typeof planningViews]},
  }]))
  const ds=DataSet.fromJson({scenarioId,tables:{...planningTables,WorkingDraft:{modelBinding:{modelId:'M',modelName:'WorkingDraft'},
-  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'object'}],
+  columns:[{name:primaryKey,type:'string',isPrimaryKey:true},{name:'projectId',type:'string'},{name:'userId',type:'string'},{name:'draft',type:'json'}],
   views:{default:{},personalDraft:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft','personalDraft')!,table=new DataSpaceQueryTable({scenarioId,metaName:'WorkingDraft'})
- const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:{nodes,responseChanges:[]}}
+ const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:JSON.stringify({nodes,responseChanges:[]})}
  const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:1,
   Items:[{...row,lingma_sys_params:{r:[],e:editable?['draft']:[],h:[],m:[],d:false}}]}}})}))
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
@@ -117,7 +118,7 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   await wrapper.findAll('.el-table__body-wrapper tbody tr')[2]!.trigger('click');await flushPromises()
   expect(wrapper.text()).toContain('所选内容')
   const detail=wrapper.findAllComponents({name:'JsonTreeEditor'}).map(editor=>JSON.parse(String(editor.props('modelValue'))))
-  if(!editable)expect(detail).toContainEqual({value:nodes[2]})
+  if(!editable)expect(detail).toContainEqual(nodes[2])
   expect(query).toHaveBeenCalledTimes(1);expect(save).not.toHaveBeenCalled();expect(runtime.isDirty).toBe(false)
   expect(runtime.getDataSet(scenarioId)).toBe(ds)
   if(editable){

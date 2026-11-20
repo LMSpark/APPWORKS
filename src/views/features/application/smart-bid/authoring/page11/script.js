@@ -474,17 +474,24 @@ function bindContentOutline() {
 
 function selectedNodePath({view, draftId}) {
   if (selectedNodeId === null) return null
-  const nodes = view.getEditingRow(draftId)?.draft?.nodes
+  const nodes = draftPayload(view, draftId).nodes
   if (!Array.isArray(nodes)) return null
   const index = nodes.findIndex(node => node?.nodeId === selectedNodeId)
   return index < 0 ? null : [index]
+}
+
+function draftPayload(view, draftId) {
+  const raw = view.getEditingRow(draftId)?.draft
+  const value = typeof raw === 'string' ? JSON.parse(raw) : raw
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('CONTENT_PAGE_ORIGINAL_DRAFT_REQUIRED')
+  return value
 }
 
 function selectContentNode(path) {
   let current
   try {current = originalDraft()} catch {selectedNodeId = null; return}
   const {view, draftId} = current
-  const draft = view.getEditingRow(draftId)?.draft
+  const draft = draftPayload(view, draftId)
   if (path !== null && (!Array.isArray(path) || path.length !== 1 || !Number.isSafeInteger(path[0]) || path[0] < 0
     || !Array.isArray(draft?.nodes) || !draft.nodes[path[0]])) throw Error('CONTENT_PAGE_SELECTION_REQUIRED')
   try {editorSession?.select()}

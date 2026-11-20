@@ -5,7 +5,7 @@
  * AI用途：正式页面脚本桥调用此实例；旧代次、未确认输入或原查询失效必须拒绝。
  */
 import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-editor'
-import {contentDraftSaveRule,validateContentDraftPayload} from '@/services/smart-bid/content-draft-save-rule'
+import {contentDraftSaveRule,decodeContentDraftPayload,validateContentDraftPayload} from '@/services/smart-bid/content-draft-save-rule'
 import {prepareContentDraftSaveRequest} from '@/services/smart-bid/content/draft/content-draft-save-request'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -63,7 +63,7 @@ export class ContentAuthoringCommands {
   const proof=view.captureReadRow(row,['draftVersion','baseRevisionId','draft'])
   const assertCurrent=()=>{assertSaved();proof()}
   assertCurrent()
-  const {draftVersion,baseRevisionId,draft}=row
+  const {draftVersion,baseRevisionId}=row,draft=decodeContentDraftPayload(row['draft'])
   if(!identity(draftVersion)||(baseRevisionId!==null&&!identity(baseRevisionId)))throw Error('CONTENT_CANDIDATE_DRAFT_REQUIRED')
   const draftJson=canonicalSnapshotValue(draft)
   const snapshot:unknown=JSON.parse(draftJson)
@@ -85,14 +85,14 @@ export class ContentAuthoringCommands {
   if(typeof draftVersion!=='string'||baseRevisionId!==null&&typeof baseRevisionId!=='string'||
    view.fieldAccess(edited,'draft').read!=='visible'||view.fieldAccess(edited,'draft').write!=='allowed')
    throw Error('CONTENT_DRAFT_SAVE_SCOPE')
-  const draft=edited['draft'],signature=canonicalSnapshotValue(draft)
-  if(signature===canonicalSnapshotValue(original['draft']))throw Error('CONTENT_DRAFT_SAVE_UNCHANGED')
+  const draft=decodeContentDraftPayload(edited['draft']),signature=canonicalSnapshotValue(draft)
+  if(signature===canonicalSnapshotValue(decodeContentDraftPayload(original['draft'])))throw Error('CONTENT_DRAFT_SAVE_UNCHANGED')
   const assertCurrent=()=>{
    this.assertCurrent(epoch);assertOriginal()
    if(this.#inputs.size)throw Error('CONTENT_COMMAND_PENDING_INPUT')
    const row=view.getEditingRow(draftId)
    if(!row||view.fieldAccess(row,'draft').read!=='visible'||view.fieldAccess(row,'draft').write!=='allowed'||
-    canonicalSnapshotValue(row['draft'])!==signature)throw Error('CONTENT_DRAFT_SAVE_STALE')
+    canonicalSnapshotValue(decodeContentDraftPayload(row['draft']))!==signature)throw Error('CONTENT_DRAFT_SAVE_STALE')
   }
   return prepareContentDraftSaveRequest({projectId,draftId,baseRevisionId,expectedDraftVersion:draftVersion,requestKey,draft,assertCurrent})
  }

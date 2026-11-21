@@ -86,7 +86,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T18:52:50.608Z",
+  "generatedAt": "2026-11-20T20:59:32.045Z",
   "models": {
     "DataViewFieldCascadeDefinition": {
       "name": "DataViewFieldCascadeDefinition",

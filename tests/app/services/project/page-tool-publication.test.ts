@@ -53,7 +53,7 @@ describe('browser publication recovery', () => {
     await withPageToolPublication(owner, async journal => {
       const intent = journal.open(call, digest, '')
       intent.snapshots = {'rule.json': {state:'confirmed',version:1}, 'script.js': {state:'confirmed',version:2}, 'style.css': {state:'confirmed',version:3}}
-      intent.pointer = {state:'pending', value:'rule=1;script=2;style=3'}
+      intent.pointer = {state:'pending', value:'r=1;s=2;t=3'}
       journal.write(intent)
     })
     expect(localStorage.length).toBe(1)

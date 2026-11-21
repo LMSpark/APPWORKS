@@ -31,7 +31,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T03:36:00.561Z",
+  "generatedAt": "2026-11-20T20:59:32.949Z",
   "models": {
     "ZipInventoryLimits": {
       "name": "ZipInventoryLimits",

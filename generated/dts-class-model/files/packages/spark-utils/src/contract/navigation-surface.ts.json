@@ -101,7 +101,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-31T04:25:34.996Z",
+  "generatedAt": "2026-11-20T20:59:32.475Z",
   "models": {
     "RuntimeNavigationItemKind": {
       "name": "RuntimeNavigationItemKind",

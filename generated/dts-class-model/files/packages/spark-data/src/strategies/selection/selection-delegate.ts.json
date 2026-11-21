@@ -279,7 +279,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:03.169Z",
+  "generatedAt": "2026-11-20T20:59:32.057Z",
   "models": {
     "EmitCurrentRowChangedFn": {
       "name": "EmitCurrentRowChangedFn",

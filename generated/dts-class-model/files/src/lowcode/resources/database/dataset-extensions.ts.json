@@ -898,7 +898,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-08T01:20:14.570Z",
+  "generatedAt": "2026-11-20T20:59:32.649Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",

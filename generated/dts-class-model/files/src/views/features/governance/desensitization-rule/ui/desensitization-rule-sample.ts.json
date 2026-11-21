@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/governance/desensitization-rule/ui/desensitization-rule-sample",
+    "sourcePath": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts",
+    "sourceFile": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts",
+    "packageName": "app",
+    "modulePath": "views/features/governance/desensitization-rule/ui/desensitization-rule-sample",
+    "jsdoc": "脱敏样例只计算本次输入，不查询或保存规则。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-21T08:06:16.024Z",
+  "models": {}
+}

@@ -55,7 +55,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-11T10:38:34.398Z",
+  "generatedAt": "2026-11-20T20:59:33.307Z",
   "models": {
     "AppNameSync": {
       "name": "AppNameSync",

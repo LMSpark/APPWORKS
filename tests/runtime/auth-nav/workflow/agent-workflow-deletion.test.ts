@@ -87,6 +87,80 @@ describe('formal Agent workflow deletion command', () => {
     } finally {f.ds.destroy()}
   })
 
+  it('verifies a lost deletion receipt without dispatching the delete again', async () => {
+    const f = fixture()
+    f.files.delete('APP/workflow-designs/delete-me/definition.json')
+    const remove = f.api.removeFile.getMockImplementation()
+    if (!remove) throw new Error('missing remove fixture')
+    f.api.removeFile.mockImplementation(async locator => {
+      await remove(locator)
+      throw new Error('lost receipt')
+    })
+    try {
+      await f.prepare()
+      await expect(f.save()).rejects.toThrow('lost receipt')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.save()).success).toBe(true)
+      expect(f.api.removeFile).toHaveBeenCalledOnce()
+    } finally {f.ds.destroy()}
+  })
+
+  it('retains a partial deletion for verification when a later read fails', async () => {
+    const f = fixture()
+    const read = f.api.readTextFile.getMockImplementation()
+    if (!read) throw new Error('missing read fixture')
+    f.api.readTextFile.mockImplementation(async locator => {
+      if (locator.fileName === 'design.json') throw new Error('design read unavailable')
+      return read(locator)
+    })
+    try {
+      await f.prepare()
+      await expect(f.save()).rejects.toThrow('design read unavailable')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      await expect(f.save()).rejects.toThrow()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect(f.api.removeFile).toHaveBeenCalledOnce()
+    } finally {f.ds.destroy()}
+  })
+
+  it('does not confirm a partial deletion when the directory omits a remaining file', async () => {
+    const f = fixture()
+    const read = f.api.readTextFile.getMockImplementation()
+    if (!read) throw new Error('missing read fixture')
+    let fail = true
+    f.api.readTextFile.mockImplementation(async locator => {
+      if (fail && locator.fileName === 'design.json') throw new Error('design read unavailable')
+      return read(locator)
+    })
+    try {
+      await f.prepare()
+      await expect(f.save()).rejects.toThrow('design read unavailable')
+      fail = false
+      f.syncListing('delete-me', false)
+      await expect(f.save()).rejects.toThrow('文件仍存在')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect(f.api.removeFile).toHaveBeenCalledOnce()
+    } finally {f.ds.destroy()}
+  })
+
+  it('verifies the original deletion after final directory readback fails', async () => {
+    const f = fixture()
+    const list = f.api.listFiles.getMockImplementation()
+    if (!list) throw new Error('missing list fixture')
+    let calls = 0
+    f.api.listFiles.mockImplementation(async input => {
+      if (++calls === 2) throw new Error('directory readback unavailable')
+      return list(input)
+    })
+    try {
+      await f.prepare()
+      await expect(f.save()).rejects.toThrow('directory readback unavailable')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.save()).success).toBe(true)
+      expect(f.api.removeFile).toHaveBeenCalledTimes(2)
+    } finally {f.ds.destroy()}
+  })
+
   it('rejects dotted workflow ids before IO', async () => {
     const f = fixture()
     try {

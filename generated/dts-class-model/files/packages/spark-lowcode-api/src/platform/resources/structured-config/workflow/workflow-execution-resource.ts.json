@@ -189,7 +189,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T04:57:42.636Z",
+  "generatedAt": "2026-11-20T20:59:32.360Z",
   "models": {
     "WorkflowExecutionGraph": {
       "name": "WorkflowExecutionGraph",

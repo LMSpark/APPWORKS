@@ -218,6 +218,16 @@
       "navigationId": "1B7FD70E326717B8E4B611D0431FFCBA"
     },
     {
+      "path": "/features/governance/desensitization-rule/ui/desensitization-rule-page",
+      "title": "脱敏规则列表",
+      "scope": "enterprise",
+      "source": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "description": "脱敏规则筛选、维护与样例计算",
+      "group": "数据治理",
+      "order": 66,
+      "dataSpaceId": "3A45C53F29C2C005FF21AA06B2BCA133"
+    },
+    {
       "path": "/features/system/cache-management/ui/cache-management-page",
       "title": "缓存管理",
       "icon": "Coin",

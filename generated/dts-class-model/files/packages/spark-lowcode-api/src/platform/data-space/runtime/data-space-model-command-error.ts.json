@@ -29,7 +29,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T03:17:08.009Z",
+  "generatedAt": "2026-11-20T20:59:32.234Z",
   "models": {
     "DataSpaceModelCommandNotDispatchedError": {
       "name": "DataSpaceModelCommandNotDispatchedError",

@@ -99,7 +99,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T14:13:28.256Z",
+  "generatedAt": "2026-11-20T20:59:31.663Z",
   "models": {
     "TabsClickEvent": {
       "name": "TabsClickEvent",

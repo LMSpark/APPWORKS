@@ -138,7 +138,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T19:46:06.094Z",
+  "generatedAt": "2026-11-20T20:59:33.092Z",
   "models": {
     "FindingSelection": {
       "name": "FindingSelection",

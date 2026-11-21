@@ -51,7 +51,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.608Z",
+  "generatedAt": "2026-11-20T20:59:32.289Z",
   "models": {
     "LowcodeApplication": {
       "name": "LowcodeApplication",

@@ -130,7 +130,7 @@
       "additionalProperties": true
     }
   },
-  "generatedAt": "2026-11-08T20:05:56.500Z",
+  "generatedAt": "2026-11-20T20:59:32.655Z",
   "models": {
     "AgentWorkflowDesignTableName": {
       "name": "AgentWorkflowDesignTableName",

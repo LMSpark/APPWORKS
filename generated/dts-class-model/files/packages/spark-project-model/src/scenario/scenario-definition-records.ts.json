@@ -216,7 +216,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:53:46.325Z",
+  "generatedAt": "2026-11-20T20:59:32.439Z",
   "models": {
     "ScenarioDefinitionWriteInput": {
       "name": "ScenarioDefinitionWriteInput",

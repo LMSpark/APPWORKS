@@ -243,7 +243,8 @@ function handleUserCommand(command: string) {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 32px;
 }
 
 .app-header__title {
@@ -251,6 +252,9 @@ function handleUserCommand(command: string) {
   font-weight: 600;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-header__center {
@@ -258,7 +262,7 @@ function handleUserCommand(command: string) {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-width: 0;
+  min-width: 52px;
   overflow: visible;
 }
 
@@ -273,6 +277,7 @@ function handleUserCommand(command: string) {
 .header-btn.el-button {
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
   margin: 0;
   padding: 0;
   border-radius: 6px;

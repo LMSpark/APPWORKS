@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T20:49:47.301Z",
+  "generatedAt": "2026-11-20T20:59:33.137Z",
   "models": {
     "Request": {
       "name": "Request",

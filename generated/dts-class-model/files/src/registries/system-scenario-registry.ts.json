@@ -47,6 +47,7 @@
         "applyAppAuth",
         "appAuthReview",
         "bugManage",
+        "desensitizationRule",
         "dataRecovery",
         "flowMonitor",
         "flowModelList",
@@ -99,6 +100,7 @@
             "applyAppAuth",
             "appAuthReview",
             "bugManage",
+            "desensitizationRule",
             "dataRecovery",
             "flowMonitor",
             "flowModelList",
@@ -132,7 +134,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-15T22:57:07.354Z",
+  "generatedAt": "2026-11-21T08:02:25.962Z",
   "models": {
     "SystemScenarioName": {
       "name": "SystemScenarioName",

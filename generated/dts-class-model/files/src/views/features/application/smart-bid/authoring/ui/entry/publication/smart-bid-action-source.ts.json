@@ -40,7 +40,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T19:24:41.489Z",
+  "generatedAt": "2026-11-20T20:59:33.134Z",
   "models": {
     "SmartBidPageAction": {
       "name": "SmartBidPageAction",

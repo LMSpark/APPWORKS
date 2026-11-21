@@ -228,7 +228,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T15:46:02.474Z",
+  "generatedAt": "2026-11-20T20:59:33.184Z",
   "models": {
     "DraftInput": {
       "name": "DraftInput",

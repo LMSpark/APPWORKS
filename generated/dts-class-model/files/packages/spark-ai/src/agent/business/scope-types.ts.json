@@ -162,7 +162,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.221Z",
+  "generatedAt": "2026-11-20T20:59:31.398Z",
   "models": {
     "AiAgentTarget": {
       "name": "AiAgentTarget",

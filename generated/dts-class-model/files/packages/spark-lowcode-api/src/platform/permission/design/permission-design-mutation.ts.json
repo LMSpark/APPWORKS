@@ -291,7 +291,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T07:32:17.613Z",
+  "generatedAt": "2026-11-20T20:59:32.298Z",
   "models": {
     "PermissionDesignMutationBase": {
       "name": "PermissionDesignMutationBase",

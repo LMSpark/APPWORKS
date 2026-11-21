@@ -9,7 +9,7 @@ import systemScenarios from '../../config/pages/system-scenarios.json'
 const systemScenarioNames = ['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint', 'cacheManagement',
   'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog',
   'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement', 'applicationManager', 'enterpriseRegistration',
-  'myAppAuthRequests', 'applyAppAuth', 'appAuthReview', 'bugManage', 'dataRecovery', 'flowMonitor', 'flowModelList', 'flowDesign', 'flowWorkbench',
+  'myAppAuthRequests', 'applyAppAuth', 'appAuthReview', 'bugManage', 'desensitizationRule', 'dataRecovery', 'flowMonitor', 'flowModelList', 'flowDesign', 'flowWorkbench',
   'databaseRelations', 'dataMenu', 'dimensionDesign', 'dimensionLedger', 'fileManager', 'reportManagement'] as const
 const publicScenarioNames = ['platformLogin'] as const
 export type SystemScenarioName = typeof systemScenarioNames[number]

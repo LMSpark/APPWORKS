@@ -1,0 +1,31 @@
+{
+  "scenarioId": "3A45C53F29C2C005FF21AA06B2BCA133",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_Desensitization_Rule": {
+      "modelBinding": {"modelId": "6c0aa89f-a132-4082-8a68-73f0dcaca8b6", "modelName": "Base_Desensitization_Rule"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 15,
+        "queryConfig": {"autoQuery": false, "fields": ["rowid", "type", "name", "description", "regex", "template", "original_sample", "desensitized_sample", "is_gabale"]}
+      }}
+    },
+    "脱敏分类": {
+      "modelBinding": {"modelId": "3406a885-ac20-4f53-bca1-9c1921717763", "modelName": "脱敏分类"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    },
+    "脱敏全局替换": {
+      "modelBinding": {"modelId": "fbc9a4d7-103b-4360-9ff9-a2202cf53f79", "modelName": "脱敏全局替换"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

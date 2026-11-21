@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T13:22:33.330Z",
+  "generatedAt": "2026-11-20T20:59:32.712Z",
   "models": {
     "CodeExamplePlan": {
       "name": "CodeExamplePlan",

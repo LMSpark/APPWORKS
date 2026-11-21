@@ -260,7 +260,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@302806": {
+            "__@iterator@303334": {
               "type": "object",
               "title": "() => StringIterator<string>"
             },
@@ -327,7 +327,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@302806",
+            "__@iterator@303334",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -554,7 +554,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@302806": {
+            "__@iterator@303334": {
               "type": "object",
               "title": "() => StringIterator<string>"
             },
@@ -621,7 +621,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@302806",
+            "__@iterator@303334",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -913,7 +913,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@302806": {
+            "__@iterator@303334": {
               "type": "object",
               "title": "() => StringIterator<string>"
             },
@@ -980,7 +980,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@302806",
+            "__@iterator@303334",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -1207,7 +1207,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@302806": {
+            "__@iterator@303334": {
               "type": "object",
               "title": "() => StringIterator<string>"
             },
@@ -1274,7 +1274,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@302806",
+            "__@iterator@303334",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -1330,7 +1330,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.474Z",
+  "generatedAt": "2026-11-20T20:59:31.389Z",
   "models": {
     "AiBusinessIdOptions": {
       "name": "AiBusinessIdOptions",

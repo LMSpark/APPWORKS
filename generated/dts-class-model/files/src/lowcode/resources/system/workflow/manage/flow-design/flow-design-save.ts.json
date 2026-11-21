@@ -37,7 +37,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T22:16:17.876Z",
+  "generatedAt": "2026-11-20T20:59:32.799Z",
   "models": {
     "SaveFlowDesignCommand": {
       "name": "SaveFlowDesignCommand",

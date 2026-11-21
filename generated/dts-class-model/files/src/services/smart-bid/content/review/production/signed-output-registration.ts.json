@@ -169,7 +169,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-19T00:32:07.537Z",
+  "generatedAt": "2026-11-20T20:59:32.945Z",
   "models": {
     "FileScope": {
       "name": "FileScope",

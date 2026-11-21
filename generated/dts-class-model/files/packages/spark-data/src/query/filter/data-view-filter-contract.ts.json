@@ -578,7 +578,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T20:45:22.177Z",
+  "generatedAt": "2026-11-20T20:59:32.035Z",
   "models": {
     "DataViewFilterOperator": {
       "name": "DataViewFilterOperator",

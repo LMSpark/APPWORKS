@@ -85,7 +85,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T23:49:26.507Z",
+  "generatedAt": "2026-11-20T20:59:31.763Z",
   "models": {
     "RPaginationProps": {
       "name": "RPaginationProps",

@@ -229,7 +229,7 @@
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
         },
-        "__@iterator@302806": {
+        "__@iterator@303334": {
           "type": "object",
           "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
@@ -242,7 +242,7 @@
         "entries",
         "keys",
         "values",
-        "__@iterator@302806"
+        "__@iterator@303334"
       ],
       "additionalProperties": false
     },
@@ -640,7 +640,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-18T15:48:12.544Z",
+  "generatedAt": "2026-11-20T20:59:32.200Z",
   "models": {
     "JsonNodeType": {
       "name": "JsonNodeType",
@@ -847,7 +847,7 @@
               "writable": true
             },
             {
-              "name": "__@iterator@302806",
+              "name": "__@iterator@303334",
               "readable": true,
               "writable": true
             }

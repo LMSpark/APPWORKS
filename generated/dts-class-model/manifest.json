@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1514,
+  "scannedFileCount": 1517,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -22947,6 +22947,45 @@
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog",
         "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog\n职责：绑定原目录DataSet的数据库、表视图，确认触发表选择，取消不写目标。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/governance/desensitization-rule/ui/desensitization-rule-delete.vue": {
+      "file": "files/src/views/features/governance/desensitization-rule/ui/desensitization-rule-delete.vue.json",
+      "module": {
+        "name": "app:views/features/governance/desensitization-rule/ui/desensitization-rule-delete",
+        "sourcePath": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-delete.vue",
+        "sourceFile": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-delete.vue",
+        "packageName": "app",
+        "modulePath": "views/features/governance/desensitization-rule/ui/desensitization-rule-delete",
+        "jsdoc": "app 的 views/features/governance/desensitization-rule/ui/desensitization-rule-delete 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue": {
+      "file": "files/src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue.json",
+      "module": {
+        "name": "app:views/features/governance/desensitization-rule/ui/desensitization-rule-page",
+        "sourcePath": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+        "sourceFile": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/governance/desensitization-rule/ui/desensitization-rule-page",
+        "jsdoc": "@module app:views/features/governance/desensitization-rule/ui/desensitization-rule-page\n职责：脱敏规则列表、筛选、单条维护和样例计算。\n边界：规则及字典均来自本次PageRuntime，修改和原保存核验只经所属DataView/DataSet。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts": {
+      "file": "files/src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts.json",
+      "module": {
+        "name": "app:views/features/governance/desensitization-rule/ui/desensitization-rule-sample",
+        "sourcePath": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts",
+        "sourceFile": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-sample.ts",
+        "packageName": "app",
+        "modulePath": "views/features/governance/desensitization-rule/ui/desensitization-rule-sample",
+        "jsdoc": "脱敏样例只计算本次输入，不查询或保存规则。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

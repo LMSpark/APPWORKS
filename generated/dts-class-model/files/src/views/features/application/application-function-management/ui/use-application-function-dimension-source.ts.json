@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@305398": {
+            "__@RefSymbol@305926": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@305398"
+            "__@RefSymbol@305926"
           ],
           "additionalProperties": false
         },
@@ -41,13 +41,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@305398": {
+            "__@RefSymbol@305926": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@305398"
+            "__@RefSymbol@305926"
           ],
           "additionalProperties": false
         },
@@ -60,13 +60,13 @@
                 true
               ]
             },
-            "__@RefSymbol@305398": {
+            "__@RefSymbol@305926": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@305398"
+            "__@RefSymbol@305926"
           ],
           "additionalProperties": false
         },
@@ -131,7 +131,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T20:56:09.466Z",
+  "generatedAt": "2026-11-20T20:59:33.047Z",
   "models": {
     "ApplicationFunctionDimensionSourceInput": {
       "name": "ApplicationFunctionDimensionSourceInput",

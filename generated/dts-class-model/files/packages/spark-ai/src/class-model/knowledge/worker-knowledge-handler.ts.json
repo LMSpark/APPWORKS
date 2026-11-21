@@ -49,7 +49,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:00:51.337Z",
+  "generatedAt": "2026-11-20T20:59:31.463Z",
   "models": {
     "CreateClassModelKnowledgeWorkerApiOptions": {
       "name": "CreateClassModelKnowledgeWorkerApiOptions",

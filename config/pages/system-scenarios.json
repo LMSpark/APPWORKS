@@ -5,6 +5,7 @@
   "scenarios": [
     {"name": "cacheManagement", "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF", "resourceId": "repository:scenario-view:348D1C50B204C779AABBE2489C5E2FDF", "path": "config/pages/system/cache-management/pagedata.json"},
     {"name": "bugManage", "scenarioId": "5B54AEBD5BD1BBC72710D4022589A404", "resourceId": "repository:scenario-view:5B54AEBD5BD1BBC72710D4022589A404", "path": "config/pages/system/bug-manage/pagedata.json"},
+    {"name": "desensitizationRule", "scenarioId": "3A45C53F29C2C005FF21AA06B2BCA133", "resourceId": "repository:scenario-view:3A45C53F29C2C005FF21AA06B2BCA133", "path": "config/pages/governance/desensitization-rule/pagedata.json"},
     {"name": "dataRecovery", "scenarioId": "70D5D8FACCC201A822F64B16A441BE8F", "resourceId": "repository:scenario-view:70D5D8FACCC201A822F64B16A441BE8F", "path": "config/pages/system/data-recovery/pagedata.json"},
     {"name": "flowMonitor", "scenarioId": "E328FBBF518141973C575D612CD75151", "resourceId": "repository:scenario-view:E328FBBF518141973C575D612CD75151", "path": "config/pages/system/flow-monitor/pagedata.json"},
     {"name": "reportManagement", "scenarioId": "FB291E325272007AEED8921C28B93CFD", "resourceId": "repository:scenario-view:FB291E325272007AEED8921C28B93CFD", "path": "config/pages/integration/report-management/pagedata.json"},

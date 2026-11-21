@@ -56,7 +56,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-13T10:09:04.820Z",
+  "generatedAt": "2026-11-20T20:59:33.227Z",
   "models": {
     "DataSpaceQueryPreviewProps": {
       "name": "DataSpaceQueryPreviewProps",

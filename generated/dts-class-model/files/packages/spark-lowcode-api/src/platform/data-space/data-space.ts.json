@@ -86,7 +86,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-17T15:52:55.062Z",
+  "generatedAt": "2026-11-20T20:59:32.226Z",
   "models": {
     "DataSpaceResourceType": {
       "name": "DataSpaceResourceType",

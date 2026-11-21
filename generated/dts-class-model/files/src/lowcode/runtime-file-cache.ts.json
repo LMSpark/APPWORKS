@@ -83,7 +83,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-19T17:39:58.327Z",
+  "generatedAt": "2026-11-20T20:59:32.855Z",
   "models": {
     "RuntimeFileCacheScope": {
       "name": "RuntimeFileCacheScope",

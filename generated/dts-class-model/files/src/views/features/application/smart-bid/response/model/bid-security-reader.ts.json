@@ -165,7 +165,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T14:30:06.494Z",
+  "generatedAt": "2026-11-20T20:59:33.182Z",
   "models": {
     "Requirement": {
       "name": "Requirement",

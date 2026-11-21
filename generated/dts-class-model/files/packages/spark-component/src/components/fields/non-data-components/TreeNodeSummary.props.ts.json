@@ -91,7 +91,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.592Z",
+  "generatedAt": "2026-11-20T20:59:31.917Z",
   "models": {
     "RTreeNodeSummaryProps": {
       "name": "RTreeNodeSummaryProps",

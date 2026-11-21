@@ -294,7 +294,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@302806": {
+                "__@iterator@303334": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 },
@@ -361,7 +361,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@302806",
+                "__@iterator@303334",
                 "toLocaleString"
               ],
               "additionalProperties": false
@@ -605,7 +605,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.220Z",
+  "generatedAt": "2026-11-20T20:59:31.397Z",
   "models": {
     "AiAgentToolLoopNudgeReason": {
       "name": "AiAgentToolLoopNudgeReason",

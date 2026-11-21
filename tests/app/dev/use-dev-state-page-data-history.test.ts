@@ -835,7 +835,7 @@ describe('tool and shared scenario editing owners',()=>{
    }
    await vi.waitFor(()=>expect(stage.state.statusMessages.value.map(status=>status.text).join('\n')).toContain('发布指针已一次切换并读回'))
    expect(stage.save).toHaveBeenCalledTimes(1)
-   expect(stage.owner.row?.['VersionId']).toBe('rule=1;script=1;style=1;manifest=1')
+   expect(stage.owner.row?.['VersionId']).toBe('r=1;s=1;t=1;m=1')
    expect(Object.fromEntries(writes)).toEqual({'rule.json':1,'script.js':1,'style.css':1})
    expect(reads).toHaveBeenCalledWith('rule.json')
   } finally {stage.wrapper.unmount()}
@@ -892,7 +892,7 @@ describe('tool and shared scenario editing owners',()=>{
     await ensureDevStateActivePageLoaded(reopened)
     const fresh=reopened.blueprintWorkspaceDataView.value!
     expect(fresh).not.toBe(owner)
-    expect(fresh.row?.['VersionId']).toBe('rule=1;script=1;style=1;manifest=1')
+    expect(fresh.row?.['VersionId']).toBe('r=1;s=1;t=1;m=1')
     const newSave=vi.spyOn(fresh.dataSet,'saveChanges')
     const files=vi.spyOn(reopened,'loadPageToolFileDataView')
     const readback=vi.spyOn(fresh,'rereadSelectedNode')
@@ -905,7 +905,7 @@ describe('tool and shared scenario editing owners',()=>{
     expect(readback).toHaveBeenCalledTimes(kind==='cold-unknown'?0:1)
    }
    expect(save).toHaveBeenCalledTimes(2)
-   expect(savedVersions.get('orders-page-node')).toBe('rule=1;script=1;style=1;manifest=1')
+   expect(savedVersions.get('orders-page-node')).toBe('r=1;s=1;t=1;m=1')
   } finally {wrapper.unmount()}
  })
  it('keeps the preview route snapshot aligned with the main and additional runtime spaces',async()=>{

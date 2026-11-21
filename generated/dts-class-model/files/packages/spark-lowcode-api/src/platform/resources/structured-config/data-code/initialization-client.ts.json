@@ -84,7 +84,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T12:04:35.825Z",
+  "generatedAt": "2026-11-20T20:59:32.342Z",
   "models": {
     "CodeInitializationInput": {
       "name": "CodeInitializationInput",

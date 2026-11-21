@@ -43,7 +43,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T21:14:39.686Z",
+  "generatedAt": "2026-11-20T20:59:32.232Z",
   "models": {
     "DataSpaceModelNotFoundError": {
       "name": "DataSpaceModelNotFoundError",

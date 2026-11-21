@@ -222,7 +222,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T09:34:15.900Z",
+  "generatedAt": "2026-11-20T20:59:32.897Z",
   "models": {
     "ContentTarget": {
       "name": "ContentTarget",

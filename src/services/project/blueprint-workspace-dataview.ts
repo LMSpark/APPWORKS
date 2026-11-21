@@ -111,7 +111,11 @@ type PendingChildCreateBatch=Readonly<{
 
 function sameWireValue(left:unknown,right:unknown):boolean{
   if(Object.is(left,right))return true
-  if(typeof left==='number'||typeof right==='number')return Number(left??0)===Number(right??0)
+  if(typeof left==='number'||typeof right==='number'){
+    if(left===null||left===undefined||right===null||right===undefined
+      ||(typeof left==='string'&&!left.trim())||(typeof right==='string'&&!right.trim()))return false
+    return Number(left)===Number(right)
+  }
   return String(left??'')===String(right??'')
 }
 
@@ -1152,7 +1156,7 @@ export class BlueprintWorkspaceDataView {
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     const parent=this.requireCurrentParent(parentNodeId)
     if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
-    if(this.view.addActionState()!=='enabled')throw new Error('蓝图 DataView 当前查询不允许新增节点')
+    if(this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许在该父节点下新增子节点')
   }
 
   private requireCurrentParent(parentNodeId:string):DataRow{
@@ -1163,10 +1167,12 @@ export class BlueprintWorkspaceDataView {
 
   public preflightChildNode(parentNodeId:string,input:Record<string,unknown>):Record<string,unknown>{
     this.assertCanAddChild(parentNodeId)
+    if(!this.view.supportsExplicitIdentityCreate||this.view.primaryKey!=='rowid')throw new Error('蓝图 DataView 当前查询不支持显式正式身份新增')
+    const parent=this.requireCurrentParent(parentNodeId)
     const expected={...input,SysId:this.#projectId,prowid:parentNodeId}
     for(const field of Object.keys(expected)){
       if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出子节点新增字段 ${field}`)
-      const access=this.view.newRowFieldAccess(field)
+      const access=this.view.fieldAccess(parent,field)
       if(access.write!=='allowed')throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
     }
     const validation=this.view.validator?.validateColumns(expected,new Set(Object.keys(expected)))
@@ -1202,10 +1208,10 @@ export class BlueprintWorkspaceDataView {
     }
     const expected=this.preflightChildNode(parentNodeId,input)
     const nodeId=explicitNodeId??crypto.randomUUID().replaceAll('-','').toUpperCase()
-    const created=await this.view.addRowWithIdentity(
-      {field:'rowid',value:nodeId},
-      Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='rowid')),
-    )
+    const parent=this.requireCurrentParent(parentNodeId)
+    const created=await this.view.addChildRow({parentRow:parent,parentField:'rowid',childForeignKey:'prowid',
+      identity:{field:'rowid',value:nodeId},
+      data:Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='rowid'&&field!=='prowid'))})
     if('success' in created)throw new Error('蓝图 DataView 未准备出正式新增行')
     const id=this.view.getPkKey(created)
     if((typeof id!=='string'&&typeof id!=='number')||!String(id).trim()||created['rowid']!==id||created['SysId']!==this.#projectId||created['prowid']!==parentNodeId){
@@ -1331,7 +1337,12 @@ export class BlueprintWorkspaceDataView {
     const beforeRecord=toRecord(before)
     const nextRecord=toRecord(next)
     const wireFields=BLUEPRINT_WORKSPACE_FIELD_NAMES.filter(field=>field!=='conType'||before.kind!=='unknown'||next.kind!=='unknown')
-    const currentWire=lowcodeProjectBlueprintFields(beforeRecord,wireFields),nextWire=lowcodeProjectBlueprintFields(nextRecord,wireFields)
+    const currentWire:Record<string,string|number|null>=lowcodeProjectBlueprintFields(beforeRecord,wireFields)
+    const nextWire:Record<string,string|number|null>=lowcodeProjectBlueprintFields(nextRecord,wireFields)
+    if(before.navigation?.openMode===undefined)currentWire['NavigationType']=null
+    if(next.navigation?.openMode===undefined)nextWire['NavigationType']=null
+    if(!before.navigation?.displayMode?.trim())currentWire['NavigationShowType']=null
+    if(!next.navigation?.displayMode?.trim())nextWire['NavigationShowType']=null
     const changed=Object.entries(nextWire).filter(([field,value])=>!sameWireValue(currentWire[field],value))
     for(const [field] of changed){
       if(!this.hasOutput(field)||!Object.hasOwn(row,field)||this.view.fieldAccess(row,field).read!=='visible'||!this.canWrite(field))throw new Error(`蓝图 DataView 不允许读写正式字段 ${field}`)
@@ -1452,7 +1463,7 @@ export class BlueprintWorkspaceDataView {
     const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
     if(!parent)return 'unknown'
     if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')return 'unknown'
-    return this.view.addActionState()
+    return this.view.createChildActionState(parent)
   }
 
   public canRead(field: string): boolean {

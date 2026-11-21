@@ -61,7 +61,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T21:52:40.633Z",
+  "generatedAt": "2026-11-20T20:59:33.220Z",
   "models": {
     "DataSpaceFieldEditorProps": {
       "name": "DataSpaceFieldEditorProps",

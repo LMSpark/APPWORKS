@@ -80,7 +80,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T13:46:22.798Z",
+  "generatedAt": "2026-11-20T20:59:32.905Z",
   "models": {
     "ContentSubtreeInput": {
       "name": "ContentSubtreeInput",

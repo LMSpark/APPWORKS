@@ -1,0 +1,33 @@
+[
+  {"type":"r-space","props":{"wrap":true},"children":[
+    {"type":"r-button","props":{"label":"核验原保存结果","buttonType":"warning","onBeforeRender":"bindVerification","onClick":"verifySave"}},
+    {"type":"r-button","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","label":"新增","buttonType":"primary","icon":"Plus","permAction":"create","onBeforeRender":"bindAction","onClick":"createRule"}}
+  ]},
+  {"type":"r-table","props":{"class":"desensitization-rules","dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","autoColumns":false,"stripe":true,"border":true,"showRowIndex":true,"showDataViewMeta":false,"actionColumn":{"label":"操作","width":160,"fixed":true},"pagination":{"pageSizes":[15,30,50,100],"showJumper":true},
+    "filter":{"queryOnReset":true,"firstPageOnSearch":true,"showExpressionEditor":false,"showDataViewMeta":false,"children":[
+      {"type":"r-select","props":{"field":"type","label":"分类","clearable":true,"filterable":true,"optionDataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@脱敏分类@default"}},
+      {"type":"r-text","props":{"field":"name","label":"名称","clearable":true,"filterTrim":true}},
+      {"type":"r-text","props":{"field":"description","label":"描述","clearable":true,"filterTrim":true}}
+    ]},"actions":{"children":[
+      {"type":"r-button","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","label":"编辑","link":true,"buttonType":"primary","permAction":"edit","onBeforeRender":"bindEdit","onClick":"editRule"}},
+      {"type":"r-button","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","label":"删除","link":true,"buttonType":"danger","permAction":"delete","onBeforeRender":"bindDelete","onClick":"removeRule"}}
+    ]}},"children":[
+      {"type":"r-select","props":{"field":"type","label":"分类","minWidth":140,"readonly":true,"optionDataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@脱敏分类@default"}},
+      {"type":"r-text","props":{"field":"name","label":"名称","minWidth":180,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"description","label":"脱敏规则描述","minWidth":220,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"regex","label":"脱敏正则表达式","minWidth":220,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"template","label":"脱敏规则模板","minWidth":200,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"original_sample","label":"示例原文","minWidth":180,"readonly":true,"showOverflowTooltip":true}},
+      {"type":"r-text","props":{"field":"desensitized_sample","label":"脱敏后样例","minWidth":180,"readonly":true,"showOverflowTooltip":true}}
+  ]},
+  {"id":"ruleForm","type":"r-form","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1},"children":[
+    {"type":"r-select","props":{"field":"type","label":"分类","required":true,"filterable":true,"optionNumericText":true,"optionDataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@脱敏分类@default"}},
+    {"type":"r-text","props":{"field":"name","label":"名称","required":true}},
+    {"type":"r-select","props":{"field":"is_gabale","label":"是否全局匹配","required":true,"filterable":true,"optionNumericText":true,"optionDataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@脱敏全局替换@default"}},
+    {"type":"r-text","props":{"field":"regex","label":"脱敏正则表达式","required":true}},
+    {"type":"r-text","props":{"field":"template","label":"脱敏规则模板","required":true}},
+    {"type":"r-text","props":{"field":"original_sample","label":"示例原文","required":true}},
+    {"type":"r-text","props":{"field":"desensitized_sample","label":"脱敏后样例"}},
+    {"type":"r-textarea","props":{"field":"description","label":"脱敏规则描述"}}
+  ]}
+]

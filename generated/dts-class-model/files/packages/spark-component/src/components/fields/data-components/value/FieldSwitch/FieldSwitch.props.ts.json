@@ -195,7 +195,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T20:41:27.764Z",
+  "generatedAt": "2026-11-20T20:59:31.908Z",
   "models": {
     "RSwitchProps": {
       "name": "RSwitchProps",

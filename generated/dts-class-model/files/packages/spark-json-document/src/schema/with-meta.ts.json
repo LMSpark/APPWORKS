@@ -20,7 +20,7 @@
       "additionalProperties": true
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.617Z",
+  "generatedAt": "2026-11-20T20:59:32.188Z",
   "models": {
     "JsonSchemaNode": {
       "name": "JsonSchemaNode",

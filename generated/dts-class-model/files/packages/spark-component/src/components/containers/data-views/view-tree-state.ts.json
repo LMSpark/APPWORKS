@@ -94,7 +94,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T15:06:03.546Z",
+  "generatedAt": "2026-11-20T20:59:31.622Z",
   "models": {
     "RendererTreeViewState": {
       "name": "RendererTreeViewState",

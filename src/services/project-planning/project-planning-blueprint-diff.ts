@@ -2,7 +2,7 @@ import { deepClone, isProjectBlueprintNodeKind } from '@spark-appworks/spark-uti
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { createLowcodeProjectBlueprintRecord, lowcodeProjectBlueprintFields } from '@spark-appworks/spark-lowcode-api'
 
-type WireFields = Record<string, string | number>
+type WireFields = Record<string, string | number | null>
 
 export type ProjectBlueprintReplacementCommand = Readonly<{
   kind: 'create' | 'update' | 'move' | 'reorder' | 'delete'
@@ -70,8 +70,8 @@ export function planProjectBlueprintReplacement(
     if (!before) {
       const fields: WireFields = {...toWireFields(item.node), prowid: item.parentNodeId}
       // 新记录未指定的可选整数枚举交由存储默认值处理；空字符串不是合法整数。
-      if (item.node.navigation?.openMode === undefined) delete fields['NavigationType']
-      if (item.node.navigation?.displayMode === undefined) delete fields['NavigationShowType']
+      if (fields['NavigationType'] === null) delete fields['NavigationType']
+      if (fields['NavigationShowType'] === null) delete fields['NavigationShowType']
       assertAvailableFields(fields, { availableFields: options.availableFields, allowDefaults: true, nodeId: item.node.nodeId })
       creates.push(command({ kind: 'create', item, fields }))
       continue
@@ -215,13 +215,19 @@ function toWireFields(node: ProjectBlueprintTreeNodeData): WireFields {
     ...(node.dataSpace === undefined ? {} : {dataSpace: node.dataSpace}),
     ...(node.prototype === undefined ? {} : {prototype: node.prototype}), source: node.source,
   })
-  return lowcodeProjectBlueprintFields(record)
+  const fields: WireFields = lowcodeProjectBlueprintFields(record)
+  if (node.navigation?.openMode === undefined) fields['NavigationType'] = null
+  if (!node.navigation?.displayMode?.trim()) fields['NavigationShowType'] = null
+  return fields
 }
 
 function changedWireFields(before: ProjectBlueprintTreeNodeData, after: ProjectBlueprintTreeNodeData): WireFields {
   const previousFields = toWireFields(before)
   const nextFields = toWireFields(after)
-  return Object.fromEntries(Object.entries(nextFields).filter(([field, value]) => String(previousFields[field]) !== String(value)))
+  return Object.fromEntries(Object.entries(nextFields).filter(([field, value]) =>
+    value === null || previousFields[field] === null
+      ? previousFields[field] !== value
+      : String(previousFields[field]) !== String(value)))
 }
 
 function assertWireSiblingOrder(nodes: readonly FlatNode[]): void {

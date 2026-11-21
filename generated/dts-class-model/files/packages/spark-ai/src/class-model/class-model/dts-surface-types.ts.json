@@ -92,7 +92,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.230Z",
+  "generatedAt": "2026-11-20T20:59:31.440Z",
   "models": {
     "DtsClassModelSurfaceDocument": {
       "name": "DtsClassModelSurfaceDocument",

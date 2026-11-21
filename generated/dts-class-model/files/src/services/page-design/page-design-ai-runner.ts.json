@@ -220,7 +220,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-12T21:29:12.912Z",
+  "generatedAt": "2026-11-20T20:59:32.864Z",
   "models": {
     "PageDesignAiRunOptions": {
       "name": "PageDesignAiRunOptions",

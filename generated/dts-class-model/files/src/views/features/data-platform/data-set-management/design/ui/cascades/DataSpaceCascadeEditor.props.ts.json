@@ -50,7 +50,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-09T23:49:06.236Z",
+  "generatedAt": "2026-11-20T20:59:33.204Z",
   "models": {
     "DataSpaceCascadeEditorProps": {
       "name": "DataSpaceCascadeEditorProps",

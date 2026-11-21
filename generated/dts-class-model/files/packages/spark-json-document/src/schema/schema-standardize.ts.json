@@ -193,7 +193,7 @@
       "additionalProperties": true
     }
   },
-  "generatedAt": "2026-08-10T12:17:50.878Z",
+  "generatedAt": "2026-11-20T20:59:32.187Z",
   "models": {
     "JsonLiteralValue": {
       "name": "JsonLiteralValue",

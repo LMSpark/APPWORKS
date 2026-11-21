@@ -20,7 +20,7 @@ type Input = Readonly<{
   assertCurrent: () => void
 }>
 
-type Attempt = Readonly<{row: DataRow; customPath: string; steps: ReadonlyArray<'definition' | 'design'>}>
+type Attempt = Readonly<{row: DataRow}>
 
 function uncertain(cause: unknown): Error {
   return Object.assign(new Error(`AGENT_WORKFLOW_DELETION_UNKNOWN: 删除结果尚未确认（${cause instanceof Error ? cause.message : String(cause)}）`, {cause}),
@@ -83,30 +83,30 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       if (attempts.has(commandId)) throw uncertain(new Error('原删除命令已经派发，不能重传'))
       const original: DataRow = {commandId, workflowId: row['workflowId']}
       await assertListed(workflowId)
-      const attempt: Attempt = {row: original, customPath: `${folder}/${workflowId}`, steps: []}
-      const steps: Array<Attempt['steps'][number]> = []
-      for (const fileName of ['definition.json', 'design.json'] as const) {
-        guard()
-        try {
-          await input.api.readTextFile(locator(workflowId, fileName))
-        } catch (error) {
+      const attempt: Attempt = {row: original}
+      try {
+        for (const fileName of ['definition.json', 'design.json'] as const) {
           guard()
-          if (error instanceof LowcodeApiError && error.code === 404) continue
-          throw error
-        }
-        steps.push(fileName === 'definition.json' ? 'definition' : 'design')
-        try {
+          try {
+            await input.api.readTextFile(locator(workflowId, fileName))
+          } catch (error) {
+            guard()
+            if (error instanceof LowcodeApiError && error.code === 404) continue
+            throw error
+          }
+          guard()
+          attempts.set(commandId, attempt)
           await input.api.removeFile(locator(workflowId, fileName))
-        } catch (error) {
-          throw uncertain(error)
+          guard()
         }
+        if (!attempts.has(commandId)) throw new Error('AGENT_WORKFLOW_DELETION_NOT_FOUND: 没有可删除的设计或定义文件')
         guard()
+        await assertNotListed(workflowId)
+        return receipt(attempt)
+      } catch (error) {
+        if (attempts.has(commandId)) throw uncertain(error)
+        throw error
       }
-      if (steps.length === 0) throw new Error('AGENT_WORKFLOW_DELETION_NOT_FOUND: 没有可删除的设计或定义文件')
-      attempts.set(commandId, {...attempt, steps})
-      guard()
-      await assertNotListed(workflowId)
-      return receipt({...attempt, steps})
     },
     isUnconfirmed: isUncertain,
     verify: async row => {
@@ -115,8 +115,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       if (!attempt || attempt.row['workflowId'] !== row['workflowId']) throw new Error('AGENT_WORKFLOW_DELETION_VERIFY: 缺少原派发身份')
       const workflowId = agentWorkflowId(row['workflowId'])
       await assertNotListed(workflowId)
-      for (const step of attempt.steps) {
-        const fileName = step === 'definition' ? 'definition.json' : 'design.json'
+      for (const fileName of ['definition.json', 'design.json'] as const) {
         try {
           await input.api.readTextFile(locator(workflowId, fileName))
           guard()

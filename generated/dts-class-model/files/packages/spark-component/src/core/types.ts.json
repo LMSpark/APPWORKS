@@ -263,7 +263,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@302806": {
+                "__@iterator@303334": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -318,7 +318,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@302806"
+                "__@iterator@303334"
               ],
               "additionalProperties": false
             },
@@ -526,7 +526,7 @@
       ]
     }
   },
-  "generatedAt": "2026-08-10T11:27:03.460Z",
+  "generatedAt": "2026-11-20T20:59:31.934Z",
   "models": {
     "ComponentDefinition": {
       "name": "ComponentDefinition",

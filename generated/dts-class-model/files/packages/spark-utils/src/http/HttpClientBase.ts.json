@@ -361,7 +361,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-05T10:07:52.906Z",
+  "generatedAt": "2026-11-20T20:59:32.484Z",
   "models": {
     "HttpClientBase": {
       "name": "HttpClientBase",

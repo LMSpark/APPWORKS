@@ -136,9 +136,73 @@ describe('direct option DataView failure and recovery',()=>{
       expect(nav.getEditingRow(1)?.['openMode']).toBe(2)
     }finally{wrapper.unmount();ds.destroy()}
   })
+
+  it('only matches numeric results to text options when explicitly enabled and writes text',async()=>{
+    const ds=SparkData.fromJson({scenarioId:'FORM',dataSetName:'FORM',tables:{
+      Nav:{modelBinding:{modelId:'N',modelName:'Nav'},columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'kind',type:'varchar'}],views:{default:{autoCurrentFirst:true}}},
+      Dict:{modelBinding:{modelId:'D',modelName:'Dict'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'val',type:'string'},{name:'txt',type:'string'}],
+        views:{default:{valueField:'val',labelField:'txt'}}}}})
+    const nav=ds.getView('Nav','default')!,dict=ds.getView('Dict','default')!
+    nav.bindQueryExecutor({executeQuery:async()=>queryResult('Nav',[{id:1,kind:0}])})
+    dict.bindQueryExecutor({executeQuery:async()=>queryResult('Dict',[{id:'a',val:'0',txt:'否'},{id:'b',val:1,txt:'是'}])})
+    await dict.loadFromServer();await nav.loadFromServer()
+    const mountSelect=(enabled:boolean)=>mountFieldInContext({component:FieldSelect,type:'r-select',model:nav.currentRow!,fieldName:'kind',dataSource:nav,pageDataSet:ds,
+      componentProps:{optionDataViewKey:'FORM@Dict@default',optionNumericText:enabled},global:{stubs:{'el-select':Select,'el-option':Option,'el-form-item':FormItem}}})
+    const strict=mountSelect(false),enabled=mountSelect(true)
+    try{
+      await flushPromises()
+      expect(strict.get('.select').attributes('data-value')).toBe('0')
+      expect(enabled.get('.select').attributes('data-value')).toBe('"0"')
+      expect(nav.hasEditingChanges()).toBe(false)
+      enabled.getComponent(Select).vm.$emit('update:modelValue',1);await flushPromises()
+      expect(nav.getEditingRow(1)?.['kind']).toBe('1')
+    }finally{strict.unmount();enabled.unmount();ds.destroy()}
+  })
+
+  it('disables ambiguous numeric-text codes, recovers after refresh, and preserves null and readonly values',async()=>{
+    const ds=SparkData.fromJson({scenarioId:'FORM',dataSetName:'FORM',tables:{
+      Nav:{modelBinding:{modelId:'N',modelName:'Nav'},columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'kind',type:'varchar'}],views:{default:{autoCurrentFirst:true}}},
+      Dict:{modelBinding:{modelId:'D',modelName:'Dict'},columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'val',type:'string'},{name:'txt',type:'string'}],
+        views:{default:{valueField:'val',labelField:'txt'}}}}})
+    const nav=ds.getView('Nav','default')!,dict=ds.getView('Dict','default')!
+    nav.bindQueryExecutor({executeQuery:async()=>queryResult('Nav',[{id:1,kind:null}],{readonly:true})})
+    const query=vi.fn(async()=>queryResult('Dict',[{id:'a',val:'0',txt:'否'},{id:'b',val:0,txt:'重复'}]))
+    dict.bindQueryExecutor({executeQuery:query})
+    await dict.loadFromServer();await nav.loadFromServer()
+    const wrapper=mountFieldInContext({component:FieldSelect,type:'r-select',model:nav.currentRow!,fieldName:'kind',dataSource:nav,pageDataSet:ds,
+      componentProps:{optionDataViewKey:'FORM@Dict@default',optionNumericText:true},global:{stubs:{'el-select':Select,'el-option':Option,'el-form-item':FormItem}}})
+    try{
+      await flushPromises()
+      expect(wrapper.get('.form-item').attributes('data-error')).toContain('数字文本候选编码不唯一')
+      expect(wrapper.get('.select').attributes('data-disabled')).toBe('true')
+      expect(wrapper.findAll('.option')).toHaveLength(0)
+      wrapper.getComponent(Select).vm.$emit('update:modelValue','0');await flushPromises()
+      expect(nav.hasEditingChanges()).toBe(false);expect(nav.rows[0]?.['kind']).toBeNull()
+      query.mockResolvedValueOnce(queryResult('Dict',[{id:'a',val:'0',txt:'否'}]))
+      await dict.refresh();await flushPromises()
+      expect(wrapper.get('.form-item').attributes('data-error')).toBeUndefined()
+      expect(wrapper.get('.select').attributes('data-disabled')).toBe('true')
+      wrapper.getComponent(Select).vm.$emit('update:modelValue','0');await flushPromises()
+      expect(nav.hasEditingChanges()).toBe(false);expect(nav.rows[0]?.['kind']).toBeNull()
+    }finally{wrapper.unmount();ds.destroy()}
+  })
 })
 
 describe('field components consume native value cascades', () => {
+  it('rejects numeric-text matching for cascades and record selection', async () => {
+    const f = await fixture()
+    const mountInvalid = (componentProps: Record<string, unknown>, fieldName: string) => mountFieldInContext({
+      component: FieldSelect, type: 'r-select', model: f.orders.currentRow!, fieldName,
+      dataSource: f.orders, pageDataSet: f.ds, componentProps,
+      global: {stubs: {'el-select': Select, 'el-option': Option, 'el-form-item': FormItem}},
+    })
+    try {
+      expect(() => mountInvalid({optionNumericText: true}, 'city')).toThrow('数字文本匹配仅支持非级联的单值文本字段')
+      f.ds.removeCascade({cascadeId: 'city'})
+      expect(() => mountInvalid({dataMember: 'value', optionNumericText: true}, '')).toThrow('数字文本匹配仅支持非级联的单值文本字段')
+    } finally {f.ds.destroy()}
+  })
+
   it('rejects option-value trimming for a configured data cascade', async () => {
     const f = await fixture()
     try {

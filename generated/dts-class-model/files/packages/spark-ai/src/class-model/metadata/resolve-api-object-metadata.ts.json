@@ -32,7 +32,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:17:50.878Z",
+  "generatedAt": "2026-11-20T20:59:31.468Z",
   "models": {
     "ResolveRuntimeApiMetadataJsonOptions": {
       "name": "ResolveRuntimeApiMetadataJsonOptions",

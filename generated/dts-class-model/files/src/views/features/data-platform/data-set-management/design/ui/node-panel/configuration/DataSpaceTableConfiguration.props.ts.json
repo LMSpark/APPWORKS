@@ -68,7 +68,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-14T19:29:07.588Z",
+  "generatedAt": "2026-11-20T20:59:33.216Z",
   "models": {
     "DataSpaceTableConfigurationProps": {
       "name": "DataSpaceTableConfigurationProps",

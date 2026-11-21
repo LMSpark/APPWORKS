@@ -30,7 +30,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.494Z",
+  "generatedAt": "2026-11-20T20:59:32.751Z",
   "models": {
     "Change": {
       "name": "Change",

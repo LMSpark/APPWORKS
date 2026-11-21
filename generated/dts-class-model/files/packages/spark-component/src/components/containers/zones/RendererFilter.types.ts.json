@@ -181,11 +181,11 @@
               "type": "object",
               "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
             },
-            "__@iterator@302806": {
+            "__@iterator@303334": {
               "type": "object",
               "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
             },
-            "__@unscopables@302808": {
+            "__@unscopables@303336": {
               "type": "object",
               "properties": {
                 "length": {
@@ -386,13 +386,13 @@
                     true
                   ]
                 },
-                "__@iterator@302806": {
+                "__@iterator@303334": {
                   "enum": [
                     false,
                     true
                   ]
                 },
-                "__@unscopables@302808": {
+                "__@unscopables@303336": {
                   "enum": [
                     false,
                     true
@@ -436,8 +436,8 @@
             "flatMap",
             "flat",
             "at",
-            "__@iterator@302806",
-            "__@unscopables@302808"
+            "__@iterator@303334",
+            "__@unscopables@303336"
           ],
           "additionalProperties": false
         },
@@ -545,7 +545,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T14:25:15.737Z",
+  "generatedAt": "2026-11-20T20:59:31.752Z",
   "models": {
     "RendererFilterApi": {
       "name": "RendererFilterApi",

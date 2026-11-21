@@ -199,7 +199,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-17T22:16:29.535Z",
+  "generatedAt": "2026-11-20T20:59:32.897Z",
   "models": {
     "ContentTextPatchObject": {
       "name": "ContentTextPatchObject",

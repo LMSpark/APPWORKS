@@ -129,7 +129,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T05:30:30.691Z",
+  "generatedAt": "2026-11-20T20:59:31.671Z",
   "models": {
     "RDrawerProps": {
       "name": "RDrawerProps",

@@ -1947,7 +1947,7 @@ export function useDevState() {
       const pageId=normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
       const childInput={name:'新页面',funCode:'',FunName:'新页面',memo:'',htmlDesc:'',conType:'Navitem',conid:'',NavigationUrl:`cfg:${pageId}`,VersionId:'',
         DifficultyFactor:'0',Manhour:'0',Number:'0',Sum:'0',Total:'0',personCharge:'',status:'',FunOrderValue:'0',NavigationImageWxz:'Document',MobileUrl:'',
-        IsShowAtNav:'1',NavigationType:'',IsShowChildItem:'1',BeginGroup:'0',NavigationShowType:'',ChildItemLocation:'Left',HorizontalAlignment:''}
+        IsShowAtNav:'1',IsShowChildItem:'1',BeginGroup:'0',ChildItemLocation:'Left',HorizontalAlignment:''}
       session.preflightChildNode(parent.nodeId,childInput)
       pendingPageBindingCreate={kind:'child',pageId,parentId:parent.nodeId,nodeId:parent.nodeId,projectId:session.projectId,childInput,stage:'files'}
       await resumePendingPageBindingCreate()

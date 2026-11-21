@@ -37,7 +37,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T19:53:49.985Z",
+  "generatedAt": "2026-11-20T20:59:31.434Z",
   "models": {
     "ClassModelBuildConsistencyIssue": {
       "name": "ClassModelBuildConsistencyIssue",

@@ -135,7 +135,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:01:54.436Z",
+  "generatedAt": "2026-11-20T20:59:32.188Z",
   "models": {
     "JsonValidationIssue": {
       "name": "JsonValidationIssue",

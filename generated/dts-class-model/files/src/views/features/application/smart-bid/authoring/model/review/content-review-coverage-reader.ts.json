@@ -198,7 +198,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T02:10:37.702Z",
+  "generatedAt": "2026-11-20T20:59:33.092Z",
   "models": {
     "CoverageInput": {
       "name": "CoverageInput",

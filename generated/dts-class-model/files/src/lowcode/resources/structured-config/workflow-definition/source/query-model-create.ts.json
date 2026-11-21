@@ -100,7 +100,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.498Z",
+  "generatedAt": "2026-11-20T20:59:32.768Z",
   "models": {
     "WorkflowQueryModelCreateInput": {
       "name": "WorkflowQueryModelCreateInput",

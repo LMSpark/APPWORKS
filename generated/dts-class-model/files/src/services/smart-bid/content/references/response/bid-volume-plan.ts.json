@@ -130,7 +130,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T15:52:34.291Z",
+  "generatedAt": "2026-11-20T20:59:32.928Z",
   "models": {
     "Scope": {
       "name": "Scope",

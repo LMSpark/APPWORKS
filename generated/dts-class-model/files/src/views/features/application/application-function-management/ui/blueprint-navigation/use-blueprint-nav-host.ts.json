@@ -37,13 +37,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@305398": {
+            "__@RefSymbol@305926": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@305398"
+            "__@RefSymbol@305926"
           ],
           "additionalProperties": false
         },
@@ -88,7 +88,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T17:28:21.780Z",
+  "generatedAt": "2026-11-20T20:59:33.034Z",
   "models": {
     "Id": {
       "name": "Id",

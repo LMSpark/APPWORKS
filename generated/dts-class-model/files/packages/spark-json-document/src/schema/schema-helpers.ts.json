@@ -111,7 +111,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T22:54:04.791Z",
+  "generatedAt": "2026-11-20T20:59:32.185Z",
   "models": {
     "StringSchemaOptions": {
       "name": "StringSchemaOptions",

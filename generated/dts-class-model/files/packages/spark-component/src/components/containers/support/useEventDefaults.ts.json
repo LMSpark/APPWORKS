@@ -56,7 +56,7 @@
       "additionalProperties": true
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.967Z",
+  "generatedAt": "2026-11-20T20:59:31.747Z",
   "models": {
     "EventDefaultDeclaration": {
       "name": "EventDefaultDeclaration",

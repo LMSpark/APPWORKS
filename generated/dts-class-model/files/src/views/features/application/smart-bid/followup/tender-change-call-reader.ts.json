@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T21:35:17.106Z",
+  "generatedAt": "2026-11-20T20:59:33.172Z",
   "models": {
     "Scope": {
       "name": "Scope",

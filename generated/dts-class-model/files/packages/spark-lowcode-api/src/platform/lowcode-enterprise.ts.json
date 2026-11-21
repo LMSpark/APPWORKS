@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:30:07.386Z",
+  "generatedAt": "2026-11-20T20:59:32.291Z",
   "models": {
     "LowcodeEnterpriseCatalogItem": {
       "name": "LowcodeEnterpriseCatalogItem",

@@ -55,6 +55,8 @@ type FieldOptionProps = FieldComposableProps<Pick<
   multiple?: boolean | undefined
   /** r-select 显式启用的平面选项值修剪。 */
   optionValueTrim?: boolean
+  optionNumericText?: boolean
+  valuePath?: Array<string | number>
 }
 
 /** Use Field Options Return 的语义模型。 */
@@ -101,15 +103,17 @@ formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string
   member?: () => FieldMemberRef | undefined}
 
 const NUMERIC_COLUMN_TYPES = new Set(['number', 'int', 'integer', 'tinyint', 'smallint', 'bigint', 'decimal', 'float', 'double'])
+const TEXT_COLUMN_TYPES = new Set(['string', 'text', 'varchar', 'nvarchar', 'char', 'nchar'])
 
 export function useFieldOptions(props: FieldOptionProps, binding = useActiveFieldRow(props)): UseFieldOptionsReturn {
   const cascade = useFieldCascadeOptions(binding)
   // 字典等候选常以文本编码存储；数值列的单值按数值匹配候选并写回数值，不改候选来源。
-  const numericBoundColumn = computed(() => {
+  const boundColumnType = computed(() => {
     const name = binding.fieldName.value
     const type = name ? binding.dataSource.value?.columns.find(column => column.name === name)?.type : undefined
-    return typeof type === 'string' && NUMERIC_COLUMN_TYPES.has(type.toLowerCase())
+    return typeof type === 'string' ? type.toLowerCase() : undefined
   })
+  const numericBoundColumn = computed(() => boundColumnType.value !== undefined && NUMERIC_COLUMN_TYPES.has(boundColumnType.value))
   const resolvedOptionDataViewKey = computed(() => props.optionDataViewKey)
   const resolvedOptionDataMember = computed(() => props.optionDataMember ?? DataMember.Rows)
   const { sparkConsume } = useSparkConsume()
@@ -142,8 +146,8 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const refreshOptions = () => {optionRevision.value++}
   const invalidateOptions = () => {optionIntentRevision.value++;refreshOptions()}
   const refreshPointer = () => {if(resolvedOptionDataMember.value===DataMember.Rows)refreshOptions();else invalidateOptions()}
-  watch([() => props.optionValueTrim, () => props.optionValueField, () => props.optionChildrenField],
-    ([active], [previous]) => {if (active || previous) invalidateOptions()}, {flush: 'sync'})
+  watch([() => props.optionValueTrim, () => props.optionNumericText, () => props.optionValueField, () => props.optionChildrenField],
+    ([active, numeric], [previous, previousNumeric]) => {if (active || previous || numeric || previousNumeric) invalidateOptions()}, {flush: 'sync'})
   watch([() => Array.isArray(props.optionLabelFields) ? props.optionLabelFields.join('\u0000') : props.optionLabelFields,
     () => props.optionLabelJoiner], invalidateOptions, {flush: 'sync'})
   // Pre-flush lets the parent unmount stale fields before a removed option view is resolved.
@@ -216,7 +220,15 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     return undefined
   })
 
-  const options = computed<FieldOption[]>(() => {
+  const baseOptionsAvailable = computed(() => {
+    optionRevision.value
+    if(cascade.definition.value)return cascade.bound.value&&cascade.state.value.status==='ready'
+    const view=optionDataView.value
+    return !view||(!view.destroyed&&!view.loadingError
+      &&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState)
+      &&optionResultError.value===undefined&&trimmedOptionError.value===undefined)
+  })
+  const rawOptions = computed<FieldOption[]>(() => {
     optionRevision.value
     const view = optionDataView.value
     const trimmed = trimmedOptionSource.value
@@ -227,7 +239,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
       throw new Error('FIELD_OPTION_LABEL: 多标题字段需要直接绑定DataView.rows')
     }
     if (view) {
-      if(!optionsAvailable.value)return []
+      if(!baseOptionsAvailable.value)return []
       const source = cascade.definition.value
         ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
             rows: cascade.bound.value && cascade.state.value.status === 'ready' ? cascade.state.value.options : []})
@@ -279,6 +291,23 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
       .filter((item): item is FieldOption => item !== null)
   })
 
+  const numericTextOptionError = computed(() => {
+    if (props.optionNumericText !== true) return undefined
+    if (cascade.definition.value || props.multiple || props.valuePath !== undefined
+      || (props.dataMember === DataMember.Value && !(props.dataField ?? props.field))
+      || boundColumnType.value === undefined || !TEXT_COLUMN_TYPES.has(boundColumnType.value)) {
+      throw new Error('FIELD_OPTION_VALUE: 数字文本匹配仅支持非级联的单值文本字段')
+    }
+    const seen = new Set<string>()
+    for (const option of flattenOptions(rawOptions.value)) {
+      if (typeof option.value !== 'string' && (typeof option.value !== 'number' || !Number.isFinite(option.value))) continue
+      const key = String(option.value)
+      if (seen.has(key)) return '数字文本候选编码不唯一，请检查数据'
+      seen.add(key)
+    }
+    return undefined
+  })
+  const options = computed(() => numericTextOptionError.value === undefined ? rawOptions.value : [])
   const flatOptions = computed(() => flattenOptions(options.value))
 
   function findOptionLabel(value: unknown): string {
@@ -294,18 +323,14 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   }
 
   const optionsAvailable = computed(() => {
-    optionRevision.value
-    if(cascade.definition.value)return cascade.bound.value&&cascade.state.value.status==='ready'
-    const view=optionDataView.value
-    return !view||(!view.destroyed&&!view.loadingError
-      &&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState)
-      &&optionResultError.value===undefined&&trimmedOptionError.value===undefined)
+    return baseOptionsAvailable.value && numericTextOptionError.value === undefined
   })
   const optionError = computed(() => {
     optionRevision.value
     if(cascade.definition.value)return cascade.state.value.error
     const view=optionDataView.value
-    return view&&!view.destroyed?(view.loadingError?.message ?? optionResultError.value ?? trimmedOptionError.value):undefined
+    return (view&&!view.destroyed?(view.loadingError?.message ?? optionResultError.value ?? trimmedOptionError.value):undefined)
+      ?? numericTextOptionError.value
   })
   const optionsReady = computed(() => {
     optionRevision.value
@@ -326,6 +351,14 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   }
 
   function toControlValue(value: unknown, multiple: boolean): unknown {
+    if (props.optionNumericText === true) {
+      if (multiple) throw new Error('FIELD_OPTION_VALUE: 数字文本匹配仅支持非级联的单值文本字段')
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        const matches = flatOptions.value.filter(option =>
+          (typeof option.value === 'number' || typeof option.value === 'string') && String(option.value) === String(value))
+        return matches[0]?.value ?? value
+      }
+    }
     if (!cascade.definition.value && multiple && props.valueMode !== undefined) {
       if(Array.isArray(value))return value
       const values=typeof value==='string'?DataViewSelectionValue.split(value,valueSeparator.value):normalizeOptionValues(value)
@@ -348,6 +381,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
 
   function toSourceValue(value: unknown): unknown {
     if(!optionsAvailable.value)throw new Error(cascade.definition.value?'FIELD_CASCADE_VALUE: 当前选项尚不可用':'FIELD_OPTION_VALUE: 当前选项尚不可用')
+    if (props.optionNumericText === true && typeof value === 'number' && Number.isFinite(value)) return String(value)
     if (!cascade.definition.value) {
       const current=binding.activeRow.value?.[binding.fieldName.value]
       if(Array.isArray(value)&&(props.valueMode==='separated-string'||props.valueMode==='auto'&&typeof current==='string')) {

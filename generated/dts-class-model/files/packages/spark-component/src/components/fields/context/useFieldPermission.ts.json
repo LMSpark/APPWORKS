@@ -87,13 +87,13 @@
                 "value": {
                   "type": "number"
                 },
-                "__@RefSymbol@305398": {
+                "__@RefSymbol@305926": {
                   "const": true
                 }
               },
               "required": [
                 "value",
-                "__@RefSymbol@305398"
+                "__@RefSymbol@305926"
               ],
               "additionalProperties": false
             },
@@ -266,7 +266,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-13T19:17:21.902Z",
+  "generatedAt": "2026-11-20T20:59:31.827Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",

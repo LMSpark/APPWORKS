@@ -256,7 +256,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.465Z",
+  "generatedAt": "2026-11-20T20:59:32.739Z",
   "models": {
     "WorkflowConnectorCondition": {
       "name": "WorkflowConnectorCondition",

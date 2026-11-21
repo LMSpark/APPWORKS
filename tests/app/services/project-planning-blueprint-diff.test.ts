@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { planProjectBlueprintReplacement } from '@/services/project-planning/project-planning-blueprint-diff'
 
@@ -31,7 +32,40 @@ describe('projectPlanning full-tree replacement plan', () => {
     const configured = planProjectBlueprintReplacement(root(), [explicit], {projectId})
     expect(configured.commands[0]?.fields).toMatchObject({NavigationType: '3', NavigationShowType: '1'})
     const clearing = planProjectBlueprintReplacement(root([explicit]), [node('explicit', 'root')], {projectId})
-    expect(clearing.commands[0]?.fields).toMatchObject({NavigationType: '', NavigationShowType: ''})
+    expect(clearing.commands[0]?.fields).toMatchObject({NavigationType: null, NavigationShowType: null})
+  })
+
+  it('distinguishes unspecified navigation enums from explicitly selected zero values', () => {
+    const empty = node('item', 'root')
+    const zero = node('item', 'root')
+    zero.navigation = {...zero.navigation!, openMode: 'embedded', displayMode: '0'}
+
+    expect(planProjectBlueprintReplacement(root([empty]), [empty], {projectId}).commands).toEqual([])
+    expect(planProjectBlueprintReplacement(root([empty]), [zero], {projectId}).commands[0]?.fields)
+      .toMatchObject({NavigationType: '0', NavigationShowType: '0'})
+    expect(planProjectBlueprintReplacement(root([zero]), [empty], {projectId}).commands[0]?.fields)
+      .toMatchObject({NavigationType: null, NavigationShowType: null})
+    const blank = node('item', 'root')
+    blank.navigation = {...blank.navigation!, displayMode: ''}
+    expect(planProjectBlueprintReplacement(root([zero]), [blank], {projectId}).commands[0]?.fields)
+      .toMatchObject({NavigationType: null, NavigationShowType: null})
+    expect(planProjectBlueprintReplacement(root(), [blank], {projectId}).commands[0]?.fields)
+      .not.toHaveProperty('NavigationShowType')
+  })
+
+  it('preserves planned cleared and zero enums when normalizing returned rows', () => {
+    const empty = node('item', 'root')
+    const zero = node('item', 'root')
+    zero.navigation = {...zero.navigation!, openMode: 'embedded', displayMode: '0'}
+    const baseRow = {rowid: 'item', prowid: 'root', SysId: projectId, name: 'item', FunName: 'item', conType: 'Navitem'}
+    const clearedFields = planProjectBlueprintReplacement(root([zero]), [empty], {projectId}).commands[0]!.fields
+    const zeroFields = planProjectBlueprintReplacement(root([empty]), [zero], {projectId}).commands[0]!.fields
+    const cleared = normalizeLowcodeProjectBlueprintRecords([{...baseRow, ...clearedFields}])[0]
+    const configured = normalizeLowcodeProjectBlueprintRecords([{...baseRow, ...zeroFields}])[0]
+
+    expect(cleared?.navigation?.openMode).toBeUndefined()
+    expect(cleared?.navigation?.displayMode).toBeUndefined()
+    expect(configured?.navigation).toMatchObject({openMode: 'embedded', displayMode: '0'})
   })
 
   it('plans parent-first creates, a move with mapped fields, updates, and child-first deletes', () => {

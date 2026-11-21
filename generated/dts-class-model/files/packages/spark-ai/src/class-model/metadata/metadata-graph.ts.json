@@ -99,7 +99,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T22:53:14.744Z",
+  "generatedAt": "2026-11-20T20:59:31.467Z",
   "models": {
     "AiApiMetadataGraphEdge": {
       "name": "AiApiMetadataGraphEdge",

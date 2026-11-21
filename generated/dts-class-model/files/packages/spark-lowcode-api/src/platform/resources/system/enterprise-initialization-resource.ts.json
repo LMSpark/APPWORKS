@@ -93,7 +93,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-12T21:43:51.880Z",
+  "generatedAt": "2026-11-20T20:59:32.365Z",
   "models": {
     "EnterpriseInitializationOptions": {
       "name": "EnterpriseInitializationOptions",

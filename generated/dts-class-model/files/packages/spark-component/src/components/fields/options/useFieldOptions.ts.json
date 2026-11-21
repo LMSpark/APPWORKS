@@ -150,6 +150,25 @@
             false,
             true
           ]
+        },
+        "optionNumericText": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "valuePath": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         }
       },
       "additionalProperties": false
@@ -399,6 +418,25 @@
                 true
               ]
             },
+            "optionNumericText": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "valuePath": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
             "label": {
               "type": "string"
             },
@@ -472,7 +510,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T18:27:19.163Z",
+  "generatedAt": "2026-11-21T08:39:24.080Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -509,7 +547,7 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionLabelJoiner' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'unmatchedText' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n    optionNumericText?: boolean;\n    valuePath?: Array<string | number>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -518,7 +556,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}"
+            "typeText": "{\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n    optionNumericText?: boolean;\n    valuePath?: Array<string | number>;\n}"
           }
         ],
         "members": {
@@ -531,6 +569,16 @@
             {
               "name": "optionValueTrim",
               "jsdoc": "r-select 显式启用的平面选项值修剪。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionNumericText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valuePath",
               "readable": true,
               "writable": false
             }

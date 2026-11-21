@@ -492,7 +492,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:20:17.688Z",
+  "generatedAt": "2026-11-20T20:59:31.394Z",
   "models": {
     "CreateAiAgentHostOptions": {
       "name": "CreateAiAgentHostOptions",

@@ -8,7 +8,7 @@ const FIELDS=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode
   'NavigationImageWxz','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment',
   'IsShowAtNav','IsShowChildItem','BeginGroup','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
 type FixtureOptions=Readonly<{hiddenFields?:readonly string[];editableByRow?:Readonly<Record<string,readonly string[]>>;outputFields?:readonly string[];
-  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;allowAdd?:boolean}>
+  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;allowAdd?:boolean;allowChild?:boolean;preparedOverride?:Readonly<DataRow>}>
 
 function initialRows():DataRow[]{return [
   {rowid:'NAV-ROOT',SysId:PROJECT,prowid:'000000',FunOrderValue:0,name:'APP',FunName:'APP',funCode:'APP',conid:'',conType:'Model',NavigationUrl:''},
@@ -49,9 +49,9 @@ function createFixture(options:FixtureOptions={}){
     },
     readFieldAccess:(row:Readonly<DataRow>,field:string)=>output.has(field)&&Object.hasOwn(row,field)&&!hidden.has(field)?'visible' as const:'invisible' as const,
     addActionState:()=> options.allowAdd===true?'enabled' as const:'disabled' as const,editActionState:()=> 'enabled' as const,deleteActionState:()=> 'disabled' as const,
-    createChildActionState:()=> 'hidden' as const,viewActionState:()=> 'enabled' as const,
+    createChildActionState:()=> options.allowChild===true?'enabled' as const:'hidden' as const,viewActionState:()=> 'enabled' as const,
     prepareNewRow:(input:DataRow)=>({...input,rowid:crypto.randomUUID()}),
-    prepareNewRowWithIdentity:(input:DataRow,identity:Readonly<{field:string;value:string|number}>)=>({...input,[identity.field]:identity.value}),
+    prepareNewRowWithIdentity:(input:DataRow,identity:Readonly<{field:string;value:string|number}>)=>({...input,...options.preparedOverride,[identity.field]:identity.value}),
     newRowFieldAccess:(field:string)=>({
       read:output.has(field)&&!hidden.has(field)?'visible' as const:'invisible' as const,
       write:options.allowAdd===true&&field!=='rowid'&&output.has(field)&&!hidden.has(field)?'allowed' as const:'denied' as const,
@@ -121,15 +121,47 @@ function findNode(node:{nodeId:string;children?:readonly any[]},id:string):any{r
 function withPosition(node:any,parentNodeId:string,order:number):any{return {...node,parentNodeId,navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}}}
 
 describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
-  it('uses table add permission for a tree child when row child permission is hidden',async()=>{
+  it.each([null,'','  '])('does not accept an owner-prepared empty value in place of numeric zero (%s)',async value=>{
+    const fixture=createFixture({allowChild:true,editableByRow:{'NAV-ROOT':['SysId','prowid','name','FunOrderValue']},preparedOverride:{FunOrderValue:value}})
+    await fixture.owner.loadProjectTree()
+    await expect(fixture.owner.addChildNodes('NAV-ROOT',[
+      {nodeId:'NEW-1',fields:{name:'one',FunOrderValue:0}},
+      {nodeId:'NEW-2',fields:{name:'two',FunOrderValue:0}},
+    ])).rejects.toThrow('owner 未准备身份匹配')
+    expect(fixture.saveRequests).toHaveLength(0)
+    expect(fixture.owner.dirty).toBe(false)
+  })
+
+  it('preserves numeric-string comparison while retaining DataView numeric validation',async()=>{
+    const fixture=createFixture({allowChild:true,editableByRow:{'NAV-ROOT':['SysId','prowid','name','FunOrderValue']},preparedOverride:{FunOrderValue:'0'}})
+    await fixture.owner.loadProjectTree()
+    await expect(fixture.owner.addChildNodes('NAV-ROOT',[
+      {nodeId:'NEW-1',fields:{name:'one',FunOrderValue:0}},
+      {nodeId:'NEW-2',fields:{name:'two',FunOrderValue:0}},
+    ])).rejects.toThrow('DATA_VIEW_SAVE_VALIDATION')
+    expect(fixture.saveRequests).toHaveLength(0)
+  })
+
+  it('distinguishes unset navigation modes from explicit zero values',async()=>{
+    const fixture=createFixture({editableByRow:{'NAV-BOUND':['NavigationType','NavigationShowType']}})
+    await fixture.owner.load('NAV-BOUND')
+    const before=fixture.owner.nodeData()
+    expect(before.navigation).toBeDefined()
+    const patch=fixture.owner.preflightNodeData({...before,navigation:{...before.navigation!,openMode:'embedded'}})
+    expect(patch).toEqual({NavigationType:'0'})
+    const displayPatch=fixture.owner.preflightNodeData({...before,navigation:{...before.navigation!,displayMode:'0'}})
+    expect(displayPatch).toEqual({NavigationShowType:'0'})
+  })
+
+  it('requires parent row child permission even when table add is enabled',async()=>{
     const fixture=createFixture({allowAdd:true})
     await fixture.owner.loadProjectTree()
-    expect(fixture.owner.childCreateActionState('NAV-ROOT')).toBe('enabled')
-    const id=await fixture.owner.addModuleNode('NAV-ROOT')
-    expect(typeof id).toBe('string')
-    const created=fixture.rows.find(row=>row['rowid']===id)
-    expect(created).toMatchObject({rowid:id,SysId:PROJECT,prowid:'NAV-ROOT',name:'新模块'})
-    expect(fixture.saveRequests).toHaveLength(1)
+    expect(fixture.view.addActionState()).toBe('enabled')
+    expect(fixture.owner.childCreateActionState('NAV-ROOT')).toBe('hidden')
+    await expect(fixture.owner.addModuleNode('NAV-ROOT')).rejects.toThrow('当前查询不允许在该父节点下新增子节点')
+    expect(fixture.owner.dirty).toBe(false)
+    expect(fixture.rows).toHaveLength(5)
+    expect(fixture.saveRequests).toHaveLength(0)
   })
 
   it('keeps currentRow aligned with selected identity and clears its edit overlay on cancel',async()=>{

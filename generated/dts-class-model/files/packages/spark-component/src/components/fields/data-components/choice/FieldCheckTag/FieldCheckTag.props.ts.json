@@ -170,7 +170,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-31T09:15:46.432Z",
+  "generatedAt": "2026-11-20T20:59:31.835Z",
   "models": {
     "RCheckTagProps": {
       "name": "RCheckTagProps",

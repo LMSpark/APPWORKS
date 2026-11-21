@@ -166,7 +166,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T00:08:43.831Z",
+  "generatedAt": "2026-11-20T20:59:32.248Z",
   "models": {
     "ResultCacheRequest": {
       "name": "ResultCacheRequest",

@@ -101,7 +101,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T19:16:50.391Z",
+  "generatedAt": "2026-11-20T20:59:33.091Z",
   "models": {
     "FileSelection": {
       "name": "FileSelection",

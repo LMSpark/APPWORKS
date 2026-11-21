@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T21:12:54.468Z",
+  "generatedAt": "2026-11-20T20:59:31.635Z",
   "models": {
     "FilterValueFunctionDialogProps": {
       "name": "FilterValueFunctionDialogProps",

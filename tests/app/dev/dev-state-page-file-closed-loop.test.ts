@@ -192,13 +192,15 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false,additionalUnknownReceipts=0,applyUnknownReceipt:boolean|number=true){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean;explicitIdentity?:boolean;identityField?:'rowid'|'alternateKey'}={},unknownSave=false,knownSaveFailure=false,additionalUnknownReceipts=0,applyUnknownReceipt:boolean|number=true){
+  const identityField=access.identityField??'rowid'
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
-    'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
+    'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status',
+    ...(identityField==='alternateKey'?['alternateKey']:[])]
   const rows:Array<Record<string,unknown>>=[]
   const collect=(item:ProjectBlueprintTreeNodeData,parentId:string,order:number):void=>{
-    rows.push({rowid:item.nodeId,SysId:projectId,prowid:parentId,FunOrderValue:item.navigation?.order??order,
+    rows.push({rowid:item.nodeId,...(identityField==='alternateKey'?{alternateKey:item.nodeId}:{}),SysId:projectId,prowid:parentId,FunOrderValue:item.navigation?.order??order,
       name:item.capability.name,FunName:item.navigation?.title??'',funCode:item.capability.code??'',conType:item.kind,
       NavigationUrl:item.navigation?.target??'',NavigationImageWxz:item.navigation?.icon??'',MobileUrl:item.navigation?.mobileTarget??'',
       NavigationType:item.navigation?.openMode??'',ChildItemLocation:item.navigation?.placement??'',NavigationShowType:item.navigation?.displayMode??'',
@@ -211,7 +213,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   collect(root,'000000',0)
   const tables:Record<string,unknown>={ProjectToolFile:applicationPageData.tables.ProjectToolFile,Base_NavigationInfo:{
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
-    columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
+    columns:fields.map(name=>({name,type:'string',isPrimaryKey:name===identityField,...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
   }}
   const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables})
   let allPagesRequested=false
@@ -219,13 +221,13 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
   const view=dataSet.getView('Base_NavigationInfo')!
   const result=(selected:Record<string,unknown>[])=>({
-    rows:selected,total:selected.length,resultPrimaryKey:'rowid',
+    rows:selected,total:selected.length,resultPrimaryKey:identityField,
     assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
-    rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
+    rowKey:(row:Readonly<Record<string,unknown>>)=>row[identityField],
     prepareNewRow:(row:Readonly<Record<string,unknown>>)=>({...row,rowid:crypto.randomUUID()}),
-    prepareNewRowWithIdentity:(row:Readonly<Record<string,unknown>>,identity:{field:string;value:string|number})=>({...row,[identity.field]:identity.value}),
+    ...(access.explicitIdentity===false?{}:{prepareNewRowWithIdentity:(row:Readonly<Record<string,unknown>>,identity:{field:string;value:string|number})=>({...row,[identity.field]:identity.value})}),
     isFieldReadOnly:(field:string)=>readonlyFields.has(field),
-    fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))&&!hiddenFields.has(field)
+    fieldAccess:(key:unknown,field:string)=>selected.some(row=>row[identityField]===key&&Object.hasOwn(row,field))&&!hiddenFields.has(field)
       ? {read:'visible' as const,write:readonlyFields.has(field)?'denied' as const:'allowed' as const,component:readonlyFields.has(field)?'readonly' as const:'editable' as const,required:false,writeMode:readonlyFields.has(field)?'readonly' as const:'editable' as const}
       : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
     readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)&&!hiddenFields.has(field)?'visible' as const:'invisible' as const,
@@ -618,7 +620,7 @@ describe('DevState 页面文件闭环', () => {
       expect(pageFiles.upload).not.toHaveBeenCalled()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(httpFns.post).not.toHaveBeenCalled()
-      expect(state.statusMessages.value.some(item=>item.text.includes('不允许在所选父节点下新增'))).toBe(true)
+      expect(state.statusMessages.value.some(item=>item.text.includes('不允许在该父节点下新增子节点'))).toBe(true)
     }finally{ownerScope.stop()}
   })
 
@@ -632,6 +634,32 @@ describe('DevState 页面文件闭环', () => {
       expect(pageFiles.upload).not.toHaveBeenCalled()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(state.statusMessages.value.some(item=>item.text.includes('不允许新增字段 name'))).toBe(true)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子节点查询不支持显式身份时不创建页面文件或导航行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,explicitIdentity:false})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.addChildNode(state.treeData.value[0]!)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('不支持显式正式身份新增'))).toBe(true)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子节点查询主键不是 rowid 时不创建页面文件或导航行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,identityField:'alternateKey'})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.addChildNode(state.treeData.value[0]!)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('不支持显式正式身份新增'))).toBe(true)
     }finally{ownerScope.stop()}
   })
 
@@ -649,7 +677,7 @@ describe('DevState 页面文件闭环', () => {
   })
 
   it('获准的子节点经同一文件命令 DataView 与导航 DataView 保存，不调用 mounted-page gateway',async()=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:false,childAllowed:true})
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
@@ -663,6 +691,8 @@ describe('DevState 页面文件闭环', () => {
       const added=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added
       expect(added).toHaveLength(1)
       expect(added?.[0]).toMatchObject({SysId:'APP-A',prowid:parent.nodeId,NavigationUrl:expect.stringMatching(/^cfg:/)})
+      expect(added?.[0]).not.toHaveProperty('NavigationType')
+      expect(added?.[0]).not.toHaveProperty('NavigationShowType')
       expect(httpFns.post).not.toHaveBeenCalled()
     }finally{ownerScope.stop()}
   })
@@ -710,6 +740,7 @@ describe('DevState 页面文件闭环', () => {
       expect(sent).toHaveLength(1)
       expect(sent?.[0]?.changes.added?.map(row=>row['rowid'])).toEqual(['MIXED-CREATE'])
       expect(sent?.[0]?.changes.changed?.map(row=>row['rowid'])).toEqual([leaf.nodeId])
+      expect(sent?.[0]?.changes.changed?.[0]).toMatchObject({NavigationType:'',NavigationShowType:''})
       expect(owner.view.rows).toEqual(expect.arrayContaining([
         expect.objectContaining({rowid:'MIXED-CREATE',SysId:'APP-A',prowid:formalRoot.nodeId,name:'Mixed created'}),
         expect.objectContaining({rowid:leaf.nodeId,SysId:'APP-A',prowid:leaf.parentNodeId,name:'Child revised',memo:'Updated memo'}),

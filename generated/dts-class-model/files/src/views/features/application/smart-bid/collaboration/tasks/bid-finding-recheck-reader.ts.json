@@ -88,7 +88,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-18T19:43:47.202Z",
+  "generatedAt": "2026-11-20T20:59:33.158Z",
   "models": {
     "Recheck": {
       "name": "Recheck",

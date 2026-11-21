@@ -151,7 +151,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T01:27:01.220Z",
+  "generatedAt": "2026-11-20T20:59:32.240Z",
   "models": {
     "DataSpaceMissingAuthPolicy": {
       "name": "DataSpaceMissingAuthPolicy",

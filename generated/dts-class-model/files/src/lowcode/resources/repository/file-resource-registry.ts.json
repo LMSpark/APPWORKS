@@ -255,7 +255,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-16T20:05:50.167Z",
+  "generatedAt": "2026-11-20T20:59:32.665Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",

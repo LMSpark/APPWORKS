@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {flushPromises, mount} from '@vue/test-utils'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import ElementPlus from 'element-plus'
-import {DataSet, DataViewFilter, isDataRow, type DataRow, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {DataSet, DataViewFilter, isDataRow, type DataRow, type DataView, type DataViewFilterTree, type DataViewNewRowIdentity} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
@@ -175,6 +175,10 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
     rows: selected.map(row => ({...row})), total: selected.length, countReported: true, resultPrimaryKey: 'rowid',
     assertIdentity: () => undefined,
     prepareNewRow: (data: DataRow) => ({...data, rowid: typeof data['rowid'] === 'string' && data['rowid'] ? data['rowid'] : `NEW-${++createdRows}`}),
+    prepareNewRowWithIdentity: (data: DataRow, identity: DataViewNewRowIdentity) => {
+      if (identity.field !== 'rowid' || Object.hasOwn(data, 'rowid')) throw new Error('fixture new-row identity mismatch')
+      return {...data, [identity.field]: identity.value}
+    },
     rowKey: (row: Readonly<DataRow>) => row['rowid'],
     fieldAccess: (_key: unknown, field: string) => ({
       read: hidden.includes(field) ? 'invisible' as const : 'visible' as const,

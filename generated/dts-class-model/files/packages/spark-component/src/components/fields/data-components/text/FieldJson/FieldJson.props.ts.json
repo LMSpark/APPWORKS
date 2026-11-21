@@ -279,7 +279,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-16T22:11:25.874Z",
+  "generatedAt": "2026-11-20T20:59:31.889Z",
   "models": {
     "JsonArrayRowAdapter": {
       "name": "JsonArrayRowAdapter",

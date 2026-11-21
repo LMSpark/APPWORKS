@@ -24,12 +24,6 @@
 - **规则**：必须同步更新四项：package.json 的 `exports` 字段、`tsconfig.json` 的 `paths`、Vite/Vitest 的 alias、import smoke test
 - **违反后果**：`verify:deps` 失败，或运行时某些导入路径无法解析
 
-### 目录文件数硬限制
-
-- **场景**：在已有目录下新增 `.ts` 或 `.vue` 文件
-- **规则**：单个目录下 `.ts`/`.vue` 文件不得超过 10 个（不含 `index.ts`）；同一级子目录不得超过 7 个。超过必须按领域拆分。
-- **违反后果**：`verify:ai-codegen` 不会自动检测此项（它是代码风格规则），但违反后代码定位困难、AI 和人类都难以导航
-
 ### 规范文档跨项目移植的三层切分
 
 - **场景**：需要把项目内 AI 编码规范抽取为可移植版本，拷贝到其他项目共享
@@ -133,11 +127,11 @@
 - **场景**：新建 `tools/*.mjs`（首行 `#!/usr/bin/env node`）并在 vitest 中 import
 - **规则**：CRLF 换行的 shebang `.mjs` 用 `node` 直接运行正常，但被 vitest import 时报 `SyntaxError: Invalid or unexpected token`（无行号）。保存为 LF、无 BOM。TS 测试导入 `.mjs` 需按先例加 `// @ts-ignore TS7016 -- Node .mjs verifier`。
 - **违反后果**：测试套件加载失败且错误不带位置，排查成本高
-- **发现来源**：2026-10-07 迭代 11a（verify-directory-limits）
+- **发现来源**：2026-10-07 迭代 11a（已退役的目录计数校验）
 
 ### 源码移动检查清单
 
-- **场景**：按目录规模门禁拆分子目录、批量移动源文件
-- **规则**：用 `node scripts/move-source-files.mjs --plan <json> [--dry-run]` 移动并改写相对/`@/` import；之后依次处理：①按路径登记的白名单（如 `tools/verify-ai-codegen-rules.mjs` 的 `<file>:<specifier>`）；②文件头 `@module` 标注（路径推导，无门禁会报错）；③md 相对链接；④全量 `generate:class-model-surface`（分片按源路径，旧分片随全量生成清理）；⑤`pnpm run build` 后 `generate:lowcode-contracts`（consumer ledger 扫描 `packages/*/dist`）；⑥`verify-directory-limits --update` 收紧基线。mover 不处理 `import.meta.glob` 与非代码字符串路径。
+- **场景**：按领域职责拆分子目录、批量移动源文件
+- **规则**：用 `node scripts/move-source-files.mjs --plan <json> [--dry-run]` 移动并改写相对/`@/` import；之后依次处理：①按路径登记的白名单（如 `tools/verify-ai-codegen-rules.mjs` 的 `<file>:<specifier>`）；②文件头 `@module` 标注（路径推导，无门禁会报错）；③md 相对链接；④全量 `generate:class-model-surface`（分片按源路径，旧分片随全量生成清理）；⑤`pnpm run build` 后 `generate:lowcode-contracts`（consumer ledger 扫描 `packages/*/dist`）。mover 不处理 `import.meta.glob` 与非代码字符串路径。
 - **违反后果**：verify:ai-codegen 报平铺公共面、verify:lowcode-contracts 报 ledger stale、AI 读到过期模块路径
 - **发现来源**：2026-10-07 迭代 11+ 四批目录拆分

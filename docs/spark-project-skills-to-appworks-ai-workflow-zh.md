@@ -4,7 +4,7 @@
 
 ## 现行接线
 
-本仓 .cursor/skills 是 Markdown 工作方法；其存在不证明有可执行 registry、授权 validator 或恢复账本。技能登记见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)。浏览器 AiAgentHost、Tool Loop、ClassModel、workflow binding 和 Agent Run provider 构成执行基础。
+本仓 `.cursor/skills` 是 Markdown 工作方法；其存在不证明有可执行 registry、授权 validator 或恢复账本，技能入口直接由该目录及正式 ClassModel/Workflow 配置核定。浏览器 AiAgentHost、Tool Loop、ClassModel、workflow binding 和 Agent Run provider 构成执行基础。
 
 pageDesign 使用 ProjectWorkspace 根，经 project.openPageDesign(pageId) 编辑 PageTool 的 rule.json/script.js/style.css。场景定义通过loadScenarioDefinitions({scenarioId:T})取得宿主正式装配的元数据DataSet C，同一工作区与请求代次复用同一实例；按需查询定义DataView后编辑、取消，交付仅提交T的已修改定义视图。ScenarioDefinitionResource内部执行文件比较、写入和回读，pagedata.json位于SysForm/<scenarioId>，不是工具文件。AI操作门面始终拒绝原文件owner入口。此链已接线并有离线回执测试，实际服务验收仍未完成；DevSystem文本编辑、撤销、历史恢复与预览同样从该DataSet消费，原文差异由ScenarioDefinitionDocument写回定义视图；验收边界见唯一台账I6。
 

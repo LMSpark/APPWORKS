@@ -202,12 +202,11 @@ All notable changes to this project will be documented in this file.
 
 - ✅ **完整文档**
   - `REQUEST_GUIDE.md` - 使用指南
-  - `MIGRATION.md` - 迁移指南
   - `Request.example.ts` - 12 个使用示例
 
 #### 迁移指南
 
-详见 [MIGRATION.md](./packages/spark-utils/MIGRATION.md)
+当时的独立迁移文件未随当前仓库保留；核心迁移差异如下。
 
 **快速迁移示例：**
 

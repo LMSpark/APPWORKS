@@ -29,7 +29,7 @@ PageRuntime -> PageTool + 多个独立场景 DataSet -> SparkPageRenderer
 - [guides/](guides/README.md)：可执行操作指南。
 - [spark-ai 文档](../packages/spark-ai/docs)：AI 知识、传输、会话与工作流。
 - 包内 README/API：该包的公共入口与边界。
-- [AI 技能](../.cursor/skills)：工作方法，登记见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)，不替代产品事实。
+- [AI 技能](../.cursor/skills)：工作方法，不替代产品事实。
 - [AGENTS.md](../AGENTS.md)：AI 编码工作流。
 
 正文中的类、路径与行为以当前源码为准。新增说明先判断能否合并到现有文档；计划、历史调研与目标草案不能被当作运行合同。仓库结构索引见根 [README.md](../README.md)。

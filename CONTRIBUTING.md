@@ -20,7 +20,7 @@
 
 - 类型检查：`pnpm run typecheck`
 - 静态检查（ESLint）：`pnpm run lint`
-- 单元测试：`pnpm run test`
+- 单元测试：`pnpm run test:run`
 
 ## 提交信息规范（Conventional Commits）
 

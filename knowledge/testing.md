@@ -3,7 +3,7 @@
 ### 验证有固定顺序
 
 - **场景**：AI 修改代码后需要运行验证
-- **规则**：必须按此顺序验证：1) `pnpm run typecheck` → 2) `pnpm run lint` → 3) `pnpm run test`。禁止跳过 typecheck 直接跑测试，禁止连续改多个点后再统一验证。
+- **规则**：必须按此顺序验证：1) `pnpm run typecheck` → 2) `pnpm run lint` → 3) `pnpm run test:run`。禁止跳过 typecheck 直接跑测试，禁止连续改多个点后再统一验证。
 - **违反后果**：跳过 typecheck → 类型错误在运行时才暴露，定位成本高；批量验证 → 难以定位是哪个改动导致失败
 
 ### verify:rules 可拆项运行

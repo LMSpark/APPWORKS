@@ -1,4 +1,6 @@
-# @spark-view/spark-data
+# @spark-appworks/spark-data 变更历史
+
+以下条目保留该包在旧 `@spark-view/spark-data` 命名阶段及当前发布线的历史记录；当前版本、导出与命令以 `package.json`、`src/index.ts` 和包 README 为准。
 
 ## 0.5.0
 

@@ -23,7 +23,7 @@
 - [App.vue](App.vue)
 - [components/README.md](components/README.md)
 - [composables/README.md](composables/README.md)
-- [config/README.md](config/README.md)
+- [../config/README.md](../config/README.md)
 - [layout/README.md](layout/README.md)
 - [services/README.md](services/README.md)
 - [views/README.md](views/README.md)

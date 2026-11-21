@@ -127,7 +127,7 @@ AI 代码生成规则是生产线质量门，排在理念和逻辑之后、迁�
 ## 验证计划
 - 类型检查：`pnpm run typecheck`（必须先通过）
 - Lint 检查：`pnpm run lint`
-- 需要运行的测试：`pnpm run test` 或包级等价命令
+- 需要运行的测试：`pnpm run test:run` 或包级等价命令
 - 需要人工验证的场景
 
 ## 风险项
@@ -706,7 +706,7 @@ export function objectSchema(
 |--------|------|----------------|
 | 类型检查命令 | 阶段 4 验证计划、阶段 6 编译基线用 | TS：`pnpm run typecheck`；Java：`mvn compile`；Go：`go build ./...` |
 | Lint 命令 | 代码风格检查 | `pnpm run lint` / `eslint .` / `golangci-lint run` |
-| 测试命令 | 单元测试 | `pnpm run test` / `mvn test` / `go test ./...` |
+| 测试命令 | 单元测试 | `pnpm run test:run` / `mvn test` / `go test ./...` |
 | 研读文件目录 | 阶段 1 研读锚点存放处 | `notes` |
 | 方案计划目录 | 阶段 4 方案计划书存放处 | `notes` |
 | 度量台账 | AI 编码效果度量长期数据 | `notes/ai-code-metrics.md` |

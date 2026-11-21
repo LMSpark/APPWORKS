@@ -30,18 +30,29 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/LMSpark/spark-view-vue.git SPARK_AppWorks
+git clone https://github.com/LMSpark/APPWORKS.git SPARK_AppWorks
 cd SPARK_AppWorks
 
 # 2. 安装依赖
 pnpm install
 
-# 3. 配置 lowcode-jdk17 gateway（也可写入 .env.local）
-$env:LOWCODE_GATEWAY_URL='http://127.0.0.1:8080'
-
-# 4. 启动前端
+# 3. 启动前端
 pnpm run dev
 ```
+
+开发代理必须读取 `LOWCODE_GATEWAY_URL`；Bash 可写为：
+
+```bash
+export LOWCODE_GATEWAY_URL='http://127.0.0.1:8080'
+```
+
+PowerShell 可写为：
+
+```powershell
+$env:LOWCODE_GATEWAY_URL='http://127.0.0.1:8080'
+```
+
+也可将同一变量写入 `.env.local`。
 
 - `pnpm run dev` 只启动 Vite；开发态同源 `/api` 由 `LOWCODE_GATEWAY_URL` 代理到 lowcode-jdk17 gateway。
 - AppWorks 不编译、启动或部署服务端，也不保存平台密钥。
@@ -127,36 +138,11 @@ pnpm run typecheck
 # 代码质量检查
 pnpm run lint
 
-# 运行测试套件
-pnpm run test
+# 运行一次性测试套件
+pnpm run test:run
 ```
 
 推荐先从 [docs/README.md](docs/README.md) 看文档入口，再进入 [docs/guides/QUICKSTART.md](docs/guides/QUICKSTART.md) 上手。
-
-## 首发最该展示的 3 个 demo
-
-如果你准备把项目正式对外发布，首页和录屏建议先只展示下面 3 个页面。它们最能说明 SPARK 的差异化，而不是把所有能力同时摊开。
-
-1. **tree-demo**
-   一个完整的树形导航编辑器，包含树容器、表单编辑、工具栏动作、当前节点联动和页面脚本。这个页面最适合做首页首屏，因为它最容易让人感受到“这不是组件拼装，而是一套页面引擎”。
-2. **master-detail**
-   点击主表行自动切换子表数据，突出 DataView 驱动的零代码联动。这个页面最适合接在 tree-demo 后面，帮助用户快速理解 SPARK 在企业后台里的直接价值。
-3. **permission-render**
-   用同一套页面结构演示不同权限快照下的渲染结果，突出“改权限不改页面代码”。这个页面适合放第三位，证明权限不是附属能力，而是内建能力。
-
-第二梯队演示建议：
-
-- **smart-load**：展示依赖链驱动的数据智能加载，适合放在深入能力部分
-- **dynamic-columns**：展示动态列和可配置表格能力，适合补充数据视图表达力
-- **vxe-demo**：展示插件接入与扩展能力，适合面向更重表格场景的用户
-
-## 首页展示顺序建议
-
-1. 第一屏：tree-demo 截图或录屏，标题只讲一句话定位
-2. 第二屏：master-detail，强调零代码联动
-3. 第三屏：permission-render，强调权限策略内建
-4. 第四屏：用简图解释页面结构配置、数据模型和脚本如何协同
-5. 第五屏：再补 smart-load、dynamic-columns、vxe-demo 作为进阶能力
 
 ## 理解这个项目的最短路径
 
@@ -167,9 +153,9 @@ pnpm run test
 2. **场景数据视图**
    `SysForm/<scenarioId>/pagedata.json` 声明单场景 tables、正式 modelBinding、命名 views 和 viewCascades。平台 readModel/readRelations 提供正式模型与关系；宿主按两者装配 DataSet。每次 PageRuntime 调用持有独立的多个场景数据集。
 3. **页面数据绑定**
-   通过 `#scenarioId@table@view` 定位本次调用已声明的视图；局部 `table@view` 需要明确 mainScenarioId。展示读取使用 `dataViewKey + dataMember + dataField`；动作通过 PageRuntime.resolveView/getDataSet 解析，没有默认首空间。
+   通过 `scenarioId@table@view` 定位本次调用已声明的视图；局部 `table@view` 需要明确 mainScenarioId。展示读取使用 `dataViewKey + dataMember + dataField`；动作通过 PageRuntime.resolveView/getDataSet 解析，没有默认首空间。
 4. **页面行为脚本**
-   在 `script.js` 里只写最小化业务分支和页面行为，数据管理仍然通过 DataSet 流转。
+   `script.js` 默认留空；结构与动作优先由 `rule.json`、标准组件和 SPARK data 表达。只有公共能力无法承接的窄业务差异才进入脚本，数据管理仍通过 DataSet/DataView 流转。
 5. **组件能力系统**
    当页面复杂度上来时，再理解能力系统、组件注册和上下文契约。
 
@@ -181,7 +167,7 @@ pnpm run test
 {
   "type": "r-table",
   "props": {
-      "dataViewKey": "#SCENE@Users@default",
+      "dataViewKey": "SCENE@Users@default",
     "border": true,
     "stripe": true,
     "highlightCurrentRow": true
@@ -252,7 +238,7 @@ SPARK 不直接把原始 JSON 丢给组件，而是通过 DataSet、DataTable、
 1. 遵循现有的代码规范和 TypeScript 严格模式
 2. 添加相应的测试用例
 3. 更新相关文档
-4. 提交前运行 `pnpm run typecheck && pnpm run lint && pnpm run test`
+4. 提交前运行 `pnpm run typecheck && pnpm run lint && pnpm run test:run`
 5. 提交信息遵循 Conventional Commits，格式示例：`feat(spark-data): add X`。
    - 允许的 scope：`deps`, `docs`, `scripts`, `spark-data`, `spark-app`, `spark-ai`, `spark-component`, `spark-utils`, `spark-project-model`。
    - 详情与示例见 `CONTRIBUTING.md`（新增）。

@@ -181,5 +181,5 @@ pageDesign 执行失败时，交付端口没有恢复内容或撤销远端写入
 ```bash
 pnpm run typecheck
 pnpm --filter @spark-appworks/spark-ai test:run
-pnpm run test
+pnpm run test:run
 ```

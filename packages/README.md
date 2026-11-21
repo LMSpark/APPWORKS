@@ -9,7 +9,7 @@
 - [spark-data/README.md](spark-data/README.md)：DataSet、DataView、关系、树、聚合与渲染侧权限快照形状。
 - [spark-project-model/README.md](spark-project-model/README.md)：ProjectBlueprint、PageTool 三文件、ScenarioViewFile 和 PageRuntime 调用生命周期。
 - [spark-lowcode-api/README.md](spark-lowcode-api/README.md)：对接 lowcode-jdk17 的前端 API（后端记录与端点合同、数据空间、权限、会话、实时）。
-- [spark-json-document/README.md](spark-json-document/README.md)：JSON Schema / 文档树编辑（JSON 类型与校验 SSOT）。
+- [spark-json-document/API.md](spark-json-document/API.md)：JSON Schema / 文档树编辑（JSON 类型与校验 SSOT）。
 - [spark-utils/README.md](spark-utils/README.md)：公共底层工具、HTTP、Logger transport、capability 原语。
 
 ## AI 与构建期

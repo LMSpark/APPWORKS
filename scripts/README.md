@@ -45,7 +45,7 @@ ClassModel 全量门禁 (verify:class-model:full)
 - `generated/dts-class-model/` 已入库（编译 SSOT，可人工评审）；Vite 插件 dev/build 映射到 `/dts-class-model/`。
 - `ensure:class-model-bundle` 在 manifest 缺失时 generate，并 `assertClassModelBundleComplete`。
 - ClassModel 运行时知识在 Web Worker 内按需加载；编译 refresh 见 `scripts/lib/class-model-knowledge-refresh.mjs`。
-- `E:\lowcode-jdk17` 永久只读且不参与本仓构建；本仓只通过前端 API 合同消费其现有接口。
+- 本仓构建不依赖或启动低代码 Java 源码；`LOWCODE_JDK17_ROOT` 仅供合同生成脚本读取 Controller 来源，调用方必须按只读方式使用。
 
 ## 目录内容
 

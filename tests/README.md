@@ -23,6 +23,6 @@
 ## 常用命令
 
 ```bash
-pnpm run test
-pnpm run test:run
+pnpm run test      # 开发时 watch
+pnpm run test:run  # CI/提交前一次性执行
 ```

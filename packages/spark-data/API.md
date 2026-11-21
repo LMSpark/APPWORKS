@@ -1,6 +1,6 @@
 # SPARK Data API
 
-版本：2.0.0。本文是包级方法索引。数据空间领域、正式 pagedata、数据库真源、query/save 和权限边界统一见[数据空间主合同](../../docs/architecture/DATAFLOW_ARCHITECTURE.md)，不在本页复制跨包规则。
+当前包版本以 `package.json` 为准。本文是包级方法索引。数据空间领域、正式 pagedata、数据库真源、query/save 和权限边界统一见[数据空间主合同](../../docs/architecture/DATAFLOW_ARCHITECTURE.md)，不在本页复制跨包规则。
 
 ## 创建与恢复
 

@@ -1,5 +1,7 @@
 # 数据空间旧方案删除记录
 
+> 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
+
 ### 2026-11-21 公共 guard / readonly / 文件身份继续收敛
 
 - **继续收敛三类源码重复：**`DataViewArrayQuery` 的只读结果构造复用 `DataViewLocalQuery.readonlyResult`；ProjectTool 文件 basename/pageId 统一到同一 validator；spark-lowcode-api 的普通 `isRecord` 统一到 spark-utils SSoT。低代码包删除 19 个等价定义后，仅保留 DataSpace 权限原 `object` 语义与 AI data-entry 的 plain-prototype 语义。
@@ -15,7 +17,7 @@
 - **验证：**定向 SmartBid 79/79、spark-data command 69/69、lowcode parser 6/6；完整 SmartBid 141 文件 881/881、spark-data 60 文件 1425/1425、spark-lowcode-api 60 文件 1667/1667；根 `typecheck`、全仓 lint、ClassModel 正式生成、`verify:rules`、生产 `build` 与 `git diff --check` 通过。
 - **清理：**本轮过程计划已删除；正式源码、测试及 ClassModel/consumer ledger 生成物保留在工作树。未修改、启动或部署 Java；未做真实服务写入；未在用户再次授权前 commit/push。
 
-> **当前用户任务（2026-11-16）：** 按本台账[全量重核与迁移计划](#appworks-full-migration-20261116)持续实现完整20包，纠正前期错误、真实烟测、逐轮修复重验并提交推送；当前I26已收齐已交付标书增量及公共PDF命令恢复屏障的工程检查，后续继续页11实例命令桥/正式导航、PDF整页及其余20包用例；精确断点看文末，不另建总计划。仅在主仓、标准组件+唯一SPARK data，不开Node服务、不改/启停/部署后端Java。后面的 S1–S4 条目保留历史证据，不能将已通过的工程检查等同于20包业务验收。
+> **历史任务口径（2026-11-16，已非当前指令）：** 此段只保留当日“全量重核与迁移”工作的阶段语境。当前状态以 2026-11-21 顶部收敛条目、已合并到 `main` 的提交及源码为准；具体未闭合服务缺口仍查文末，不将历史工程通过等同于 20 包业务验收。仅在主仓、标准组件+唯一 SPARK data，不开 Node 服务、不改/启停/部署后端 Java。后面的 S1–S4 条目继续作为历史证据。
 
 > **历史分层索引（2026-11-10，当日S1、S2与S3冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。S4未冻结。RendererCollapse 布局数据上下文的专项结果见 CW；最新 AppWorks 实施与验收断点见文末I03及2026-11-16完整20包计划，生成物、门禁与远端状态以末尾当前检查点为准，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
@@ -32,11 +34,11 @@
 
 **2026-10-31 同日刷新。** 字典目录配置在 `9ab5ebbfd`，设计页应用头在 `628c14f3b`。下面的断链表按这两次提交后的源码改写。
 
-**2026-10-31 全仓扩审。** 审计范围从数据平台扩到全仓：9 个包加 `src/lowcode`、`src/services`、`src/registries`、`src/composables`、`src/views`（37 个注册页、100 个 Vue）。逐区证据在[全仓数据链研读](research-whole-repo-data-chain.md)，本节只留合并后的队列。主链核实成立：`DataSet.fromJson → DataTable → DataView.refresh → executor.executeQuery`，保存 `DataSet.saveChanges → DataView.saveQueryViews → executor.save`，文件与 pagedata 适配都在 executor 内部。下面的长期队列替换本节同日早先的七轮数据平台排序。
+**2026-10-31 全仓扩审。** 审计范围从数据平台扩到全仓：9 个包加 `src/lowcode`、`src/services`、`src/registries`、`src/composables`、`src/views`（37 个注册页、100 个 Vue）。逐区证据在历史证据「全仓数据链研读」— 路径 `research-whole-repo-data-chain.md`（当前仓库未保留），本节只留合并后的队列。主链核实成立：`DataSet.fromJson → DataTable → DataView.refresh → executor.executeQuery`，保存 `DataSet.saveChanges → DataView.saveQueryViews → executor.save`，文件与 pagedata 适配都在 executor 内部。下面的长期队列替换本节同日早先的七轮数据平台排序。
 
-**离线门禁。** 日志在 [`evidence/data-platform-chain-audit-20261031/`](evidence/data-platform-chain-audit-20261031/)。`typecheck`、`lint`、`verify:rules`、`build` 均退出 0。全量 vitest 7117 通过 / 1 失败；唯一失败是 `tests/runtime/page/design/native/data-space-view-parameter-input.test.ts` 的 15 秒超时，单独重跑 5/5 通过，记为环境超时，不记回归。`verify:rules` 保留既有 AI model spec 2 warnings / 1 info。
+**离线门禁。** 日志在 历史证据「evidence/data-platform-chain-audit-20261031/」— 路径 `evidence/data-platform-chain-audit-20261031/`（当前仓库未保留）。`typecheck`、`lint`、`verify:rules`、`build` 均退出 0。全量 vitest 7117 通过 / 1 失败；唯一失败是 `tests/runtime/page/design/native/data-space-view-parameter-input.test.ts` 的 15 秒超时，单独重跑 5/5 通过，记为环境超时，不记回归。`verify:rules` 保留既有 AI model spec 2 warnings / 1 info。
 
-**SPA。** 本仓 vite 已在 `[::1]:5273` 返回 HTTP 200。新建 Edge 配置没有 cookie，也没有授权存储。打开数据空间目录后回到公开首页；`/login` 显示登录表单。没有填写账号或密码。记录见 [`spa-login-gate.json`](evidence/data-platform-chain-audit-20261031/spa-login-gate.json)。因此下表没有首查询 Code、行数或页面截图。登录、页面显示或 HTTP 200 都不能补上这一列。
+**SPA。** 本仓 vite 已在 `[::1]:5273` 返回 HTTP 200。新建 Edge 配置没有 cookie，也没有授权存储。打开数据空间目录后回到公开首页；`/login` 显示登录表单。没有填写账号或密码。记录见 历史证据「spa-login-gate.json」— 路径 `evidence/data-platform-chain-audit-20261031/spa-login-gate.json`（当前仓库未保留）。因此下表没有首查询 Code、行数或页面截图。登录、页面显示或 HTTP 200 都不能补上这一列。
 
 | 断链 | 分类 | 证据 | 影响面 | 裁决 | 删除条件 |
 | --- | --- | --- | --- | --- | --- |
@@ -76,7 +78,7 @@
 
 ### 2026-10-31 认证 SPA 烟测与 bug 登记
 
-**范围。** 认证会话，应用 `D99A1DCE9894698799101EFD70F8FC76`，dev server `[::1]:5273`。逐页只读打开 18 个导航入口与 `/dev`、`/apps/homepage/app-list`；只在用户指定的"计量单位" `03F5471C81BB27C6AF72E8337AA69207` 做写入。逐页结果与请求摘要见 [`spa-smoke.txt`](evidence/whole-repo-smoke-20261031/spa-smoke.txt)。凭据未写入任何文件。
+**范围。** 认证会话，应用 `D99A1DCE9894698799101EFD70F8FC76`，dev server `[::1]:5273`。逐页只读打开 18 个导航入口与 `/dev`、`/apps/homepage/app-list`；只在用户指定的"计量单位" `03F5471C81BB27C6AF72E8337AA69207` 做写入。逐页结果与请求摘要见 历史证据「spa-smoke.txt」— 路径 `evidence/whole-repo-smoke-20261031/spa-smoke.txt`（当前仓库未保留）。凭据未写入任何文件。
 
 **正常。** 服务器管理 5 行；数据库管理 25 行；表和视图两个入口各 20 行；数据字典 `EDB0` 20 行；逻辑视图两个入口各 16 行；JSON 11 行；数据空间目录与设计；开发工作台树 85 节点；应用工场首页 63 张卡片。
 
@@ -121,7 +123,7 @@
 
 **本轮新发现。** 正式重新生成 ClassModel 时刷新了大量过期的 `generated/` 产物。说明此前有源码改动没有跟正式生成，之后每轮改公开声明都要重跑生成。
 
-**2026-11-01 只读烟测。** 证据 [spa-chain.txt](evidence/whole-repo-smoke-20261101/spa-chain.txt)。已知断链的查询身份已补进上表。新断链两条：逻辑视图“打开设计”路由未匹配；数据库“管理”报 alias 导航身份不匹配。设计对话框复验：打开时“设计”禁用，关闭可用；已选模型下绑定显示模型名，没有自由输入“绑定表名”。没有新的业务写入。同日页头改为使用导航树标题：该应用显示「SPARK · 软件工坊[AppWorks]」，应用工场仍是「SPARK 应用工场」；卡片列宽未改。逻辑视图设计路由已挂上：打开设计进入设计页并带上当前列表节点。`GetView` 的 `viewId` 改为查询参数后，视图 `106F4CD4…` 返回文件不存在；只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl`/`JsonDataServiceImpl` 确认这是“目录记录存在、从未保存设计 JSON”的合法状态（后端缺少与 `getJsonData` 同构的空结果处理），前端 `LogicViewDesignClient.read()` 已识别该具体拒绝消息并返回空白设计，设计页不再报错；未执行保存。
+**2026-11-01 只读烟测。** 证据 历史证据「spa-chain.txt」— 路径 `evidence/whole-repo-smoke-20261101/spa-chain.txt`（当前仓库未保留）。已知断链的查询身份已补进上表。新断链两条：逻辑视图“打开设计”路由未匹配；数据库“管理”报 alias 导航身份不匹配。设计对话框复验：打开时“设计”禁用，关闭可用；已选模型下绑定显示模型名，没有自由输入“绑定表名”。没有新的业务写入。同日页头改为使用导航树标题：该应用显示「SPARK · 软件工坊[AppWorks]」，应用工场仍是「SPARK 应用工场」；卡片列宽未改。逻辑视图设计路由已挂上：打开设计进入设计页并带上当前列表节点。`GetView` 的 `viewId` 改为查询参数后，视图 `106F4CD4…` 返回文件不存在；只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl`/`JsonDataServiceImpl` 确认这是“目录记录存在、从未保存设计 JSON”的合法状态（后端缺少与 `getJsonData` 同构的空结果处理），前端 `LogicViewDesignClient.read()` 已识别该具体拒绝消息并返回空白设计，设计页不再报错；未执行保存。
 
 **调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”已提交：同模块目标是 `A8FB`，别名校验不再比较对象引用。步骤条数据上下文已提交。表和视图目录列表、设计页签、数据页和对话框层次已提交。2026-11-01 登录后选中 `px_customer` 再点字段「刷新」，目录返回 `rowid`、`address`、`customer_id` 等行，页面没有 `Network Error`，开发日志没有 `Base_TblField` 的 `requestData 失败`。主列表工具栏改行内操作仍留在后面。预览连接缺口保持。下一项仍是布局组件合同里的 `RendererSpace`，排在页面轮之前。其后按原队列第 4–12 轮执行。
 
@@ -149,7 +151,7 @@
 - **可达性与边界：**现有历史入口仅在 DevSystem 的蓝图节点数据空间页；数据空间目录设计对话框没有空间级历史入口。须复用同一定义 DataView 能力补可达入口，不提前绕过 builtin 项目树或仅以接口测试宣称已交付。历史面向整份 pagedata，不归单模型视图编辑器；显式恢复的完整性校验与普通保存的按需加载分别处理。
 - **新会话基线：**低价模型独立运行开发历史文件 13 通过/5 失败，原五项失败已复现；场景文件模型测试 188 项全部通过。主控 typecheck 退出 0。原始日志保存到本片 evidence；新反例必须证明尚缺合同，不能把旧夹具错误或已通过用例记作有效 RED。
 - **执行裁决：**沿已授权目标继续，不重新立项或重复审批。所有数据操作仍经过 SPARK data，文件 owner 留在资源适配内部；历史不可变文件不成为活动配置真源；普通动态目标的正式远端适配保留。具体历史路径与 attempt 协议须据本次只读报告冻结后，先交单一写者补测试，由主控核失败原因再开放实现。未知核验不重发写入，不用最新版本猜原 attempt。
-- **合同冻结：**采纳 [`contract-analysis.md`](evidence/repository-scenario-history-20261029/contract-analysis.md) 的证据与影响面。仓内历史位于 `config/history/scenarios/<scenarioId>/<N>__pagedata.json`，不进活动 config/pages glob；N 来自真实历史列表，上传前捕获原目标、scope、file owner、N、fileName 与文本。宿主仅接受 manifest 资源与显式安全整数 N，和活动保存共用同资源队列、比较活动原文、独占创建，冲突不覆盖、不换号重发。开发态 list/read/create 经原资源适配；本片构建态历史明确不可用且无远端回退，构建态活动配置继续只读。旧远端历史先保留，库存与迁档结果单列，不把本地暂无档案解释为原历史为空。
+- **合同冻结：**采纳 历史证据「contract-analysis.md」— 路径 `evidence/repository-scenario-history-20261029/contract-analysis.md`（当前仓库未保留） 的证据与影响面。仓内历史位于 `config/history/scenarios/<scenarioId>/<N>__pagedata.json`，不进活动 config/pages glob；N 来自真实历史列表，上传前捕获原目标、scope、file owner、N、fileName 与文本。宿主仅接受 manifest 资源与显式安全整数 N，和活动保存共用同资源队列、比较活动原文、独占创建，冲突不覆盖、不换号重发。开发态 list/read/create 经原资源适配；本片构建态历史明确不可用且无远端回退，构建态活动配置继续只读。旧远端历史先保留，库存与迁档结果单列，不把本地暂无档案解释为原历史为空。
 - **未知与生命周期：**Workspace 维护独立的快照 pending/unknown attempt，DataView source.history 暴露受守卫的状态及只读核验，不能塞入每次新建的 DataViewSource 或活动文件 submission。unknown 时创建被阻止；核验原 N 的实际身份和精确文本，缺失/失败/不匹配保持 unknown，后续草稿保留。仅匹配 attempt 的真实未应用证明可清状态；不得以 HTTP 状态或不存在猜未应用。面板关闭不清 attempt；切目标不串用，scope 改变后不可借新 scope 核验。原 owner 有未决操作时接入离开/释放提示与守卫，释放不声称取消已发请求。回读只证明快照产物存在，不声称网络请求因果归因。
 - **界面与保存：**共享窄历史面板绑定原定义 DataView，目录空间设计页与 DevDataSetDesigner 复用；打开列表/预览不提前加载完整文档。显式恢复时复用 ScenarioDefinitionDocument 完整性检查与 setText，检查同源全部视图的 dirty/pending/unknown，生成原视图草稿；取消/撤销不写存储。显式保存仅提交五类文件定义 selectors，不夹带 DB 编辑；成功后沿原 session 更新投影，禁止整页刷新。删除被替代历史状态/UI、自动保存及 builtin 拒绝守卫，保留正式动态目标适配。公开声明更新后正式生成，代理存储禁止清单同步。
 - **RED 门槛：**第一组只开放测试：已写成功但响应丢失后第二次创建不得再次写、pending 同目标阻止重复、恢复只 dirty/0 写且显式保存才写；后续覆盖四白名单真实分派、精确原 attempt 核验与后续编辑、同号并发、typed 拒绝、scope/释放/迟到响应、路径与生产边界、共享 UI 及真实历史创建无 Document。五项旧失败先纠正夹具通路再保留原语义回归，不能作为新增 RED。
@@ -273,9 +275,9 @@
 - **下一切片：**先核数据资源管理、空间管理、pagedata 保存、配置加载及未选应用时目录查询的真实身份合同；宿主仅传正式空间/资源目标与绑定，不另造 owner、模型副本或第二条读写链。当前 `readSpaceDefinition` 只投影 rowid/Name，现有 `loadLowcodeRuntimeScenario` 从已选应用工作区读取 pagedata；需要按实际来源补齐配置定位与认证 scope 承接，不能硬编码另一应用路径或把前端现有限制当后端权限。低价模型已转只读诊断，待主控按证据确定实现合同。
 - **中间成果边界：**下方目录 API 收敛片可独立审查、保存，移除了两处旧 HTTP 旁路并统一了摘要权限/身份合同，但仍不作为“数据空间配置驱动完成”的证据。总体目标继续 active，不改 Java。
 
-- **正式 UI 新证据：**本轮在数据空间目录通过名称/ID 精确查询 7AB，正式 DataView 回包 Code=200、Count=1，`sysid=D99A1DCE9894698799101EFD70F8FC76`，隐藏/脱敏字段列表为空；UI 显示“元数据管理 / 功能管理”。设计器读取该正式来源的 pagedata 成功；当前只含 NavigationInfo（default/catalogBindings）、Navigation_Desc_Version、Navigation_DataRelation、ProjectToolVersion 四个绑定，无 AppSystemList 绑定。证据明确是当前 D99 执行作用域，不冒充未激活应用的认证文件读取已验。详见 [`spa-formal-config-source.json`](evidence/configuration-driven-architecture-20261029/spa-formal-config-source.json)。
+- **正式 UI 新证据：**本轮在数据空间目录通过名称/ID 精确查询 7AB，正式 DataView 回包 Code=200、Count=1，`sysid=D99A1DCE9894698799101EFD70F8FC76`，隐藏/脱敏字段列表为空；UI 显示“元数据管理 / 功能管理”。设计器读取该正式来源的 pagedata 成功；当前只含 NavigationInfo（default/catalogBindings）、Navigation_Desc_Version、Navigation_DataRelation、ProjectToolVersion 四个绑定，无 AppSystemList 绑定。证据明确是当前 D99 执行作用域，不冒充未激活应用的认证文件读取已验。详见 历史证据「spa-formal-config-source.json」— 路径 `evidence/configuration-driven-architecture-20261029/spa-formal-config-source.json`（当前仓库未保留）。
 - **现有创建能力复核：**AppSystemList 的数据视图页已有绑定表名/视图名称与“新增视图草稿”入口；源码 `DataSpaceViewEditor.add()` 经定义视图 `addRow` 暂存。初始禁用包含空输入条件，不证明首个视图能力缺失。本轮未填入、暂存或保存任何正式配置。后续先用实际合同与测试复用，不预造另一套创建器。
-- **高阶分析复核完成：**`gpt-6-astra` 完成当前源码、参考仓及正式证据核对，主控采纳最小补链方案。完整依据见 [`architecture-review.md`](evidence/configuration-driven-architecture-20261029/architecture-review.md)，该报告是本台账的分析证据，不另立执行计划。允许固定平台元协议入口、资源 adapter 与正式空间定位身份；模型绑定/业务视图/字段投影/分页/排序/过滤/级联必须来自正式配置。配置来源应用、登录查询范围、执行应用/目标分别承接，不再提出“缺少全局 owner”外部前置。
+- **高阶分析复核完成：**`gpt-6-astra` 完成当前源码、参考仓及正式证据核对，主控采纳最小补链方案。完整依据见 历史证据「architecture-review.md」— 路径 `evidence/configuration-driven-architecture-20261029/architecture-review.md`（当前仓库未保留），该报告是本台账的分析证据，不另立执行计划。允许固定平台元协议入口、资源 adapter 与正式空间定位身份；模型绑定/业务视图/字段投影/分页/排序/过滤/级联必须来自正式配置。配置来源应用、登录查询范围、执行应用/目标分别承接，不再提出“缺少全局 owner”外部前置。
 - **首片具体合同：**在首次 IO 前建立原生元定义语义资源 DataSet/DataTable/DataView，executor 内复用既有元定义协议及权限解析，正式读取唯一可读 `Base_DataSet.sysid`。场景配置读取复用并补齐 ScenarioViewData/ScenarioDefinitionResource 的读取能力，低层 file API 留在 executor；不能由 host 先读文本再包 DataSet。复用现装配器并注入本次元定义/读取上下文，按正式模型名称唯一解析内部表键，再按关系依赖选择消费范围。不得递归依赖尚未读取的自身 pagedata、伪造 DB modelBinding 或另造 BootstrapManager/缓存/保存器。
 - **首批正式配置边界：**通过现有设计器为 AppSystemList 首先建立真实模型绑定与 default，再新增目录命名视图；在原 NavigationInfo 绑定新增根命名视图，根 systemId 是明确输入参数，prowid=000000 等条件保存在配置。保留原四个绑定和 legacy 关系模式。视图名称以本次正式保存结果为准，所有调用者用同一完整键，不做别名或 default 回退。NavHost 现关联表没有独立 viewId 字段，不发明后端列、不把完整键塞进 DataName；优先消费正式 default，命名视图选择按已有页面/场景配置承接。
 
@@ -292,7 +294,7 @@
 ### 2026-10-28—29 剩余应用目录摘要消费者收敛（API 已实施，配置驱动仍待补齐）
 
 - **复核与验证：**低价模型最终定向 9 文件 205 项通过，typecheck/定向 ESLint 通过。主控独立源码审查及独立模型复审 PASS；新增蓝图测试从错误 children 断言修为既有单根合同后，窄复审 ADDRESSED。正式 ClassModel/consumer ledger 已生成，完整 verify:rules 和生产 build 通过；保留既有 AI model 2 warnings/1 info 与 CodeMirror 告警。
-- **失败边界：**完整 lowcode-api 包回归 1200 通过/4 失败；别名主键 3 项和字典显式拒绝后重试 1 项已在隔离 `3e182b62d` 基线复现（两个文件 142 通过/4 失败）。历史面板文件当前 5 项失败，基线同样 13 通过/5 失败。它们仍是待处理缺口，未静默删测或宣称全仓全绿。root 会话两项后补回归在基线也通过，只记共同 guard 一致性增强，不充作有效 RED。证据见 [`remaining-catalog-consumers-20261028`](evidence/remaining-catalog-consumers-20261028/outcome.md)。
+- **失败边界：**完整 lowcode-api 包回归 1200 通过/4 失败；别名主键 3 项和字典显式拒绝后重试 1 项已在隔离 `3e182b62d` 基线复现（两个文件 142 通过/4 失败）。历史面板文件当前 5 项失败，基线同样 13 通过/5 失败。它们仍是待处理缺口，未静默删测或宣称全仓全绿。root 会话两项后补回归在基线也通过，只记共同 guard 一致性增强，不充作有效 RED。证据见 历史证据「remaining-catalog-consumers-20261028」— 路径 `evidence/remaining-catalog-consumers-20261028/outcome.md`（当前仓库未保留）。
 - **真实 SPA：**同一授权会话标准卡片进入 D99 服务器管理，再经原生菜单返回 62 卡目录；目录按 20/20/20/2 正式回读，Count=62，Memo 有值/空值均实际返回，根三字段查询 Count=1，业务 Code=200；未截断的激活采集窗口 Document 请求为 0。设置与引用能力本身无可达业务 UI，未声称它们完成真实页面验收；无线上保存或 Java 操作。
 
 - **实施前核对：**`3e182b62d` 已推送且当时工作树干净。生产旧 `listApplications()` 仅余 `loadProjectRuntimeSettings` 与 `createLowcodeProjectGateways().projectReferences.listProjects`。设置弹窗目前因 AppList 仅提示写入合同未就绪而不可达；引用能力经 ProjectWorkspace/useDevState 暴露，未发现当前业务 Vue 调用。保留具有领域合同的公开只读能力，不能把这些接口回归当真实页面已验收，也不为了烟测开放未知写入。
@@ -302,14 +304,14 @@
 
 ### 2026-10-28 应用卡片描述字段错绑修正
 
-- **根因与正式依据：**用户反馈卡片字段未绑定。主控真实 SPA 复核发现名称、描述有逐行值，但两者均绑定 `AppDesc`。同次正式模型字段回包确认 `AppDesc` 是“系统中文名称”、`AppName` 是“应用代码”、`Memo` 是“系统描述”，均为输出字段；不是 DataView 行上下文失效。正式字段摘要与修改前后截图见 [`application-card-field-binding-20261028`](evidence/application-card-field-binding-20261028/summary.md)。
+- **根因与正式依据：**用户反馈卡片字段未绑定。主控真实 SPA 复核发现名称、描述有逐行值，但两者均绑定 `AppDesc`。同次正式模型字段回包确认 `AppDesc` 是“系统中文名称”、`AppName` 是“应用代码”、`Memo` 是“系统描述”，均为输出字段；不是 DataView 行上下文失效。正式字段摘要与修改前后截图见 历史证据「application-card-field-binding-20261028」— 路径 `evidence/application-card-field-binding-20261028/summary.md`（当前仓库未保留）。
 - **实施与复核：**低价模型将 AppList 卡片及 PlatformApps 标准表格的描述绑定改为 `Memo`；仍由标准字段组件绑定原 DataView，不新增行数组、查询或权限逻辑。名称保留 `AppDesc → AppName → rowid` 回退。两处绑定反例先失败，再通过 15 项测试及定向 ESLint。主控检查生产差异仅两处字段名及相应断言。
 - **真实结果：**修复后重新登录授权 SPA，目录仍显示 62 个应用；数据资产管理显示实际系统描述，SPARK 薪酬管理显示薪酬业务描述，空 Memo 显示“暂无描述”。未修改正式业务数据或 Java。当前正式模型无图标输出字段，保留通用 Box；不猜字段、不额外查询。公开 `LowcodeApplication.description` 仍映射 AppDesc，作为独立语义核对项，不在这次展示修复中改变公共合同。
 
 ### 2026-10-28 导航根读取接入正式 DataView（已实施并回归）
 
 - **收口结果：**低价模型包侧 4 文件 79 项、宿主核心 2 文件 69 项通过；主控额外目录/切换/设置回归 4 文件 34 项通过。根 typecheck、定向与包 lint 通过；正式 ClassModel、consumer ledger 已由生成器刷新，完整 verify:rules 与生产 build 通过，保留原 AI model 2 warnings/1 info 及 CodeMirror 构建告警。以下分析是本片实施前的范围记录。
-- **真实 SPA：**新查询投影仅 rowid/SysId/prowid，按目标 SysId 和 prowid=000000 查询，pageSize=1、DISTINCT、REQUEST 输出；HTTP/业务成功，Count=1，目标与根身份正式读回。标准卡片进入 D99 服务器管理，随后从原生菜单返回应用目录；采集窗口无 Document 请求，无数据保存。新旧根查询证据分开保存在 [`navigation-root-dataview-20261028`](evidence/navigation-root-dataview-20261028/green-summary.md)。其余目录 consumer 迁移仍留在原队列，不代表总体已完成。
+- **真实 SPA：**新查询投影仅 rowid/SysId/prowid，按目标 SysId 和 prowid=000000 查询，pageSize=1、DISTINCT、REQUEST 输出；HTTP/业务成功，Count=1，目标与根身份正式读回。标准卡片进入 D99 服务器管理，随后从原生菜单返回应用目录；采集窗口无 Document 请求，无数据保存。新旧根查询证据分开保存在 历史证据「navigation-root-dataview-20261028」— 路径 `evidence/navigation-root-dataview-20261028/green-summary.md`（当前仓库未保留）。其余目录 consumer 迁移仍留在原队列，不代表总体已完成。
 
 - **当前切片与授权：**上批 `702cf6c90`、`a541e4b0f` 已推送，开始时工作树干净。沿用户持续授权收敛应用选择/显式导航的导航根裸 GetData；低价模型 `gpt-6-luna` 实施，主控核对 RED、复核、烟测和实时提交推送。不会修改、启动或部署 Java，不新增角色/租户判断，不另建总计划。
 - **已核合同：**根来自正式空间 `7AB874097A1E8711A42FD845939A6E05` 的 `Base_NavigationInfo`，只消费正式输出 `rowid / SysId / prowid`；按 `SysId=目标`、`prowid='000000'` 查询，只允许完整查询中唯一且三列当次可读的根，根 rowid 不要求等于应用 ID。旧请求使用 `prowId` 大小写，正式蓝图 DataView 使用 `prowid`，新实现必须按正式模型 canonical 字段验证，不能机械抄旧请求或将 null/0 猜为根。
@@ -329,7 +331,7 @@
 - **已实施：**低价模型为 RList 增加独立 `itemGridGap`，缺省仍继承 `gridGap`，没有改共享 Grid 合同；内容/card wrapper 可收缩到实际分配宽度。AppList 外层间距 20、项内间距 0，原动作改为全宽标准 `r-toolbar` 并按正式合同继承列表行，不显式绑定到全局 currentRow；隐藏动作不再留下空 grid 包装，旧按钮跨度配置已删除，原字段、操作回调及 DataView 保留。
 - **主控复核：**初版 helper 新增第四参数被主控交回，保留原三参 helper，toolbar 直接用标准 SparkNode 表达。独立复审 PASS，保留执行应用与目标应用隔离、第二卡操作仍读取第二行等断言。实施者布局 68 项/typecheck/lint 通过；主控独立列表、toolbar、AppList、切换和平台目录五文件 70/70、六文件 ESLint、正式生成、完整 build、verify:rules 与 diff check 通过。ClassModel 已生成 itemGridGap 指南，未手改产物；保留既有 AI model spec 2 warnings/1 info 和 CodeMirror 动态导入告警。
 - **真实 SPA 通过：**修复后 D99 卡片 card/cell 同为 192.5px、body 150.5px，内 gap 0、外 gap 20，按钮中心命中按钮自身；返回目录后 62 张 card 均在所属 cell 边界内。先由标准表格进入 D99，再经原生菜单回工场，通过标准卡片再次进入 D99 服务器管理，最后原生返回工场，登录态保留。没有整页刷新、业务/元数据写入或 Java 修改。窄卡片长名称沿既有详情字段标题轨道换行；本批没有改公共详情字段布局。
-- **请求/回执：**最终稳定源码后的观察未截断，一次目录 DataView 刷新以 20 条分页执行 4 次正式查询，回读 20/20/20/2、Count=62，HTTP 200 / Code 200；请求具有正式 Fields、OutputFieldMode=REQUEST、DISTINCT=true、rowid 升序，只有目录 FormKey、没有客户端应用/租户请求头；实际回包无 IsSys。正常选择段 Document 请求为 0。脱敏摘要见 [network.json](evidence/application-activation-dataview-20261028/spa-activation-catalog-network.json)，按钮/全部卡片几何及截图见同目录 [summary.md](evidence/application-activation-dataview-20261028/summary.md)。不保存密码、Bearer 或完整权限凭据。
+- **请求/回执：**最终稳定源码后的观察未截断，一次目录 DataView 刷新以 20 条分页执行 4 次正式查询，回读 20/20/20/2、Count=62，HTTP 200 / Code 200；请求具有正式 Fields、OutputFieldMode=REQUEST、DISTINCT=true、rowid 升序，只有目录 FormKey、没有客户端应用/租户请求头；实际回包无 IsSys。正常选择段 Document 请求为 0。脱敏摘要见 历史证据「network.json」— 路径 `evidence/application-activation-dataview-20261028/spa-activation-catalog-network.json`（当前仓库未保留），按钮/全部卡片几何及截图见同目录 历史证据「summary.md」— 路径 `evidence/application-activation-dataview-20261028/summary.md`（当前仓库未保留）。不保存密码、Bearer 或完整权限凭据。
 - **交付与剩余：**目录 reader 核心 `702cf6c90` 已推送。本次只提交标准列表、AppList 配置、相关测试、正式生成物、本台账与证据；导航根 resolveNavigationRootId 直接 GetData、projectReferences/project-settings 旧目录读取及公开 selectApplication 对象入口继续按真实合同收敛，不宣称整条应用选择或全仓数据架构已完成。
 
 ### 2026-10-28 活跃应用选择统一目录合同（本批目录接入已验证）
@@ -348,11 +350,11 @@
 - **验证计划与结果定位：**真实 DataView 夹具覆盖缺 provider、错 ID、缺失/重复/不可读目标、查询失败、元数据与查询等待时取消/更新意图、资源释放及字段权限；保留平台选择/导航原 abort、稳定错误与 receipt 断言。字段缺省及旧快照重开、非法可选值单独验证。相关域/目录/工作区测试、typecheck、定向 lint、正式生成、verify:rules 和 build，以及真实 SPA 的目录→应用→工场→再次选择，结果见本节后续冻结记录和上方最新收口条目。
 - **RED 与必要消费修正：**源码未改时 typecheck 基线通过。主控已核包级 RED 7 fail/58 pass，以及目录 helper RED 7 fail/2 pass；后者明确失败于新导出合同缺失，不能称为已运行 helper 的行为证明，GREEN 后须用真实 DataView 断言兑现。归一化不再伪造 IsSys 后，旧 project-settings 会用真假判断把 unknown 又解释为普通应用，故本批同步让 ProjectDetail.projectType 可缺省，仅在分类为已知 boolean 时提供；加 unknown 省略及已知 true/false 回归，不改其查询、保存或只读入口。导航根 resolveNavigationRootId 原直接 GetData 仍是后续数据旁路，本批目录统一不等于整条激活链完成。
 - **冻结复核与实际烟测缺口：**主控独立 API 70/70、应用侧六文件 82/82 通过，独立复审 PASS；主控 app lint 发现可选名称 `||` 及未用导入三项问题，交回实施者修正，空字符串回退语义保留，窄复审 ADDRESSED。正式生成、完整 build 与 verify:rules 已通过，最终交付仍待后续烟测问题修复后的门禁。真实 SPA 标准表格进入 D99 成功，经原生菜单返回工场保留登录态，但卡片再次“进入”没有请求/导航。
-- **烟测裁决与新增必要范围：**现场 DOM/截图证明不是数据读取或 fence 失败：RendererList 外部 24 列/20px 间距同时用于卡片内部，元数据卡片内部 24 轨道均为 0px、间距合计 460px，卡片宽 502px，外层仅分配 192.5px；“进入”中心命中相邻“世纪楚风-合同管理”的 body，未命中按钮。证据为 [before.json](evidence/application-activation-dataview-20261028/spa-card-overflow-before.json) 与 [before.png](evidence/application-activation-dataview-20261028/spa-card-overflow-before.png)。该既有布局问题直接阻断本阶段真实卡片验收，故纳入必要范围：先核 ClassModel 与标准列表能力，补可区分内外间距/可收缩内容的标准能力，再由 AppList 配置复用；不以表格成功替代卡片通过，不用页面 CSS 或直接派发 click 绕过可见入口。首轮请求观察缓冲曾被开发模块流量挤出，标记 truncated，不作为完整选择目录请求证据；最终稳定源码后重采。
+- **烟测裁决与新增必要范围：**现场 DOM/截图证明不是数据读取或 fence 失败：RendererList 外部 24 列/20px 间距同时用于卡片内部，元数据卡片内部 24 轨道均为 0px、间距合计 460px，卡片宽 502px，外层仅分配 192.5px；“进入”中心命中相邻“世纪楚风-合同管理”的 body，未命中按钮。证据为 历史证据「before.json」— 路径 `evidence/application-activation-dataview-20261028/spa-card-overflow-before.json`（当前仓库未保留） 与 历史证据「before.png」— 路径 `evidence/application-activation-dataview-20261028/spa-card-overflow-before.png`（当前仓库未保留）。该既有布局问题直接阻断本阶段真实卡片验收，故纳入必要范围：先核 ClassModel 与标准列表能力，补可区分内外间距/可收缩内容的标准能力，再由 AppList 配置复用；不以表格成功替代卡片通过，不用页面 CSS 或直接派发 click 绕过可见入口。首轮请求观察缓冲曾被开发模块流量挤出，标记 truncated，不作为完整选择目录请求证据；最终稳定源码后重采。
 
 ### 2026-10-28 显式跨应用导航的目录查询收敛
 
-- **切片与反例：**主控核对调用链后，开放 `gpt-6-luna` 单一写者将 `readLowcodeRuntimeNavigation(projectId)` 的显式跨应用目标查找替换为既有正式应用目录 DataSet/DataView。先补真实 DataView 夹具：原有 36 项通过，新增 9 项因旧列表旁路失败；主控排除了授权读取未 mock 导致的网络伪 RED，确认重复主键夹具确实返回两行。原始 RED/GREEN 与范围见 [summary.md](evidence/cross-app-catalog-red-20261028/summary.md)。
+- **切片与反例：**主控核对调用链后，开放 `gpt-6-luna` 单一写者将 `readLowcodeRuntimeNavigation(projectId)` 的显式跨应用目标查找替换为既有正式应用目录 DataSet/DataView。先补真实 DataView 夹具：原有 36 项通过，新增 9 项因旧列表旁路失败；主控排除了授权读取未 mock 导致的网络伪 RED，确认重复主键夹具确实返回两行。原始 RED/GREEN 与范围见 历史证据「summary.md」— 路径 `evidence/cross-app-catalog-red-20261028/summary.md`（当前仓库未保留）。
 - **实现与主控复核：**目标仅按可读 rowid 精确匹配，缺失或重复身份拒绝；名称按 AppDesc/AppName 的当次读取权限投影，均不可读则回退可读 ID。中间对象收窄为 id/name，不伪造 isDefault、企业字段或完整 LowcodeApplication。DataSet 获取后在 try/finally 内校验调用方执行身份，成功、失败、装载返回时过期及查询期间过期均释放；原执行应用与目标应用分离、导航根、蓝图 DataView 与授权并发收敛逻辑保留，没有第二份查询状态或旧 API 回退。
 - **验证边界：**实施者导航 45/45、仓级 typecheck、定向 ESLint 通过；主控独立复跑导航、目录装配、PlatformApps、AppList 和应用切换五套测试共 78/78 通过，并运行正式 ClassModel/lowcode 合同生成、verify:rules 与 build:fe。具体门禁最终状态见本批证据。主导航 main.ts 不传显式目标，仅 project-settings 传入，而设置 UI 入口当前仍为只读提示；因此本分支只有自动化验收，没有真实 SPA 调用证明，不借上批普通进入应用烟测充数。
 - **剩余与交付：**PlatformApps 上批 `e58c83d30` 已推送；当前仍有 projectReferences.listProjects、project-settings 两个业务目录旧调用，以及 LowcodePlatformApi 活跃应用选择内部的旧目录读取。后续优先核活跃选择链身份/中止/回执，引用摘要和设置类型需各自核完整消费合同，不根据缺失 IsSys 猜普通应用。没有线上业务/元数据写入，没有 Java 修改。暂存仅导航源码、相关回归、正式生成物、本台账及本批证据，整体目标继续进行。
@@ -362,27 +364,27 @@
 - **实施与复核：**由 `gpt-6-luna` 单一产品写者实施，主控复核。PlatformApps 删除 `listApplications()`、项目数组及手写表格列，复用既有正式目录加载器，经 PageRuntime → DataSet → `7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default`，以 RendererTable 和标准字段子组件绑定。刷新使用标准工具栏 action；当前企业仅作登录信息展示，不再提供只有一个选项的租户选择器，不建立前端租户授权。保留应用切换回执的前后核验及卸载/过期查询隔离。
 - **边界修正：**主控保留原新建表单入口与空 ID 提示，补首次加载失败的同链重试，明确启用标准 DataView 状态/错误栏；正式查询未输出 IsSys 时不显示类型或删除入口，不将缺失值推断为 0。新建/删除仍沿原先明确报错的未实现路径，本批不宣称应用 CRUD 完成，也没有线上写入。页面内原生新建表单尚未迁移标准字段绑定，属于后续写合同切片，不算已统一。
 - **验证与生成：**主控独立复跑 PlatformApps、AppList 和应用切换三套测试，31/31 通过；定向 ESLint、根 typecheck、完整 verify:rules、正式 ClassModel 生成、lowcode 合同生成及 build:fe 通过。规则扫描保留既有 AI model spec 2 warnings/1 info，前端构建保留既有 CodeMirror 动态导入告警。目录/概要/指南沿已有正式组件与目录加载器合同复用，ClassModel 产物由正式生成器刷新，未手改。
-- **真实 SPA：**同一登录态通过原生导航进入平台应用管理，显示 62 条正式记录、首条“数据资产管理”；标准刷新后仍为 62 条且状态 Loaded。新建表单打开后取消，没有提交；选择 D99 元数据管理行“进入”，同一 SPA 到达正式服务器管理页，再通过浏览器返回平台目录并原生导航回应用卡片页。状态栏显式开启后的再刷新已验证 Loaded。细节见 [live-spa.md](evidence/platform-apps-dataview-20261028/live-spa.md)。未修改、启动或部署 Java。
+- **真实 SPA：**同一登录态通过原生导航进入平台应用管理，显示 62 条正式记录、首条“数据资产管理”；标准刷新后仍为 62 条且状态 Loaded。新建表单打开后取消，没有提交；选择 D99 元数据管理行“进入”，同一 SPA 到达正式服务器管理页，再通过浏览器返回平台目录并原生导航回应用卡片页。状态栏显式开启后的再刷新已验证 Loaded。细节见 历史证据「live-spa.md」— 路径 `evidence/platform-apps-dataview-20261028/live-spa.md`（当前仓库未保留）。未修改、启动或部署 Java。
 - **当前剩余范围：**源码中旧 `listApplications()` 消费仍在 lowcode-runtime 的跨应用导航、projectReferences.listProjects，以及 project-settings；LowcodePlatformApi 内部旧目录适配尚存。后续逐个沿真实语义收敛，不以本次两个可见目录已统一外推整仓完成。暂存仅本页、相关测试、正式生成物、本台账及本批证据；不自动混入其他业务修改。
 
 ### 2026-10-28 用户反馈：卡片字段不可见的暗色主题修复
 
 - **现场定位：**用户反馈“卡片上字段没绑定数据”。本轮直接读取真实 SPA DOM，目录仍有 62 条，首卡 `.field-value` 的值为“数据资产管理”，但计算文字色为 `rgb(48,49,51)`，暗主题主文字变量为 `#edf2f7`。绑定值存在，标准 FieldContextRenderer 的固定深色字体导致视觉上近似空白；上批验收只确认值和导航，遗漏了暗色卡片的文字对比度。
 - **修复与回归：**低价模型将标准字段标题/值分别改为 Element Plus regular/primary 主题文字变量，保留无主题时的原亮色 fallback。未在页面手传值、创建数组或重建数据绑定。新增真实 RendererList/RendererHostScope/FieldText 与 PageRuntime/DataView 回归，currentRow 指向第三行时，前两张卡片仍显示各自行的不同字段值。测试环境不加载 SFC 样式，已删除无效的 JSDOM 颜色断言；真实颜色由浏览器验证，调查失败日志不冒充有效产品 RED。
-- **真实 SPA 复核与门禁：**修复后同一值“数据资产管理”的计算文字色为 `rgb(237,242,247)`，与当前主题变量一致；截图可见首两行卡片的应用名称、描述恢复清晰，目录仍为 62 条。主控独立复跑列表/表单/详情 39 项通过，根 typecheck、定向 ESLint、完整 verify:rules、build:fe 及 diff check 通过；保留既有 AI model 2 warnings/1 info 和 CodeMirror 构建告警。没有公开属性或声明变化，ClassModel 校验通过，未手改产物。没有配置/数据写入或 Java 修改。验证范围及结果见 [`summary.md`](evidence/application-card-field-display-20261028/summary.md)。
+- **真实 SPA 复核与门禁：**修复后同一值“数据资产管理”的计算文字色为 `rgb(237,242,247)`，与当前主题变量一致；截图可见首两行卡片的应用名称、描述恢复清晰，目录仍为 62 条。主控独立复跑列表/表单/详情 39 项通过，根 typecheck、定向 ESLint、完整 verify:rules、build:fe 及 diff check 通过；保留既有 AI model 2 warnings/1 info 和 CodeMirror 构建告警。没有公开属性或声明变化，ClassModel 校验通过，未手改产物。没有配置/数据写入或 Java 修改。验证范围及结果见 历史证据「summary.md」— 路径 `evidence/application-card-field-display-20261028/summary.md`（当前仓库未保留）。
 
 ### 2026-10-28 默认应用目录接入 SPARK data 与标准列表
 
 - **实现：**低价模型为 DataView 查询配置补齐 `distinct` 的布尔校验、序列化、请求捕获和后端 DISTINCT 编码，省略继续为 false；没有浏览器本地去重。默认 AppList 以现有正式目录空间 `7AB874097A1E8711A42FD845939A6E05` 和 `Base_AppSystemList` 装配 PageRuntime/DataSet/DataView，元数据从正式设计 API 读取，执行器复用 DataSpaceApi、共享 HTTP/Bearer 和登录态上下文。原 AppList 的 `listApplications()`、项目数组和手写卡片分支已删除，使用原标准 RendererList 绑定；显式蓝图场景入口仍按其正式场景加载。
 - **主控复核与线上修正：**首次查询由页面统一触发，删除了装配器重复查询。服务端正式模型不输出 IsSys，原“必须输出该字段”检查会阻断目录，现改为只要求主键与名称合同；缺失/不可读的 IsSys 不推导为非系统应用，依赖标签与删除操作隐藏，不扩大权限或更改模型定义。租户范围继续交后端登录态判断，未建立 tenant/root owner。旧请求中 Type/PrimaryKeyFields/RelationFilterType 未机械加入协议；使用正式模型绑定和原 SPARK 查询合同的真实读回已成功。
-- **自动化与生成：**主控独立复跑 spark-data 查询配置 37/37、SPARK 查询执行/协议 232/232、目录装配/页面/绑定 15/15 通过；原始 RED/GREEN 和测试范围分别见 [`query-distinct`](evidence/query-distinct-20261028/summary.md)、[`catalog`](evidence/application-catalog-dataview-20261028/summary.md)。页面最初过时断言失败记录为迁移日志，不伪称有效 TDD RED。主控发现并交回修复 IsSys 测试夹具必填类型、资源子目录超限，以及不能将默认目录 distinct 要求强加给已部署显式场景的问题；最终根 typecheck、定向 ESLint、完整 verify:rules、生产 build 和移动模块后的 build:fe 均通过。规则保留既有 AI model spec 2 warnings/1 info、构建保留 CodeMirror 动态导入告警。ClassModel 及 consumer ledger 均使用正式生成器，保留当前源码派生合同和相应索引更新；生成器同时刷新当前源码中已有但旧清册未收录的声明。
-- **真实 SPA：**最终代码新会话下，默认目录标准列表读回 62 条，包含元数据管理；IsSys 缺失时 0 个删除按钮。通过标准卡片点击进入元数据管理后，在同一 SPA 到达 D99“服务器管理”，无整页刷新、无正式数据写入。热更新旧会话的切换服务缺失单独登记，新启动会话未复现。详情见 [`live-spa.md`](evidence/application-catalog-dataview-20261028/live-spa.md)。
+- **自动化与生成：**主控独立复跑 spark-data 查询配置 37/37、SPARK 查询执行/协议 232/232、目录装配/页面/绑定 15/15 通过；原始 RED/GREEN 和测试范围分别见 历史证据「query-distinct」— 路径 `evidence/query-distinct-20261028/summary.md`（当前仓库未保留）、历史证据「catalog」— 路径 `evidence/application-catalog-dataview-20261028/summary.md`（当前仓库未保留）。页面最初过时断言失败记录为迁移日志，不伪称有效 TDD RED。主控发现并交回修复 IsSys 测试夹具必填类型、资源子目录超限，以及不能将默认目录 distinct 要求强加给已部署显式场景的问题；最终根 typecheck、定向 ESLint、完整 verify:rules、生产 build 和移动模块后的 build:fe 均通过。规则保留既有 AI model spec 2 warnings/1 info、构建保留 CodeMirror 动态导入告警。ClassModel 及 consumer ledger 均使用正式生成器，保留当前源码派生合同和相应索引更新；生成器同时刷新当前源码中已有但旧清册未收录的声明。
+- **真实 SPA：**最终代码新会话下，默认目录标准列表读回 62 条，包含元数据管理；IsSys 缺失时 0 个删除按钮。通过标准卡片点击进入元数据管理后，在同一 SPA 到达 D99“服务器管理”，无整页刷新、无正式数据写入。热更新旧会话的切换服务缺失单独登记，新启动会话未复现。详情见 历史证据「live-spa.md」— 路径 `evidence/application-catalog-dataview-20261028/live-spa.md`（当前仓库未保留）。
 - **剩余与状态：**仅默认 AppList 显示消费者完成迁移；PlatformApps、project-settings、运行导航跨应用及 projectReferences 的其它目录调用尚在队列，不能把它们当已统一。默认 AppList 的创建/设置写入仍沿原有不可用提示；本批不扩展写业务。继续推进 SPARK data 唯一通道总体目标，不修改/启动/部署 Java。
 
 ### 2026-10-28 登录态查询上下文公共能力
 
 - **已实施：**低价模型新增 `LowcodeApi.readAuthenticatedRequestScope()`，只要求有效登录，返回不含应用/租户头或凭据的上下文；身份标识与 session revision 用于识别旧异步请求。Bearer 仍由同一 HTTP 拦截器注入，数据范围与授权交后端。原 `readRequestScope()` 共用登录校验，原应用身份、token 和请求头保持既有合同。
-- **主控复核：**纠正了失败用例中未绑定类方法会丢失 this 的问题；有效 RED 为方法缺失时 3 失败/1 通过，GREEN 为 4/4。低价模型相关回归 176/176，主控独立 API/平台/应用查询回归 50/50、根 typecheck、定向 ESLint、lowcode contracts check 和 diff check 通过。公开 ClassModel 使用正式生成器刷新，仅保留根 API 的合同产物。包 typecheck 仍有未改 `dictionary-workspace.test.ts` 的既有诊断。证据见 [`authenticated-query-scope-20261028`](evidence/authenticated-query-scope-20261028/summary.md)。
+- **主控复核：**纠正了失败用例中未绑定类方法会丢失 this 的问题；有效 RED 为方法缺失时 3 失败/1 通过，GREEN 为 4/4。低价模型相关回归 176/176，主控独立 API/平台/应用查询回归 50/50、根 typecheck、定向 ESLint、lowcode contracts check 和 diff check 通过。公开 ClassModel 使用正式生成器刷新，仅保留根 API 的合同产物。包 typecheck 仍有未改 `dictionary-workspace.test.ts` 的既有诊断。证据见 历史证据「authenticated-query-scope-20261028」— 路径 `evidence/authenticated-query-scope-20261028/summary.md`（当前仓库未保留）。
 - **后续接线：**该能力是选择应用前目录查询的已知前置，当前尚未由应用目录 DataView 使用；未宣称目录 consumer 已迁移或真实 SPA 已验收。下一步将同一登录上下文接入原目录 FormKey 的正式模型查询，核对 DISTINCT/输出字段/总数和权限回包，再让目录组件绑定 DataView，删除旧读取链。本批没有业务/设计数据写入或 Java 修改；总体目标继续 active。
 
 ### 2026-10-28 用户纠偏：租户判断归后端，重新审视目录迁移前置
@@ -394,16 +396,16 @@
 ### 2026-10-28 Tenant 应用目录 owner 作用域对照
 
 - **同会话真实 SPA 对照：**homepage tenant `/app-list` 当前渲染 62 个应用卡片；正式 D99 `功能管理` 空间中对 `Base_AppSystemList` 执行只读模型预览得到 `Loaded 1/1`，唯一行是 `元数据管理 / D99A1DCE9894698799101EFD70F8FC76`。此次观察更新了早前目录 61 项的历史计数；旧数值只代表当时页面状态。
-- **设计合同：**该 DataSpace ID `7AB874097A1E8711A42FD845939A6E05` 共 24 个模型；`Base_DataModel` 与 `Base_AppSystemList` 均无已配置命名视图。DataSpace 是 D99 scope 下的 `Base_AppSystemList` 记录，不是 62 项 tenant 目录的同范围查询；不能借用该 owner 或自行加 DataView 伪造等价。详见 [`tenant-app-catalog-scope-dataview-20261028.md`](evidence/tenant-app-catalog-scope-dataview-20261028.md)。
-- **当次 SPA 复测：**复用用户已授权账号登录并确认导航显示“王涛”；tenant 应用目录为 62 卡片。D99 数据空间目录服务回执为 `Total 1346`，第一页 10 条应用列均为“未解析应用”。这是当前首屏 owner 映射异常证据，不外推到其余 1336 条，旧同日 `Total 1334` 为历史时点。详情见 [`d99-dataspace-catalog-unresolved-owner-live-20261028.md`](evidence/d99-dataspace-catalog-unresolved-owner-live-20261028.md)。
+- **设计合同：**该 DataSpace ID `7AB874097A1E8711A42FD845939A6E05` 共 24 个模型；`Base_DataModel` 与 `Base_AppSystemList` 均无已配置命名视图。DataSpace 是 D99 scope 下的 `Base_AppSystemList` 记录，不是 62 项 tenant 目录的同范围查询；不能借用该 owner 或自行加 DataView 伪造等价。详见 历史证据「tenant-app-catalog-scope-dataview-20261028.md」— 路径 `evidence/tenant-app-catalog-scope-dataview-20261028.md`（当前仓库未保留）。
+- **当次 SPA 复测：**复用用户已授权账号登录并确认导航显示“王涛”；tenant 应用目录为 62 卡片。D99 数据空间目录服务回执为 `Total 1346`，第一页 10 条应用列均为“未解析应用”。这是当前首屏 owner 映射异常证据，不外推到其余 1336 条，旧同日 `Total 1334` 为历史时点。详情见 历史证据「d99-dataspace-catalog-unresolved-owner-live-20261028.md」— 路径 `evidence/d99-dataspace-catalog-unresolved-owner-live-20261028.md`（当前仓库未保留）。
 - **首行设计诊断：**只读打开第一页“账户设置”，目标 DataSpace ID `2C76CB8B29B72CC9F566A65469BDC972`；设计器报数据模型目录未完整确认、暂无视图配置，并显示共享配置变化错误，新增模型/保存布局禁用。没有写配置；owner unresolved 与该设计状态的因果关系未证实。见上述同一证据。
 - **源码边界：**homepage route 在 `config/navigation/vue-pages.json` 注册为 tenant scope 且未声明 `dataSpaceId`；`AppList.vue::loadProjects()` 的无场景分支仍调用 `lowcodeApi.platform.listApplications()`。`loadLowcodeRuntimeScenario({projectId,scenarioId})` 按当前 route projectId 加载 pagedata，并以当前 `X-AppId` 检查请求 scope；直接将 D99 的 `7AB...` 常量加到 homepage 不会建立有效 owner，反而按 `homepage/7AB...` 读取配置。正式应用模型缺口是全局 owner/服务端 scope 与权限合同，不只是缺视图。
-- **当前结论：**`gpt-6-luna` 完成两轮源码审计：现有目录 DataSpace 只能归属正式应用 rowid，tenant/root owner、owner 解析及其授权合同缺失；`homepage` 是目录路由作用域标记而非已证实的 DataSpace 身份。旧 `listApplications()` 又不暴露 DataView 所需的逐行字段权限上下文/总数回执。不得把 D99 的 DataView、任意应用 owner 或合成权限套给全局目录。源码证据与正式前置条件见 [`tenant-app-catalog-dataspace-owner-feasibility-20261028.md`](evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md)。当前保持 consumer 和旧读取链不变，登记为活动旁路；无 Java 修改或业务写入。
+- **当前结论：**`gpt-6-luna` 完成两轮源码审计：现有目录 DataSpace 只能归属正式应用 rowid，tenant/root owner、owner 解析及其授权合同缺失；`homepage` 是目录路由作用域标记而非已证实的 DataSpace 身份。旧 `listApplications()` 又不暴露 DataView 所需的逐行字段权限上下文/总数回执。不得把 D99 的 DataView、任意应用 owner 或合成权限套给全局目录。源码证据与正式前置条件见 历史证据「tenant-app-catalog-dataspace-owner-feasibility-20261028.md」— 路径 `evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md`（当前仓库未保留）。当前保持 consumer 和旧读取链不变，登记为活动旁路；无 Java 修改或业务写入。
 
 ### 2026-10-28 D99 功能管理 DataSpace 命名视图核验
 
 - **真实 SPA 证据：**复用用户已给的 NewApp 测试账号登录，D99 正式数据空间目录按名称查到归属“元数据管理”的“功能管理”空间，设计器目标 ID `7AB874097A1E8711A42FD845939A6E05`。画布显示 24 个模型、12 张数据库表、11 个字典、1 个文件资源、0 条关系；主业务模型为 `Base_NavigationInfo`。
-- **DataView 结论：**该空间中只读打开 `Base_DataModel` 与 `Base_AppSystemList` 的正式模型定义，两者“数据视图”页均提示需先选择或新增视图，“保存视图配置”和“新增视图草稿”不可用；本次未编辑、增建或提交。证据范围仅为这两个模型。详情见 [`d99-function-management-appsystemlist-view-audit-20261028.md`](evidence/d99-function-management-appsystemlist-view-audit-20261028.md)。
+- **DataView 结论：**该空间中只读打开 `Base_DataModel` 与 `Base_AppSystemList` 的正式模型定义，两者“数据视图”页均提示需先选择或新增视图，“保存视图配置”和“新增视图草稿”不可用；本次未编辑、增建或提交。证据范围仅为这两个模型。详情见 历史证据「d99-function-management-appsystemlist-view-audit-20261028.md」— 路径 `evidence/d99-function-management-appsystemlist-view-audit-20261028.md`（当前仓库未保留）。
 - **统一接入判断：**D99 该空间不是全局应用目录可直接复用的已配置 DataView owner。仓内 `Base_AppSystemList@catalogApps` 属数据空间目录场景，不能借用来替代 homepage/平台目录的 route scope、结果范围和服务端授权。新增视图只有在正式 owner 与授权范围获得服务端/SPA证据后才实施，不能单凭数据空间设计页可创建就推定全局消费者可用。
 - **低价模型复核：**`gpt-6-luna` 对当前台账队列及源码复核，未发现 owner、scope、正式权限与提交回执合同完整的可安全代码切片；未改源码或测试。NavHost、ProjectPlanning、AgentWorkflowFiles 仍依次缺正式目标/字段授权、规划附件与描述来源、权限投影及文件路径查询回执。下一步沿目标场景的正式 DataSet → DataTable → DataView 只读核对，再按 owner 记录行身份、字段权限、查询/保存回执及冲突/未知结果；确认合同后才为真实差距建立 RED 并实现，不改 Java。
 - **本轮交付边界：**当前工作树开始时干净。本轮只读 SPA 证据、唯一台账与 evidence 文档；未写正式空间、模型、视图、条目或布局；没有代码改动或测试结果。
@@ -413,7 +415,7 @@
 - **会话与真实入口：**使用用户已提供的测试账号恢复本地 SPA 会话，导航栏显示“王涛”；没有再次索取账号，也没有把密码记入文件。通过 D99 正式路由打开 DevSystem `appworks-tool-dev`，页面明确显示“当前导航未配置项目切换关系”，蓝图为“项目蓝图为空 / 0 页面”。未切换项目、未保存配置或修改业务数据。
 - **游离 DataSpace 证据：**在数据空间目录通过标准目录视图按 `AI` 筛选，UI 显示 `Total 9`。其中“AI助手”正式空间 ID `25F8CEA8B08D00D5C82ECC40E029814D`，设计器只读显示 11 个模型、主业务模型 `AI助手数据`，并提示“尚无视图配置”；查询绑定指向“SPARK 数智化项目管理 / 智能助理”及 `vue:/domains/ai/views/AIAssistantView?context=global`。仓内没有找到该页面实现。按 `项目` 筛选显示 `Total 66`，当前第一页可见记录均标示“未解析应用”；不外推到未显示页。以上证明存在正式 DataSpace 身份和页面绑定但 owner 未解析的配置，不能按名称猜补 owner、scope、视图或权限。
 - **低价模型审计与选择：**`gpt-6-luna` 复核 B1 AI 批量新增会话后，未找到能建立有效 RED 的代码缺陷：候选字段、权限预检、原 DataView 暂存及防止部分追加重放已覆盖。固定 system prompt 仍缺部署映射 Agent 的启用状态及批准提示词版本/摘要正式证据，因此保留为部署合同缺口，不在前端猜造配置。另一低价审计确认 AppList 根 fallback、PlatformApps、project-settings 和跨应用导航各自缺少可证明同范围的正式 DataView owner/scope；不接错应用内 DataView，也不制造 root owner。
-- **交付边界与下一步：**本轮只读 SPA 查询，没有配置写入、条目变更或 Java 修改。详细 UI 事实见 [`dataspace-owner-and-devsystem-live-spa-20261028.md`](evidence/dataspace-owner-and-devsystem-live-spa-20261028.md)。先按活跃页面正式绑定和已解析 owner 建立“DataSpace 身份 → DataView → 消费者 → 权限/回执”映射；DevSystem 项目切换待正式跨项目候选 DataSet/scope/授权合同，不能用当前空关系冒充烟测通过。`AgentWorkflowFiles@directory` 最新 `[1003] 文件夹路径不存在` 仍以 2026-10-28 前条为准。
+- **交付边界与下一步：**本轮只读 SPA 查询，没有配置写入、条目变更或 Java 修改。详细 UI 事实见 历史证据「dataspace-owner-and-devsystem-live-spa-20261028.md」— 路径 `evidence/dataspace-owner-and-devsystem-live-spa-20261028.md`（当前仓库未保留）。先按活跃页面正式绑定和已解析 owner 建立“DataSpace 身份 → DataView → 消费者 → 权限/回执”映射；DevSystem 项目切换待正式跨项目候选 DataSet/scope/授权合同，不能用当前空关系冒充烟测通过。`AgentWorkflowFiles@directory` 最新 `[1003] 文件夹路径不存在` 仍以 2026-10-28 前条为准。
 - **基线与交付：**本轮开始时产品代码最新提交为 `008af6b36`，台账/证据 HEAD 为 `40c354f6a`，工作树干净且远端同步。此次只增补证据和本台账；交付状态以本轮 Git HEAD 与远端跟踪分支为准。
 
 ### 2026-10-28 认证会话恢复与真实 SPA 复核
@@ -425,8 +427,8 @@
 
 ### 2026-10-28 Workflow 文件编辑保存走 DataView
 
-- **RED 与实施：**先提交的失败用例及原始输出见 [`agent-workflow-file-dataview-save-red-20261028.txt`](evidence/agent-workflow-file-dataview-save-red-20261028.txt)。实施后 design.json / definition.json 的既有行只允许改 `content`；页面草稿镜像到原 DataView 编辑值，通过 `DataSet.saveChanges({views:[...]})` 提交。资源 executor 校验原查询身份与远端基线，再复用既有 `LowcodeDesignFileUpload` 文件存储适配并按字节读回；结果未知时保留原 DataView 捕获，重试只核对原文件字节、不重发上传。取消从 DataView 基线恢复。未扩展创建、删除、发布。
-- **复核与门禁：**主控发现并修复默认上传器 ESLint 问题及两个函数参数过多的 AI 编码规范问题。定向测试 2 个文件、51/51 通过，输出见 [`agent-workflow-file-dataview-save-green-20261028.txt`](evidence/agent-workflow-file-dataview-save-green-20261028.txt)；`pnpm run typecheck`、9 个改动文件 ESLint、`pnpm run verify:rules` 与 `pnpm run build` 通过。规则扫描保留既有 AI model spec 2 warnings/1 info；构建有既有依赖动态导入及 chunk 体积警告。没有修改公开 ClassModel 合同，正式合同检查通过。
+- **RED 与实施：**先提交的失败用例及原始输出见 历史证据「agent-workflow-file-dataview-save-red-20261028.txt」— 路径 `evidence/agent-workflow-file-dataview-save-red-20261028.txt`（当前仓库未保留）。实施后 design.json / definition.json 的既有行只允许改 `content`；页面草稿镜像到原 DataView 编辑值，通过 `DataSet.saveChanges({views:[...]})` 提交。资源 executor 校验原查询身份与远端基线，再复用既有 `LowcodeDesignFileUpload` 文件存储适配并按字节读回；结果未知时保留原 DataView 捕获，重试只核对原文件字节、不重发上传。取消从 DataView 基线恢复。未扩展创建、删除、发布。
+- **复核与门禁：**主控发现并修复默认上传器 ESLint 问题及两个函数参数过多的 AI 编码规范问题。定向测试 2 个文件、51/51 通过，输出见 历史证据「agent-workflow-file-dataview-save-green-20261028.txt」— 路径 `evidence/agent-workflow-file-dataview-save-green-20261028.txt`（当前仓库未保留）；`pnpm run typecheck`、9 个改动文件 ESLint、`pnpm run verify:rules` 与 `pnpm run build` 通过。规则扫描保留既有 AI model spec 2 warnings/1 info；构建有既有依赖动态导入及 chunk 体积警告。没有修改公开 ClassModel 合同，正式合同检查通过。
 - **提交推送：**实现提交 `55ad0a6f3` 与台账提交 `1b0a5e80c` 已推送至 `origin/codex/ai-data-entry`；随后远端回执确认从 `2a1c32f6b` 快进到 `1b0a5e80c`。
 - **真实 SPA 边界：**未完成 authenticated SPARK SPA 的文件编辑、DataView 保存及重开读回烟测；IAB `getTab` 返回 `browser.user is unavailable`，桌面窗口当前不是目标 SPARK 标签。本次未在服务端写入 Workflow 文件，也未改、启动或部署 Java。自动化夹具和本地构建不等同真实服务验收。
 - **继续路线：**用户确认可通过数据空间设计补齐游离数据。按当前治理，只能为已确认、服务端承认的 owner 补正式 DataTable / DataView / 参数 / executor 定义；不得凭空制造 owner、scope 或权限。Workflow 文件写入已回到 SPARK data 的 DataView/DataSet 业务链，底层文件 API 只在资源 executor 中执行存储适配。后续仍须在有效 SPARK SPA 会话完成真实读写与重开读回，并继续处理其它游离 owner。
@@ -441,8 +443,8 @@
 
 ### 2026-10-28 数据库预览 DataView 作用域与复制权限预检
 
-- **物理表/视图预览：**低价实施在两条 DataView executor 的网络请求返回后、同步列定义前重新检查原查询 scope，阻止过期响应先污染已切换场景的 DataTable；刷新时先设 pageSize 再设 page，避免设页大小把 pageIndex 重置为 1。自动化覆盖正式目录字段投影、服务器 total、空结果 Loaded 状态及 scope 失效不发布行/列。RED 证据见 [`database-preview-stale-scope-red.txt`](evidence/database-preview-stale-scope-red.txt)、[`database-preview-page-reset-red.txt`](evidence/database-preview-page-reset-red.txt)。
-- **复制表：**复制前预检表 DataView 的显式身份能力、表级新增和表行字段权限，并预检全部字段 DataView 新增权限；拒绝时不暂存新表或字段。成功测试仅在测试夹具显式模拟服务允许字段新增的查询回包；默认拒绝用例证明零 pending 与零保存提交。RED 证据见 [`database-copy-permission-preflight-red.txt`](evidence/database-copy-permission-preflight-red.txt)。四个关系回归测试准备改用 `addRowWithIdentity`，不放松 DataView 正式主键守卫；历史失败原因见 [`database-relation-addrow-identity-red.md`](evidence/database-relation-addrow-identity-red.md)。
+- **物理表/视图预览：**低价实施在两条 DataView executor 的网络请求返回后、同步列定义前重新检查原查询 scope，阻止过期响应先污染已切换场景的 DataTable；刷新时先设 pageSize 再设 page，避免设页大小把 pageIndex 重置为 1。自动化覆盖正式目录字段投影、服务器 total、空结果 Loaded 状态及 scope 失效不发布行/列。RED 证据见 历史证据「database-preview-stale-scope-red.txt」— 路径 `evidence/database-preview-stale-scope-red.txt`（当前仓库未保留）、历史证据「database-preview-page-reset-red.txt」— 路径 `evidence/database-preview-page-reset-red.txt`（当前仓库未保留）。
+- **复制表：**复制前预检表 DataView 的显式身份能力、表级新增和表行字段权限，并预检全部字段 DataView 新增权限；拒绝时不暂存新表或字段。成功测试仅在测试夹具显式模拟服务允许字段新增的查询回包；默认拒绝用例证明零 pending 与零保存提交。RED 证据见 历史证据「database-copy-permission-preflight-red.txt」— 路径 `evidence/database-copy-permission-preflight-red.txt`（当前仓库未保留）。四个关系回归测试准备改用 `addRowWithIdentity`，不放松 DataView 正式主键守卫；历史失败原因见 历史证据「database-relation-addrow-identity-red.md」— 路径 `evidence/database-relation-addrow-identity-red.md`（当前仓库未保留）。
 - **主控复核与门禁：**预览、目录操作及页面宿主 3 个测试文件 109/109；typecheck、六个改动 TypeScript 文件 ESLint、正式 `generate:lowcode-contracts`、完整 `verify:rules` 与 production build 通过。规则扫描保留既有 AI model spec 2 warnings/1 info；构建保留既有依赖注释/CodeMirror 动态导入及大 chunk 警告。ClassModel 未变。
 - **在线验收边界：**本轮未做真实 SPA 数据查询，未写正式目录或业务数据，未改/启动 Java。测试仅证明本地 DataView 合同与自动化模拟；不能证明物理资源身份、稳定主键或服务端字段授权回包。用户提供的账号不再重复索取；此前认证失败后本轮未重试，因此数据库授权与服务端读回烟测仍未完成。整体 SPARK data 唯一通道目标保持 active。
 
@@ -453,10 +455,10 @@
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
 | PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；本轮 SPA 已认证但只打开数据空间设计器，PageDesign 真实 Agent 运行/消费烟测未做。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
-| Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读。WorkflowDesigns 页面与 AI activation 通过同一 PageRuntime/DataSet 的 DataView 消费目录与正文；design/definition 已有行仅允许更新 `content`，页面编辑投影同步原 DataView 草稿，提交/取消经 DataSet 保存或恢复；`LowcodeApi.design` 与 `LowcodeDesignFileUpload` 是正式 file executor 内部的存储适配。 | 早先真实 SPA 查询曾得到 `Loaded, 0/0`，只证明当次服务空集合回执；本轮重新查询同一 `AgentWorkflowFiles@directory`，服务明确返回 `[1003] 文件夹路径不存在`，该最新结果取代此前空集合状态。executor 正确保留错误，不将其转成成功空集合。当前编辑保存自动化 51/51、typecheck、改动文件 ESLint、完整 `verify:rules` 与 production build 通过；证据见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)、[`workflow-missing-directory-red.txt`](evidence/workflow-missing-directory-red.txt) 与 [`agent-workflow-file-dataview-save-green-20261028.txt`](evidence/agent-workflow-file-dataview-save-green-20261028.txt)。没有可读 workflowId，真实文件编辑、DataView 保存/拒绝、关闭重开读回和 Agent 下游消费仍未验收。 |
+| Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读。WorkflowDesigns 页面与 AI activation 通过同一 PageRuntime/DataSet 的 DataView 消费目录与正文；design/definition 已有行仅允许更新 `content`，页面编辑投影同步原 DataView 草稿，提交/取消经 DataSet 保存或恢复；`LowcodeApi.design` 与 `LowcodeDesignFileUpload` 是正式 file executor 内部的存储适配。 | 早先真实 SPA 查询曾得到 `Loaded, 0/0`，只证明当次服务空集合回执；本轮重新查询同一 `AgentWorkflowFiles@directory`，服务明确返回 `[1003] 文件夹路径不存在`，该最新结果取代此前空集合状态。executor 正确保留错误，不将其转成成功空集合。当前编辑保存自动化 51/51、typecheck、改动文件 ESLint、完整 `verify:rules` 与 production build 通过；证据见 历史证据「data-space-workflow-directory-live-20261028.json」— 路径 `evidence/data-space-workflow-directory-live-20261028.json`（当前仓库未保留）、历史证据「workflow-missing-directory-red.txt」— 路径 `evidence/workflow-missing-directory-red.txt`（当前仓库未保留） 与 历史证据「agent-workflow-file-dataview-save-green-20261028.txt」— 路径 `evidence/agent-workflow-file-dataview-save-green-20261028.txt`（当前仓库未保留）。没有可读 workflowId，真实文件编辑、DataView 保存/拒绝、关闭重开读回和 Agent 下游消费仍未验收。 |
 | 应用目录与项目候选 | `AppList.vue` 有正式 `route.meta.blueprintScenarioId` 时由 `PageRuntime → DataSet → Base_AppSystemList@default` 驱动并直接绑定标准 `RendererList`；无场景身份的根 fallback 仍走 `listApplications()`。另有三个已确认调用面：`PlatformApps.vue` 读取目录，`project-settings.ts` 解析目标应用，`lowcode-runtime.ts` 在显式跨应用启动导航中解析应用。`ProjectReferences.listProjects` 仍是 `useDevState` 暴露的 gateway 定义，但当前没有确认页面调用，不计为活跃消费者。D99 正式 7AB `Base_AppSystemList` 绑定 `QYVirtualPlat.Base_AppSystemList`，23 字段、0 命名视图，`IsSys` 输出关闭。此次认证 SPA 对模型执行 DataView 预览，正式返回 1 行：D99 元数据管理应用本身。 | 根 `/app-list` 旧请求历史返回 61 行/卡片，但 D99 7AB DataView 在当前 D99 scope 只读到本应用 1 行；二者范围不同，不能把 7AB 借给 `homepage`。没有正式 app-less/root owner、请求 scope 与服务端行/字段授权合同，因此不能先补一个命名视图再把它接到根路由。正式 7AB 保留；仅当有明确的 D99 范围消费者时，才按其实际语义评估视图定义。其他三个活跃调用面仍须逐一确认宿主与范围后迁移。 |
 | 数据库物理表/视图预览 | 页面将预览参数暂存于 DataSet 输入表，并绑定 `DatabaseTablePreviewRows@default` DataView；命令查询由 `database-catalog-preview-view-ops.ts` 的资源 executor 适配动态物理表请求。该适配使用真实 `dbId/tableName`，`Filter: null`，底层调用 GetData 是动态物理资源存储适配，不是页面层的第二查询入口。 | 当前 DataView 返回构造 `fieldAccess`：可读限制为正式列投影中的返回字段，写入一律拒绝；这不是已证明的服务端权限回包。需核实这是数据库管理只读预览的正式授权合同，并补场景失效、列投影、空结果、分页等 DataView 消费验证；未有服务端范围/字段权限证据前不把它改成普通模型绑定，也不删除 executor。 |
-| DevSystem 工具版本 | `ProjectToolVersion.default` 已在正式 7AB DataSet 中由标准 `RendererTable`/字段子组件消费；查询经 DataView 资源 executor 读取版本摘要。页面没有版本删除操作。当前工作树移除了未调用且绕过 DataSet 的 `ProjectWorkspace.deleteRemotePageVersion`、`PageFileApi.deleteVersion` 与 page-file gateway 删除能力；底层版本删除继续不可用。 | 正式定义保存并关闭重开读回已由同 SPA 证据确认；但当前蓝图没有可用正式 `cfg:` 工具页目标，运行态版本查询/切换隔离未验。新增负向合同 RED 原始输出见 [`page-version-delete-api-red.txt`](evidence/page-version-delete-api-red.txt)；删除权限与未知回执合同仍未建立，本次不启用或补造。 |
+| DevSystem 工具版本 | `ProjectToolVersion.default` 已在正式 7AB DataSet 中由标准 `RendererTable`/字段子组件消费；查询经 DataView 资源 executor 读取版本摘要。页面没有版本删除操作。当前工作树移除了未调用且绕过 DataSet 的 `ProjectWorkspace.deleteRemotePageVersion`、`PageFileApi.deleteVersion` 与 page-file gateway 删除能力；底层版本删除继续不可用。 | 正式定义保存并关闭重开读回已由同 SPA 证据确认；但当前蓝图没有可用正式 `cfg:` 工具页目标，运行态版本查询/切换隔离未验。新增负向合同 RED 原始输出见 历史证据「page-version-delete-api-red.txt」— 路径 `evidence/page-version-delete-api-red.txt`（当前仓库未保留）；删除权限与未知回执合同仍未建立，本次不启用或补造。 |
 | ProjectWorkspace 蓝图读取 | `ProjectWorkspace.loadBlueprint()`、`previewBlueprintRemote()` 及其 gateway root reader 已移除；DevSystem 正式蓝图树由 `PageRuntime → Base_NavigationInfo DataView` 投影。跨项目引用适配仍保留 `projectReferences.listProjects/loadProjectBlueprint`，调用 `listApplications()` 与 `lowcodeApi.blueprint.readRecords()`；当前全仓搜索只确认 `useDevState` 暴露工作区方法，没有确认业务 UI 调用。将它记为可达的潜在业务入口，需补消费者/权限 owner 证据后迁移或删除，不能写成已经统一。 | HEAD `6c51e7853`：typecheck、受影响文件 ESLint、完整 `verify:rules`、production build 通过；ClassModel 正式生成器通过。受影响测试 34 files/1245 tests 中 30 files 通过、8 failures 已保存至 `notes/evidence/project-workspace-blueprint-load-affected-tests.txt`；不得宣称全绿。 |
 | SPA 认证入口 | `LoginView` 的企业选项显示企业名，提交值使用目录正式 `ShortName`；唯一显示名匹配才自动选择正式简称，不覆盖手动输入。 | 产品提交 `95cc4d1cb`；目标测试 8/8、ESLint、typecheck 通过。本会话用用户提供的 `领码科技/wangtao` 登录成功，SPA 显示用户“王涛”；此前认证失败为历史尝试，不覆盖当前成功会话。密码未写入台账。本标签已标记留存。 |
 | DevSystem 项目切换 | `NavHostProjectPicker` 通过当前 `__sparkNavigationId` 查询 `Base_Navigation_DataRelation@default`，按正式关系绑定候选 DataView；满足可读主键/值字段条件后才允许切换当前编辑的 ProjectWorkspace。 | 本会话认证 SPA 打开 D99 `/dev?__sparkNavigationId=appworks-tool-dev`，蓝图树加载 41 个页面；当前导航关系 DataView 查询为 0 行、picker fail closed。7AB 关系模型无过滤只读预览共 9 行，但没有当前 NavHost 记录。既有“应用系统选择”DataSpace `03D8E17A88BC6E0AB1B2DF6787F8E779` 的 `Base_AppSystemList` 正式预览也只返回 D99 当前项目一行，因此不能作为跨项目候选源；未复制关系、未写配置或切换。关系暂存命令的 3 个测试文件 23/23 通过。仍需正式的跨项目候选 DataSet/scope/授权后再配置宿主关系并验证目标读回。 |
@@ -469,7 +471,7 @@
 - **真实 SPA 只读烟测：**复用当前认证标签。先访问 D99 下 `/app-list`，路由回落到 D99“服务器管理”；再访问正式工场 scope `/t/NewApp/homepage/app-list`，应用卡片正常显示。AX 树解析到 61 个应用标题和 61 个删除按钮，无 alert/error 文本；没有点击创建、设置、切换或删除。应用列表页仍有操作入口，但源码中 create/delete handler fail closed，设置提示未接入治理写合同；这不证明后台权限或按钮操作效果。
 - **执行裁定：**用户允许以数据空间设计补齐资源定义，但须先确立静态根路由正式 DataSpace owner 身份合同；推荐 route registry 显式引用经正式目录创建的 DataSpace ID，由 SPA PageRuntime 消费 `scenarioId@Base_AppSystemList@default`，而非借用固定 FormKey 或别的页面场景。未来烟测需在 `homepage` scope 真实读回行范围/字段权限，逐项比对现 61 个卡片、排序及切换行为，确认数据一致再删除 fallback。该路线仍需一个短设计与 RED 测试合同；本轮无代码改动或数据空间配置写入。
 - **用户补充方向与低价模型复核（本轮）：**同意通过“数据空间设计”补齐游离在 DataSet 之外的数据资源。执行方式定为：逐消费者确定正式 owner 与请求/权限范围后，在该 owner 的设计器中绑定正式 DataTable 并配置所需 DataView；运行页面仍只走 `PageRuntime → DataSet → DataView`。源码确认低层 `DataSpaceRequestScope` 允许泛型请求头，DataView executor 可透传不带 `X-AppId` 的 scope；但正式 `LowcodeApi.readRequestScope()`、设计器 `createViewDesign()` 和 pagedata gateway 都要求选中应用，且当前没有经证实的平台 pagedata owner。设计器只补元数据定义，不创建服务端尚不存在的 owner、不授予范围、不把根路径或租户名猜成 `X-AppId`。61 行旧目录与 1 行 DataView 的现场读数来自不同场景和请求 scope，不能单独归因于视图过滤。全局 `/app-list` 暂保留旧读路径，待平台目录 scope、pagedata owner 与权限合同成立后，才能在正确 DataSpace 设计并做等范围读回。
-- **2026-10-28 owner 审计更正：**随后完成的数据空间目录创建链审计进一步确认，现有 `Base_DataSet.sysid` 只接受正式 `Base_AppSystemList.rowid`，不支持 tenant/root owner；`homepage` 未证明是该正式 rowid。故此前“先在 homepage scope 建一个正式 DataSpace，再由 route registry 显式绑定”的表达只能作为服务合同具备后的方向，不能视为当前设计器已能实施。当前实现不得在 homepage 写入或挂载猜测空间。详见 [`tenant-app-catalog-dataspace-owner-feasibility-20261028.md`](evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md)。
+- **2026-10-28 owner 审计更正：**随后完成的数据空间目录创建链审计进一步确认，现有 `Base_DataSet.sysid` 只接受正式 `Base_AppSystemList.rowid`，不支持 tenant/root owner；`homepage` 未证明是该正式 rowid。故此前“先在 homepage scope 建一个正式 DataSpace，再由 route registry 显式绑定”的表达只能作为服务合同具备后的方向，不能视为当前设计器已能实施。当前实现不得在 homepage 写入或挂载猜测空间。详见 历史证据「tenant-app-catalog-dataspace-owner-feasibility-20261028.md」— 路径 `evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md`（当前仓库未保留）。
 
 ## 2026-10-28 删除链源码复核
 
@@ -504,15 +506,15 @@
 - **实页结果**：列表、刷新、编辑取消通过；注册回执 `Code 200` 并回显 rowid，但回读 `Count 5` 不含新行，既有行均带 `entID`、新增无 `entID`（疑后端按企业过滤，未证实）。服务端疑似留有两条不可见 `i5-pilot-discard`（`4490A9FA…`、`4D4FC71D…`），页面无法删除。删除与测试连接未测。
 - **差距**：列表列为模型全部字段原序（含系统字段），未按参考页取舍；密码无法录入（视图无该列）；矩阵实页列保持「部分」。
 - **验证**：`tests/runtime/page/database` 41/41；typecheck；eslint 改动文件。证据 `notes/evidence/database-management-i5/live-pilot-browser-20261021-tier.json` → `serverPageCycle20261021`。
-- **续（16:50）根因**：参考页及后端源码确认注册是 `POST /api/Db/registerServer` 业务命令（测连接、补企业、加密密码），本页直接插表语义错误。spark-data 仅有只读命令视图，缺写命令能力；用户要求走 spark-data 统一链。方案 [`plan-database-server-register-command.md`](plan-database-server-register-command.md)（已并入 v3，superseded）。
-- **续（17:45）v3 实施**：总方案改为 [plan-appworks-integration.md](plan-appworks-integration.md) v3（单页流程、调用分类表、流程改进记录）。spark-data 新增 `bindDataSetCommandSubmit`（写命令：命令视图新增行 → `DataSet.saveChanges` → 回执；结果未知保留待核验，核验不重放；单测 5 例）；服务器页注册改走 `DatabaseServerRegister` 命令视图，**删除**原经 `Base_serverInfo` 插表的注册分支（`createFields`、新增行预置/密码过滤）；连接测试改读命令行；`r-text` 标准组件补 `showPassword`；ClassModel 已刷新。实页反向通过（`127.0.0.1:1` 被后端以连接拒绝驳回、无记录、无插表请求），正向待测试库。证据 `evidence/database-management-i5/live-pilot-browser-20261021-tier.json#serverRegisterCommand20261021`。
+- **续（16:50）根因**：参考页及后端源码确认注册是 `POST /api/Db/registerServer` 业务命令（测连接、补企业、加密密码），本页直接插表语义错误。spark-data 仅有只读命令视图，缺写命令能力；用户要求走 spark-data 统一链。方案 历史证据「plan-database-server-register-command.md」— 路径 `plan-database-server-register-command.md`（当前仓库未保留）（已并入 v3，superseded）。
+- **续（17:45）v3 实施**：总方案改为 历史证据「plan-appworks-integration.md」— 路径 `plan-appworks-integration.md`（当前仓库未保留） v3（单页流程、调用分类表、流程改进记录）。spark-data 新增 `bindDataSetCommandSubmit`（写命令：命令视图新增行 → `DataSet.saveChanges` → 回执；结果未知保留待核验，核验不重放；单测 5 例）；服务器页注册改走 `DatabaseServerRegister` 命令视图，**删除**原经 `Base_serverInfo` 插表的注册分支（`createFields`、新增行预置/密码过滤）；连接测试改读命令行；`r-text` 标准组件补 `showPassword`；ClassModel 已刷新。实页反向通过（`127.0.0.1:1` 被后端以连接拒绝驳回、无记录、无插表请求），正向待测试库。证据 `evidence/database-management-i5/live-pilot-browser-20261021-tier.json#serverRegisterCommand20261021`。
 - **仍待**：正向注册（需可达未登记测试库）；删除实页未测；目录列表显示全部 16 列，参考页只列 ServerName/ip_address/Port/Type/createuser/createtime/description（下一轮按参考补列子组件）；两条不可见遗留行待后端清理。
 - **续（11:35）复制表**：`database-catalog-copy-view-ops.ts`（_Base_TblList + Base_TblField 一次 saveChanges）；`copy-table-dialog.vue` + 工具栏「复制」；夹具 maplistadd 按请求分段回执。database 页测 51 例。
 - **续（11:36）**：`compareName` 入参改为 `unknown`（与 `scalar` 一致），typecheck 通过；矩阵/遗留项同步复制与删除接线；表和视图页测补「复制表」对话框闭环（database 页测 52 例）。
 - **续（13:50）统一 DataSet**：表/视图 `loadCatalog` 在同 FormKey 上可选装配 `Base_Desensitization_Rule`（不参与 hub 五表 full 判定）；字段网格 `FieldSelect.optionDataViewKey` 消费规则 DataView，禁止页面直查 HTTP。
 - **续（14:06）**：同 DataSet 可选装配 `Dict_encryption_rule`、`TblField_type`；表/视图设计头（Expression/IsVisible 等）绑定 `_Base_TblList`/`_Base_ViewList` 当前行；`databaseCatalogDesignSavePending` 一次 saveChanges 提交表头+字段。database 页测 55 例。
 - **续（14:12）Base_TblRln**：可选装配 `Base_TblRln@forTable`；`databaseCatalogRelationRefreshForTable` 用 OR 过滤 pktbid/fktbid；表设计对话框「关系」页签 + 删除走 `saveChanges`（非 HTTP remove）。database 页测 57 例。
-- **续（14:16）v3 表设计周期**：按单页七步补语义卡 [`research-database-management-i5-table-design.md`](research-database-management-i5-table-design.md)；`saveTableRelation` 归类为模型保存 → `database-catalog-relation-form-ops` + `table-relation-dialog.vue`（增/编/删均 saveChanges）。database 页测 58 例。下一周期按分类表 #6 数据预览。
+- **续（14:16）v3 表设计周期**：按单页七步补语义卡 历史证据「research-database-management-i5-table-design.md」— 路径 `research-database-management-i5-table-design.md`（当前仓库未保留）；`saveTableRelation` 归类为模型保存 → `database-catalog-relation-form-ops` + `table-relation-dialog.vue`（增/编/删均 saveChanges）。database 页测 58 例。下一周期按分类表 #6 数据预览。
 - **续（14:30）hub 布局 + 预览**：表和视图 hub 左侧仅数据库列表，服务器隐式绑定；表设计「数据」页签走 `DatabaseTablePreviewRows`→`POST /api/DataOperation/GetData`（物理表 Type=数据库表，scenarioId=FormKey）。database 页测 59 例。下一周期 #8 工作流。
 - **续（14:55）表设计 #8 工作流**：可选 `Base_WorkflowDefinition@forTable` + `workflowStatus` 字典；`database-catalog-workflow-view-ops`（tblid + 可选 name/key/description/status 过滤）；表设计「数据流」页签；参考「设计」仍为 stub 未接。database 页测 60 例。下一周期 #9 AI 或 view-design parity。
 - **续（15:00）table-design 收束**：数据流顶栏筛选 + 「设计」提示暂未实现；#9 AI 登记 I5 能力缺口（不挂空按钮）。下一页 view-design-dialog v3 周期。
@@ -540,11 +542,11 @@
 
 ## 2026-10-21 工作区收敛（Git / 证据 / stash）
 
-- **证据删除**：本地删除 `notes/evidence/data-space-config-storage/`（约 **13196** 文件、**85** 顶层 `e62-*-before` / `i7-*` 快照树）；删前 manifest [`research-evidence-deletion-manifest-20261021.json`](research-evidence-deletion-manifest-20261021.json)。I4 回归 log 副本：`notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`。**DATAFLOW 内链该目录者暂为死链**，结论以台账/正文为准。
-- **stash**：drop **12** 条 `lint-staged automatic backup`；剩余 **21** 条见 [`research-git-stash-inventory.md`](research-git-stash-inventory.md)。
+- **证据删除**：本地删除 `notes/evidence/data-space-config-storage/`（约 **13196** 文件、**85** 顶层 `e62-*-before` / `i7-*` 快照树）；删前 manifest 历史证据「research-evidence-deletion-manifest-20261021.json」— 路径 `research-evidence-deletion-manifest-20261021.json`（当前仓库未保留）。I4 回归 log 副本：`notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`。**DATAFLOW 内链该目录者暂为死链**，结论以台账/正文为准。
+- **stash**：drop **12** 条 `lint-staged automatic backup`；剩余 **21** 条见 历史证据「research-git-stash-inventory.md」— 路径 `research-git-stash-inventory.md`（当前仓库未保留）。
 - **验证（commit 前）**：`typecheck`；`tests/runtime/page/database` **39/39**；`verify:page-thin`；`verify:lowcode-contracts`；`generate:class-model-surface`。
 - **提交（`10-17`，本批）**：`0b1b39d23` I5 hub/catalog/dialogs；`e37527425` spark-data/command + column-auto-field；`8ec5bc9b4` ClassModel + consumer ledgers；`ef65ec535` 台账 + 小 evidence + git 研读。
-- **常态**：禁止 `git add notes/evidence/data-space-config-storage/**`；见 [`research-git-staging-evidence-cleanup.md`](research-git-staging-evidence-cleanup.md)。
+- **常态**：禁止 `git add notes/evidence/data-space-config-storage/**`；见 历史证据「research-git-staging-evidence-cleanup.md」— 路径 `research-git-staging-evidence-cleanup.md`（当前仓库未保留）。
 
 ## 2026-10-19 I4 设计器其余（关系/级联/参数/命令类删除）— §4.3 删类完成（2026-10-20）
 
@@ -578,7 +580,7 @@
 
 ## 2026-10-20 I5 DataSet 命令 SSOT + 矩阵 6 页（工作区）
 
-- **spark-data**：[`packages/spark-data/src/data-set-command/data-set-command-view.ts`](../../packages/spark-data/src/data-set-command/data-set-command-view.ts) — `ensureDataSetStaticInputTable` / `ensureDataSetFileCommandView` / `bindDataSetReadonlyCommandQuery`；Db HTTP 仍只在 `lowcode-database-dataset-extensions` executor。
+- **spark-data**：[`packages/spark-data/src/data-set-command/data-set-command-view.ts`](../packages/spark-data/src/data-set-command/data-set-command-view.ts) — `ensureDataSetStaticInputTable` / `ensureDataSetFileCommandView` / `bindDataSetReadonlyCommandQuery`；Db HTTP 仍只在 `lowcode-database-dataset-extensions` executor。
 - **页面**：`register-dialog.vue` 路径对齐参考；新增 `add-table-dialog`、`table-design-dialog`、`view-design-dialog`；`table-and-view-page` 接线。
 - **删除**：`src/views/app/DBMS.vue`（导航已直链 hub/feature）。
 - **验证**：`tests/runtime/page/database/*`（含 hub / 页面挂载 / 字段 save）；根 `typecheck` + `verify:page-thin`。
@@ -666,8 +668,8 @@
 - 校正夹具后3个反例按相同字段错误失败、原配置场景通过。生产修复仅以queryColumns替换完整columns回退；中间一次测试在拒绝查询后继续编辑，被既有DATA_VIEW_RESULT_STALE正确阻止，已将新增无投影查询分支与原编辑分支分开，未改该生产守卫。最终定向4项通过；运行查询/权限/保存9文件、贯穿链、预览和原生整页合计12文件922项一次全通过，定向不累计。最终typecheck及3路径lint/后改测试lint通过。
 - 正式ClassModel生成878文件/1810符号/1450索引，2128既有语义缺口保持，生成前后各8次目录/概要/指南查询成功。生产构建698本仓模块、543静态引用，仓外源码/退休模块/缺失引用/构建中变化均0；修复仍在本仓原SPARK查询链，无新接口或查询副本。
 - 真实C首次独立重开后原multiTenancy错误消失。Base_DataModel@default的pageSize从500改501，经原保存入口显示“视图配置已保存并回读确认”；重新装载整个页面后501保留，预览明确传入同一C的dataSpaceId，实际返回17行/总数17/第1页501条/Loaded。随后同一入口恢复500并确认，第二次整页重新装载后预览采用500，再查同一C仍17行/17总数/Loaded。配置保存动作共2次，数据库模型/字段/业务行修改及删除0；没有独立网络捕获，不把UI动作数等同HTTP请求数。
-- 关闭预览时保存/取消均禁用，配置窗口已关闭，返回原隔离T。self-query-consumed-20261019.png可见同一C参数及501；self-query-restored-20261019.png可见恢复后17条/500/Loaded，均已目检。较早self-query-reopened截图未覆盖底部501，不用它单独证明该数值。浏览器证据见[self-query-browser-20261019.json](evidence/data-space-config-storage/self-query-browser-20261019.json)。本轮证明自身已有视图属性保存与重新消费，不等同于所有自身模型/字段/级联结构操作均已验收。
-- 本轮为有效进展：删除查询捕获中把完整结构列当作可查询列的错误回退，保留原列真源、权限与保存守卫。完整SSOT、参考页1:1及字典计算、非输出排序、逻辑来源主键、旧数据处理执行等既有缺口仍开放。下一轮回到完整模型工作区与参考操作对照，不把本次自身保存属性用例缩成整页完成。主合同2.5.326，最终文档/6文件快照/构建哈希与暂存对账见[self-query-verification-20261019.json](evidence/data-space-config-storage/self-query-verification-20261019.json)。无Java修改、Git暂存/提交/推送，目标保持active。
+- 关闭预览时保存/取消均禁用，配置窗口已关闭，返回原隔离T。self-query-consumed-20261019.png可见同一C参数及501；self-query-restored-20261019.png可见恢复后17条/500/Loaded，均已目检。较早self-query-reopened截图未覆盖底部501，不用它单独证明该数值。浏览器证据见历史证据「self-query-browser-20261019.json」— 路径 `evidence/data-space-config-storage/self-query-browser-20261019.json`（当前仓库未保留）。本轮证明自身已有视图属性保存与重新消费，不等同于所有自身模型/字段/级联结构操作均已验收。
+- 本轮为有效进展：删除查询捕获中把完整结构列当作可查询列的错误回退，保留原列真源、权限与保存守卫。完整SSOT、参考页1:1及字典计算、非输出排序、逻辑来源主键、旧数据处理执行等既有缺口仍开放。下一轮回到完整模型工作区与参考操作对照，不把本次自身保存属性用例缩成整页完成。主合同2.5.326，最终文档/6文件快照/构建哈希与暂存对账见历史证据「self-query-verification-20261019.json」— 路径 `evidence/data-space-config-storage/self-query-verification-20261019.json`（当前仓库未保留）。无Java修改、Git暂存/提交/推送，目标保持active。
 
 ## 2026-10-19 首个整页回归重复超时诊断
 
@@ -675,8 +677,8 @@
 - 首次单进程测得总4290ms：打开/选中1370ms，撤销277ms，pageSize编辑399ms，两次保存1036/976ms，独立重开33/17ms；节点数约800—1076。证据first-page-timing-isolated-20261019.log。接近测试上限与组合超时相关，但尚不能据此断言所有耗时都是渲染或不存在重复查询；继续核保存CPU及请求次数，按证据决定实现/测试责任，不先提高上限。
 - 首次保存CPU采样见first-page-save-profile-20261019.json：本次fixture数据库请求0、文件写入1，Vue更新调用栈占主要业务段，Profiler启动自身约373ms单列，不混为业务耗时。未发现请求重放；这些是测试环境事实，不推断远程服务性能。当前修复范围仅原测试及本台账/度量3文件：把取消后保留旧聚合及无关属性保存、明确删除旧聚合保存分为两个独立用例，后者仍从已保存pageSize=19与旧聚合开始。保留全部行为断言、真实页面组件、原5秒限制和2个worker，不删除重开或改为浅挂载。先在同一12文件组验证稳定性；不改生产逻辑或增设性能框架。
 - 已完成测试拆分：15行原行为断言全部保留，新增用例从相同已保存状态开始，并验证删除后独立重开仍保留pageSize=19。两个完整用例定向分别2926/1472ms通过；同一12文件组一次791项全通过，仍为2个worker、默认5000ms，定向结果不叠加。基线与最终typecheck、测试文件lint通过；生产代码与超时配置未修改。一次整组通过说明本次拆分得到验证，不保证所有未来时序变化。
-- 实际元数据空间8D1AB14DD8277F3E7017CD38F77B09FD自身读取已补验：原单目标入口显示25个模型/1条关系；打开DataViewDefinition@default，在查询预览的本次调用参数显式传入同一dataSpaceId，返回50行/总数50/Loaded。只读查询，保存/取消均禁用，配置窗口已关闭，返回隔离T；本轮远程保存、业务数据删除均0。截图self-metadata-read-20261019.png已目检；见[self-metadata-read-20261019.json](evidence/data-space-config-storage/self-metadata-read-20261019.json)。此证据只证明自身读取和查询，不代表自身配置保存或完整参考页1:1通过。
-- 当前修复关闭重复首个用例超时的已证实测试组织问题，保留生产链。完整SSOT、参考页1:1、自身配置保存及既有真实服务缺口继续开放；后续沿本台账继续完整业务验收，不回到旧方案或另起项目。本轮无Java修改、Git暂存/提交/推送，目标保持active。最终文档与698个生产模块哈希对账结果见[first-page-timing-verification-20261019.json](evidence/data-space-config-storage/first-page-timing-verification-20261019.json)。
+- 实际元数据空间8D1AB14DD8277F3E7017CD38F77B09FD自身读取已补验：原单目标入口显示25个模型/1条关系；打开DataViewDefinition@default，在查询预览的本次调用参数显式传入同一dataSpaceId，返回50行/总数50/Loaded。只读查询，保存/取消均禁用，配置窗口已关闭，返回隔离T；本轮远程保存、业务数据删除均0。截图self-metadata-read-20261019.png已目检；见历史证据「self-metadata-read-20261019.json」— 路径 `evidence/data-space-config-storage/self-metadata-read-20261019.json`（当前仓库未保留）。此证据只证明自身读取和查询，不代表自身配置保存或完整参考页1:1通过。
+- 当前修复关闭重复首个用例超时的已证实测试组织问题，保留生产链。完整SSOT、参考页1:1、自身配置保存及既有真实服务缺口继续开放；后续沿本台账继续完整业务验收，不回到旧方案或另起项目。本轮无Java修改、Git暂存/提交/推送，目标保持active。最终文档与698个生产模块哈希对账结果见历史证据「first-page-timing-verification-20261019.json」— 路径 `evidence/data-space-config-storage/first-page-timing-verification-20261019.json`（当前仓库未保留）。
 - 最终362份文档检查通过，3份改前快照完整、15行原断言缺失0、698个生产模块哈希漂移0、暂存为空。隔离T返回完成，保存布局/取消布局修改均禁用；自身查询结果及概览截图均已目检。本轮为有效进展，下一断点为自身配置保存与完整业务入口对照；不以本次自描述读取代替持久化验收。
 
 ## 2026-10-18 原生JSON包裹结构与真实值编辑
@@ -689,7 +691,7 @@
 - 最终代码有8生产文件修改、2既有测试修改及1新增纯树测试，连同3合同/记录共14路径。类型初检因可选policy显式传undefined违反exactOptionalPropertyTypes失败，已改为按需传入，最终类型（含新增旧事件测试）与11路径lint/2路径复验通过。正式ClassModel重新生成878文件/1810符号/1450索引，2128既有语义缺口保留；实施前9次、最终11次合同查询通过，含canAddChild动作及childAddable/valueFormat指南。生产构建698本仓源码/543静态引用，仓外、退休和缺失引用0。
 - 关联12文件初跑788通过、1项5000ms超时；该首个原生页用例“keeps legacy local aggregates read-only...”在原超时限制下单独4313ms通过。超时在前后轮组合运行重复出现，尚未定位其完整根因；不能称整批一次全绿或性能问题已修复。最终定向10项包含后来新增的旧事件保护用例，和广覆盖结果不叠加计算唯一总数；原保存、独立重开及查询消费由整页/链路传输夹具覆盖。
 - 真实隔离T的SourceScope默认视图已复验：包裹根无新增；value只有内部新增，没有同级新增/删除；内部nativeTreeCheck成员新增、改名、赋值accepted、删除均正常，完成后进入原定义视图草稿。原DataView取消后queryContext未配置、保存/取消禁用；最终代码再次打开核对并关闭干净配置窗口。本阶段远程配置保存/业务行/模型删除均0；不复用上轮2次远程保存当作本轮证据。根保护、内部编辑及最终未配置截图已目检，较早cancelled截图处于渲染过渡，不用于最终状态证明。
-- 本轮属有效进展，原生树结构错误入口已按同一公共策略关闭；完整SSOT、参考页1:1、既有真实服务缺口及重复组合运行超时仍开放。10月19日跨日收口：362文档检查通过，13份快照及1新增测试核验完成，698构建源码哈希漂移0，暂存路径为空。最终核验见[native-tree-verification-20261018.json](evidence/data-space-config-storage/native-tree-verification-20261018.json)，浏览器见[native-tree-browser-20261018.json](evidence/data-space-config-storage/native-tree-browser-20261018.json)。无Java修改、Git暂存/提交/推送，目标继续active；后续先核重复超时的实际耗时链，再继续完整页面验收，不将单独复验成功当成整批稳定。
+- 本轮属有效进展，原生树结构错误入口已按同一公共策略关闭；完整SSOT、参考页1:1、既有真实服务缺口及重复组合运行超时仍开放。10月19日跨日收口：362文档检查通过，13份快照及1新增测试核验完成，698构建源码哈希漂移0，暂存路径为空。最终核验见历史证据「native-tree-verification-20261018.json」— 路径 `evidence/data-space-config-storage/native-tree-verification-20261018.json`（当前仓库未保留），浏览器见历史证据「native-tree-browser-20261018.json」— 路径 `evidence/data-space-config-storage/native-tree-browser-20261018.json`（当前仓库未保留）。无Java修改、Git暂存/提交/推送，目标继续active；后续先核重复超时的实际耗时链，再继续完整页面验收，不将单独复验成功当成整批稳定。
 
 ## 2026-10-18 完整JSON编辑与原字段接纳状态
 
@@ -701,7 +703,7 @@
 - 关联9文件初跑448通过、1项原生页测试5000ms超时；同一测试按原超时限制单独复验通过，去重449项。11项定向与复验均为重叠，不累计。最终类型、6路径lint通过；正式ClassModel878文件/1810符号/1450索引，2128既有语义缺口保留，前后各9次目录/概要/指南查询通过。生产构建698本仓源码/543静态引用，仓外源码、退休模块、缺失引用均0。
 - 真实浏览器在隔离T的SourceScope_20261018@default复现并复验：原生JSON根节点误加属性后原字段拒绝，输入与错误保留，模式/完成被保护，明确取消恢复；通过value内正确输入sourceDatabaseProbe=JSONEditorProbe_20261018，完成后沿原保存入口得到“保存并回读确认”，关闭并重新装载整个空间后仍可见该值。原查询预览实际返回4行/Total 4。随后移除此次默认调用值、再次保存回读，并第二次重新装载整个空间确认queryContext未配置、保存/取消禁用，已关闭配置且无草稿。本阶段真实远程配置保存共2次（临时值及恢复各1次），业务行/模型删除0；无独立网络捕获，不宣称已记录线级请求内容。文本/table及异步拒绝仍以组件/传输夹具为证，线上覆盖树。
 - 浏览器自动化fill未触发change的输入仅算未确认输入证据；改用原生setValue后按新状态重新定位。一次旧索引错误发生在值已接纳之后，未重放保存。最终查询结果及原配置恢复截图已目检；较早restored截图仅证明本地取消，不用于证明远程恢复。原生包裹根节点仍暴露会被拒绝的结构操作，是后续交互合同缺口；本阶段只关闭状态丢失和错误清除问题，不扩大为所有JSON交互已完成。
-- 核验汇总：[json-editor-state-verification-20261018.json](evidence/data-space-config-storage/json-editor-state-verification-20261018.json)；浏览器：[json-editor-state-browser-20261018.json](evidence/data-space-config-storage/json-editor-state-browser-20261018.json)。最终362文档检查通过，9份改前快照完整，698构建源码哈希无漂移，Git暂存路径为空。本轮属有效进展；完整SSOT、参考页1:1及既有真实服务缺口仍开放，后续按原生JSON结构操作合同继续核对，不沿旧E62编号续做。无Git暂存/提交/推送或Java修改，目标继续active。
+- 核验汇总：历史证据「json-editor-state-verification-20261018.json」— 路径 `evidence/data-space-config-storage/json-editor-state-verification-20261018.json`（当前仓库未保留）；浏览器：历史证据「json-editor-state-browser-20261018.json」— 路径 `evidence/data-space-config-storage/json-editor-state-browser-20261018.json`（当前仓库未保留）。最终362文档检查通过，9份改前快照完整，698构建源码哈希无漂移，Git暂存路径为空。本轮属有效进展；完整SSOT、参考页1:1及既有真实服务缺口仍开放，后续按原生JSON结构操作合同继续核对，不沿旧E62编号续做。无Git暂存/提交/推送或Java修改，目标继续active。
 
 ## 2026-10-18 命名视图请求编辑的完整输入状态
 
@@ -714,7 +716,7 @@
 - 浏览器已在隔离T的SourceScope默认视图复验：1e999参数拒绝后模式切换/保存禁用，单项取消恢复；filterLookups的[{错误保留且完成/切换禁用，取消输入恢复。纠正[]后原视图显示filterLookups配置且保存可用，随后原DataView整项取消恢复未配置。本轮无远程保存/删除；保存重开为传输夹具证据。最终相关回归、生成/构建对账及完整取消浏览器复验仍在进行。
 - 全量7文件初跑411通过/8失败；失败均为取消后仍持有已释放控件的旧断言。补入field-json.test.ts改前快照，范围共10文件；断言从当前页面重新定位，并验证取消前旧text/tree事件不重写原DataView。最终受影响2文件59项通过，其他5文件360项沿用初跑通过结果，去重共419项；最终15项入口守卫复验为重叠项，不叠加计数。未为通过测试恢复旧输入或另建草稿。
 - 最终类型、7路径lint及变更后的复验通过；正式ClassModel878文件/1810符号/1450索引，2128既有语义缺口保留；9次最终目录/概要/指南查询通过。生产构建698本仓源码/543静态引用，仓外源码、退休模块及缺失引用均0。浏览器最终代码补验整项取消无接纳字段修改的1e999输入，原值恢复空、保存与取消禁用，关闭配置成功；截图已按新DOM重取并目检。
-- 核验汇总：[view-request-draft-verification-20261018.json](evidence/data-space-config-storage/view-request-draft-verification-20261018.json)；浏览器：[view-request-draft-browser-20261018.json](evidence/data-space-config-storage/view-request-draft-browser-20261018.json)。本轮属有效进展，完整SSOT/参考页1:1及既有真实服务缺口仍未关闭；后续继续核对完整JSON树/文本内部未确认状态与请求上下文切换，不能将form/properties覆盖扩大为所有入口已完成。不沿旧E62编号续做，无Git暂存/提交/推送或Java修改，目标继续active。
+- 核验汇总：历史证据「view-request-draft-verification-20261018.json」— 路径 `evidence/data-space-config-storage/view-request-draft-verification-20261018.json`（当前仓库未保留）；浏览器：历史证据「view-request-draft-browser-20261018.json」— 路径 `evidence/data-space-config-storage/view-request-draft-browser-20261018.json`（当前仓库未保留）。本轮属有效进展，完整SSOT/参考页1:1及既有真实服务缺口仍未关闭；后续继续核对完整JSON树/文本内部未确认状态与请求上下文切换，不能将form/properties覆盖扩大为所有入口已完成。不沿旧E62编号续做，无Git暂存/提交/推送或Java修改，目标继续active。
 ## 2026-10-18 数据处理未确认JSON输入与工作区切换
 
 - 继续沿完整数据处理用例核对：参考前端crudTargets仅投影旧目标模型名，参考Java检索仅见BaseDataModel属性，未核到完整运行消费；不将其等同本仓HTTP端点，不恢复目标模型/字段副本。真实浏览器在隔离T当前模型的固定参数输入不完整JSON后显示错误，但操作切换仍可执行；切回后输入和错误均丢失，保存/取消一直禁用。未发生远程写入，改前截图process-json-draft-before-20261018.png。
@@ -745,7 +747,7 @@
 - 范围1既有数组owner、1既有数组测试及3合同/记录文件，5份当前脏工作区快照在node_modules/.cache/data-space-array-readback-scope-20261018。类型基线及6次DataView/ArrayEdit概要、loadFromServer/createQueryView/setPage/setPageSize指南查询通过。首次2项中第二页通过，受筛选的M2失败：结构写入已成功，回读显式空间过滤覆盖原视图筛选后接纳M1，随后字段视图身份守卫拒绝。修复限定为删除模型回读的重复filter覆盖，沿原DataView配置重读；本模型字段完整性及其他身份、权限和未知结果守卫保留，不新增公共API或结果合并器。补验结构与普通数组修改回执丢失后的显式核验，不扩大为并发重排或所有来源回读都已解决。
 - 4项补充场景初跑2个实际身份回读失败、1项未知结构提交被正确拒绝但文案断言过窄、1项分页通过；修复后4项全绿。5文件112项通过；最终类型检查将测试对夹具未声明items属性的读取改为独立新实例DataView验证，表头51项复验通过，去重仍为112项。最终typecheck和2路径lint及测试路径lint复验通过，未修改生产守卫来满足测试。
 - 正式ClassModel生成878文件/1810符号/1450索引，2128既有缺口不变；生成后6次合同查询通过。生产构建698个本仓模块、543静态引用，仓外、退休模块、缺失引用及构建中源码变化均0。本次真实数组label表头说明已修改并保存，整页刷新后保持新说明；随后通过同一路径恢复原说明，再次整页刷新仍为“验收值（已核验）”。原模型预览读到1行/总数1/Loaded，probe-1及after原值保留。窗口已关闭、保存禁用、无草稿。页面“引用数据需要数据库表或数据库视图来源”经源码定位为GetRefData来源限制，未放宽或当作新缺陷。
-- 两次线上保存动作及两次独立重开见[浏览器记录](evidence/data-space-config-storage/array-readback-scope-browser-20261018.json)，最终截图array-readback-scope-restored-20261018.png；没有独立网络捕获，不把保存动作数当作HTTP请求数。目录筛选反例和丢失回执仍明确为原传输夹具证据。文档治理362项通过，最终5文件快照与构建/回归对账见[本轮核验](evidence/data-space-config-storage/array-readback-scope-verification-20261018.json)。无Java修改、Git暂存/提交/推送，目标继续active。
+- 两次线上保存动作及两次独立重开见历史证据「浏览器记录」— 路径 `evidence/data-space-config-storage/array-readback-scope-browser-20261018.json`（当前仓库未保留），最终截图array-readback-scope-restored-20261018.png；没有独立网络捕获，不把保存动作数当作HTTP请求数。目录筛选反例和丢失回执仍明确为原传输夹具证据。文档治理362项通过，最终5文件快照与构建/回归对账见历史证据「本轮核验」— 路径 `evidence/data-space-config-storage/array-readback-scope-verification-20261018.json`（当前仓库未保留）。无Java修改、Git暂存/提交/推送，目标继续active。
 - 本轮关闭已证实的数组回读过滤覆盖；不据此宣称目标自行退出筛选、并发目录重排或其他来源都已完成核验。后续仍须按整页要求核保留入口、来源执行和参考差距，数据处理目标模型映射、已有真实服务限制及完整1:1尚未闭合；继续使用本台账，不恢复旧方案。
 
 ## 2026-10-18 查询字段目录与完整模型列分离
@@ -754,8 +756,8 @@
 - 本轮按同一查询责任方补DataView的可查询字段只读目录：正式适配器从当前绑定模型派生，数组按原查询字段集合，其他资源保留原字段语义；预览界面、函数候选与参数预检共用，结构和模型关系仍保留完整columns。目录不是数据权限，也不生成保存能力；原scope、模型身份与销毁检查继续生效。不增加字段真源、请求或全空间加载。
 - 范围为6生产、4既有测试、3合同/记录文件，13份当前脏工作区快照在node_modules/.cache/data-space-query-columns-20261018；类型基线通过。12项已确认RED，其中8项实际消费者误露非输出列或失败前清空旧结果，4项缺公共字段目录合同；修复后全绿，再补2项作用域/销毁变体。测试设置错误已纠正，readonly modelBinding赋值失败不是产品缺陷，未放宽身份不可变合同。
 - 最终4文件236项、关联4文件118项全部通过，共354项；覆盖正式/数组来源、派生视图、文件回退、命名/独立预览、函数上游及原查询/保存重开，定向结果不重复累计。最终类型与10路径lint、后改3路径lint复验通过。正式ClassModel刷新878文件/1810符号/1450索引，2128既有语义缺口保持；改前11次、改后13次目录/概要/指南查询成功。
-- 生产构建698本仓源码/543静态引用，仓外源码、退休模块、缺失引用及构建中源码变化均0。浏览器隔离T原模型读取4行、9个输出字段候选显示正常；切回单表后仍为4行/总数4/Loaded，关闭预览后保存禁用，模型窗口已关闭。当前在线样本没有非输出字段，不把候选排除与错误状态保留的夹具结果冒充线上验收。本轮未保存正式记录，无独立网络捕获，见[浏览器记录](evidence/data-space-config-storage/query-columns-browser-20261018.json)及query-columns-browser-results-20261018.png。
-- 文档治理362项通过；13文件与改前脏工作区快照核对，最终证据集中在[本轮核验](evidence/data-space-config-storage/query-columns-verification-20261018.json)。保留完整模型列与原生关系合同，已删除预览把完整列等同可查询列的错误分支。无Java修改、Git暂存/提交/推送。完整SSOT、参考页1:1及既有真实服务缺口仍开放，目标继续active；下一轮回到已登记的完整业务入口与参考差距，不把本轮字段目录修复当作整页验收或转成另一套计划。
+- 生产构建698本仓源码/543静态引用，仓外源码、退休模块、缺失引用及构建中源码变化均0。浏览器隔离T原模型读取4行、9个输出字段候选显示正常；切回单表后仍为4行/总数4/Loaded，关闭预览后保存禁用，模型窗口已关闭。当前在线样本没有非输出字段，不把候选排除与错误状态保留的夹具结果冒充线上验收。本轮未保存正式记录，无独立网络捕获，见历史证据「浏览器记录」— 路径 `evidence/data-space-config-storage/query-columns-browser-20261018.json`（当前仓库未保留）及query-columns-browser-results-20261018.png。
+- 文档治理362项通过；13文件与改前脏工作区快照核对，最终证据集中在历史证据「本轮核验」— 路径 `evidence/data-space-config-storage/query-columns-verification-20261018.json`（当前仓库未保留）。保留完整模型列与原生关系合同，已删除预览把完整列等同可查询列的错误分支。无Java修改、Git暂存/提交/推送。完整SSOT、参考页1:1及既有真实服务缺口仍开放，目标继续active；下一轮回到已登记的完整业务入口与参考差距，不把本轮字段目录修复当作整页验收或转成另一套计划。
 
 ## 2026-10-18 来源同步与替换的完整模型校验
 
@@ -764,8 +766,8 @@
 - 基线类型与9次ClassModel查询通过。新增6项中4项先RED；软断言继续执行保存后确认3种冲突实际提交成功，并非仅缺预览提示。修复后6项全绿。来源全量初跑165通过/7失败：4项为前移校验产生的错误文案/检查次序，2项为无固定投影的字典/JSON修复被旧来源投影误挡，1项为旧测试将复合键写入当成运行支持。已将旧合同解析限定在固定投影迁移/删除对照，保留候选完整校验；复合键按现有正式运行合同拒绝，验证原记录及配置零写入、取消及重开保留。没有添加复合键协议或放宽主键守卫。
 - 最终来源172项、关联来源目录/参数编辑/字段删除/视图元数据4文件178项，共5文件350项通过，定向6项不累计。最终类型与3路径lint通过；正式ClassModel刷新及生产构建、浏览器核验继续进行。新来源字段的真实数据库结构未在线制造，保存/独立重开及零写入断言的范围为原DataSet/传输夹具。
 - 正式ClassModel生成878文件/1810符号/1450索引，2128既有语义缺口保持；最终9次目录/概要/指南查询通过。生产构建698本仓源码/543静态引用，仓外源码、退休模块、缺失引用、构建中源码变化均0。源码始终在本仓，未改Java或另起项目。
-- 浏览器隔离T真实同步预览新增0/删除0、保留计算字段；原ContentType来源替换完整候选预览可用，取消后独立重开仍为原来源、9输出字段和RetirementProbe_20261018，保存禁用，窗口关闭。本轮线上未触发保存，无独立网络捕获；见[source-schema-browser-20261018.json](evidence/data-space-config-storage/source-schema-browser-20261018.json)及对应同步/替换/重开截图，不把夹具保存冒充线上成功。
-- 当前候选模型检查与原来源提交保持一条数据链；旧输出名旁路已删除。完整SSOT、参考页1:1及已记录真实服务缺口仍开放，下一断点继续核对实际消费者与保留业务入口，不沿旧E62编号续做。6文件最终快照对账及构建/测试证据集中在[source-schema-verification-20261018.json](evidence/data-space-config-storage/source-schema-verification-20261018.json)；无Git暂存/提交/推送，目标继续active。
+- 浏览器隔离T真实同步预览新增0/删除0、保留计算字段；原ContentType来源替换完整候选预览可用，取消后独立重开仍为原来源、9输出字段和RetirementProbe_20261018，保存禁用，窗口关闭。本轮线上未触发保存，无独立网络捕获；见历史证据「source-schema-browser-20261018.json」— 路径 `evidence/data-space-config-storage/source-schema-browser-20261018.json`（当前仓库未保留）及对应同步/替换/重开截图，不把夹具保存冒充线上成功。
+- 当前候选模型检查与原来源提交保持一条数据链；旧输出名旁路已删除。完整SSOT、参考页1:1及已记录真实服务缺口仍开放，下一断点继续核对实际消费者与保留业务入口，不沿旧E62编号续做。6文件最终快照对账及构建/测试证据集中在历史证据「source-schema-verification-20261018.json」— 路径 `evidence/data-space-config-storage/source-schema-verification-20261018.json`（当前仓库未保留）；无Git暂存/提交/推送，目标继续active。
 - 文档治理362项通过，最终核验报告已生成；本轮为有效进展。自审尾部发现下一核对点：validateModelViewConfiguration把projected.columns中非输出字段集合传作local，而columns现已包含完整正式非输出列；须核对validateReferences的树显示字段/聚合等消费者是否误认成计算列，先建立实际反例，不把残余outputs Set一律删除。本轮未修改这段视图引用逻辑。
 
 ## 2026-10-18 完整模型列的保存校验与关系引用
@@ -776,9 +778,9 @@
 - 首批13项中12项先RED、1项原正向合同已通过，修复后13项全绿；再补清空非输出别名的两种视图引用保护。清空别名须回退正式Name，原引用判断误用旧canonicalName，一并纠正。新增校验仍由原FieldOutput/Create/ArrayEdit及DesignSession承担，原DataSet保存和权限算法未改。
 - 8文件关联初跑421项，418通过、3项失败：一项仍要求关闭输出后删除DataTable列，另两项依赖旧“输出名称”错误文案。按正式合同纠正断言后，4文件403项通过，覆盖上述两文件及原模型来源/字段工作区。自审又用历史冲突记录复现数组普通说明保存被过度拦截；将完整列校验限于结构变更，整个数组表头47项通过。最终去重为10文件603项：初跑中未重跑的5文件153项＋最终4文件403项＋最终数组47项，中间定向检查不累计。
 - 类型与8路径lint通过；后续修改的4路径lint及最终typecheck复验通过。ClassModel正式生成前后均878文件/1810符号/1450索引，2128既有语义缺口仍在；前9项目录/概要/指南查询通过，最终生成后的查询和构建结果见后续记录。
-- 在线隔离T已验证：RetirementProbe_20261018同时暂改IsOutput=0、AsName=val，通过原顶部保存得到“正式模型字段重复: SourceScope_20261018”，草稿可取消。已放弃全部测试修改并独立重开，输出1、别名及值函数仍空、保存禁用，窗口关闭。定位别名时曾误填值函数，立即在任何保存前取消；核源码及实际双击后确认别名采用editOnDblclick，未把正常交互记为接线缺陷。没有成功的线上保存；本轮没有独立网络捕获，零写入保证由夹具另证，不能将UI证据冒充HTTP核验。见[在线记录](evidence/data-space-config-storage/model-schema-edit-browser-20261018.json)及model-schema-edit-rejected/restored-20261018.png。
+- 在线隔离T已验证：RetirementProbe_20261018同时暂改IsOutput=0、AsName=val，通过原顶部保存得到“正式模型字段重复: SourceScope_20261018”，草稿可取消。已放弃全部测试修改并独立重开，输出1、别名及值函数仍空、保存禁用，窗口关闭。定位别名时曾误填值函数，立即在任何保存前取消；核源码及实际双击后确认别名采用editOnDblclick，未把正常交互记为接线缺陷。没有成功的线上保存；本轮没有独立网络捕获，零写入保证由夹具另证，不能将UI证据冒充HTTP核验。见历史证据「在线记录」— 路径 `evidence/data-space-config-storage/model-schema-edit-browser-20261018.json`（当前仓库未保留）及model-schema-edit-rejected/restored-20261018.png。
 - 原生模型关系保留、非输出别名改名/清空的引用保护、未使用别名保存重开、新增冲突与取消均在原数据链夹具验证；没有在线创建关系。完整SSOT、参考页1:1和已记录服务缺口仍开放。本轮仅修正完整模型列在保存链的判断，下一断点继续核对残余输出集合与模型结构混用及实际消费者，不沿旧方案扩建第二套实现。
-- 最终正式合同9次查询通过；最终生产构建698本仓源码、543静态引用，仓外源码、退休模块、缺失引用及构建中源码变化均0，文档362项通过。4生产/4测试/3合同记录共11文件与改前快照核对，生成产物由正式链刷新；无Git暂存/提交/推送。最终文件哈希与验证对账见[本轮验证](evidence/data-space-config-storage/model-schema-edit-verification-20261018.json)，目标继续active。
+- 最终正式合同9次查询通过；最终生产构建698本仓源码、543静态引用，仓外源码、退休模块、缺失引用及构建中源码变化均0，文档362项通过。4生产/4测试/3合同记录共11文件与改前快照核对，生成产物由正式链刷新；无Git暂存/提交/推送。最终文件哈希与验证对账见历史证据「本轮验证」— 路径 `evidence/data-space-config-storage/model-schema-edit-verification-20261018.json`（当前仓库未保留），目标继续active。
 
 ## 2026-10-18 完整模型列与视图输出的归属纠正
 
@@ -790,8 +792,8 @@
 - 实际隔离T的SourceScope_20261018.RetirementProbe_20261018已通过原页面暂存IsOutput=0并保存，界面确认“本次字段配置已批量保存”。当前已独立重开，正核正式模型仍保留字段及命名视图输出；尚待沿同一链恢复IsOutput=1，不结束在临时状态。本轮未启用网络捕获，因此不能将UI证据表述为独立HTTP封包核验。
 - 最终关联回归14文件819项全部通过（286.39秒），覆盖完整原生设计页、字段工作区、原生定义资源、元数据保存重开、查询别名及原数据层保存校验。包内设计API153项为独立目录，与819不重复；9项中间反例不累计。文档362项通过，自审只比较本轮脏工作区快照，保留其他现有修改。
 - 在线独立重开确认测试字段仍在正式模型，输出为0；default及Verification_20261018均返回4行/总数4/Loaded、每行8字段。已恢复IsOutput=1，界面再次确认保存，正在最后独立重开确认9字段；未改命名视图配置或业务行。恢复时Playwright复选框check未改变状态，核实际AX后通过标准复选框点击成功，没有重复保存。
-- 恢复验收已完成：再次独立重开，模型字段输出开关为1，default实际查询4行/总数4/Loaded、每行9字段，测试字段重新出现。两次字段保存均有页面成功确认；未保存视图配置或业务行，配置保存按钮禁用，窗口均已关闭。浏览器事实与范围见[在线记录](evidence/data-space-config-storage/model-schema-browser-20261018.json)，恢复截图model-schema-restored-20261018.png。内存DataTable归属由源码及回归证明，浏览器证明保存后的定义保留与运行输出，二者不互相冒充。
-- 本轮最终为5生产、4测试、3合同/记录改动；原spark-data实现、权限守卫及后端源码未改，正式ClassModel由生成链刷新。快照差异、698构建源码最终哈希及检查结果见[最终验证](evidence/data-space-config-storage/model-schema-verification-20261018.json)。没有Git暂存/提交/推送；目标继续active，不以本轮修复宣布完整整合完成。
+- 恢复验收已完成：再次独立重开，模型字段输出开关为1，default实际查询4行/总数4/Loaded、每行9字段，测试字段重新出现。两次字段保存均有页面成功确认；未保存视图配置或业务行，配置保存按钮禁用，窗口均已关闭。浏览器事实与范围见历史证据「在线记录」— 路径 `evidence/data-space-config-storage/model-schema-browser-20261018.json`（当前仓库未保留），恢复截图model-schema-restored-20261018.png。内存DataTable归属由源码及回归证明，浏览器证明保存后的定义保留与运行输出，二者不互相冒充。
+- 本轮最终为5生产、4测试、3合同/记录改动；原spark-data实现、权限守卫及后端源码未改，正式ClassModel由生成链刷新。快照差异、698构建源码最终哈希及检查结果见历史证据「最终验证」— 路径 `evidence/data-space-config-storage/model-schema-verification-20261018.json`（当前仓库未保留）。没有Git暂存/提交/推送；目标继续active，不以本轮修复宣布完整整合完成。
 - 下一断点继续沿modelFields和请求设置的实际消费者核对：当前非输出字段已保留结构，但已有服务查询/写入及前端校验扩展仍受正式输出合同限制，不能将列存在当成后端执行支持。参考数据处理目标模型CRUD、完整页面配置驱动与1:1仍待闭合，既有真实服务缺口继续保留；只续用本记录，不恢复退休方案。
 
 ## 2026-10-18 旧操作目标映射误隐藏正式模型
@@ -855,17 +857,17 @@
 - 原 packages/spark-data/src/data-view.ts：仅将已有 assertResultReplacementAllowed 公开并补JSDoc；原变更跟踪及未确认回执算法不变。
 - view-design 下 view/relation/cascade-metadata 三个消费者：直接持有原DataView，删除独立基线、行差异合并和JSON干净判定；原字段候选、两类关系和级联语义保留。
 - 4个定义/会话测试文件及1个标准过滤绑定测试文件：四项真实反例、原生错误码和旧入口拒绝合同。
-- 正式生成链刷新后，通过DataView目录、成员概要、assertResultReplacementAllowed及refresh指南共4次实际查询核对调用合同：[查询证据](evidence/data-space-config-storage/retirement-data-view-contract-20261018.json)。生成878文件/1810符号/1450索引；2128项既有语义缺口仍在，不宣称全量ClassModel无缺口。
+- 正式生成链刷新后，通过DataView目录、成员概要、assertResultReplacementAllowed及refresh指南共4次实际查询核对调用合同：历史证据「查询证据」— 路径 `evidence/data-space-config-storage/retirement-data-view-contract-20261018.json`（当前仓库未保留）。生成878文件/1810符号/1450索引；2128项既有语义缺口仍在，不宣称全量ClassModel无缺口。
 
 ## 验证结果
 
 - 改前44文件快照及SHA256清单：node_modules/.cache/data-space-retirement-20261018/manifest.json；包含本次触及文件的原脏工作区内容，不是Git HEAD回滚。
-- [四项反例RED](evidence/data-space-config-storage/retirement-native-state-red-20261018.log)均在原投影被错误销毁处失败；[GREEN](evidence/data-space-config-storage/retirement-native-state-green-20261018.log)4项通过。
-- [定义/会话回归](evidence/data-space-config-storage/retirement-definition-regression-20261018.log)：4文件239项通过；[原数据链及装配器](evidence/data-space-config-storage/retirement-preserved-chain-20261018.log)：7文件165项通过。
-- [原生页面全域](evidence/data-space-config-storage/retirement-native-page-20261018.log)：38文件1449项，1448通过、1项旧模型Filter成功写入期望失败。确认其与当前请求配置归DataView的合同矛盾后纠正断言，[同文件6项复验通过](evidence/data-space-config-storage/retirement-legacy-filter-green-20261018.log)；未重复运行无变的其余37文件，不把初跑记录改成全绿。
+- 历史证据「四项反例RED」— 路径 `evidence/data-space-config-storage/retirement-native-state-red-20261018.log`（当前仓库未保留）均在原投影被错误销毁处失败；历史证据「GREEN」— 路径 `evidence/data-space-config-storage/retirement-native-state-green-20261018.log`（当前仓库未保留）4项通过。
+- 历史证据「定义/会话回归」— 路径 `evidence/data-space-config-storage/retirement-definition-regression-20261018.log`（当前仓库未保留）：4文件239项通过；历史证据「原数据链及装配器」— 路径 `evidence/data-space-config-storage/retirement-preserved-chain-20261018.log`（当前仓库未保留）：7文件165项通过。
+- 历史证据「原生页面全域」— 路径 `evidence/data-space-config-storage/retirement-native-page-20261018.log`（当前仓库未保留）：38文件1449项，1448通过、1项旧模型Filter成功写入期望失败。确认其与当前请求配置归DataView的合同矛盾后纠正断言，历史证据「同文件6项复验通过」— 路径 `evidence/data-space-config-storage/retirement-legacy-filter-green-20261018.log`（当前仓库未保留）；未重复运行无变的其余37文件，不把初跑记录改成全绿。
 - 根typecheck、9文件定向lint、文档门禁通过；正式ClassModel编译与查询通过。源码/测试/配置/生成物内旧DefinitionDraft、frontModelFields、DataSpaceFrontendModel及旧mutation入口零命中；活动Markdown无已删方案引用。
-- [生产构建及静态检查](evidence/data-space-config-storage/data-space-retirement-build-20261018.json)：698个项目源码模块均在本仓，仓外源码0；旧层未编入产物，543个静态引用无缺失，ClassModel产物完整。输出位于仓内缓存，不覆盖dist；这只证明构建和静态产物，不证明浏览器运行或远程保存。
-- 汇总及当前文件哈希见 [本次验证记录](evidence/data-space-config-storage/retirement-verification-20261018.json)。
+- 历史证据「生产构建及静态检查」— 路径 `evidence/data-space-config-storage/data-space-retirement-build-20261018.json`（当前仓库未保留）：698个项目源码模块均在本仓，仓外源码0；旧层未编入产物，543个静态引用无缺失，ClassModel产物完整。输出位于仓内缓存，不覆盖dist；这只证明构建和静态产物，不证明浏览器运行或远程保存。
+- 汇总及当前文件哈希见 历史证据「本次验证记录」— 路径 `evidence/data-space-config-storage/retirement-verification-20261018.json`（当前仓库未保留）。
 
 ## 本次续作：普通列属性与来源入参消费原保存回执
 
@@ -875,13 +877,13 @@
 - 两个标准字段编辑页面区分“本次已保存”和“后续修改待保存”。实际挂载页面证明后续草稿保持显示，取消只撤后续草稿，独立重开恢复正式已保存值及DataTable.columns。
 - 已加载字段目录的更新保留：未加载或有草稿/在途操作时跳过，干净目录仍沿自己的allPages查询读取。读取失败保留在目录原DataView的loadingError/Failed状态，不能把本次已确认写入再标为失败。未采用requestRefresh替换目录查询，因为现有完整读取范围来自调用参数，不能无声改成默认分页；未为此新造刷新状态。
 - 实际改动为6个生产文件、11个既有测试文件及合同/本记录/度量3文档；20文件改前快照及SHA256在node_modules/.cache/data-space-native-receipt-20261018/manifest.json。原packages/spark-data及请求协议实现本轮未改。
-- [普通保存四项反例](evidence/data-space-config-storage/native-receipt-green-20261018.log)通过；初始RED记录及来源请求等待修正后的RED分别保存在native-receipt-red-20261018.log和native-receipt-input-red-20261018.log。页面新增验证首次引用了保存期间卸载的旧控件，改为定位当前挂载控件后通过，没有改变产品代码来迁就该引用。
-- 原数据层2文件42项、实际接口适配回执1文件114项通过，分别见[native data](evidence/data-space-config-storage/native-receipt-data-regression-20261018.log)、[wire receipt](evidence/data-space-config-storage/native-receipt-wire-regression-20261018.log)。新增/批量/目录相关4文件90项通过，见[目录回归](evidence/data-space-config-storage/native-receipt-directory-green-20261018.log)。这些数目与全域测试有重叠，不累计冒充更多覆盖。
-- 第一次原生页全域38文件1455项：1443通过、12失败。11项属于旧强制读取次数、无关草稿拒绝或“保存并回读”文案预期；另1项暴露已加载目录没有更新的真实回归，已修复并补目录读取失败不影响本次回执的用例。原失败记录保留为[native-receipt-page-regression-20261018.log](evidence/data-space-config-storage/native-receipt-page-regression-20261018.log)。[最终全域复验](evidence/data-space-config-storage/native-receipt-page-final-20261018.log)38文件1458项全部通过；原数据层42项及接口适配114项为该目录外的独立回归，不重复累计此前90项与207项等中间批次。
-- 最终根typecheck、17个Vue/TS文件定向lint通过。正式ClassModel编译生成878文件/1810符号/1450索引，2128项既有语义缺口未变；生成前后各6次DataSet/DataView目录、概要和saveChanges指南查询通过，见[最终查询](evidence/data-space-config-storage/native-receipt-contract-final-20261018.json)。
-- [本次生产构建](evidence/data-space-config-storage/data-space-native-receipt-build-20261018.json)通过：698个项目源码模块均在本仓，6个生产改动均编入产物，仓外源码0、旧层模块0、543个静态引用无缺失。未运行浏览器、访问实际服务或验证远程保存，不把静态构建当作线上验收。
+- 历史证据「普通保存四项反例」— 路径 `evidence/data-space-config-storage/native-receipt-green-20261018.log`（当前仓库未保留）通过；初始RED记录及来源请求等待修正后的RED分别保存在native-receipt-red-20261018.log和native-receipt-input-red-20261018.log。页面新增验证首次引用了保存期间卸载的旧控件，改为定位当前挂载控件后通过，没有改变产品代码来迁就该引用。
+- 原数据层2文件42项、实际接口适配回执1文件114项通过，分别见历史证据「native data」— 路径 `evidence/data-space-config-storage/native-receipt-data-regression-20261018.log`（当前仓库未保留）、历史证据「wire receipt」— 路径 `evidence/data-space-config-storage/native-receipt-wire-regression-20261018.log`（当前仓库未保留）。新增/批量/目录相关4文件90项通过，见历史证据「目录回归」— 路径 `evidence/data-space-config-storage/native-receipt-directory-green-20261018.log`（当前仓库未保留）。这些数目与全域测试有重叠，不累计冒充更多覆盖。
+- 第一次原生页全域38文件1455项：1443通过、12失败。11项属于旧强制读取次数、无关草稿拒绝或“保存并回读”文案预期；另1项暴露已加载目录没有更新的真实回归，已修复并补目录读取失败不影响本次回执的用例。原失败记录保留为历史证据「native-receipt-page-regression-20261018.log」— 路径 `evidence/data-space-config-storage/native-receipt-page-regression-20261018.log`（当前仓库未保留）。历史证据「最终全域复验」— 路径 `evidence/data-space-config-storage/native-receipt-page-final-20261018.log`（当前仓库未保留）38文件1458项全部通过；原数据层42项及接口适配114项为该目录外的独立回归，不重复累计此前90项与207项等中间批次。
+- 最终根typecheck、17个Vue/TS文件定向lint通过。正式ClassModel编译生成878文件/1810符号/1450索引，2128项既有语义缺口未变；生成前后各6次DataSet/DataView目录、概要和saveChanges指南查询通过，见历史证据「最终查询」— 路径 `evidence/data-space-config-storage/native-receipt-contract-final-20261018.json`（当前仓库未保留）。
+- 历史证据「本次生产构建」— 路径 `evidence/data-space-config-storage/data-space-native-receipt-build-20261018.json`（当前仓库未保留）通过：698个项目源码模块均在本仓，6个生产改动均编入产物，仓外源码0、旧层模块0、543个静态引用无缺失。未运行浏览器、访问实际服务或验证远程保存，不把静态构建当作线上验收。
 
-- 本轮最终文件哈希、快照校验和验证范围见[验证记录](evidence/data-space-config-storage/native-receipt-verification-20261018.json)，本轮差异相对改前脏工作区快照生成，未使用Git HEAD覆盖现有工作。
+- 本轮最终文件哈希、快照校验和验证范围见历史证据「验证记录」— 路径 `evidence/data-space-config-storage/native-receipt-verification-20261018.json`（当前仓库未保留），本轮差异相对改前脏工作区快照生成，未使用Git HEAD覆盖现有工作。
 
 ## 未闭合段与下一动作
 
@@ -890,33 +892,33 @@
 - 标准RendererToolbar启用wrap后只有子区内部换行，根布局仍将尾区固定为auto列；在718px工作区，尾区占560px、主区只剩146px，工具栏高352px。已删除该wrap模式的固定两列限制，两个区及其子组件按可用宽度换行，尾区保持末端对齐；默认不换行模式仍使用原两列合同。错误提示保留整行，绑定、beforeRender和数据权限消费未改。
 - 设计页原配色将primary固定为浅色蓝，并把weak颜色与白色混合92%；实际深色主题产生白底渐变和暗蓝小字。已改用当前主题的主色/危险色、文字色及弱色背景，保留参考页工作台、图例和操作分区，不另造页面皮肤。
 - 修改前类型基线及9次正式ClassModel目录/概要/wrap/tail/gap/zoneGap/graph toolbar指南查询通过。5文件改前脏工作区快照位于node_modules/.cache/data-space-toolbar-theme-20261018，变更3生产文件及本记录/度量；不添加只复述CSS实现的测试，实际浏览器尺寸和同宽度截图作为布局反例及修复验证。
-- 浏览器实测：718px工作区的工具栏降到116px，16个按钮均未横向越界；946px工作区为76px。新增模型产生待配置节点，双击进入来源面板，打开数组输入后输入临时名称并取消，再关闭配置、取消布局；没有点击正式保存，页面恢复无布局修改。重新打开完成正式读取后仍为模型0、无视图配置、保存布局禁用，见[浏览器证据](evidence/data-space-config-storage/toolbar-theme-browser-after-20261018.json)和[修复截图](evidence/data-space-config-storage/toolbar-theme-after-20261018.png)。
-- [最终关联回归](evidence/data-space-config-storage/toolbar-theme-final-regression-20261018.log)：3文件66项通过，覆盖共享工具栏在9类容器中的绑定/尾区/默认行为、关系画布及实际设计工作台。首轮误写工作台测试文件名，实际仅运行2文件59项；已以正确路径复验3文件66项，不重复累计或冒充全域回归。
+- 浏览器实测：718px工作区的工具栏降到116px，16个按钮均未横向越界；946px工作区为76px。新增模型产生待配置节点，双击进入来源面板，打开数组输入后输入临时名称并取消，再关闭配置、取消布局；没有点击正式保存，页面恢复无布局修改。重新打开完成正式读取后仍为模型0、无视图配置、保存布局禁用，见历史证据「浏览器证据」— 路径 `evidence/data-space-config-storage/toolbar-theme-browser-after-20261018.json`（当前仓库未保留）和历史证据「修复截图」— 路径 `evidence/data-space-config-storage/toolbar-theme-after-20261018.png`（当前仓库未保留）。
+- 历史证据「最终关联回归」— 路径 `evidence/data-space-config-storage/toolbar-theme-final-regression-20261018.log`（当前仓库未保留）：3文件66项通过，覆盖共享工具栏在9类容器中的绑定/尾区/默认行为、关系画布及实际设计工作台。首轮误写工作台测试文件名，实际仅运行2文件59项；已以正确路径复验3文件66项，不重复累计或冒充全域回归。
 - 根类型、3生产文件lint通过；正式ClassModel生成878文件/1810符号/1450索引，保留2128既有语义缺口，前后各9次目录/概要/指南查询通过。wrap公开说明与生成指南均同步，未手改派生产物。
-- [生产构建](evidence/data-space-config-storage/data-space-toolbar-theme-build-20261018.json)通过：698个项目源码模块全部在本仓，两个Vue改动均编入，543静态引用无缺失，仓外源码和旧层模块均为0。[最终范围与文件哈希](evidence/data-space-config-storage/toolbar-theme-verification-20261018.json)相对本轮改前脏工作区核对。
+- 历史证据「生产构建」— 路径 `evidence/data-space-config-storage/data-space-toolbar-theme-build-20261018.json`（当前仓库未保留）通过：698个项目源码模块全部在本仓，两个Vue改动均编入，543静态引用无缺失，仓外源码和旧层模块均为0。历史证据「最终范围与文件哈希」— 路径 `evidence/data-space-config-storage/toolbar-theme-verification-20261018.json`（当前仓库未保留）相对本轮改前脏工作区核对。
 - 本轮线上仅验证当前深色主题、946/718px工作区及取消后重读，没有提交元数据或pagedata。真实列保存/独立重开、数组结构命令的全目录前置及完整参考页1:1仍须继续；不把本次界面修复当作整体整合完成。没有Java修改或Git暂存、提交、推送。
 
 2026-10-18继续诊断（所属模型与完整目录）：上一轮有实际源码删除、47文件1797项回归及生产构建，判为有效进展。本轮沿modelFields→正式列定义→保存/重开核对，已修复按主键确认所属模型与读取整个模型目录混用的问题，最终本地回归通过；本仓前端与实际远程登录、目录及空空间设计入口也已复核。
 
-- 字段普通编辑、来源入参、计算字段新增及本模型函数候选曾被无关模型是否加载阻断，5项实际分页反例已复现，见[编辑/新增RED](evidence/data-space-config-storage/model-scope-red-20261018.log)、[引用目录RED](evidence/data-space-config-storage/model-scope-reference-red-20261018.log)。
+- 字段普通编辑、来源入参、计算字段新增及本模型函数候选曾被无关模型是否加载阻断，5项实际分页反例已复现，见历史证据「编辑/新增RED」— 路径 `evidence/data-space-config-storage/model-scope-red-20261018.log`（当前仓库未保留）、历史证据「引用目录RED」— 路径 `evidence/data-space-config-storage/model-scope-reference-red-20261018.log`（当前仓库未保留）。
 - 仅在明确模型ID查找及本模型输出快照处移除全目录前置，仍核唯一记录、查询身份、字段可读性、变更及失效。字段完整集合、模型名/资源名歧义与跨模型引用继续核其所需范围；缺失上游记录会明确失败，已加载根模型无上游时不额外查询。没有新建元模型、缓存、草稿或提交逻辑。
-- [定向回归](evidence/data-space-config-storage/model-scope-green-20261018.log)4文件153项通过：列读取/取消/普通保存、来源入参保存、计算列新增及独立重开到DataTable.columns，均保留模型列表原分页；普通保存只有本次写请求，工作区新增不补查全空间字段，按名称解析和丢失所属模型的反向断言仍通过。6次DataView目录/概要/rows/total/getPkKey/loadFromServer合同查询已核。
+- 历史证据「定向回归」— 路径 `evidence/data-space-config-storage/model-scope-green-20261018.log`（当前仓库未保留）4文件153项通过：列读取/取消/普通保存、来源入参保存、计算列新增及独立重开到DataTable.columns，均保留模型列表原分页；普通保存只有本次写请求，工作区新增不补查全空间字段，按名称解析和丢失所属模型的反向断言仍通过。6次DataView目录/概要/rows/total/getPkKey/loadFromServer合同查询已核。
 - 影响5生产文件、4既有测试文件及本台账/合同/度量，12文件改前快照在node_modules/.cache/data-space-model-scope-20261018。数组结构命令另有全目录及回读依赖，已定位但尚未判定可删除范围，本轮不把它计作解决；不另起计划或扩大为前端聚合/权限专题。最终证据如下。
-- [最终回归](evidence/data-space-config-storage/model-scope-final-regression-20261018.log)：47文件1802项通过，覆盖原生设计页、元数据及原DataView查询/保存校验；不叠加153等中间批次。根typecheck、9路径lint通过；正式ClassModel生成878文件/1810符号/1450索引，2128项既有语义缺口未变，前后各6次正式合同查询通过。
-- [生产构建](evidence/data-space-config-storage/data-space-model-scope-build-20261018.json)：698个项目源码模块全部位于本仓，5个生产改动已编入，仓外源码0、旧层模块0、543个静态引用无缺失；[最终文件校验](evidence/data-space-config-storage/model-scope-verification-20261018.json)保留相对改前脏工作区的差异和哈希。
-- [本轮实际浏览器证据](evidence/data-space-config-storage/model-scope-browser-20261018.json)：先得到ERR_CONNECTION_REFUSED并确认5273无监听，启动本仓既有pnpm dev后首页恢复；仍用已有远程网关和授权测试凭据。默认中文企业名返回1003，选择正式企业选项后登录成功；源码LoginView.vue默认值与shortName选项的差异已确认，本轮未改登录实现。
-- 沿正式菜单成功进入元数据管理、数据空间目录（显示总数1201），再打开LivePilot_T_20261017（944DEE5A0E5170F903E0E008172C4CD2），实际渲染模型0、无视图配置提示及设计工作区，见[截图](evidence/data-space-config-storage/model-scope-browser-design-20261018.png)。截图另暴露工具栏纵向堆叠、多处文字对比度不足；页面可进入不等于布局通过，须按参考页语义和标准组件合同继续核对。应用切换最终成功，先前未变化的即时画面不记作应用缺陷；中途工具标签失效后在同一浏览器正常重建并登录，未绕过浏览器策略。
+- 历史证据「最终回归」— 路径 `evidence/data-space-config-storage/model-scope-final-regression-20261018.log`（当前仓库未保留）：47文件1802项通过，覆盖原生设计页、元数据及原DataView查询/保存校验；不叠加153等中间批次。根typecheck、9路径lint通过；正式ClassModel生成878文件/1810符号/1450索引，2128项既有语义缺口未变，前后各6次正式合同查询通过。
+- 历史证据「生产构建」— 路径 `evidence/data-space-config-storage/data-space-model-scope-build-20261018.json`（当前仓库未保留）：698个项目源码模块全部位于本仓，5个生产改动已编入，仓外源码0、旧层模块0、543个静态引用无缺失；历史证据「最终文件校验」— 路径 `evidence/data-space-config-storage/model-scope-verification-20261018.json`（当前仓库未保留）保留相对改前脏工作区的差异和哈希。
+- 历史证据「本轮实际浏览器证据」— 路径 `evidence/data-space-config-storage/model-scope-browser-20261018.json`（当前仓库未保留）：先得到ERR_CONNECTION_REFUSED并确认5273无监听，启动本仓既有pnpm dev后首页恢复；仍用已有远程网关和授权测试凭据。默认中文企业名返回1003，选择正式企业选项后登录成功；源码LoginView.vue默认值与shortName选项的差异已确认，本轮未改登录实现。
+- 沿正式菜单成功进入元数据管理、数据空间目录（显示总数1201），再打开LivePilot_T_20261017（944DEE5A0E5170F903E0E008172C4CD2），实际渲染模型0、无视图配置提示及设计工作区，见历史证据「截图」— 路径 `evidence/data-space-config-storage/model-scope-browser-design-20261018.png`（当前仓库未保留）。截图另暴露工具栏纵向堆叠、多处文字对比度不足；页面可进入不等于布局通过，须按参考页语义和标准组件合同继续核对。应用切换最终成功，先前未变化的即时画面不记作应用缺陷；中途工具标签失效后在同一浏览器正常重建并登录，未绕过浏览器策略。
 - 本轮线上没有修改正式元数据或pagedata；空测试空间不能证明列编辑、保存、独立重开或整页1:1已通过。后续沿同一现存隔离空间及原SPARK data补核真实列数据链，并核数组结构命令的读取/提交/回读范围；无Java修改、Git暂存、提交或推送。
 
 2026-10-18继续诊断（查询接纳边界）：上一轮为有代码和回归证据的有效进展，目标保持active。本轮继续删除已证实的事后补救及重复校验，最终本地回归及静态构建通过，完整整合未完成。
 
-- 根因：默认目录和三个字段工作区在DataView发布rowsChanged后才校验归属；直接重读原视图又绕过外围检查。默认目录10项反例、命名工作区6项反例分别复现了错误数据先发布/清空或直接接纳成功，见[默认目录RED](evidence/data-space-config-storage/query-admission-red-20261018.log)和[工作区RED](evidence/data-space-config-storage/query-admission-workspace-red-20261018.log)。
+- 根因：默认目录和三个字段工作区在DataView发布rowsChanged后才校验归属；直接重读原视图又绕过外围检查。默认目录10项反例、命名工作区6项反例分别复现了错误数据先发布/清空或直接接纳成功，见历史证据「默认目录RED」— 路径 `evidence/data-space-config-storage/query-admission-red-20261018.log`（当前仓库未保留）和历史证据「工作区RED」— 路径 `evidence/data-space-config-storage/query-admission-workspace-red-20261018.log`（当前仓库未保留）。
 - 同一领域校验接入原DataView.validateQueryResult，未新增查询、草稿或权限状态。失败结果不发布，默认目录及直接工作区重读保留最后确认的行，由原Failed/loadingError/重试处理。删除默认加载器事后clearAll和字段目录更新的重复结果扫描。上游工作区的显式切换清空，以及合法结果接纳后上下文变化的撤下保护，仍按其原生命周期保留，不能与拒绝错误响应混为一谈。
 - 纠正一次本轮真实回归：初版把完整目录条件也用于默认视图的直接分页查询，38文件1458项中1457通过、模型说明保存的分页前置测试失败。现拆开归属接纳与命令完整性：默认视图允许分页，metadata.load明确请求完整目录，普通模型保存不额外读取。未修改该既有测试来迁就实现。独立命名分页视图及错误目标owner对照也保留。
-- 相关5文件199项通过（含新增工作区6项、默认元数据78项及原模型保存），见[定向回归](evidence/data-space-config-storage/query-admission-workspace-green-20261018.log)。元数据初次全域8文件311项中310通过、1项旧远程子表SUM断言失败；当前生产合同已拒绝前端远程聚合，测试改验保存/编辑/取消/删除、独立重开双向关系索引、完整过滤表达式与聚合拒绝，未恢复本地统计或修改生产聚合链。原失败记录保留为query-admission-metadata-regression-20261018.log。
+- 相关5文件199项通过（含新增工作区6项、默认元数据78项及原模型保存），见历史证据「定向回归」— 路径 `evidence/data-space-config-storage/query-admission-workspace-green-20261018.log`（当前仓库未保留）。元数据初次全域8文件311项中310通过、1项旧远程子表SUM断言失败；当前生产合同已拒绝前端远程聚合，测试改验保存/编辑/取消/删除、独立重开双向关系索引、完整过滤表达式与聚合拒绝，未恢复本地统计或修改生产聚合链。原失败记录保留为query-admission-metadata-regression-20261018.log。
 - 8文件改前快照在node_modules/.cache/data-space-query-admission-20261018，均基于实际脏工作区。本轮仅改2生产文件、3既有测试文件和3文档，原SPARK data源码及实际接口协议未改。
-- [最终回归](evidence/data-space-config-storage/query-admission-final-regression-20261018.log)：47文件1797项全部通过，覆盖原生设计页、元数据全域及原DataView查询接纳/保存校验；不重复累计199、58等中间批次。根typecheck、5路径lint通过；正式ClassModel生成878文件/1810符号/1450索引，2128项既有语义缺口保留，前后各4次实际合同查询通过。
-- [生产构建](evidence/data-space-config-storage/data-space-query-admission-build-20261018.json)：698个项目源码模块全部在本仓，两个改动生产文件均编入产物；仓外源码0、旧层模块0、543个静态引用无缺失。最终文件哈希和快照校验见[验证记录](evidence/data-space-config-storage/query-admission-verification-20261018.json)。未访问实际服务或浏览器，不以这些本地结果代替线上验证。
+- 历史证据「最终回归」— 路径 `evidence/data-space-config-storage/query-admission-final-regression-20261018.log`（当前仓库未保留）：47文件1797项全部通过，覆盖原生设计页、元数据全域及原DataView查询接纳/保存校验；不重复累计199、58等中间批次。根typecheck、5路径lint通过；正式ClassModel生成878文件/1810符号/1450索引，2128项既有语义缺口保留，前后各4次实际合同查询通过。
+- 历史证据「生产构建」— 路径 `evidence/data-space-config-storage/data-space-query-admission-build-20261018.json`（当前仓库未保留）：698个项目源码模块全部在本仓，两个改动生产文件均编入产物；仓外源码0、旧层模块0、543个静态引用无缺失。最终文件哈希和快照校验见历史证据「验证记录」— 路径 `evidence/data-space-config-storage/query-admission-verification-20261018.json`（当前仓库未保留）。未访问实际服务或浏览器，不以这些本地结果代替线上验证。
 
 - 本轮完成上述明确删除，不声称整个存量设计器已证明正确，也不以测试数量代替完整业务语义整合。保留的领域命令、资源适配及页面仍须按实际输入输出、DataTable.columns / DataView归属审查；不能因文件曾属于旧方案便整目录误删共用链。
 - 后续从本仓DataSet/DataTable/DataColumn/DataView源码和实际页面消费者重核语义，再决定保留、合并或删除；不恢复旧E62或B01—B25顺序，不创建第二项目、第二份字段真源或另一套编辑/保存状态。
@@ -925,22 +927,22 @@
 
 2026-10-18继续诊断（数组普通保存、结构命令及原会话复用）：目标保持active，当前同仓实施，不另起方案；本轮最终全域回归、构建及实际隔离数组验证已通过，整体语义整合与完整视觉验收仍未完成。
 
-- 已复现三项反例：分页模型目录阻断数组取消/表头操作；普通items与说明保存额外执行两次预读和两次回读。[RED](evidence/data-space-config-storage/array-scope-red-20261018.log)。已删除普通修改的强制预读/回读及目标模型身份核验的全目录前置；结构字段集合、改名/删除引用、主键耦合与未知结果保护保留。结构核验读取当前模型分页及所需完整字段视图。
+- 已复现三项反例：分页模型目录阻断数组取消/表头操作；普通items与说明保存额外执行两次预读和两次回读。历史证据「RED」— 路径 `evidence/data-space-config-storage/array-scope-red-20261018.log`（当前仓库未保留）。已删除普通修改的强制预读/回读及目标模型身份核验的全目录前置；结构字段集合、改名/删除引用、主键耦合与未知结果保护保留。结构核验读取当前模型分页及所需完整字段视图。
 - 数组定向5文件101项通过，覆盖普通变更、取消、未修改的远端值、后续草稿、结构变更及未知回执不重放。全域首轮38文件1475项中19项均为默认5000ms超时；限制并发2、30000ms后同批38文件1475项通过。这是追加页面修复前的中间结果，不重复计入最终验证。
-- 实际远程隔离空间LivePilot_T_20261017（944DEE5A0E5170F903E0E008172C4CD2）通过本仓页面创建ArrayScope_20261018：rowid/label两个正式字段、probe-1一行；布局保存自动完成并回读。随后将label值before改为after、说明改为“数组普通保存已验证 20261018”，整页重新加载后保留；取消另一次说明输入未落库。再将label标题改为“验收值（已核验）”，正式预览DataView查询返回1行、probe-1/after和新标题。仅新增/修改此验收数组及其布局，无远程删除或Java修改。见[浏览器记录](evidence/data-space-config-storage/array-scope-browser-20261018.json)及[查询结果](evidence/data-space-config-storage/array-scope-preview-result-20261018.png)。预览深色主题仍混用浅色背景，文字对比不足，未当作视觉通过。
+- 实际远程隔离空间LivePilot_T_20261017（944DEE5A0E5170F903E0E008172C4CD2）通过本仓页面创建ArrayScope_20261018：rowid/label两个正式字段、probe-1一行；布局保存自动完成并回读。随后将label值before改为after、说明改为“数组普通保存已验证 20261018”，整页重新加载后保留；取消另一次说明输入未落库。再将label标题改为“验收值（已核验）”，正式预览DataView查询返回1行、probe-1/after和新标题。仅新增/修改此验收数组及其布局，无远程删除或Java修改。见历史证据「浏览器记录」— 路径 `evidence/data-space-config-storage/array-scope-browser-20261018.json`（当前仓库未保留）及历史证据「查询结果」— 路径 `evidence/data-space-config-storage/array-scope-preview-result-20261018.png`（当前仓库未保留）。预览深色主题仍混用浅色背景，文字对比不足，未当作视觉通过。
 - 实际保存又确认上层DataSpaceArrayEditor触发reopened→reopenChangedModel→load，销毁整个PageRuntime/DataSet并重查目录。已删除数组组件的reopened事件及页面接线，保存/核验/接受结果后沿原DataView更新。旧测试中“原实例销毁”为成功条件的断言已改为原实例保留；按实际页面连续保存证明不是仅删除事件。已有模型改名、来源更换等其他入口仍保留其reopenChangedModel调用，尚须分别按命令语义核查，不因本轮数组通过就宣称全部入口统一。
-- 去掉重开后，连续编辑反例证实字段工作区computed缓存旧模型owner；现按原视图修订重新取得当前owner。普通回执不再因保存期间另一字段出现草稿而被判失败，后续编辑/暂存留在原DataView；数组对话框在仍有后续草稿时保持可操作，释放失败不先隐藏窗口。[页面及后续字段RED](evidence/data-space-config-storage/array-session-red-20261018.log)、[后续对话框RED](evidence/data-space-config-storage/array-session-later-draft-red-20261018.log)、[最终定向56项](evidence/data-space-config-storage/array-session-final-focused-20261018.log)保留。最终修改4生产文件、2既有测试文件及本台账/度量；8文件改前脏工作区快照在node_modules/.cache/data-space-array-scope-20261018。
-- 最终代码的实际浏览器继续在ArrayScope_20261018内完成数组说明保存→原页面模型说明保存；整页重新加载后说明为“数组与模型连续保存已验证 20261018”，正式列label标题及probe-1/after均保留，DataView预览状态Loaded、行数/总数1，见[最终截图](evidence/data-space-config-storage/array-session-final-preview-20261018.png)。DOM字段控件在请求状态切换时重建，未拿DOM ID推断DataSet身份；同实例及精确请求范围由原生页面回归直接断言。未实施远程分页或断网模拟，其证明仍是回归夹具。
-- 根typecheck、6路径lint通过；正式ClassModel重新编译生成878文件/1810符号/1450索引，既有2128语义缺口未扩展，最终7次DataView合同查询通过；已删除事件未留在对应生成产物。[生产构建](evidence/data-space-config-storage/data-space-array-scope-build-20261018.json)成功，4处生产改动编入本仓产物，仓外源码0、退休层模块0、543静态引用无缺失。没有新增数据真源、公共提交入口、后端协议或角色判断。
-- [最终全域回归](evidence/data-space-config-storage/array-session-final-regression-20261018.log)：38文件1478项全部通过（并发2、单项/钩子超时30000ms），覆盖最终4生产文件后的原生页面保存、关系、字段、视图及数组链；不累计101、56或1475等中间批次。文档检查362文件通过，8文件改前快照、最终差异与SHA256记录完整，验证汇总为evidence/data-space-config-storage/array-session-verification-20261018.json。未暂存、提交或推送；后续继续按当前源码核其他保存重开入口与预览视觉差距。
+- 去掉重开后，连续编辑反例证实字段工作区computed缓存旧模型owner；现按原视图修订重新取得当前owner。普通回执不再因保存期间另一字段出现草稿而被判失败，后续编辑/暂存留在原DataView；数组对话框在仍有后续草稿时保持可操作，释放失败不先隐藏窗口。历史证据「页面及后续字段RED」— 路径 `evidence/data-space-config-storage/array-session-red-20261018.log`（当前仓库未保留）、历史证据「后续对话框RED」— 路径 `evidence/data-space-config-storage/array-session-later-draft-red-20261018.log`（当前仓库未保留）、历史证据「最终定向56项」— 路径 `evidence/data-space-config-storage/array-session-final-focused-20261018.log`（当前仓库未保留）保留。最终修改4生产文件、2既有测试文件及本台账/度量；8文件改前脏工作区快照在node_modules/.cache/data-space-array-scope-20261018。
+- 最终代码的实际浏览器继续在ArrayScope_20261018内完成数组说明保存→原页面模型说明保存；整页重新加载后说明为“数组与模型连续保存已验证 20261018”，正式列label标题及probe-1/after均保留，DataView预览状态Loaded、行数/总数1，见历史证据「最终截图」— 路径 `evidence/data-space-config-storage/array-session-final-preview-20261018.png`（当前仓库未保留）。DOM字段控件在请求状态切换时重建，未拿DOM ID推断DataSet身份；同实例及精确请求范围由原生页面回归直接断言。未实施远程分页或断网模拟，其证明仍是回归夹具。
+- 根typecheck、6路径lint通过；正式ClassModel重新编译生成878文件/1810符号/1450索引，既有2128语义缺口未扩展，最终7次DataView合同查询通过；已删除事件未留在对应生成产物。历史证据「生产构建」— 路径 `evidence/data-space-config-storage/data-space-array-scope-build-20261018.json`（当前仓库未保留）成功，4处生产改动编入本仓产物，仓外源码0、退休层模块0、543静态引用无缺失。没有新增数据真源、公共提交入口、后端协议或角色判断。
+- 历史证据「最终全域回归」— 路径 `evidence/data-space-config-storage/array-session-final-regression-20261018.log`（当前仓库未保留）：38文件1478项全部通过（并发2、单项/钩子超时30000ms），覆盖最终4生产文件后的原生页面保存、关系、字段、视图及数组链；不累计101、56或1475等中间批次。文档检查362文件通过，8文件改前快照、最终差异与SHA256记录完整，验证汇总为evidence/data-space-config-storage/array-session-verification-20261018.json。未暂存、提交或推送；后续继续按当前源码核其他保存重开入口与预览视觉差距。
 
 2026-10-18继续诊断（模型改名后的整页重建）：沿现有删除授权实施。已核改名命令在原DataSet内完成正式引用回读、pagedata/工具引用接续及旧编辑owner失效；页面额外reopened→load销毁整个元数据DataSet。正常保存（完整/按需装载）及数据库/文件未知回执核验共4个反例均因创建第二会话失败，证据model-rename-session-red-20261018.log。当前删除该组件reopened事件和页面接线，验证原实例连续编辑、正式新名绑定与未知回执不重放；来源更换及字段删除仍单独核查，不机械删除其刷新。开工typecheck通过，5文件改前脏工作区快照位于node_modules/.cache/data-space-model-rename-session-20261018；仅在同一仓内修改2生产文件、既有页面测试和两份记录，不新增数据owner/API或计划。
 - 同轮后续消费者反例：去掉整页重建后，来源组件computed仍缓存已从会话登记移除的旧owner；预览存在但hasPendingModelSourceEdits为false，两种加载模式均失败（model-rename-source-owner-red-20261018.log）。这属于改名连续操作生命周期的关联修复，纳入本条范围：来源组件依会话revision重新取得当前owner，不新增状态或提交入口；其当前版本已补入第6个改前快照。前次3文件378项回归与构建属于追加修复前中间结果，最终按新代码复验。
 - 实际远程改名与连续说明保存成功，浏览器独立重开保留；但恢复原名后立即预览复现“模型字段查询已变化”。追根为getModelEdit重建owner时没有重新绑定仍属于当前模型的modelFields，退回未加载default字段视图。按需页面回归复现同错误（model-rename-preview-red-20261018.log）；修复当前会话owner取得时的原字段视图绑定，继续保留空间/模型身份及原查询守卫，不补查全量字段。第7个改前快照为lowcode-data-space-view-design.ts，本轮生产范围增至4文件。追加修复前378项通过仅作中间证据。
 - 预览回归中按需路径复现真实字段绑定丢失；完整装载路径还暴露测试夹具未配置新注册名的业务返回，已为SalesOrders补充正式查询夹具行而非修改生产协议。修复后正常改名、连续说明保存、来源草稿登记/取消、命名视图切换、立即运行预览及两类未知回执、采用不一致正式结果共5项定向通过（model-rename-preview-green-20261018.log）。
 - 最终代码根typecheck、5路径lint、ClassModel重新编译生成及7次DataView合同查询通过，生成对应组件已无reopened。最新生产构建data-space-model-rename-session-build-complete-20261018.json包含4处生产改动，698本仓源码、仓外0、退休层0，543静态引用无缺失。完整38文件回归仍在执行；早期378项结果不代表追加来源owner/字段绑定修复后的最终验证。
-- 最终实际远程证据：[浏览器记录](evidence/data-space-config-storage/model-rename-session-browser-20261018.json)覆盖既有隔离模型E912160BC0FA9AE6448D209D4428DDBE由ArrayScope_20261018改为ArrayScope_Renamed_20261018、连续保存说明、浏览器独立重开、恢复原名及取消后续临时名称。修复后改名当次页面立即预览成功，见[当次查询](evidence/data-space-config-storage/model-rename-immediate-preview-20261018.png)；最终再次独立重开后原名、说明“模型改名后连续保存已验证 20261018”、label标题“验收值（已核验）”及probe-1/after仍在，DataView为Loaded、总数1，见[最终查询截图](evidence/data-space-config-storage/model-rename-session-final-preview-20261018.png)。无新增模型、远程删除或Java修改；未对远程注入丢失回执，未知/部分结果由回归夹具验证。原DataSet身份由页面回归断言，不通过DOM ID推断。
-- [最终完整回归](evidence/data-space-config-storage/model-rename-session-final-regression-20261018.log)：38文件1479项全部通过，411.01秒，并发2、单项及钩子30000ms。最终4生产文件、1既有测试文件、2记录文件的7份改前快照/差异/哈希齐全；类型、5路径lint、正式生成及查询、生产构建、文档362文件均通过。最终核验汇总model-rename-session-verification-20261018.json，不与前轮1478或本轮中间378/57/5累计。Git仍为10-17 / c9b8acebc8241f0762c8b396939578da7d245f35，索引未暂存，无提交推送。
+- 最终实际远程证据：历史证据「浏览器记录」— 路径 `evidence/data-space-config-storage/model-rename-session-browser-20261018.json`（当前仓库未保留）覆盖既有隔离模型E912160BC0FA9AE6448D209D4428DDBE由ArrayScope_20261018改为ArrayScope_Renamed_20261018、连续保存说明、浏览器独立重开、恢复原名及取消后续临时名称。修复后改名当次页面立即预览成功，见历史证据「当次查询」— 路径 `evidence/data-space-config-storage/model-rename-immediate-preview-20261018.png`（当前仓库未保留）；最终再次独立重开后原名、说明“模型改名后连续保存已验证 20261018”、label标题“验收值（已核验）”及probe-1/after仍在，DataView为Loaded、总数1，见历史证据「最终查询截图」— 路径 `evidence/data-space-config-storage/model-rename-session-final-preview-20261018.png`（当前仓库未保留）。无新增模型、远程删除或Java修改；未对远程注入丢失回执，未知/部分结果由回归夹具验证。原DataSet身份由页面回归断言，不通过DOM ID推断。
+- 历史证据「最终完整回归」— 路径 `evidence/data-space-config-storage/model-rename-session-final-regression-20261018.log`（当前仓库未保留）：38文件1479项全部通过，411.01秒，并发2、单项及钩子30000ms。最终4生产文件、1既有测试文件、2记录文件的7份改前快照/差异/哈希齐全；类型、5路径lint、正式生成及查询、生产构建、文档362文件均通过。最终核验汇总model-rename-session-verification-20261018.json，不与前轮1478或本轮中间378/57/5累计。Git仍为10-17 / c9b8acebc8241f0762c8b396939578da7d245f35，索引未暂存，无提交推送。
 - 本轮模型改名连续操作链已修复，整体整合仍未结束。来源替换/同步的created→reopenChangedModel及字段删除恢复的reopenChangedModel仍须按真实命令语义审查；同一会话中来源身份改变后须处理捕获旧身份的编辑消费者，不能直接复制本轮事件删除。预览深色主题文字对比及完整参考页1:1仍未验收；继续使用本记录，不恢复旧计划或另起项目。
 
 2026-10-18继续诊断（来源替换/同步原会话保留）：本轮沿唯一台账和现有修复授权推进。普通来源替换、丢失回执核验、字段同步两种加载模式及差异采用共5反例均确认created事件额外创建第二会话（model-source-session-red-20261018.log）。已核源命令由原DataSet保存/回读，按真实字段和关系变更使兄弟视图失效；计划删除已有模型完成后的created事件及页面重开接线，新增模型仍保留created语义。来源正式结果确认/采用后释放捕获旧身份的模型/字段/入参编辑对象；当前可见modelFields失效后按原查询重读，保留原DataSet与未受影响视图，不将复制数组或全空间重载作为替代。验证覆盖新增/替换区分、结构/主键及字段类型、命名投影、来源入参、连续编辑/预览和未知结果不重放。开工typecheck通过，8文件改前脏工作区快照位于node_modules/.cache/data-space-model-source-session-20261018；预计5生产文件、1既有测试和两份记录，无新计划/新项目、后端协议、角色模型或远程删除。
@@ -949,7 +951,7 @@
 - 根typecheck、6路径lint、正式ClassModel生成及7次合同查询通过；新生产构建和静态引用检查通过。完整原生回归仍运行，尚不宣称全域完成。实际远程在既有隔离空间创建验收模型SourceScope_20261018（A7199374E11E24BB0FB6938407224304），初始字典shif有8个实际字段；当前已到ContentType来源替换预览，尚未确认该替换结果。浏览器记录model-source-session-browser-20261018.json持续保存；没有远程删除、Java修改、提交推送。
 - 最终原生回归38文件1480项全部通过（294.57秒；并发2，单项/钩子30000ms），见model-source-session-final-regression-20261018.log；与221项定向结果不重复累计。最终测试代码的根typecheck和6路径lint复验通过。正式生成878文件/1810符号/1450索引，2128项既有语义缺口保留；最终7次DataView合同查询通过。生产构建包含本轮5处生产修改，698个本仓源码模块、仓外0、退休层0，543静态引用无缺失。
 - 实际远程已确认SourceScope_20261018由shif替换为ContentType，8个已有字段预览均保留原记录/输出/配置；未进行字段删除。原页面连续保存说明“来源替换后连续保存已验证 20261018”后立即预览取得4行ContentType数据（含application/json），状态Loaded。再次打开来源同步仍指向ContentType，新增0/删除0，取消后原配置不变；已重新加载浏览器，正在核对独立重开与查询。原DataSet身份以原生页面回归断言为证，不用DOM标识推断；实际服务未注入丢失/部分回执。
-- 独立浏览器重开与最终正式查询已通过：SourceScope_20261018仍绑定ContentType，说明恢复，8列返回4行，DataView为Loaded、总数4。见[浏览器完整记录](evidence/data-space-config-storage/model-source-session-browser-20261018.json)、[重开配置](evidence/data-space-config-storage/model-source-session-reopened-20261018.png)及[最终查询](evidence/data-space-config-storage/model-source-session-final-preview-20261018.png)。该隔离验收模型保留，不改动原数组模型或字典业务条目。
+- 独立浏览器重开与最终正式查询已通过：SourceScope_20261018仍绑定ContentType，说明恢复，8列返回4行，DataView为Loaded、总数4。见历史证据「浏览器完整记录」— 路径 `evidence/data-space-config-storage/model-source-session-browser-20261018.json`（当前仓库未保留）、历史证据「重开配置」— 路径 `evidence/data-space-config-storage/model-source-session-reopened-20261018.png`（当前仓库未保留）及历史证据「最终查询」— 路径 `evidence/data-space-config-storage/model-source-session-final-preview-20261018.png`（当前仓库未保留）。该隔离验收模型保留，不改动原数组模型或字典业务条目。
 - 本轮删除及关联消费者修复已完成，最终8文件差异/哈希与构建来源核对汇总在model-source-session-verification-20261018.json。整体语义整合仍未完成：字段删除恢复入口尚保留reopenChangedModel，须独立核其命令语义；预览深色主题混用浅色面板及文字对比、完整参考页1:1仍待修复验收。保留唯一删除记录与原SPARK data，没有恢复旧方案、新建项目、暂存、提交或推送。
 
 2026-10-18继续诊断（字段删除完整生命周期）：上一轮为有效进展，目标保持active。开工类型检查通过，当前仍为同一脏工作区。实际调用链显示普通删除确认只stage，顶部保存和未知结果恢复在DataSpaceFieldEditor中；旧弹窗仍保留verify/accept及ended→reopenChangedModel分支，不能据此声称正常删除仍重建会话。继续核对单字段目录入口在暂存后是否丢失保存/取消入口，以及正常/失败回读/丢失回执下的连续编辑与预览，再按证据删除冗余分支。当前预计页面、删除弹窗、既有删除测试及两份记录，5份改前快照在node_modules/.cache/data-space-field-removal-session-20261018；保留原SPARK data领域删除核验，不新增数据真源或后端协议，不远程删除数据。
@@ -960,22 +962,22 @@
 - 中间全域38文件1485项中1481通过、4项失败（field-removal-session-final-regression-20261018.log）：来源未知回执3项被错误锁定，模型草稿1项落入字段守卫文案。根因为pending上报包含整个workspaceState，误把其他领域命令状态归到字段。现按原字段删除owner.pending上报，未决提示也仅增加字段删除unknown/readback/different；保留原模型及来源消费者的守卫，不修改既有4项断言。关联定向2文件复验正在执行，最终全域尚未通过；不拿此前58项或旧构建作完成证明。
 - 最终关联复验2文件64项通过（field-removal-source-guards-20261018.log），包含58项删除合同及全部4项先前失败的来源/模型用例。最终根类型、4路径lint通过，ClassModel正式重生878/1810/1450，2128项既有语义缺口保留，7次指南查询通过。最新生产构建data-space-field-removal-session-build-complete-20261018.json包含3处生产改动，698本仓源码、仓外0、退休层0、543静态引用无缺失。完整38文件回归仍在执行，不提前宣称通过。
 - 最终浏览器已在新代码下重复预览→仅暂存→取消：原字段工作区及保存/取消保留，关闭守卫生效；取消后待删除节点和“已暂存”提示消失，原字段恢复。独立重开后同一正式字段B65D0D55826587CFC571CD6967DC5E2C、来源ContentType及模型说明仍在。验收字段保留，未提交远程删除，也未修改既有数组模型或字典业务条目。浏览器完整证据为field-removal-session-browser-20261018.json，最终暂存/取消/重开截图分别为field-removal-session-final-staged-20261018.png、field-removal-session-final-cancelled-20261018.png、field-removal-session-reopened-20261018.png。
-- 最终完整回归[38文件1485项全部通过](evidence/data-space-config-storage/field-removal-session-complete-regression-20261018.log)，321.69秒，并发2、单项/钩子30000ms；所有中间4项失败在原断言下恢复，不累计64或58项。最终根类型、4路径lint、正式生成与7次指南查询、最新生产构建及文档362文件检查通过；最终6文件快照/差异/哈希及3生产源产物对应关系由field-removal-session-verification-20261018.json核对。
-- 独立重开后正式预览再次返回4行、总数4、Loaded，含application/json，见[最终运行查询](evidence/data-space-config-storage/field-removal-session-final-preview-20261018.png)；新增验收字段仍在。正式删除、未知回执、回读失败及记录仍在的采用路径由实际原生页面/数据链夹具验证，没有在远程提交删除或注入服务故障。最终[取消截图](evidence/data-space-config-storage/field-removal-session-final-cancelled-20261018.png)显示原字段恢复及“已放弃字段配置修改”，旧暂存提示已消失。
+- 最终完整回归历史证据「38文件1485项全部通过」— 路径 `evidence/data-space-config-storage/field-removal-session-complete-regression-20261018.log`（当前仓库未保留），321.69秒，并发2、单项/钩子30000ms；所有中间4项失败在原断言下恢复，不累计64或58项。最终根类型、4路径lint、正式生成与7次指南查询、最新生产构建及文档362文件检查通过；最终6文件快照/差异/哈希及3生产源产物对应关系由field-removal-session-verification-20261018.json核对。
+- 独立重开后正式预览再次返回4行、总数4、Loaded，含application/json，见历史证据「最终运行查询」— 路径 `evidence/data-space-config-storage/field-removal-session-final-preview-20261018.png`（当前仓库未保留）；新增验收字段仍在。正式删除、未知回执、回读失败及记录仍在的采用路径由实际原生页面/数据链夹具验证，没有在远程提交删除或注入服务故障。最终历史证据「取消截图」— 路径 `evidence/data-space-config-storage/field-removal-session-final-cancelled-20261018.png`（当前仓库未保留）显示原字段恢复及“已放弃字段配置修改”，旧暂存提示已消失。
 - 本轮已删除旧弹窗重复恢复支路、最后的reopenChangedModel函数与调用、activeFieldRemovalModelId重复状态，以及取消后过时的页面暂存提示；保存与核验继续走原SPARK data。修复了单字段目录删除丢失工作区和删除待处理状态未阻止切换两个真实问题。整体语义整合、标准组件复用及完整1:1页面/主题验收仍未全部证明；预览浅色面板与深色控件混用继续登记，下一轮先核标准RendererSection及实际主题消费，不把本轮功能通过当成视觉通过。未新增计划、项目、Java变更、暂存、提交或推送。
 
 ## 2026-10-18 预览标准组件主题修复
 
-- 浏览器确认html.dark及正式Element Plus主题变量已生效，预览的4个标准分区仍为rgb(255,255,255)、表头文本rgb(31,45,61)。根因为RendererSection、RendererTable、RendererDialog的局部样式固定浅色；[修复前截图](evidence/data-space-config-storage/preview-theme-before-20261018.png)保留。并非远程服务或主题服务失效。
+- 浏览器确认html.dark及正式Element Plus主题变量已生效，预览的4个标准分区仍为rgb(255,255,255)、表头文本rgb(31,45,61)。根因为RendererSection、RendererTable、RendererDialog的局部样式固定浅色；历史证据「修复前截图」— 路径 `evidence/data-space-config-storage/preview-theme-before-20261018.png`（当前仓库未保留）保留。并非远程服务或主题服务失效。
 - 修改上述3个标准组件的样式及本记录/度量，共5份改前脏工作区快照保存在node_modules/.cache/data-space-preview-theme-20261018。删除固定浅色值，面板/表头/行态/标题消费已有Element Plus主题变量，删除无人消费的spark-table-sort-active变量；未新增主题状态、配置、公共API或业务页面补丁。
 - 先核生成合同及源码继承：RSectionProps/RDialogProps经LayoutDataContextProps继承dataViewKey，RTableProps保留原分页合同；12次目录/概要/指南查询通过。初次直接查RSectionProps.dataViewKey未展开继承而失败，随后沿真实声明查询所属模型，未据此添加接口。正式重生后12次查询再次通过，不累计计数。
 - 既有组件/表格/查询预览/主题回归11文件140项全部通过（50.21秒）；根类型、3路径lint、正式ClassModel生成878/1810/1450、既有语义缺口2128保持、生产构建和文档362文件检查通过。CSS修复以浏览器前后样式和截图验证，未增加镜像实现的测试，也未重复此前1485项全域回归。构建报告data-space-preview-theme-build-20261018.json核对3处生产源码及本仓依赖。
-- 浏览器重新打开同一SourceScope_20261018/ContentType，深色及浅色正式查询均返回4行、总数4、Loaded。深色分区背景现为rgb(23,24,25)，标题/表头为rgb(237,242,247)；浅色为白色背景及rgb(48,49,51)标题/表头。[深色结果](evidence/data-space-config-storage/preview-theme-dark-20261018.png)、[浅色结果](evidence/data-space-config-storage/preview-theme-light-20261018.png)及preview-theme-browser-20261018.json保留。验证后已恢复原“跟随系统”偏好，未写入远程数据。
+- 浏览器重新打开同一SourceScope_20261018/ContentType，深色及浅色正式查询均返回4行、总数4、Loaded。深色分区背景现为rgb(23,24,25)，标题/表头为rgb(237,242,247)；浅色为白色背景及rgb(48,49,51)标题/表头。历史证据「深色结果」— 路径 `evidence/data-space-config-storage/preview-theme-dark-20261018.png`（当前仓库未保留）、历史证据「浅色结果」— 路径 `evidence/data-space-config-storage/preview-theme-light-20261018.png`（当前仓库未保留）及preview-theme-browser-20261018.json保留。验证后已恢复原“跟随系统”偏好，未写入远程数据。
 - 未决观察：预览表格复选框显示但check未保留选中；行点击只看到hover，未出现current-row类，不能用这次截图证明选中/当前行状态通过。RendererTable事件确实转交原DataView.selection，下一轮须继续核预览绑定、原选择配置/身份和事件运行链，不能直接在页面补数组或复制选择状态。当前记录为待诊断，尚未认定根因。完整语义整合及1:1整页验收仍未完成；无Git暂存、提交、推送或Java变更。
 
 ## 2026-10-18 预览选择链核实与误判排除
 
-- 上轮为进展：3个标准组件主题修复及深浅色正式查询验证已完成。本轮从上条未决观察继续，原RendererTable事件仍交给DataView.selection；真实浏览器用原生可访问性点击，同一SourceScope_20261018/ContentType正式结果依次显示已选1、2、4，再清空为0，复选框、spark-selection-row及元数据栏一致。[真实选中截图](evidence/data-space-config-storage/preview-selection-native-20261018.png)和preview-selection-browser-20261018.json保留。
+- 上轮为进展：3个标准组件主题修复及深浅色正式查询验证已完成。本轮从上条未决观察继续，原RendererTable事件仍交给DataView.selection；真实浏览器用原生可访问性点击，同一SourceScope_20261018/ContentType正式结果依次显示已选1、2、4，再清空为0，复选框、spark-selection-row及元数据栏一致。历史证据「真实选中截图」— 路径 `evidence/data-space-config-storage/preview-selection-native-20261018.png`（当前仓库未保留）和preview-selection-browser-20261018.json保留。
 - 此前Playwright setChecked超时且未保留勾选，只能证明该次自动化操作失败；不能证明产品选择链失败。原生点击全过程无浏览器error/warn，未写远程数据。当前行是否高亮由highlightCurrentRow显式声明控制，未出现current-row类不证明DataView.currentRow未更新；本轮不扩大该结论。
 - 新增2项真实预览集成回归，覆盖模型默认预览/命名视图、正式查询3行、原复选框操作→原DataView.selectedRows→已选提示/行样式、从原DataView清空→UI同步，以及零文件保存和零编辑草稿。只有1既有测试文件和2记录改动，3份改前脏工作区快照位于node_modules/.cache/data-space-preview-selection-20261018，没有生产代码变更。
 - 中间测试失败已查明为测试条件不匹配：shared视图是树配置，默认以null/undefined为根，原通用fixture却给parentId空字符串，故行数3而树根0。曾在未读配置前误判为单选，已纠正。TreeConfig.rootParentValue支持显式空字符串/0，不能把孤立节点自动挂根；新增测试按合同使用null根，未改公共fixture或生产树规则。两次错误测试及真正树根诊断分别保留preview-selection-diagnostic、preview-selection-regression、preview-selection-tree-red日志，不作产品失败证据。
@@ -1217,7 +1219,7 @@
 - 后续完整计划必须合并进本节；`notes/plan-appworks-integration.md` 与子计划中的“implementing/已删”不能作为当前事实（例如11类session文件实际仍存在）。计划将覆盖源页面清单、资源/命令分类、唯一绑定与保存链、存量旁路删除、页面闭环阶段、服务缺口、回读/独立重开/下游/视觉验收。
 
 - 收敛修复及复审：本轮上述四类反例均修复；独立复审进一步发现“本地JSON类型错误被当未知写入”和“多视图预检期间前一视图新编辑未复核”，已补红绿反例并修复。最终限定复审无新P1/P2。未删除仍承载业务的旧owner/session，不把修复当作已完成整合。
-- 本地验证：根全量343文件6057项通过；API包24文件988项单列，不累计为唯一覆盖；最后保存链关联20文件95项通过。新增5项共享适配测试为遵循已有目录基线合并到design-clients.test.ts，合并后15项通过；未扩大目录例外。根类型/lint、正式ClassModel生成、包及前端生产构建通过；最终verify:rules检查结果续记。日志和范围见 [verification.json](evidence/integration-convergence-20261024/verification.json)。
+- 本地验证：根全量343文件6057项通过；API包24文件988项单列，不累计为唯一覆盖；最后保存链关联20文件95项通过。新增5项共享适配测试为遵循已有目录基线合并到design-clients.test.ts，合并后15项通过；未扩大目录例外。根类型/lint、正式ClassModel生成、包及前端生产构建通过；最终verify:rules检查结果续记。日志和范围见 历史证据「verification.json」— 路径 `evidence/integration-convergence-20261024/verification.json`（当前仓库未保留）。
 - 生成器注意：lowcode合同扫描当前会包含packages/dist声明；并行构建导致检查时内容变化，已在构建完成后正式重生成并串行校验，不手改生成产物。此为工具限制，不是后端服务验证。
 - 旧总体与外部API/I6/I7计划已统一标superseded并指向本台账；参考代码逐文件清单本次为102个Vue（含子组件）/77个API，只有32个Vue在本仓同路径存在。Excel/PDF/工作流部分端点仍未实服核定，原JSON编辑器不代表参考完整设计流程。无本轮线上验收或后端修改。
 - 最终 `verify:rules` 全链exit 0（保留2条既有AI模型warning），`git diff --check`通过。现有修改达到本地收敛提交条件；完整产品验收仍按后续draft计划执行。
@@ -1243,7 +1245,7 @@
 
 ### 2. 当前源码基线与可复用能力
 
-参考仓 `E:/r/sparkproject` 的本次读取 HEAD 为 `791c464b8c6b3c7049ea36ab57546c3481e4d889`。原 `apps/appworks/src` 已不存在，现业务页根为 `packages/ui/domain/metadata/src/features`，API 根为 `packages/data/metadata/src/api`。本次 [逐文件清单及哈希](evidence/integration-convergence-20261024/reference-inventory.json)记录 102 个 feature Vue（含子组件）和 77 个 API 文件，本仓同路径存在 32 个、缺少 70 个。数字不是完整业务页数或验收通过率。开工时重新核 HEAD 与相关文件哈希，只对发生变化的语义做差异分析。
+参考仓 `E:/r/sparkproject` 的本次读取 HEAD 为 `791c464b8c6b3c7049ea36ab57546c3481e4d889`。原 `apps/appworks/src` 已不存在，现业务页根为 `packages/ui/domain/metadata/src/features`，API 根为 `packages/data/metadata/src/api`。本次 历史证据「逐文件清单及哈希」— 路径 `evidence/integration-convergence-20261024/reference-inventory.json`（当前仓库未保留）记录 102 个 feature Vue（含子组件）和 77 个 API 文件，本仓同路径存在 32 个、缺少 70 个。数字不是完整业务页数或验收通过率。开工时重新核 HEAD 与相关文件哈希，只对发生变化的语义做差异分析。
 
 | 事实依据（当前源码） | 已有能力 | 整合判断 |
 | --- | --- | --- |
@@ -1402,7 +1404,7 @@ flowchart TD
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工（2026-10-28 历史）：**
 
-1. **Workflow 文件资源目录 DataView 空集合路径已验收；继续验证真实文件读取消费者。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图，同一 SPA 重开后确认模型/视图并查询 `directory`：精确处理运行时 `[1003] 文件夹路径不存在` 后，DataView 显示 `Loaded`、0 行/0 总数。错误对象与界面结果见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。源码复核确认 WorkflowDesigns 与 AI activation 都经 `AgentWorkflowFileDataViewOwner` 使用 DataView，API 调用只在 executor 内部适配；不存在当前消费方的 raw Workflow 文件读取旁路。当前目录为空，没有可合法用于 `design`/`definition` 读取的 workflowId；不得猜造文件身份或写测试文件。下一步找出真实存在的 workflow 文件及其正式应用/权限上下文；若无可读目标，保留正文读取与 Agent 下游消费验收为待解锁项。
+1. **Workflow 文件资源目录 DataView 空集合路径已验收；继续验证真实文件读取消费者。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图，同一 SPA 重开后确认模型/视图并查询 `directory`：精确处理运行时 `[1003] 文件夹路径不存在` 后，DataView 显示 `Loaded`、0 行/0 总数。错误对象与界面结果见 历史证据「data-space-workflow-directory-live-20261028.json」— 路径 `evidence/data-space-workflow-directory-live-20261028.json`（当前仓库未保留）。源码复核确认 WorkflowDesigns 与 AI activation 都经 `AgentWorkflowFileDataViewOwner` 使用 DataView，API 调用只在 executor 内部适配；不存在当前消费方的 raw Workflow 文件读取旁路。当前目录为空，没有可合法用于 `design`/`definition` 读取的 workflowId；不得猜造文件身份或写测试文件。下一步找出真实存在的 workflow 文件及其正式应用/权限上下文；若无可读目标，保留正文读取与 Agent 下游消费验收为待解锁项。
 2. **继续迁移平台应用目录旁路。** 有正式身份的隐藏“应用系统列表”节点已接入专属 DataSpace `0C70F74793F9E858B71E0DBDEC784D57` 的 `Base_AppSystemList@default`，`allPages=true`；代码、5 项隔离测试与台账已推送（`d3579fe93`/`d1d0c5406`）。该查询行范围/权限投影仍缺服务响应证据。静态 Vue 注册表支持显式 `dataSpaceId → blueprintScenarioId` 投影，但投影不创建正式 DataSet owner 或 app-less 请求上下文；根 `/app-list` 仍回退 `listApplications()`。最新认证 SPA 只读核验：`/t/NewApp/homepage/app-list` 显示 61 个卡片；D99 当前空间 7AB 的模型目录显示 `Base_AppSystemList` 已绑定但 DataView 数为 0，创建空间表单仅列“元数据管理”应用；没有点击任何写操作。下一步先从正式平台场景/服务合同确立 homepage 的 owner 和可查询范围，再通过设计器在该正确 owner 下补 `Base_AppSystemList` 与 view；在比较同 scope 的正式查询行范围、字段权限及切换行为前，不切断旧通道。不能借用 0C70、7AB 蓝图场景或数据空间目录 `catalogApps`，也不能用添加模型/视图伪造服务端租户过滤或权限等价。PlatformApps、project-settings、动态导航也继续调用 `listApplications()`，范围分别核定。
 3. **验数据库物理表/视图预览的只读权限合同。** 该页面已有 `DatabaseTablePreviewRows@default` DataView、DataSet 命令输入和场景 guard；GetData 调用在 DataView 的物理资源 executor 中，属于统一链的数据层适配，不应仅因 owner 类名或 HTTP 方法而删除。当前 executor 以 `Filter: null` 读取用户指定物理对象，并在本地构造输出列可读、所有字段不可写的访问描述，尚无服务端行/字段权限回包证明。已补 DataView 场景失效、目录字段投影、空结果与分页自动化覆盖，并修复复制表新增前的权限预检；这些均不构成真实授权证明。下一步核正式数据库管理预览的物理资源身份、稳定主键、服务端行/字段权限投影和拒绝语义，再做 SPA 查询/读回；不改成普通模型绑定或宣称权限闭环。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。
@@ -2073,7 +2075,7 @@ flowchart TD
 - **真实SPA主窗口**：从正式数据库目录关闭原实例后进入sync_test，经标准表单、FieldSelect和RendererFilterExpression配置`test_user.age = GetTableField(testTB1.id)`。第一次新增草稿取消，零写入；重新填写并显式保存，CRUD仅1条Base_TblRln Added，Changed/Deleted为0。关闭工作区、打开PX并看到独立11表、关闭后回到sync_test，正式重开读回相同关系及完整表达式。已有关系改名后取消恢复原值；再次仅改名保存的Changed只含rowid、rlname与平台权限键，表达式/端点/级联保持。窗口138请求=131正式GetData+2CRUD+5静态资源，全部HTTP200，131读回Code200，无Document/失败/截断。主控独立证据审计退出0。
 - **保留测试数据**：关系ID=`34A3F87EA002AF6EB93B3E5C0A173EEA`，最终名称=`B2Relation_20261025_mvn5o60s_verified`；数据库sync_test=`4F69FFD7A0B94BD6928A139B1B4358C6`；主表testTB1=`A4AAF1C36F3B4B8B8ED12B25A126C668`，从表test_user=`313440ED9A37613ED0F729340652D7E7`，IsCascadeDeletion为数值0。本批不删除。最终标签窗口再从目录关闭重开：38正式查询全部HTTP/Code200，3次关系回读均与最终记录一致，0写入/Document/失败/截断；列表显示“关系名称”。截图与请求载荷仅保留去敏字段，权限键值/鉴权头未落证据。
 - **真实验收限制**：未向服务注入unknown或强制teardown；这些路径与权限反例由同一正式DataView夹具链验证。一处短locator等待先超时、随后正式列表出现；一次值函数保存后立即应用表达式仍保留候选，待稳定后显式再次应用成功；均如实保留，未用整页刷新完成流程。新候选只含已映射DataType，同库peer选项仍限当前已加载分页，不承诺全目录搜索。主窗口截图对应标签修正前快照，最终标签窗口另存，不混为同一快照。
-- **归档与暂存范围**：证据在[`evidence/metadata-integration-20261025/b2-database-directory-relations`](evidence/metadata-integration-20261025/b2-database-directory-relations/b2-root-delivery-review.md)，98项原始/摘要文件及manifest（含36项产品/测试/工具快照），约2.3MB；保留有效RED和最终GREEN，未把夹具错误算产品反例。仅暂存本批数据库目录/关系源码、标准RendererTable修复、对应测试、导航及路径规则、正式ClassModel产物、7份旧记录superseded标记、唯一台账与该证据目录。提交由本记录所在Git提交追溯，本批不推送。
+- **归档与暂存范围**：证据在历史证据「evidence/metadata-integration-20261025/b2-database-directory-relations」— 路径 `evidence/metadata-integration-20261025/b2-database-directory-relations/b2-root-delivery-review.md`（当前仓库未保留），98项原始/摘要文件及manifest（含36项产品/测试/工具快照），约2.3MB；保留有效RED和最终GREEN，未把夹具错误算产品反例。仅暂存本批数据库目录/关系源码、标准RendererTable修复、对应测试、导航及路径规则、正式ClassModel产物、7份旧记录superseded标记、唯一台账与该证据目录。提交由本记录所在Git提交追溯，本批不推送。
 - **下一断点**：按已归档`b2-remaining-usecase-review.md`先核已有数据库登记与普通新增的业务差别、真实部署注册回执、分页未命中不能推断NOT_APPLIED及批量部分成功重试，再交同一低价写者补有效反例。复制/删除/字段设计的物理DDL与级联、目录CRUD/连接测试、旧TableAndView导航身份及完整整页对照仍开放；未向这些范围扩写服务。本批未修改/运行/编译/部署Java，未执行物理DDL或资源删除。旧未知页保留，进程31708本次核验仍存活；B1删除完整性、A整页与跨实例unknown等原缺口不因本组通过而核销。
 
 ## 2026-10-25 B2 批量注册可靠性实施组
@@ -3021,7 +3023,7 @@ flowchart TD
 
 - **源码审计与删减范围：**低价模型先按仓内调用点检索，主控复核确认 `ProjectWorkspace` 的蓝图新增/删除/移动/保存、`saveAll` 及旧 `savePageFile`/批量文件写入包装没有被生产调用；当前 DevSystem 蓝图修改由 `BlueprintWorkspaceDataView` 负责，页面工具文件由 `PageToolFiles` DataView 提交。删除旧 gateway 写方法和 `ProjectWorkspace` 写逻辑/guard 暴露，防止未来把未治理 owner 当成第二数据通道。保留 `savePageFileChange`，因为它只由 `ProjectToolResource` executor 在 `DataSet.saveChanges` 内部调用，属于资源存储适配；保留文件版本列表、创建、恢复现有能力，不新增版本删除。
 - **读取边界：**本批没有移除 `ProjectWorkspace.loadBlueprint`/`loadRoot`，也没有移除 `ProjectReferenceClient.loadProjectBlueprint` 的跨项目页面引用投影读取；它们仍能到 raw blueprint read。其真实 production consumer、DataSpace/PageRuntime 身份及 scope/权限投影需要独立核实，列为开放旁路；不能因为已删未调用写方法就称蓝图读取全域已统一。SPA 只读的应用目录画面不构成本批真实蓝图/权限烟测。
-- **TDD、派生产物与验证：**先运行并保存 RED 证据 [`project-workspace-blueprint-owner-red.txt`](evidence/project-workspace-blueprint-owner-red.txt) 和 [`project-workspace-page-file-owner-red.txt`](evidence/project-workspace-page-file-owner-red.txt)，随后删除目标入口并调整历史测试，使其断言不再暴露未治理写 API，同时保留 DataView 保存行为。正式 `generate:class-model-surface` 与 `generate:lowcode-contracts` 刷新派生产物；12 个受影响测试文件合计 444/444 通过。typecheck、目标 ESLint、完整 `verify:rules`、production build、`verify:docs` 与 `git diff --check` 通过。完整规则扫描的既存 AI model spec 提示为 2 warnings / 1 info；build 有现存 CodeMirror dynamic-import 警告。
+- **TDD、派生产物与验证：**先运行并保存 RED 证据 历史证据「project-workspace-blueprint-owner-red.txt」— 路径 `evidence/project-workspace-blueprint-owner-red.txt`（当前仓库未保留） 和 历史证据「project-workspace-page-file-owner-red.txt」— 路径 `evidence/project-workspace-page-file-owner-red.txt`（当前仓库未保留），随后删除目标入口并调整历史测试，使其断言不再暴露未治理写 API，同时保留 DataView 保存行为。正式 `generate:class-model-surface` 与 `generate:lowcode-contracts` 刷新派生产物；12 个受影响测试文件合计 444/444 通过。typecheck、目标 ESLint、完整 `verify:rules`、production build、`verify:docs` 与 `git diff --check` 通过。完整规则扫描的既存 AI model spec 提示为 2 warnings / 1 info；build 有现存 CodeMirror dynamic-import 警告。
 - **正式数据与下一步：**没有修改 Java，没有通过设计器写数据空间，没有对正式业务模型/记录执行读写；用户允许经数据空间设计补齐定义，待选定具体消费者并确认资源身份、scope、权限和 executor 合同后使用该设计链补齐，再迁移查询/写入并核对实际回执。代码、正式生成物、RED 证据和台账已提交并推送 `62a87e2a7`；整体 SPARK data 唯一通道整合保持 active。
 
 ### 2026-10-27 A2 启动导航业务行接入 SPARK DataView
@@ -3171,7 +3173,7 @@ flowchart TD
 ### 2026-10-28 移除未治理的页面版本删除 API
 
 - **实施裁定：**版本摘要 DataView 当前无正式删除授权，版本删除 UI 也不存在；为落实业务删除只能由 SPARK data DataView/DataSet 承接，移除无生产消费者的 raw `ProjectWorkspace.deleteRemotePageVersion`、`PageFileApi.deleteVersion` 与 page-file gateway `deleteVersion`。不新增或开启版本删除，不改版本列表、创建和恢复流程。成本是移除仓内 PageFileApi/ProjectWorkspace 兼容调用面；当前生产代码无调用者，仓外消费者无法由本仓检索证明。
-- **低价实施与 RED→GREEN：**先新增 `does not expose an ungoverned page-file version delete gateway` 负向用例；原实现失败，实际断言为预期 `false`、收到 `true`，原始输出见 [`page-version-delete-api-red.txt`](evidence/page-version-delete-api-red.txt)。随后移除三个删除入口、PageDesign guard 中的旧方法名和旧直删请求夹具。当前业务源码只剩负向测试中的字符串，不再含 `deleteRemotePageVersion` 或 gateway `deleteVersion`。
+- **低价实施与 RED→GREEN：**先新增 `does not expose an ungoverned page-file version delete gateway` 负向用例；原实现失败，实际断言为预期 `false`、收到 `true`，原始输出见 历史证据「page-version-delete-api-red.txt」— 路径 `evidence/page-version-delete-api-red.txt`（当前仓库未保留）。随后移除三个删除入口、PageDesign guard 中的旧方法名和旧直删请求夹具。当前业务源码只剩负向测试中的字符串，不再含 `deleteRemotePageVersion` 或 gateway `deleteVersion`。
 - **主控复核与验证：**正式生成器刷新 ClassModel：977 DTS、2008 symbols，`ProjectWorkspace`/`PageFileApi` 删除成员及对应两条 semantic gap 从派生产物移除；其它若干生成分片的 TypeScript 内建 Symbol 编号重排来自生成器重算，未手改。定向 Vitest 2 files / 57 tests passed；`pnpm run typecheck`、定向 ESLint、完整 `pnpm run verify:rules`、production `pnpm run build`、`git diff --check` 均退出 0。`verify:rules` 有既存 AI model spec 2 warnings / 1 info，扫描通过。
 - **SPA与数据边界：**本轮未触发真实页面删除、未查询或写入正式版本数据、未登录认证表单；版本删除仍保持不可用。无 Java 修改/启动/部署。运行态版本 DataView 只有在已有正式 cfg 工具页目标时才能烟测，目标缺失继续列为未验。整体 SPARK data 唯一通道整合仍 active。
 - **交付：**源码、正式 ClassModel 产物、反例证据及本台账已提交并推送：`4576eb5e6`（`codex/ai-data-entry`）。本轮提交后工作树干净、HEAD 与上游一致。
@@ -3187,7 +3189,7 @@ flowchart TD
 ### 2026-10-28 根应用目录与正式 DataView 同会话范围对照
 
 - **SPA 真实请求/响应：**在同一 NewApp 认证会话，读取根 `/t/NewApp/homepage/app-list` 与正式节点 `0C70F74793F9E858B71E0DBDEC784D57`。旧目录调用 `/api/DataOperation/GetData`，`Base_AppSystemList`、FormKey `7AB874097A1E8711A42FD845939A6E05`、`Filter:null`，请求无 `X-AppId` 和租户头，服务 `Code=200` 返回 61 行，UI 同时显示 61 卡片。正式 DataView 调用同一 endpoint，使用 FormKey `0C70...`、`X-AppId=D99A1DCE9894698799101EFD70F8FC76` 与 `tenant-id=NewApp`，`Base_AppSystemList`、`Filter:null`、页大小 20，`Code=200` 返回 1 行，UI 显示“元数据管理”单卡。
-- **权限响应边界：**两份响应的行对象均未包含 permission/access 类字段；这只描述响应行结构，不证明没有其他授权机制，也不证明 `DataView.fieldAccess` 已由服务端结果驱动。根路由和 D99 节点场景范围不同，1 行对 61 行已足以否定当前节点 DataView 与根目录旧请求的范围等价；旧请求 200/61 行也不构成权限正确性证据。脱敏摘要保存在 [`application-catalog-scope-live-20261028.json`](evidence/application-catalog-scope-live-20261028.json)，不保留 token 或应用行值。
+- **权限响应边界：**两份响应的行对象均未包含 permission/access 类字段；这只描述响应行结构，不证明没有其他授权机制，也不证明 `DataView.fieldAccess` 已由服务端结果驱动。根路由和 D99 节点场景范围不同，1 行对 61 行已足以否定当前节点 DataView 与根目录旧请求的范围等价；旧请求 200/61 行也不构成权限正确性证据。脱敏摘要保存在 历史证据「application-catalog-scope-live-20261028.json」— 路径 `evidence/application-catalog-scope-live-20261028.json`（当前仓库未保留），不保留 token 或应用行值。
 - **设计器补全裁定：**可以先通过正式 `Base_DataSet@catalog` DataView 创建 DataSpace，再用其正式 `rowid` 进入设计器补模型、字段和视图；但新增记录的 `sysid`、页数据文件 owner 与 `/app-list` 的 `homepage` 路由身份必须属于服务端认可的同一 scope。仅有路由常量 `homepage` 或静态 `dataSpaceId` 投影不证明这一点。当前没有允许 `homepage` 的目录选项/正式 owner 证据；不能以 D99 代替，也不执行猜测性的 DataSpace 创建。
 - **后续解锁条件：**确认平台目录 DataSet owner、`homepage` 是否可用作服务端 X-AppId/设计文件 owner、根目录查询的租户边界及同 scope DataView 的行/字段授权回包。满足后，才在正确 owner 经数据空间设计增加 `Base_AppSystemList` DataView，完成 61 行及字段权限对照，并从页面删除 `listApplications()` fallback。此次只导航和读取，无写操作、无 Java 修改。
 
@@ -3205,7 +3207,7 @@ flowchart TD
 - **正式配置变更：**在数据空间设计器选中 `Base_DataSet`，新增并保存命名视图 `navHostDataSpaceOptions`。配置为完整集合读取、上限 5000，输出字段仅 `Type`、`sysid`、`rowid`、`Name`。设计器显示“视图配置已保存并回读确认”，保存/取消按钮禁用，且重新显示四个已保存命名视图（`default`、`catalog`、`designTarget`、`navHostDataSpaceOptions`）。此为一项真实 pagedata/DataView 定义变更，走设计器原有 SPARK data 保存链；未直调接口、未写业务数据、未改 Java。
 - **正式预览验证：**之后通过同一 DataView 的“查询预览”发起正式查询，SPA 一直显示“正在查询…”，结果区仍为“尚未取得有效查询结果 / 暂无数据”；关闭预览后，`Base_DataModel@default` 详情面板也显示“正在读取当前模型字段…”。当前浏览器控制台无 error/warn 日志。故本次只确认设计配置保存与回读，不确认 `navHostDataSpaceOptions` 的实际数据行、服务端完整集合、查询回执或字段授权。没有基于挂起预览继续新增 `Base_DataModel` / `Base_DataModel_Field` 视图，也没有建立级联。
 - **与项目切换的关系：**这一数据空间设计身份可承载元数据平台目录模型的正式视图定义；要供 DevSystem 作为选项 DataView 使用，仍需实现组件绑定与跨 DataSet 查询消费合同，并经 DataView 正式查询验证行/字段权限、候选范围及实例释放。不能把已保存 view 定义描述成已运行接入。DevSystem 的 `Base_Navigation_DataRelation` 关系草稿/保存入口、权限合同和项目切换真实烟测仍未完成。根 `/app-list` 的平台级 owner/scope 缺口仍独立存在；90A8 不能替代其正式 owner。
-- **继续条件与证据：**先恢复/确认元数据设计 DataView 查询可完成并取得正式回执，再按已核实的字段定义补 `Base_DataModel@navHostDataModelOptions` 和 `Base_DataModel_Field@navHostDataModelFieldOptions`，明确查询过滤/级联后保存并回读；随后接入 DevSystem 标准视图绑定组件。脱敏状态记录见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。本轮工作树代码 HEAD 为 `5ea0e4a94`，没有代码文件改动。
+- **继续条件与证据：**先恢复/确认元数据设计 DataView 查询可完成并取得正式回执，再按已核实的字段定义补 `Base_DataModel@navHostDataModelOptions` 和 `Base_DataModel_Field@navHostDataModelFieldOptions`，明确查询过滤/级联后保存并回读；随后接入 DevSystem 标准视图绑定组件。脱敏状态记录见 历史证据「devsystem-nav-host-dataspace-live-20261028.md」— 路径 `evidence/devsystem-nav-host-dataspace-live-20261028.md`（当前仓库未保留）。本轮工作树代码 HEAD 为 `5ea0e4a94`，没有代码文件改动。
 
 ### 2026-10-28 DevSystem 候选元数据视图正式查询复核
 
@@ -3213,7 +3215,7 @@ flowchart TD
 - **已保存候选视图的分页查询：**`Base_DataSet@navHostDataSpaceOptions` 配置仍为完整集合读取、上限 5000、输出 `Type/sysid/rowid/Name`。带完整集合选项的预览请求显示 `Request failed with status code 502`；只在预览参数里关闭“读取过滤条件下的完整集合”（不保存配置）后，正式 DataView 返回 `行数 20、总数 1335、第 1 页 / 20 条、状态 Loaded`，结果 JSON 展示四个投影字段。由此证实该命名视图可分页读取元数据 DataSet 行；完整集合消费在当前服务上返回 502，不能供要求全量校验的项目选择器直接使用。正式配置未改为分页模式，避免把不完整候选伪装成完整清单。
 - **应用目录模型反例：**同一正式空间 `Base_AppSystemList@catalogApps` 查询返回 `行数 1、总数 1、状态 Loaded`；唯一结果为企业简称 `NewApp`、系统中文名“元数据管理”、应用代码 `DataSchemaManage`。该正式应用级 DataView 没有全局项目范围，不能用作 DevSystem 项目候选源。
 - **当前判断：**使用数据空间设计补足已识别元数据 owner 的模型视图是可行且已获得正式分页查询证据；但当前 90A8 DataSet 的 `Base_AppSystemList` 数据权限范围只有本应用，`Base_DataSet` 完整集合又返回 502。因此尚无一个已验证可完整读取的、服务端认可的全局项目候选 DataView。不得把分页 20/1335 的当前元数据行或单行 `catalogApps` 冒充项目清单；继续查找平台根目录的正式 DataSet owner/scope，再决定是否能在正确空间补定义。
-- **证据与状态：**补充查询回执已写入 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。全程只读查询，无业务行新增/修改、无 Java 修改。DevSystem UI/DataSet 保存入口与真实项目切换烟测尚未完成。
+- **证据与状态：**补充查询回执已写入 历史证据「devsystem-nav-host-dataspace-live-20261028.md」— 路径 `evidence/devsystem-nav-host-dataspace-live-20261028.md`（当前仓库未保留）。全程只读查询，无业务行新增/修改、无 Java 修改。DevSystem UI/DataSet 保存入口与真实项目切换烟测尚未完成。
 
 ### 2026-10-28 根应用目录 owner 与当前源码绕行审计（低价模型只读，主控复核）
 
@@ -3226,20 +3228,20 @@ flowchart TD
 - **只读 SPA 证据：**在 90A8 的正式 `Base_DataSet@navHostDataSpaceOptions` 预览筛选 `sysid = homepage`，SPARK DataView 返回 `行数 0、总数 0、状态 Loaded`。当前正式元数据目录没有已登记给平台根路由 `homepage` 的 DataSet。筛选只存在于预览调用，没有保存到 DataView。
 - **较早的建空间权限观察：**当时目录中 `新增`、`编辑`、`删除`均为 disabled；后续最新现场状态已纠正，见下节。该旧观察不能继续用作当前按钮状态。
 - **产品影响：**root `/app-list` 仍是一个脱离 SPARK DataSet 的 direct GetData 消费者；它的实际 61 项显示是比较基线，不足以证明可用任何现成项目 DataView 等价替换。正式迁移须先解决受服务端认可的 root owner 与创建/维护权限，再用其 DataView 对照真实行范围和字段权限，之后删除 Vue `listApplications()` 旧路径。当前源码基线未变，未改业务代码和 Java。
-- **当前交付：**正式预览与根 owner 缺项见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)；当前新增表单选项见 [`data-space-create-owner-scope-20261028.md`](evidence/data-space-create-owner-scope-20261028.md)。唯一主线仍 active，转而继续盘点其它业务层 owner 绕行及可先迁移的闭环。
+- **当前交付：**正式预览与根 owner 缺项见 历史证据「devsystem-nav-host-dataspace-live-20261028.md」— 路径 `evidence/devsystem-nav-host-dataspace-live-20261028.md`（当前仓库未保留）；当前新增表单选项见 历史证据「data-space-create-owner-scope-20261028.md」— 路径 `evidence/data-space-create-owner-scope-20261028.md`（当前仓库未保留）。唯一主线仍 active，转而继续盘点其它业务层 owner 绕行及可先迁移的闭环。
 
 ### 2026-10-28 数据空间新增入口与正式 owner 选项复核
 
 - **当前 SPA 身份：**认证会话中从 D99 `数据空间管理`正式导航节点打开目录，URL 带 `__sparkNavigationId=90A82E287930A234FEC3E687C94A93EA`。目录 DataView 显示 `Total 1335`，当前页列出 10 条；`新增`按钮可用，`编辑`与`删除`因未选行而禁用。由此纠正上方较早的“新增禁用”现场状态。
 - **新增表单范围：**打开“新增数据空间”只查看、不提交；“所属应用”下拉仅返回一个选项“元数据管理”。未选择、未填名称或描述，未点“确定”；随后取消对话框。没有新增 DataSet 或修改 pagedata。
 - **裁定：**数据空间设计可补正式已识别 owner 的定义，但当前新增表单只能创建归属 D99 元数据管理应用的空间，不能据此生成 root `/app-list` 所需的服务端 owner/scope。`homepage` 预览仍为 0 行，root 与 D99 应用目录范围仍不等价；禁止将新建 D99 空间改名或伪映射为平台根 owner。
-- **下一步：**继续从服务端正式目录/导航合同确认 root 应用身份及可维护的 owner scope；取得后才在正确 owner 下使用设计器补 `Base_AppSystemList` DataView。若 owner 只能由外部平台配置提供，则先记录真实 scope 与维护路径，不创建猜测空间。证据见 [`data-space-create-owner-scope-20261028.md`](evidence/data-space-create-owner-scope-20261028.md)。
+- **下一步：**继续从服务端正式目录/导航合同确认 root 应用身份及可维护的 owner scope；取得后才在正确 owner 下使用设计器补 `Base_AppSystemList` DataView。若 owner 只能由外部平台配置提供，则先记录真实 scope 与维护路径，不创建猜测空间。证据见 历史证据「data-space-create-owner-scope-20261028.md」— 路径 `evidence/data-space-create-owner-scope-20261028.md`（当前仓库未保留）。
 - **副作用边界：**本次只导航、读取目录并打开/取消新增表单；没有提交真实写接口、改 Java 或改变数据空间配置。SPA 当前仍停在 D99 数据空间目录页。
 
 ### 2026-10-28 允许通过数据空间设计补齐正式 DataSet 定义
 
 - **用户最新方向：**可以通过数据空间设计补齐数据空间。后续将把游离于 DataSet/DataView 之外、经核实确有业务消费需要的资源，按真实 owner 定义为 DataTable、字段、DataView、查询参数及 executor；页面再绑定标准组件，通过 DataView/DataSet 读写。不能只因存在 owner 类就删掉它：若它只在 DataView executor 内作存储适配，则属于 SPARK data 内部实现；要清理的是领域/页面第二套查询、暂存、取消、权限推导及提交逻辑。
-- **最新正式数据核验：**认证 SPA 中 `7AB874097A1E8711A42FD845939A6E05` 是“功能管理”空间；其 `Base_Navigation_DataRelation` 模型有 26 列、`default` 视图，正式查询返回 9 行、总数 9、状态 `Loaded`。精确宿主 `prowid=appworks-tool-dev` 尚无关系行。现有一行的 DataSpace ID 前缀 `03D8E17A` 在当前 D99 目录筛选无匹配，但未证明其它 owner 范围内不存在。细节见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。
+- **最新正式数据核验：**认证 SPA 中 `7AB874097A1E8711A42FD845939A6E05` 是“功能管理”空间；其 `Base_Navigation_DataRelation` 模型有 26 列、`default` 视图，正式查询返回 9 行、总数 9、状态 `Loaded`。精确宿主 `prowid=appworks-tool-dev` 尚无关系行。现有一行的 DataSpace ID 前缀 `03D8E17A` 在当前 D99 目录筛选无匹配，但未证明其它 owner 范围内不存在。细节见 历史证据「devsystem-nav-host-dataspace-live-20261028.md」— 路径 `evidence/devsystem-nav-host-dataspace-live-20261028.md`（当前仓库未保留）。
 - **补全边界：**该查询证明可通过设计器扩展已识别 owner 下的 DataView 定义；不证明 D99 元数据范围等于平台根目录范围。D99 的 DataSpace 新增表单只提供“元数据管理”应用，90A8 `Base_AppSystemList@catalogApps` 正式查询只有 1 行，根 `/app-list` 历史请求返回 61 行，`homepage` 在 90A8 的 `Base_DataSet` 预览为 0 行。不得把新建 D99 空间或 7AB 的视图冒充 `homepage` owner。
 - **下一步执行顺序：**继续盘点每条现存游离 owner 的业务语义、正式资源身份和下游消费者；逐项映射至正式 DataSpace owner、DataTable/columns/DataView 和权限/回执合同。owner 已确认且 DataView 能表达真实范围时，直接通过设计器补定义并在同一 SPA 读回；再把标准组件绑定和页面消费者切到该 DataView，删除被替代逻辑并做真实查询/编辑/取消/保存烟测。owner/scope/权限/结果未知时保留现入口并登记缺口，不造身份，不改 Java、不绕开 SPARK data。
 - **本轮变更：**更新本台账与 SPA 证据文件；没有产品代码、正式 DataSpace、业务数据或 Java 改动。SPA 保持在 D99 数据空间目录。整体唯一 SPARK data 通道目标仍 active。
@@ -3255,7 +3257,7 @@ flowchart TD
 ### 2026-10-28 Workflow 缺目录错误语义修复
 
 - **根因与范围：**正式 file DataView executor 的 `AgentWorkflowFileResource.readDirectory()` 曾把 `LowcodeApiError` code 1003 且消息为“文件夹路径不存在”映射为 `{rows: [], total: 0}`，造成资源不存在与真实空目录语义混淆。删除此转换；异常路径仍先 `assertCurrent()`，保持过期应用/执行域隔离，再把原错误交回 DataView。成功返回 `[]` 仍是合法的 `Loaded, 0/0`。没有创建文件目录或 Workflow 数据，没有改设计配置和 Java。
-- **TDD 与自动化复核：**先修改三种 1003 形式的反例并加真实空数组成功用例。原代码下定向测试出现 3 个预期失败、13 项通过，原始输出见 [`workflow-missing-directory-red.txt`](evidence/workflow-missing-directory-red.txt)。修复后 Agent Workflow 资源、服务和 UI 三组测试 57/57 通过；`pnpm run typecheck`、改动源/测试 ESLint 与 `pnpm run build` 均退出 0。无需刷新 ClassModel。
+- **TDD 与自动化复核：**先修改三种 1003 形式的反例并加真实空数组成功用例。原代码下定向测试出现 3 个预期失败、13 项通过，原始输出见 历史证据「workflow-missing-directory-red.txt」— 路径 `evidence/workflow-missing-directory-red.txt`（当前仓库未保留）。修复后 Agent Workflow 资源、服务和 UI 三组测试 57/57 通过；`pnpm run typecheck`、改动源/测试 ESLint 与 `pnpm run build` 均退出 0。无需刷新 ClassModel。
 - **真实 SPA 烟测：**当前 Vite listener 进程来自本 worktree。认证 NewApp/D99 SPA 重新打开正式数据空间 `01000B6C7F84B4F1A85C91C4FC28E875`，选择 `AgentWorkflowFiles@directory` 后通过设计器预览触发只读 DataView 查询，结果为 `行数 0、总数 0、状态 Loaded`、JSON 数组 0 项、表格 `No Data`；当前控制台无 warn/error。配置/保存状态未改。该结果是在修复后的当前代码上取得，故本次服务成功返回空列表；历史 1003 通过自动化验证错误传播，当前 SPA 请求未复现 1003。非空文件和 AI 下游仍无真实 Workflow ID 可验。
 - **工程门禁：**`pnpm run verify:rules` 未通过，停止在既有无关项 `src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts:68` 的禁止类型断言；不归因于本切片。production build 有依赖注释、CodeMirror 动态导入和大 chunk 等既有 warning。定向测试、类型检查、改动文件 lint 与 build 结果按上文逐项记录；总体 SPARK data 唯一通道目标继续 active。
 - **后续门禁修复：**针对上一条门禁错误，低价模型把关系字段从 `Object.fromEntries(...) as Partial<DataRow>` 改为有类型的逐字段构造，保留空字段省略、字段权限检查和 DataView.addRow；将唯一 `tests/dev-system` 文件并入既有 `tests/app/dev/nav-host-project-picker/`，满足根测试目录上限。关系命令测试 12/12、`verify:ai-codegen` 检查 1410 文件、typecheck、目标 ESLint、完整 `verify:rules`（ClassModel 4 files / 49 tests、directory limits、page-thin 等）与 production build 全通过。AI model spec 保留 2 warnings / 1 info；构建保留依赖注释、CodeMirror 动态导入和大 chunk warnings。
@@ -3263,7 +3265,7 @@ flowchart TD
 
 ### 2026-10-28 数据空间设计补齐范围复核
 
-- **根应用目录（按当次正式目录和 SPA 证据修订）：**“功能管理”正式 DataSpace `7AB874097A1E8711A42FD845939A6E05` 已确认绑定 `Base_AppSystemList`，资源映射为 `QYVirtualPlat.Base_AppSystemList`，23 个字段、当前 0 个命名视图；`IsSys` 模型输出关闭。旧 `listApplications()` 同样使用 7AB `LOWCODE_APPLICATION_CATALOG_FORM_KEY`、该模型及 `Filter:null`，历史真实响应为 61 行。故 owner/model 可通过数据空间设计补齐专用 DataView，不应再记作 owner 未知；但 D99 当前正式 DataView 只读到 1 行，61 行旧请求与该 DataView 的服务端 scope/权限是否等价仍未证明。新建命名视图的本地草稿只读预览代码和自动化验收已完成；下一步须在 SPA 中执行正式只读查询并比较 61 行及所需字段 `rowid/AppName/AppDesc/EntId/EntShortName/IsSys`，不得先保存共享模型输出配置或替换页面消费者。现场记录见 [`app-catalog-7ab-owner-live-20261028.md`](evidence/app-catalog-7ab-owner-live-20261028.md)。
+- **根应用目录（按当次正式目录和 SPA 证据修订）：**“功能管理”正式 DataSpace `7AB874097A1E8711A42FD845939A6E05` 已确认绑定 `Base_AppSystemList`，资源映射为 `QYVirtualPlat.Base_AppSystemList`，23 个字段、当前 0 个命名视图；`IsSys` 模型输出关闭。旧 `listApplications()` 同样使用 7AB `LOWCODE_APPLICATION_CATALOG_FORM_KEY`、该模型及 `Filter:null`，历史真实响应为 61 行。故 owner/model 可通过数据空间设计补齐专用 DataView，不应再记作 owner 未知；但 D99 当前正式 DataView 只读到 1 行，61 行旧请求与该 DataView 的服务端 scope/权限是否等价仍未证明。新建命名视图的本地草稿只读预览代码和自动化验收已完成；下一步须在 SPA 中执行正式只读查询并比较 61 行及所需字段 `rowid/AppName/AppDesc/EntId/EntShortName/IsSys`，不得先保存共享模型输出配置或替换页面消费者。现场记录见 历史证据「app-catalog-7ab-owner-live-20261028.md」— 路径 `evidence/app-catalog-7ab-owner-live-20261028.md`（当前仓库未保留）。
 - **DevSystem 项目关系：**正式读取 owner `7AB...@Base_Navigation_DataRelation@default` 已确认，模型 26 列、查询 9 行；`prowid=appworks-tool-dev` 当前 0 行。可在此关系 owner 下通过设计器补专用关系视图，但字段可写授权、保存回执/读回及关系所引用候选 DataSpace 的正式范围仍未证实。候选 owner 必须来自真实关系引用及服务端认可的 DataSpace；不能把 `90A8` 的分页目录或 `7AB` 关系模型当成项目候选数据。
 - **实施与验证：**设计器负责补齐已识别正式 owner 下缺失的 DataTable/字段/DataView 定义，不能自行创造 owner、scope 或授权。本轮修复了新建命名 DataView 的本地草稿只读预览：仅接受一条身份匹配且字段可读的新建定义，沿 SPARK data 补载并核验 `Base_DataSet`、`Base_DataModel` 后，在临时 `ScenarioViewConfig` 克隆上预览；不会保存 pagedata，也不允许其他未决定义混入。自动化目标测试 49/49（领域 46、组件新增草稿 3），目标 ESLint、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 通过；规则检查的 2 个既有 AI model warnings 和构建依赖动态导入/大 chunk warnings 保留。正式 SPA 中预览按钮启用和真实查询仍未验收：第二次尝试因 owner/model 元数据尚未加载被正确禁用，随后浏览器切换到 JSON 数据管理页；未点击保存，未新增关系或业务行。真实 DataView 查询范围、字段权限、保存回执/重开读回仍须分别取得 SPA 证据，再迁移对应消费者。无 Java 改动。
 
@@ -3317,8 +3319,8 @@ flowchart TD
 ### 2026-10-28 AppList 正式 DataView 场景改为标准组件绑定
 
 - **实施范围：**`AppList.vue` 有正式 `route.meta.blueprintScenarioId` 时，现在将 `RendererList` 直接绑定完整 `${scenarioId}@Base_AppSystemList@default` key；该分支不再把 DataView 行投影到页面 `projects[]`。无场景身份的根 `/app-list` fallback 保持原路径，仍调用 `listApplications()`，因为 `homepage` 的正式 owner/scope/权限合同尚缺。新增标准 `FieldText.displayFallbackFields` 按同一 DataView 的逐字段读取权限显示 `AppDesc → AppName → rowid`；行作用域只有 DataView 身份一致才可供显式绑定字段继承。标准按钮按同一 DataView 行作用域消费切换、设置、删除；当前应用标签和不可读 `IsSys` 的动作按行显隐。
-- **权限复核修复：**初版将 AppName/AppDesc/IsSys 任一行字段不可读当作整表错误。复核后收窄结构预检至模型身份、主键和可读有效 rowid；展示字段按字段授权呈现，主页/应用类型及删除动作依各自 `IsSys` 读取权限隐藏。RED/GREEN 与修复报告见 [`app-list-binding-fix-report.md`](evidence/app-list-dataview-binding/app-list-binding-fix-report.md)。
-- **测试修复及运行绑定证明：**原 route 测试的假 PageRuntime 被真实 `RendererList` 的 `PAGE_RUNTIME` capability 正确拒绝；route 生命周期测试现 stub 列表并断言初次/切换后的完整 key，另增真实 `PageRuntime + 两个 DataSet + 两个 RendererList` 运行测试，证明 A/B 场景各只渲染所属 DataView 行。4 个受影响测试文件 19/19 通过。源码 RED、字段权限/行作用域反例及官方 ClassModel 生成日志/哈希归档于 [`app-list-dataview-binding`](evidence/app-list-dataview-binding)。
+- **权限复核修复：**初版将 AppName/AppDesc/IsSys 任一行字段不可读当作整表错误。复核后收窄结构预检至模型身份、主键和可读有效 rowid；展示字段按字段授权呈现，主页/应用类型及删除动作依各自 `IsSys` 读取权限隐藏。RED/GREEN 与修复报告见 历史证据「app-list-binding-fix-report.md」— 路径 `evidence/app-list-dataview-binding/app-list-binding-fix-report.md`（当前仓库未保留）。
+- **测试修复及运行绑定证明：**原 route 测试的假 PageRuntime 被真实 `RendererList` 的 `PAGE_RUNTIME` capability 正确拒绝；route 生命周期测试现 stub 列表并断言初次/切换后的完整 key，另增真实 `PageRuntime + 两个 DataSet + 两个 RendererList` 运行测试，证明 A/B 场景各只渲染所属 DataView 行。4 个受影响测试文件 19/19 通过。源码 RED、字段权限/行作用域反例及官方 ClassModel 生成日志/哈希归档于 历史证据「app-list-dataview-binding」— 路径 `evidence/app-list-dataview-binding`（当前仓库未保留）。
 - **正式生成及工程门禁：**ClassModel 按七个变更公开合同以官方 incremental `--source` 生成；DTS dependency closure 为 705，连续三次生成退出 0，pass 2→3 规范化全产物 SHA-256 差异为 0；`verify:class-model` 49/49。主控复跑 typecheck、目标 ESLint（`--max-warnings=0`）、production build、完整 `verify:rules` 均退出 0。规则扫描保留既有 AI model spec 2 warnings/1 info；构建保留已有 CodeMirror ineffective dynamic import/依赖 chunk 警告。目标 ESLint、测试、`git diff --check` 复跑均通过。
 - **SPA 验收与差距：**本轮没有当前登录会话，未调用真实 DataView 或写配置/业务数据；测试账号已由用户提供，不再次索取或盲目重试此前凭据错误。真实服务读回、字段权限 payload、SPA 路由与视觉验收待有效会话。`RendererList` 此页使用固定 4 列，尚未复现旧布局在不同视口的响应式列数；列布局及根 fallback 待后续处理。未改/启动/部署 Java。SPARK data 唯一数据交互目标继续 active，不能把本切片写成全局统一完成。
 
@@ -3412,7 +3414,7 @@ flowchart TD
 ### 2026-10-28 ProjectPlanning DataView 输入切片复核与当前会话续查
 
 - **实施候选复核：**低价模型复核 `runProjectPlanningAiSession()` 的真实 inline DevSystem 调用链：它把当前 `BlueprintWorkspaceDataView` 的授权树结果同步进同一个 `ProjectWorkspace`，再通过领域输入投影生成 AI payload；没有第二次远端查询。移除内存投影会失去 DataView 当前未证明提供的项目级 description fallback、projectInfo/root 附件引用优先级，以及导航行 `planningAttachmentRef`。候选当前不满足语义等价门槛，不改源码、不添加通过夹具包装旁路的测试。
-- **后续解锁合同：**先从正式 DataView 元数据、投影与授权回包证明 `planningAttachmentRef` 的可读字段归属，并明确项目级 description 与 `projectInfo.planningAttachmentRef` 的正式 SPARK data 来源；随后逐项验证 root-description 优先级、项目描述 fallback、附件优先级、节点输入投影和 scope 过滤，才可重构输入数据链。详细证据与路径见 [`planning-dataview-slice-current-report.md`](evidence/project-blueprint/planning-dataview-slice-current-report.md)。
+- **后续解锁合同：**先从正式 DataView 元数据、投影与授权回包证明 `planningAttachmentRef` 的可读字段归属，并明确项目级 description 与 `projectInfo.planningAttachmentRef` 的正式 SPARK data 来源；随后逐项验证 root-description 优先级、项目描述 fallback、附件优先级、节点输入投影和 scope 过滤，才可重构输入数据链。详细证据与路径见 历史证据「planning-dataview-slice-current-report.md」— 路径 `evidence/project-blueprint/planning-dataview-slice-current-report.md`（当前仓库未保留）。
 - **主控回归：**复跑 `pnpm exec vitest run tests/app/services/project-planning-blueprint-diff.test.ts tests/app/services/project-planning-ai-runner.test.ts tests/app/services/project-planning-agent-run-provider.test.ts --reporter=dot`，3 个文件、27/27 通过，确认本地项目策划输入/运行编排现有合同。测试只覆盖夹具，不证明线上 DataView 授权投影或真实 AI 执行。
 - **当前工具/浏览器证据：**刷新 CUA inventory 后仍可见 SPARK 应用列表标签 `http://127.0.0.1:5273/t/NewApp/homepage/app-list?__sparkNavigationId=appworks-tenant-app-list`；按已知标签 ID 读取页面再次返回 `browser.user is unavailable`。因此没有读取该标签 DOM、执行认证请求、正式 DataView 查询或业务写入。用户已提供账号及继续授权，不再要求重复提供；不自动填写登录表单。
 - **本轮交付边界：**基线 `HEAD=9715f26461ec6222e5bd226101553d3621e03620`，与 `origin/codex/ai-data-entry` 同步、初始工作树干净。仅新增本候选的只读证据报告及本台账记录；未改产品代码、测试、正式数据或 Java，未运行测试。整体 SPARK data 唯一通道目标继续 active；真实 SPA 烟测仍待可附着的认证会话。
@@ -3420,14 +3422,14 @@ flowchart TD
 ### 2026-10-28 Workflow Definition 编辑器绑定收敛
 
 - **业务与数据链调整：**`WorkflowDesigns.vue` 现有 `definition.json` 编辑界面改用标准 `RendererForm` / `FieldJson`，绑定正式 `AgentWorkflowFiles@definition` DataView 的 `currentRow.content`，完整 DataView key 由 `buildDataViewKey` 构造。打开时不再把正式值复制到页面文本草稿；字段编辑经 `FieldJson` 写入同一 DataView editing overlay，显式保存仍沿现有 DataSet `saveChanges`、正式回执与未知结果重试链处理。现有保存只覆盖目标文件 content；关闭确认仍丢弃 DataView overlay。缺少 definition 文件时继续提供本地预览且拒绝保存，不新增记录、不扩大文件 owner 能力。未改后端 Java、权限守卫、owner 存储适配或其他页面数据入口。
-- **合同与测试：**依据组件 ClassModel 正式 `FieldJson` 属性合同（`dataViewKey/dataMember/dataField/readonly`）及页面宿主真实 owner 绑定，不改公共 ClassModel 声明，无需刷新生成物。TDD RED 原始输出保存在 [`workflow-definition-dataview-edit-red-20261028.txt`](evidence/workflow-definition-dataview-edit-red-20261028.txt)。实施者测试 `workflow-designs.test.ts` 27/27 通过；主控相关聚焦回归 `workflow-designs`、workflow file resource、`field-json` 三文件 84/84 通过，检查绑定 key、DataView 同源值、无初始脏状态、编辑 overlay、未知回执锁定/重试不重传、取消恢复及缺失文件不写入。
+- **合同与测试：**依据组件 ClassModel 正式 `FieldJson` 属性合同（`dataViewKey/dataMember/dataField/readonly`）及页面宿主真实 owner 绑定，不改公共 ClassModel 声明，无需刷新生成物。TDD RED 原始输出保存在 历史证据「workflow-definition-dataview-edit-red-20261028.txt」— 路径 `evidence/workflow-definition-dataview-edit-red-20261028.txt`（当前仓库未保留）。实施者测试 `workflow-designs.test.ts` 27/27 通过；主控相关聚焦回归 `workflow-designs`、workflow file resource、`field-json` 三文件 84/84 通过，检查绑定 key、DataView 同源值、无初始脏状态、编辑 overlay、未知回执锁定/重试不重传、取消恢复及缺失文件不写入。
 - **工程复核与门禁：**主控复核并修正 `RendererForm` 非正式 `readonly` 属性、改用正式 `buildDataViewKey`；`pnpm run typecheck` 通过，`pnpm exec eslint src/views/app/WorkflowDesigns.vue tests/ui/views/workflow-designs.test.ts --max-warnings=0` 通过，`pnpm run verify:rules` 通过（AI model spec 保留 2 条已有警告、1 条提示），`pnpm run build` 通过（Vite 输出既有 dynamic import 分块警告）。`git diff --check` 通过。
 - **旁路回归缺陷：**包含在最初扩展聚焦回归中的未改文件 `tests/ui/field/choice/field-independent-binding.test.ts` 有 1 条失败（预期 `A`、实际 `DECOY`）；同一测试单独运行仍失败，改动不触及该文件，登记为独立绑定缺陷继续查，不把它描述为通过或归因于本切片。
 - **真实 SPA 验收与交付：**当前 IAB 控制接口仍返回 `browser.user is unavailable`，本轮没有读取正式 DataView 页面、执行真实保存或关闭重开读回；用户已提供测试账号并授权，不再次索取，也不自动填认证表单。故本切片自动化通过，真实 SPA 验收未完成。工作仅限页面、测试及本记录，没有正式业务数据写入或 Java 改动；提交推送待本轮确认完成后执行。
 
 ### 2026-10-28 标准字段 DataView 行作用域身份修复
 
-- **基线与 RED：**从推送基线 `3e1a1cd05` 开始，原先已登记的 `field-independent-binding.test.ts` 独立失败再次复现：标准字段将父级同空间注入的 decoy `DATA_ROW` 显示为 `DECOY`，而显式 `dataViewKey=A@Input@default` 应读取 A 的正式 currentRow。初步成员判断又暴露 HostScope/FieldScope 镜像丢失真实 DataView 行身份；修复前标准 children renderer 测试显示 currentRow 而非所选 scoped row。RED 原始输出保存在 [`field-independent-binding-red-20261028.txt`](evidence/field-independent-binding-red-20261028.txt)。
+- **基线与 RED：**从推送基线 `3e1a1cd05` 开始，原先已登记的 `field-independent-binding.test.ts` 独立失败再次复现：标准字段将父级同空间注入的 decoy `DATA_ROW` 显示为 `DECOY`，而显式 `dataViewKey=A@Input@default` 应读取 A 的正式 currentRow。初步成员判断又暴露 HostScope/FieldScope 镜像丢失真实 DataView 行身份；修复前标准 children renderer 测试显示 currentRow 而非所选 scoped row。RED 原始输出保存在 历史证据「field-independent-binding-red-20261028.txt」— 路径 `evidence/field-independent-binding-red-20261028.txt`（当前仓库未保留）。
 - **实施及身份合同：**低价模型修复 `row-mirror-sync`、`RendererHostScope`、`RendererFieldScope` 和字段绑定行解析。scope 仅在解开镜像后的对象仍是当前 `DATA_SOURCE.rows` 内的同一对象时保留来源身份；跨视图或非成员 decoy 使用绑定 DataView 的 currentRow。`syncReactiveRow` 省略参数继续兼容既有 marker 链，显式 `false` 现在会清除 marker；FieldScope 反向同步亦检查 model 身份。标准组件属性/公开合同未改，无新增请求、数据权限逻辑或页面数据副本；字段仍从 DataView 读写。没有改 Java 或写正式数据。
 - **主控验收：**`field-independent-binding.test.ts`、纯 `field-row-scope.test.ts`、`row-mirror-sync.test.ts`、标准 `renderer-form-detail.test.ts` 共 4 文件/47 测试通过；主控复跑 `pnpm run typecheck`、8 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules` 与 `git diff --check` 均通过。正式规则检查的 AI model spec 保留已有 2 条警告、1 条提示；build 保留既有动态导入分块警告。
 - **独立既有失败：**主控单独复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 1 项失败、19 项通过。它调用 `DataView.addRow({id:'new'})` 直接提供正式主键，触发 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`；该用例及生产路径没有在本切片修改，仍单独登记为测试夹具与 DataView 身份 API 合同未对齐，不计入 47 项通过结果。
@@ -3435,13 +3437,13 @@ flowchart TD
 
 ### 2026-10-28 字段新增行测试夹具身份合同修正
 
-- **原因及修正：**主控单文件复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 有 1/20 失败。用例为检查正式派生列在“新增行”上的只读行为，fixture 却通过 `DataView.addRow({id:'new'})` 将主键当普通业务字段提交；DataView 按合同拒绝 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`。确认该查询上下文已有 `primaryKeyField=id`、`allowAdd=true` 与正式 `prepareNewRowWithIdentity` 合同后，测试改为 `addRowWithIdentity({field:'id', value:'new'}, {})`，保留新增行普通字段可编辑、派生字段只读的原意。只有测试文件更改，没有生产代码修改；RED 输出见 [`field-basic-value-controls-red-20261028.txt`](evidence/field-basic-value-controls-red-20261028.txt)。
+- **原因及修正：**主控单文件复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 有 1/20 失败。用例为检查正式派生列在“新增行”上的只读行为，fixture 却通过 `DataView.addRow({id:'new'})` 将主键当普通业务字段提交；DataView 按合同拒绝 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`。确认该查询上下文已有 `primaryKeyField=id`、`allowAdd=true` 与正式 `prepareNewRowWithIdentity` 合同后，测试改为 `addRowWithIdentity({field:'id', value:'new'}, {})`，保留新增行普通字段可编辑、派生字段只读的原意。只有测试文件更改，没有生产代码修改；RED 输出见 历史证据「field-basic-value-controls-red-20261028.txt」— 路径 `evidence/field-basic-value-controls-red-20261028.txt`（当前仓库未保留）。
 - **验证：**主控运行 `pnpm exec vitest run tests/ui/field packages/spark-data/src/tests/data-view/data-view-editing-checkpoint.test.ts --reporter=dot`，23 个文件、278 项通过；目标 ESLint 和 `git diff --check` 通过。此结果覆盖先前的标准字段绑定及行作用域回归；不代表真实 SPA 后端回包验收。
 - **边界：**本条是正式 DataView identity API 的测试适配，没有新增数据通道、正式数据写入或 Java 变更。SPA 登录对话框仍受 Computer Use `SKILL.md` 禁止自动化认证约束，不再次要求用户提供已给账号。总体目标保持 active，下一优先级仍是获得可附着的正式 SPA 认证会话并继续 root owner/scope 取证。
 
 ### 2026-10-28 DevSystem 版本快照创建改走 SPARK data 命令视图
 
-- **实施：**`DevFileEditor` 创建版本快照不再直接调用 `host.createRemotePageVersion`。在工作文件先保存且确认未在保存期间继续编辑后，调用 `useDevState.createPageToolSnapshot`，使用已有 `PageToolFilesDataView` 命令行和 `DataSet.saveChanges`；命令 owner 保持原有未知回执核验、正式回执检查及原文/目录回读。快照路径固定为版本目录读取合同要求的 `${projectId}/${pageId}`，异步期间复核项目、页面、文件、导航节点身份。RED 原始输出为 [`dev-file-version-create-dataview-red-20261028.txt`](evidence/dev-file-version-create-dataview-red-20261028.txt)。
+- **实施：**`DevFileEditor` 创建版本快照不再直接调用 `host.createRemotePageVersion`。在工作文件先保存且确认未在保存期间继续编辑后，调用 `useDevState.createPageToolSnapshot`，使用已有 `PageToolFilesDataView` 命令行和 `DataSet.saveChanges`；命令 owner 保持原有未知回执核验、正式回执检查及原文/目录回读。快照路径固定为版本目录读取合同要求的 `${projectId}/${pageId}`，异步期间复核项目、页面、文件、导航节点身份。RED 原始输出为 历史证据「dev-file-version-create-dataview-red-20261028.txt」— 路径 `evidence/dev-file-version-create-dataview-red-20261028.txt`（当前仓库未保留）。
 - **主控验证：**`pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts tests/app/dev/page-tool-files-command.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot` 3 文件、80/80 通过；`pnpm run typecheck`、目标 ESLint、`git diff --check` 退出码均为 0。测试输出包含现有 Vue Test Utils 未注册 Element Plus 组件警告，不影响断言和退出码。没有更改 Java、正式 SPARK 数据或页面工作文件。
 - **未闭环项：**版本恢复仍由 `DevFileEditor` 直接调用 `host.restoreRemotePageVersion`，尚无经 DataView/DataSet 提交并消费恢复回执的正式命令合同；继续列为本项目数据层旁路，不宣称唯一通道已完成。真实 SPA 登录态与版本创建后的关闭/重开读回也未实测。用户已提供并授权测试账号，后续不得要求重复提供。Computer Use 的认证对话框限制下本轮未自动填写认证表单，也没有真实 SPA 请求或写入证据。
 - **总体状态：**SPARK data 唯一数据通道整合继续 active；下一步优先梳理恢复命令的正式 DataView/DataSet 合同，再实施并复核，之后完成可附着认证 SPA 的真实烟测。
@@ -3464,8 +3466,8 @@ flowchart TD
 
 ### 2026-10-28 AgentWorkflowFiles directory 最新服务查询失败
 
-- **真实 SPA DataView 烟测：**沿用 D99 已认证会话，在正式 `01000B6C7F84B4F1A85C91C4FC28E875@AgentWorkflowFiles@directory` 数据视图预览中执行只读查询。界面显示 `[1003] 文件夹路径不存在`、无有效查询结果及暂无结果数据；这是可见 UI 回执，不是保存下来的原始 HTTP payload。结构化观察见 [`agent-workflow-directory-query-ui-error-20261028.json`](evidence/agent-workflow-directory-query-ui-error-20261028.json)。本次没有增加过滤条件，没有选择/猜造 workflowId，没有编辑或保存。
-- **状态更新：**本次失败与此前 SPA 上同视图 `Loaded, 0/0` 的空集合结果不同，二者都是各自时点的真实回执；当前以本次 `[1003]` 为最新状态。不能把缺失目录折算为空集，也不能新建/上传测试文件掩盖 owner 目录未建立的问题。原始历史 0/0 证据 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json) 保留为历史状态，不再代表当前服务结果。
+- **真实 SPA DataView 烟测：**沿用 D99 已认证会话，在正式 `01000B6C7F84B4F1A85C91C4FC28E875@AgentWorkflowFiles@directory` 数据视图预览中执行只读查询。界面显示 `[1003] 文件夹路径不存在`、无有效查询结果及暂无结果数据；这是可见 UI 回执，不是保存下来的原始 HTTP payload。结构化观察见 历史证据「agent-workflow-directory-query-ui-error-20261028.json」— 路径 `evidence/agent-workflow-directory-query-ui-error-20261028.json`（当前仓库未保留）。本次没有增加过滤条件，没有选择/猜造 workflowId，没有编辑或保存。
+- **状态更新：**本次失败与此前 SPA 上同视图 `Loaded, 0/0` 的空集合结果不同，二者都是各自时点的真实回执；当前以本次 `[1003]` 为最新状态。不能把缺失目录折算为空集，也不能新建/上传测试文件掩盖 owner 目录未建立的问题。原始历史 0/0 证据 历史证据「data-space-workflow-directory-live-20261028.json」— 路径 `evidence/data-space-workflow-directory-live-20261028.json`（当前仓库未保留） 保留为历史状态，不再代表当前服务结果。
 - **后续与验证：**需由正式工作流文件资源生命周期提供被授权的目录/真实工作流身份，或明确当前应用的正式文件路径及访问控制合同；然后再用同一 DataView 核验非空目录、正文读取与拒绝回执。服务端行/字段权限投影仍缺（见上一条），不得通过前端本地 `fieldAccess` 推断。证据 JSON 解析与 `git diff --check` 通过；本轮只改台账和观察证据，没有运行产品测试，没有 Java 或产品代码变更。
 
 ### 2026-10-28 D99 账户设置绑定查询只读核验
@@ -3473,16 +3475,16 @@ flowchart TD
 - 当前已认证 SPA 复用成功，导航显示“王涛”，未再次索取账号或操作登录表单。
 - 对正式 DataSpace `2C76CB8B29B72CC9F566A65469BDC972` 打开“数据空间绑定查询”，可见一条绑定：`财务管理 / 资金 / 账户设置` → `vue:/finance/funds/settings/index`。
 - 此结果只证明页面绑定关系，不足以推导 DataSpace owner、跨应用 scope、运行 DataView 或服务端授权；不据此补造 owner 或权限。未写业务数据/配置、未修改 Java。
-- 观察细节：[`d99-account-settings-binding-live-20261028.md`](evidence/d99-account-settings-binding-live-20261028.md)。
+- 观察细节：历史证据「d99-account-settings-binding-live-20261028.md」— 路径 `evidence/d99-account-settings-binding-live-20261028.md`（当前仓库未保留）。
 
 ### 2026-10-28 DataView 数据库预览 AjaxResult 错误回执修复与 SPA 续核
 
 - **低价实施与边界：**由 `gpt-6-luna` 实施；物理表/视图预览的 `GetData` 位于 DataView query executor 内，是预览资源适配器而非页面另建查询入口。此路径仍未消费正式物理资源字段权限投影：当前 `readonlyQueryResult` 按响应行字段存在构造可读状态。没有正式权限合同，未猜造替代授权；此缺口继续开放。
 - **实现：**预览 parser 现按仓内 AjaxResult 合同严格要求数值型 `Code`；非 200 通过 `LowcodeApiError` 进入原 DataView Failed 状态，空白错误消息沿用标准兜底。无 `Code` 的旧载荷解析保持兼容。未改 Java、服务端协议、物理数据权限或 DataView owner。
-- **RED/GREEN：**新增拒绝码、错误码类型、空白消息与旧载荷测试。原始输出见 [`database-catalog-preview-ajaxresult-red-20261028.txt`](evidence/database-catalog-preview-ajaxresult-red-20261028.txt) 与 [`database-catalog-preview-ajaxresult-green-20261028.txt`](evidence/database-catalog-preview-ajaxresult-green-20261028.txt)；目标测试复核 9/9 通过。
-- **基线夹具纠正：**完整数据库域初次复跑发现两个未改生产逻辑的旧测试违反 DataView 当前合同：computed 只读字段新增应 fail closed，关系新增正式主键应走 `addRowWithIdentity`。低价实施者仅更新这两个测试，不改变生产权限/身份处理。证据 [`database-domain-baseline-red-20261028.txt`](evidence/database-domain-baseline-red-20261028.txt)、[`database-domain-baseline-green-20261028.txt`](evidence/database-domain-baseline-green-20261028.txt)。数据库页面域全量复跑 `tests/runtime/page/database`：13 文件、199/199 通过，完整输出 [`database-domain-suite-green-20261028.txt`](evidence/database-domain-suite-green-20261028.txt)。
+- **RED/GREEN：**新增拒绝码、错误码类型、空白消息与旧载荷测试。原始输出见 历史证据「database-catalog-preview-ajaxresult-red-20261028.txt」— 路径 `evidence/database-catalog-preview-ajaxresult-red-20261028.txt`（当前仓库未保留） 与 历史证据「database-catalog-preview-ajaxresult-green-20261028.txt」— 路径 `evidence/database-catalog-preview-ajaxresult-green-20261028.txt`（当前仓库未保留）；目标测试复核 9/9 通过。
+- **基线夹具纠正：**完整数据库域初次复跑发现两个未改生产逻辑的旧测试违反 DataView 当前合同：computed 只读字段新增应 fail closed，关系新增正式主键应走 `addRowWithIdentity`。低价实施者仅更新这两个测试，不改变生产权限/身份处理。证据 历史证据「database-domain-baseline-red-20261028.txt」— 路径 `evidence/database-domain-baseline-red-20261028.txt`（当前仓库未保留）、历史证据「database-domain-baseline-green-20261028.txt」— 路径 `evidence/database-domain-baseline-green-20261028.txt`（当前仓库未保留）。数据库页面域全量复跑 `tests/runtime/page/database`：13 文件、199/199 通过，完整输出 历史证据「database-domain-suite-green-20261028.txt」— 路径 `evidence/database-domain-suite-green-20261028.txt`（当前仓库未保留）。
 - **工程门禁：**主控复核后 `pnpm run typecheck`、3 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules`、`git diff --check` 通过。正式 `pnpm run generate:lowcode-contracts` 更新 `backend-api-contracts/appworks-consumer-ledger.json` 的两个行号；生成后低代码合同检查通过。规则扫描仍有既有 AI model spec 2 warnings、1 info；build 有既有 CodeMirror 动态导入分块警告。
-- **真实 SPA 续核：**D99 目录总数 `1346`，首屏可见 10 条 owner 都为“未解析应用”。只读目标空间“账户设置”ID `2C76CB8B29B72CC9F566A65469BDC972` 显示 0 模型、0 输入参数、尚无视图。绑定页面事实见前条证据。本轮点击绑定应用进入“财务管理”后发生 `SCENARIO_VIEW_FILE_MISSING`/导航身份失效；这些结果没有证明 owner 或权限。详细可见回执见 [`d99-account-settings-space-and-app-switch-live-20261028.md`](evidence/d99-account-settings-space-and-app-switch-live-20261028.md)。
+- **真实 SPA 续核：**D99 目录总数 `1346`，首屏可见 10 条 owner 都为“未解析应用”。只读目标空间“账户设置”ID `2C76CB8B29B72CC9F566A65469BDC972` 显示 0 模型、0 输入参数、尚无视图。绑定页面事实见前条证据。本轮点击绑定应用进入“财务管理”后发生 `SCENARIO_VIEW_FILE_MISSING`/导航身份失效；这些结果没有证明 owner 或权限。详细可见回执见 历史证据「d99-account-settings-space-and-app-switch-live-20261028.md」— 路径 `evidence/d99-account-settings-space-and-app-switch-live-20261028.md`（当前仓库未保留）。
 - **状态与下一步：**代码修复及数据库页面域验证完成；SPARK data 唯一通道总目标继续 active。下一步仍按 DataSpace 身份 → DataTable → DataView → consumer → 权限/回执核对，只在正式 owner/scope/字段权限可证实后补空间配置。全局 tenant owner、跨 app DataSpace 生命周期、物理资源字段权限及财务页真实实现仍未闭环；本轮未做任何正式业务写入。
 
 ### 2026-10-28 SPARK data 后续切片复审与认证边界
@@ -3497,7 +3499,7 @@ flowchart TD
 - **当前基线与现场：**本轮从 `HEAD=cb7f5b96d754da54afa4fdc8f6ffc7accf9607f6` 开始，远端一致。浏览器清单实际列出 D99 数据空间和平台首页标签，但读取 D99 标签返回 `browser.user is unavailable`；不把标签列表当成已认证/可读，不提交登录请求。用户此前明确提供并授权测试账号，不再索取凭据。
 - **合同依据：**正式 DataView `queryConfig` 决定分页或全量读取；标准 `RendererTable` 直接消费所绑 DataView 的 page/pageSize/total 并用 `setPage/setPageSize` 翻页。`DataView.queryOptionRows()` 在同一已绑定视图上执行保留原过滤条件的附加查询，要求完整结果、字段已声明/可读且当前身份/定义未变化。树候选仍必须读取完整集合才能验证父项、重复值和循环；宿主关系必须完整读取才能确认当前导航恰有一行。
 - **低价实施与主控修复：**平面候选不再强行把 DataView 改成 `allPages=true`，也不要求首屏行数等于全体 total；标准表格按正式 DataView 配置分页。用户打开候选前，同一 DataView 用 `valueField eq selectedValue` 进行完整精确核验，结果必须恰好一行且主键、值匹配当前选择；同时复核视图/模型/空间/导航/当前行身份。查询失败、无匹配、重复结果、分页后旧行失效、核验期间更改选择均拒绝；busy 从核验开始覆盖到切换结束，阻止重复提交。树候选保留全量模式和原层级校验。不新增 owner、数组数据源、HTTP 入口或持久化查询配置。
-- **自动化验证：**低价目标文件复跑 3 个测试文件 29/29；主控独立复跑当前目录 3 文件 30/30、目标 ESLint `--max-warnings=0`、`pnpm run typecheck`、完整 `pnpm run verify:rules` 和 `pnpm run build` 均退出 0。完整规则检查保留既有 AI model spec 2 warnings/1 info；build 保留现有 CodeMirror ineffective dynamic import 警告。测试输出位于 [`devsystem-nav-host`](evidence/devsystem-nav-host/)；其中首份 `red.txt` 失败来自原树测试对既有 `allPages=true` 行为的旧断言，不计作本次分页实现的有效 RED 证明，测试期望已纠正并由后续 GREEN 覆盖。
+- **自动化验证：**低价目标文件复跑 3 个测试文件 29/29；主控独立复跑当前目录 3 文件 30/30、目标 ESLint `--max-warnings=0`、`pnpm run typecheck`、完整 `pnpm run verify:rules` 和 `pnpm run build` 均退出 0。完整规则检查保留既有 AI model spec 2 warnings/1 info；build 保留现有 CodeMirror ineffective dynamic import 警告。测试输出位于 历史证据「devsystem-nav-host」— 路径 `evidence/devsystem-nav-host/`（当前仓库未保留）；其中首份 `red.txt` 失败来自原树测试对既有 `allPages=true` 行为的旧断言，不计作本次分页实现的有效 RED 证明，测试期望已纠正并由后续 GREEN 覆盖。
 - **未完成与交付边界：**真实 1335 条候选 DataView 的分页/`queryOptionRows` 精确过滤仍未在 SPA 验证；`appworks-tool-dev` 关系仍无正式配置行，候选 DataSpace/模型/字段与写权限/保存回执合同缺失，因此本切片不宣称 DevSystem 项目切换可用。没有写正式关系、业务数据或 DataSpace，也未修改/启动/部署 Java。此切片已由主控复核；待提交推送。总体 SPARK data 统一目标保持 active。
 
 ### 2026-10-28 SPARK data 全域下一切片复核
@@ -3507,7 +3509,7 @@ flowchart TD
 - **SPA 工具现场：**当前 CUA inventory 可见本地 D99 数据空间标签；先按 inventory 编号、再按文档标识 `iab` 附着同一标签，均返回 `browser.user is unavailable`。这只证明当前自动化附着失败，不能推断标签未认证，也没有执行登录请求、正式 DataView 查询、切换或写入。用户已提供测试账号及授权，不再次索取或记录明文凭据；认证表单不会由自动化填写。
 - **数据空间设计补全边界复核：**`lowcode-data-space-catalog.ts` 的正式新增链要求 `sysid` 指向当前可读 `Base_AppSystemList.rowid`，并经原 DataView/DataSet 保存；设计器能补已有正式应用 owner 下的模型、字段及视图，但不会创建 tenant/root owner。已识别的 90A8 元数据空间，其候选 DataSpace 完整集合查询仍返回 502、`sysid=homepage` 查询为 0 行，不能将它改作全局项目目录。NavHost 现有 `Base_Navigation_DataRelation` consumer 的正式目标查询也是 0 行，且新增权限/保存回执未证；当前不新增关系或补造视图。
 - **下一解锁项：**优先取得平台应用目录受服务端承认的 root/app-less DataSet owner、请求 scope 和查询权限投影；随后对照目录 DataView 与旧消费者各自的范围、字段权限和保存回执，再按消费者迁移并删掉被替代路径。其他资源按其正式 owner 与拒绝/回执合同独立处理。不能用本地夹具、DataView 包装或数据空间设计来补造服务端身份与授权。
-- **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。定向复核依据：[`tenant-app-catalog-dataspace-owner-feasibility-20261028.md`](evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md)、[`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。
+- **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。定向复核依据：历史证据「tenant-app-catalog-dataspace-owner-feasibility-20261028.md」— 路径 `evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md`（当前仓库未保留）、历史证据「devsystem-nav-host-dataspace-live-20261028.md」— 路径 `evidence/devsystem-nav-host-dataspace-live-20261028.md`（当前仓库未保留）。
 
 ### 2026-10-28 Vue/TS 数据 owner 调用点清册复核
 
@@ -3523,13 +3525,13 @@ flowchart TD
 - **问题诊断：**`browser.user is unavailable` 来自旧私有路由标签的自动化句柄失效，不代表 SPA 未登录。按标签 ID/providerTabId 获取旧标签失败；按有效 URL 获取公开标签成功。创建新标签后，通过已授权测试会话并从原生应用列表进入“元数据管理 → 数据空间管理”，动态 SPA 路由恢复可用。之后未再次索取账号或输出凭据，也未直接对业务数据写入。
 - **只读 SPA 烟测：**正式目录 DataView 成功加载 1,348 行；筛选并打开“账户设置”空间（0 模型、无视图配置）及“功能管理”空间（正式 ID `7AB874097A1E8711A42FD845939A6E05`，设计面板显示 24 个模型、12 个表、11 个字典、1 个文件资源、0 条关系）。均只打开/关闭，不保存模型、布局或业务数据。该烟测证明 SPA 登录态、原生导航、目录 DataView 和设计宿主可用；未捕获本次代码变更对应的线上网络请求，所以不宣称已完成请求级真实 SPA 回归。
 - **实施切片：**设计工作区装配现在把其当前 `metadataDataSet` 传至 `loadScenarioDataSet`；正式空间定义、批量模型/字段/来源读取及关系读取在该上下文中定位唯一 `modelBinding.modelName`，用原默认视图创建临时查询视图，通过已有 `DataView.loadFromServer` 和 `api.dataSpace.runtime.executeQuery` 读取，沿原正式响应的权限/完整性校验，并释放临时视图。没有元数据上下文的引导读取与普通调用保留旧路径；没有新增业务 HTTP、查询/保存通道或权限推导，也没有修改 Java。正式 ClassModel 生成器更新了 `DataSpaceDesignApi` 合同；`generate:lowcode-contracts` 只调整消费者清册里因新增测试行号导致的行号。
-- **RED/GREEN 与复核：**原始 RED 记录在 [`red.txt`](evidence/data-space-session-metadata-view-20261028/red.txt)，新增测试证明旧查询入口曾被调用 4 次；GREEN 在 [`green.txt`](evidence/data-space-session-metadata-view-20261028/green.txt)，显示 2 个相关测试文件、297/297 通过。主控独立运行正式 API 测试 169/169、数据空间宿主与设计会话回归 95/95；根 `typecheck`、定向 ESLint、生产 `build`、`generate:lowcode-contracts --check` 和 `git diff --check` 通过。完整 `verify:rules` 首次因消费者生成台账过期失败；正式生成器更新 3 个测试行号后第二次完整门禁通过。扫描保留已有 AI model spec 2 条 warning、1 条 info；构建只有既有 CodeMirror 动态导入告警。
+- **RED/GREEN 与复核：**原始 RED 记录在 历史证据「red.txt」— 路径 `evidence/data-space-session-metadata-view-20261028/red.txt`（当前仓库未保留），新增测试证明旧查询入口曾被调用 4 次；GREEN 在 历史证据「green.txt」— 路径 `evidence/data-space-session-metadata-view-20261028/green.txt`（当前仓库未保留），显示 2 个相关测试文件、297/297 通过。主控独立运行正式 API 测试 169/169、数据空间宿主与设计会话回归 95/95；根 `typecheck`、定向 ESLint、生产 `build`、`generate:lowcode-contracts --check` 和 `git diff --check` 通过。完整 `verify:rules` 首次因消费者生成台账过期失败；正式生成器更新 3 个测试行号后第二次完整门禁通过。扫描保留已有 AI model spec 2 条 warning、1 条 info；构建只有既有 CodeMirror 动态导入告警。
 - **边界与状态：**真实 SPA 只读主机烟测通过，但代码运输链的线上请求级证明仍待后续会话复核。自动化及构建覆盖当前 DataView owner 复用和宿主生命周期；服务端真实权限/请求回包仍由线上查询响应决定。本批不保存任何正式设计/业务记录、不做模型删除，不改或启动 Java；总体 SPARK data 唯一通道整合仍为 active，应用目录 owner、物理数据权限、文件资源目录/授权等既有缺口继续按上方队列处理。
 
 ### 2026-10-28 浏览器句柄恢复与 tenant/root 应用目录复核
 
 - **`browser.user is unavailable` 诊断：**当前可见的旧 IAB 标签按 ID 与 URL 获取都失败；创建新 IAB 标签成功。用户已明确提供本地测试账号用于 SPA 验收，本轮在该 `127.0.0.1:5273` 标签登录后页面显示“王涛”。切换 D99 应用期间旧 `homepage/app-list` URL 短暂报“无法确定系统页面”；等原生应用/导航上下文生效后，D99 服务器管理、数据空间管理路由可正常打开。故错误来自旧浏览器附着上下文，动态路由提示是另一个切换过渡状态；二者都不能据以判断认证失败。
-- **真实 SPA 结果：**在同一会话中，tenant 应用列表显示 62 个卡片；“平台应用管理”加载完成后显示 62 行（首次进入时短暂 `No Data` 是请求未完成，不算最终结果）。D99 数据空间目录显示 1,348 条、每页 10 条，当前页 10 条显示“未解析应用”。只读打开“资产管理”空间 `A651B6600F623DD7F22F127CF3B12B56`，面板显示 0 模型、0 关系、无视图配置；关闭未保存。详见 [`tenant-app-catalog-spa-recheck-20261028.md`](evidence/tenant-app-catalog-spa-recheck-20261028.md)。
+- **真实 SPA 结果：**在同一会话中，tenant 应用列表显示 62 个卡片；“平台应用管理”加载完成后显示 62 行（首次进入时短暂 `No Data` 是请求未完成，不算最终结果）。D99 数据空间目录显示 1,348 条、每页 10 条，当前页 10 条显示“未解析应用”。只读打开“资产管理”空间 `A651B6600F623DD7F22F127CF3B12B56`，面板显示 0 模型、0 关系、无视图配置；关闭未保存。详见 历史证据「tenant-app-catalog-spa-recheck-20261028.md」— 路径 `evidence/tenant-app-catalog-spa-recheck-20261028.md`（当前仓库未保留）。
 - **源码与低价审计结论：**`AppList.vue` 显式 scenario 分支已有正式 `PageRuntime → Base_AppSystemList@default DataView`；tenant `/app-list` 路由没有 `dataSpaceId`，缺显式 scenario 时仍走 `listApplications()`。平台应用管理同样调用该接口但不向它传 tenant ID；项目设置还要按同一目录结果校验当前项目后再读运行导航。旧接口的固定 FormKey 没有向调用方提供 DataView 身份、逐行/字段权限上下文及分页总数。现有 app-scoped `Base_AppSystemList@catalogApps` 不是 root/tenant owner。低价模型只读复核与本轮源码核对一致：当前没有 owner、scope、权限与总数合同均等价的安全替换切片，因此不删 fallback、不造包装 DataView、不借用 D99 视图。
 - **下一行动与限制：**先取得正式 tenant/root catalog 的 DataSet rowid、对应 `SysForm/<id>.json` 和 `X-AppId`/tenant scope、DataView 授权投影及分页/总数合同，再以同一会话证明 DataView 与 root 列表同范围；随后按消费者逐个迁移并删除旁路。当前目录首屏 10 行不能外推为全部 1,348 条均无应用 owner；同日较早 root/DataView 61/1 记录与本次 root UI 62 的变化一并保留。没有新建或修改 DataSpace、业务数据、pagedata 或 Java；整体目标仍 active。
 
@@ -3695,7 +3697,7 @@ flowchart TD
 - **应用切换：**在已授权登录会话中，从 `/apps/homepage/app-list` 经正式应用目录 DataView 选择“元数据管理”，成功进入 `D99A1DCE9894698799101EFD70F8FC76` 的数据库服务器管理页；URL 为 `/apps/D99.../features/data-platform/database-management/ui/service-management-page?__sparkNavigationId=78C...`，页面实际读到 DataView 行。前端应用路由只含 `/apps/{projectId}`，没有租户维度。
 - **场景历史当前复核：**沿 D99 应用 `DevSystem` 选正式导航节点 `90A82E287930A234FEC3E687C94A93EA · DataSetManage`，历史列表返回 `1__pagedata.json` 与 `2__pagedata.json`，第一版只读预览含 `Base_DataSet@catalog.pageSize=10`。切到 `8D1AB14DD8277F3E7017CD38F77B09FD · DataSetDesign` 后历史面板无版本；切回 90A 后重新只见原两版，未串用目标。本轮未执行保存、恢复或创建。
 - **失败目标证据：**从目录尝试切换到“数据资产管理” `00BE6ED455CD4BD7B785C61A12A1E67D`，目标应用 `Base_NavigationInfo` DataView 在路由提交前报告父节点闭包缺失 `0F6317265D4A2F3BFAA31F4F6DC311FA -> 05F5F4DC24CE42FB815359EB84FFD33D`；不跳过完整性检查、不改远端记录。另一个有效目标 D99 已切换成功；该目标的数据问题仍单独待处理。
-- **证据：**[`spa-current-session-target-switch.json`](evidence/repository-scenario-history-20261029/spa-current-session-target-switch.json)。本轮使用现有实际前端服务，未修改/启动 Java；真实创建未知回执、恢复保存及重开证据仍引用前述同场景原始记录，未以本轮只读复核替代。
+- **证据：**历史证据「spa-current-session-target-switch.json」— 路径 `evidence/repository-scenario-history-20261029/spa-current-session-target-switch.json`（当前仓库未保留）。本轮使用现有实际前端服务，未修改/启动 Java；真实创建未知回执、恢复保存及重开证据仍引用前述同场景原始记录，未以本轮只读复核替代。
 - **builtin 树与普通应用补充复核：**同一 D99 DevSystem SPA 实际投影 85 个树节点（14 模块、71 页面、42 个 vue 目标、0 个 cfg），运行菜单仍只显示当前服务端授权返回的可达项；源链为仓内 7AB RepositoryScenario DataView → BuiltinBlueprintNodeResource → BlueprintWorkspaceDataView.loadProjectTree。应用目录切换到普通动态应用 `BE7C7452A333B0EB675F1EACBA035E8F` 后实际进入 `/apps/BE7.../dashboard`，其 DevSystem DataView 读到 4 节点、2 个 `/delivery/...` 页面目标、0 个 cfg。当前抽查的 builtin/动态项目都没有 cfg 三文件映射对象；不能为原生 Vue 或路由页伪造三文件。
 - **待续范围：**本轮只读切换不能替代跨目标旧 cfg 真实文件清单或文件读回；其余正式 cfg 消费者与三文件注册/版本映射仍须逐项核。00BE 父节点缺失是独立数据完整性阻断，本轮未改写。
 
@@ -4276,7 +4278,7 @@ flowchart TD
 
 ### 2026-10-31 物理表/视图预览查询合同核定（1031，未改产品）
 
-- **范围：**只核定库表页物理表预览与数据库视图预览能否改走正式 DataView 查询。页面 [table-and-view-page.vue](src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue) 仍绑定预览 DataView。执行器在 [database-catalog-preview-view-ops.ts](src/lowcode/resources/database/database-catalog-preview-view-ops.ts) 的 `fetchPhysicalPreviewPage` 与 `fetchViewPreviewPage`。
+- **范围：**只核定库表页物理表预览与数据库视图预览能否改走正式 DataView 查询。页面 [table-and-view-page.vue](../src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue) 仍绑定预览 DataView。执行器在 历史证据「database-catalog-preview-view-ops.ts」— 路径 `../src/lowcode/resources/database/database-catalog-preview-view-ops.ts`（当前仓库未保留） 的 `fetchPhysicalPreviewPage` 与 `fetchViewPreviewPage`。
 - **正式合同：**`DataSpaceQueryIdentity` 只有 `scenarioId` 与 `metaName`，注释写明 metaName 是模型 Name，不是物理资源名。`captureDataSpaceViewQuery` 要求视图所属表已有 `modelBinding.modelId` 与 `modelName`。`DataSpaceQueryTable.buildRequest` 发出的表描述是 `Name=metaName`、`OutputType`、`Filter`、`inputParams`、`DISTINCT`、`IsBusinessMain` 与可选 `Fields`；没有 `Type`、`DbId`、`DbName`。权限与分页总数由 `DataSpaceQueryContext` 持有服务端回执。
 - **预览实际请求：**表预览发送 `Type=数据库表`、`DbId`/`DbName`、物理 `Name`、目录字段拼出的 `Fields` 与 `PrimaryKeyFields`；视图预览发送 `Type=数据库视图` 且主键固定 `rowid`。两者都是 `http.post('/api/DataOperation/GetData')`。`parseGetDataPage` 本地取 `Items`/`Count`。`readonlyQueryResult` 按返回键在本地合成只读 `fieldAccess`，不消费服务端字段权限。预览视图由 `ensureDataSetFileCommandView` 建成 file 资源，没有正式模型绑定。
 - **裁决：**把物理表名或视图名填进 `metaName` 会把物理资源名当成已注册模型。正式请求也带不上 `DbId`。现有查询合同表达不了这次预览。本轮不改产品、不新增协议、不伪造模型名、不改 Java。目录整理与登录/缓存/租户接口不在本片。
@@ -8293,7 +8295,7 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 
 实服CRUD子进程3688自然exit0：UploadFile2（create isReplace=false / update=true）、DownFile2由SDK独立逐字节校验、RemoveFile1；共3个实际变更请求，不冒跨来源事务或原子create-if-absent。新增取消0写、私有scope不入公开草稿；正式新增独立正文回读，新DataSet保存重开；修改取消不多写、正式修改独立正文回读；目录DataView消费本目录唯一payload；删除后精确业务404+list[]。验证子进程11020全新登录、同SDK同locator独立再次HTTP200+业务404与list空，0变更请求，自然exit0。预检子进程20464亦自然0，全部句柄终态。
 
-正式证据：[2026-11-08-s1-isolated-json-file-crud.json](../evidence/data-chain-smoke/2026-11-08-s1-isolated-json-file-crud.json)，含实际端点计数/回执摘要/3次派发时间/正文哈希、源码与最终harness哈希、预检/CRUD/独立核验三段，未含凭据/会话/原正文。实际JSON文件已清；正式服务仅删文件，不提供本批已核目录删除合同，空运行目录/父前缀可能保留，不称无任何服务残留。transport真实版本为null（未假造服务CAS）；未注入实服unknown/部分成功/并发版本，继续分别引用离线反例与旧未改范围证据。静态Java不是部署一致证明。等高阶证据末审、文档治理及diff后提交推送；本批无产品源码/组件/宿主/页面/Java修改，原S2未跟踪RED不动。S1未冻结，20包目标active。
+正式证据：历史证据「2026-11-08-s1-isolated-json-file-crud.json」— 路径 `../evidence/data-chain-smoke/2026-11-08-s1-isolated-json-file-crud.json`（当前仓库未保留），含实际端点计数/回执摘要/3次派发时间/正文哈希、源码与最终harness哈希、预检/CRUD/独立核验三段，未含凭据/会话/原正文。实际JSON文件已清；正式服务仅删文件，不提供本批已核目录删除合同，空运行目录/父前缀可能保留，不称无任何服务残留。transport真实版本为null（未假造服务CAS）；未注入实服unknown/部分成功/并发版本，继续分别引用离线反例与旧未改范围证据。静态Java不是部署一致证明。等高阶证据末审、文档治理及diff后提交推送；本批无产品源码/组件/宿主/页面/Java修改，原S2未跟踪RED不动。S1未冻结，20包目标active。
 
 **AK高阶证据末审。**三阶段正式观察与ignored实际原件逐结构一致，7源码/2最终脚本哈希全匹配，3次变更与新登录0变更清理证据成立，无需再写服务。目录仅证原始DataView行返回唯一basename：harness表未声明fileName，也未验该字段权限/标准组件，不能核销字段绑定；正式ProjectToolFile本有fileName。此局部声明/来源一致性仍需按S1合同核，不把返回数组当绑定完成。最终harness留本地ignored作为有效实服工具，仓内JSON仅含审过哈希，不冒可移机直接重跑。证据当前为待stage新文件，高阶未声称已提交；本轮将显式纳入。
 
@@ -8333,7 +8335,7 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 
 高阶首审三个真实反例均重现：删除await后locator可变导致回列另一目录、上传清洗前导点/控制符/超长名及unknown/空白目录段会改落点、缺失folderPath变根目录请求。已统一捕获删除身份，路径缺失零IO拒，上传前拒会被实际服务改写的输入；working与version同核ACK state/实际路径，不因旧目标字节一致确认另一落点。次审同名异目录ACK和Java/JS trim Unicode差异亦真实RED后修：核请求目录完整分段+basename，服务企业/发布商前缀不猜造；ASCII空格判定保U+3000正例。旧工作文件ACK测试补实际filePath，不保无实际落点的假成功合同。
 
-当前局部77项已过；最终SDK全包/类型/lint/build、官方生成及根门禁进行中，不能用首1491/1503中间快照替最后源验收。新登录原AK精确对象只读核验自然exit0，content/text业务404/http200，list业务200/http200并返回[]，零Upload/Remove；证据[AM SDK只读回读](../evidence/data-chain-smoke/2026-11-08-s1-file-directory-sdk-readback.json)。不重跑已消费AK写意图。补正AK限制：Java listFiles()==null也给[]，只证明服务未返回目标，不能称物理目录为空。原AK CRUD仍仅当时generic json资源证据。
+当前局部77项已过；最终SDK全包/类型/lint/build、官方生成及根门禁进行中，不能用首1491/1503中间快照替最后源验收。新登录原AK精确对象只读核验自然exit0，content/text业务404/http200，list业务200/http200并返回[]，零Upload/Remove；证据历史证据「AM SDK只读回读」— 路径 `../evidence/data-chain-smoke/2026-11-08-s1-file-directory-sdk-readback.json`（当前仓库未保留）。不重跑已消费AK写意图。补正AK限制：Java listFiles()==null也给[]，只证明服务未返回目标，不能称物理目录为空。原AK CRUD仍仅当时generic json资源证据。
 
 **下一S1责任层保持开放：**bindFileDirectoryQueryAdapter仍会返回未声明fileName，尚待原始字符串有效PK/fileName schema、坏整批名称、公共只读工厂替代重复查询/权限、请求捕获scope及选项context冲突反例。高阶已指出A目录options传B应零list拒、A请求挂起后同目标重绑B不能由B守卫重新授权A；后续按同S1单批修验，不维护错误合同、不跨层补页面。S1整体未冻结，20包范围、S4已登记消费断点、远端历史未转换/服务缺证/权限暂缓均保持；原S2未跟踪测试不动。
 
@@ -8987,7 +8989,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 **CP工程与真实只读烟测。**完整根verify42057自然exit0，含类型/lint、ClassModel49项与正式规则，报告2模型warnings/85薄页诊断，不冒全业务测试全绿。最终官方ClassModel63274自然0（语义缺口3652），lowcode611/218；全量生成还刷新此前源码已变而派生未同步的sourceLine/编译器symbol编号，不手改产物或据此声称改了其他层。扩大6文件439项原90307自然1：438过，data-space-design-page唯一参数/JSON树用例15000ms超时；保持原handle到511.34s自然终态，未重启。该条单独25989原阈值下5.29s通过（377跳过仅定向），不把扩大批改称全通过；CP最后相关5文件64项已在末态通过。
 
-已用正式登录入口及正常导航进入D99：平台应用目录正式Name是“元数据管理”，按准确ID选中后仓内标题为“软件工坊[AppWorks]”，未按名字/角色放行。SPARK工具→工作流设计的正式应用内URL装配成功，真实页面显示1003目录不存在/No Data，保存、Definition、发布均disabled；未创建临时业务目录/文件或改权限来伪造闭环。本次新证据[evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json](../evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json)只证明正常入口/错误呈现，不证明线上设计稿保存；原草稿/unknown/晚窗口由真实DataView离线夹具验证，范围分列。凭据未写证据/源码/日志，未抓取认证存储，未记录原始账号口令；页面只读，业务变更控件未调用。
+已用正式登录入口及正常导航进入D99：平台应用目录正式Name是“元数据管理”，按准确ID选中后仓内标题为“软件工坊[AppWorks]”，未按名字/角色放行。SPARK工具→工作流设计的正式应用内URL装配成功，真实页面显示1003目录不存在/No Data，保存、Definition、发布均disabled；未创建临时业务目录/文件或改权限来伪造闭环。本次新证据历史证据「evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json」— 路径 `../evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json`（当前仓库未保留）只证明正常入口/错误呈现，不证明线上设计稿保存；原草稿/unknown/晚窗口由真实DataView离线夹具验证，范围分列。凭据未写证据/源码/日志，未抓取认证存储，未记录原始账号口令；页面只读，业务变更控件未调用。
 
 
 **CP末态清理与接续。**高阶末审已提窗口在限定S4责任内无剩余静态阻断；正式源、类型/lint、5文件64项、ClassModel/lowcode生成、完整根verify均已验，各handle终态。扩大native单条超时与定向通过分别保留，不冒439全过。已精确校验artifacts路径后删13份中间日志，保实际RED、最终证据及扩大失败；旧交接文档和documentView错误别名/重复读取分支删除，未扫删有效历史证据、node_modules或恢复备份。新实服只读证据保源码SHA和观察限制。临时前端dev会话99114在观察最终1003后主动停止（Ctrl-C终态1是清理，不冒服务自然成功退出），本会话不留后台写入任务；未创建任何worktree，唯一主目录不变。最终rootverify仅报告2模型warnings/85薄页待审，未把诊断或S4完整范围核销。
@@ -9742,7 +9744,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 入驻管理（平台级唯一页）与企业默认应用
 
-用户决定：平台级只有入驻管理；按参考页 1:1 恢复并替换伪造的 `/tenants`；企业默认应用存 `Base_Enterprise_Info.ent_config.defaultApplicationId`，经 SPARK data JSON 成员读写。应用授权按 `app-auth-display = option-lookup`：应用列表为主表，授权三列用标准选项字段查授权记录视图，页面不合并数组，缺口在组件层补。语义与缺口见[研读](research-tenant-enterprise-management.md)。
+用户决定：平台级只有入驻管理；按参考页 1:1 恢复并替换伪造的 `/tenants`；企业默认应用存 `Base_Enterprise_Info.ent_config.defaultApplicationId`，经 SPARK data JSON 成员读写。应用授权按 `app-auth-display = option-lookup`：应用列表为主表，授权三列用标准选项字段查授权记录视图，页面不合并数组，缺口在组件层补。语义与缺口见历史证据「研读」— 路径 `research-tenant-enterprise-management.md`（当前仓库未保留）。
 
 - **删除的错误实现。** `PlatformTenantManagement.vue`（会话伪造单行、写入全抛错、默认项目写死）、`TenantConfigPanel.vue`、`/tenants` 路由、`lowcodeApi.platform.getEnterpriseInfo` 及其测试与类型导出。
 - **公共能力。** 标准选项字段新增 `unmatchedText`：只读展示时值不在已就绪选项中显示该文本，选项未就绪显示空白，不写回字段或 `textStorageField`；ClassModel 由生成器刷新。目录作用域新增入驻场景装载 `loadLowcodeEnterpriseCatalog`。
@@ -9759,7 +9761,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 企业应用授权三页（我的申请 / 申请应用授权 / 申请列表）
 
-按参考原路径 `features/application/enterprise-app-auth-application/ui/` 迁入，三场景 47DA（我的申请）、0221（申请应用授权）、C06D（申请列表）登记为仓内场景并接入原导航节点。语义、纠偏与参考对照见[研读](research-enterprise-app-auth.md)。
+按参考原路径 `features/application/enterprise-app-auth-application/ui/` 迁入，三场景 47DA（我的申请）、0221（申请应用授权）、C06D（申请列表）登记为仓内场景并接入原导航节点。语义、纠偏与参考对照见历史证据「研读」— 路径 `research-enterprise-app-auth.md`（当前仓库未保留）。
 
 - **排除项。** 角色类治理页与参考仓 `views/schema|appworks|system` 旧目录不迁移（用户裁决）。
 - **参考仓缺陷纠正。** 申请列表只列别家发布的应用（`publisher_ent ≠ 本企业`，参考写成等于本企业）；我的申请加 `ent_shortname = 本企业`（只收窄，后端仍独立授权）。
@@ -9774,7 +9776,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 ## 应用系统列表（0C70）按参考 1:1 迁入标准组件与 SPARK data
 
-用户指出原页“没有走标准组件”后按参考原路径 `features/application/application-manager/ui/` 重做；语义、实服元数据与用户裁决见[研读](research-application-manager.md)。
+用户指出原页“没有走标准组件”后按参考原路径 `features/application/application-manager/ui/` 重做；语义、实服元数据与用户裁决见历史证据「研读」— 路径 `research-application-manager.md`（当前仓库未保留）。
 
 - **删除的错误实现。** 手写 header/h1 外壳、自加“所选应用关联信息”区（页面 TS 手解析 DataView 状态）与“暂不可用”横幅；新增/编辑/删除/项目管理不再禁用。
 - **页面结构。** `RendererSection` 外壳（新增/导出/刷新），`RendererTable` 列表（简称单元格动作打开编辑、创建时间按日、状态字典）与行按钮；新增/编辑为 `RendererDialog` + `RendererForm`（参考两列、标签在上，24 栅格半行/整行），选择数据库为 93DF `_base_dbInfo@picker` 弹窗，关联数据库弹窗嵌入从 93DF 页抽出的 `application-database-relations-content.vue`。关联数据库页与企业应用授权三页外壳同改 `RendererSection`（偏差：方案原写 `RendererPageHeader`）。
@@ -9947,14 +9949,14 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 - 本仓基线：`b9c14db6b10c52fcd8554b9eea319a4c979e633c`，单一目录 `D:/SPARK_AppWorks`；此前提交检查点已推送。
 - 固定参考：`E:/r/sparkproject` 提交 `1147b00ee53a1476d4ee715c61368b453a215192` 的 `apps/appworks`，473 文件；参考仓当前 HEAD 的该目录已撤除，不能据此清零迁移范围。
-- 本轮已取得只读服务端证据：[D99 蓝图及授权导航快照](evidence/appworks-migration-blueprint-20261116.json)。应用目录为 `DataSchemaManage / 元数据管理`，蓝图根为 `软件工坊[AppWorks]`，应用/根 ID 均为 `D99A1DCE9894698799101EFD70F8FC76`。正式蓝图查询校验到91个唯一且归属匹配节点；授权菜单返回58个唯一节点。
+- 本轮已取得只读服务端证据：历史证据「D99 蓝图及授权导航快照」— 路径 `evidence/appworks-migration-blueprint-20261116.json`（当前仓库未保留）。应用目录为 `DataSchemaManage / 元数据管理`，蓝图根为 `软件工坊[AppWorks]`，应用/根 ID 均为 `D99A1DCE9894698799101EFD70F8FC76`。正式蓝图查询校验到91个唯一且归属匹配节点；授权菜单返回58个唯一节点。
 - 完整20包分母及四文件目标保持；服务端新增的4个mp-open页面及日志查看页一并列入对应业务包的增量。路径存在、注册、工程检查和历史局部验收均不代表业务包迁移完成。
 
 ### A. 交付目标、依据与实施边界
 
 **目标**：在当前 SPARK 底座上承接完整20包业务语义，保留蓝图URL及业务页面层级，补齐正式数据、取消/异常、运行消费与原页面交互；随后沿同一标准流程完成业务四文件化。原生 Vue 是可验收的中间阶段，不能包装整页 Vue 代替配置驱动。PDF与四文件工作台属于已确定范围，不能因参考目录未含对应独立业务页而删除。
 
-依据分三层：[项目与蓝图核对报告](research-appworks-migration-current-state.md)、[473文件及页面/场景/路径处置清单](evidence/appworks-migration-inventory-20261116.json)、[逐域源码与测试证据](evidence/appworks-migration-domain-audit-20261116.md)。清单的全文件枚举用于防漏，关键业务链源码审计用于确定下列任务；枚举不声称对每一行代码完成语义验收。
+依据分三层：历史证据「项目与蓝图核对报告」— 路径 `research-appworks-migration-current-state.md`（当前仓库未保留）、历史证据「473文件及页面/场景/路径处置清单」— 路径 `evidence/appworks-migration-inventory-20261116.json`（当前仓库未保留）、历史证据「逐域源码与测试证据」— 路径 `evidence/appworks-migration-domain-audit-20261116.md`（当前仓库未保留）。清单的全文件枚举用于防漏，关键业务链源码审计用于确定下列任务；枚举不声称对每一行代码完成语义验收。
 
 本仓为8个 SPARK 功能包、1个 Vite 插件和应用壳；50个已登记页面、39个场景。D99是本次参考应用，当前前端仍支持多个应用。设计蓝图91节点与本会话授权导航58节点分别保留；47条有URL的蓝图记录中37条精确匹配本仓注册，10条未匹配、对应9个唯一URL。31个空URL的功能节点须按嵌入宿主和语义消费者核定，不能直接计缺页。上述数值均不是业务完成率。
 
@@ -12893,4 +12895,23 @@ P0中的来源取证可与已明确合同的分层任务并行。业务实现不
 - **2026-11-20 统一框架边界：**本轮消除普通 CRUD 冒充业务命令的实现；页04/06 对未声明 `resourceType:'command'` owner 的写动作显式返回 `*_COMMAND_CONTRACT_UNAVAILABLE`。当前源码 `typecheck`、全仓 `lint`、`verify:rules`、生产 build 与 SmartBid 910 项测试通过。仍未关闭的是正式 D849 运行场景必须声明 action/claim command view，以及各页正式 selection/evidence reader；现有 `preparePageCall` 只对已能证明正式绑定的标题启用 specialized host。浏览器验证服务器已启动并确认登录页可用，但当前会话未登录，不能在真实 D849 场景发布或 cold-open 验证；不得以本地测试或空 source factory 宣称 19 页全闭合。
 - **2026-11-20 标准组件 host-command 收敛：**RendererButton 新增正式内置 `host-command` 动作；rule.json 声明 command、静态输入及 `{"$route":"字段"}` 输入映射，标准动作层统一调用当前 PageRuntime host、执行结果 `assertCurrent` 并提示。页12、13、15 已删除提交函数脚本；页19启停按钮同样改走标准动作。SmartBid page call 为三页提供统一 `smart-bid.dispatch` owner，业务操作 ID 和输入来自页面配置，不新增页面注册表或第二套权限/保存链。该项专项 zero-code + SmartBid 回归 939/939 通过。
 - **2026-11-21 SmartBid 页完全零脚本：**16 个业务页 `script.js` 均已清空，所有 `rule.json` 不再使用 `onClick`、`onBeforeRender` 或页面函数名。标准动作框架补齐 `host-command` 的 route/row/JSON/prompt 输入、结果方法、结果 Alert/DataView 投影、route 失效保护，以及 `discard-changes`；工具栏、按钮、表格与字段仍消费 SPARK DataView。业务语义只保留正式 PageRuntime host、DataView owner、ClassModel/Agent owner，不新增页面专属脚本。旧脚本行为测试正在迁为 rule/标准动作合同，防止以空脚本兼容层伪造通过。
-- **2026-11-21 项目架构与数据链路重梳：**架构真相统一为“业务语义 → 数据空间合同 → PageRuntime 装配 → DataSet → DataView → 标准组件与声明式动作 → 冷重开与下游消费”。owner 与 receipt 已固化在 SPARK data 的 DataView 内部，分别承担资源执行和结果接纳，不是页面可见的独立层，也不进入页面第二套查询/保存链。页面四文件中 rule 负责结构与绑定，script 默认空，style 只管表现，共享 pagedata 负责正式模型引用、多视图、关系、级联和命令资源；业务页面不得持有第二套 rows、权限、草稿或保存器。已有源码、[项目架构审计](docs/architecture/project-architecture-audit.md)及独立画布同步收敛，标准动作缺口只进入公共组件/ActionDescriptor，不回退页面脚本旁路。此前“19 页全部 script.js 流程编排”和把 owner/receipt 画成额外层的表述按当前合同纠偏。
+- **2026-11-21 项目架构与数据链路重梳：**架构真相统一为“业务语义 → 数据空间合同 → PageRuntime 装配 → DataSet → DataView → 标准组件与声明式动作 → 冷重开与下游消费”。owner 与 receipt 已固化在 SPARK data 的 DataView 内部，分别承担资源执行和结果接纳，不是页面可见的独立层，也不进入页面第二套查询/保存链。页面四文件中 rule 负责结构与绑定，script 默认空，style 只管表现，共享 pagedata 负责正式模型引用、多视图、关系、级联和命令资源；业务页面不得持有第二套 rows、权限、草稿或保存器。已有源码、[项目架构审计](../docs/architecture/project-architecture-audit.md)及独立画布同步收敛，标准动作缺口只进入公共组件/ActionDescriptor，不回退页面脚本旁路。此前“19 页全部 script.js 流程编排”和把 owner/receipt 画成额外层的表述按当前合同纠偏。
+- **2026-11-21 蓝图子节点新增权限纠偏：**入口回归原有一个测试把“表级 add enabled、父行 child hidden”当作允许新增；运行后发现子节点路径同时用 `addActionState()` 呈现/预检并调用 root `addRowWithIdentity`，会绕过父行 `createChildActionState`。现改为从所选父行消费 `createChildActionState` 与 `fieldAccess`，通过同一 DataView 的 `addChildRow` 保留父身份映射；测试改为验证 child hidden 时零暂存、零保存。根新增仍保留表级 add 合同。入口及 DataView 回归 122/122、typecheck、目标 ESLint、AI-codegen、pages-config、ClassModel 50 项通过；page-thin 有 92 条既有待审诊断，本次文件无命中。未做实服写入；主仓处于 `main` 且有用户暂存改动，未提交或推送。
+- **2026-11-21 蓝图扩大回归断点：**关联 19 文件共 358 项首轮 9 项失败；其中子节点父行权限拒绝的状态文案断言随本轮提示更新，验证文件写入与蓝图保存仍均为零，受影响 5 文件 192/192 复验通过。另 3 个未修改测试文件独立复跑 55 通过、8 失败：发布恢复 6 项仍断言旧长版本格式，发布隔离 1 项夹具使用旧长指针，而现有编码器和恢复校验要求短格式；蓝图规划 1 项期待清除枚举为空字符串，实际写入数值 0，且读取时 NavigationType=0 映射为 embedded，不能仅修改测试宣称语义等价。上述失败未消除，需按正式服务与下游消费分别核实。临时启动已有 Vite 前端只读访问平台首页成功，随后停止；未登录、未验证蓝图实服功能、未写业务数据。完整参考平台迁移与功能验收仍未完成。
+- **2026-11-21 蓝图断点续核：**发布恢复 7 项失败源于测试旧长版本指针：正式编码器已输出短键、恢复日志要求规范编码；仅更新对应断言和待核验夹具，不改发布逻辑，2 文件 53/53 通过。关联子节点工具页面创建仍向两个整数导航枚举发送空字符串，与已记录的实际数据库拒绝一致；与模块新增相同，未指定时从新增输入中省略，不猜测默认枚举；增加保存请求反例，修复前失败、修复后通过。子节点与发布相关 7 文件 245/245、typecheck、目标 ESLint 通过。扩大回归 19 文件 357 通过、1 失败：策划现存节点从已配置枚举改为未指定时，映射为 0 而非原测试期待的空串；0 是有效打开模式，不能当作清除。只读参考 Java 仓库建表 SQL 两字段均为可空整数，但它不证明当前实服清除合同；策划执行目前仅允许 name/memo 等更新，真实清除、保存回读和下游消费仍待核，未篡改测试或实服数据。未改 Java、未新增服务、未提交推送。
+- **2026-11-21 蓝图规划复验：**纯差异规划将未指定或空白导航整数枚举与有效 `0` 区分：新增时省略未指定字段，更新计划中以 `null` 表达清除；本地行夹具验证归一化可区分清除与 `embedded`/`0`。原先 1 项失败的扩大回归现为 19 文件 360/360，根 typecheck、目标 ESLint、AI-codegen、pages-config 与 diff-check 通过。执行器仍拒绝导航字段更新；本地夹具、参考 SQL 及 CRUD 源码均不证明当前服务支持清除、保存回读或下游消费。浏览器仅验证未登录的平台首页，完整参考平台迁移及逐功能实服验收仍未完成。保留主仓现有暂存与未暂存工作，未提交或推送。
+- **2026-11-21 整合门禁复验：**`build:fe`、`verify:rules` 通过；全仓 lint 首次因 Node 默认堆内存不足退出，单独以 `NODE_OPTIONS=--max-old-space-size=6144` 复验通过。合同生成检查首次报过期，经内存比较确认 611 端点及 258 消费者内容相同，仅 Windows CRLF 与生成器 LF 不同；运行正式生成器后无合同内容差异，检查通过。规则扫描保留 2 条 AI 模型警告、1 条信息和 92 条薄页待审诊断。Java 参考目录存在其他工作，未修改；构建和离线门禁不等同真实业务验收。
+- **2026-11-21 子页面身份预检：**子页面先创建三文件、后暂存蓝图行；当当前查询 owner 不支持显式身份，或正式结果主键不是蓝图 `rowid` 时，原流程会先上传三文件再失败。两种夹具反例均先观察到 3 次上传，现于文件创建前用 DataView 当前身份能力及主键拒绝，验证零上传、零蓝图保存；表级新增关闭而父行 child 获准时仍可新增。关联回归 19 文件 362/362、typecheck、目标 ESLint、`verify:rules`、前端构建与 diff-check 通过。Vite 首页与登录入口只读烟测通过，未登录或写实服，临时服务已停止；权限或身份在预检后变化的部分成功仍依原恢复路径处理，不承诺跨文件和数据库事务。
+- **蓝图数值确认续验：**批量新增夹具证明 owner 将预期数值 `0` 返回为 `null` 或空串时，旧比较器会误认相等并继续保存；现拒绝空值与数值相等，保留数字字符串比较，并验证拒绝后零保存和草稿清理。表单差异投影同步区分未设置枚举和明确的 `0`，避免仅修改名称时把未设置的导航字段误判为数值；数字字符串仍须通过 DataView 原有字段校验。关联回归 19 文件 367/367、typecheck、目标 ESLint、`verify:rules`、生产构建与 diff-check 通过。生产预览只读打开首页和登录表单，未登录或写实服，临时进程已停止。导航枚举清除的实服合同及完整参考平台逐功能验收仍未完成；保留原有暂存和未暂存工作，未提交推送。
+- **实服只读烟测与窄屏导航：**以授权账号打开服务器、数据库、表和视图、外部服务、JSON、Excel、PDF、文件、编码、字典、逻辑视图、数据工作流、维度、导航宿主及工作流设计入口；这仅证明部分入口和加载状态，不代表完整功能验收。数据字典完成真实列表加载，选中已有字典后分别打开设计与数据维护，后者读到 5 条记录；未保存或删除。工作流设计的 `AgentWorkflowFiles@directory` 查询当前应用 `workflow-designs` 目录时服务返回 `[1003] 文件夹路径不存在`，创建命令的冲突检查对缺文件只识别 404；目录生命周期和该错误的正式语义仍须核实，不把错误伪装成空目录或创建文件。
+- **应用头修复与边界：**窄屏侧栏展开时导航溢出按钮被右侧操作区遮挡；应用头允许标题收缩并为标准菜单保留 52px，折叠按钮保留空间。浏览器刷新后 588px 下实际悬停并点击溢出项成功导航；1440/1024/768/588/480px 核对菜单位置，375px 侧栏展开时可点击折叠按钮，收起后可展开溢出菜单。375px 展开侧栏时右侧操作区仍可能超出视口，未宣称手机布局完整。应用头和导航测试 8/8、根 typecheck、目标 ESLint 和差异检查通过。部分系统页面仍未注册，权限专题按当前范围暂缓；脱敏规则、日志及集成页等仍需按正式身份与参考业务补齐。全平台迁移、写入回读与逐功能验收均未完成；保留现有暂存及未暂存工作，未提交推送。
+- **工作流文件断链续核：**正式文件 SDK 的实服只读查询中，文件根目录和当前应用目录可列出，当前应用目录未列出 `workflow-designs`，查询该目录仍返回 1003；随机不存在的工作流子目录中两个目标文件读取均返回 404。工作流页的新建命令弹窗可打开、取消，未派发创建。目录创建和清理合同仍未证实，未创建测试资产，不能以文件 404 断定目录查询应返回空数组。
+- **工作流删除回执纠偏：**原删除命令在首个文件删除失败后才试图核验，但原命令记录尚未保存；先删一份后读取失败、或全删后目录回查失败也会丢失待核验状态。三个反例在修复前分别重现缺少派发身份或未保留未知状态。现于首个删除派发前捕获原命令，派发后的失败保留待核验；核验只读目录和两份目标文件，不重复删除，也不将部分删除误认完成。删除、创建、文件资源和页面回归 93/93，根 typecheck、目标 ESLint、前端构建及差异检查通过；均为本地夹具或构建验证，尚无实服删除回执、回读及目录生命周期证据。全平台迁移与验收仍未完成。
+- **脱敏规则正式身份及只读核验：**场景 `3A45C53F29C2C005FF21AA06B2BCA133` 的元数据查询确认正式模型 `Base_Desensitization_Rule`（`6c0aa89f-a132-4082-8a68-73f0dcaca8b6`）及 18 个输出字段：`Remark`、`ReportID`、`rowid`、`updatetime`、`template`、`createtime`、`type`、`createuser`、`wfid`、`updateuser`、`flowstate`、`regex`、`description`、`original_sample`、`is_gabale`、`lingma_sys_is_delete`、`name`、`desensitized_sample`；`rowid` 是正式主键。分类字典模型 `脱敏分类`（`3406a885-ac20-4f53-bca1-9c1921717763`）与全局替换字典模型 `脱敏全局替换`（`fbc9a4d7-103b-4360-9ff9-a2202cf53f79`）也经元数据确认。
+- **脱敏规则运行查询边界：**在当前授权应用中，以内存临时视图配置经正式场景装配及 SPARK data 查询，规则总数 18、首批 15；分类字典 3 条，分别为日期类 `3`、地区类 `2`、个人信息类 `1`；全局替换为是 `1`、否 `0`。本次结果的表级新增及第一行编辑、删除均为 enabled，页面所需字段在第一行可读可写；这些只表示本次查询授权，不代表其他行或其他账号权限。参考页编辑时使用 `Boolean(is_gabale)`，会将字典字符串 `0` 错判为真，迁移时须按字典实际值处理。以上只读核验未写入业务数据，未验证正式页面、保存回执、重开或下游消费；系统场景配置和参考路径页面尚未接入，完整迁移仍待。
+- **脱敏规则页面续作与实服断点：**现已登记正式场景及参考路径并接入初版页面；真实导航显示 18 条、首屏 15 条、第二页 3 条，名称无匹配、分类筛选及重置可用，新增、编辑、删除对话框均可打开并取消。分类编辑初始值显示数字而不是字典标题：响应中规则 `type` 为数字、字典 `val` 为字符串；部分 `is_gabale` 为数字或空值。页面当前字典校验和全局匹配仅接受字符串，不能把 4 项字符串夹具通过视为实服编辑已闭环；须核实正式字段类型与实际转换边界，覆盖数字、字符串、空值和选项冲突后修正显示、校验、写入及样例计算。
+- **保存演练与待验边界：**以浏览器路由拦截所有非 GET 请求后，编辑第一行并提交；批量保存 POST 被浏览器中止，未到服务。DataView 保留原提交未知状态，实服只读核验返回 `SPARK_SAVE_RECOVERY_UNKNOWN`（`desensitized_sample` 无法核验），未重发、未确认成功。该结果只能证明拦截和失败路径，不能证明真实写入、精确回读或恢复可用；须继续定位核验投影和完整恢复路径。初版页面生命周期测试 4/4、typecheck、目标 lint、页面配置及前端构建通过，覆盖不足；导航权限配置仍无注册、工作流目录 1003、375px 展开侧栏布局及参考平台全量功能均未闭合。当前更改未提交推送，保留主仓既有改动。
+- **类型与核验源码续核：**运行 DataView 的 `type` 和 `is_gabale` 列均为 `varchar`，本次首屏原返回多数分类值为数字，部分全局值为数字或 null；字典值为字符串。标准选项组件只对声明为数值的列提供数字与字符串候选转换，不能把物理字段 `DataType` 当成正式模型的 `FieldType`，也不能为了显示直接覆盖原模型定义。保存核验按主键查询原提交字段，要求当前回读字段存在、可见且与提交值相等；本次请求被中止后，回读与拟提交值可能不同，因此“无法核验”本身不是字段投影缺失的证明，亦不能证明已应用或未应用。应按正式模型与候选值合同确定公共转换边界、冲突及写回语义，再补数值数据夹具和真实保存回读；不要放松未知回执守卫。
+- **文本列修复影响面：**标准 `r-select` 当前合同声明严格匹配，直接扩大默认匹配将改变其它字段的既有行为；如需显式开启转换，须先补标准组件配置合同及生成产物，并处理候选值冲突、记录选择和级联边界。DataView 普通更新按本次变更字段执行类型校验，新增则校验全部正式列；不能据此自动改写未修改的旧数字值。当前尚未变更公共组件或页面校验，根 typecheck 基线通过。
+- **脱敏数字字典修复及复验（以上为实施前记录）：**`r-select` 显式 `optionNumericText` 仅用于非级联单值文本字段，数字原值按精确字符串匹配唯一选项而不改原数据；选择数值选项写入文本。冲突禁用并提示，记录选择、JSON 成员和级联不适用；默认行为不变。脱敏分类与全局字段启用该属性，校验使用唯一字典编码，样例区分数字和字符串的 `0/1`。新反例修复前 3 项失败，修复后页面及组件两文件 30/30、choice 全部 10 文件 105/105；typecheck、目标 lint、页面配置、前端构建、正式 ClassModel 生成与校验（50/50）通过。实服只读复验首屏 15 行编辑并取消，分类均显示字典标题，全局值分别显示“是”“否”或空值提示；未真实提交，未验证保存回执、精确回读、重开及下游消费。此前拦截提交的未知结果仍未解决，不自动重发；新浏览器页仅复用会话进行读取，原页面保留。完整参考平台迁移、逐功能验收、工作流目录 1003 和窄屏残余问题仍开放；未提交推送，保留主仓现有工作。
+- **工作流目录及参考源再核：**当前工作流文件资源对 `1003` 保持查询失败，测试区分失败与服务成功返回空目录。Java 参考源码 `FileServiceImpl.listFiles` 对不存在或非目录均报“文件夹路径不存在”，但源码并不证明运行服务的目录初始化合同；不能直接改成空列表。参考仓当前检出已变化且存在其他工作；原固定版本 `1147b00ee53a1476d4ee715c61368b453a215192` 的 Git 对象仍可只读查看，后续对照须显式读取该版本，不切换或清理参考仓。此次只读核查未改 Java、未创建工作流资产。

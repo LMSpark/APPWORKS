@@ -163,7 +163,7 @@ import {
 
 ```bash
 pnpm run typecheck   # 类型检查
-pnpm run test        # 运行测试
+pnpm run test:run    # 运行一次性测试
 pnpm run build       # 构建包
 ```
 

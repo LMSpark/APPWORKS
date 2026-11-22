@@ -23,6 +23,8 @@ export type FileResourceTransport=Readonly<{
   /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */
   onWriteConfirmed?(target:FileResourceTarget,text:string,baseline:FileResourceSnapshot|null):void
   isUnknown(error:unknown):boolean
+  /** 仅供已确认目标、operation、baseline 与text相同的working replacement显式补偿；缺省代表禁止重试。 */
+  retryEquivalentWrite?(input:Readonly<{target:FileResourceTarget;text:string;baseline:FileResourceSnapshot}>):Promise<void>
   history?:Readonly<{
     assertCanCreate?(target:FileResourceTarget):void|Promise<void>
     /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */
@@ -341,7 +343,46 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         else state.pending.set(target.key,{...attempt,state:'confirmed',message:null})
         return {state:'confirmed',text:expected,message:null}
       }
-      return {state:'unknown',text:expected,message:sameBaseline(remote,attempt.baseline)?'当前仍是写前基线，不能证明原请求未应用':'远端文件与原提交及原基线均不一致'}
+      const baselineUnchanged=sameBaseline(remote,attempt.baseline)
+      const retry=bound.options.transport.retryEquivalentWrite
+      const retryable=attempt.operation==='write'&&attempt.baseline!==null&&baselineUnchanged&&retry!==undefined
+      return {state:'unknown',text:expected,message:baselineUnchanged?'当前仍是写前基线，不能证明原请求未应用':'远端文件与原提交及原基线均不一致',
+        ...(retryable?{retryable:true as const}:{})}
+    },
+    retryWriteAttempt:async(view,hooks)=>{
+      const bound=current,target=targetFor(view,bound),state=stateFor(view),attempt=state.pending.get(target.key)
+      if(attempt?.state!=='unknown'||attempt.operation!=='write'||attempt.baseline===null){
+        throw new Error('FILE_RESOURCE_RETRY_UNAVAILABLE: 仅未知的工作文件替换可补偿')
+      }
+      const retry=bound.options.transport.retryEquivalentWrite
+      if(!retry)throw new Error('FILE_RESOURCE_RETRY_UNSUPPORTED: 当前文件来源未声明同内容补偿能力')
+      const baseline=attempt.baseline
+      hooks.assertCurrent();assertCurrent(view,target,bound)
+      assertWritable(bound.options,target)
+      const before=await bound.options.transport.read(attempt.target);hooks.assertCurrent();assertCurrent(view,attempt.target,bound)
+      if(state.pending.get(target.key)!==attempt)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交已接纳或替换')
+      if(isFileResourceReadbackConfirmed(attempt.text,before)){
+        confirmWriteProjection(view,attempt,bound)
+        return {state:'confirmed',text:attempt.text,message:null}
+      }
+      if(!sameBaseline(before,baseline)){
+        return {state:'unknown',text:attempt.text,message:'远端文件与原提交及原基线均不一致'}
+      }
+      const captured=attempt
+      try{
+        await retry({target:captured.target,text:captured.text,baseline})
+        hooks.assertCurrent();assertCurrent(view,captured.target,bound)
+        const remote=await bound.options.transport.read(captured.target);hooks.assertCurrent();assertCurrent(view,captured.target,bound)
+        if(state.pending.get(target.key)!==captured)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交已接纳或替换')
+        if(!isFileResourceReadbackConfirmed(captured.text,remote))throw new Error('FILE_RESOURCE_READBACK: 补偿写入回读不一致')
+        confirmWriteProjection(view,captured,bound)
+        return {state:'confirmed',text:captured.text,message:null}
+      }catch(error){
+        if(state.pending.get(target.key)===captured){
+          state.pending.set(target.key,{...captured,state:'unknown',message:errorMessage(error)})
+        }
+        throw error
+      }
     },
     acknowledgeWriteAttempt:view=>{
       const target=targetFor(view),state=stateFor(view),attempt=state.pending.get(target.key)

@@ -89,6 +89,20 @@ function navigationHarness(options: NavigationHarnessOptions = {}) {
 }
 
 describe('DynamicRouter formal routes and runtime calls', () => {
+  it('rematches a config URL that arrived before its navigation route was registered', async () => {
+    const router=createRouter({history:createMemoryHistory(),routes:[]})
+    const pending=deferred<RuntimeNavigation>()
+    const dynamic=createDynamicRouter({router,pageComponent:DummyPage,applicationPathPrefix:'/apps/:projectId',
+      loadNavigation:()=>pending.promise})
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
+    expect(router.currentRoute.value.meta['type']).toBeUndefined()
+    const registering=dynamic.registerRoutes()
+    pending.resolve(TOOL_NAV)
+    await registering
+    expect(router.currentRoute.value.meta).toMatchObject({type:'config-page',nodeId:'orders-node',pageId:'orders-tool'})
+    expect(dynamic.getPageRuntimeView(router.currentRoute.value)).toBeDefined()
+  })
+
   it('publishes only the newest completed refresh and removes routes from stale trees', async () => {
     const { router, dynamic, loads } = navigationHarness()
     const initial = deferred<RuntimeNavigation>()

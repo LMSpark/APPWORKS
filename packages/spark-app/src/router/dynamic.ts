@@ -412,11 +412,29 @@ constructor(options: DynamicRouterOptions) {
     await this.loadAndCommitRoutes(false)
   }
 
+  private isCurrentRouteManaged():boolean{
+    return this.router.currentRoute.value.matched.some(record=>this.registeredRoutes.has(record.path))
+  }
+
+  private async rematchCommittedCurrentRoute(currentWasManaged:boolean): Promise<void> {
+    if(currentWasManaged)return
+    const current=this.router.currentRoute.value
+    const resolved=this.router.resolve(current.fullPath)
+    const managed=resolved.matched.some(record=>this.registeredRoutes.has(record.path))
+    const sameRecords=current.matched.length===resolved.matched.length
+      &&current.matched.every((record,index)=>record===resolved.matched[index])
+    if(managed&&!sameRecords)await this.router.replace(current.fullPath)
+  }
+
   private async loadAndCommitRoutes(refresh: boolean): Promise<void> {
     const generation = ++this.registrationGeneration
     const authenticated = this._isAuthenticated()
     if (!authenticated || !this._loadNavigation) {
-      if (this._preAuthNavTree) this.commitNavigation(null, null, this._preAuthNavTree)
+      if (this._preAuthNavTree) {
+        const currentWasManaged=this.isCurrentRouteManaged()
+        this.commitNavigation(null, null, this._preAuthNavTree)
+        await this.rematchCommittedCurrentRoute(currentWasManaged)
+      }
       routerLogger.info('动态路由注册完成', { count: this.registeredRoutes.size })
       return
     }
@@ -438,7 +456,9 @@ constructor(options: DynamicRouterOptions) {
           reason: isUnauthorizedError(error) ? 'unauthorized' : 'refresh-failure',
           fallbackNodeCount: preAuthNavTree.items.length,
         })
+        const currentWasManaged=this.isCurrentRouteManaged()
         this.commitNavigation(null, null, preAuthNavTree)
+        await this.rematchCommittedCurrentRoute(currentWasManaged)
       }
       if (unauthorizedFallback) return
       if (latest) {
@@ -449,10 +469,14 @@ constructor(options: DynamicRouterOptions) {
 
     if (generation === this.registrationGeneration) {
       try {
+        const currentWasManaged=this.isCurrentRouteManaged()
         this.commitNavigation(appNavTree, platformNavTree, null)
+        await this.rematchCommittedCurrentRoute(currentWasManaged)
       } catch (error: unknown) {
         if (refresh && generation === this.registrationGeneration && preAuthNavTree !== null) {
+          const currentWasManaged=this.isCurrentRouteManaged()
           this.commitNavigation(null, null, preAuthNavTree)
+          await this.rematchCommittedCurrentRoute(currentWasManaged)
         }
         throw error
       }

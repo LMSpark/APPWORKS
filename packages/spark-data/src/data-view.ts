@@ -737,6 +737,9 @@ rows: DataRow[] = []
   /** 核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。 */
   async verifySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {return this.sourceLifecycle().verifyWriteAttempt()}
 
+  /** 用户显式执行来源声明支持的同目标同正文补偿；未核实 attempt 或非working replacement会拒绝。 */
+  async retrySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {return this.sourceLifecycle().retryWriteAttempt()}
+
   /** 领域结果交付完成后消费已核验的正文保存适配器attempt。 */
   acknowledgeSourceWriteAttempt(): void {this.sourceLifecycle().acknowledgeWriteAttempt()}
 

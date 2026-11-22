@@ -195,6 +195,7 @@ export class LowcodeDesignFileUpload {
       }
       return receipt
     } catch (cause) {
+      if(cause instanceof LowcodeApiError&&cause.code!==0)throw cause
       throw Object.assign(cause instanceof Error ? cause : new Error(String(cause)), {fileResourceMutationMayHaveApplied:true})
     }
   }

@@ -47,6 +47,7 @@ export type DataViewSourceWriteAttemptStatus = Readonly<{
   state: 'idle' | 'unknown' | 'confirmed' | 'not-applied'
   text: string | null
   message: string | null
+  retryable?: true
 }>
 
 /** 创建回调在任何可能写入的请求发出前冻结的具体历史编号。 */
@@ -77,6 +78,8 @@ export type DataViewSourceAdapter = Readonly<{
   }>
   /** 正文保存适配器的不可变 attempt；允许同一 DataSet 资源视图重开后核验并交付原保存状态。 */
   verifyWriteAttempt?(view: DataView, hooks: Readonly<{assertCurrent(): void}>): Promise<DataViewSourceWriteAttemptStatus>
+  /** 用户显式补偿原 working replacement；必须仅同目标、同正文，适配器自行证明可重试。 */
+  retryWriteAttempt?(view: DataView, hooks: Readonly<{assertCurrent(): void}>): Promise<DataViewSourceWriteAttemptStatus>
   acknowledgeWriteAttempt?(view: DataView): void
 }>
 
@@ -143,6 +146,17 @@ export class DataViewSource {
       if(baseline!==this.identity(this.view)||verify!==this.adapter.verifyWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
     }})
     if(baseline!==this.identity(this.view)||verify!==this.adapter.verifyWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
+    return Object.freeze({...result})
+  }
+
+  /** 只在原来源支持同正文补偿时执行一次用户显式重试，不自动循环。 */
+  async retryWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {
+    const baseline=this.identity(this.view),retry=this.adapter.retryWriteAttempt
+    if(!retry)throw new Error('DATA_VIEW_SOURCE_RETRY_UNSUPPORTED: 查询来源未提供正文保存补偿能力')
+    const result=await retry(this.view,{assertCurrent:()=>{
+      if(baseline!==this.identity(this.view)||retry!==this.adapter.retryWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
+    }})
+    if(baseline!==this.identity(this.view)||retry!==this.adapter.retryWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
     return Object.freeze({...result})
   }
 

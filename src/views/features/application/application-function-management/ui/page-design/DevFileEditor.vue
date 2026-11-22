@@ -15,6 +15,7 @@ AI用途：需要理解页面设计如何编辑工具文件时，用本模块定
           <template v-if="fileViewKey">
             <SparkComponent.RendererButton :data-view-key="fileViewKey" label="重新加载" icon="Refresh" button-size="small" :disabled="!state.activePageId.value || state.pageIoBusy.value || fileDataViewLoading" @click="refreshFile" />
             <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey" :data-view-key="fileViewKey" :label="fileEditor.isUnconfirmed.value ? '核验原提交' : '保存'" icon="DocumentChecked" button-type="primary" button-size="small" :disabled="ruleEditing || !fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value" :loading="state.pageIoBusy.value" @click="saveFile" />
+            <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey && fileEditor.retryableUnconfirmed.value" :data-view-key="fileViewKey" label="同内容补偿重试" icon="RefreshRight" button-type="warning" button-size="small" :disabled="ruleEditing || state.pageIoBusy.value" :loading="state.pageIoBusy.value" @click="retryFile" />
             <span class="action-divider" />
             <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey"
               :data-view-key="fileViewKey"
@@ -236,6 +237,10 @@ function resolveCodeLanguage(name: string): 'javascript' | 'css' {
 
 function saveFile() {
   void fileEditor.save().catch(() => undefined)
+}
+
+function retryFile() {
+  void fileEditor.retryUnconfirmed().catch(() => undefined)
 }
 
 async function refreshFile() {

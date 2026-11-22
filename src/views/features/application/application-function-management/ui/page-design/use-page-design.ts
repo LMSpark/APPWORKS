@@ -338,19 +338,30 @@ export function usePageDesign(state: DevState) {
       return edited['text']
     }
     const assertTarget = (allowOnlyOwnedVersionPatch = false) => {
-      if (!isCurrentScope(captured) || state.blueprintPageRuntime.value !== runtime || state.blueprintWorkspaceDataView.value !== current
-        || lowcodeApi.readRequestScope().token !== scopeToken
-        || current.projectId !== projectId || current.nodeId !== nodeId) throw new Error('交付目标已切换，后续交付已停止')
+      const targetMismatches=[
+        !isCurrentScope(captured)?'scope':undefined,
+        state.blueprintPageRuntime.value!==runtime?'runtime':undefined,
+        state.blueprintWorkspaceDataView.value!==current?'owner':undefined,
+        lowcodeApi.readRequestScope().token!==scopeToken?'token':undefined,
+        current.projectId!==projectId?'project':undefined,
+        current.nodeId!==nodeId?'node':undefined,
+      ].filter((field):field is string=>field!==undefined)
+      if (targetMismatches.length>0) throw new Error(`交付目标已切换(${targetMismatches.join(',')})，后续交付已停止`)
       if (current.isBusy || current.view.loadingError) throw new Error('交付蓝图 DataView 查询状态已改变，后续交付已停止')
       if (!current.canRead('NavigationUrl') || !current.canRead('conid') || !current.canRead('VersionId') || !current.canWrite('VersionId')) {
         throw new Error('交付期间正式 DataView 字段权限已改变，后续交付已停止')
       }
       const row = current.row
       const rowKey = row ? current.view.getPkKey(row) : undefined
-      if (!row || rowKey === undefined || row['rowid'] !== nodeId || row['SysId'] !== projectId
-        || String(current.value('NavigationUrl') ?? '') !== originalNavigationUrl
-        || String(current.value('conid') ?? '').trim() !== mainScenarioId
-        || String(current.value('VersionId') ?? '') !== expectedVersionId) throw new Error('交付 DataView 行或发布身份已改变，后续交付已停止')
+      if (!row || rowKey === undefined) throw new Error('交付 DataView 当前行已丢失，后续交付已停止')
+      const identityMismatches=[
+        row['rowid']!==nodeId?'nodeId':undefined,
+        row['SysId']!==projectId?'projectId':undefined,
+        String(current.value('NavigationUrl')??'')!==originalNavigationUrl?'NavigationUrl':undefined,
+        String(current.value('conid')??'').trim()!==mainScenarioId?'conid':undefined,
+        String(current.value('VersionId')??'')!==expectedVersionId?'VersionId':undefined,
+      ].filter((field):field is string=>field!==undefined)
+      if(identityMismatches.length>0)throw new Error(`交付 DataView 发布身份已改变(${identityMismatches.join(',')})，后续交付已停止`)
       const patch = current.view.getEditingPatch(rowKey)
       const changedFields = Object.keys(patch ?? {})
       const tracking = current.view.dirtyTracking
@@ -368,10 +379,10 @@ export function usePageDesign(state: DevState) {
         const isOwnedStage = staged && changedFields.length === 0 && Object.keys(diff).length === 1
           && String(diff['VersionId']?.from ?? '') === originalVersionId && diff['VersionId']?.to === expectedVersionId
         if (submittedRowIds.length !== 1 || submittedRowIds[0] !== rowKey || (!isOwnedPatch && !isOwnedStage)) {
-          throw new Error('交付期间 DataView 出现其他未保存修改，后续交付已停止')
+          throw new Error(`交付期间 DataView 出现其他未保存修改(staged=${staged},ownedPatch=${isOwnedPatch},ownedStage=${isOwnedStage},fields=${changedFields.join(',')||'-'},rows=${submittedRowIds.join(',')||'-'})，后续交付已停止`)
         }
       } else if (current.dirty || changedFields.length > 0) {
-        throw new Error('交付期间 DataView 出现未保存修改，后续交付已停止')
+        throw new Error(`交付期间 DataView 出现未保存修改(owner=${current.dirty},fields=${changedFields.join(',')||'-'},rows=${submittedRowIds.join(',')||'-'})，后续交付已停止`)
       }
     }
     const finishPublication = async () => {
@@ -507,6 +518,11 @@ export function usePageDesign(state: DevState) {
       written.push(`${manifestVersion}__publication-manifest.json`)
       versions = Object.freeze({...versions, manifest: manifestVersion})
       expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
+      if(originalVersionId===expectedVersionId){
+        assertTarget()
+        await finishPublication()
+        return
+      }
       current.update('VersionId', expectedVersionId)
       state.notifyExternalDataViewChanged()
       assertTarget(true)

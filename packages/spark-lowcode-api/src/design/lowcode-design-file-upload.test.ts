@@ -172,7 +172,16 @@ describe('LowcodeDesignFileUpload', () => {
 
   it('rejects a backend failure without reading back', async () => {
     const http = new FixtureHttpClient({ Code: 500, Message: 'backend rejected', Result: [] }, '')
-    await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: '' })).rejects.toThrow('backend rejected')
+    await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: '' }))
+      .rejects.not.toHaveProperty('fileResourceMutationMayHaveApplied')
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it('keeps a non-Ajax upload response unknown after dispatch', async () => {
+    const http = new FixtureHttpClient({ message: 'gateway failed' }, '')
+    await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText({
+      customPath: 'homepage/orders', fileName: 'script.js', text: 'body',
+    })).rejects.toMatchObject({message:'文件上传响应不是 AjaxResult 对象',fileResourceMutationMayHaveApplied:true})
     expect(http.requests).toHaveLength(1)
   })
 

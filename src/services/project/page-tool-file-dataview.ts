@@ -229,6 +229,15 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       if(input.rejectLocalDirty&&toolFileName!==undefined
         &&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(toolFileName)!==localText
         ||page?.getDirtyFileNames().includes(toolFileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},
+    retryEquivalentWrite:async({target:resource,text,baseline:_baseline})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
+      if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_RETRY_SCOPE: 仅工作文件替换允许同内容补偿')
+      const page=workspace?.project.findPageTool(filePage),localText=page?.getFileText(fileName)
+      const localDirty=page?.getDirtyFileNames().includes(fileName)===true
+      if(input.rejectLocalDirty&&localDirty)throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑')
+      await io.upload({appId,pageId:filePage,fileName,text,replace:true})
+      try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}
+      if(input.rejectLocalDirty&&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(fileName)!==localText
+        ||page?.getDirtyFileNames().includes(fileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件补偿期间本地内容已变化'))},
     remove:async({target:resource})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       await io.remove(appId,filePage,fileName)
       try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}},

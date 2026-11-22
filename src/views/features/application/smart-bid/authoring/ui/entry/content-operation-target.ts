@@ -5,6 +5,7 @@
  * AI用途：排查入口是否缺少授权节点、工具或场景身份。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
@@ -23,7 +24,10 @@ export function resolvePublishedContentOperationTarget(route:ContentAuthoringRou
   conflictError:'OPERATION_PAGE_PUBLICATION_CONFLICT',
   forbiddenQuery:['additionalScenarioIds','actorUserId','currentUserId','userId','scenarioInputs','rootKind'],
  }))return undefined
- const projectId=route.query['projectId']
+ const requestedProjectId=route.query['projectId']
+ if(requestedProjectId!==undefined&&!identity(requestedProjectId))
+  throw Error('OPERATION_PAGE_PUBLICATION_CONFLICT')
+ const projectId=typeof requestedProjectId==='string'?requestedProjectId:resolveExecutionProjectId(route.path)
  if(!identity(projectId))throw Error('OPERATION_PAGE_PUBLICATION_CONFLICT')
  const {applicationId,pageId,scenarioId}=entry
  return Object.freeze({applicationId,pageId,scenarioId,projectId})

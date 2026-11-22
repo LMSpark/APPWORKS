@@ -13,6 +13,7 @@ it('keeps the published navigation, page, scenario and selected project together
  expect(resolvePublishedContentOperationTarget(route,entry))
   .toEqual({applicationId:'APP',pageId:'TOOL',scenarioId:'SPACE',projectId:'P'})
  expect(resolvePublishedContentOperationTarget({...route,query:{projectId:'P'}},entry)?.scenarioId).toBe('SPACE')
+ expect(resolvePublishedContentOperationTarget({...route,query:{scenarioId:'SPACE'}},entry)?.projectId).toBe('APP')
  expect(()=>resolvePublishedContentOperationTarget({...route,meta:{type:'config-page',nodeId:'NODE',pageId:'TOOL',
   tool:route.meta.tool}},entry)).toThrow('OPERATION_PAGE_PUBLICATION_CONFLICT')
  expect(()=>resolvePublishedContentOperationTarget({...route,query:{...route.query,scenarioId:'OTHER'}},entry))

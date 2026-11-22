@@ -33,32 +33,43 @@ const catalogTitle='ClassModel 登记'
 const submissionTitle='签署与递交'
 const deadlineTitle='回执与截止核对'
 const configurationTitle='配置编审与启用'
+const submissionPageId='smart-bid-authoring-page13'
+const deadlinePageId='smart-bid-authoring-page14'
+const knowledgePageId='smart-bid-knowledge-page16'
+const catalogPageId='smart-bid-knowledge-page17'
+const operationPageId='smart-bid-authoring-page18'
+const configurationPageId='smart-bid-configuration-page19'
 const operationRegistrationId='SmartBidOperationModule'
 const standardActionPages=new Set(['制件与审定','签署与递交','任务与问题'])
 
 /** 把已闭合的业务页固定到本次 PageRuntime、ClassModel 和正式命令 owner。 */
 export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
- if(standardActionPages.has(String(route.meta['title'])))return preparePublishedSmartBidActionCall(route)
- if(![knowledgeTitle,catalogTitle,operationTitle,configurationTitle,submissionTitle,deadlineTitle]
-  .includes(String(route.meta['title'])))return undefined
  const nodeId=route.meta['nodeId'],pageId=route.meta['pageId'],scenarioId=route.meta['blueprintScenarioId']
+ const normalizedPageId=typeof pageId==='string'?pageId:''
+ const title=String(route.meta['title'])
+ const recognizedPageIds=new Set([
+  submissionPageId,deadlinePageId,knowledgePageId,catalogPageId,operationPageId,configurationPageId,
+ ])
+ if(standardActionPages.has(title))return preparePublishedSmartBidActionCall(route)
+ if(!recognizedPageIds.has(normalizedPageId)&&![knowledgeTitle,catalogTitle,operationTitle,configurationTitle,submissionTitle,deadlineTitle]
+  .includes(title))return undefined
  const entry={applicationId,nodeId:typeof nodeId==='string'?nodeId:'',
-  pageId:typeof pageId==='string'?pageId:'',scenarioId:typeof scenarioId==='string'?scenarioId:''}
+  pageId:normalizedPageId,scenarioId:typeof scenarioId==='string'?scenarioId:''}
  if(!matchesPublishedPageBinding(route,entry,{
   identityError:'SMART_BID_PUBLICATION_IDENTITY_REQUIRED',
   conflictError:'SMART_BID_PUBLICATION_IDENTITY_CONFLICT',
   forbiddenQuery:['actorUserId','currentUserId','userId','scenarioInputs','additionalScenarioIds','rootKind'],
   requireScenarioQuery:true,
  }))return undefined
- if(route.meta['title']===submissionTitle)
+ if(normalizedPageId===submissionPageId||title===submissionTitle)
   return preparePublishedContentSubmissionCall(route,entry,()=>({}))
- if(route.meta['title']===deadlineTitle)
+ if(normalizedPageId===deadlinePageId||title===deadlineTitle)
   return preparePublishedContentDeadlineCall(route,entry,()=>({}))
- if(route.meta['title']===knowledgeTitle)
+ if(normalizedPageId===knowledgePageId||title===knowledgeTitle)
   return preparePublishedKnowledgeDirectoryCall(route,entry,(runtime,scope)=>bindModelRoot(runtime,scope.scenarioId))
- if(route.meta['title']===catalogTitle)
+ if(normalizedPageId===catalogPageId||title===catalogTitle)
   return preparePublishedBidClassModelCatalogCall(route,entry,(runtime,scope)=>bindModelRoot(runtime,scope.scenarioId))
- if(route.meta['title']===configurationTitle)
+ if(normalizedPageId===configurationPageId||title===configurationTitle)
   return preparePublishedConfigurationReleaseCall(route,entry,(runtime,scope)=>{
    const assertCurrent=scope.assertCurrent
    const submitAction=createSmartBidPageActionSubmit(runtime,scope.projectId,assertCurrent)
@@ -71,7 +82,9 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
    }
 
   })
- return preparePublishedContentOperationCall(route,entry,bindOperationRoot)
+ if(normalizedPageId===operationPageId||title===operationTitle)
+  return preparePublishedContentOperationCall(route,entry,bindOperationRoot)
+ return undefined
 }
 
 function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){

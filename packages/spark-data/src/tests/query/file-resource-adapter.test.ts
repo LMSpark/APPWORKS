@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
 import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor, type FileResourceTransport} from '../../query/file-resource-adapter'
 
-function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='page-files') {
+function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='page-files',equivalentRetry=false) {
   const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId,
     columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
       {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
@@ -11,6 +11,7 @@ function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='
   const versions=new Map<number,string>()
   const read=vi.fn(async()=>current.text===null?null:{text:current.text,revision:current.revision})
   const write=vi.fn(async(_input:{text:string})=>{current.text=_input.text;current.revision='v2'})
+  const retryEquivalentWrite=vi.fn(async(input:{text:string})=>{current.text=input.text;current.revision='v2'})
   const remove=vi.fn(async()=>{current.text=null;current.revision=null})
   const history:NonNullable<FileResourceTransport['history']>={
     list:async target=>[...versions.keys()].map(version=>({version,fileName:`${version}__${String(target.fields['fileName'])}`,lastModified:null})),
@@ -21,11 +22,12 @@ function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='
       versions.set(version,text);throw new Error('timeout')},
     verify:async(_target,attempt,expectedText)=>versions.get(Number(attempt.version))===expectedText,
   }
-  const transport:FileResourceTransport={read,write,remove,history,isUnknown:error=>error instanceof Error&&error.message==='timeout'}
+  const retryCapability=equivalentRetry?{retryEquivalentWrite}:{}
+  const transport:FileResourceTransport={read,write,remove,history,isUnknown:error=>error instanceof Error&&error.message==='timeout',...retryCapability}
   const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId,contentField:'text',...(exposeRevision?{revisionField:'revision'}:{}),
     target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),transport})
   bind(view)
-  return {dataSet,view,current,read,write,remove,bind,versions,history,transport}
+  return {dataSet,view,current,read,write,retryEquivalentWrite,remove,bind,versions,history,transport}
 }
 
 describe('file readback cannot prove an unknown attempt was not applied',()=>{
@@ -79,6 +81,63 @@ describe('file readback cannot prove an unknown attempt was not applied',()=>{
       f.versions.set(1,text)
       expect((await f.view.verifySourceHistoryAttempt()).state).toBe('confirmed')
       expect([...f.versions.keys()]).toEqual([1])
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('retries an unknown working update once only after the original target reads back its exact baseline',async()=>{
+    const f=fixture(false,true,'page-files',true)
+    try{
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'submitted once'})
+      f.write.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      await expect(f.view.verifySourceWriteAttempt()).resolves.toMatchObject({
+        state:'unknown',text:'submitted once',retryable:true,message:expect.stringContaining('写前基线'),
+      })
+      expect(f.retryEquivalentWrite).not.toHaveBeenCalled()
+      await expect(f.view.retrySourceWriteAttempt()).resolves.toEqual({state:'confirmed',text:'submitted once',message:null})
+      expect(f.retryEquivalentWrite).toHaveBeenCalledOnce()
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.retryEquivalentWrite).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(f.current.text).toBe('submitted once')
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not retry an unknown write when the remote source is a third state',async()=>{
+    const f=fixture(false,true,'page-files',true)
+    try{
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'submitted once'})
+      f.write.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      f.current.text='unrelated remote edit'
+      const verified=await f.view.verifySourceWriteAttempt()
+      expect(verified).not.toHaveProperty('retryable')
+      await expect(f.view.retrySourceWriteAttempt()).resolves.toMatchObject({
+        state:'unknown',message:expect.stringContaining('原提交及原基线'),
+      })
+      expect(f.retryEquivalentWrite).not.toHaveBeenCalled()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not expose equivalent retry for unknown file creation',async()=>{
+    const f=fixture(false,true,'page-files',true)
+    try{
+      f.current.text=null
+      f.current.revision=null
+      await f.view.refresh()
+      await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'created'})
+      f.write.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      const verified=await f.view.verifySourceWriteAttempt()
+      expect(verified).not.toHaveProperty('retryable')
+      await expect(f.view.retrySourceWriteAttempt()).rejects.toThrow('FILE_RESOURCE_RETRY_UNAVAILABLE')
+      expect(f.retryEquivalentWrite).not.toHaveBeenCalled()
     }finally{f.dataSet.destroy()}
   })
 })

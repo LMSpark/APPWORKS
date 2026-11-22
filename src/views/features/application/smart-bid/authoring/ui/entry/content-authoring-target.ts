@@ -24,6 +24,7 @@ export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string;pageId:stri
 
 /** Prepare the published route with the session inputs expected by the runtime pool. */
 export function preparePublishedContentAuthoringCall(route:ContentAuthoringRoute, entry?:ContentAuthoringPublishedEntry) {
+ if(entry===undefined&&route.query['draftId']===undefined)return undefined
  const target = resolvePublishedContentAuthoringTarget(route, entry)
  if(!target)return undefined
  const session=captureContentAuthoringSession(target)

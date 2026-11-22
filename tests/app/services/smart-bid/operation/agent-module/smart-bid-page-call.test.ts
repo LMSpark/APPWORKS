@@ -27,6 +27,24 @@ it.each(['知识目录与指南','ClassModel 登记','配置编审与启用','�
  expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
 })
 
+it('derives the configuration scope from the authorized route without a project query',()=>{
+ const prepared=preparePublishedSmartBidPageCall({
+  ...route,
+  meta:{...route.meta,title:'配置编审与启用'},
+  query:{scenarioId:'SPACE'},
+ })
+ expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:applicationId}}})
+})
+
+it('binds reused page 18 navigation by page identity instead of node title',()=>{
+ const prepared=preparePublishedSmartBidPageCall({
+  ...route,
+  meta:{...route.meta,title:'输入回读',pageId:'smart-bid-authoring-page18',
+   tool:{projectId:applicationId,pageId:'smart-bid-authoring-page18'}},
+ })
+ expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
+})
+
 it('preserves auxiliary scenario bindings for standard action pages',()=>{
  const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
   query:{...route.query,additionalScenarioIds:'AUX'}})

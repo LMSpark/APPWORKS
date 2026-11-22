@@ -229,6 +229,15 @@ it('derives the production page 11 host identity from the authorized route',()=>
  expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
  expect(resolvePublishedContentAuthoringTarget(target)?.pageId).toBe('TOOL11')
 })
+it('does not require a content-authoring draft for another published SmartBid page',()=>{
+ const target=route(),tool={projectId:app,pageId:'smart-bid-authority-page06'}
+ expect(preparePublishedContentAuthoringCall({...target,meta:{...target.meta,pageId:'smart-bid-authority-page06',tool},query:{scenarioId:space}}))
+  .toBeUndefined()
+})
+it('leaves page 11 on the ordinary published-page renderer without a draft identity',()=>{
+ const target=route()
+ expect(preparePublishedContentAuthoringCall({...target,query:{scenarioId:space}})).toBeUndefined()
+})
 it('takes page and space identity from resolved navigation while keeping explicit project/draft',()=>{
  const target=resolveContentAuthoringTarget(route())
  expect(target).toEqual({applicationId:app,pageId:'TOOL11',scenarioId:space,projectId:'P',draftId:'D'})

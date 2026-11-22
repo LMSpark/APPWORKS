@@ -1,5 +1,40 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-21 SmartBid Page06 unknown 文件恢复
+
+- **复杂度**：复杂；跨 spark-data source lifecycle、FileResource transport、lowcode upload 分类及页面编辑器恢复 UX。
+- **验证**：baseline/final typecheck 通过，FileResource 63/63、upload 49/49，目标 ESLint、`verify:page-thin`、`verify:docs`、diff-check 通过。
+- **返工**：1 次类型收窄、1 次 5 项 lint 修正、1 次权限自审补充 `assertWritable`；高阶分析 1 轮确认不得为 502 自动重发。
+- **线上结果**：重启前原 unknown owner 已核“style 仍是仓内同 bytes 的旧基线”；重启后 cfg node/D3 route 可达，但 `VersionId` 写权限 false、发布按钮 disabled、运行 main 空，未取得完整 Page06 receipt/render proof，未继续其余页。
+- **30 天存活**：待 2026-12-21 回查；核补偿入口只对 working update 开放、明确 Ajax rejection 不回流 unknown、Page06 pointer 是否获得可渲染的 publication receipt。
+- **人工干预**：用户批准“重启 Vite 后同 target/同 bytes 显式补偿”；实际重启后 bytes 已一致，无需再次发送 style。未修改/启动/部署 Java，未 commit/push。
+
+### 2026-11-22 SmartBid 后端 PageTool 批量发布首批
+
+- **复杂度**：复杂；在线创建 PageTool、逐文件 DataView 保存、历史/pagedata/manifest、蓝图 VersionId 与原 unknown 恢复。
+- **验证**：Page04 完整发布并回读 `r=1;s=1;t=1;m=1`；Page05 manifest 首次响应 502 后只读确认 12,893 字节快照已存在，续办原 attempt 后确认同一 VersionId。Page06 rule/script 精确匹配，style 502 且原 attempt 无法核验，整批停止。
+- **写入结果**：仅 2 页完整发布；第 3 页部分成功。未重新上传 Page06，未覆盖/删除、未创建子节点或继续 Page07-19。
+- **30 天存活**：待 2026-12-22 回查 Page04-05 指针仍可打开，重点核 Page06 style unknown 是否仍需原 owner 续办。
+- **人工干预**：用户要求后端一次性闭环；服务不稳定触发停止，不用重试次数或测试绿掩盖 unknown。
+
+### 2026-11-22 SmartBid 后端发布第二轮与运行接线
+
+- **复杂度**：复杂；跨 FileResource unknown 恢复、PageTool 批量发布、蓝图多节点复用、晚动态路由、SmartBid host scope 与在线 smoke。
+- **验证**：根 typecheck 多轮通过；FileResource 63/63、upload 49/49、DynamicRouter 40/40、SmartBid host 定向 53/53 及 Page18 target 12/12 通过；定向 ESLint、`verify:docs`、`verify:page-thin`、diff-check 按阶段通过。
+- **返工**：2 轮运行断链定位（Page19 被 review host 误接、Page18 operation host 仍要求 query project），1 次 D3 `KnowledgeGuide` 不存在视图纠正，1 次同 pageId 多节点 pointer 迁移改用独立 Blueprint owner。
+- **线上结果**：Page15 problem、Page18 input/validation 已从隐藏/旧 pointer 恢复；Page19 与 Page18 三节点真实渲染；Page11 无 draft 时不再 blank。Page12/14 因父行 child 权限未新增，未绕过。
+- **30 天存活**：待 2026-12-22 回查；重点核复用节点 pointer、路径 scope fallback、host-command 选择是否仍按 pageId 而非标题，D3 是否正式增加 KnowledgeGuide 后可恢复目录绑定。
+- **人工干预**：按用户要求不冷重启、只通过正式 DataView/PageTool owner 保存；遇到 502 仅精确 readback 或显式等价 working-update 恢复。未修改或部署 Java，未 commit/push。
+
+### 2026-11-21 SmartBid C1 导航接线
+
+- **复杂度**：中等；在线蓝图三节点导航接线，涉及平台/企业/应用三种 system-page scope，不改源码或数据模型。
+- **总耗时**：约 90 分钟含误判纠正、源码重审、授权 SPA 取证及三笔逐项保存；返工 1 次，起初把“未绑定导航”误判为“页面/服务未建”，用户纠正后按已注册 Vue 页面重新研究。
+- **验证**：第一次误接的三个 Vue 节点各自核验 1/1，但内容只证明入驻/申请/数据恢复页面可达，不证明 C1 语义；用户纠正后已撤回运行可见性。租户与公共能力 URL 冷读为空且不显示，服务运行 URL 保留但不显示。
+- **写入边界**：曾三次蓝图导航保存，随后关闭三项显示并清空租户/公共能力 URL；服务运行 URL 清空读回不一致，保留隐藏状态。未审核、审批、恢复数据、发布文件、删除记录或修改 Java。
+- **30 天存活**：待 2026-12-21 回查；重点核三个 Vue 目标是否仍在注册表、节点显示开关及身份标记是否被后续蓝图发布覆盖。
+- **人工干预**：用户明确纠正租户由 JWT、并指出 Vue 误映射未接通；D849 文件目录只证实 page11，未发现 C1 pageId，等待准确目标后再接线。
+
 ### 2026-11-21 蓝图树子节点权限收窄
 
 - **复杂度**：中等；修复蓝图 DataView 的树子节点授权和新增调用，并校正两个直接相关测试夹具/断言。

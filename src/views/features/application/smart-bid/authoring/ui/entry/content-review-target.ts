@@ -3,6 +3,7 @@
  * 职责：按正式发布身份为审定、知识和配置业务页准备业务宿主。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
@@ -239,7 +240,10 @@ function preparePublishedEnterpriseCall<Host>(route:ContentAuthoringRoute,entry:
 
 function preparePublishedCall<Host>(route:ContentAuthoringRoute,entry:PublishedPageEntry,createHost:(runtime:PageRuntime,scope:Scope)=>Host){
  if(!matchesPublishedNavigation(route,entry))return undefined
- const {projectId}=route.query
+ const requestedProjectId=route.query['projectId']
+ if(requestedProjectId!==undefined&&!identity(requestedProjectId))
+  throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
+ const projectId=typeof requestedProjectId==='string'?requestedProjectId:resolveExecutionProjectId(route.path)
  if(!identity(projectId))throw Error('CONTENT_REVIEW_PUBLICATION_IDENTITY_CONFLICT')
  const {applicationId,scenarioId}=entry
  const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})

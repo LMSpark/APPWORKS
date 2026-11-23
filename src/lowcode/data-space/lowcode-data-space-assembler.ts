@@ -3,7 +3,9 @@
  * 职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。
  */
 import { DataSpaceDesignApi, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
-import { DataSet, DataViewQuery, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, type BindCommandSubmitOptions, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
+import { DataSet, DataViewQuery, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, compileRuntimeDataSetPlan } from '@spark-appworks/spark-data'
+import type { BindCommandSubmitOptions, DataResourceRelation, DataViewFilterTree, RuntimeDataSetPlanFile } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
@@ -20,11 +22,11 @@ export type LowcodeDataSpaceAssemblerInput = Readonly<{
  models: readonly FormalModel[]
  relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
  /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */
- fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>
+ fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
  /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */
- commandBindings?: Readonly<Record<string,(view:DataView)=>BindCommandSubmitOptions>>
+ commandBindings?: Readonly<Record<string,(view:SparkData.DataView)=>BindCommandSubmitOptions>>
  /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */
- projectionBindings?: Readonly<Record<string,(view:DataView)=>Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>
+ projectionBindings?: Readonly<Record<string,(view:SparkData.DataView)=>Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>
  /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */
  modelAdapters?: Readonly<Record<string,NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>
 }>
@@ -174,8 +176,8 @@ export class LowcodeDataSpaceAssembler {
     table.forEachView(view => {
      DataViewQuery.validateFields(view.queryConfig, new Set(table.columns.filter(column => !column.computeExpression && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()}, new Set(view.columns.filter(column => column.name !== '_pk').map(column => column.name)))
-     view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
     })
+    table.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
    }
    for (const table of Object.values(dataSet.tables)) {
     if (table.resourceType !== 'logical-view' || table.modelBinding) continue
@@ -213,9 +215,9 @@ export class LowcodeDataSpaceAssembler {
       new Set(table.columns.filter(column => Boolean(column.computeExpression) && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()},
       new Set(LowcodeDataSpaceViewFields.selectionColumns(view, outputNames).map(column => column.name)))
-     const adapter=input.modelAdapters?.[model.id]
-     this.runtime.bindModelView(view, model, {...(arrayRows===undefined?{}:{arrayRows}),...(adapter===undefined?{}:{adapter})})
     })
+    const adapter=input.modelAdapters?.[model.id]
+    this.runtime.bindModelTable(table, model, {...(arrayRows===undefined?{}:{arrayRows}),...(adapter===undefined?{}:{adapter})})
    }
    for(const table of Object.values(dataSet.tables)){
     if(table.resourceType!=='command')continue
@@ -231,5 +233,80 @@ export class LowcodeDataSpaceAssembler {
    this.runtime.validateQueryDefinitions(dataSet)
    return {dataSet, diagnostics: relations.diagnostics}
   } catch (error) { dataSet.destroy(); throw error }
+ }
+
+ /** Materialize the backend-owned independent Dataset Plan, then bind the verified formal model owners. */
+ public assembleRuntimePlan(input: Readonly<{
+   plan: RuntimeDataSetPlanFile
+   space: FormalSpace
+   models: readonly FormalModel[]
+ }>): LowcodeDataSpaceAssembly {
+   const plan = input.plan
+   if (input.space.dataSpaceId !== plan.scenarioId || input.space.name !== plan.name && !plan.name.trim()) {
+     throw new Error('RUNTIME_DATA_SET_PLAN_SPACE: 正式数据空间身份不匹配')
+   }
+   const modelsById = new Map(input.models.map(model => [model.id, model]))
+   const modelsByName = new Map(input.models.map(model => [model.metaName, model]))
+   for (const planned of plan.models) {
+     const model = modelsById.get(planned.id)
+     if (model?.metaName !== planned.metaName || modelsByName.get(planned.metaName) !== model) {
+       throw new Error(`RUNTIME_DATA_SET_PLAN_MODEL: ${planned.metaName} 正式模型身份不匹配`)
+     }
+     const formalFields = DataSpaceDesignApi.resolveFields(model)
+     const planFields = plan.modelFields.filter(field => field.dataModelId === planned.id && field.type === 'dataModel')
+     const formalIds = new Set(formalFields.map(field => field.id))
+     for (const field of planFields) {
+       const formal = formalFields.find(candidate => candidate.id === field.id)
+       const formalType = formal?.type !== undefined && formal.type.trim() !== '' ? formal.type : 'string'
+       if (!formal || !formalIds.has(field.id)
+         || formal.name !== field.name || formal.canonicalName !== (field.asName || field.name)
+         || formal.output !== field.isOutput
+         || formalType !== field.fieldType) {
+         throw new Error(`RUNTIME_DATA_SET_PLAN_FIELD: ${planned.metaName}.${field.name} 与正式字段不一致`)
+       }
+     }
+     if (formalFields.filter(field => field.output && field.id.length > 0).some(field => !planFields.some(item => item.id === field.id))) {
+       throw new Error(`RUNTIME_DATA_SET_PLAN_FIELD: ${planned.metaName} Plan 字段投影不完整`)
+     }
+   }
+   const compiled = compileRuntimeDataSetPlan(plan, {
+     resolveModelResource: ({modelId}) => {
+       const model = modelsById.get(modelId)
+       if (!model) return undefined
+       return DataSpaceDesignApi.resolveTableResource(model)
+     },
+     resolveFieldPrimaryKey: ({modelId, fieldId, fieldName}) => modelsById.get(modelId)?.fields
+       .find(field => field.id === fieldId || field.name === fieldName || field.canonicalName === fieldName)?.primaryKey,
+   })
+   const dataSet = DataSet.fromJson(compiled.metadata)
+   try {
+     dataSet.setSharedHttpClient(this.http)
+     for (const model of input.models) {
+       const table = dataSet.getTable(model.metaName)
+       if (!table) continue
+       let arrayRows: Array<Record<string, unknown>> | undefined
+       if (model.sourceType === '数组') {
+         const raw = model.raw['items']
+         if (typeof raw !== 'string') throw new Error(`数组 ${model.metaName} 缺少可读取的items文本`)
+         const rows = parseJsonDocument(raw)
+         if (!Array.isArray(rows) || !rows.every(isRecord)) throw new Error(`数组 ${model.metaName} 的items必须是对象数组`)
+         const outputs = DataSpaceDesignApi.resolveOutputFields(model)
+         arrayRows = rows.map(row => {
+           if (!isRecord(row)) throw new Error(`数组 ${model.metaName} 的items包含非对象`)
+           return Object.fromEntries(outputs.filter(field => Object.hasOwn(row, field.name))
+             .map(field => [field.canonicalName, row[field.name]]))
+         })
+       }
+       table.forEachView(view => {
+         view.primaryKey = model.primaryKey
+       })
+       this.runtime.bindModelTable(table, model, ...(arrayRows === undefined ? [] : [{arrayRows}]))
+     }
+     this.runtime.validateQueryDefinitions(dataSet)
+     return {dataSet, diagnostics: []}
+   } catch (error) {
+     dataSet.destroy()
+     throw error
+   }
  }
 }

@@ -867,7 +867,7 @@ export class DataSetCrudTool {
     }
     if (params.crudConfig !== undefined) {
       if (params.crudConfig === null) {
-        delete table.crudConfig
+        table.clearCrudConfig()
       } else {
         table.setCrudConfig(params.crudConfig)
       }

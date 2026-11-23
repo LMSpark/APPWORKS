@@ -1,11 +1,11 @@
 ---
 name: appworks-verify-change
-description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 typecheck、lint、vitest、verify:* 检查，用户要求验证、"跑一遍检查"、"确认改动没问题"，或要做阶段 6 出口验证、核对验证计划是否全部完成时使用。
+description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 typecheck、lint、vitest、verify:* 检查，用户要求验证、"跑一遍检查"、"确认改动没问题"，或要做实施出口验证、核对验证计划是否全部完成时使用。
 ---
 
 # 验证 AppWorks 变更（只读）
 
-按真实影响面选择检查，证明已批准的范围，并列出未验证项。不得用一个窄的绿色测试冒充整体完成。
+按真实体系层和影响面选择检查，证明已批准的范围，并列出未验证项。不得用一个窄的绿色测试冒充跨层完成。
 
 ## 边界
 
@@ -28,7 +28,7 @@ description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 ty
 
 ## 流程
 
-1. **建立范围与基线**：读对应 `notes/plan-*` 的影响范围、验证计划和验收标准；`git status`、`git diff --stat` 看实际改动；需要基线时，只在用户同意后用干净 worktree 或原提交复跑同一命令；不得为取基线而 stash、回滚用户的改动。
+1. **建立范围与基线**：读对应 `notes/plan-*` 的影响范围、验证计划和验收标准；`git status`、`git diff --stat` 看实际改动。没有修改前基线时不擅自分类为既有失败；可在用户批准且不改变现场的只读方式核对原提交。**不得创建额外 worktree、stash 或回滚用户改动。**
 2. **映射影响面**：把每个改动的包、公共出口、消费者、运行边界映射到下表检查。
 3. **按固定顺序运行**（`knowledge/testing.md`）：`typecheck` → `lint` → `test`，再跑定向 `verify:*`。禁止跳过 typecheck 直接跑测试。
 4. **归类每项结果**，对失败项对比基线再分类。
@@ -53,7 +53,7 @@ description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 ty
 
 要点：
 - `verify:rules` 可能被既有 `verify:arch` 问题提前阻断；此时记录 arch 的阻断项，再对本次触及的规则域跑定向命令，确认没有新增违规（见 `knowledge/testing.md`）。
-- 新增测试文件时，检查目录文件数是否超过 10 个。
+- 新增测试文件时，检查是否按被测领域归组；目录文件数本身不是门禁。
 - 不要为拉长报告而跑无关命令。
 
 ## 输出
@@ -69,4 +69,4 @@ description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 ty
 - 未被支持的完成声明：哪些说法目前缺证据
 ```
 
-只有"总体 passed 且未验证项为空"才满足验证出口。验证报告交回根 `AGENTS.md` 阶段 6/7；需要审查时再用 `appworks-review-change`。
+只有"总体 passed 且未验证项为空"才满足验证出口。验证报告交回根 `AGENTS.md` 的实施收尾/知识沉淀流程；需要审查时再用 `appworks-review-change`。

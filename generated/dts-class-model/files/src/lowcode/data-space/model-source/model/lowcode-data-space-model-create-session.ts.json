@@ -45,6 +45,10 @@
         },
         "providerId": {
           "type": "string"
+        },
+        "routeSpec": true,
+        "outputPath": {
+          "type": "string"
         }
       },
       "required": [
@@ -665,6 +669,16 @@
               "name": "providerId",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "routeSpec",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputPath",
+              "readable": true,
+              "writable": false
             }
           ]
         }

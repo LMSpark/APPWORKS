@@ -83,6 +83,27 @@ export { TreeManager } from './node-tree/tree-manager'
 export { DataSetCrudTool } from './dataset-crud-tool'
 export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
 export { DataViewSelectionValue } from './strategies/selection/data-view-selection-value'
+export { parseRuntimeDataSetPlanFile } from './runtime-data-set-plan/parser'
+export { compileRuntimeDataSetPlan } from './runtime-data-set-plan/compiler'
+export { buildRuntimeDataSetPlan, buildRuntimeDataSetPlanText, hashRuntimeDataSetPlanContent, stableRuntimeDataSetPlanText } from './runtime-data-set-plan/builder'
+export type {BuildRuntimeDataSetPlanInput} from './runtime-data-set-plan/builder'
+export type {
+  CompileRuntimeDataSetPlanOptions,
+  CompiledRuntimeDataSetPlan,
+  RuntimeDataSetPlanModelResource,
+} from './runtime-data-set-plan/compiler'
+export type {
+  RuntimeDataSetPlanDependency,
+  RuntimeDataSetPlanDependencyEmptyValueMode,
+  RuntimeDataSetPlanFile,
+  RuntimeDataSetPlanInputParam,
+  RuntimeDataSetPlanModel,
+  RuntimeDataSetPlanModelField,
+  RuntimeDataSetPlanRelation,
+  RuntimeDataSetPlanView,
+  RuntimeDataSetPlanViewField,
+  RuntimeDataSetPlanViewFieldDisplay,
+} from './runtime-data-set-plan/types'
 
 // ===== Node Tree（页面节点树模型，从 spark-project-model 迁入）=====
 

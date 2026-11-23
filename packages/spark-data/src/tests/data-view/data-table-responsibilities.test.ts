@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { DataView, DataSet } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { DataTable } from '../../data-table'
@@ -158,6 +158,42 @@ describe('DataTable responsibilities (refactor verification)', () => {
     // 通过 getOrCreateView 显式创建后，getView 应能找到
     const grid1 = table.getOrCreateView('grid1')
     expect(ds.getView('Users', 'grid1')).toBe(grid1)
+  })
+
+  it('DataTable 统一绑定 owner adapter，后续命名视图继承适配且保留独立运行态', async () => {
+    const ds = DataSet.fromJson({dataSetName: 'Owner', scenarioId: 'OWNER', tables: {
+      Users: {tableName: 'Users', modelBinding: {modelId: 'USERS', modelName: 'Users'},
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {}}},
+    }})
+    const table = ds.getTable('Users')!
+    const executeQuery = vi.fn(async (view: DataView) => ({
+      rows: [{id: view.viewId}], total: 1,
+      assertIdentity: () => undefined,
+      rowKey: (row: DataRow) => row['id'],
+      fieldAccess: () => ({read: 'visible' as const, write: 'denied' as const, component: 'readonly' as const,
+        required: false, writeMode: 'readonly' as const}),
+      readFieldAccess: () => 'visible' as const,
+      addActionState: () => 'disabled' as const,
+      editActionState: () => 'disabled' as const,
+      deleteActionState: () => 'disabled' as const,
+      createChildActionState: () => 'disabled' as const,
+      viewActionState: () => 'enabled' as const,
+    }))
+    const invalidateQueryCache = vi.fn()
+    try {
+      table.bindQueryExecutor({executeQuery, invalidateQueryCache})
+      await table.getView('default')!.refresh()
+      const later = table.addView('later')
+      await later.refresh()
+      expect(executeQuery.mock.calls.map(call => call[0]?.viewId)).toEqual(['default', 'later'])
+      expect(table.getView('default')!.rows.map(row => row['id'])).toEqual(['default'])
+      expect(later.rows.map(row => row['id'])).toEqual(['later'])
+      const invalidations = invalidateQueryCache.mock.calls.length
+      table.setCrudConfig({timeout: 500})
+      expect(invalidateQueryCache).toHaveBeenCalledTimes(invalidations + 2)
+      expect(table.getView('default')!.rows.map(row => row['id'])).toEqual(['default'])
+      expect(later.rows.map(row => row['id'])).toEqual(['later'])
+    } finally {ds.destroy()}
   })
 
   it('命名视图独立且 CRUD 操作影响 default view', async () => {

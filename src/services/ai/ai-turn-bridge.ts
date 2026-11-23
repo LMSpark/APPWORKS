@@ -67,6 +67,8 @@ type PendingContinuation = Readonly<{
 export type AiAgentTurnBridgeOptions = Readonly<{
   timeoutMs?: number
   idleTimeoutMs?: number
+  /** /api/ai/turns 正式 ACK；只有 bridge 已配对 session/turn 后交付。 */
+  onAccepted?: (identity: Readonly<{sessionId:string;turnId:string;localTurnId:string}>) => void
 }>
 
 const aiTurnDiagnostics: AiTurnBridgeDiagnostic[] = []
@@ -119,6 +121,7 @@ export function createAiAgentTurnCallbacks(options: AiAgentTurnBridgeOptions = {
         // lowcode /api/ai/turns 每次创建一段新的持久会话；不复用 spark-ai
         // 的本地业务 sessionId，避免覆盖或重复创建已有后端会话。
         const ack = await lowcodeApi.realtime.startAgentTurn({ agentId, message })
+        options.onAccepted?.({sessionId:ack.sessionId,turnId:ack.turnId,localTurnId:input.turn.turnId})
         collector.bind(ack)
         const outcome = await collector.result
         retainToolBinding(toolBindings, input, outcome)

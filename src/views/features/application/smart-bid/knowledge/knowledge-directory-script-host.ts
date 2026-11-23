@@ -8,7 +8,7 @@ type OperationHost=Parameters<typeof createContentOperationScriptHost>
 
 /** 页16只消费目录及同版指南读取。 */
 export function createKnowledgeDirectoryScriptHost<Runtime extends OperationHost[0]>(
- runtime:Runtime,classModel:OperationHost[1],scope:Omit<OperationHost[2],'resolveOriginalGuide'>){
+ runtime:Runtime,classModel:OperationHost[1],scope:OperationHost[2]){
  const directory=createContentOperationScriptHost(runtime,classModel,scope)
  return {runtime,assertCurrent:directory.assertCurrent,invoke(name:string,input:unknown,signal:AbortSignal){
   if(name!=='knowledge.directory.read')throw Error('KNOWLEDGE_DIRECTORY_COMMAND_REQUIRED')

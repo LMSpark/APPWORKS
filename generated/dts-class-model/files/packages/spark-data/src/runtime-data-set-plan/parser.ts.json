@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:runtime-data-set-plan/parser",
+    "sourcePath": "packages/spark-data/src/runtime-data-set-plan/parser.ts",
+    "sourceFile": "packages/spark-data/src/runtime-data-set-plan/parser.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "runtime-data-set-plan/parser",
+    "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/parser\n职责：严格解析后端独立 `spark.runtimeDataSetPlan` 文件并冻结跨层结构。\n边界：只校验 Plan JSON、身份与引用完整性，不读取模型 rows、权限或文件。\nAI用途：装配独立 Dataset 前，先用同一解析器确认 schemaVersion、scenarioId、views 与 dependencies。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-22T19:30:50.206Z",
+  "models": {}
+}

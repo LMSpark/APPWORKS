@@ -1,0 +1,234 @@
+import { describe, expect, it } from 'vitest'
+import { DataSet } from '../dataset'
+import { buildRuntimeDataSetPlan, buildRuntimeDataSetPlanText, compileRuntimeDataSetPlan, parseRuntimeDataSetPlanFile, stableRuntimeDataSetPlanText } from '../index'
+
+function planText(emptyValueMode: 'emptyResult' | 'omit' | 'asNull' = 'emptyResult') {
+  return JSON.stringify({
+    schemaVersion: 1,
+    kind: 'spark.runtimeDataSetPlan',
+    scenarioId: 'SPACE',
+    name: 'Runtime plan',
+    description: '',
+    type: '数据源',
+    savedAt: '2026-11-23T00:00:00.000Z',
+    contentHash: 'fnv1a:12345678',
+    source: {dataSetId: 'SPACE', exportedFrom: 'data-space-design', graphFile: 'SPACE.json'},
+    inputParams: [],
+    models: [
+      {id: 'M_PARENT', metaName: 'Parent', name: 'Parent', description: '', sourceType: '数据库表',
+        isBusinessMain: true, isBusiness: true, outputType: 'Table', filter: '', parentField: '',
+        hasChildField: '', selfType: 'child', topValue: '', cacheType: '',
+        join: {joinType: '', foreignKeyFields: '', joinFilter: '', pId: ''},
+        crud: {addApi: '', updateApi: '', deleteApi: ''}},
+      {id: 'M_CHILD', metaName: 'Child', name: 'Child', description: '', sourceType: '数据库表',
+        isBusinessMain: false, isBusiness: true, outputType: 'Table', filter: '', parentField: '',
+        hasChildField: '', selfType: 'child', topValue: '', cacheType: '',
+        join: {joinType: '', foreignKeyFields: '', joinFilter: '', pId: ''},
+        crud: {addApi: '', updateApi: '', deleteApi: ''}},
+    ],
+    modelFields: [
+      {id: 'F_PARENT', dataModelId: 'M_PARENT', type: 'dataModel', name: 'ids', description: '父 ID',
+        fieldType: 'json', isOutput: true, asName: '', orderType: '', order: 0, group: 0, isPKey: true},
+      {id: 'F_CHILD', dataModelId: 'M_CHILD', type: 'dataModel', name: 'parentId', description: '父引用',
+        fieldType: 'varchar', isOutput: true, asName: '', orderType: '', order: 0, group: 0, isPKey: false},
+      {id: 'F_CHILD_KEY', dataModelId: 'M_CHILD', type: 'dataModel', name: 'id', description: 'ID',
+        fieldType: 'varchar', isOutput: true, asName: '', orderType: '', order: 1, group: 0, isPKey: true},
+      {id: 'F_CHILD_ENABLED', dataModelId: 'M_CHILD', type: 'dataModel', name: 'enabled', description: '启用',
+        fieldType: 'int', isOutput: true, asName: '', orderType: '', order: 2, group: 0, isPKey: false},
+    ],
+    views: [
+      {id: 'V_PARENT', code: 'parent', name: 'Parent', description: '', dataModelId: 'M_PARENT', isDefault: true,
+        outputType: 'Table', filter: '', dependencies: [], parentField: '', hasChildField: '', selfType: 'child',
+        topValue: '', cacheType: ''},
+      {id: 'V_CHILD', code: 'child', name: 'Child', description: '', dataModelId: 'M_CHILD', isDefault: true,
+        outputType: 'Table',
+        filter: JSON.stringify({Type: 'and', Filters: [
+          {Type: 'cond', Field: 'parentId', Operator: 'equal', Value: null,
+            ValueFun: {Type: 'GetDependValue', DependKey: 'parentIds'}},
+          {Type: 'cond', Field: 'enabled', Operator: 'equal', Value: 1},
+        ]}),
+        dependencies: [{dependKey: 'parentIds', sourceDataViewId: 'V_PARENT', sourceModelId: 'M_PARENT',
+          sourceField: 'ids', label: '父 ID', emptyValueMode}],
+        parentField: '', hasChildField: '', selfType: 'child', topValue: '', cacheType: ''},
+    ],
+    viewFields: [
+      {id: 'VF_PARENT', dataViewId: 'V_PARENT', dataModelId: 'M_PARENT', name: 'ids', description: '父 ID',
+        fieldType: 'json', isOutput: true, asName: '', orderType: '', order: 0, group: 0, sort: 0, isPKey: true,
+        display: {kind: 'text', fromDataViewId: '', valueField: '', labelField: ''},
+        valueSource: 'model', sourceDataViewId: '', sourceModelId: '', sourceField: ''},
+      {id: 'VF_CHILD', dataViewId: 'V_CHILD', dataModelId: 'M_CHILD', name: 'parentId', description: '父引用',
+        fieldType: 'varchar', isOutput: true, asName: '', orderType: '', order: 0, group: 0, sort: 0, isPKey: false,
+        display: {kind: 'text', fromDataViewId: '', valueField: '', labelField: ''},
+        valueSource: 'model', sourceDataViewId: '', sourceModelId: '', sourceField: ''},
+      {id: 'VF_CHILD_KEY', dataViewId: 'V_CHILD', dataModelId: 'M_CHILD', name: 'id', description: 'ID',
+        fieldType: 'varchar', isOutput: true, asName: '', orderType: '', order: 0, group: 0, sort: 1, isPKey: true,
+        display: {kind: 'text', fromDataViewId: '', valueField: '', labelField: ''},
+        valueSource: 'model', sourceDataViewId: '', sourceModelId: '', sourceField: ''},
+      {id: 'VF_CHILD_ENABLED', dataViewId: 'V_CHILD', dataModelId: 'M_CHILD', name: 'enabled', description: '启用',
+        fieldType: 'int', isOutput: true, asName: '', orderType: '', order: 0, group: 0, sort: 2, isPKey: false,
+        display: {kind: 'text', fromDataViewId: '', valueField: '', labelField: ''},
+        valueSource: 'model', sourceDataViewId: '', sourceModelId: '', sourceField: ''},
+    ],
+    relations: [],
+    linkage: {edges: []},
+  })
+}
+
+describe('runtime data set plan', () => {
+  it('parses the backend-owned schema without accepting extra compatibility fields', () => {
+    const parsed = parseRuntimeDataSetPlanFile(planText(), 'SPACE')
+    expect(parsed.kind).toBe('spark.runtimeDataSetPlan')
+    expect(parsed.scenarioId).toBe('SPACE')
+    expect(parsed.models[0]?.metaName).toBe('Parent')
+    expect(() => parseRuntimeDataSetPlanFile(JSON.stringify({...JSON.parse(planText()), viewCascades: []}))).toThrow('未知字段')
+    expect(() => parseRuntimeDataSetPlanFile(planText(), 'OTHER')).toThrow('scenarioId')
+  })
+
+  it('compiles GetDependValue into a native spark-data query cascade', () => {
+    const compiled = compileRuntimeDataSetPlan(parseRuntimeDataSetPlanFile(planText()))
+    expect(compiled.viewCascades).toEqual([expect.objectContaining({
+      parentTable: 'Parent', parentViewId: 'V_PARENT', childTable: 'Child', childViewId: 'V_CHILD',
+      filterBindings: [{sourceField: 'ids', targetField: 'parentId', operator: 'eq', emptyValueMode: 'emptyResult'}],
+    })])
+    const child = compiled.metadata.tables['Child']?.views['V_CHILD']
+    expect(child?.scopeFilter).toEqual({field: 'enabled', operator: 'eq', value: 1})
+    expect(child?.fieldProjection?.every(field => field.resourceFieldId !== field.fieldId)).toBe(true)
+    expect(child?.fieldProjection?.find(field => field.viewField === 'id')?.resourceFieldId).toBe('F_CHILD_KEY')
+    const dataSet = DataSet.fromRuntimeDataSetPlan(planText())
+    expect(dataSet.getView('Parent', 'V_PARENT')).toBeDefined()
+    expect(dataSet.getView('Child', 'V_CHILD')).toBeDefined()
+    dataSet.destroy()
+  })
+
+  it('builds the unchanged file contract from saved metadata rows and pagedata view definitions', () => {
+    const text = buildRuntimeDataSetPlanText({
+      scenarioId: 'SPACE',
+      savedAt: '2026-11-23T00:00:00.000Z',
+      space: {rowid: 'SPACE', Name: 'Space', description: '', Type: '数据源', inputParams: []},
+      models: [
+        {rowid: 'M_PARENT', Name: 'Parent', MetaName: 'source_parent', Type: '数据库表', description: '',
+          IsBusinessMain: 1, IsBusiness: 1, OutputType: 'Table'},
+        {rowid: 'M_CHILD', Name: 'Child', MetaName: 'source_child', Type: '数据库表', description: '',
+          IsBusinessMain: 0, IsBusiness: 1, OutputType: 'Table'},
+        {rowid: 'M_API', Name: 'ExternalProfile', MetaName: 'profile-api', Type: '接口', description: '',
+          IsBusinessMain: 0, IsBusiness: 1, OutputType: 'Table'},
+        {rowid: 'M_PLATFORM_API', Name: 'PlatformTask', MetaName: 'platform:task', Type: '平台接口', description: '',
+          IsBusinessMain: 0, IsBusiness: 1, OutputType: 'Table'},
+      ],
+      fields: [
+        {rowid: 'F_PARENT', dataModelId: 'M_PARENT', type: 'dataModel', Name: 'id', FieldType: 'varchar',
+          IsOutput: 1, IsPKey: 1, Order: 0, Group: 0},
+        {rowid: 'F_CHILD', dataModelId: 'M_CHILD', type: 'dataModel', Name: 'parentId', FieldType: 'varchar',
+          IsOutput: 1, IsPKey: 0, Order: 0, Group: 0},
+      ],
+      relations: [],
+      scenarioConfig: {
+        scenarioId: 'SPACE',
+        tables: {
+          Parent: {
+            modelBinding: {modelId: 'M_PARENT', modelName: 'Parent'},
+            views: {catalog: {fieldProjection: [{resourceFieldId: 'F_PARENT', viewField: 'id', output: true,
+              sortOrder: 0, sortDirection: null, group: 0, primaryKey: true}]}},
+          },
+          Child: {
+            modelBinding: {modelId: 'M_CHILD', modelName: 'Child'},
+            views: {default: {fieldProjection: [{resourceFieldId: 'F_CHILD', viewField: 'parentId', output: true,
+              sortOrder: 0, sortDirection: null, group: 0, primaryKey: false}]}},
+          },
+          ExternalProfile: {
+            modelBinding: {modelId: 'M_API', modelName: 'ExternalProfile'},
+            views: {default: {}},
+          },
+          PlatformTask: {
+            modelBinding: {modelId: 'M_PLATFORM_API', modelName: 'PlatformTask'},
+            views: {default: {}},
+          },
+        },
+        resourceRelations: [],
+        viewCascades: [{
+          kind: 'query', cascadeId: 'parent-child', parentTable: 'Parent', parentViewId: 'catalog',
+          childTable: 'Child', childViewId: 'default',
+          filterBindings: [{sourceField: 'id', targetField: 'parentId', operator: 'eq', emptyValueMode: 'omit'}],
+        }],
+      },
+    })
+    const parsed = parseRuntimeDataSetPlanFile(text, 'SPACE')
+    expect(parsed.views.map(view => [view.id, view.code])).toEqual(expect.arrayContaining([
+      ['Parent::catalog', 'catalog'], ['Child::default', 'default'], ['ExternalProfile::default', 'default'],
+    ]))
+    expect(parsed.viewFields.every(field => !parsed.modelFields.some(modelField => modelField.id === field.id))).toBe(true)
+    expect(parsed.contentHash).toMatch(/^fnv1a:[0-9a-f]{8}$/)
+    expect(parsed.models.find(model => model.metaName === 'ExternalProfile')).toEqual(expect.objectContaining({
+      metaName: 'ExternalProfile', sourceType: '接口',
+    }))
+    expect(parsed.models.find(model => model.metaName === 'PlatformTask')).toEqual(expect.objectContaining({
+      metaName: 'PlatformTask', sourceType: '平台接口',
+    }))
+    const compiled = compileRuntimeDataSetPlan(parsed)
+    expect(compiled.metadata.tables['Parent']?.views['catalog']).toBeDefined()
+    expect(compiled.metadata.viewCascades).toEqual([expect.objectContaining({
+      parentTable: 'Parent', parentViewId: 'catalog', childTable: 'Child', childViewId: 'default',
+      filterBindings: [{sourceField: 'id', targetField: 'parentId', operator: 'eq', emptyValueMode: 'omit'}],
+    })])
+  })
+
+  it('keeps the runtime Plan structure hash independent of savedAt', () => {
+    const input = {
+      scenarioId: 'SPACE', space: {rowid: 'SPACE', Name: 'Space'}, models: [], fields: [], relations: [],
+      scenarioConfig: {scenarioId: 'SPACE', tables: {}, resourceRelations: []},
+    }
+    const first = buildRuntimeDataSetPlan({...input, savedAt: '2026-11-23T00:00:00.000Z'})
+    const second = buildRuntimeDataSetPlan({...input, savedAt: '2026-11-24T00:00:00.000Z'})
+    expect(first.contentHash).toBe(second.contentHash)
+    const previous = JSON.stringify(first), generated = JSON.stringify(second)
+    expect(stableRuntimeDataSetPlanText(previous, generated, 'SPACE')).toBe(previous)
+  })
+
+  it('rejects query semantics that reference Plan v1 cannot encode', () => {
+    expect(() => buildRuntimeDataSetPlan({
+      scenarioId: 'SPACE',
+      space: {rowid: 'SPACE', Name: 'Space'},
+      models: [{rowid: 'MODEL', Name: 'Rows', MetaName: 'source_rows', Type: '数据库表'}],
+      fields: [],
+      relations: [],
+      scenarioConfig: {scenarioId: 'SPACE', tables: {Rows: {
+        modelBinding: {modelId: 'MODEL', modelName: 'Rows'},
+        views: {default: {queryConfig: {allPages: true}}},
+      }}, resourceRelations: []},
+    })).toThrow('全量/非分页查询语义')
+  })
+
+  it.each([
+    ['emptyResult', null],
+    ['omit', undefined],
+    ['asNull', {field: 'parentId', operator: 'is-null'}],
+  ] as const)('applies %s dependency empty-value policy', async (mode, expected) => {
+    const dataSet = DataSet.fromRuntimeDataSetPlan(planText(mode))
+    try {
+      const parent = dataSet.getView('Parent', 'V_PARENT')
+      const child = dataSet.getView('Child', 'V_CHILD')
+      if (!parent || !child) throw Error('parent and child views required')
+      child.bindQueryExecutor({executeQuery: async () => ({rows: [], total: 0,
+        assertIdentity: () => undefined, rowKey: () => undefined,
+        fieldAccess: () => ({read: 'visible', write: 'allowed', required: false,
+          component: 'editable', writeMode: 'editable'}),
+        readFieldAccess: () => 'visible', addActionState: () => 'hidden',
+        editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+        createChildActionState: () => 'hidden', viewActionState: () => 'hidden',
+      })})
+      parent.bindQueryExecutor({executeQuery: async () => ({rows: [{ids: []}], total: 1,
+        assertIdentity: () => undefined, rowKey: () => 'parent',
+        fieldAccess: (_key, field) => ({read: field === 'ids' ? 'visible' : 'visible', write: 'allowed',
+          required: false, component: 'editable', writeMode: 'editable'}),
+        readFieldAccess: (_row, _field) => 'visible', addActionState: () => 'hidden',
+        editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+        createChildActionState: () => 'hidden', viewActionState: () => 'hidden',
+      })})
+      await parent.refresh()
+      parent.setCurrentRow(parent.rows[0]!)
+      const cascade = dataSet.viewCascades?.[0]
+      if (!cascade || cascade.kind === 'field') throw Error('query cascade required')
+      expect(dataSet.resolveCascadeFilter(cascade)).toEqual(expected)
+    } finally {dataSet.destroy()}
+  })
+})

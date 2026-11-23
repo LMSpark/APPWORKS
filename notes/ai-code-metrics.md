@@ -17,6 +17,16 @@
 - **30 天存活**：待 2026-12-22 回查 Page04-05 指针仍可打开，重点核 Page06 style unknown 是否仍需原 owner 续办。
 - **人工干预**：用户要求后端一次性闭环；服务不稳定触发停止，不用重试次数或测试绿掩盖 unknown。
 
+### 2026-11-23 独立 Dataset Plan 运行接线
+
+- **复杂度**：复杂；跨 spark-data Plan parser/compiler、GetDependValue cascade、lowcode 正式 owner 绑定、publication v2 及实服 Dataset 文件 proof。
+- **验证**：Plan 8/8、lowcode 88/88（装配与平台来源）、设计 API 180/180、平台来源 46/46、数据空间设计页 379/379、SmartBid 886/886、Spark AI dispatcher 18/18；root typecheck、目标 lint、ClassModel、lowcode contracts、docs、page-thin、diff-check 通过。
+- **实服结果**：两个现存后端 `.dataset.json` 冷装配成功；D3 已通过 SPARK data FileResource 保存生成并回读，Plan 含 9 models/188 fields/33 views/669 viewFields，关键 DataView cold-assemble 全部存在。
+- **返工**：5 次身份/合同纠正：正式 primary 覆盖 `lingma_sys_ent`；publication 只保留 locator/SHA/contentHash；builder 修正 `Name` 注册名与 `MetaName` 来源名；独立 viewField ID 回指正式 modelField ID、数组 rows 由原 owner 查询、同结构保存保留原字节；删除 DataView claim，改用 Spark AI SSE ACK/UNKNOWN。
+- **阻断**：Page16/18 正式 `KnowledgeGuide`、`ContextManifest`、`GenerationRun` 及 dispatch/claim owner 未具备；D3 Plan 已生成但仍未切这些页面，也未删除旧入口。
+- **30 天存活**：待 2026-12-23 回查；重点核 no-text manifest、mtime/SHA/contentHash 失效、正式 primary key 覆盖及无 pagedata fallback。
+- **人工干预**：用户要求完全接通；通过数据空间设计器保存布局完成一次真实 Plan working replacement 与回读，未修改/部署 Java，三项不等价试挂模型已正式删除并回读。
+
 ### 2026-11-22 SmartBid 后端发布第二轮与运行接线
 
 - **复杂度**：复杂；跨 FileResource unknown 恢复、PageTool 批量发布、蓝图多节点复用、晚动态路由、SmartBid host scope 与在线 smoke。

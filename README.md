@@ -229,7 +229,8 @@ SPARK 不直接把原始 JSON 丢给组件，而是通过 DataSet、DataTable、
 - [项目整体认知](docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)
 - [spark-project-model 架构](docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)
 - [数据流架构](docs/architecture/DATAFLOW_ARCHITECTURE.md)
-- [AI 编码标准](ai-coding-kit/AGENTS.md)
+- [全仓 Agent 入口](AGENTS.md)
+- [通用 AI 编码规程](ai-coding-kit/AGENTS.md)
 
 ## 🤝 贡献
 
@@ -238,7 +239,7 @@ SPARK 不直接把原始 JSON 丢给组件，而是通过 DataSet、DataTable、
 1. 遵循现有的代码规范和 TypeScript 严格模式
 2. 添加相应的测试用例
 3. 更新相关文档
-4. 提交前运行 `pnpm run typecheck && pnpm run lint && pnpm run test:run`
+4. 提交前运行 `pnpm run verify && pnpm run test:run`
 5. 提交信息遵循 Conventional Commits，格式示例：`feat(spark-data): add X`。
    - 允许的 scope：`deps`, `docs`, `scripts`, `spark-data`, `spark-app`, `spark-ai`, `spark-component`, `spark-utils`, `spark-project-model`。
    - 详情与示例见 `CONTRIBUTING.md`（新增）。

@@ -3,7 +3,7 @@
  * 职责：在原浏览器保存三文件发布的恢复定位，跨工作区重开时按原节点和版本核对。
  * 边界：仅记录摘要、编号和已接纳回执的进度。文件内容、正式指针和数据权限均由原 DataView 读取。
  */
-import type {DataView} from '@spark-appworks/spark-data'
+import {parseRuntimeDataSetPlanFile as parseRuntimeDataSetPlan, type DataView} from '@spark-appworks/spark-data'
 import {
   LOWCODE_BLUEPRINT_FILE_NAMES as fileNames,
   encodeLowcodeBlueprintFileVersions,
@@ -39,15 +39,23 @@ export type PageToolPublicationPagedataSnapshot = Readonly<{
   sourceRevision: string
   text: string
 }>
-export type PageToolPublicationManifest = Readonly<{
+export type PageToolPublicationDatasetSnapshot = Readonly<{
+  scenarioId: string
+  fileName: string
+  sha256: string
+  sourceRevision: string
+}>
+type PageToolPublicationManifestCommon = Readonly<{
   format: 'spark-page-tool-publication'
-  schemaVersion: 1
   pageId: string
   scenarioIds: readonly string[]
   sourceRevision: string
   files: ReadonlyArray<Readonly<{fileName: PageToolPublicationFileSource['fileName']; version: number; sha256: string}>>
-  pagedata: readonly PageToolPublicationPagedataSnapshot[]
 }>
+export type PageToolPublicationManifest = PageToolPublicationManifestCommon & Readonly<
+  {schemaVersion: 1; pagedata: readonly PageToolPublicationPagedataSnapshot[]; dataset?: never}
+  | {schemaVersion: 2; dataset: readonly PageToolPublicationDatasetSnapshot[]; pagedata?: never}
+>
 const active = new Set<string>()
 const validState = (value: unknown): value is Progress => value === 'pending' || value === 'confirmed'
 const MANIFEST_FILE = 'publication-manifest.json' as const
@@ -64,16 +72,21 @@ function stableManifestSource(input: Readonly<{
   pageId: string
   scenarioIds: readonly string[]
   files: PageToolPublicationManifest['files']
-  pagedata: PageToolPublicationManifest['pagedata']
+  pagedata?: readonly PageToolPublicationPagedataSnapshot[]
+  dataset?: readonly PageToolPublicationDatasetSnapshot[]
 }>): string {
   return JSON.stringify({
     pageId: input.pageId,
     scenarioIds: [...input.scenarioIds],
     files: input.files.map(file => ({fileName: file.fileName, version: file.version, sha256: file.sha256})),
-    pagedata: input.pagedata.map(item => ({
+    ...(input.pagedata === undefined ? {} : {pagedata: input.pagedata.map(item => ({
       scenarioId: item.scenarioId, version: item.version, fileName: item.fileName,
       sha256: item.sha256, sourceRevision: item.sourceRevision, text: item.text,
-    })),
+    }))}),
+    ...(input.dataset === undefined ? {} : {dataset: input.dataset.map(item => ({
+      scenarioId: item.scenarioId, fileName: item.fileName,
+      sha256: item.sha256, sourceRevision: item.sourceRevision,
+    }))}),
   })
 }
 
@@ -116,12 +129,48 @@ export async function createPageToolPublicationManifest(input: Readonly<{
   return Object.freeze({...manifest, format: 'spark-page-tool-publication' as const, schemaVersion: 1 as const, sourceRevision})
 }
 
+/** Build a v2 publication proof from a backend-owned independent Dataset Plan without creating Dataset versions. */
+export async function createPageToolDatasetPublicationManifest(input: Readonly<{
+  pageId: string
+  files: readonly PageToolPublicationFileSource[]
+  dataset: ReadonlyArray<Readonly<{scenarioId: string; sourceRevision: string; text: string}>>
+}>): Promise<PageToolPublicationManifest> {
+  if (!identity(input.pageId)) throw Error('发布 manifest 缺少有效 pageId')
+  const includedFileNames = new Set<string>(), files: Array<PageToolPublicationManifest['files'][number]> = []
+  for (const file of input.files) {
+    if (!TOOL_FILES.some(name => name === file.fileName) || includedFileNames.has(file.fileName)
+      || !Number.isSafeInteger(file.version) || file.version < 1) throw Error('发布 manifest 工具快照无效')
+    includedFileNames.add(file.fileName)
+    files.push(Object.freeze({fileName: file.fileName, version: file.version, sha256: await sha256(file.text)}))
+  }
+  if (files.length !== TOOL_FILES.length || TOOL_FILES.some(name => !includedFileNames.has(name))) {
+    throw Error('发布 manifest 工具快照不完整')
+  }
+  const scenarioIds: string[] = [], dataset: PageToolPublicationDatasetSnapshot[] = [], seen = new Set<string>()
+  for (const source of input.dataset) {
+    if (!identity(source.scenarioId) || !identity(source.sourceRevision) || seen.has(source.scenarioId)) {
+      throw Error('发布 manifest Dataset proof 身份无效')
+    }
+    parseRuntimeDataSetPlan(source.text, source.scenarioId)
+    seen.add(source.scenarioId)
+    scenarioIds.push(source.scenarioId)
+    dataset.push(Object.freeze({scenarioId: source.scenarioId, fileName: `${source.scenarioId}.dataset.json`,
+      sha256: await sha256(source.text), sourceRevision: source.sourceRevision}))
+  }
+  const stable = [...dataset].sort((left, right) => left.scenarioId.localeCompare(right.scenarioId))
+  const sortedFiles = [...files].sort((left, right) => TOOL_FILES.indexOf(left.fileName) - TOOL_FILES.indexOf(right.fileName))
+  const manifest = {pageId: input.pageId, scenarioIds: [...scenarioIds], files: sortedFiles, dataset: stable}
+  const sourceRevision = await sha256(stableManifestSource(manifest))
+  return Object.freeze({...manifest, format: 'spark-page-tool-publication' as const, schemaVersion: 2 as const, sourceRevision})
+}
+
 /** Parses and verifies the complete manifest contract without accepting additional ambiguity. */
 export async function parsePageToolPublicationManifest(text: string): Promise<PageToolPublicationManifest> {
   const value: unknown = JSON.parse(text)
-  if (!isRecord(value) || value['format'] !== 'spark-page-tool-publication' || value['schemaVersion'] !== 1
+  if (!isRecord(value) || value['format'] !== 'spark-page-tool-publication'
+    || value['schemaVersion'] !== 1 && value['schemaVersion'] !== 2
     || !identity(value['pageId']) || !digestPattern.test(String(value['sourceRevision']))
-    || !Array.isArray(value['scenarioIds']) || !Array.isArray(value['files']) || !Array.isArray(value['pagedata'])) {
+    || !Array.isArray(value['scenarioIds']) || !Array.isArray(value['files'])) {
     throw Error('发布 manifest 格式无效')
   }
   const scenarioIds = value['scenarioIds']
@@ -141,24 +190,45 @@ export async function parsePageToolPublicationManifest(text: string): Promise<Pa
       version: item['version'], sha256: String(item['sha256'])})
   }
   if (files.length !== TOOL_FILES.length) throw Error('发布 manifest 工具快照不完整')
-  const pagedata: PageToolPublicationPagedataSnapshot[] = []
-  for (const item of value['pagedata']) {
-    if (!isRecord(item) || !identity(item['scenarioId']) || typeof item['version'] !== 'number'
-      || !Number.isSafeInteger(item['version']) || item['version'] < 0 || item['fileName'] !== `${item['version']}__pagedata.json`
-      || !digestPattern.test(String(item['sha256'])) || !identity(item['sourceRevision']) || typeof item['text'] !== 'string'
-      || pagedata.some(snapshot => snapshot.scenarioId === item['scenarioId']) || !scenarioIds.includes(item['scenarioId'])) {
-      throw Error('发布 manifest pagedata 快照无效')
+  if (value['schemaVersion'] === 1) {
+    if (!Array.isArray(value['pagedata']) || value['dataset'] !== undefined) throw Error('发布 manifest pagedata 快照无效')
+    const pagedata: PageToolPublicationPagedataSnapshot[] = []
+    for (const item of value['pagedata']) {
+      if (!isRecord(item) || !identity(item['scenarioId']) || typeof item['version'] !== 'number'
+        || !Number.isSafeInteger(item['version']) || item['version'] < 0 || item['fileName'] !== `${item['version']}__pagedata.json`
+        || !digestPattern.test(String(item['sha256'])) || !identity(item['sourceRevision']) || typeof item['text'] !== 'string'
+        || pagedata.some(snapshot => snapshot.scenarioId === item['scenarioId']) || !scenarioIds.includes(item['scenarioId'])) {
+        throw Error('发布 manifest pagedata 快照无效')
+      }
+      if (await sha256(item['text']) !== item['sha256']) throw Error('发布 manifest pagedata sha256 不一致')
+      pagedata.push({
+        scenarioId: item['scenarioId'], version: item['version'], fileName: String(item['fileName']),
+        sha256: String(item['sha256']), sourceRevision: item['sourceRevision'], text: item['text'],
+      })
     }
-    if (await sha256(item['text']) !== item['sha256']) throw Error('发布 manifest pagedata sha256 不一致')
-    pagedata.push({
-      scenarioId: item['scenarioId'], version: item['version'], fileName: String(item['fileName']),
-      sha256: String(item['sha256']), sourceRevision: item['sourceRevision'], text: item['text'],
-    })
+    if (pagedata.length !== scenarioIds.length) throw Error('发布 manifest pagedata 快照不完整')
+    const parsed: PageToolPublicationManifest = {
+      format: 'spark-page-tool-publication', schemaVersion: 1, pageId: value['pageId'], scenarioIds,
+      sourceRevision: String(value['sourceRevision']), files, pagedata,
+    }
+    if (await sha256(stableManifestSource(parsed)) !== parsed.sourceRevision) throw Error('发布 manifest sourceRevision 不一致')
+    return Object.freeze(parsed)
   }
-  if (pagedata.length !== scenarioIds.length) throw Error('发布 manifest pagedata 快照不完整')
+  if (!Array.isArray(value['dataset']) || value['pagedata'] !== undefined) throw Error('发布 manifest Dataset proof 无效')
+  const dataset: PageToolPublicationDatasetSnapshot[] = []
+  for (const item of value['dataset']) {
+    if (!isRecord(item) || !identity(item['scenarioId']) || item['fileName'] !== `${item['scenarioId']}.dataset.json`
+      || !digestPattern.test(String(item['sha256'])) || !identity(item['sourceRevision']) || item['text'] !== undefined
+      || dataset.some(snapshot => snapshot.scenarioId === item['scenarioId']) || !scenarioIds.includes(item['scenarioId'])) {
+      throw Error('发布 manifest Dataset proof 无效')
+    }
+    dataset.push({scenarioId: item['scenarioId'], fileName: String(item['fileName']),
+      sha256: String(item['sha256']), sourceRevision: item['sourceRevision']})
+  }
+  if (dataset.length !== scenarioIds.length) throw Error('发布 manifest Dataset proof 不完整')
   const parsed: PageToolPublicationManifest = {
-    format: 'spark-page-tool-publication', schemaVersion: 1, pageId: value['pageId'], scenarioIds,
-    sourceRevision: String(value['sourceRevision']), files, pagedata,
+    format: 'spark-page-tool-publication', schemaVersion: 2, pageId: value['pageId'], scenarioIds,
+    sourceRevision: String(value['sourceRevision']), files, dataset,
   }
   if (await sha256(stableManifestSource(parsed)) !== parsed.sourceRevision) throw Error('发布 manifest sourceRevision 不一致')
   return Object.freeze(parsed)

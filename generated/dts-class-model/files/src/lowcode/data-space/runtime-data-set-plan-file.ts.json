@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/runtime-data-set-plan-file",
+    "sourcePath": "src/lowcode/data-space/runtime-data-set-plan-file.ts",
+    "sourceFile": "src/lowcode/data-space/runtime-data-set-plan-file.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/runtime-data-set-plan-file",
+    "jsdoc": "@module app:lowcode/data-space/runtime-data-set-plan-file\n职责：通过 SPARK data FileResource DataView 发布数据空间独立 Runtime Dataset Plan。\n边界：只保存正式读取后的结构文件；不创建版本、不维护页面草稿、不承接业务 rows。\nAI用途：设计器 metadata 保存确认后，将同一空间 Plan 精确写入 DataSet 目录并回读。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PublishRuntimeDataSetPlanInput"
+    ]
+  },
+  "$defs": {
+    "PublishRuntimeDataSetPlanInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PublishRuntimeDataSetPlanInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "metadataDataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "scenarioConfig": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-22T19:30:50.199Z",
+  "models": {
+    "PublishRuntimeDataSetPlanInput": {
+      "name": "PublishRuntimeDataSetPlanInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadataDataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioConfig",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

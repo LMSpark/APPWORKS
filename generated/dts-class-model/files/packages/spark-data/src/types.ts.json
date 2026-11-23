@@ -78,6 +78,7 @@
       "DataSetSaveChangesTransactionOptions",
       "DataSetSaveChangesConfig",
       "DataSetSaveChangesOptions",
+      "DataSetSaveCompletionHandler",
       "DataSetDiscardAndReloadOptions",
       "DataSetPhasedSaveResult",
       "DataSetSaveJournalView",
@@ -402,7 +403,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@303334": {
+            "__@iterator@304320": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -457,7 +458,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@303334"
+            "__@iterator@304320"
           ],
           "additionalProperties": false
         },
@@ -1034,7 +1035,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@303334": {
+            "__@iterator@304320": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1089,7 +1090,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@303334"
+            "__@iterator@304320"
           ],
           "additionalProperties": false
         },
@@ -1315,7 +1316,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@303334": {
+            "__@iterator@304320": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1370,7 +1371,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@303334"
+            "__@iterator@304320"
           ],
           "additionalProperties": false
         },
@@ -1608,7 +1609,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@303334": {
+                "__@iterator@304320": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1663,7 +1664,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@303334"
+                "__@iterator@304320"
               ],
               "additionalProperties": false
             },
@@ -1893,7 +1894,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@303334": {
+                "__@iterator@304320": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1948,7 +1949,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@303334"
+                "__@iterator@304320"
               ],
               "additionalProperties": false
             },
@@ -2884,7 +2885,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@303334": {
+                "__@iterator@304320": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2939,7 +2940,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@303334"
+                "__@iterator@304320"
               ],
               "additionalProperties": false
             },
@@ -3169,7 +3170,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@303334": {
+                "__@iterator@304320": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3224,7 +3225,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@303334"
+                "__@iterator@304320"
               ],
               "additionalProperties": false
             },
@@ -4133,6 +4134,13 @@
           "enum": [
             false,
             true
+          ]
+        },
+        "emptyValueMode": {
+          "enum": [
+            "emptyResult",
+            "omit",
+            "asNull"
           ]
         }
       },
@@ -6161,7 +6169,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@303334": {
+                "__@iterator@304320": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -6216,7 +6224,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@303334"
+                "__@iterator@304320"
               ],
               "additionalProperties": false
             },
@@ -6894,7 +6902,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.168Z",
+  "generatedAt": "2026-11-22T18:36:54.352Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -8828,11 +8836,11 @@
       "jsdoc": "DataView 输入级联 — 显式声明源/目标 DataView 和字段过滤绑定。\n它与 DataResourceRelation 独立，不从资源关系自动推导。\n@example ```json\n{\n\"parentTable\": \"Users\", \"childTable\": \"Orders\",\n\"parentViewId\": \"userGrid\",\n\"childViewId\": \"orderGrid\",\n\"filterBindings\": [{ \"targetField\": \"userId\" }]\n}\n```",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */\n    sourceField?: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n    /** 缺省按标量eq/数组in；contains只接受文本，适用于名称等搜索输入。 */\n    operator?: 'eq' | 'in' | 'contains';\n    /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */\n    omitEmpty?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */\n    sourceField?: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n    /** 缺省按标量eq/数组in；contains只接受文本，适用于名称等搜索输入。 */\n    operator?: 'eq' | 'in' | 'contains';\n    /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */\n    omitEmpty?: boolean;\n    /** 原生值缺失时的公开 Dataset Plan 策略；省略沿既有空值行为。 */\n    emptyValueMode?: 'emptyResult' | 'omit' | 'asNull';\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */\n    sourceField?: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n    /** 缺省按标量eq/数组in；contains只接受文本，适用于名称等搜索输入。 */\n    operator?: 'eq' | 'in' | 'contains';\n    /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */\n    omitEmpty?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */\n    sourceField?: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n    /** 缺省按标量eq/数组in；contains只接受文本，适用于名称等搜索输入。 */\n    operator?: 'eq' | 'in' | 'contains';\n    /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */\n    omitEmpty?: boolean;\n    /** 原生值缺失时的公开 Dataset Plan 策略；省略沿既有空值行为。 */\n    emptyValueMode?: 'emptyResult' | 'omit' | 'asNull';\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -8859,6 +8867,12 @@
             {
               "name": "omitEmpty",
               "jsdoc": "空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyValueMode",
+              "jsdoc": "原生值缺失时的公开 Dataset Plan 策略；省略沿既有空值行为。",
               "readable": true,
               "writable": false
             }
@@ -11121,6 +11135,15 @@
             }
           ]
         }
+      }
+    },
+    "DataSetSaveCompletionHandler": {
+      "name": "DataSetSaveCompletionHandler",
+      "jsdoc": "DataSet 原生保存已确认后执行的同一调用域后续动作。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(result: CrudResult<DataSetSaveChangesResult>, options: DataSetSaveChangesOptions | undefined) => void | Promise<void>",
+        "members": {}
       }
     },
     "DataSetDiscardAndReloadOptions": {

@@ -12,6 +12,7 @@ export type DataSpaceResourceTypeWireLabel =
   | '视图'
   | '字典'
   | '接口'
+  | '平台接口'
   | 'JSON'
   | '文件'
 
@@ -20,6 +21,7 @@ const DOMAIN_TO_WIRE: Readonly<Record<DataSpaceResourceType, DataSpaceResourceTy
   view: '视图',
   dictionary: '字典',
   interface: '接口',
+  'platform-interface': '平台接口',
   json: 'JSON',
   file: '文件',
 }
@@ -33,6 +35,7 @@ const RESOURCE_LABELS: ResourceLabelMap = {
   视图: { domain: 'view', native: 'logical-view' },
   字典: { domain: 'dictionary', native: 'dictionary' },
   接口: { domain: 'interface', native: 'third-party-api' },
+  平台接口: { domain: 'platform-interface', native: 'third-party-api' },
   JSON: { domain: 'json', native: 'json' },
   文件: { domain: 'file', native: 'file' },
   数组: { native: 'static-data' },

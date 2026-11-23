@@ -113,6 +113,10 @@
           "type": "object",
           "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceWriteAttemptStatus>"
         },
+        "retryWriteAttempt": {
+          "type": "object",
+          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceWriteAttemptStatus>"
+        },
         "acknowledgeWriteAttempt": {
           "type": "object",
           "title": "(view: DataView) => void"
@@ -712,6 +716,11 @@
             },
             {
               "name": "verifyWriteAttempt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryWriteAttempt",
               "readable": true,
               "writable": false
             },

@@ -68,6 +68,10 @@
         },
         "providerId": {
           "type": "string"
+        },
+        "routeSpec": true,
+        "outputPath": {
+          "type": "string"
         }
       },
       "required": [
@@ -241,7 +245,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.591Z",
+  "generatedAt": "2026-11-22T20:10:24.367Z",
   "models": {
     "PageDataSpaceModelSourceQuery": {
       "name": "PageDataSpaceModelSourceQuery",
@@ -327,6 +331,16 @@
               "name": "providerId",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "routeSpec",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputPath",
+              "readable": true,
+              "writable": false
             }
           ]
         }

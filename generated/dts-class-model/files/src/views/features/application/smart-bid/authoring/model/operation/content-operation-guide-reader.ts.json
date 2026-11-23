@@ -7,8 +7,8 @@
     "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿正式目录视图发现当前根可达的指南。\n边界：通过标准绑定读取目录动作与指南，调用由原工具宿主执行。\nAI用途：核对目录行展示与点击打开的指南是否一致。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿当前 ClassModel 发现当前根可达指南。\n边界：ClassModel 是知识真源，不建立 KnowledgeGuide 数据视图。\nAI用途：核对目录和指南是否来自同一 ClassModel 版本。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {
@@ -37,10 +37,13 @@
             "rootKind": {
               "type": "string"
             },
+            "directoryRef": {
+              "type": "string"
+            },
             "entries": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../../../services/smart-bid/operation/guides/operation-guide-discovery.ts.json#/$defs/Entry"
+                "$ref": "../../../../../../../services/smart-bid/operation/guides/operation-guide-discovery.ts.json#/$defs/EntryInput"
               }
             },
             "assertCurrent": {
@@ -50,7 +53,6 @@
           },
           "required": [
             "rootKind",
-            "entries",
             "assertCurrent"
           ],
           "additionalProperties": false
@@ -58,11 +60,11 @@
       ]
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.086Z",
+  "generatedAt": "2026-11-23T02:20:04.175Z",
   "models": {
     "Discovery": {
       "name": "Discovery",
-      "jsdoc": "正式目录查询得到的可达动作定义。",
+      "jsdoc": "当前 ClassModel 可达动作定义。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<typeof discoverOperationGuides>",

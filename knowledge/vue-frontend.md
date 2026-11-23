@@ -10,7 +10,7 @@
 
 - **场景**：新增一个表单字段组件（如 FieldDatePicker）
 - **规则**：`.props.ts` + `.vue` 配对文件必须放入组件专属子目录（如 `fields/data-components/datetime/FieldDatePicker/FieldDatePicker.props.ts` + `FieldDatePicker.vue`；先放入语义分组目录，再放组件专属目录），禁止平铺在父目录。
-- **违反后果**：`verify:ai-codegen` 检测组件配对文件平铺会报违规；平铺后目录文件数很快超过 10 个限制
+- **违反后果**：`verify:ai-codegen` 检测组件配对文件平铺会报违规；同一父目录混放多个组件配对也会导致职责难定位
 
 ### 业务页与标准组件的边界
 

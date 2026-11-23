@@ -14,6 +14,7 @@
       "PageToolPublicationFileSource",
       "PageToolPublicationScenarioSource",
       "PageToolPublicationPagedataSnapshot",
+      "PageToolPublicationDatasetSnapshot",
       "PageToolPublicationManifest",
       "PageToolPublication"
     ]
@@ -226,16 +227,39 @@
       ],
       "additionalProperties": false
     },
-    "PageToolPublicationManifest": {
+    "PageToolPublicationDatasetSnapshot": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PageToolPublicationManifest",
+      "title": "PageToolPublicationDatasetSnapshot",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "fileName",
+        "sha256",
+        "sourceRevision"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolPublicationManifestCommon": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationManifestCommon",
       "properties": {
         "format": {
           "const": "spark-page-tool-publication"
-        },
-        "schemaVersion": {
-          "const": 1
         },
         "pageId": {
           "type": "string"
@@ -271,24 +295,148 @@
             ],
             "additionalProperties": false
           }
-        },
-        "pagedata": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/PageToolPublicationPagedataSnapshot"
-          }
         }
       },
       "required": [
         "format",
-        "schemaVersion",
         "pageId",
         "scenarioIds",
         "sourceRevision",
-        "files",
-        "pagedata"
+        "files"
       ],
       "additionalProperties": false
+    },
+    "PageToolPublicationManifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageToolPublicationManifest",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "const": "spark-page-tool-publication"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "version",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "schemaVersion": {
+              "const": 1
+            },
+            "pagedata": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PageToolPublicationPagedataSnapshot"
+              }
+            },
+            "dataset": false
+          },
+          "required": [
+            "format",
+            "pageId",
+            "scenarioIds",
+            "sourceRevision",
+            "files",
+            "schemaVersion",
+            "pagedata"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "const": "spark-page-tool-publication"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "version",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "schemaVersion": {
+              "const": 2
+            },
+            "dataset": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PageToolPublicationDatasetSnapshot"
+              }
+            },
+            "pagedata": false
+          },
+          "required": [
+            "format",
+            "pageId",
+            "scenarioIds",
+            "sourceRevision",
+            "files",
+            "schemaVersion",
+            "dataset"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "PageToolPublication": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -443,7 +591,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.879Z",
+  "generatedAt": "2026-11-22T17:58:15.676Z",
   "models": {
     "Progress": {
       "name": "Progress",
@@ -696,16 +844,55 @@
         }
       }
     },
-    "PageToolPublicationManifest": {
-      "name": "PageToolPublicationManifest",
+    "PageToolPublicationDatasetSnapshot": {
+      "name": "PageToolPublicationDatasetSnapshot",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    schemaVersion: 1;\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    schemaVersion: 1;\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sha256",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationManifestCommon": {
+      "name": "PageToolPublicationManifestCommon",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    format: 'spark-page-tool-publication';\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: PageToolPublicationFileSource['fileName'];\n        version: number;\n        sha256: string;\n    }>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -713,11 +900,6 @@
           "attributes": [
             {
               "name": "format",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "schemaVersion",
               "readable": true,
               "writable": false
             },
@@ -740,9 +922,43 @@
               "name": "files",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolPublicationManifest": {
+      "name": "PageToolPublicationManifest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageToolPublicationManifestCommon & Readonly<{\n    schemaVersion: 1;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n    dataset?: never;\n} | {\n    schemaVersion: 2;\n    dataset: readonly PageToolPublicationDatasetSnapshot[];\n    pagedata?: never;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageToolPublicationManifestCommon",
+            "targetName": "PageToolPublicationManifestCommon"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    schemaVersion: 1;\n    pagedata: readonly PageToolPublicationPagedataSnapshot[];\n    dataset?: never;\n} | {\n    schemaVersion: 2;\n    dataset: readonly PageToolPublicationDatasetSnapshot[];\n    pagedata?: never;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "pagedata",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataset",
               "readable": true,
               "writable": false
             }

@@ -46,7 +46,8 @@
     "props": {"title": "原正文工艺试次"},
     "children": [
       {"type": "r-button", "props": {"label": "查看原调用试次", "action": "host-command",
-        "command": "tender.followup.readOriginalAttempts", "input": {"revisionId": {"$route": "revisionId"}},
+        "command": "tender.followup.readOriginalAttempts",
+        "input": {"revisionId": {"$route": "revisionId"}, "attempts": {"$route": "operationAttempts", "parse": "json"}},
         "resultAlertTitle": "原调用试次"}}
     ]
   },
@@ -58,7 +59,8 @@
       {"type": "r-button", "props": {"label": "查看本次调用引用", "action": "host-command",
         "command": "tender.followup.traceCallReferences",
         "input": {"addendumId": {"$route": "addendumId"}, "runId": {"$route": "runId"},
-          "attemptRef": {"$route": "attemptRef"}, "requestKey": {"$route": "requestKey"}},
+          "attemptRef": {"$route": "attemptRef"}, "requestKey": {"$route": "requestKey"},
+          "operationEvidence": {"$route": "operationEvidence", "parse": "json"}},
         "resultAlertTitle": "原调用条款引用"}}
     ]
   },

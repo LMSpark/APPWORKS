@@ -172,17 +172,16 @@ export class DataSpaceRuntimeApi {
     }
   }
 
-  /**
-   * 将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。
-   * 正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。
-   */
-  public bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: DataSpaceModelBindingOptions = {}): void {
+  private prepareModelTableBinding(
+    table: SparkData.DataTable,
+    model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>,
+    options: DataSpaceModelBindingOptions,
+  ): Readonly<{scope: ReturnType<DataSpaceRuntimeApi['currentScope']>; arrayRows: typeof options.arrayRows}> {
     if (Array.isArray(options)) throw new Error('SPARK_MODEL_BINDING_OPTIONS: 绑定必须使用具名选项')
     const {arrayRows,adapter}=options
     if(adapter&&(arrayRows!==undefined||DataSpaceDesignApi.resolveTableResource(model).resourceType!=='third-party-api'
       ||!['command','paged-read'].includes(adapter.kind)||adapter.kind!=='command'&&typeof adapter.execute!=='function'))throw new Error('SPARK_MODEL_BINDING_OPTIONS: 来源适配只支持正式接口模型且不能同时绑定数组')
-    const table = view.dataTable
-    if (table?.modelBinding?.modelId !== model.id || table.modelBinding.modelName !== model.metaName) {
+    if (table.modelBinding?.modelId !== model.id || table.modelBinding.modelName !== model.metaName) {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
     }
     const formal = new Set(DataSpaceDesignApi.resolveFields(model).map(field => field.canonicalName))
@@ -199,17 +198,50 @@ export class DataSpaceRuntimeApi {
     }
     if(previous&&(previous.adapter?.kind!==adapter?.kind||adapter?.kind==='paged-read'&&previous.adapter!==adapter))throw new Error('SPARK_MODEL_BINDING_OPTIONS: 同一正式模型不能改变执行模式')
     const scope = this.currentScope()
+    this.#models.set(table, {model, scope,...(adapter===undefined?{}:{adapter})})
+    if (model.sourceType === '数组') {
+      if (arrayRows === undefined) throw new Error('正式数组缺少已读取的items')
+    } else if (arrayRows !== undefined) {
+      throw new Error('只有数组模型可以绑定本地items')
+    }
+    return {scope, arrayRows}
+  }
+
+  private configureModelView(table: SparkData.DataTable, view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): void {
     if (view.fieldProjection.length === 0) {
       view.configure({fieldProjection: DataSpaceDesignApi.createFieldProjection(model)
         .filter(field => table.columns.some(column => column.name === field.resourceField))})
     }
-    this.#models.set(table, {model, scope,...(adapter===undefined?{}:{adapter})})
+  }
+
+  /**
+   * 将正式模型及当前请求scope绑定到SparkData.DataTable；同表各派生视图复用同一owner adapter，结果和权限仍逐视图隔离。
+   * 正式数组使用 DataTable 级 adapter factory，为后续新增视图生成各自的数组查询实例。
+   */
+  public bindModelTable(table: SparkData.DataTable, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: DataSpaceModelBindingOptions = {}): void {
+    const prepared = this.prepareModelTableBinding(table, model, options)
+    for (const view of table.viewList) this.configureModelView(table, view, model)
     if (model.sourceType === '数组') {
-      if (arrayRows === undefined) throw new Error('正式数组缺少已读取的items')
-      view.bindQueryExecutor(new SparkData.DataViewArrayQuery(view, arrayRows, () => this.assertScope(scope)))
+      const rows = prepared.arrayRows
+      if (rows === undefined) throw new Error('正式数组缺少已读取的items')
+      table.bindQueryExecutor(view => new SparkData.DataViewArrayQuery(view, rows, () => this.assertScope(prepared.scope)))
       return
     }
-    if (arrayRows !== undefined) throw new Error('只有数组模型可以绑定本地items')
+    table.bindQueryExecutor(this)
+  }
+
+  /** 单视图兼容入口；新装配与宿主应优先使用 bindModelTable，避免后续视图遗漏 owner adapter。 */
+  public bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: DataSpaceModelBindingOptions = {}): void {
+    const table = view.dataTable
+    if (!table) throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图未关联 DataTable')
+    const prepared = this.prepareModelTableBinding(table, model, options)
+    this.configureModelView(table, view, model)
+    if (model.sourceType === '数组') {
+      const rows = prepared.arrayRows
+      if (rows === undefined) throw new Error('正式数组缺少已读取的items')
+      view.bindQueryExecutor(new SparkData.DataViewArrayQuery(view, rows, () => this.assertScope(prepared.scope)))
+      return
+    }
     view.bindQueryExecutor(this)
   }
 

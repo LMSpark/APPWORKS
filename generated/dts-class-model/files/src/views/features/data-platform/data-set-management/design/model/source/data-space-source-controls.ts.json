@@ -374,6 +374,10 @@
             },
             "providerId": {
               "type": "string"
+            },
+            "routeSpec": true,
+            "outputPath": {
+              "type": "string"
             }
           },
           "required": [
@@ -644,7 +648,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        type: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType;\n        id: string;\n        name: string;\n        description: string;\n        dbid: string;\n        databaseName: string;\n        providerId: string;\n    }"
+                    "name": "{\n        type: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType;\n        id: string;\n        name: string;\n        description: string;\n        dbid: string;\n        databaseName: string;\n        providerId: string;\n        routeSpec?: unknown;\n        outputPath?: string;\n    }"
                   }
                 ]
               }

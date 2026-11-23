@@ -51,12 +51,12 @@ function context(invokeHostCommand:NonNullable<ActionExecutionContext['invokeHos
 
 it('keeps page 18 zero-script and binds its directory through the standard DataView action chain',()=>{
  expect(script.trim()).toBe('')
- const table=rule[0]?.children?.[0]
- expect(table).toMatchObject({type:'r-table',props:{
-  dataViewKey:'KnowledgeGuide@effectiveDirectory',autoColumns:false,showPagination:false,
+ const directory=rule[0]?.children?.[0]
+ expect(directory).toMatchObject({type:'r-toolbar',props:{
+  dataViewKey:'D3BBA1F0780056C837AC35E9825CAD5A@ContentProject@projects',
  }})
  expect(buttons(rule).map(node=>node.props?.['label'])).toEqual(expect.arrayContaining([
-  '读取操作目录','查看指南','派发当前操作','重查原试次','查看原实发 JSON','查看已核候选 JSON','查看返工交接',
+  '读取操作目录','派发当前操作','重查原试次','查看原实发 JSON','查看业务回执 JSON','查看返工交接',
  ]))
 })
 
@@ -78,10 +78,9 @@ it('parses strict route JSON and dispatches through the PageRuntime host command
 
 it('does not hide missing original evidence or nested method owners',async()=>{
  const invokeHostCommand=vi.fn(async()=>({state:'DISPATCH_RECORDED',assertCurrent:()=>{}}))
- const query={
-  runId:'RUN',attemptRef:'TRY',requestKey:'Q',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64),
- }
+ const dispatch=JSON.stringify({operationId:'39',requestKey:'Q'})
+ const query={operationDispatch:dispatch}
  await expect(executeActionDescriptor(descriptor('查看原实发 JSON'),context(invokeHostCommand,query)))
   .resolves.toBeUndefined()
- expect(invokeHostCommand).toHaveBeenCalledWith('content.operation.readDispatch',query)
+ expect(invokeHostCommand).toHaveBeenCalledWith('content.operation.readDispatch',{dispatch:{operationId:'39',requestKey:'Q'}})
 })

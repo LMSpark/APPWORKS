@@ -60,7 +60,7 @@
         },
         "preview": {
           "type": "object",
-          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; }>) => Promise<void>"
+          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; routeSpec?: unknown; outputPath?: string; }>) => Promise<void>"
         },
         "getState": {
           "type": "object",

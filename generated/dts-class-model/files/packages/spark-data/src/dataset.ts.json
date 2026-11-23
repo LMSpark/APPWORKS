@@ -830,6 +830,20 @@
           "type": "object",
           "title": "Promise<CrudResult<DataSetSaveChangesResult>>"
         },
+        "method.setSaveCompletionHandler.params": {
+          "type": "object",
+          "properties": {
+            "handler": {
+              "type": "object",
+              "title": "DataSetSaveCompletionHandler"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSaveCompletionHandler.return": {
+          "type": "object",
+          "title": "() => void"
+        },
         "method.saveChangesInPhases.params": {
           "type": "object",
           "properties": {
@@ -903,11 +917,39 @@
         },
         "method.fromJson.return": {
           "$ref": "#/$defs/DataSet"
+        },
+        "method.fromRuntimeDataSetPlan.params": {
+          "type": "object",
+          "properties": {
+            "raw": {
+              "type": "string"
+            },
+            "options": {
+              "allOf": [
+                {
+                  "$ref": "runtime-data-set-plan/compiler.ts.json#/$defs/CompileRuntimeDataSetPlanOptions"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "expectedScenarioId": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromRuntimeDataSetPlan.return": {
+          "$ref": "#/$defs/DataSet"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.017Z",
+  "generatedAt": "2026-11-22T18:36:54.366Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2236,6 +2278,37 @@
               }
             },
             {
+              "name": "setSaveCompletionHandler",
+              "jsdoc": "注册原保存确认后的唯一后续动作；返回取消函数，不替代DataView保存回执。",
+              "parameters": [
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveCompletionHandler",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "saveChangesInPhases",
               "jsdoc": "按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。\n每阶段必须显式列出视图；前一阶段的视图全部确认且无待提交变更后才进入下一阶段。\n失败或结果未确认时停止并返回已执行阶段的回执；再次调用从首个仍有未确认或待提交变更的阶段继续，\n未确认提交交原执行器核验，不重放已完成阶段。",
               "parameters": [
@@ -2351,6 +2424,50 @@
                         "name": "string"
                       }
                     ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            },
+            {
+              "name": "fromRuntimeDataSetPlan",
+              "jsdoc": "Parse the backend-owned independent Dataset Plan and materialize a native DataSet.",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "CompileRuntimeDataSetPlanOptions",
+                        "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        expectedScenarioId?: string;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

@@ -9,7 +9,9 @@ type PageDataSpaceModelSource = Parameters<PageDataSpaceModelSourceReader['prepa
 type PageDataSpaceModelSourcePrepared = Awaited<ReturnType<PageDataSpaceModelSourceReader['prepare']>>
 type PageDataSpaceModelSourceField = PageDataSpaceModelSourcePrepared['fields'][number]
 type PageDataSpaceModelSourceType = PageDataSpaceModelSource['type']
+type PlatformApiSourceQuery = PageDataSpaceModelSourceQuery & Readonly<{resourceId?:string}>
 import {LowcodeDataSpaceSourceCatalog} from './lowcode-data-space-source-catalog'
+import {readPlatformApiInputFields,readPlatformApiOutputFields} from './platform-api-route-spec'
 function sameSource(first:PageDataSpaceModelSource,second:PageDataSpaceModelSource):boolean{
   return first.type===second.type&&first.id===second.id&&first.name===second.name&&first.description===second.description&&first.dbid===second.dbid&&first.databaseName===second.databaseName&&first.providerId===second.providerId
 }
@@ -116,6 +118,7 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
         || visible({context: view, row, fieldName: 'TypeName'}) !== source.name) {
         throw new Error('字典来源身份已变化，请重新选择')
       }
+
       visible({context: view, row, fieldName: 'dictionaryType'})
       if (!view.getColumn('dictionaryType') || row['dictionaryType'] === undefined) throw new Error('字典编码类型字段 dictionaryType 缺失')
       // 对齐GetDictData的精确分支；存量空值沿字符分支，不清洗或改写设计。
@@ -129,6 +132,43 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
         field({Name: 'ordIdx', description: '排序字段', FieldType: 'int', OrderType: 'ascending', Order: 1}),
       ]
     } finally {dataSet.destroy()}
+  }
+
+  private async platformApiRows(input: PlatformApiSourceQuery): Promise<Readonly<{
+    rows: readonly PageDataSpaceModelSource[]; total: number
+  }>> {
+    this.assertCurrent()
+    const spec = LowcodeDataSpaceSourceCatalog.config('platformApi')
+    const page = input.page ?? 1, pageSize = input.pageSize ?? 10
+    const result = await lowcodeApi.dataSpace.runtime.query({
+      scenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY,
+      metaName: spec.metaName,
+    }, {
+      filter: DataViewFilter.group({logic:'and',filters:[
+        {field:'enabled',operator:'eq',value:1},
+        ...(scalar(input.resourceId) ? [{field:'id',operator:'eq' as const,value:scalar(input.resourceId)}] : []),
+        ...(scalar(input.keyword) ? [{field:'display_name',operator:'contains' as const,value:scalar(input.keyword)}] : []),
+        ...(scalar(input.description) ? [{field:'description',operator:'contains' as const,value:scalar(input.description)}] : []),
+      ]}),
+      fields: ['id','display_name','description','module_code','route_spec','output_path','enabled'],
+      page: {index:page,size:pageSize},
+    })
+    this.assertCurrent()
+    const rows = result.rows.map(row => {
+      const access = (name:string) => result.fieldAccess(result.rowKey(row),name).read
+      for (const name of ['id','display_name','module_code','route_spec']) {
+        if (access(name) !== 'visible') throw new Error(`平台接口来源字段 ${name} 不可读`)
+      }
+      const id = scalar(row['id']), name = scalar(row['display_name']), moduleCode = scalar(row['module_code'])
+      if (!id || !name) throw new Error('平台接口来源缺少稳定身份或名称')
+      return Object.freeze({
+        type:'platformApi' as const,id,name,description:access('description') === 'visible' ? scalar(row['description']) : '',
+        dbid:'',databaseName:moduleCode,providerId:'',routeSpec:row['route_spec'],
+        outputPath:scalar(row['output_path']),
+      })
+    })
+    if (new Set(rows.map(row => row.id)).size !== rows.length) throw new Error('平台接口来源身份重复')
+    return Object.freeze({rows:Object.freeze(rows),total:result.total})
   }
 
   private async read({metaName, dataSet, filter, page}: SourceRead): Promise<DataView> {
@@ -160,6 +200,7 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
   }
 
   public async query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{rows: readonly PageDataSpaceModelSource[]; total: number}>> {
+    if (input.type === 'platformApi') return this.platformApiRows(input)
     const spec = LowcodeDataSpaceSourceCatalog.config(input.type)
     const page = input.page ?? 1
     const pageSize = input.pageSize ?? 10
@@ -182,6 +223,29 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
   }
 
   public async prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options:NonNullable<Parameters<PageDataSpaceModelSourceReader['prepare']>[2]>={}): Promise<PageDataSpaceModelSourcePrepared> {
+    if (source.type === 'platformApi') {
+      const selected = (await this.platformApiRows({type:'platformApi',page:1,pageSize:2,resourceId:source.id})).rows[0]
+      if (selected?.id !== source.id || selected.name !== source.name || selected.description !== source.description
+        || selected.databaseName !== source.databaseName
+        || JSON.stringify(selected.routeSpec) !== JSON.stringify(source.routeSpec) || selected.outputPath !== source.outputPath) {
+        throw new Error('平台接口来源已变化，请重新选择')
+      }
+      const fields = [
+        ...readPlatformApiOutputFields(selected.routeSpec, selected.outputPath).map(item => field({
+          Name:item.name,description:item.description,FieldType:item.fieldType,IsOutput:1,
+        })),
+        ...readPlatformApiInputFields(selected.routeSpec).map(item => field({
+          type:'inputParams',Name:item.name,description:item.description,FieldType:item.fieldType,IsOutput:0,
+        })),
+      ]
+      if (!fields.some(item => item.type === 'dataModel')) throw new Error('平台接口来源缺少可确认输出字段')
+      return Object.freeze({
+        source:selected,
+        model:Object.freeze({Type:'平台接口',MetaName:selected.id,description:selected.description,
+          DbId:'',DbName:selected.databaseName,JoinType:'',ForeignKeyFields:'',JoinFilter:'',PId:''}),
+        fields:Object.freeze(fields),
+      })
+    }
     const spec = LowcodeDataSpaceSourceCatalog.config(source.type)
     const id = scalar(source.id)
     if (!id) throw new Error('模型来源身份缺失')

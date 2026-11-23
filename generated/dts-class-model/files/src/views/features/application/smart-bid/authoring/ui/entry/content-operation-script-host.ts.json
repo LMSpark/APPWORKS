@@ -96,621 +96,27 @@
         }
       ]
     },
-    "DispatchResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "DispatchResult",
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "CLAIM_UNKNOWN"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "CLAIM_UNAVAILABLE"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "START_UNKNOWN"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "SEND_UNKNOWN"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "SEND_RETURNED"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        }
-      ]
-    },
     "ExecutableDispatchResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
       "title": "ExecutableDispatchResult",
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "CLAIM_UNKNOWN"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
+      "properties": {
+        "operationId": {
+          "type": "string"
         },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "CLAIM_UNAVAILABLE"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
+        "requestKey": {
+          "type": "string"
         },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "START_UNKNOWN"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "SEND_UNKNOWN"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "observation": {
-              "const": "SEND_RETURNED"
-            },
-            "session": {
-              "type": "object",
-              "title": "import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentSession"
-            },
-            "publishedVersionRef": {
-              "type": "string"
-            },
-            "state": {
-              "const": "CHECK_ORIGINAL"
-            },
-            "turnId": {
-              "type": "string"
-            },
-            "attempt": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string"
-                },
-                "attemptRef": {
-                  "type": "string"
-                },
-                "requestKey": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
-                },
-                "targetDigest": {
-                  "type": "string"
-                },
-                "configurationLockHash": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "runId",
-                "attemptRef",
-                "requestKey",
-                "projectId",
-                "targetDigest",
-                "configurationLockHash"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "observation",
-            "session",
-            "publishedVersionRef",
-            "state",
-            "turnId",
-            "attempt"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "operationId": {
-              "type": "string"
-            },
-            "requestKey": {
-              "type": "string"
-            },
-            "outcome": {
-              "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
-            }
-          },
-          "required": [
-            "operationId",
-            "requestKey",
-            "outcome"
-          ],
-          "additionalProperties": false
+        "outcome": {
+          "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         }
-      ]
+      },
+      "required": [
+        "operationId",
+        "requestKey",
+        "outcome"
+      ],
+      "additionalProperties": false
     },
     "ContentOperationDispatch": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -722,51 +128,21 @@
           "properties": {
             "discover": {
               "type": "object",
-              "title": "(directoryRef: string) => Promise<Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; guideRef: string; versionRef: string; guideDigest: string; kind: string; actionName: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }>[]; assertCurrent: () => v..."
+              "title": "(directoryRef: string) => Promise<Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; kind: string; assertCurrent: () => void; actionName: string; versionRef: string; guideRef: string; guideDigest: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }..."
             },
             "readGuide": {
               "type": "object",
-              "title": "(discovery: Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; guideRef: string; versionRef: string; guideDigest: string; kind: string; actionName: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }>[]; assertCurrent: () => void; }>, selection: Pa..."
+              "title": "(discovery: Readonly<{ rootKind: string; items: readonly Readonly<{ state: \"REACHABLE\" | \"DEFINITION_REQUIRED\"; kind: string; assertCurrent: () => void; actionName: string; versionRef: string; guideRef: string; guideDigest: string; pathRefs: readonly string[]; materialRefs: readonly string[]; }>[]; assertCurrent: ()..."
             },
             "freeze": {
               "type": "object",
               "title": "(attempt: Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }>, guide: Readonly<{ versionRef: string; pathRefs: readonly string[]; materialRefs: readonly string[]; rootKind: string; kind: string; actionName: string; guideRef: str..."
-            },
-            "dispatch": {
-              "type": "object",
-              "title": "(options: Readonly<{ registry: { get(moduleId: string): import(\"../../../../../../../../packages/spark-ai/src/agent\").AiAgentRegistration<Readonly<Record<string, import(\"../../../../../../../../packages/spark-json-document/src\").JsonValue>>> | undefined; }; turnCallbacks: Readonly<{ prepareSession?: (input: import(\"..."
-            },
-            "readDispatch": {
-              "type": "object",
-              "title": "(attempt: Parameters<typeof readRegisteredOperationDispatch>[1]) => Promise<Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }> & (Readonly<{ assertCurrent: () => void; }> & (Readonly<{ state: \"DISPATCH_RECORDED\"; dispatchRef: s..."
-            },
-            "readOriginalGuide": {
-              "type": "object",
-              "title": "(original: Parameters<typeof readRegisteredOriginalOperationGuide>[2][\"original\"]) => Promise<(Readonly<{ rootKind: string; kind: string; actionName: string; guideRef: string; guideDigest: string; guide: string; assertCurrent: () => void; }> & Readonly<{ guideVersionRef: string; }>) | undefined>"
-            },
-            "recover": {
-              "type": "object",
-              "title": "(manifest: Parameters<typeof recoverRegisteredOperationRouteAttempt>[1], guide: Parameters<typeof recoverRegisteredOperationRouteAttempt>[2]) => Promise<Readonly<{ state: \"DISPATCH_UNKNOWN\"; assertCurrent: () => void; }> | Readonly<{ state: \"DISPATCH_EVIDENCE_REQUIRED\"; dispatch: Readonly<{ state: \"MATCHED\" | \"MISMA..."
-            },
-            "recoverOriginal": {
-              "type": "object",
-              "title": "(attempt: Readonly<{ runId: string; attemptRef: string; requestKey: string; projectId: string; targetDigest: string; configurationLockHash: string; }>, resolveGuide: ResolveOriginalGuide) => Promise<Readonly<{ state: \"DISPATCH_UNKNOWN\"; assertCurrent: () => void; }> | Readonly<{ state: \"DISPATCH_EVIDENCE_REQUIRED\"; ..."
-            },
-            "prepareRework": {
-              "type": "object",
-              "title": "(selection: Parameters<typeof prepareRegisteredOperationStepRework>[1]) => Promise<Readonly<{ requestKey: string; targetDigest: string; configurationLockHash: string; projectId: string; runId: string; attemptRef: string; reason: string; inputRef: string; returnRef: string | null; firstCallRef: string | undefined; ha..."
             }
           },
           "required": [
             "discover",
             "readGuide",
-            "freeze",
-            "dispatch",
-            "readDispatch",
-            "readOriginalGuide",
-            "recover",
-            "recoverOriginal",
-            "prepareRework"
+            "freeze"
           ],
           "additionalProperties": false
         },
@@ -779,7 +155,6 @@
         }
       },
       "required": [
-        "workspace",
         "input",
         "signal"
       ],
@@ -790,10 +165,6 @@
       "type": "object",
       "title": "Scope",
       "properties": {
-        "resolveOriginalGuide": {
-          "type": "object",
-          "title": "ResolveOriginalGuide"
-        },
         "operationModule": {
           "$ref": "../../../../../../../services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json#/$defs/SmartBidOperationModule"
         },
@@ -822,7 +193,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.130Z",
+  "generatedAt": "2026-11-23T02:59:39.654Z",
   "models": {
     "Open": {
       "name": "Open",
@@ -840,50 +211,38 @@
         "members": {}
       }
     },
-    "ResolveGuide": {
-      "name": "ResolveGuide",
-      "jsdoc": "按原身份解析已冻结工艺指南的能力。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Parameters<ReturnType<typeof openContentOperationWorkspace>['recoverOriginal']>[1]",
-        "members": {}
-      }
-    },
-    "DispatchResult": {
-      "name": "DispatchResult",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Awaited<ReturnType<ReturnType<typeof openContentOperationWorkspace>['dispatch']>>",
-            "targetName": "Awaited"
-          }
-        ],
-        "members": {}
-      }
-    },
     "ExecutableDispatchResult": {
       "name": "ExecutableDispatchResult",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "DispatchResult | Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
+        "declarationTypeText": "Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
         "declarationRelations": [
           {
-            "kind": "union",
-            "typeText": "DispatchResult",
-            "targetName": "DispatchResult"
-          },
-          {
-            "kind": "union",
+            "kind": "alias",
             "typeText": "Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
             "targetName": "Awaited"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
       }
     },
     "ContentOperationDispatch": {
@@ -891,11 +250,11 @@
       "jsdoc": "当前可信宿主把已注册 Agent SSE 派发器注入同一 PageRuntime；四文件只提交精确输入。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace?: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
+            "typeText": "Readonly<{\n    workspace?: ReturnType<typeof openContentOperationWorkspace>;\n    input: SmartBidOperationCommand;\n    signal: AbortSignal;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -925,7 +284,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
+        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -934,17 +293,12 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    resolveOriginalGuide?: ResolveGuide;\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
+            "typeText": "Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "resolveOriginalGuide",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "operationModule",
               "readable": true,

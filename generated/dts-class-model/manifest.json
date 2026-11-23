@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1517,
+  "scannedFileCount": 1518,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2088,6 +2088,7 @@
         "symbols": [
           "RuntimeScenarioLoadCommand",
           "RuntimePagePublicationPagedata",
+          "RuntimePagePublicationDataset",
           "RuntimePagePublicationManifest",
           "RuntimePagePublicationResolution",
           "RuntimePageNavigationReceiptState",
@@ -9889,6 +9890,75 @@
         "symbols": []
       }
     },
+    "packages/spark-data/src/runtime-data-set-plan/builder.ts": {
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:runtime-data-set-plan/builder",
+        "sourcePath": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
+        "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "runtime-data-set-plan/builder",
+        "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/builder\n职责：将已正式回读的元数据行与不可变场景定义聚合为参考仓 spark.runtimeDataSetPlan 合约。\n边界：只生成结构 Plan，不执行查询、文件上传、权限判断或业务行读写。\nAI用途：数据空间设计保存确认后，用正式行和 pagedata 定义导出唯一运行文件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "BuildRuntimeDataSetPlanInput"
+        ]
+      }
+    },
+    "packages/spark-data/src/runtime-data-set-plan/compiler.ts": {
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/compiler.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:runtime-data-set-plan/compiler",
+        "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+        "sourceFile": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "runtime-data-set-plan/compiler",
+        "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/compiler\n职责：把后端独立 Dataset Plan 编译为本仓原生 DataSet metadata，并把 dependencies 编译为 DataView cascade。\n边界：不读取 HTTP、文件或业务 rows；正式资源 owner 由 lowcode 装配层注入，Plan 不授予权限。\nAI用途：PageRuntime 需要消费 `{scenarioId}.dataset.json` 时，用此模块核 Plan 到 DataTable/DataView 的映射。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "RuntimeDataSetPlanModelResource",
+          "CompileRuntimeDataSetPlanOptions",
+          "CompiledRuntimeDataSetPlan"
+        ]
+      }
+    },
+    "packages/spark-data/src/runtime-data-set-plan/parser.ts": {
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/parser.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:runtime-data-set-plan/parser",
+        "sourcePath": "packages/spark-data/src/runtime-data-set-plan/parser.ts",
+        "sourceFile": "packages/spark-data/src/runtime-data-set-plan/parser.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "runtime-data-set-plan/parser",
+        "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/parser\n职责：严格解析后端独立 `spark.runtimeDataSetPlan` 文件并冻结跨层结构。\n边界：只校验 Plan JSON、身份与引用完整性，不读取模型 rows、权限或文件。\nAI用途：装配独立 Dataset 前，先用同一解析器确认 schemaVersion、scenarioId、views 与 dependencies。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-data/src/runtime-data-set-plan/types.ts": {
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:runtime-data-set-plan/types",
+        "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+        "sourceFile": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "runtime-data-set-plan/types",
+        "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/types\n职责：定义后端独立 Dataset Plan 的 schemaVersion 1 JSON 合约。\n边界：文件只描述数据空间结构，不承载 rows、权限凭据、运行草稿或页面工具文件。\nAI用途：生成或验证 `{scenarioId}.dataset.json` 时，沿此唯一文件合同读写。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RuntimeDataSetPlanDependencyEmptyValueMode",
+          "RuntimeDataSetPlanDependency",
+          "RuntimeDataSetPlanInputParam",
+          "RuntimeDataSetPlanModel",
+          "RuntimeDataSetPlanModelField",
+          "RuntimeDataSetPlanView",
+          "RuntimeDataSetPlanViewFieldDisplay",
+          "RuntimeDataSetPlanViewField",
+          "RuntimeDataSetPlanRelation",
+          "RuntimeDataSetPlanFile"
+        ]
+      }
+    },
     "packages/spark-data/src/script-types.ts": {
       "file": "files/packages/spark-data/src/script-types.ts.json",
       "module": {
@@ -10270,6 +10340,7 @@
           "DataSetSaveChangesTransactionOptions",
           "DataSetSaveChangesConfig",
           "DataSetSaveChangesOptions",
+          "DataSetSaveCompletionHandler",
           "DataSetDiscardAndReloadOptions",
           "DataSetPhasedSaveResult",
           "DataSetSaveJournalView",
@@ -13688,6 +13759,21 @@
         ]
       }
     },
+    "src/lowcode/data-space/model-source/platform-api-route-spec.ts": {
+      "file": "files/src/lowcode/data-space/model-source/platform-api-route-spec.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/platform-api-route-spec",
+        "sourcePath": "src/lowcode/data-space/model-source/platform-api-route-spec.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/platform-api-route-spec.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/platform-api-route-spec",
+        "jsdoc": "@module app:lowcode/data-space/model-source/platform-api-route-spec\n职责：解析平台接口 route_spec 的正式输入、输出字段及调用契约。\n边界：只转换已授权来源行，不调用平台接口、不持久化模型字段。\nAI用途：平台接口来源创建或重开时，以 route_spec 生成正式模型字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "PlatformApiRouteField"
+        ]
+      }
+    },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts": {
       "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts.json",
       "module": {
@@ -13873,6 +13959,21 @@
           "SourceInputHostInput",
           "SourceInputValidateValueInput",
           "SourceInputHandle"
+        ]
+      }
+    },
+    "src/lowcode/data-space/runtime-data-set-plan-file.ts": {
+      "file": "files/src/lowcode/data-space/runtime-data-set-plan-file.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/runtime-data-set-plan-file",
+        "sourcePath": "src/lowcode/data-space/runtime-data-set-plan-file.ts",
+        "sourceFile": "src/lowcode/data-space/runtime-data-set-plan-file.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/runtime-data-set-plan-file",
+        "jsdoc": "@module app:lowcode/data-space/runtime-data-set-plan-file\n职责：通过 SPARK data FileResource DataView 发布数据空间独立 Runtime Dataset Plan。\n边界：只保存正式读取后的结构文件；不创建版本、不维护页面草稿、不承接业务 rows。\nAI用途：设计器 metadata 保存确认后，将同一空间 Plan 精确写入 DataSet 目录并回读。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PublishRuntimeDataSetPlanInput"
         ]
       }
     },
@@ -17272,6 +17373,7 @@
           "PageToolPublicationFileSource",
           "PageToolPublicationScenarioSource",
           "PageToolPublicationPagedataSnapshot",
+          "PageToolPublicationDatasetSnapshot",
           "PageToolPublicationManifest",
           "PageToolPublication"
         ]
@@ -18989,6 +19091,22 @@
         ]
       }
     },
+    "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts": {
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts.json",
+      "module": {
+        "name": "app:services/smart-bid/operation/agent-module/smart-bid-agent-dispatch",
+        "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+        "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+        "packageName": "app",
+        "modulePath": "services/smart-bid/operation/agent-module/smart-bid-agent-dispatch",
+        "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-agent-dispatch\n职责：统一经 spark-ai Agent Host 和 SSE turn bridge 派发 SmartBid 操作。\n边界：Agent 编排走 SSE；前端工具执行仍调用本次 PageRuntime 的正式 DataView owner。\nAI用途：Page16/18及其他 SmartBid 动作统一复用同一 Agent/SSE 派发、回执和 stale guard。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "SmartBidAgentDispatchResult",
+          "SmartBidAgentDispatcher"
+        ]
+      }
+    },
     "src/services/smart-bid/operation/agent-module/smart-bid-command.ts": {
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-command.ts.json",
       "module": {
@@ -19042,10 +19160,7 @@
         "modulePath": "services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner",
         "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner\n职责：把已生成的 SmartBid 动作提交到当前 PageRuntime 中显式声明的单一命令视图。\n边界：只接受完整动作输入；不推断模型视图、不把普通 CRUD 当业务命令、不创建后端协议。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "SmartBidRuntimeClaimInput",
-          "SmartBidRuntimeClaim"
-        ]
+        "symbols": []
       }
     },
     "src/services/smart-bid/operation/guides/operation-action-guide.ts": {
@@ -19091,19 +19206,6 @@
           "OperationChoiceInput",
           "OperationChoiceDecision"
         ]
-      }
-    },
-    "src/services/smart-bid/operation/operation-route-agent-task.ts": {
-      "file": "files/src/services/smart-bid/operation/operation-route-agent-task.ts.json",
-      "module": {
-        "name": "app:services/smart-bid/operation/operation-route-agent-task",
-        "sourcePath": "src/services/smart-bid/operation/operation-route-agent-task.ts",
-        "sourceFile": "src/services/smart-bid/operation/operation-route-agent-task.ts",
-        "packageName": "app",
-        "modulePath": "services/smart-bid/operation/operation-route-agent-task",
-        "jsdoc": "@module app:services/smart-bid/operation/operation-route-agent-task\n职责：由正式工艺装配原参数，并沿 SPARK AI 注册契约准备同一次任务。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
       }
     },
     "src/services/smart-bid/operation/operation-route-candidate.ts": {
@@ -20363,32 +20465,6 @@
         "symbols": []
       }
     },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-dispatch-reader\n职责：第05项通过原 ContextManifest 视图定位同试次实发记录。\n边界：通过原命名视图读取派发记录，保留未知办理结果。\nAI用途：定位请求发出后缺少派发凭据的原因。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-frozen-reader\n职责：冷回读冻结输入摘要，供页18核验原试次。\n边界：按原试次身份读取固定清单，本次视图仅用于查询。\nAI用途：定位原试次输入或清单身份不匹配的原因。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts": {
       "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts.json",
       "module": {
@@ -20397,59 +20473,20 @@
         "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader.ts",
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿正式目录视图发现当前根可达的指南。\n边界：通过标准绑定读取目录动作与指南，调用由原工具宿主执行。\nAI用途：核对目录行展示与点击打开的指南是否一致。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader\n职责：页18第01项沿当前 ClassModel 发现当前根可达指南。\n边界：ClassModel 是知识真源，不建立 KnowledgeGuide 数据视图。\nAI用途：核对目录和指南是否来自同一 ClassModel 版本。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts.json",
+    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts": {
+      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts.json",
       "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader.ts",
+        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader",
+        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts",
+        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts",
         "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-original-guide-reader\n职责：按原冻结的精确版本核读页18返回核验所用的动作指南。\n边界：按原清单锁定指南版本，核对其来源与身份。\nAI用途：排查回查是否误读到其他版本的指南。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-result-reader\n职责：第06项以 GenerationRun 原试次视图读取原返回。\n边界：通过原办理记录核验结果，保留不确定状态。\nAI用途：确认原结果回执是否支持本次核验结论。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader\n职责：页18从原试次的返工证据视图准备第07项交接。\n边界：读取原试次证据供返工判断，责任域继续办理后续动作。\nAI用途：定位工艺返工前需要读取哪些原调用证明。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts": {
-      "file": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts.json",
-      "module": {
-        "name": "app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
-        "sourcePath": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
-        "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views.ts",
-        "packageName": "app",
-        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views\n职责：为正式共享场景提供页18所需的命名视图定义；模型身份和字段仍来自已登记模型。\n边界：场景配置责任方用正式主键装配视图，发布和存储仍由原场景负责。\nAI用途：配置工艺目录、原指南版本、派发凭据、办理回执和返工查询的命名视图。",
+        "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader\n职责：把已持有的 SmartBid 派发参数与 SSE ACK 作为页面原试次输入核验。\n边界：不查询伪 ContextManifest/GenerationRun 模型；只读取调用方传入的固定参数和正式 owner receipt。\nAI用途：页面重查时直接核对原 command、inputDigest、sessionId、turnId 和 actionReceipt。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -21064,7 +21101,7 @@
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
         "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按发布导航标题和正式元信息选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -21366,8 +21403,8 @@
         "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/followup/tender-change-attempt-reader",
-        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：按原正文基版枚举有记录的工艺试次，供动作23逐次追查。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：核验调用方显式传入的 Agent 试次参数，供动作23逐次追查。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -25214,6 +25251,10 @@
       "sourcePath": "packages/spark-component/src/page/binding/build-page-children.ts",
       "file": "files/packages/spark-component/src/page/binding/build-page-children.ts.json"
     },
+    "BuildRuntimeDataSetPlanInput": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json"
+    },
     "BuiltinActionName": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
@@ -25553,6 +25594,14 @@
     "CommitMode": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "CompiledRuntimeDataSetPlan": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/compiler.ts.json"
+    },
+    "CompileRuntimeDataSetPlanOptions": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/compiler.ts.json"
     },
     "ComponentChildrenMode": {
       "sourcePath": "packages/spark-component/src/core/types.ts",
@@ -26303,6 +26352,10 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataSetSaveChangesViewSelector": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetSaveCompletionHandler": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
@@ -29546,6 +29599,10 @@
       "sourcePath": "src/services/project/page-tool-publication.ts",
       "file": "files/src/services/project/page-tool-publication.ts.json"
     },
+    "PageToolPublicationDatasetSnapshot": {
+      "sourcePath": "src/services/project/page-tool-publication.ts",
+      "file": "files/src/services/project/page-tool-publication.ts.json"
+    },
     "PageToolPublicationFileSource": {
       "sourcePath": "src/services/project/page-tool-publication.ts",
       "file": "files/src/services/project/page-tool-publication.ts.json"
@@ -29717,6 +29774,10 @@
     "PickActionTextInput": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
+    },
+    "PlatformApiRouteField": {
+      "sourcePath": "src/lowcode/data-space/model-source/platform-api-route-spec.ts",
+      "file": "files/src/lowcode/data-space/model-source/platform-api-route-spec.ts.json"
     },
     "PlatformAuthResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/auth/platform-auth-resource.ts",
@@ -30057,6 +30118,10 @@
     "PublishedPageSession": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/published-page-binding.ts.json"
+    },
+    "PublishRuntimeDataSetPlanInput": {
+      "sourcePath": "src/lowcode/data-space/runtime-data-set-plan-file.ts",
+      "file": "files/src/lowcode/data-space/runtime-data-set-plan-file.ts.json"
     },
     "QualificationReview": {
       "sourcePath": "src/services/smart-bid/operation/agent-module/models/response-action-modules.ts",
@@ -30694,6 +30759,50 @@
       "sourcePath": "packages/spark-component/src/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.props.ts.json"
     },
+    "RuntimeDataSetPlanDependency": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanDependencyEmptyValueMode": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanFile": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanInputParam": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanModel": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanModelField": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanModelResource": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/compiler.ts.json"
+    },
+    "RuntimeDataSetPlanRelation": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanView": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanViewField": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
+    "RuntimeDataSetPlanViewFieldDisplay": {
+      "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+      "file": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json"
+    },
     "RuntimeFileCacheScope": {
       "sourcePath": "src/lowcode/runtime-file-cache.ts",
       "file": "files/src/lowcode/runtime-file-cache.ts.json"
@@ -30727,6 +30836,10 @@
       "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
     },
     "RuntimePageNavigationReceiptState": {
+      "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+      "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
+    },
+    "RuntimePagePublicationDataset": {
       "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
       "file": "files/packages/spark-app/src/router/page-runtime-pool.ts.json"
     },
@@ -30958,6 +31071,14 @@
       "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts",
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-action-module.ts.json"
     },
+    "SmartBidAgentDispatcher": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts.json"
+    },
+    "SmartBidAgentDispatchResult": {
+      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts.json"
+    },
     "SmartBidOperationCommand": {
       "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts",
       "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts.json"
@@ -30977,14 +31098,6 @@
     "SmartBidPageActionSubmit": {
       "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
       "file": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts.json"
-    },
-    "SmartBidRuntimeClaim": {
-      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
-      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json"
-    },
-    "SmartBidRuntimeClaimInput": {
-      "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
-      "file": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json"
     },
     "SnapshotHistory": {
       "sourcePath": "packages/spark-utils/src/snapshot-history.ts",

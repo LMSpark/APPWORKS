@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
-import {DataSet, resolveDataViewKey, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, parseRuntimeDataSetPlanFile, resolveDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {ProjectWorkspace, ScenarioDefinitionResource} from '@spark-appworks/spark-project-model'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
 import { ScenarioViewConfig } from '../../../../packages/spark-project-model/src/scenario/scenario-view-config'
@@ -22,6 +22,94 @@ describe('complete formal model schema and view output', () => {
   const http = new NoRequest(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
   return new LowcodeDataSpaceAssembler(runtime, http).assemble({config: definition, space, models: [candidate], relations: []})
  }
+ it('assembles an independent Dataset Plan only after formal model identity matches', () => {
+  const text=JSON.stringify({
+   schemaVersion:1,kind:'spark.runtimeDataSetPlan',scenarioId:'SCENE',name:'订单正式空间',description:'',type:'数据源',
+   savedAt:'2026-11-23T00:00:00.000Z',contentHash:'fnv1a:12345678',
+   source:{dataSetId:'SCENE',exportedFrom:'data-space-design',graphFile:'SCENE.json'},inputParams:[],
+   models:[{id:'MODEL',metaName:'QueryOrders',name:'QueryOrders',description:'',sourceType:'数据库表',
+    isBusinessMain:true,isBusiness:true,outputType:'Table',filter:'',parentField:'',hasChildField:'',selfType:'child',
+    topValue:'',cacheType:'',join:{joinType:'',foreignKeyFields:'',joinFilter:'',pId:''},
+    crud:{addApi:'',updateApi:'',deleteApi:''}}],
+   modelFields:[{id:'KEY',dataModelId:'MODEL',type:'dataModel',name:'rowid',description:'',
+    fieldType:'string',isOutput:true,asName:'orderId',orderType:'',order:0,group:0,isPKey:true}],
+   views:[{id:'VIEW',code:'detail',name:'Detail',description:'',dataModelId:'MODEL',isDefault:true,outputType:'Table',
+    filter:'',dependencies:[],parentField:'',hasChildField:'',selfType:'child',topValue:'',cacheType:''}],
+   viewFields:[{id:'VF',dataViewId:'VIEW',dataModelId:'MODEL',name:'rowid',description:'',fieldType:'string',
+    isOutput:true,asName:'orderId',orderType:'',order:0,group:0,sort:0,isPKey:true,
+    display:{kind:'text',fromDataViewId:'',valueField:'',labelField:''},valueSource:'model',
+    sourceDataViewId:'',sourceModelId:'',sourceField:''}],
+   relations:[],linkage:{edges:[]},
+  })
+  const plan=parseRuntimeDataSetPlanFile(text,'SCENE'),http=new NoRequest(),
+   runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assembleRuntimePlan({plan,space,models:[model]})
+  try{
+   expect(dataSet.getView('QueryOrders','VIEW')?.primaryKey).toBe('orderId')
+  }finally{dataSet.destroy()}
+  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assembleRuntimePlan({
+   plan:{...plan,modelFields:plan.modelFields.map(field=>({...field,id:'OTHER'}))},space,models:[model],
+  })).toThrow('RUNTIME_DATA_SET_PLAN_FIELD')
+ })
+ it('binds array rows while resolving a distinct view-field identity by formal field name', async () => {
+  const array = {...model, sourceType: '数组', raw: {items: '[{"rowid":"A"}]'}}
+  const text=JSON.stringify({
+   schemaVersion:1,kind:'spark.runtimeDataSetPlan',scenarioId:'SCENE',name:'订单正式空间',description:'',type:'数据源',
+   savedAt:'2026-11-23T00:00:00.000Z',contentHash:'fnv1a:12345678',
+   source:{dataSetId:'SCENE',exportedFrom:'data-space-design',graphFile:'SCENE.json'},inputParams:[],
+   models:[{id:'MODEL',metaName:'QueryOrders',name:'QueryOrders',description:'',sourceType:'数组',
+    isBusinessMain:true,isBusiness:true,outputType:'Table',filter:'',parentField:'',hasChildField:'',selfType:'child',
+    topValue:'',cacheType:'',join:{joinType:'',foreignKeyFields:'',joinFilter:'',pId:''},
+    crud:{addApi:'',updateApi:'',deleteApi:''}}],
+   modelFields:[{id:'KEY',dataModelId:'MODEL',type:'dataModel',name:'rowid',description:'',fieldType:'string',
+    isOutput:true,asName:'orderId',orderType:'',order:0,group:0,isPKey:true}],
+   views:[{id:'VIEW',code:'detail',name:'Detail',description:'',dataModelId:'MODEL',isDefault:true,outputType:'Table',
+    filter:'',dependencies:[],parentField:'',hasChildField:'',selfType:'child',topValue:'',cacheType:''}],
+   viewFields:[{id:'VIEW_FIELD',dataViewId:'VIEW',dataModelId:'MODEL',name:'rowid',description:'',fieldType:'string',
+    isOutput:true,asName:'orderId',orderType:'',order:0,group:0,sort:0,isPKey:true,
+    display:{kind:'text',fromDataViewId:'',valueField:'',labelField:''},valueSource:'model',
+    sourceDataViewId:'',sourceModelId:'',sourceField:''}],
+   relations:[],linkage:{edges:[]},
+  })
+  const plan=parseRuntimeDataSetPlanFile(text,'SCENE'),http=new NoRequest(),
+   runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assembleRuntimePlan({plan,space,models:[array]})
+  try {
+   const view=dataSet.getView('QueryOrders','VIEW')
+   expect(view?.primaryKey).toBe('orderId')
+   await view?.loadFromServer()
+   expect(view?.rows).toMatchObject([{orderId:'A'}])
+  } finally {dataSet.destroy()}
+ })
+ it('assembles a platform interface formal resource through the independent Plan owner', () => {
+  const platformInterface = {...model, sourceType: '平台接口', sourceName: 'platform:orders'}
+  const text=JSON.stringify({
+   schemaVersion:1,kind:'spark.runtimeDataSetPlan',scenarioId:'SCENE',name:'订单正式空间',description:'',type:'数据源',
+   savedAt:'2026-11-23T00:00:00.000Z',contentHash:'fnv1a:12345678',
+   source:{dataSetId:'SCENE',exportedFrom:'data-space-design',graphFile:'SCENE.json'},inputParams:[],
+   models:[{id:'MODEL',metaName:'QueryOrders',name:'QueryOrders',description:'',sourceType:'平台接口',
+    isBusinessMain:true,isBusiness:true,outputType:'Table',filter:'',parentField:'',hasChildField:'',selfType:'child',
+    topValue:'',cacheType:'',join:{joinType:'',foreignKeyFields:'',joinFilter:'',pId:''},
+    crud:{addApi:'',updateApi:'',deleteApi:''}}],
+   modelFields:[{id:'KEY',dataModelId:'MODEL',type:'dataModel',name:'rowid',description:'',fieldType:'string',
+    isOutput:true,asName:'orderId',orderType:'',order:0,group:0,isPKey:true}],
+   views:[{id:'VIEW',code:'detail',name:'Detail',description:'',dataModelId:'MODEL',isDefault:true,outputType:'Table',
+    filter:'',dependencies:[],parentField:'',hasChildField:'',selfType:'child',topValue:'',cacheType:''}],
+   viewFields:[{id:'VIEW_FIELD',dataViewId:'VIEW',dataModelId:'MODEL',name:'rowid',description:'',fieldType:'string',
+    isOutput:true,asName:'orderId',orderType:'',order:0,group:0,sort:0,isPKey:true,
+    display:{kind:'text',fromDataViewId:'',valueField:'',labelField:''},valueSource:'model',
+    sourceDataViewId:'',sourceModelId:'',sourceField:''}],
+   relations:[],linkage:{edges:[]},
+  })
+  const plan=parseRuntimeDataSetPlanFile(text,'SCENE'),http=new NoRequest(),
+   runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assembleRuntimePlan({plan,space,models:[platformInterface]})
+  try {
+   expect(dataSet.getTable('QueryOrders')).toMatchObject({
+    resourceType:'third-party-api', resourceId:'platform:orders',
+   })
+  } finally {dataSet.destroy()}
+ })
  it('retains non-output schema while named and derived array views consume only formal outputs', async () => {
   const stored = JSON.stringify(config.toJSON()), original = JSON.stringify(model)
   const {dataSet} = create(config, {...model, sourceType: '数组', raw: {items: '[{"rowid":"A","ordIdx":7}]'}})
@@ -393,13 +481,13 @@ it('saves a named aggregate through the definition DataView, reopens and consume
 describe('declared readonly projections',()=>{
  it('keeps a formal logical-view model on its registered model owner',()=>{
   const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
-  const bound=vi.spyOn(runtime,'bindModelView'),projection=vi.fn(()=>{throw new Error('unexpected projection owner')})
+  const bound=vi.spyOn(runtime,'bindModelTable'),projection=vi.fn(()=>{throw new Error('unexpected projection owner')})
   const model={...formal,sourceType:'视图'}
   const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space,models:[model],relations:[],projectionBindings:{Orders:projection}})
   try{
    expect(dataSet.getTable('Orders')?.resourceType).toBe('logical-view')
    expect(dataSet.getTable('Orders')?.modelBinding).toEqual({modelId:'MODEL',modelName:'QueryOrders'})
-   expect(bound).toHaveBeenCalledTimes(2);expect(projection).not.toHaveBeenCalled()
+   expect(bound).toHaveBeenCalledTimes(1);expect(projection).not.toHaveBeenCalled()
   }finally{dataSet.destroy()}
  })
 

@@ -8,10 +8,10 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按发布导航标题和正式元信息选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-20T20:59:33.135Z",
+  "generatedAt": "2026-11-23T01:03:02.793Z",
   "models": {}
 }

@@ -185,6 +185,7 @@
         "saveChangesConfig": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveChangesConfig"
         },
+        "_saveCompletionHandler": true,
         "layout": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetLayoutMetadata"
         },
@@ -462,6 +463,10 @@
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
         },
+        "setSaveCompletionHandler": {
+          "type": "object",
+          "title": "(handler?: DataSetSaveCompletionHandler) => () => void"
+        },
         "executeSaveChanges": true,
         "saveChangesInPhases": {
           "type": "object",
@@ -504,6 +509,7 @@
         "version",
         "pageId",
         "saveChangesConfig",
+        "_saveCompletionHandler",
         "layout",
         "_childCascadeIdx",
         "_parentCascadeIdx",
@@ -587,6 +593,7 @@
         "retainSaveJournalDraft",
         "discardSaveJournalNotApplied",
         "saveChanges",
+        "setSaveCompletionHandler",
         "executeSaveChanges",
         "saveChangesInPhases",
         "resolveUnconfirmedSaves",
@@ -1111,6 +1118,11 @@
               "writable": true
             },
             {
+              "name": "_saveCompletionHandler",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "layout",
               "readable": true,
               "writable": true
@@ -1537,6 +1549,11 @@
             },
             {
               "name": "saveChanges",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "setSaveCompletionHandler",
               "readable": true,
               "writable": true
             },

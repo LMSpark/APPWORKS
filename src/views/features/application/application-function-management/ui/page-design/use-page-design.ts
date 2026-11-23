@@ -7,7 +7,8 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { getNavTree, resolveNavNodeRuntimeTarget, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
+import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
+ type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
 import { PageTool, parseConfigToolPageId, type PageToolFileName } from '@spark-appworks/spark-project-model'
 import {
   encodeLowcodeBlueprintFileVersions,
@@ -20,13 +21,14 @@ import { onPageConfigChange } from '@/services/sse-events'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import {
   createPageToolPublicationManifest,
+  createPageToolDatasetPublicationManifest,
   withPageToolPublication,
   type PageToolPublication,
   type PageToolPublicationFileSource,
   type PageToolPublicationScenarioSource,
 } from '@/services/project/page-tool-publication'
 import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi, readLowcodeRuntimeDatasetPlan } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
@@ -426,7 +428,18 @@ export function usePageDesign(state: DevState) {
       if (ruleText === undefined) throw new Error('交付规则文本缺失')
       tool.hydrateFileText('rule.json', ruleText)
       const callDefinition = resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
-      const scenarioSources = await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
+      const datasetSources = await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
+        const text = await readLowcodeRuntimeDatasetPlan(projectId, scenarioId)
+        assertTarget()
+        if (text === null) return null
+        const plan = parseRuntimeDataSetPlanFile(text, scenarioId)
+        return {scenarioId, text, sourceRevision: plan.contentHash}
+      }))
+      if (datasetSources.some(Boolean) && datasetSources.some(source => source === null)) {
+        throw new Error('PAGE_PUBLICATION_DATASET_INCOMPLETE: 同一次页面调用的场景必须统一使用独立 Dataset Plan')
+      }
+      const useDatasetPublication = datasetSources.every(Boolean)
+      const scenarioSources = useDatasetPublication ? [] : await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
         const dataSet = await state.editor.loadScenarioDefinitions({scenarioId})
         assertTarget()
         const fileView = dataSet.getView('DataViewDefinition')
@@ -445,7 +458,10 @@ export function usePageDesign(state: DevState) {
         }
       }))
       const digest = await digestOf(JSON.stringify({
-        files: [...texts], pagedata: scenarioSources.map(source => [source.scenarioId, source.sourceRevision, source.text]),
+        files: [...texts],
+        ...(useDatasetPublication
+          ? {dataset: datasetSources.map(source => source && [source.scenarioId, source.sourceRevision, source.text])}
+          : {pagedata: scenarioSources.map(source => [source.scenarioId, source.sourceRevision, source.text])}),
       }))
       assertTarget()
       const intent = journal.open(call, digest, originalVersionId)
@@ -467,23 +483,28 @@ export function usePageDesign(state: DevState) {
         versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       }
       const pagedataSources: PageToolPublicationScenarioSource[] = []
-      for (const source of scenarioSources) {
-        assertTarget()
-        const snapshot = await journal.scenarioSnapshot({
-          intent, scenarioId: source.scenarioId, fileView: source.fileView, text: source.text,
-          sourceRevision: source.sourceRevision, assertTarget,
-          onAttempt: name => attemptedSnapshots.push(`${source.scenarioId}/${name}`),
-        })
-        pagedataSources.push(snapshot)
-        written.push(`${source.scenarioId}/${snapshot.version}__pagedata.json`)
+      if (!useDatasetPublication) {
+        for (const source of scenarioSources) {
+          assertTarget()
+          const snapshot = await journal.scenarioSnapshot({
+            intent, scenarioId: source.scenarioId, fileView: source.fileView, text: source.text,
+            sourceRevision: source.sourceRevision, assertTarget,
+            onAttempt: name => attemptedSnapshots.push(`${source.scenarioId}/${name}`),
+          })
+          pagedataSources.push(snapshot)
+          written.push(`${source.scenarioId}/${snapshot.version}__pagedata.json`)
+        }
       }
       assertTarget()
       for (const fileName of DELIVERY_FILES) {
         if (readFileText(fileName) !== texts.get(fileName)) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
       }
-      const manifest = await createPageToolPublicationManifest({
-        pageId, files: fileSources, pagedata: pagedataSources,
-      })
+      const manifest = useDatasetPublication
+        ? await createPageToolDatasetPublicationManifest({
+          pageId, files: fileSources,
+          dataset: datasetSources.flatMap(source => source === null ? [] : [{...source}]),
+        })
+        : await createPageToolPublicationManifest({pageId, files: fileSources, pagedata: pagedataSources})
       const manifestText = `${JSON.stringify(manifest, null, 2)}\n`
       const manifestView = createPagePublicationManifestFileView({
         dataSet: current.dataSet, appId: projectId, pageId, workspace: state.editor, assertCurrent: () => assertTarget(),

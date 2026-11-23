@@ -3,20 +3,14 @@
  */
 import {snapshotReferenceFields,snapshotReferenceIdentity as identity,visitSnapshotReferences}
  from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {originalRegistrationView,readOriginalRegistrationView} from '../authority/original-registration-view'
+import {isRecord} from '@spark-appworks/spark-utils'
+import type {ContentRevisionReadHost} from '../authoring/model/content-revision-reader'
 
-const keys=['projectId','runId','attemptRef','requestKey']
+const keys=['projectId','runId','attemptRef','requestKey'] as const
 const fields=['actualRequirementReads']
 const dispositionField='changeDispositions'
-export const tenderChangeCallFields=[...fields,dispositionField]
-const viewName='originalRequirementReads'
 const error='TENDER_CHANGE_CALL_EVIDENCE'
 type Scope=Readonly<{projectId:string;runId:string;attemptRef:string;requestKey:string}>
-
-/** 原调用视图按试次完整身份精确取证。 */
-export function tenderChangeCallScenarioView(primaryKey:string){
- return originalRegistrationView(primaryKey,keys,tenderChangeCallFields)
-}
 
 function captureReference(value:unknown){
  const {callRef,resultRef,fieldPath,lineageId,version}=snapshotReferenceFields(value,
@@ -67,9 +61,15 @@ export function captureTenderChangeCallEvidence(row:Readonly<Record<string,unkno
   assertCurrent:()=>{assertCurrent();assertDispositions()}})
 }
 
-/** 缺失清单表示待取得原引用，空清单只描述本次已核试次。 */
-export async function readTenderChangeCallReferences(host:Parameters<typeof readOriginalRegistrationView>[0],scope:Scope){
- const read=await readOriginalRegistrationView(host,{model:'GenerationRun',viewName},scope)
- if(!read.row)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:read.assertCurrent})
- return captureTenderChangeCallEvidence(read.row,read.captureFields)
+/** 缺失清单表示待取得原引用，运行参数只来自调用方显式上下文。 */
+export function readTenderChangeCallReferences(host:ContentRevisionReadHost,scope:Scope,input:unknown){
+ host.assertCurrent()
+ if(![scope.projectId,scope.runId,scope.attemptRef,scope.requestKey].every(identity)||
+  scope.projectId!==host.projectId||!isRecord(input)||
+  keys.some(key=>input[key]!==scope[key]))throw Error(error)
+ if(input['actualRequirementReads']===undefined)return Object.freeze({state:'UNKNOWN' as const,assertCurrent:host.assertCurrent})
+ return captureTenderChangeCallEvidence(input,required=>{
+  void required
+  return host.assertCurrent
+ })
 }

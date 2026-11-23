@@ -1,0 +1,1449 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:runtime-data-set-plan/types",
+    "sourcePath": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+    "sourceFile": "packages/spark-data/src/runtime-data-set-plan/types.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "runtime-data-set-plan/types",
+    "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/types\n职责：定义后端独立 Dataset Plan 的 schemaVersion 1 JSON 合约。\n边界：文件只描述数据空间结构，不承载 rows、权限凭据、运行草稿或页面工具文件。\nAI用途：生成或验证 `{scenarioId}.dataset.json` 时，沿此唯一文件合同读写。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RuntimeDataSetPlanDependencyEmptyValueMode",
+      "RuntimeDataSetPlanDependency",
+      "RuntimeDataSetPlanInputParam",
+      "RuntimeDataSetPlanModel",
+      "RuntimeDataSetPlanModelField",
+      "RuntimeDataSetPlanView",
+      "RuntimeDataSetPlanViewFieldDisplay",
+      "RuntimeDataSetPlanViewField",
+      "RuntimeDataSetPlanRelation",
+      "RuntimeDataSetPlanFile"
+    ]
+  },
+  "$defs": {
+    "RuntimeDataSetPlanDependencyEmptyValueMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeDataSetPlanDependencyEmptyValueMode",
+      "enum": [
+        "emptyResult",
+        "omit",
+        "asNull"
+      ]
+    },
+    "RuntimeDataSetPlanDependency": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanDependency",
+      "properties": {
+        "dependKey": {
+          "type": "string"
+        },
+        "sourceDataViewId": {
+          "type": "string"
+        },
+        "sourceModelId": {
+          "type": "string"
+        },
+        "sourceField": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "emptyValueMode": {
+          "$ref": "#/$defs/RuntimeDataSetPlanDependencyEmptyValueMode"
+        }
+      },
+      "required": [
+        "dependKey",
+        "sourceDataViewId",
+        "sourceModelId",
+        "sourceField",
+        "label",
+        "emptyValueMode"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanInputParam": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanInputParam",
+      "properties": {
+        "rowid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "isBusParam": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "rowid",
+        "name",
+        "description",
+        "isBusParam"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "isBusinessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "isBusiness": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "outputType": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "selfType": {
+          "type": "string"
+        },
+        "topValue": {
+          "type": "string"
+        },
+        "cacheType": {
+          "type": "string"
+        },
+        "join": {
+          "type": "object",
+          "properties": {
+            "joinType": {
+              "type": "string"
+            },
+            "foreignKeyFields": {
+              "type": "string"
+            },
+            "joinFilter": {
+              "type": "string"
+            },
+            "pId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "joinType",
+            "foreignKeyFields",
+            "joinFilter",
+            "pId"
+          ],
+          "additionalProperties": false
+        },
+        "crud": {
+          "type": "object",
+          "properties": {
+            "addApi": {
+              "type": "string"
+            },
+            "updateApi": {
+              "type": "string"
+            },
+            "deleteApi": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "addApi",
+            "updateApi",
+            "deleteApi"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "description",
+        "sourceType",
+        "isBusinessMain",
+        "isBusiness",
+        "outputType",
+        "filter",
+        "parentField",
+        "hasChildField",
+        "selfType",
+        "topValue",
+        "cacheType",
+        "join",
+        "crud"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanModelField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanModelField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "dataModelId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fieldType": {
+          "type": "string"
+        },
+        "isOutput": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "asName": {
+          "type": "string"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "group": {
+          "type": "number"
+        },
+        "isPKey": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "dataModelId",
+        "type",
+        "name",
+        "description",
+        "fieldType",
+        "isOutput",
+        "asName",
+        "orderType",
+        "order",
+        "group",
+        "isPKey"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanView",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dataModelId": {
+          "type": "string"
+        },
+        "isDefault": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "outputType": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanDependency"
+          }
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "selfType": {
+          "type": "string"
+        },
+        "topValue": {
+          "type": "string"
+        },
+        "cacheType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "name",
+        "description",
+        "dataModelId",
+        "isDefault",
+        "outputType",
+        "filter",
+        "dependencies",
+        "parentField",
+        "hasChildField",
+        "selfType",
+        "topValue",
+        "cacheType"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanViewFieldDisplay": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanViewFieldDisplay",
+      "properties": {
+        "kind": {
+          "enum": [
+            "text",
+            "map"
+          ]
+        },
+        "fromDataViewId": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "fromDataViewId",
+        "valueField",
+        "labelField"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanViewField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanViewField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "dataViewId": {
+          "type": "string"
+        },
+        "dataModelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fieldType": {
+          "type": "string"
+        },
+        "isOutput": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "asName": {
+          "type": "string"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "group": {
+          "type": "number"
+        },
+        "sort": {
+          "type": "number"
+        },
+        "isPKey": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "display": {
+          "$ref": "#/$defs/RuntimeDataSetPlanViewFieldDisplay"
+        },
+        "valueSource": {
+          "enum": [
+            "model",
+            "dependency"
+          ]
+        },
+        "sourceDataViewId": {
+          "type": "string"
+        },
+        "sourceModelId": {
+          "type": "string"
+        },
+        "sourceField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "dataViewId",
+        "dataModelId",
+        "name",
+        "description",
+        "fieldType",
+        "isOutput",
+        "asName",
+        "orderType",
+        "order",
+        "group",
+        "sort",
+        "isPKey",
+        "display",
+        "valueSource",
+        "sourceDataViewId",
+        "sourceModelId",
+        "sourceField"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanRelation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanRelation",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parentModelId": {
+          "type": "string"
+        },
+        "childModelId": {
+          "type": "string"
+        },
+        "depType": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "cascadeDel": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "parentTable": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "parentModelId",
+        "childModelId",
+        "depType",
+        "filter",
+        "cascadeDel",
+        "childTable",
+        "parentTable"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeDataSetPlanFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanFile",
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "kind": {
+          "const": "spark.runtimeDataSetPlan"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "savedAt": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "dataSetId": {
+              "type": "string"
+            },
+            "exportedFrom": {
+              "const": "data-space-design"
+            },
+            "graphFile": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "dataSetId",
+            "exportedFrom",
+            "graphFile"
+          ],
+          "additionalProperties": false
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanInputParam"
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanModel"
+          }
+        },
+        "modelFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanModelField"
+          }
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanView"
+          }
+        },
+        "viewFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanViewField"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeDataSetPlanRelation"
+          }
+        },
+        "linkage": {
+          "type": "object",
+          "properties": {
+            "edges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "parentModelId": {
+                    "type": "string"
+                  },
+                  "childModelId": {
+                    "type": "string"
+                  },
+                  "depType": {
+                    "type": "string"
+                  },
+                  "filter": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "const": "current"
+                  }
+                },
+                "required": [
+                  "parentModelId",
+                  "childModelId",
+                  "depType",
+                  "filter",
+                  "trigger"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "edges"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "scenarioId",
+        "name",
+        "description",
+        "type",
+        "savedAt",
+        "contentHash",
+        "source",
+        "inputParams",
+        "models",
+        "modelFields",
+        "views",
+        "viewFields",
+        "relations",
+        "linkage"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-22T18:11:26.905Z",
+  "models": {
+    "RuntimeDataSetPlanDependencyEmptyValueMode": {
+      "name": "RuntimeDataSetPlanDependencyEmptyValueMode",
+      "jsdoc": "依赖值为空时的查询策略，与 reference Dataset Plan 文件一致。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'emptyResult' | 'omit' | 'asNull'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'emptyResult'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'omit'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'asNull'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimeDataSetPlanDependency": {
+      "name": "RuntimeDataSetPlanDependency",
+      "jsdoc": "一个 DataView Filter GetDependValue 到源视图字段的正式依赖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Filter ValueFun.DependKey。 */\n    dependKey: string;\n    /** 上游 DataView ID。 */\n    sourceDataViewId: string;\n    /** 上游模型正式 ID。 */\n    sourceModelId: string;\n    /** 上游 activeRows 中提供级联值的字段。 */\n    sourceField: string;\n    /** 设计态人读名称。 */\n    label: string;\n    /** 上游无可用值时的查询行为。 */\n    emptyValueMode: RuntimeDataSetPlanDependencyEmptyValueMode;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Filter ValueFun.DependKey。 */\n    dependKey: string;\n    /** 上游 DataView ID。 */\n    sourceDataViewId: string;\n    /** 上游模型正式 ID。 */\n    sourceModelId: string;\n    /** 上游 activeRows 中提供级联值的字段。 */\n    sourceField: string;\n    /** 设计态人读名称。 */\n    label: string;\n    /** 上游无可用值时的查询行为。 */\n    emptyValueMode: RuntimeDataSetPlanDependencyEmptyValueMode;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dependKey",
+              "jsdoc": "Filter ValueFun.DependKey。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceDataViewId",
+              "jsdoc": "上游 DataView ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceModelId",
+              "jsdoc": "上游模型正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceField",
+              "jsdoc": "上游 activeRows 中提供级联值的字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "设计态人读名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyValueMode",
+              "jsdoc": "上游无可用值时的查询行为。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanInputParam": {
+      "name": "RuntimeDataSetPlanInputParam",
+      "jsdoc": "Dataset 运行入参定义；运行时值不写入 Plan。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 入参记录正式 ID。 */\n    rowid: string;\n    /** 运行过滤中的 ParamName。 */\n    name: string;\n    /** 设计态说明。 */\n    description: string;\n    /** 是否业务入参。 */\n    isBusParam: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 入参记录正式 ID。 */\n    rowid: string;\n    /** 运行过滤中的 ParamName。 */\n    name: string;\n    /** 设计态说明。 */\n    description: string;\n    /** 是否业务入参。 */\n    isBusParam: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rowid",
+              "jsdoc": "入参记录正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "运行过滤中的 ParamName。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "设计态说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBusParam",
+              "jsdoc": "是否业务入参。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanModel": {
+      "name": "RuntimeDataSetPlanModel",
+      "jsdoc": "Plan 中的正式模型投影；物理查询与写回 owner 仍由 runtime metadata 绑定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Base_DataModel 正式 ID。 */\n    id: string;\n    /** 查询使用的模型注册名。 */\n    metaName: string;\n    /** 业务展示名。 */\n    name: string;\n    /** 模型说明。 */\n    description: string;\n    /** 正式资源来源类型。 */\n    sourceType: string;\n    /** 是否业务主模型。 */\n    isBusinessMain: boolean;\n    /** 是否业务模型。 */\n    isBusiness: boolean;\n    /** 默认输出类型。 */\n    outputType: string;\n    /** 模型固定过滤 JSON。 */\n    filter: string;\n    /** 自引用父字段。 */\n    parentField: string;\n    /** 自引用是否有子节点字段。 */\n    hasChildField: string;\n    /** 自引用方向。 */\n    selfType: string;\n    /** 自引用根值。 */\n    topValue: string;\n    /** 后端缓存策略。 */\n    cacheType: string;\n    /** 连接来源配置。 */\n    join: Readonly<{\n        /** 连接类型。 */\n        joinType: string;\n        /** 外键字段集合。 */\n        foreignKeyFields: string;\n        /** 连接过滤 JSON。 */\n        joinFilter: string;\n        /** 连接主体 ID。 */\n        pId: string;\n    }>;\n    /** 后端 CRUD API 名称。 */\n    crud: Readonly<{\n        /** 新增 API。 */\n        addApi: string;\n        /** 更新 API。 */\n        updateApi: string;\n        /** 删除 API。 */\n        deleteApi: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Base_DataModel 正式 ID。 */\n    id: string;\n    /** 查询使用的模型注册名。 */\n    metaName: string;\n    /** 业务展示名。 */\n    name: string;\n    /** 模型说明。 */\n    description: string;\n    /** 正式资源来源类型。 */\n    sourceType: string;\n    /** 是否业务主模型。 */\n    isBusinessMain: boolean;\n    /** 是否业务模型。 */\n    isBusiness: boolean;\n    /** 默认输出类型。 */\n    outputType: string;\n    /** 模型固定过滤 JSON。 */\n    filter: string;\n    /** 自引用父字段。 */\n    parentField: string;\n    /** 自引用是否有子节点字段。 */\n    hasChildField: string;\n    /** 自引用方向。 */\n    selfType: string;\n    /** 自引用根值。 */\n    topValue: string;\n    /** 后端缓存策略。 */\n    cacheType: string;\n    /** 连接来源配置。 */\n    join: Readonly<{\n        /** 连接类型。 */\n        joinType: string;\n        /** 外键字段集合。 */\n        foreignKeyFields: string;\n        /** 连接过滤 JSON。 */\n        joinFilter: string;\n        /** 连接主体 ID。 */\n        pId: string;\n    }>;\n    /** 后端 CRUD API 名称。 */\n    crud: Readonly<{\n        /** 新增 API。 */\n        addApi: string;\n        /** 更新 API。 */\n        updateApi: string;\n        /** 删除 API。 */\n        deleteApi: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "Base_DataModel 正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "jsdoc": "查询使用的模型注册名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "业务展示名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "模型说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceType",
+              "jsdoc": "正式资源来源类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBusinessMain",
+              "jsdoc": "是否业务主模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBusiness",
+              "jsdoc": "是否业务模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "jsdoc": "默认输出类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "jsdoc": "模型固定过滤 JSON。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "自引用父字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "jsdoc": "自引用是否有子节点字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selfType",
+              "jsdoc": "自引用方向。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "topValue",
+              "jsdoc": "自引用根值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheType",
+              "jsdoc": "后端缓存策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "join",
+              "jsdoc": "连接来源配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crud",
+              "jsdoc": "后端 CRUD API 名称。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanModelField": {
+      "name": "RuntimeDataSetPlanModelField",
+      "jsdoc": "Plan 中单个正式模型字段投影。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Base_DataModel_Field 正式 ID。 */\n    id: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 字段记录类别，Plan 只接受 dataModel。 */\n    type: string;\n    /** 正式字段名。 */\n    name: string;\n    /** 字段说明。 */\n    description: string;\n    /** 字段类型。 */\n    fieldType: string;\n    /** 是否为正式输出。 */\n    isOutput: boolean;\n    /** 输出别名。 */\n    asName: string;\n    /** 默认排序方向。 */\n    orderType: string;\n    /** 字段顺序。 */\n    order: number;\n    /** 分组顺序。 */\n    group: number;\n    /** 是否声明为主键；运行时仍须与正式 metadata 对账。 */\n    isPKey: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Base_DataModel_Field 正式 ID。 */\n    id: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 字段记录类别，Plan 只接受 dataModel。 */\n    type: string;\n    /** 正式字段名。 */\n    name: string;\n    /** 字段说明。 */\n    description: string;\n    /** 字段类型。 */\n    fieldType: string;\n    /** 是否为正式输出。 */\n    isOutput: boolean;\n    /** 输出别名。 */\n    asName: string;\n    /** 默认排序方向。 */\n    orderType: string;\n    /** 字段顺序。 */\n    order: number;\n    /** 分组顺序。 */\n    group: number;\n    /** 是否声明为主键；运行时仍须与正式 metadata 对账。 */\n    isPKey: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "Base_DataModel_Field 正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataModelId",
+              "jsdoc": "所属模型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "字段记录类别，Plan 只接受 dataModel。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "正式字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "字段说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldType",
+              "jsdoc": "字段类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isOutput",
+              "jsdoc": "是否为正式输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "asName",
+              "jsdoc": "输出别名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "jsdoc": "默认排序方向。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "字段顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "jsdoc": "分组顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isPKey",
+              "jsdoc": "是否声明为主键；运行时仍须与正式 metadata 对账。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanView": {
+      "name": "RuntimeDataSetPlanView",
+      "jsdoc": "Plan 中单个命名 DataView 的查询与依赖配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "命名 DataView 正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "jsdoc": "设计态代码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "视图名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "视图说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataModelId",
+              "jsdoc": "所属模型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDefault",
+              "jsdoc": "是否模型默认视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "jsdoc": "查询输出类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "jsdoc": "后端 Filter JSON；GetDependValue 由 spark-data 物化。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencies",
+              "jsdoc": "当前视图的源字段依赖。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "树查询父字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "jsdoc": "树查询子节点标记字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selfType",
+              "jsdoc": "树查询类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "topValue",
+              "jsdoc": "树查询根值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheType",
+              "jsdoc": "视图缓存策略。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanViewFieldDisplay": {
+      "name": "RuntimeDataSetPlanViewFieldDisplay",
+      "jsdoc": "视图字段的人读显示策略；map 只影响呈现，不参与查询级联。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** text 原值或 map 参照呈现。 */\n    kind: 'text' | 'map';\n    /** map 使用的来源 DataView ID。 */\n    fromDataViewId: string;\n    /** map 值字段。 */\n    valueField: string;\n    /** map 标签字段。 */\n    labelField: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** text 原值或 map 参照呈现。 */\n    kind: 'text' | 'map';\n    /** map 使用的来源 DataView ID。 */\n    fromDataViewId: string;\n    /** map 值字段。 */\n    valueField: string;\n    /** map 标签字段。 */\n    labelField: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "text 原值或 map 参照呈现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fromDataViewId",
+              "jsdoc": "map 使用的来源 DataView ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "map 值字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "map 标签字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanViewField": {
+      "name": "RuntimeDataSetPlanViewField",
+      "jsdoc": "命名 DataView 的字段投影与显示合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 视图字段正式 ID。 */\n    id: string;\n    /** 所属命名 DataView ID。 */\n    dataViewId: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 正式字段名。 */\n    name: string;\n    /** 字段说明。 */\n    description: string;\n    /** 字段类型。 */\n    fieldType: string;\n    /** 该视图是否输出。 */\n    isOutput: boolean;\n    /** 该视图输出别名。 */\n    asName: string;\n    /** 排序方向。 */\n    orderType: string;\n    /** 模型级字段顺序。 */\n    order: number;\n    /** 分组顺序。 */\n    group: number;\n    /** 视图投影顺序。 */\n    sort: number;\n    /** 是否声明主键；运行时使用正式 metadata 的结果。 */\n    isPKey: boolean;\n    /** 列表显示配置。 */\n    display: RuntimeDataSetPlanViewFieldDisplay;\n    /** 值来源，model 或 dependency。 */\n    valueSource: 'model' | 'dependency';\n    /** 旧依赖来源视图 ID。 */\n    sourceDataViewId: string;\n    /** 旧依赖来源模型 ID。 */\n    sourceModelId: string;\n    /** 旧依赖来源字段。 */\n    sourceField: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 视图字段正式 ID。 */\n    id: string;\n    /** 所属命名 DataView ID。 */\n    dataViewId: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 正式字段名。 */\n    name: string;\n    /** 字段说明。 */\n    description: string;\n    /** 字段类型。 */\n    fieldType: string;\n    /** 该视图是否输出。 */\n    isOutput: boolean;\n    /** 该视图输出别名。 */\n    asName: string;\n    /** 排序方向。 */\n    orderType: string;\n    /** 模型级字段顺序。 */\n    order: number;\n    /** 分组顺序。 */\n    group: number;\n    /** 视图投影顺序。 */\n    sort: number;\n    /** 是否声明主键；运行时使用正式 metadata 的结果。 */\n    isPKey: boolean;\n    /** 列表显示配置。 */\n    display: RuntimeDataSetPlanViewFieldDisplay;\n    /** 值来源，model 或 dependency。 */\n    valueSource: 'model' | 'dependency';\n    /** 旧依赖来源视图 ID。 */\n    sourceDataViewId: string;\n    /** 旧依赖来源模型 ID。 */\n    sourceModelId: string;\n    /** 旧依赖来源字段。 */\n    sourceField: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "视图字段正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewId",
+              "jsdoc": "所属命名 DataView ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataModelId",
+              "jsdoc": "所属模型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "正式字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "字段说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldType",
+              "jsdoc": "字段类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isOutput",
+              "jsdoc": "该视图是否输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "asName",
+              "jsdoc": "该视图输出别名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "jsdoc": "排序方向。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "模型级字段顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "jsdoc": "分组顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sort",
+              "jsdoc": "视图投影顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isPKey",
+              "jsdoc": "是否声明主键；运行时使用正式 metadata 的结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "display",
+              "jsdoc": "列表显示配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueSource",
+              "jsdoc": "值来源，model 或 dependency。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceDataViewId",
+              "jsdoc": "旧依赖来源视图 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceModelId",
+              "jsdoc": "旧依赖来源模型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceField",
+              "jsdoc": "旧依赖来源字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanRelation": {
+      "name": "RuntimeDataSetPlanRelation",
+      "jsdoc": "后端正式模型关系；结构关系与运行级联依赖分别保存。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Base_DataModel_Relation 正式 ID。 */\n    id: string;\n    /** 父模型正式 ID。 */\n    parentModelId: string;\n    /** 子模型正式 ID。 */\n    childModelId: string;\n    /** 关系依赖类型。 */\n    depType: string;\n    /** 完整过滤表达式 JSON。 */\n    filter: string;\n    /** 是否声明删除级联。 */\n    cascadeDel: boolean;\n    /** 子模型注册名。 */\n    childTable: string;\n    /** 父模型注册名。 */\n    parentTable: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Base_DataModel_Relation 正式 ID。 */\n    id: string;\n    /** 父模型正式 ID。 */\n    parentModelId: string;\n    /** 子模型正式 ID。 */\n    childModelId: string;\n    /** 关系依赖类型。 */\n    depType: string;\n    /** 完整过滤表达式 JSON。 */\n    filter: string;\n    /** 是否声明删除级联。 */\n    cascadeDel: boolean;\n    /** 子模型注册名。 */\n    childTable: string;\n    /** 父模型注册名。 */\n    parentTable: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "Base_DataModel_Relation 正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentModelId",
+              "jsdoc": "父模型正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childModelId",
+              "jsdoc": "子模型正式 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "depType",
+              "jsdoc": "关系依赖类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "jsdoc": "完整过滤表达式 JSON。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cascadeDel",
+              "jsdoc": "是否声明删除级联。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "jsdoc": "子模型注册名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "jsdoc": "父模型注册名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanFile": {
+      "name": "RuntimeDataSetPlanFile",
+      "jsdoc": "后端生成的独立 Runtime Dataset Plan 根合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "jsdoc": "独立 Plan schema 版本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "独立 Plan 文件类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "Base_DataSet.rowid。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "数据空间名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "数据空间说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "数据空间类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "savedAt",
+              "jsdoc": "后端生成时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentHash",
+              "jsdoc": "后端稳定结构哈希。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "文件导出来源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "jsdoc": "运行入参定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "jsdoc": "正式模型投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelFields",
+              "jsdoc": "模型字段投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "命名 DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewFields",
+              "jsdoc": "DataView 字段投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "jsdoc": "稳定模型关系。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkage",
+              "jsdoc": "设计关系边摘要，不替代 relations。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

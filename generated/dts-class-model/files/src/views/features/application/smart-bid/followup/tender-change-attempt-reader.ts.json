@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/application/smart-bid/followup/tender-change-attempt-reader.ts",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/followup/tender-change-attempt-reader",
-    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：按原正文基版枚举有记录的工艺试次，供动作23逐次追查。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module app:views/features/application/smart-bid/followup/tender-change-attempt-reader\n职责：核验调用方显式传入的 Agent 试次参数，供动作23逐次追查。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-20T20:59:33.172Z",
+  "generatedAt": "2026-11-23T03:27:25.307Z",
   "models": {}
 }

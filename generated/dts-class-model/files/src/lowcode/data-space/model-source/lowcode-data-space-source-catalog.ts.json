@@ -28,6 +28,7 @@
         "table",
         "json",
         "dict",
+        "platformApi",
         "logicView",
         "databaseView"
       ]
@@ -56,6 +57,10 @@
           "type": "string"
         },
         "providerId": {
+          "type": "string"
+        },
+        "routeSpec": true,
+        "outputPath": {
           "type": "string"
         }
       },
@@ -407,14 +412,14 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.592Z",
+  "generatedAt": "2026-11-22T20:05:01.486Z",
   "models": {
     "PageDataSpaceModelSourceType": {
       "name": "PageDataSpaceModelSourceType",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'table' | 'dict' | 'interface' | 'json' | 'logicView' | 'databaseView'",
+        "declarationTypeText": "'table' | 'dict' | 'interface' | 'platformApi' | 'json' | 'logicView' | 'databaseView'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -427,6 +432,10 @@
           {
             "kind": "union",
             "typeText": "'interface'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'platformApi'"
           },
           {
             "kind": "union",
@@ -449,11 +458,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n    routeSpec?: unknown;\n    outputPath?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n}>",
+            "typeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n    routeSpec?: unknown;\n    outputPath?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -491,6 +500,16 @@
             },
             {
               "name": "providerId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routeSpec",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputPath",
               "readable": true,
               "writable": false
             }

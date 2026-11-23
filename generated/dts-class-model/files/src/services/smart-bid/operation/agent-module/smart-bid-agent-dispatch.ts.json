@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/smart-bid/operation/agent-module/smart-bid-agent-dispatch",
+    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+    "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
+    "packageName": "app",
+    "modulePath": "services/smart-bid/operation/agent-module/smart-bid-agent-dispatch",
+    "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-agent-dispatch\n职责：统一经 spark-ai Agent Host 和 SSE turn bridge 派发 SmartBid 操作。\n边界：Agent 编排走 SSE；前端工具执行仍调用本次 PageRuntime 的正式 DataView owner。\nAI用途：Page16/18及其他 SmartBid 动作统一复用同一 Agent/SSE 派发、回执和 stale guard。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "SmartBidAgentDispatchResult",
+      "SmartBidAgentDispatcher"
+    ]
+  },
+  "$defs": {
+    "SmartBidAgentDispatchResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidAgentDispatchResult",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "smart-bid-operation-module.ts.json#/$defs/SmartBidOperationCommand"
+        },
+        "inputDigest": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "object",
+          "properties": {
+            "sessionId": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            },
+            "transport": {
+              "const": "SSE"
+            },
+            "state": {
+              "enum": [
+                "NO_ACTION_RECEIPT",
+                "ACTION_APPLIED",
+                "SSE_UNKNOWN"
+              ]
+            },
+            "dispatched": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "actionReceipt": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+                  }
+                }
+              ]
+            },
+            "error": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sessionId",
+            "turnId",
+            "transport",
+            "state",
+            "dispatched"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "operationId",
+        "requestKey",
+        "parameters",
+        "inputDigest",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "SmartBidAgentDispatcher": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SmartBidAgentDispatcher",
+      "properties": {
+        "classModel": {
+          "$ref": "../../../../../packages/spark-ai/src/class-model/runtime/class-model-runtime.ts.json#/$defs/ClassModelRuntime"
+        },
+        "rootKind": {
+          "type": "string"
+        },
+        "operationModule": {
+          "$ref": "smart-bid-operation-module.ts.json#/$defs/SmartBidOperationModule"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.dispatch.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "smart-bid-operation-module.ts.json#/$defs/SmartBidOperationCommand"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatch.return": {
+          "type": "object",
+          "title": "Promise<SmartBidAgentDispatchResult>"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T03:14:51.940Z",
+  "models": {
+    "SmartBidAgentDispatchResult": {
+      "name": "SmartBidAgentDispatchResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    parameters: SmartBidOperationCommand;\n    inputDigest: string;\n    outcome: Readonly<{\n        sessionId: string;\n        turnId: string;\n        transport: 'SSE';\n        state: 'NO_ACTION_RECEIPT' | 'ACTION_APPLIED' | 'SSE_UNKNOWN';\n        dispatched: boolean;\n        actionReceipt?: JsonValue;\n        error?: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    operationId: string;\n    requestKey: string;\n    parameters: SmartBidOperationCommand;\n    inputDigest: string;\n    outcome: Readonly<{\n        sessionId: string;\n        turnId: string;\n        transport: 'SSE';\n        state: 'NO_ACTION_RECEIPT' | 'ACTION_APPLIED' | 'SSE_UNKNOWN';\n        dispatched: boolean;\n        actionReceipt?: JsonValue;\n        error?: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parameters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outcome",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SmartBidAgentDispatcher": {
+      "name": "SmartBidAgentDispatcher",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    classModel: ClassModelRuntime;\n    rootKind: string;\n    operationModule: SmartBidOperationModule;\n    dispatch(command: SmartBidOperationCommand, signal: AbortSignal): Promise<SmartBidAgentDispatchResult>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    classModel: ClassModelRuntime;\n    rootKind: string;\n    operationModule: SmartBidOperationModule;\n    dispatch(command: SmartBidOperationCommand, signal: AbortSignal): Promise<SmartBidAgentDispatchResult>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "classModel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operationModule",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "dispatch",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidOperationCommand",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-operation-module.ts"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SmartBidAgentDispatchResult",
+                    "sourcePath": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

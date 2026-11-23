@@ -186,7 +186,7 @@ export class ModelEditSession {
       const requestField = ModelEditSession.requestSchemeFields.has(field.name)
       if (scope === 'structure' && requestField || scope === 'request' && !requestField) return []
       if (field.name === 'items' && row['Type'] !== '数组') return []
-      if (field.name === 'Filter' && ['接口', '视图'].includes(String(row['Type']))) return []
+      if (field.name === 'Filter' && ['接口', '平台接口', '视图'].includes(String(row['Type']))) return []
       if (!this.#view.columns.some(column => column.name === field.name)) return []
       const access = this.#view.fieldAccess(row, field.name)
       const raw = access.read === 'visible' ? editing[field.name] : undefined
@@ -325,7 +325,7 @@ export class ModelEditSession {
     if (field === 'PrimaryKeyFields' && value !== '' && !(this.#primary ? this.#primary.candidate.fields.some(column => column.name === value)
       : this.columns().some(column => column.name === value && !['计算字段', '引用'].includes(column.type)))) throw new Error('主键必须是当前模型唯一的正式非计算字段Name')
     if (field === 'Filter') {
-      if (['接口', '视图'].includes(String(row['Type']))) throw new Error('接口或逻辑视图通过来源入参维护，不改模型 Filter')
+      if (['接口', '平台接口', '视图'].includes(String(row['Type']))) throw new Error('接口或逻辑视图通过来源入参维护，不改模型 Filter')
       DataSpaceDesignApi.parseFilter(String(value))
     }
   }

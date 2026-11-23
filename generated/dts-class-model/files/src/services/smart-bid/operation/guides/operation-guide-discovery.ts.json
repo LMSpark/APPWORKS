@@ -43,6 +43,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "state": {
+          "const": "REACHABLE"
         }
       },
       "additionalProperties": false,
@@ -54,20 +57,69 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "EntryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EntryInput",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "guideRef": {
+          "type": "string"
+        },
+        "versionRef": {
+          "type": "string"
+        },
+        "guideDigest": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "pathRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materialRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "assertCurrent",
+        "guideRef",
+        "versionRef",
+        "guideDigest",
+        "actionName",
+        "pathRefs",
+        "materialRefs"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.978Z",
+  "generatedAt": "2026-11-23T02:23:56.471Z",
   "models": {
     "Entry": {
       "name": "Entry",
-      "jsdoc": "目录可达动作及其原始定义引用。",
+      "jsdoc": "ClassModel 方法即指南正式定义；引用和版本由模型、动作及指南文本确定。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    state: 'REACHABLE';\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    guideRef: string;\n    versionRef: string;\n    guideDigest: string;\n    kind: string;\n    actionName: string;\n    pathRefs: readonly string[];\n    materialRefs: readonly string[];\n    state: 'REACHABLE';\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -107,6 +159,11 @@
               "name": "materialRefs",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -117,6 +174,65 @@
                 "type": "intrinsic",
                 "name": "void"
               }
+            }
+          ]
+        }
+      }
+    },
+    "EntryInput": {
+      "name": "EntryInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Omit<Entry, 'state'>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Omit<Entry, 'state'>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "versionRef",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "actionName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pathRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "materialRefs",
+              "readable": true,
+              "writable": true
             }
           ]
         }

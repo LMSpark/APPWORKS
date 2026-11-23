@@ -28,11 +28,12 @@ function isQueryCascadeWhenArray(input: unknown): input is NonNullable<DataViewQ
 
 function isQueryCascadeFilterBinding(item: unknown): item is DataViewCascadeFilterBinding {
   if (!isRecord(item)) return false
-  if (Object.keys(item).some(key => !['sourceField', 'targetField', 'operator', 'omitEmpty'].includes(key))) return false
+  if (Object.keys(item).some(key => !['sourceField', 'targetField', 'operator', 'omitEmpty', 'emptyValueMode'].includes(key))) return false
   if (typeof item['targetField'] !== 'string' || !item['targetField'].trim()) return false
   if (item['sourceField'] !== undefined && (typeof item['sourceField'] !== 'string' || !item['sourceField'].trim())) return false
   if (item['operator'] !== undefined && (typeof item['operator'] !== 'string' || !['eq', 'in', 'contains'].includes(item['operator']))) return false
   if (item['omitEmpty'] !== undefined && typeof item['omitEmpty'] !== 'boolean') return false
+  if (item['emptyValueMode'] !== undefined && !['emptyResult', 'omit', 'asNull'].includes(String(item['emptyValueMode']))) return false
   return true
 }
 

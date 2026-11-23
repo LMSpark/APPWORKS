@@ -51,7 +51,7 @@ describe('page call tabs and retained renderer instances', () => {
     const files = {'rule.json': '[]', 'script.js': '', 'style.css': ''} as const
     const pagedataText = JSON.stringify({scenarioId: 'SCENE', tables: {}})
     const manifest: RuntimePagePublicationManifest = {
-      pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'ready-proof',
+      schemaVersion: 1, pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'ready-proof',
       files: await Promise.all((['rule.json', 'script.js', 'style.css'] as const).map(async fileName => ({
         fileName, version: 1, sha256: await sha256(files[fileName]),
       }))),
@@ -97,7 +97,7 @@ describe('page call tabs and retained renderer instances', () => {
     } as const
     const pagedataText = JSON.stringify({scenarioId: 'SCENE', tables: {}})
     const manifest: RuntimePagePublicationManifest = {
-      pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'published-proof',
+      schemaVersion: 1, pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'published-proof',
       files: await Promise.all((['rule.json', 'script.js', 'style.css'] as const).map(async fileName => ({
         fileName, version: fileName === 'rule.json' ? 3 : fileName === 'script.js' ? 4 : 5,
         sha256: await sha256(files[fileName]),
@@ -141,11 +141,39 @@ describe('page call tabs and retained renderer instances', () => {
     } finally { runtime.dispose() }
   })
 
+  it('passes a Dataset Plan locator proof to the scenario loader without embedding Plan text', async () => {
+    const page = defineComponent({render: () => h('div')})
+    const files = {'rule.json': '[]', 'script.js': '', 'style.css': ''} as const
+    const dataset = {scenarioId:'SCENE',fileName:'SCENE.dataset.json',sha256:'a'.repeat(64),sourceRevision:'fnv1a:12345678'}
+    const manifest: RuntimePagePublicationManifest = {
+      schemaVersion: 2, pageId:'TOOL',scenarioIds:['SCENE'],sourceRevision:'dataset-proof',
+      files:await Promise.all((['rule.json','script.js','style.css'] as const).map(async fileName=>({
+        fileName,version:1,sha256:await sha256(files[fileName]),
+      }))),dataset:[dataset],
+    }
+    const loadScenario=vi.fn(async ({scenarioId}:{scenarioId:string})=>
+      SparkData.createDataSet({dataSetName:scenarioId,scenarioId,tables:{}}))
+    const router=createRouter({history:createMemoryHistory(),routes:[{
+      path:'/dataset',component:page,meta:{type:'config-page',nodeId:'NODE',tool:{projectId:'APP',pageId:'TOOL'}},
+    }]})
+    await router.push('/dataset?scenarioId=SCENE')
+    const runtime=new PageRuntimePool({
+      pageComponent:page,readPageFile:undefined,
+      readPageFiles:async commands=>commands.map(command=>files[command.fileName]),
+      resolvePagePublication:async()=>({publicationRef:'r=1;s=1;t=1;m=1',manifest,assertCurrent:()=>{}}),
+      loadScenario,readNavTree:()=>null,refreshRoutes:async()=>undefined,
+    }).getPageRuntime(router.currentRoute.value)!
+    try{
+      await runtime.load()
+      expect(loadScenario).toHaveBeenCalledWith(expect.objectContaining({scenarioId:'SCENE',dataset}))
+    }finally{runtime.dispose()}
+  })
+
   it('rejects manifest proof conflicts before hydrating the page or loading scenarios', async () => {
     const page = defineComponent({render: () => h('div')})
     const text = JSON.stringify({scenarioId: 'SCENE', tables: {}})
     const manifest: RuntimePagePublicationManifest = {
-      pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'conflict-proof',
+      schemaVersion: 1, pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'conflict-proof',
       files: [
         {fileName: 'rule.json' as const, version: 1, sha256: await sha256('expected-rule')},
         {fileName: 'script.js' as const, version: 1, sha256: await sha256('expected-script')},
@@ -203,7 +231,7 @@ describe('page call tabs and retained renderer instances', () => {
     const files = {'rule.json': '[]', 'script.js': '', 'style.css': ''} as const
     const pagedataText = JSON.stringify({scenarioId: 'SCENE', tables: {}})
     const manifest: RuntimePagePublicationManifest = {
-      pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'stale-proof',
+      schemaVersion: 1, pageId: 'TOOL', scenarioIds: ['SCENE'], sourceRevision: 'stale-proof',
       files: await Promise.all((['rule.json', 'script.js', 'style.css'] as const).map(async fileName => ({
         fileName, version: 1, sha256: await sha256(files[fileName]),
       }))),

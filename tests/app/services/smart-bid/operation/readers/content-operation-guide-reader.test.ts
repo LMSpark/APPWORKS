@@ -5,7 +5,6 @@ import VXETable from 'vxe-table'
 import {Spark,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spark-component'
 import {createMemoryHistory,createRouter} from 'vue-router'
 import {DataSet} from '@spark-appworks/spark-data'
-import {AiAgentRegistration,AiAgentToolResult,DefaultAiAgentSessionStore,createSimpleInputContract} from '@spark-appworks/spark-ai/agent'
 import {discoverRegisteredOperationGuides} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-guide-reader'
 import {preparePublishedContentOperationCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-target'
 import {openContentOperationWorkspace} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-workspace'
@@ -15,13 +14,10 @@ import {createBidClassModelCatalogHost} from '@/views/features/application/smart
 import catalogScript from '@/views/features/application/smart-bid/knowledge/page17/script.js?raw'
 import knowledgeScript from '@/views/features/application/smart-bid/knowledge/page16/script.js?raw'
 import {hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
 import rule from '@/views/features/application/smart-bid/authoring/page18/rule.json?raw'
 import script from '@/views/features/application/smart-bid/authoring/page18/script.js?raw'
 import style from '@/views/features/application/smart-bid/authoring/page18/style.css?raw'
 import {PageRuntimePool} from '../../../../../../packages/spark-app/src/router/page-runtime-pool'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
  session:{get:()=>({identity:{userId:'USER'}})},readRequestScope:()=>({token:'TOKEN',headers:{'X-AppId':'APP'}}),
@@ -29,66 +25,31 @@ vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
 
 it('discovers only the complete scoped directory and retains the original publication and permission proof',async()=>{
  const guideText='### 核路线候选',guideDigest=await hashCanonicalSnapshotText(guideText)
- const row={id:'G',projectId:'P',directoryRef:'DIR',state:'EFFECTIVE',source:'PUBLIC',publicationRef:'PUB',
-  guideRef:'GUIDE',versionRef:'V1',guideDigest,kind:'OperationRoute',actionName:'verify',
-  pathRefs:['DIR'],materialRefs:['MATERIAL']}
- const ds=DataSet.fromJson({scenarioId:'S',tables:{KnowledgeGuide:{
-  modelBinding:{modelId:'GUIDES',modelName:'KnowledgeGuide'},columns:Object.keys(row).map(name=>({
-   name,type:name==='pathRefs'||name==='materialRefs'?'object':'string',isPrimaryKey:name==='id',
-  })),
-  views:{default:{},...contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'}).KnowledgeGuide},
- }}})
- const view=ds.getView('KnowledgeGuide','effectiveDirectory')!
- const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})
- let publicationRef='PUB',hidden:string[]=[],count=1,projectId='P'
- view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-  identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:count,Items:[{...row,projectId,publicationRef,lingma_sys_params:{r:[],e:[],h:hidden,m:[],d:false}}]}}}),
- })})
- const originalView=ds.getView('KnowledgeGuide','originalVersion')
- if(!originalView)throw Error('TEST_ORIGINAL_VIEW_REQUIRED')
- let originalVersion='V1'
- const originalTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'KnowledgeGuide'})
- originalView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-  identity:originalTable.identity,scope:'original',readScope:()=> 'original',snapshot:originalTable.applyResult({Result:{primaryKeyField:'id',
-   data:{Count:1,Items:[{...row,versionRef:originalVersion,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
- })})
- const host={runtime:{resolveView:(key:string)=>key==='S@KnowledgeGuide@effectiveDirectory'?view:
-  key==='S@KnowledgeGuide@originalVersion'?originalView:undefined},
-  scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
- const executeTool=vi.fn(async()=>({ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',attributes:[{name:'status',typeText:'string'}],methods:[{name:'verify',signature:'verify(target: string): boolean'}]}]}}))
+ const row={guideRef:'OperationRoute.verify',versionRef:guideDigest,guideDigest,kind:'OperationRoute',
+  actionName:'verify',pathRefs:['DIR'],materialRefs:['OperationRoute.verify']}
+ const host={runtime:{resolveView:()=>undefined},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
+ const executeTool=vi.fn(async(name:string,_input?:unknown)=>name==='model_action_guide'?{ok:true,data:guideText}:
+  {ok:true,data:{rootKind:'OperationRoute',models:[{kind:'OperationRoute',attributes:[{name:'status',typeText:'string'}],
+   methods:[{name:'verify',signature:'verify(target: string): boolean'}]}]}})
  const discover=()=>discoverRegisteredOperationGuides(host,{executeTool},{rootKind:'OperationRoute',directoryRef:'DIR'})
  try{
   const result=await discover()
-  expect(result.items).toMatchObject([{state:'REACHABLE',guideRef:'GUIDE',versionRef:'V1',materialRefs:['MATERIAL']}])
-  expect(executeTool).toHaveBeenCalledExactlyOnceWith('model_query',{includeMembers:true})
-  expect(view.queryContext).toMatchObject({projectId:'P',directoryRef:'DIR'})
-  publicationRef=''
-  await expect(discover()).rejects.toThrow('OPERATION_GUIDE_DIRECTORY_SCOPE')
-  expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  publicationRef='PUB'
-  hidden=['materialRefs']
-  await expect(discover()).rejects.toThrow('DATA_VIEW_READ_ROW')
-  hidden=[]
-  count=2
-  await expect(discover()).rejects.toThrow('OPERATION_GUIDE_DIRECTORY_INCOMPLETE')
-  count=1
-  projectId='OTHER'
-  await expect(discover()).rejects.toThrow('OPERATION_GUIDE_DIRECTORY_SCOPE')
-  expect(executeTool).toHaveBeenCalledTimes(1)
-  projectId='P'
+  expect(result.items).toMatchObject([{state:'REACHABLE',guideRef:'OperationRoute.verify',
+   versionRef:guideDigest,materialRefs:['OperationRoute.verify']}])
+  expect(executeTool).toHaveBeenCalledWith('model_query',{includeMembers:true})
+  expect(executeTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'})
   const controller=new AbortController()
-  const tools={executeTool:async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool()}
+  const tools={executeTool:async(name:string,input?:unknown)=>['model_action_guide','model_attribute_guide'].includes(name)
+   ?{ok:true,data:guideText}:executeTool(name,input)}
   const scriptHost=createContentOperationScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
   const directory=await scriptHost.invoke('content.operation.discover',{directoryRef:'DIR'},controller.signal)
-  if(!('dataViewKey' in directory)||typeof directory.readGuide!=='function')throw Error('TEST_DIRECTORY_REQUIRED')
-  expect(directory).toMatchObject({dataViewKey:'S@KnowledgeGuide@effectiveDirectory',count:1,reachable:1})
-  expect(scriptHost.runtime.resolveView(directory.dataViewKey)).toBe(view)
-  await expect(directory.readGuide('G',row)).resolves.toMatchObject({versionRef:'V1',guide:guideText,origin:{source:'PUBLIC',publicationRef:'PUB'}})
-  await expect(directory.readGuide('UNKNOWN',row)).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+  if(!('readGuide' in directory)||typeof directory.readGuide!=='function')throw Error('TEST_DIRECTORY_REQUIRED')
+  expect(directory).toMatchObject({count:1,reachable:1})
+  await expect(directory.readGuide(row)).resolves.toMatchObject({versionRef:guideDigest,guide:guideText,origin:{source:'CLASSMODEL'}})
+  await expect(directory.readGuide({...row,guideRef:'UNKNOWN'})).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
   const beforeStaleRow=executeTool.mock.calls.length
-  await expect(directory.readGuide('G',{...row,versionRef:'OLD'})).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
+  await expect(directory.readGuide({...row,versionRef:'OLD'})).rejects.toThrow('OPERATION_PAGE_GUIDE_ROW_REQUIRED')
   expect(executeTool).toHaveBeenCalledTimes(beforeStaleRow)
   const knowledge=createKnowledgeDirectoryScriptHost({...host.runtime,generation:1,destroyed:false,isLoaded:true},
    tools,{...host,rootKind:'OperationRoute'})
@@ -96,12 +57,13 @@ it('discovers only the complete scoped directory and retains the original public
   const knowledgeDirectory=await knowledge.invoke('knowledge.directory.read',{directoryRef:'DIR'},controller.signal)
   if(!('readGuide' in knowledgeDirectory)||typeof knowledgeDirectory.readGuide!=='function')
    throw Error('TEST_KNOWLEDGE_DIRECTORY_REQUIRED')
-  await expect(knowledgeDirectory.readGuide('G',row)).resolves.toMatchObject({
-   guide:guideText,guideRef:'GUIDE',versionRef:'V1',origin:{source:'PUBLIC',publicationRef:'PUB'},
+  await expect(knowledgeDirectory.readGuide(row)).resolves.toMatchObject({
+   guide:guideText,guideRef:'OperationRoute.verify',versionRef:guideDigest,origin:{source:'CLASSMODEL'},
   })
   expect(knowledgeScript.trim()).toBe('')
   const runtime={generation:1,isLoaded:true,destroyed:false}
-  const catalogTools={executeTool:vi.fn(async(name:string)=>['model_action_guide','model_attribute_guide'].includes(name)?{ok:true,data:guideText}:executeTool())}
+  const catalogTools={executeTool:vi.fn(async(name:string,input?:unknown)=>['model_action_guide','model_attribute_guide'].includes(name)
+   ?{ok:true,data:guideText}:executeTool(name,input))}
   const catalog=createBidClassModelCatalogHost(runtime,catalogTools,{rootKind:'OperationRoute',assertCurrent:host.assertCurrent})
   const catalogResult=await catalog.invoke('bid.models.readCatalog',{},controller.signal)
   await expect(catalogResult.readGuide('OperationRoute','verify')).resolves.toMatchObject({guide:guideText})
@@ -130,16 +92,9 @@ it('discovers only the complete scoped directory and retains the original public
    tools,
    {...host,rootKind:'OperationRoute',signal:controller.signal})
   const discovery=await workspace.discover('DIR'),guide=await workspace.readGuide(discovery,row)
-  expect(()=>directory.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
+  directory.assertCurrent()
   const attempt={projectId:'P',runId:'R',attemptRef:'A',requestKey:'Q',targetDigest:'b'.repeat(64),configurationLockHash:'c'.repeat(64)}
-  const original={scope:attempt,guideRef:'GUIDE',guideVersionRef:'V1',guideDigest}
-  const historical=await workspace.readOriginalGuide(original)
-  expect(historical).toMatchObject({guideVersionRef:'V1',guide:guideText})
-  expect(originalView.queryContext).toMatchObject({projectId:'P',guideRef:'GUIDE',versionRef:'V1'})
-  originalVersion='V2'
-  await expect(workspace.readOriginalGuide(original)).rejects.toThrow('OPERATION_ORIGINAL_GUIDE_SCOPE')
-  expect(()=>historical?.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
-  const definition={versionRef:'V1',guideDigest,configurationLockHash:attempt.configurationLockHash,
+  const definition={versionRef:guideDigest,guideDigest,configurationLockHash:attempt.configurationLockHash,
    createdAt:'2026-11-18T10:00:00+08:00',slots:[{slotId:'target',required:true}],assertCurrent:host.assertCurrent}
   await expect(workspace.freeze(attempt,{...guide},{definition,sources:[]})).rejects.toThrow('OPERATION_WORKSPACE_GUIDE_SCOPE')
   await expect(workspace.freeze(attempt,guide,{definition:{...definition,versionRef:'OTHER'},sources:[]})).rejects.toThrow('OPERATION_WORKSPACE_GUIDE_SCOPE')
@@ -148,48 +103,19 @@ it('discovers only the complete scoped directory and retains the original public
   const frozen=await workspace.freeze(attempt,guide,{definition,sources:[{slotId:'target',state:'ALLOWED',
    sourceRef:'REF',versionRef:'V',useRef:'USE',value:'TARGET',assertCurrent:host.assertCurrent}]})
   expect(frozen).toMatchObject({usable:true,inputJson:'{"target":"TARGET"}',guideDigest})
-  const get=vi.fn(()=>undefined),claimOriginalTurn=vi.fn(()=>{throw Error('UNEXPECTED_CLAIM')})
-  const options={registry:{get},turnCallbacks:{executeTurn:async()=>({text:'',toolCalls:[]}),appendMessages:async()=>{}}}
-  const time=definition.createdAt
-  const dispatch={registrationId:'REG',businessInstanceId:'B',runtimeInstanceId:'R',publishedVersionRef:'V1',
-   turn:{turnId:'TURN',seq:1,baseRevision:0,queuedAt:time,startedAt:time,maxParallelTurns:1},
-   claimOriginalTurn,assertCurrent:host.assertCurrent}
-  await expect(workspace.dispatch(options,{...dispatch,manifest:{...frozen}})).rejects.toThrow('OPERATION_WORKSPACE_MANIFEST_SCOPE')
-  await expect(workspace.dispatch(options,{...dispatch,manifest:incomplete})).rejects.toThrow('OPERATION_ROUTE_AGENT_INPUT_REQUIRED')
-  expect(get).not.toHaveBeenCalled()
-  expect(claimOriginalTurn).not.toHaveBeenCalled()
-  const registration=new AiAgentRegistration({
-   moduleId:'REG',name:'路线编排',description:'生成路线候选',
-   runtime:{getTools:()=>[],executeTool:async()=>AiAgentToolResult.ok({}),
-    projectKnowledge:()=>({promptSnapshot:'路线工艺'}),
-    inspect:()=>({status:'ok',rootKinds:['OperationRoute'],moduleCount:1,findings:[]})},
-   inputContract:createSimpleInputContract({businessId:'REG',identityField:'target',messageField:'target',
-    paramsSchema:{type:'object',properties:{target:{type:'string'}},required:['target'],additionalProperties:false},
-    systemPrompt:'只返回路线候选 JSON'}),
-   sessionStore:new DefaultAiAgentSessionStore(),
-  })
-  const executeTurn=vi.fn(async()=>({text:'{"nodes":[]}',toolCalls:[]}))
-  const registered={registry:{get:(key:string)=>key==='REG'?registration:undefined},
-   turnCallbacks:{...options.turnCallbacks,executeTurn}}
-  const claim=vi.fn<Parameters<typeof workspace.dispatch>[1]['claimOriginalTurn']>()
-   .mockImplementationOnce(async input=>({...input,state:'CLAIMED',assertCurrent:host.assertCurrent}))
-   .mockImplementation(async input=>({...input,state:'EXISTING',assertCurrent:host.assertCurrent}))
-  const ready={...dispatch,businessInstanceId:'TARGET',runtimeInstanceId:'TARGET',manifest:frozen,claimOriginalTurn:claim}
-  await expect(workspace.dispatch(registered,ready)).resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'SEND_RETURNED'})
-  await expect(workspace.dispatch(registered,ready)).resolves.toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNAVAILABLE'})
-  expect(claim).toHaveBeenCalledWith(expect.objectContaining({...attempt,manifestDigest:frozen.manifestDigest,
-   inputDigest:frozen.inputDigest,publishedVersionRef:'V1',guideRef:'GUIDE',guideDigest}))
-  expect(executeTurn).toHaveBeenCalledOnce()
-  controller.abort()
-  await expect(workspace.dispatch(options,{...dispatch,manifest:frozen})).rejects.toThrow('OPERATION_WORKSPACE_STALE')
-  expect(()=>frozen.assertCurrent()).toThrow('OPERATION_WORKSPACE_STALE')
   registerAllRenderers()
+  const ds=DataSet.fromJson({scenarioId:'S',tables:{ContentProject:{
+   modelBinding:{modelId:'PROJECT',modelName:'ContentProject'},columns:[{name:'id',isPrimaryKey:true}],
+   views:{default:{},projects:{}},
+  }}})
   const path='/apps/APP/page18',tool={projectId:'APP',pageId:'PAGE18'}
   const published={applicationId:'APP',nodeId:'NODE18',pageId:'PAGE18',scenarioId:'S'}
   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:SparkPageRenderer,
    meta:{type:'config-page',nodeId:'NODE18',pageId:'PAGE18',blueprintScenarioId:'S',tool}}]})
   const readPageFiles=vi.fn(async(commands:ReadonlyArray<{fileName:string}>)=>
-   commands.map(({fileName})=>fileName==='rule.json'?rule:fileName==='script.js'?script:style))
+   commands.map(({fileName})=>fileName==='rule.json'
+    ? rule.replace('D3BBA1F0780056C837AC35E9825CAD5A@ContentProject@projects','S@ContentProject@projects')
+    :fileName==='script.js'?script:style))
   const executePageTool=vi.fn(tools.executeTool)
   const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,readPageFile:undefined,readPageFiles,
    preparePageCall:route=>preparePublishedContentOperationCall(route,published,()=>({
@@ -205,14 +131,9 @@ it('discovers only the complete scoped directory and retains the original public
    if(!component)throw Error('TEST_OPERATION_PAGE_REQUIRED')
    const rendered=mount(component,{global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
    try{
-    await vi.waitFor(()=>expect(rendered.text()).toContain('GUIDE'),{timeout:3000})
-    const guideRow=rendered.findAll('tr').find(item=>item.text().includes('GUIDE'))
-    expect(guideRow).toBeDefined()
-    const guideButton=rendered.findAll('button').find(item=>item.text()==='查看指南')
-    if(!guideButton)throw Error('TEST_GUIDE_BUTTON_REQUIRED')
-    await guideButton.trigger('click')
-    await vi.waitFor(()=>expect(executePageTool).toHaveBeenCalledWith('model_action_guide',{kind:'OperationRoute',actionName:'verify'}))
+   await vi.waitFor(()=>expect(rendered.text()).toContain('读取操作目录'),{timeout:3000})
+   expect(rendered.text()).not.toContain('页面加载失败')
    }finally{rendered.unmount()}
   }finally{config.global.stubs=originalStubs;pool.disposePageRuntimes()}
- }finally{if(!ds.destroyed)ds.destroy()}
+ }finally{}
 })

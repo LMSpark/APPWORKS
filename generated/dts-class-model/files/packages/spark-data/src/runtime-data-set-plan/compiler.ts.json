@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:runtime-data-set-plan/compiler",
+    "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+    "sourceFile": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "runtime-data-set-plan/compiler",
+    "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/compiler\n职责：把后端独立 Dataset Plan 编译为本仓原生 DataSet metadata，并把 dependencies 编译为 DataView cascade。\n边界：不读取 HTTP、文件或业务 rows；正式资源 owner 由 lowcode 装配层注入，Plan 不授予权限。\nAI用途：PageRuntime 需要消费 `{scenarioId}.dataset.json` 时，用此模块核 Plan 到 DataTable/DataView 的映射。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "RuntimeDataSetPlanModelResource",
+      "CompileRuntimeDataSetPlanOptions",
+      "CompiledRuntimeDataSetPlan"
+    ]
+  },
+  "$defs": {
+    "RuntimeDataSetPlanModelResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanModelResource",
+      "properties": {
+        "resourceType": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceType",
+        "resourceId"
+      ],
+      "additionalProperties": false
+    },
+    "CompileRuntimeDataSetPlanOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompileRuntimeDataSetPlanOptions",
+      "$defs": {
+        "method.resolveModelResource.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "modelId": {
+                  "type": "string"
+                },
+                "metaName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "modelId",
+                "metaName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveModelResource.return": {
+          "$ref": "#/$defs/RuntimeDataSetPlanModelResource"
+        },
+        "method.resolveFieldPrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "modelId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                },
+                "fieldName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "modelId",
+                "fieldId",
+                "fieldName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveFieldPrimaryKey.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "CompiledRuntimeDataSetPlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompiledRuntimeDataSetPlan",
+      "properties": {
+        "plan": {
+          "$ref": "types.ts.json#/$defs/RuntimeDataSetPlanFile"
+        },
+        "metadata": {
+          "$ref": "../types.ts.json#/$defs/DataSetMetadata"
+        },
+        "viewCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataViewCascade"
+          }
+        }
+      },
+      "required": [
+        "plan",
+        "metadata",
+        "viewCascades"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-22T19:35:40.199Z",
+  "models": {
+    "RuntimeDataSetPlanModelResource": {
+      "name": "RuntimeDataSetPlanModelResource",
+      "jsdoc": "正式模型资源身份；只覆盖 owner，不改变 Plan 的模型/字段合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 运行资源类型，由正式 metadata 解析。 */\n    resourceType: NonNullable<TableMetadata['resourceType']>;\n    /** 查询/保存 owner 的稳定资源 ID。 */\n    resourceId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 运行资源类型，由正式 metadata 解析。 */\n    resourceType: NonNullable<TableMetadata['resourceType']>;\n    /** 查询/保存 owner 的稳定资源 ID。 */\n    resourceId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceType",
+              "jsdoc": "运行资源类型，由正式 metadata 解析。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "jsdoc": "查询/保存 owner 的稳定资源 ID。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CompileRuntimeDataSetPlanOptions": {
+      "name": "CompileRuntimeDataSetPlanOptions",
+      "jsdoc": "Dataset Plan 编译所需的正式 metadata override。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 按正式 modelId/metaName 解析资源 owner。 */\n    resolveModelResource?: (input: Readonly<{\n        modelId: string;\n        metaName: string;\n    }>) => RuntimeDataSetPlanModelResource | undefined;\n    /** 以正式 metadata 主键覆盖 Plan 中可能误标的原字段。 */\n    resolveFieldPrimaryKey?: (input: Readonly<{\n        modelId: string;\n        fieldId: string;\n        fieldName: string;\n    }>) => boolean | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 按正式 modelId/metaName 解析资源 owner。 */\n    resolveModelResource?: (input: Readonly<{\n        modelId: string;\n        metaName: string;\n    }>) => RuntimeDataSetPlanModelResource | undefined;\n    /** 以正式 metadata 主键覆盖 Plan 中可能误标的原字段。 */\n    resolveFieldPrimaryKey?: (input: Readonly<{\n        modelId: string;\n        fieldId: string;\n        fieldName: string;\n    }>) => boolean | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "resolveModelResource",
+              "jsdoc": "按正式 modelId/metaName 解析资源 owner。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        modelId: string;\n        metaName: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "RuntimeDataSetPlanModelResource",
+                  "sourcePath": "packages/spark-data/src/runtime-data-set-plan/compiler.ts"
+                }
+              }
+            },
+            {
+              "name": "resolveFieldPrimaryKey",
+              "jsdoc": "以正式 metadata 主键覆盖 Plan 中可能误标的原字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        modelId: string;\n        fieldId: string;\n        fieldName: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "boolean"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CompiledRuntimeDataSetPlan": {
+      "name": "CompiledRuntimeDataSetPlan",
+      "jsdoc": "已编译 Plan；metadata 可直接交给 DataSet，cascades 是原生运行依赖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 已通过严格 schema 校验的不可变 Plan。 */\n    plan: RuntimeDataSetPlanFile;\n    /** 本仓 canonical DataSet metadata。 */\n    metadata: DataSetMetadata;\n    /** 由 GetDependValue 生成的查询级联。 */\n    viewCascades: readonly DataViewCascade[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 已通过严格 schema 校验的不可变 Plan。 */\n    plan: RuntimeDataSetPlanFile;\n    /** 本仓 canonical DataSet metadata。 */\n    metadata: DataSetMetadata;\n    /** 由 GetDependValue 生成的查询级联。 */\n    viewCascades: readonly DataViewCascade[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "plan",
+              "jsdoc": "已通过严格 schema 校验的不可变 Plan。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadata",
+              "jsdoc": "本仓 canonical DataSet metadata。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewCascades",
+              "jsdoc": "由 GetDependValue 生成的查询级联。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

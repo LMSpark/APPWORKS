@@ -6,6 +6,7 @@ import { LowcodeDataSpaceViewDesign, type SessionLoadOptions } from './view-desi
 import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from './lowcode-data-space-runtime'
 import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
 import { lowcodeDataSpaceLayout } from './lowcode-data-space-layout'
+import {publishRuntimeDataSetPlan} from './runtime-data-set-plan-file'
 
 function staleScope(): Error {
   return new Error('SPARK_EXECUTION_SCOPE_STALE: 数据空间设计所属应用或会话已失效')
@@ -45,6 +46,7 @@ function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>)
       ...(projectionBindings ? {projectionBindings} : {})}),
     loadMetadata: loadLowcodeDataSpaceMetadata,
     readLegacyLayout: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout,
+    publishRuntimeDataSetPlan,
     modelSources: new LowcodeDataSpaceModelSourceReader(),
   })
 }

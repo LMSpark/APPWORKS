@@ -256,6 +256,36 @@
         },
         "method.isUnknown.return": {
           "type": "boolean"
+        },
+        "method.retryEquivalentWrite.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "$ref": "#/$defs/FileResourceTarget"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "baseline": {
+                  "$ref": "#/$defs/FileResourceSnapshot"
+                }
+              },
+              "required": [
+                "target",
+                "text",
+                "baseline"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.retryEquivalentWrite.return": {
+          "type": "object",
+          "title": "Promise<void>"
         }
       }
     },
@@ -410,7 +440,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.031Z",
+  "generatedAt": "2026-11-21T18:51:47.349Z",
   "models": {
     "FileResourceTarget": {
       "name": "FileResourceTarget",
@@ -509,11 +539,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    /** 仅供已确认目标、operation、baseline 与text相同的working replacement显式补偿；缺省代表禁止重试。 */\n    retryEquivalentWrite?(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    /** 仅供已确认目标、operation、baseline 与text相同的working replacement显式补偿；缺省代表禁止重试。 */\n    retryEquivalentWrite?(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -671,6 +701,35 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "retryEquivalentWrite",
+              "jsdoc": "仅供已确认目标、operation、baseline 与text相同的working replacement显式补偿；缺省代表禁止重试。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             }
           ]

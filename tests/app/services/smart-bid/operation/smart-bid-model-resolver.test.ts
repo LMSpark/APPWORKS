@@ -33,8 +33,8 @@ it('constructs all 47 compiled kinds by exact model name',()=>{
 })
 
 it('keeps the 47 models and 61 methods closed with the specification and generated surface',async()=>{
- const specification=readFileSync(resolve('docs/smart-bid/authoring-submission-specification.md'),'utf8')
- const rows=[...specification.matchAll(/\|\s*\[(\d{2})\]\(#bid-action-\1\)\s*\|[^|]*\|[^|]*\|\s*`([^`]+)`\s*\|/gu)]
+ const specification=readFileSync(resolve('docs/smart-bid/contracts/action-index.md'),'utf8')
+ const rows=[...specification.matchAll(/\|\s*\[(\d{2})\]\([^)]*#bid-action-\1\)\s*\|[^|]*\|[^|]*\|\s*`([^`]+)`\s*\|/gu)]
  const specified=rows.map(match=>({id:requiredMatch(match,1),member:requiredMatch(match,2)}))
  expect(specified).toHaveLength(61)
  expect(new Set(specified.map(({member})=>member.split('.')[0]))).toEqual(new Set(models))

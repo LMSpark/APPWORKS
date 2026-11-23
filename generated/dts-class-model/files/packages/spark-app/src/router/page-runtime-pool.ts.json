@@ -12,6 +12,7 @@
     "symbols": [
       "RuntimeScenarioLoadCommand",
       "RuntimePagePublicationPagedata",
+      "RuntimePagePublicationDataset",
       "RuntimePagePublicationManifest",
       "RuntimePagePublicationResolution",
       "RuntimePageNavigationReceiptState",
@@ -37,6 +38,9 @@
         },
         "pagedata": {
           "$ref": "#/$defs/RuntimePagePublicationPagedata"
+        },
+        "dataset": {
+          "$ref": "#/$defs/RuntimePagePublicationDataset"
         }
       },
       "required": [
@@ -80,10 +84,36 @@
       ],
       "additionalProperties": false
     },
-    "RuntimePagePublicationManifest": {
+    "RuntimePagePublicationDataset": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "RuntimePagePublicationManifest",
+      "title": "RuntimePagePublicationDataset",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "fileName",
+        "sha256",
+        "sourceRevision"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimePagePublicationManifestCommon": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePagePublicationManifestCommon",
       "properties": {
         "pageId": {
           "type": "string"
@@ -119,22 +149,139 @@
             ],
             "additionalProperties": false
           }
-        },
-        "pagedata": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RuntimePagePublicationPagedata"
-          }
         }
       },
       "required": [
         "pageId",
         "scenarioIds",
         "sourceRevision",
-        "files",
-        "pagedata"
+        "files"
       ],
       "additionalProperties": false
+    },
+    "RuntimePagePublicationManifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimePagePublicationManifest",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "$ref": "../../../spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "version",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "schemaVersion": {
+              "const": 1
+            },
+            "pagedata": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/RuntimePagePublicationPagedata"
+              }
+            },
+            "dataset": false
+          },
+          "required": [
+            "pageId",
+            "scenarioIds",
+            "sourceRevision",
+            "files",
+            "schemaVersion",
+            "pagedata"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "$ref": "../../../spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "version",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "schemaVersion": {
+              "const": 2
+            },
+            "dataset": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/RuntimePagePublicationDataset"
+              }
+            },
+            "pagedata": false
+          },
+          "required": [
+            "pageId",
+            "scenarioIds",
+            "sourceRevision",
+            "files",
+            "schemaVersion",
+            "dataset"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "RuntimePagePublicationResolution": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -489,18 +636,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.541Z",
+  "generatedAt": "2026-11-22T17:59:40.298Z",
   "models": {
     "RuntimeScenarioLoadCommand": {
       "name": "RuntimeScenarioLoadCommand",
       "jsdoc": "为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n}>",
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n    dataset?: RuntimePagePublicationDataset;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n}>",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    source: PageRuntimeSource;\n    pagedata?: RuntimePagePublicationPagedata;\n    dataset?: RuntimePagePublicationDataset;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -523,6 +670,11 @@
             },
             {
               "name": "pagedata",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataset",
               "readable": true,
               "writable": false
             }
@@ -579,16 +731,55 @@
         }
       }
     },
-    "RuntimePagePublicationManifest": {
-      "name": "RuntimePagePublicationManifest",
+    "RuntimePagePublicationDataset": {
+      "name": "RuntimePagePublicationDataset",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    fileName: string;\n    sha256: string;\n    sourceRevision: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sha256",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePagePublicationManifestCommon": {
+      "name": "RuntimePagePublicationManifestCommon",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    sourceRevision: string;\n    files: ReadonlyArray<Readonly<{\n        fileName: 'rule.json' | 'script.js' | 'style.css';\n        version: number;\n        sha256: string;\n    }>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -613,9 +804,43 @@
               "name": "files",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimePagePublicationManifest": {
+      "name": "RuntimePagePublicationManifest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RuntimePagePublicationManifestCommon & Readonly<{\n    schemaVersion: 1;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n    dataset?: never;\n} | {\n    schemaVersion: 2;\n    dataset: readonly RuntimePagePublicationDataset[];\n    pagedata?: never;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RuntimePagePublicationManifestCommon",
+            "targetName": "RuntimePagePublicationManifestCommon"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    schemaVersion: 1;\n    pagedata: readonly RuntimePagePublicationPagedata[];\n    dataset?: never;\n} | {\n    schemaVersion: 2;\n    dataset: readonly RuntimePagePublicationDataset[];\n    pagedata?: never;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "pagedata",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataset",
               "readable": true,
               "writable": false
             }

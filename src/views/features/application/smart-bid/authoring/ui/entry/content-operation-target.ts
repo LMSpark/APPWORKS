@@ -10,8 +10,6 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {captureContentAuthoringSession} from '../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from './content-authoring-target'
 import {createContentOperationScriptHost} from './content-operation-script-host'
-import {SmartBidOperationModule} from '@/services/smart-bid/operation/agent-module/smart-bid-operation-module'
-import {createSmartBidRuntimeActionExecutor} from '@/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner'
 import {bindPublishedPageRuntime,matchesPublishedPageBinding,type PublishedPageEntry} from './publication/published-page-binding'
 
 /** 工艺脚本宿主装配使用的参数合同。 */
@@ -36,7 +34,6 @@ export function resolvePublishedContentOperationTarget(route:ContentAuthoringRou
 export function preparePublishedContentOperationCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  bindRoot:(runtime:PageRuntime,target:NonNullable<ReturnType<typeof resolvePublishedContentOperationTarget>>)=>Readonly<{
   classModel:ScriptHost[1];rootKind:string;assertCurrent:()=>void
-  resolveOriginalGuide?:NonNullable<ScriptHost[2]['resolveOriginalGuide']>
  dispatchOperation?:NonNullable<ScriptHost[2]['dispatchOperation']>
  operationModule?:NonNullable<ScriptHost[2]['operationModule']>
  }>){
@@ -54,14 +51,11 @@ export function preparePublishedContentOperationCall(route:ContentAuthoringRoute
   createHost(runtime:PageRuntime){
    const binding=bindRoot(runtime,target)
    if(!identity(binding.rootKind))throw Error('OPERATION_PAGE_ROOT_REQUIRED')
-   const {classModel,rootKind,resolveOriginalGuide,dispatchOperation,operationModule}=binding
-   const actionModule=operationModule??new SmartBidOperationModule(createSmartBidRuntimeActionExecutor({
-    runtime,scenarioId:target.scenarioId,assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()},
-   }))
+   const {classModel,rootKind,dispatchOperation,operationModule}=binding
    return createContentOperationScriptHost(runtime,classModel,{scenarioId:target.scenarioId,projectId:target.projectId,rootKind,
     registrationId:'SmartBidOperationModule',runtimeInstanceId:runtime.call.instanceId,
-    ...(resolveOriginalGuide?{resolveOriginalGuide}:{}),...(dispatchOperation?{dispatchOperation}:{}),
-    operationModule:actionModule,
+    ...(dispatchOperation?{dispatchOperation}:{}),
+    ...(operationModule?{operationModule}:{}),
     assertCurrent:()=>{session.assertCurrent();binding.assertCurrent()}})
   },
  })

@@ -5,10 +5,12 @@
  * AI用途：来源选择器以配置绑定真实字段，确认后交原owner精确重读。
  */
 import {RequestState, type DataSet, type DataView, type DataRow} from '@spark-appworks/spark-data'
-export type PageDataSpaceModelSourceType = 'table' | 'dict' | 'interface' | 'json' | 'logicView' | 'databaseView'
+export type PageDataSpaceModelSourceType = 'table' | 'dict' | 'interface' | 'platformApi' | 'json' | 'logicView' | 'databaseView'
 export type PageDataSpaceModelSource = Readonly<{
   type: PageDataSpaceModelSourceType; id: string; name: string; description: string
   dbid: string; databaseName: string; providerId: string
+  routeSpec?: unknown
+  outputPath?: string
 }>
 export type PageDataSpaceModelSourceQuery = Readonly<{
   type: PageDataSpaceModelSourceType; keyword?: string; description?: string
@@ -62,6 +64,7 @@ const sourceConfigs: Record<PageDataSpaceModelSourceType, SourceConfig> = {
   table: { metaName: 'View_TblList', label: '数据库表', name: 'tblname', description: 'tbldesc', dbid: 'dbid', databaseName: 'DbName' },
   dict: { metaName: '_Base_DictType', label: '字典', name: 'TypeName', description: 'functiondesc' },
   interface: { metaName: 'Base_DataServiceInterface', label: '接口', name: 'Name', description: 'Desc', providerId: 'ProviderID' },
+  platformApi: { metaName: 'base_platform_api_resource', label: '平台接口', name: 'display_name', description: 'description', databaseName: 'module_code' },
   json: { metaName: 'Base_JsonData', label: 'JSON', name: 'name' },
   logicView: { metaName: 'Base_DataViewList', label: '视图', name: 'name' },
   databaseView: { metaName: 'View_ViewList', label: '数据库视图', name: 'vewname', description: 'vewdesc', dbid: 'dbid', databaseName: 'DbName' },

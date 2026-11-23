@@ -90,7 +90,7 @@ function sourceInputRow(host: SourceInputHost, writable: boolean) {
     || modelView.requestState !== RequestState.Loaded || modelView.mutating || modelView.queryContext['dataSpaceId'] !== host.targetId
     || modelView.dataTable?.modelBinding?.modelName !== 'Base_DataModel'
     || ['rowid', 'dataSetId', 'Type'].some(field => modelView.fieldAccess(model, field).read !== 'visible')
-    || model['rowid'] !== host.modelId || model['dataSetId'] !== host.targetId || !['接口', '视图'].includes(String(model['Type']))) {
+    || model['rowid'] !== host.modelId || model['dataSetId'] !== host.targetId || !['接口', '平台接口', '视图'].includes(String(model['Type']))) {
     throw new Error('DATA_SPACE_SOURCE_INPUT_CONTEXT: 所属模型不是可确认的接口或逻辑视图')
   }
   if (writable && (view.fieldAccess(row, 'ValueFun').write !== 'allowed' || view.editActionState(row) !== 'enabled')) {

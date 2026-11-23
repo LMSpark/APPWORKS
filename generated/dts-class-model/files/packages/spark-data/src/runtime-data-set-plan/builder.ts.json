@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:runtime-data-set-plan/builder",
+    "sourcePath": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
+    "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "runtime-data-set-plan/builder",
+    "jsdoc": "@module @spark-appworks/spark-data:runtime-data-set-plan/builder\n职责：将已正式回读的元数据行与不可变场景定义聚合为参考仓 spark.runtimeDataSetPlan 合约。\n边界：只生成结构 Plan，不执行查询、文件上传、权限判断或业务行读写。\nAI用途：数据空间设计保存确认后，用正式行和 pagedata 定义导出唯一运行文件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "BuildRuntimeDataSetPlanInput"
+    ]
+  },
+  "$defs": {
+    "RuntimePlanRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimePlanRecord",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "BuildRuntimeDataSetPlanInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuildRuntimeDataSetPlanInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "space": {
+          "$ref": "#/$defs/RuntimePlanRecord"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimePlanRecord"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimePlanRecord"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimePlanRecord"
+          }
+        },
+        "scenarioConfig": {
+          "$ref": "#/$defs/RuntimePlanRecord"
+        },
+        "savedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "space",
+        "models",
+        "fields",
+        "relations",
+        "scenarioConfig"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-22T19:30:50.188Z",
+  "models": {
+    "RuntimePlanRecord": {
+      "name": "RuntimePlanRecord",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BuildRuntimeDataSetPlanInput": {
+      "name": "BuildRuntimeDataSetPlanInput",
+      "jsdoc": "构建独立 Plan 所需的正式元数据与已保存文件配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    space: RuntimePlanRecord;\n    models: readonly RuntimePlanRecord[];\n    fields: readonly RuntimePlanRecord[];\n    relations: readonly RuntimePlanRecord[];\n    scenarioConfig: RuntimePlanRecord;\n    savedAt?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    space: RuntimePlanRecord;\n    models: readonly RuntimePlanRecord[];\n    fields: readonly RuntimePlanRecord[];\n    relations: readonly RuntimePlanRecord[];\n    scenarioConfig: RuntimePlanRecord;\n    savedAt?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "space",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioConfig",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "savedAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

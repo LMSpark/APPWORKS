@@ -9,25 +9,9 @@
     "modulePath": "services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner",
     "jsdoc": "@module app:services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner\n职责：把已生成的 SmartBid 动作提交到当前 PageRuntime 中显式声明的单一命令视图。\n边界：只接受完整动作输入；不推断模型视图、不把普通 CRUD 当业务命令、不创建后端协议。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "SmartBidRuntimeClaimInput",
-      "SmartBidRuntimeClaim"
-    ]
+    "symbols": []
   },
   "$defs": {
-    "CommandField": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "CommandField",
-      "enum": [
-        "requestKey",
-        "operationId",
-        "registrationId",
-        "businessInstanceId",
-        "runtimeInstanceId",
-        "prompt",
-        "inputs"
-      ]
-    },
     "RuntimeOwner": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -73,73 +57,10 @@
         },
         "method.assertCurrent.return": true
       }
-    },
-    "SmartBidRuntimeClaimInput": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SmartBidRuntimeClaimInput",
-      "properties": {
-        "requestKey": true,
-        "operationId": true,
-        "registrationId": true,
-        "businessInstanceId": true,
-        "runtimeInstanceId": true,
-        "prompt": true,
-        "inputs": true,
-        "turnId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "requestKey",
-        "operationId",
-        "registrationId",
-        "businessInstanceId",
-        "runtimeInstanceId",
-        "prompt",
-        "inputs",
-        "turnId"
-      ],
-      "additionalProperties": false
-    },
-    "SmartBidRuntimeClaim": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SmartBidRuntimeClaim",
-      "properties": {
-        "state": {
-          "enum": [
-            "UNKNOWN",
-            "CLAIMED",
-            "EXISTING"
-          ]
-        },
-        "receiptRef": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true
-      }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.976Z",
+  "generatedAt": "2026-11-23T01:46:07.490Z",
   "models": {
-    "CommandField": {
-      "name": "CommandField",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "(typeof commandFields)[number]",
-        "members": {}
-      }
-    },
     "RuntimeOwner": {
       "name": "RuntimeOwner",
       "jsdoc": "",
@@ -162,69 +83,6 @@
             },
             {
               "name": "scenarioId",
-              "readable": true,
-              "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "assertCurrent",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "SmartBidRuntimeClaimInput": {
-      "name": "SmartBidRuntimeClaimInput",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<Record<CommandField, unknown> & Readonly<{\n    turnId: string;\n}>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<Record<CommandField, unknown> & Readonly<{\n    turnId: string;\n}>>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "turnId",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "SmartBidRuntimeClaim": {
-      "name": "SmartBidRuntimeClaim",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    state: 'CLAIMED' | 'EXISTING' | 'UNKNOWN';\n    receiptRef?: string;\n    assertCurrent: () => void;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    state: 'CLAIMED' | 'EXISTING' | 'UNKNOWN';\n    receiptRef?: string;\n    assertCurrent: () => void;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "state",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "receiptRef",
               "readable": true,
               "writable": false
             }

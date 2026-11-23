@@ -23,6 +23,7 @@ export type RuntimeScenarioLoadCommand = Readonly<{
   scenarioId: string
   source: PageRuntimeSource
   pagedata?: RuntimePagePublicationPagedata
+  dataset?: RuntimePagePublicationDataset
 }>
 
 export type RuntimePagePublicationPagedata = Readonly<{
@@ -34,7 +35,14 @@ export type RuntimePagePublicationPagedata = Readonly<{
   text: string
 }>
 
-export type RuntimePagePublicationManifest = Readonly<{
+export type RuntimePagePublicationDataset = Readonly<{
+  scenarioId: string
+  fileName: string
+  sha256: string
+  sourceRevision: string
+}>
+
+type RuntimePagePublicationManifestCommon = Readonly<{
   pageId: string
   scenarioIds: readonly string[]
   sourceRevision: string
@@ -43,8 +51,10 @@ export type RuntimePagePublicationManifest = Readonly<{
     version: number
     sha256: string
   }>>
-  pagedata: readonly RuntimePagePublicationPagedata[]
 }>
+export type RuntimePagePublicationManifest = RuntimePagePublicationManifestCommon
+  & Readonly<{schemaVersion: 1; pagedata: readonly RuntimePagePublicationPagedata[]; dataset?: never}
+    | {schemaVersion: 2; dataset: readonly RuntimePagePublicationDataset[]; pagedata?: never}>
 
 export type RuntimePagePublicationResolution = Readonly<{
   publicationRef: string
@@ -191,6 +201,7 @@ export class PageRuntimePool {
     const page = new PageTool({ pageId: tool.pageId })
     const reader = this.options.readPageFile
     let pagedata = new Map<string, RuntimePagePublicationPagedata>()
+    let dataset = new Map<string, RuntimePagePublicationDataset>()
     let assertReceiptCurrent: (() => void) | undefined
     let publication: RuntimePagePublicationResolution | undefined
     let receipt: RuntimePageNavigationReceipt | undefined
@@ -287,6 +298,7 @@ export class PageRuntimePool {
         publication?.assertCurrent()
         assertGenerationCurrent()
         pagedata = new Map()
+        dataset = new Map()
         if (publication) {
           const manifest = publication.manifest
           if (runtime.source.mode !== 'published'
@@ -303,16 +315,27 @@ export class PageRuntimePool {
             const matches = manifest.files.filter(item => item.fileName === file)
             if (matches.length !== 1) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${file}`)
           }
+          const scenarioSnapshots = manifest.schemaVersion === 2 ? manifest.dataset : manifest.pagedata
+          const hasIncompatibleProof = manifest.schemaVersion === 2
+            ? Object.hasOwn(manifest, 'pagedata')
+            : Object.hasOwn(manifest, 'dataset')
           if (manifest.files.length !== PAGE_TOOL_FILE_NAMES.length
-            || manifest.pagedata.length !== call.ids.length
-            || new Set(manifest.pagedata.map(item => item.scenarioId)).size !== manifest.pagedata.length) {
+            || scenarioSnapshots.length !== call.ids.length
+            || new Set(scenarioSnapshots.map(item => item.scenarioId)).size !== scenarioSnapshots.length
+            || hasIncompatibleProof) {
             throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: manifest 文件快照不完整')
           }
           for (const scenarioId of call.ids) {
-            const snapshot = manifest.pagedata.find(item => item.scenarioId === scenarioId)
-            if (!snapshot) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${scenarioId} pagedata`)
-            pagedata.set(scenarioId, snapshot)
-            await this.proofText(snapshot.text, snapshot.sha256, `${scenarioId}/pagedata.json`)
+            if (manifest.schemaVersion === 2) {
+              const snapshot = manifest.dataset.find(item => item.scenarioId === scenarioId)
+              if (!snapshot) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${scenarioId} Dataset proof`)
+              dataset.set(scenarioId, snapshot)
+            } else {
+              const snapshot = manifest.pagedata.find(item => item.scenarioId === scenarioId)
+              if (!snapshot) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${scenarioId} pagedata proof`)
+              pagedata.set(scenarioId, snapshot)
+              await this.proofText(snapshot.text, snapshot.sha256, `${scenarioId}/pagedata.json`)
+            }
           }
         }
         prepared?.assertCurrent()
@@ -357,8 +380,10 @@ export class PageRuntimePool {
         assertBindingCurrent()
         if (!this.options.loadScenario) throw new Error('未注入场景运行装配器')
         const snapshot = pagedata.get(scenarioId)
+        const datasetSnapshot = dataset.get(scenarioId)
         const dataSet = await this.options.loadScenario({
-          projectId, scenarioId, source: runtime.source, ...(snapshot ? {pagedata: snapshot} : {}),
+          projectId, scenarioId, source: runtime.source,
+          ...(datasetSnapshot ? {dataset: datasetSnapshot} : snapshot ? {pagedata: snapshot} : {}),
         })
         try { prepared?.assertCurrent(); assertBindingCurrent(); return dataSet }
         catch (error) { dataSet.destroy(); throw error }

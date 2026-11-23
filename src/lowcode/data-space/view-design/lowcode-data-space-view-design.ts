@@ -11,6 +11,7 @@ import { LowcodeDataSpaceViewFields } from './lowcode-data-space-view-fields'
 import { LowcodeDataSpaceFieldValue } from '../model-source/field/lowcode-data-space-field-value'
 import { LowcodeDataSpaceRelationMetadata } from './lowcode-data-space-relation-metadata'
 import { LowcodeDataSpaceCascadeMetadata } from './lowcode-data-space-cascade-metadata'
+import {RUNTIME_DATA_SET_PLAN_FILE_TABLE} from '../runtime-data-set-plan-file'
 
 import {
   createInputParameterEditHost, inputParameterGetState, inputParameterReload, inputParameterSave, inputParameterStage,
@@ -105,6 +106,13 @@ type ViewDesignOptions = Readonly<{
   assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>
   loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput,'fileExecutors'|'projectionBindings'>): Promise<SparkData.DataSet>
   readLegacyLayout?(targetId: string): Promise<string | null>
+  /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */
+  publishRuntimeDataSetPlan?(input: Readonly<{
+    scenarioId: string
+    metadataDataSet: SparkData.DataSet
+    scenarioConfig: Readonly<Record<string, unknown>>
+    assertCurrent: () => void
+  }>): Promise<void>
   /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */
   modelSources?: ModelCreateSources
   assertScope(): void
@@ -225,6 +233,7 @@ export class LowcodeDataSpaceDesignSession {
   readonly #modelSources = new Map<string, ModelSourceEditHandle>()
   readonly #sourceRemovalDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
   readonly #fieldOutputDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
+  #removeSaveCompletion: (() => void) | null = null
 
   private readonly design: LowcodeDataSpaceViewDesign
   private readonly options: ViewDesignOptions
@@ -244,6 +253,43 @@ export class LowcodeDataSpaceDesignSession {
     this.#viewMetadata = new LowcodeDataSpaceViewMetadata(metadataDataSet)
     this.#relationMetadata = new LowcodeDataSpaceRelationMetadata(metadataDataSet, definitionResource)
     this.#cascadeMetadata = new LowcodeDataSpaceCascadeMetadata(metadataDataSet)
+    if (options.publishRuntimeDataSetPlan) {
+      this.#removeSaveCompletion = metadataDataSet.setSaveCompletionHandler(async (result, saveOptions) => {
+        if (saveOptions?.views?.length && saveOptions.views.every(view => view.tableName === RUNTIME_DATA_SET_PLAN_FILE_TABLE)) return
+        const changed = (result.data?.createdCount ?? 0) + (result.data?.savedCount ?? 0) + (result.data?.deletedCount ?? 0)
+        if (!changed) return
+        await this.persistRuntimeDataSetPlan()
+      })
+    }
+  }
+
+  /** 正式 metadata 与当前已保存定义都确认后，发布唯一独立 Plan。 */
+  private async persistRuntimeDataSetPlan(): Promise<void> {
+    this.assertLive()
+    const publish = this.options.publishRuntimeDataSetPlan
+    if (!publish) return
+    this.assertOwner()
+    const file = this.#file
+    if (!file || !file.isPersisted || file.isDirty || file.saveStatus !== 'idle') {
+      throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE: 场景定义文件尚未确认保存')
+    }
+    await this.#metadata.load([...LowcodeDataSpaceMetadata.tables])
+    for (const name of LowcodeDataSpaceMetadata.tables) {
+      const view = this.metadataDataSet.getView(name, 'default')
+      if (!view) throw new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: 缺少正式 ${name} 视图`)
+      const refreshed = await view.requestRefresh()
+      if (!refreshed.success) throw refreshed.error ?? new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: ${name} 回读失败`)
+    }
+    this.assertOwner()
+    if (file !== this.#file || state(file).dirty || state(file).saveStatus !== 'idle') {
+      throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE_STALE: 定义文件保存期间已变化')
+    }
+    await publish({
+      scenarioId: this.targetId,
+      metadataDataSet: this.metadataDataSet,
+      scenarioConfig: file.value.toJSON(),
+      assertCurrent: () => this.assertLive(),
+    })
   }
 
   private assertLive(): void {
@@ -945,7 +991,7 @@ export class LowcodeDataSpaceDesignSession {
       || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field' || models.requestState !== SparkData.RequestState.Loaded
       || models.queryContext['dataSpaceId'] !== this.targetId || model['dataSetId'] !== this.targetId
       || ['rowid', 'dataSetId', 'Type'].some(field => models.fieldAccess(model, field).read !== 'visible')
-      || !['接口', '视图'].includes(String(model['Type']))) throw new Error('来源入参所属模型不是当前空间可确认的接口或逻辑视图')
+      || !['接口', '平台接口', '视图'].includes(String(model['Type']))) throw new Error('来源入参所属模型不是当前空间可确认的接口或逻辑视图')
     if (this.hasPendingSourceInputs() || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
       || view.requestState === SparkData.RequestState.Loading || view.mutating) throw new Error('请先处理来源入参草稿或在途查询')
     for (const key of this.#sourceInputs.keys()) if (key.startsWith('sourceInputFields@')) this.#sourceInputs.delete(key)
@@ -2667,6 +2713,8 @@ export class LowcodeDataSpaceDesignSession {
   dispose(): void {
     if (this.#disposed) return
     this.#disposed = true
+    this.#removeSaveCompletion?.()
+    this.#removeSaveCompletion = null
     for (const listener of [...this.#previewInvalidationListeners]) listener()
     this.#previewInvalidationListeners.clear()
     this.invalidate()

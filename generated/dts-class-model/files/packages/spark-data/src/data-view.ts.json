@@ -1802,6 +1802,15 @@
           "type": "object",
           "title": "Promise<DataViewSourceWriteAttemptStatus>"
         },
+        "method.retrySourceWriteAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.retrySourceWriteAttempt.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceWriteAttemptStatus>"
+        },
         "method.acknowledgeSourceWriteAttempt.params": {
           "type": "object",
           "properties": {},
@@ -3417,7 +3426,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.013Z",
+  "generatedAt": "2026-11-21T18:34:32.380Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5837,6 +5846,22 @@
             {
               "name": "verifySourceWriteAttempt",
               "jsdoc": "核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceWriteAttemptStatus",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retrySourceWriteAttempt",
+              "jsdoc": "用户显式执行来源声明支持的同目标同正文补偿；未核实 attempt 或非working replacement会拒绝。",
               "parameters": [],
               "type": {
                 "type": "reference",

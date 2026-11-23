@@ -6,28 +6,28 @@
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {coerceStrictJsonValue,type JsonParams,type JsonValue} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {createSmartBidRuntimeActionExecutor} from '@/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner'
 import {createSmartBidCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-command'
+import {createSmartBidAgentDispatcher} from '@/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch'
 
 export type SmartBidPageAction=Readonly<{
  operationId:string;requestKey:string;prompt:string;inputs:unknown
 }>
 
-export type SmartBidPageActionSubmit=(action:SmartBidPageAction)=>Promise<JsonValue>
+export type SmartBidPageActionSubmit=(action:SmartBidPageAction,signal?:AbortSignal)=>Promise<JsonValue>
 
 export function createSmartBidPageActionSubmit(runtime:PageRuntime,projectId:string,assertCurrent:()=>void)
 :SmartBidPageActionSubmit{
- const execute=createSmartBidRuntimeActionExecutor({runtime,scenarioId:runtime.call.mainScenarioId??runtime.call.scenarioIds[0]??'',
-  assertCurrent})
- return async action=>{
+ const scenarioId=runtime.call.mainScenarioId??runtime.call.scenarioIds[0]??''
+ const agent=createSmartBidAgentDispatcher({runtime,scenarioId,projectId,assertCurrent})
+ return async (action,signal=new AbortController().signal)=>{
   assertCurrent()
   const command=createSmartBidCommand(action,{
    registrationId:'SmartBidOperationModule',businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,
    inputError:'SMART_BID_PAGE_ACTION_INPUT_REQUIRED',
   })
-  const outcome=await execute(command)
+  const outcome=await agent.dispatch(command,signal)
   assertCurrent()
-  return outcome
+  return outcome.outcome
  }
 }
 

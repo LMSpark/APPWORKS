@@ -7,32 +7,23 @@
 import {CLASS_MODEL_TOOL_NAMES,type ClassModelRuntime} from '@spark-appworks/spark-ai/class-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '../../content/references/snapshot-reference-values'
+import {hashCanonicalSnapshotText} from '../../content/revision-snapshot-hash'
 import {readOperationActionGuide} from './operation-action-guide'
 
-/** 目录可达动作及其原始定义引用。 */
+/** ClassModel 方法即指南正式定义；引用和版本由模型、动作及指南文本确定。 */
 type Entry=Readonly<{guideRef:string;versionRef:string;guideDigest:string;kind:string;actionName:string;pathRefs:readonly string[];
- materialRefs:readonly string[];assertCurrent:()=>void}>
+ materialRefs:readonly string[];state:'REACHABLE';assertCurrent:()=>void}>
+type EntryInput=Readonly<Omit<Entry,'state'>>
 
-/** 正式目录条目与 ClassModel 可达动作相交，只交引用供第02项继续核验。 */
+/** 直接从当前根 ClassModel 发现可达动作，并以 actionGuide 文本生成固定版本。 */
 export async function discoverOperationGuides(runtime:Pick<ClassModelRuntime,'executeTool'>,source:Readonly<{
- rootKind:string;entries:readonly Entry[];assertCurrent:()=>void
+ rootKind:string;directoryRef?:string;entries?:readonly EntryInput[];assertCurrent:()=>void
 }>){
- const {rootKind}=source,entries=[...source.entries]
- const assertCurrent=()=>{source.assertCurrent();for(const entry of entries)entry.assertCurrent()}
+ const {rootKind}=source
+ const assertCurrent=()=>source.assertCurrent()
  assertCurrent()
  const error='OPERATION_GUIDE_DISCOVERY_SCOPE'
- const seen=new Set<string>()
  if(!identity(rootKind))throw Error(error)
- const candidates=entries.map(entry=>{
-  const {guideRef,versionRef,guideDigest,kind,actionName}=entry
-  const pathRefs=Object.freeze([...entry.pathRefs]),materialRefs=Object.freeze([...entry.materialRefs])
-  const key=JSON.stringify([guideRef,versionRef,kind,actionName])
-  if(![guideRef,versionRef,kind,actionName,...pathRefs,...materialRefs].every(identity)||seen.has(key)||!pathRefs.length||
-   !/^[a-f0-9]{64}$/u.test(guideDigest))
-   throw Error(error)
-  seen.add(key)
-  return {guideRef,versionRef,guideDigest,kind,actionName,pathRefs,materialRefs}
- })
  const query=await runtime.executeTool(CLASS_MODEL_TOOL_NAMES.query,{includeMembers:true})
  assertCurrent()
  const models=isRecord(query.data)?query.data['models']:undefined
@@ -49,8 +40,29 @@ export async function discoverOperationGuides(runtime:Pick<ClassModelRuntime,'ex
   }
   methods.set(model['kind'],names)
  }
- const items=candidates.map(entry=>Object.freeze({...entry,
-  state:methods.get(entry.kind)?.has(entry.actionName)===true?'REACHABLE':'DEFINITION_REQUIRED'}))
+ const declared=source.entries
+ if(declared){
+  const items=declared.map(entry=>Object.freeze({
+   ...entry,state:methods.get(entry.kind)?.has(entry.actionName)===true?'REACHABLE' as const:'DEFINITION_REQUIRED' as const,
+  }))
+  return Object.freeze({rootKind,items:Object.freeze(items),assertCurrent})
+ }
+ const items:Entry[]=[]
+ for(const [kind,names] of methods){
+  for(const actionName of names){
+   assertCurrent()
+   const guide=await runtime.executeTool(CLASS_MODEL_TOOL_NAMES.actionGuide,{kind,actionName})
+   assertCurrent()
+   if(!guide.ok||typeof guide.data!=='string'||!guide.data.trim())throw Error(error)
+   const guideDigest=await hashCanonicalSnapshotText(guide.data)
+   const guideRef=`${kind}.${actionName}`
+   items.push(Object.freeze({
+    guideRef,versionRef:guideDigest,guideDigest,kind,actionName,
+    pathRefs:Object.freeze(source.directoryRef?[source.directoryRef]:[]),
+    materialRefs:Object.freeze([guideRef]),state:'REACHABLE',assertCurrent,
+   }))
+  }
+ }
  return Object.freeze({rootKind,items:Object.freeze(items),assertCurrent})
 }
 

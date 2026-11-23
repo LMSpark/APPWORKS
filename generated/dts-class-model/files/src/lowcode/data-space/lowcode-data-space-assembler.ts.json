@@ -226,11 +226,43 @@
         },
         "method.assemble.return": {
           "$ref": "#/$defs/LowcodeDataSpaceAssembly"
+        },
+        "method.assembleRuntimePlan.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "plan": {
+                  "$ref": "../../../packages/spark-data/src/runtime-data-set-plan/types.ts.json#/$defs/RuntimeDataSetPlanFile"
+                },
+                "space": {
+                  "$ref": "#/$defs/FormalSpace"
+                },
+                "models": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FormalModel"
+                  }
+                }
+              },
+              "required": [
+                "plan",
+                "space",
+                "models"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assembleRuntimePlan.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceAssembly"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.571Z",
+  "generatedAt": "2026-11-22T19:32:08.867Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -464,6 +496,30 @@
                     "type": "reference",
                     "name": "LowcodeDataSpaceAssemblerInput",
                     "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembly",
+                "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+              }
+            },
+            {
+              "name": "assembleRuntimePlan",
+              "jsdoc": "Materialize the backend-owned independent Dataset Plan, then bind the verified formal model owners.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        plan: RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n    }"
+                      }
+                    ]
                   }
                 }
               ],

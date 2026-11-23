@@ -22,6 +22,13 @@ import { type CrudService, createCrudService } from './strategies/crud/crud-serv
 import { parseTableMetadataInput } from './metadata'
 import { assertNoSeparator, resolveApi } from './core/utils'
 
+type DataTableQueryExecutor = Parameters<DataView['bindQueryExecutor']>[0]
+type DataTableQueryExecutorFactory = (view: DataView) => DataTableQueryExecutor
+type DataTableQueryBindingOptions = Readonly<{
+  resource: NonNullable<Parameters<DataView['bindQueryExecutor']>[1]>['resource']
+}>
+type DataTableExecutionConfig = Readonly<Pick<TableMetadata, 'api' | 'crudConfig'>>
+
 /** DataTable.addColumns 的执行结果摘要。 */
 export type DataTableAddColumnsResult = {
   /** 实际追加成功的列名列表。 */
@@ -160,6 +167,10 @@ export class DataTable {
 
   /** CrudService 实例缓存（懒初始化，模型级共享） */
   private _crudService?: CrudService | undefined
+  private _queryBinding: Readonly<{
+    executor: DataTableQueryExecutor | DataTableQueryExecutorFactory
+    options?: DataTableQueryBindingOptions
+  }> | undefined
 
   /**
    * 获取或创建 CrudService（懒初始化，配置变更时自动清除缓存）
@@ -174,6 +185,14 @@ export class DataTable {
       this._crudService = createCrudService(this.api, sharedClient, endpointContextProvider)
     }
     return this._crudService
+  }
+
+  /** 捕获本模型在当前查询或保存时使用的接口与策略；转换函数保留引用，嵌套 endpoint 配置独立复制。 */
+  captureExecutionConfig(): DataTableExecutionConfig {
+    return {
+      ...(this.api === undefined ? {} : {api: structuredClone(this.api)}),
+      ...(this.crudConfig === undefined ? {} : {crudConfig: {...this.crudConfig}}),
+    }
   }
 
   // ===== 数据校验 =====
@@ -347,6 +366,7 @@ export class DataTable {
       // Phase 6 M2: 动态视图自动订阅——通知 DataSet 将活跃的 on/onAnyViewChange 绑定到新视图
       this.dataSet?._subscribeNewView(view)
       this.views[viewId] = view
+      if (this._queryBinding) view.bindQueryExecutor(this.resolveQueryExecutor(view), this._queryBinding.options)
     }
     return this.views[viewId]
   }
@@ -372,9 +392,11 @@ export class DataTable {
    */
   setApi(api: CrudApi | string | boolean): void {
     const resolved = resolveApi(api, this.tableName)
+    if (JSON.stringify(resolved) === JSON.stringify(this.api)) return
     if (resolved !== undefined) this.api = resolved
     else delete this.api
     this._crudService = undefined
+    this.forEachView(view => view.onDataTableExecutionConfigChanged())
   }
 
   /**
@@ -383,6 +405,40 @@ export class DataTable {
    */
   setCrudConfig(config: CrudOperationConfig): void {
     this.crudConfig = config
+    this.forEachView(view => view.onDataTableExecutionConfigChanged())
+  }
+
+  /** 清除模型级 CRUD 策略，并使所有视图的缓存执行适配回到当前表配置。 */
+  clearCrudConfig(): void {
+    if (this.crudConfig === undefined) return
+    delete this.crudConfig
+    this.forEachView(view => view.onDataTableExecutionConfigChanged())
+  }
+
+  /**
+   * 为当前 DataTable 绑定一次模型级 query/save owner adapter。
+   * 各 DataView 仍持有独立查询结果、权限、编辑态与私有保存基线；新增命名视图自动继承同一适配器。
+   */
+  bindQueryExecutor(executor: DataTableQueryExecutor | DataTableQueryExecutorFactory, options?: DataTableQueryBindingOptions): void {
+    for (const view of this.viewList) view.assertCanBindQueryExecutor(this.resolveQueryExecutor(view, executor), options)
+    const current = this._queryBinding
+    if (current && (current.executor !== executor
+      || current.options?.resource.resourceType !== options?.resource.resourceType
+      || current.options?.resource.resourceId !== options?.resource.resourceId)) {
+      throw new Error('DATA_TABLE_QUERY_BINDING: 同一模型不能切换 owner adapter，须重新装配 DataSet')
+    }
+    this._queryBinding = Object.freeze({
+      executor,
+      ...(options === undefined ? {} : {options: Object.freeze({resource: Object.freeze({...options.resource})})}),
+    })
+    this.forEachView(view => view.bindQueryExecutor(this.resolveQueryExecutor(view), options))
+  }
+
+  private resolveQueryExecutor(
+    view: DataView,
+    binding: DataTableQueryExecutor | DataTableQueryExecutorFactory = this._queryBinding!.executor,
+  ): DataTableQueryExecutor {
+    return typeof binding === 'function' ? binding(view) : binding
   }
 
   // ===== 序列化 / 反序列化 =====
@@ -536,6 +592,7 @@ export class DataTable {
    */
   destroy(): void {
     this.#querySaveRule = undefined
+    this._queryBinding = undefined
     for (const view of Object.values(this.views)) {
       view.destroy()
     }

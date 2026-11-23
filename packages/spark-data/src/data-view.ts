@@ -681,6 +681,11 @@ rows: DataRow[] = []
     } catch (error) {this.#resourceIdentity = undefined; this.#queryExecutor = undefined; throw error}
   }
 
+  /** 当前视图是否已由 DataTable owner adapter 装配；派生视图不得重复改绑到源视图的实例。 */
+  hasQueryExecutorBinding(): boolean {
+    return this.#queryExecutor !== undefined
+  }
+
   private assertDerivedQueryAllowed(use: 'named-view' | 'options'): void {
     if (this.#queryExecutor?.derivedQueries === 'bound-view-only') {
       throw new Error(`DATA_VIEW_DERIVED_QUERY_UNSUPPORTED: 本绑定来源不支持派生查询 ${use}`)
@@ -704,7 +709,7 @@ rows: DataRow[] = []
     try {
       if (view.primaryKey !== this.primaryKey) view.primaryKey = this.primaryKey
       view.configure({...structuredClone(this.toJson()), page: 1, onRequestComplete: ''})
-      if (this.#queryExecutor) view.bindQueryExecutor(this.#queryExecutor,
+      if (this.#queryExecutor && !view.hasQueryExecutorBinding()) view.bindQueryExecutor(this.#queryExecutor,
         this.#resourceIdentity ? {resource: this.#resourceIdentity} : undefined)
       return view
     } catch (error) {table.destroyView(viewId); throw error}
@@ -4002,12 +4007,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     })
     const deleted = capture(this.dirtyTrackingDelegate.pendingDeleteIds, true)
     const table = this.dataTable
+    const tableConfig = table?.captureExecutionConfig()
     return { executor, identity: this.queryIdentity(), context, added, changed, deleted,
-      ...(table === null ? {} : {tableConfig: {
-        ...(table.api === undefined ? {} : {api: structuredClone(table.api)}),
-        // CRUD policies are flat and may contain transform functions; preserve those function references.
-        ...(table.crudConfig === undefined ? {} : {crudConfig: {...table.crudConfig}}),
-      }}),
+      ...(tableConfig === undefined ? {} : {tableConfig}),
     }
   }
 
@@ -4741,6 +4743,14 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
 
   private emitConfigChanged(): void {
     this.events.emit('configChanged')
+  }
+
+  /** DataTable 接口或 CRUD 策略变化时，仅失效依赖表契约的执行缓存，不改变 owner、查询基线、权限或 unknown 捕获。 */
+  onDataTableExecutionConfigChanged(): void {
+    if (this._isDestroyed) return
+    this.#queryExecutor?.invalidateQueryCache?.()
+    this.treeManager = undefined
+    this.emitConfigChanged()
   }
 
   /** 发射 rowsChanged 事件（微任务合并批量更新） */

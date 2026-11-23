@@ -15,6 +15,7 @@ import type {
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
   DataSetSaveJournal, DataSetSaveJournalPhase, DataSetSaveJournalView, DataSetSaveRecoverableAction,
+  DataSetSaveCompletionHandler,
 } from './types'
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
@@ -54,6 +55,8 @@ import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-casca
 import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
 import { DataViewOptionFillRuntime } from './strategies/cascade/option-fill-runtime'
+import { compileRuntimeDataSetPlan, type CompileRuntimeDataSetPlanOptions } from './runtime-data-set-plan/compiler'
+import { parseRuntimeDataSetPlanFile } from './runtime-data-set-plan/parser'
 
 /** @internal 从未知值推断列类型 */
 function inferColumnType(v: unknown): ColumnType {
@@ -448,6 +451,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
 
   /** DataSet.saveChanges 的默认提交策略。 */
   saveChangesConfig: DataSetSaveChangesConfig | undefined
+  private _saveCompletionHandler: DataSetSaveCompletionHandler | undefined
 
   /** 设计器布局信息（不参与运行时数据逻辑）。 */
   layout: DataSetMetadata['layout'] | undefined
@@ -858,7 +862,14 @@ getRequestTemplateParams(): Record<string, unknown> {
     const filters: DataViewFilterTree[] = []
     for (const [index, binding] of rel.filterBindings.entries()) {
       const value = values[index]
-      if (binding.omitEmpty && (value === '' || value === null)) continue
+      const empty = value === '' || value === null || (Array.isArray(value)
+        && value.filter(item => item !== undefined && item !== null && item !== '').length === 0)
+      if (binding.emptyValueMode === 'emptyResult' && empty) return null
+      if (binding.emptyValueMode === 'asNull' && empty) {
+        filters.push(DataViewFilter.condition({field: binding.targetField, operator: 'is-null'}).toJSON())
+        continue
+      }
+      if ((binding.emptyValueMode === 'omit' || binding.omitEmpty) && empty) continue
       const operator = binding.operator ?? (Array.isArray(value) ? 'in' : 'eq')
       if (operator === 'contains' && typeof value !== 'string') throw new Error('QUERY_CASCADE_INPUT: contains需要文本值')
       if (operator === 'in' && !Array.isArray(value)) throw new Error('QUERY_CASCADE_INPUT: in需要数组值')
@@ -1757,13 +1768,27 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
     this.beginSaveJournal([options ?? {}])
+    let settled = false
     try {
       const result = await this.executeSaveChanges(options)
       this.settleSaveJournal(undefined, result)
+      settled = true
+      if (result.success) await this._saveCompletionHandler?.(result, options)
       return result
     } catch (error) {
-      this.settleSaveJournal(error)
+      if (!settled) this.settleSaveJournal(error)
       throw error
+    }
+  }
+
+  /** 注册原保存确认后的唯一后续动作；返回取消函数，不替代DataView保存回执。 */
+  setSaveCompletionHandler(handler?: DataSetSaveCompletionHandler): () => void {
+    if (this._saveCompletionHandler && this._saveCompletionHandler !== handler) {
+      throw new Error('DATA_SET_SAVE_COMPLETION_HANDLER: 已存在其他保存后续动作')
+    }
+    this._saveCompletionHandler = handler
+    return () => {
+      if (this._saveCompletionHandler === handler) this._saveCompletionHandler = undefined
     }
   }
 
@@ -2449,5 +2474,11 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
     // 构造函数会自动设置单行表的 currentRow
     return new DataSet({ dataSetName: 'PageDataSet', tables })
+  }
+
+  /** Parse the backend-owned independent Dataset Plan and materialize a native DataSet. */
+  static fromRuntimeDataSetPlan(raw: string, options: CompileRuntimeDataSetPlanOptions & Readonly<{expectedScenarioId?: string}> = {}): DataSet {
+    const plan = parseRuntimeDataSetPlanFile(raw, options.expectedScenarioId)
+    return new DataSet(buildCanonicalDataSetConfig(compileRuntimeDataSetPlan(plan, options).metadata))
   }
 }

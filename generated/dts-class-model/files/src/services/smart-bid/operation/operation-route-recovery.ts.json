@@ -59,13 +59,13 @@
             "string"
           ]
         },
-        "guideVersionRef": {
-          "type": "string"
-        },
         "guideRef": {
           "type": "string"
         },
         "guideDigest": {
+          "type": "string"
+        },
+        "guideVersionRef": {
           "type": "string"
         },
         "usable": {
@@ -102,9 +102,9 @@
         "scope",
         "assertCurrent",
         "inputDigest",
-        "guideVersionRef",
         "guideRef",
         "guideDigest",
+        "guideVersionRef",
         "usable"
       ],
       "additionalProperties": false
@@ -347,17 +347,17 @@
               "writable": true
             },
             {
-              "name": "guideVersionRef",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "guideRef",
               "readable": true,
               "writable": true
             },
             {
               "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "guideVersionRef",
               "readable": true,
               "writable": true
             },

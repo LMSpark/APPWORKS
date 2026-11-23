@@ -15,11 +15,13 @@ const { runtimeQuery, readRequestScope, loadDictionaryDefinition } = vi.hoisted(
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {
   readRequestScope,
+  dataSpace:{runtime:{query:runtimeQuery}},
 }}))
 vi.mock('@/lowcode/resources/structured-config/dictionary/resource', () => ({LowcodeDictionary: {loadDefinition: loadDictionaryDefinition}}))
 
 import { LowcodeDataSpaceModelSourceReader } from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
+import {readPlatformApiInputFields,readPlatformApiOutputFields} from '@/lowcode/data-space/model-source/platform-api-route-spec'
 
 type QueryIdentity = Readonly<{metaName: string}>
 type QueryOptions = Readonly<{filter?: Readonly<{toJSON(): Readonly<{value?: unknown}>}>}>
@@ -28,7 +30,8 @@ function context(metaName: string, rows: Record<string, unknown>[], total = rows
   scenarioId = '8D1AB14DD8277F3E7017CD38F77B09FD'): DataSpaceQueryContext {
   const table = new DataSpaceQueryTable({scenarioId, metaName})
   const result = {Result: {data: {Count: total, Items: rows, hasNextPage: false, Action: []},
-    primaryKeyField: keyless ? null : metaName === '_Base_ParamList' ? 'parid' : 'rowid', allowAdd: false}}
+    primaryKeyField: keyless ? null : metaName === '_Base_ParamList' ? 'parid'
+      : metaName === 'base_platform_api_resource' ? 'id' : 'rowid', allowAdd: false}}
   return new DataSpaceQueryContext({identity: table.identity, snapshot: table.applyResult(result),
     scope: 'scope-a', readScope: () => 'scope-a'})
 }
@@ -83,6 +86,28 @@ function metadataFixture(scenarioId='8D1AB14DD8277F3E7017CD38F77B09FD'): DataSet
 }
 
 describe('LowcodeDataSpaceModelSourceReader', () => {
+  it('reads and prepares a platform interface from its semantic route contract',async()=>{
+    const row={id:'platform:operation',display_name:'操作查询',description:'按原试次读取操作证据',module_code:'smartbid-operation',
+      enabled:1,output_path:'$.items',lingma_sys_params:{r:[],e:[],h:[],m:[],d:false},route_spec:JSON.stringify({
+        routes:['GET /api/smart-bid/operation'],inputs:[{name:'projectId',type:'string',source:'query'}],
+        returnType:{children:[{name:'Result',children:[{name:'items',children:[{name:'requestKey',type:'string'}]}]}]},
+        outputs:[{path:'$.items',fields:[{name:'requestKey',type:'string'}]}],
+      })}
+    runtimeQuery.mockResolvedValue(context('base_platform_api_resource',[row],1))
+    const reader=new LowcodeDataSpaceModelSourceReader(metadata)
+    const sources=await reader.query({type:'platformApi',keyword:'操作'},metadata)
+    expect(sources.rows[0]).toMatchObject({id:'platform:operation',type:'platformApi',databaseName:'smartbid-operation'})
+    const prepared=await reader.prepare(sources.rows[0]!,metadata)
+    expect(prepared.model).toMatchObject({Type:'平台接口',MetaName:'platform:operation',DbName:'smartbid-operation'})
+    expect(prepared.fields).toEqual(expect.arrayContaining([
+      expect.objectContaining({type:'dataModel',Name:'requestKey',IsOutput:1}),
+      expect.objectContaining({type:'inputParams',Name:'projectId',IsOutput:0}),
+    ]))
+    expect(readPlatformApiInputFields(JSON.parse(row.route_spec))).toHaveLength(1)
+    expect(readPlatformApiOutputFields(JSON.parse(row.route_spec),'$.items')).toEqual([
+      {name:'requestKey',description:'',fieldType:'string',source:'response'},
+    ])
+  })
   it('binds the source reader to the supplied workflow metadata instance and rejects a same-scene replacement',async()=>{
     const scene='0DD8D28D462F51C5790AA6FBFAE39366',workflow=metadataFixture(scene),replacement=metadataFixture(scene)
     try{

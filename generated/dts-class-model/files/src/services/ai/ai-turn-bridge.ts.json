@@ -58,10 +58,39 @@
           "type": "number"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.onAccepted.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "sessionId": {
+                  "type": "string"
+                },
+                "turnId": {
+                  "type": "string"
+                },
+                "localTurnId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sessionId",
+                "turnId",
+                "localTurnId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAccepted.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.860Z",
+  "generatedAt": "2026-11-23T01:07:40.667Z",
   "models": {
     "AiTurnBridgeDiagnostic": {
       "name": "AiTurnBridgeDiagnostic",
@@ -117,11 +146,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n}>",
+        "declarationTypeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n    /** /api/ai/turns 正式 ACK；只有 bridge 已配对 session/turn 后交付。 */\n    onAccepted?: (identity: Readonly<{\n        sessionId: string;\n        turnId: string;\n        localTurnId: string;\n    }>) => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n}>",
+            "typeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n    /** /api/ai/turns 正式 ACK；只有 bridge 已配对 session/turn 后交付。 */\n    onAccepted?: (identity: Readonly<{\n        sessionId: string;\n        turnId: string;\n        localTurnId: string;\n    }>) => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -136,6 +165,31 @@
               "name": "idleTimeoutMs",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onAccepted",
+              "jsdoc": "/api/ai/turns 正式 ACK；只有 bridge 已配对 session/turn 后交付。",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        sessionId: string;\n        turnId: string;\n        localTurnId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

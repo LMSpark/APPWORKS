@@ -312,6 +312,42 @@
           "type": "object",
           "title": "Promise<string | null>"
         },
+        "method.publishRuntimeDataSetPlan.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "metadataDataSet": {
+                  "type": "object",
+                  "title": "SparkData.DataSet"
+                },
+                "scenarioConfig": {
+                  "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "metadataDataSet",
+                "scenarioConfig",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.publishRuntimeDataSetPlan.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.assertScope.params": {
           "type": "object",
           "properties": {},
@@ -1424,7 +1460,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.622Z",
+  "generatedAt": "2026-11-22T20:00:13.935Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1692,11 +1728,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: Readonly<{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }>): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: Readonly<{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }>): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1856,6 +1892,35 @@
                         "value": null
                       }
                     ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "publishRuntimeDataSetPlan",
+              "jsdoc": "正式保存确认后生成并回读独立 Runtime Dataset Plan。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
               }

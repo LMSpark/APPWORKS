@@ -228,7 +228,7 @@ export class LowcodeDataSpaceFieldValue {
         || view.total !== view.rows.length || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field'
         || view.queryContext['dataSpaceId'] !== this.targetId || view.queryContext['modelId'] !== this.modelId) throw new Error('来源参数未完整读取或范围已变化')
       const models = this.rows({table: 'Base_DataModel', keys: ['rowid', 'Type'], select: row => row['rowid'] === this.modelId, complete: false})
-      if (models.length !== 1 || !['接口', '视图'].includes(String(models[0]?.['Type']))) throw new Error('来源参数所属模型不可确认')
+      if (models.length !== 1 || !['接口', '平台接口', '视图'].includes(String(models[0]?.['Type']))) throw new Error('来源参数所属模型不可确认')
       const properties: Array<[string, JsonSchemaObject]> = []
       for (const row of view.rows) {
         if (['rowid', 'dataSetId', 'dataModelId', 'type'].some(field => view.fieldAccess(row, field).read !== 'visible')

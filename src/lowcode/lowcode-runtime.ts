@@ -743,6 +743,30 @@ function assertProjectFilePath(applicationId:string,customPath:string):string {
   return normalized
 }
 
+/** Read the backend-owned independent Dataset Plan; no upload or version side effect is allowed here. */
+export async function readLowcodeRuntimeDatasetPlan(projectId: string, scenarioId: string): Promise<string | null> {
+  const normalizedProjectId = projectId.trim(), normalizedScenarioId = scenarioId.trim()
+  if (!normalizedProjectId || !normalizedScenarioId) throw new Error('DATASET_PLAN_SCOPE: 应用或场景身份不能为空')
+  const scope = lowcodeApi.readRequestScope()
+  const locator = {appType: 'designfile', customPath: 'DataSet', fileName: `${normalizedScenarioId}.dataset.json`} as const
+  try {
+    return await readRuntimeFile({
+      owner: runtimeFileCacheOwner(normalizedProjectId), locator,
+      assertCurrent: () => {
+        const current = lowcodeApi.readRequestScope()
+        if (current.token !== scope.token || current.headers['X-AppId'] !== normalizedProjectId) {
+          throw new Error('SPARK_EXECUTION_SCOPE_STALE: Dataset Plan 读取身份已失效')
+        }
+      },
+      readVersion: () => lowcodeApi.design.readFileLastModified(locator),
+      readText: () => lowcodeApi.design.readTextFile(locator),
+    })
+  } catch (error) {
+    if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
+    throw error
+  }
+}
+
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')
@@ -752,6 +776,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     if (current.token !== executionScope.token || current.headers['X-AppId'] !== normalizedProjectId) {
       throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景历史创建执行身份已失效')
     }
+
   }
   const captureScenarioReadScope = (): (() => void) => {
     const captured = lowcodeApi.readRequestScope()

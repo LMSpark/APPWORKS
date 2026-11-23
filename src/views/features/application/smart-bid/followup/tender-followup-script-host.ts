@@ -53,9 +53,9 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
     {projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
   }
   if(name==='tender.followup.readOriginalAttempts'){
-   const {revisionId}=input
-   if(Object.keys(input).length!==1||!identity(revisionId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
-   return readTenderChangeAttempts({...host,runtime,assertCurrent},revisionId)
+   const {revisionId,attempts}=input
+   if(Object.keys(input).length!==2||!identity(revisionId)||!Array.isArray(attempts))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   return readTenderChangeAttempts({...host,runtime,assertCurrent},revisionId,attempts)
   }
   if(name==='tender.followup.readBaselineObligations'){
    const {baselineId}=input
@@ -63,12 +63,13 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
    return readBaselineSubmissionObligations({...host,runtime,assertCurrent},baselineId)
   }
   if(name==='tender.followup.traceOriginalAttempts'){
-   const {revisionId,addendumId}=input
-   if(Object.keys(input).length!==2||!identity(revisionId)||!identity(addendumId))throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
+   const {revisionId,addendumId,attempts:attemptParameters}=input
+   if(Object.keys(input).length!==3||!identity(revisionId)||!identity(addendumId)||!Array.isArray(attemptParameters))
+    throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    const readHost={...host,runtime,assertCurrent}
    const addendum=await readTenderAddendum(readHost,{projectId:host.projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
    if(addendum.state!=='REGISTERED')return addendum
-   const attempts=await readTenderChangeAttempts({...readHost,assertCurrent:addendum.assertCurrent},revisionId,true)
+   const attempts=readTenderChangeAttempts({...readHost,assertCurrent:addendum.assertCurrent},revisionId,attemptParameters,true)
    const items=attempts.items.map(({runId,attemptRef,requestKey,evidence,operationAttempt})=>Object.freeze({runId,attemptRef,requestKey,operationAttempt,
     impacts:evidence?.state==='REGISTERED'?traceCallImpacts(addendum,evidence):null}))
    attempts.assertCurrent()
@@ -107,13 +108,14 @@ export function createTenderFollowupScriptHost<Runtime extends Pick<PageRuntime,
     evidence:Object.freeze(evidence),changes:Object.freeze(changes),assertCurrent:assertBatches})
   }
   if(name==='tender.followup.traceCallReferences'){
-   const {addendumId,runId,attemptRef,requestKey}=input
-   if(Object.keys(input).length!==4||!identity(addendumId)||!identity(runId)||!identity(attemptRef)||!identity(requestKey))
+   const {addendumId,runId,attemptRef,requestKey,operationEvidence}=input
+   if(Object.keys(input).length!==5||!identity(addendumId)||!identity(runId)||!identity(attemptRef)||!identity(requestKey))
     throw Error('TENDER_FOLLOWUP_PAGE_REQUEST')
    const readHost={...host,runtime,assertCurrent},projectId=host.projectId
    const addendum=await readTenderAddendum(readHost,{projectId,lotId:scope.lotId,roundId:scope.roundId,id:addendumId})
    if(addendum.state!=='REGISTERED')return addendum
-   const calls=await readTenderChangeCallReferences({...readHost,assertCurrent:addendum.assertCurrent},{projectId,runId,attemptRef,requestKey})
+   const calls=readTenderChangeCallReferences({...readHost,assertCurrent:addendum.assertCurrent},
+    {projectId,runId,attemptRef,requestKey},operationEvidence)
    if(calls.state!=='REGISTERED')return calls
    const impacts=traceCallImpacts(addendum,calls)
    calls.assertCurrent()

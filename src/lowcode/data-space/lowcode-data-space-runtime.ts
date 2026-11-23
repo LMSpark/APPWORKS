@@ -3,7 +3,8 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceApi } from '@spark-appworks/spark-lowcode-api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp,
+ readLowcodeRuntimeDatasetPlan } from '../lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
@@ -11,6 +12,7 @@ import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type PageRuntimeSource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
+import {parseRuntimeDataSetPlanFile} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
@@ -247,6 +249,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  scenarioId: string
  source?: PageRuntimeSource
  pagedata?: Readonly<{scenarioId: string; version: number; fileName: string; sha256: string; sourceRevision: string; text: string}>
+ dataset?: Readonly<{scenarioId: string; fileName: string; sha256: string; sourceRevision: string}>
  getPage?:ApiModelRuleHost['getPage']
 }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
@@ -264,14 +267,32 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
   throw new Error('PAGE_PREVIEW_TEMPORARY_SOURCE: 预览配置必须由临时装配入口消费')
  }
  if (source.mode === 'published') {
-  if (!source.publicationRef?.trim() || !command.pagedata) {
-   throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布场景必须使用 manifest pagedata')
+  if (!source.publicationRef?.trim() || !command.pagedata && !command.dataset) {
+   throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布场景必须使用 manifest 场景 proof')
   }
- } else if (source.publicationRef !== null || command.pagedata) {
-  throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: 设计运行只能读取工作 pagedata')
+ } else if (source.publicationRef !== null || command.pagedata || command.dataset) {
+  throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: 设计运行不能携带 publication 场景 proof')
  }
+ if (command.pagedata && command.dataset) throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: pagedata 与 Dataset proof 不能同时存在')
  if (command.pagedata && command.pagedata.scenarioId !== scenarioId) {
   throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: pagedata 场景身份不一致')
+ }
+ if (command.dataset) {
+  if (command.dataset.scenarioId !== scenarioId || command.dataset.fileName !== `${scenarioId}.dataset.json`) {
+   throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: Dataset Plan 身份不一致')
+  }
+  const text = await readLowcodeRuntimeDatasetPlan(projectId, scenarioId)
+  assertCurrent()
+  if (text === null) throw new Error('DATASET_PLAN_FILE_MISSING: 后端独立 Dataset 文件不存在')
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  const sha256 = [...new Uint8Array(bytes)].map(value => value.toString(16).padStart(2, '0')).join('')
+  if (sha256 !== command.dataset.sha256) throw new Error('PAGE_PUBLICATION_DATASET_PROOF_CONFLICT: Dataset 文件 SHA 不匹配')
+  const plan = parseRuntimeDataSetPlanFile(text, scenarioId)
+  if (plan.contentHash !== command.dataset.sourceRevision) {
+   throw new Error('PAGE_PUBLICATION_DATASET_PROOF_CONFLICT: Dataset contentHash 不匹配')
+  }
+  return assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
+   ...(command.getPage?{getPage:command.getPage}:{})})
  }
  const text = command.pagedata?.text
   ?? await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
@@ -279,6 +300,36 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
  return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,
   ...(command.getPage?{getPage:command.getPage}:{})})
+}
+
+/** Assemble an independent backend-owned Dataset Plan through formal model owners. */
+export async function assembleLowcodeRuntimeDataSetPlan(input: Readonly<{
+ projectId: string
+ scenarioId: string
+ text: string
+ assertCurrent: () => void
+ getPage?: ApiModelRuleHost['getPage']
+}>): Promise<DataSet> {
+ const plan = parseRuntimeDataSetPlanFile(input.text, input.scenarioId)
+ const {dataSpace} = executionScopeOf(input.projectId)
+ const formalInput = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: input.scenarioId,
+  assertCurrent: input.assertCurrent}
+ const [space, models] = await Promise.all([
+  dataSpace.design.readSpaceDefinition(formalInput),
+  dataSpace.design.readModelBatch({...formalInput, metaNames: [...new Set(plan.models.map(model => model.metaName))]}),
+ ])
+ input.assertCurrent()
+ const result = new LowcodeDataSpaceAssembler(dataSpace.runtime, lowcodeHttp).assembleRuntimePlan({plan, space, models})
+ try {
+  registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),assertCurrent:input.assertCurrent})
+  registerNavigationHostModelRules(result.dataSet)
+  registerDimensionSourceModelRules(result.dataSet)
+  input.assertCurrent()
+  return result.dataSet
+ } catch (error) {
+  result.dataSet.destroy()
+  throw error
+ }
 }
 
 /** 目录作用域（未进入应用）只装配已登记的系统场景；登录身份变化或选中应用即失效。 */

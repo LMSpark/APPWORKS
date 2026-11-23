@@ -4,8 +4,7 @@ import {readRegisteredTenderFollowupNotices,tenderFollowupNoticeView} from '@/vi
 import {createTenderFollowupScriptHost} from '@/views/features/application/smart-bid/followup/tender-followup-script-host'
 import {tenderAddendumScenarioView} from '@/views/features/application/smart-bid/followup/tender-addendum-reader'
 import {tenderChangeChapterScenarioViews} from '@/views/features/application/smart-bid/followup/tender-change-chapter-reader'
-import {prepareRegisteredOperationStepRework} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-rework-reader'
-import {contentOperationScenarioViews} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-scenario-views'
+import {prepareOperationStepRework} from '@/services/smart-bid/operation/rework/operation-step-rework'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
 import {bidProjectScopeScenarioViews} from '@/views/features/application/smart-bid/collaboration/handoff/bid-project-scope-reader'
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
@@ -41,8 +40,8 @@ it('reads the original addendum locations for the current project, lot and round
    kind:'INDEPENDENT',required:true,allowedDisclosureRefs:['PUBLIC']},
   GenerationRun:{projectId:'P',id:'CALLS',basisRevisionId:'ORIGINAL',runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST',
    targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64),inputRef:'INPUT',returnRef:'RESULT',
-   calls:[{callRef:'USED',ownerRef:'OWNER',effect:'COMPUTE',state:'COMPLETE',inputRef:'INPUT',returnRef:'RESULT'}],
-   findings:[{cause:'INPUT',callRef:'USED',evidenceRef:'ITEM',affectedRefs:['RESULT']}],priorResults:[],actualRequirementReads:[
+   calls:[{callRef:'USED',ownerRef:'OWNER',effect:'COMPUTE' as const,state:'COMPLETE' as const,inputRef:'INPUT',returnRef:'RESULT'}],
+   findings:[{cause:'INPUT' as const,callRef:'USED',evidenceRef:'ITEM',affectedRefs:['RESULT']}],priorResults:[],actualRequirementReads:[
    {lineageId:'CLAUSE',version:'V1',callRef:'USED',resultRef:'RESULT',fieldPath:'requirements.qualification'},
    {lineageId:'CLAUSE',version:'V2',callRef:'OTHER',resultRef:'RESULT',fieldPath:'requirements.qualification'},
   ],changeDispositions:[
@@ -52,9 +51,8 @@ it('reads the original addendum locations for the current project, lot and round
  }
  const chapterViews=tenderChangeChapterScenarioViews({ContentRevision:'id',RevisionSnapshot:'id'})
  const baselineViews=bidProjectScopeScenarioViews({ContentProject:'id',ContentRevision:'id',Baseline:'id'}).Baseline
- const views={...chapterViews,Baseline:baselineViews,SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')},
-  GenerationRun:contentOperationScenarioViews({KnowledgeGuide:'id',ContextManifest:'id',GenerationRun:'id'}).GenerationRun}
- const contextTables=Object.fromEntries(Object.entries(rows).map(([model,record])=>[model,{
+ const views={...chapterViews,Baseline:baselineViews,SubmissionObligation:{originalBaselineObligations:submissionObligationScenarioView('id')}}
+ const contextTables=Object.fromEntries(Object.entries(rows).filter(([model])=>model!=='GenerationRun').map(([model,record])=>[model,{
   modelBinding:{modelName:model,modelId:model},columns:Object.keys(record).map(name=>({name,isPrimaryKey:name==='id'})),
   views:{default:{},...views[model as keyof typeof views]},
  }]))
@@ -72,8 +70,8 @@ it('reads the original addendum locations for the current project, lot and round
     data:{Count:1,Items:[{...row,roundId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
   })})
   const revisionViews={ContentRevision:'originalImpactRevision',RevisionSnapshot:'originalImpactSnapshot',Baseline:'previousFrozenBaseline',
-   GenerationRun:'originalRequirementReads',SubmissionObligation:'originalBaselineObligations'}
-  for(const model of Object.keys(rows) as Array<keyof typeof rows>){
+   SubmissionObligation:'originalBaselineObligations'}
+  for(const model of Object.keys(revisionViews) as Array<keyof typeof revisionViews>){
    const source=ds.getView(model,revisionViews[model])
    if(!source)throw Error('TEST_REFERENCE_VIEW_REQUIRED')
    const queryTable=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
@@ -86,15 +84,6 @@ it('reads the original addendum locations for the current project, lot and round
    const [scenario,model,name]=key.split('@')
    return scenario==='S'&&model&&name?ds.getView(model,name):undefined
   }}
-  const attempts=ds.getView('GenerationRun','originalBasisAttempts')
-  if(!attempts)throw Error('TEST_ATTEMPT_VIEW_REQUIRED')
-  const attemptTable=new DataSpaceQueryTable({scenarioId:'S',metaName:'GenerationRun'})
-  let attemptCount=1
-  let hiddenFields:string[]=[]
-  attempts.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-   identity:attemptTable.identity,scope:'attempts',readScope:()=> 'attempts',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:attemptCount,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:hiddenFields,m:[],d:false}}]}}}),
-  })})
   const receiptScope={projectId:'P',lotId:'L',subjectId:'ORG',channelId:'PORTAL'}
   const receiptIdentity={...receiptScope,operationRef:'SEND',objectRef:'PKG'}
   const knownAt=row.effectiveAt
@@ -113,53 +102,46 @@ it('reads the original addendum locations for the current project, lot and round
   expect(obligations).toMatchObject({baselineId:'OLD',obligations:[{obligationRef:'O',sourceRef:'FORM-V1',kind:'INDEPENDENT'}]})
   await expect(page.invoke('tender.followup.readBaselineObligations',{baselineId:'OTHER'},signal))
    .rejects.toThrow('BID_SUBMISSION_OBLIGATION_SCOPE')
-  const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal)
+  const attempts=[{...rows.GenerationRun}]
+  const listed=await page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL',attempts},signal)
   expect(listed).toMatchObject({basisRevisionId:'ORIGINAL',items:[{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'REQUEST'}]})
-  const attemptQuery=attempts.queryConfig
-  attempts.queryConfig={...attemptQuery,cacheType:'page'}
-  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
+  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL',attempts:[...attempts,...attempts]},signal))
    .rejects.toThrow('TENDER_CHANGE_ATTEMPT_SCOPE')
-  attempts.queryConfig=attemptQuery
-  const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal)
+  const history=await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A',attempts},signal)
   expect(history).toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:[{
    references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:{decision:'REDO'}}],
   }]}]})
   history.assertCurrent()
   expect(history).toMatchObject({items:[{operationAttempt:{projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',
    requestKey:'REQUEST',targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}}]})
-  const reworkView=ds.getView('GenerationRun','originalReworkEvidence')
-  if(!reworkView)throw Error('TEST_REWORK_VIEW_REQUIRED')
-  reworkView.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-   identity:attemptTable.identity,scope:'rework',readScope:()=> 'rework',snapshot:attemptTable.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:1,Items:[{...rows.GenerationRun,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
-  })})
   if(!('state' in history)||history.state!=='HISTORY_TRACED')throw Error('TEST_ATTEMPT_TRACE_REQUIRED')
   const operationAttempt=history.items[0]?.operationAttempt
   if(!operationAttempt)throw Error('TEST_FROZEN_IDENTITY_REQUIRED')
-  const rework=await prepareRegisteredOperationStepRework({runtime,scenarioId:'S',projectId:operationAttempt.projectId,
-   assertCurrent:history.assertCurrent},{...operationAttempt,reason:'按正式修改退回取材'})
-  expect(rework).toMatchObject({...operationAttempt,firstCallRef:'USED',handoffs:[{destination:'03',affectedRefs:['RESULT']}]})
-  hiddenFields=['configurationLockHash']
-  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+  const rework=prepareOperationStepRework({...operationAttempt,reason:'按正式修改退回取材',
+   inputRef:rows.GenerationRun.inputRef,returnRef:rows.GenerationRun.returnRef,
+   calls:rows.GenerationRun.calls.map(call=>({...call,assertCurrent:history.assertCurrent})),
+   findings:rows.GenerationRun.findings.map(finding=>({...finding,assertCurrent:history.assertCurrent})),
+   priorResults:[],assertCurrent:history.assertCurrent})
+  expect(rework).toMatchObject({projectId:'P',runId:'RUN',attemptRef:'ATTEMPT',
+   firstCallRef:'USED',handoffs:[{destination:'03',affectedRefs:['RESULT']}]})
+  const missingFrozen={...rows.GenerationRun,configurationLockHash:undefined}
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A',attempts:[missingFrozen]},signal))
    .toMatchObject({items:[{operationAttempt:null,impacts:[{references:[{callRef:'USED'}]}]}]})
-  hiddenFields=[]
   const dispositions=rows.GenerationRun.changeDispositions
   dispositions.push({...dispositions[0]!,decisionRef:'CONFLICT',decision:'REUSE'})
-  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A',attempts:[rows.GenerationRun]},signal))
    .toMatchObject({state:'HISTORY_TRACED',items:[{impacts:[{results:[{resultRef:'RESULT',disposition:null,conflictingDecisionRefs:['DECISION','CONFLICT']}]}]}]})
   dispositions.pop()
-  hiddenFields=['changeDispositions']
-  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+  const withoutDispositions={...rows.GenerationRun,changeDispositions:undefined}
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A',attempts:[withoutDispositions]},signal))
    .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:[{
     references:[{callRef:'USED'}],results:[{resultRef:'RESULT',disposition:null,conflictingDecisionRefs:[]}],
    }]}]})
-  hiddenFields=['actualRequirementReads']
-  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A'},signal))
+  const withoutReads={...rows.GenerationRun,actualRequirementReads:undefined}
+  expect(await page.invoke('tender.followup.traceOriginalAttempts',{revisionId:'ORIGINAL',addendumId:'A',attempts:[withoutReads]},signal))
    .toMatchObject({state:'HISTORY_TRACED',items:[{attemptRef:'ATTEMPT',requestKey:'REQUEST',impacts:null}]})
-  attemptCount=2
-  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL'},signal))
-   .rejects.toThrow('TENDER_CHANGE_ATTEMPT_INCOMPLETE')
-  expect(()=>history.assertCurrent()).toThrow()
+  await expect(page.invoke('tender.followup.readOriginalAttempts',{revisionId:'ORIGINAL',attempts:[{},rows.GenerationRun]},signal))
+   .rejects.toThrow('TENDER_CHANGE_ATTEMPT_SCOPE')
   const result=await page.invoke('tender.followup.readAddendum',{addendumId:'A'},signal)
   expect(view.queryContext).toMatchObject({projectId:'P',lotId:'L',roundId:'R',id:'A'})
   expect(result).toMatchObject({state:'REGISTERED',items:[{

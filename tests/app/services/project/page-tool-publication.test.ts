@@ -1,12 +1,18 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {
   createPageToolPublicationManifest,
+  createPageToolDatasetPublicationManifest,
   parsePageToolPublicationManifest,
   withPageToolPublication,
 } from '@/services/project/page-tool-publication'
 
 const owner = ['enterprise', 'tenant', 'actor', 'app', 'node']
 const call = 'a'.repeat(64), digest = 'b'.repeat(64)
+
+async function sha256(text:string):Promise<string>{
+ const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))
+ return [...new Uint8Array(bytes)].map(value=>value.toString(16).padStart(2,'0')).join('')
+}
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -35,6 +41,28 @@ describe('browser publication recovery', () => {
     const tampered=structuredClone(JSON.parse(text)) as {pagedata:Array<{text:string}>}
     tampered.pagedata[0]!.text='tampered'
     await expect(parsePageToolPublicationManifest(JSON.stringify(tampered))).rejects.toThrow('sha256')
+  })
+
+  it('parses an independent Dataset Plan proof without pagedata compatibility', async () => {
+    const plan=JSON.stringify({
+      schemaVersion:1,kind:'spark.runtimeDataSetPlan',scenarioId:'orders',name:'Orders',description:'',type:'数据源',
+      savedAt:'2026-11-23T00:00:00.000Z',contentHash:'fnv1a:12345678',
+      source:{dataSetId:'orders',exportedFrom:'data-space-design',graphFile:'orders.json'},
+      inputParams:[],models:[],modelFields:[],views:[],viewFields:[],relations:[],linkage:{edges:[]},
+    })
+    const manifest=await createPageToolDatasetPublicationManifest({
+      pageId:'orders-page',
+      files:[
+        {fileName:'rule.json',version:1,text:'[]'},
+        {fileName:'script.js',version:1,text:''},
+        {fileName:'style.css',version:1,text:''},
+      ],
+      dataset:[{scenarioId:'orders',sourceRevision:'fnv1a:12345678',text:plan}],
+    })
+    await expect(parsePageToolPublicationManifest(JSON.stringify(manifest))).resolves.toMatchObject({
+      schemaVersion:2,dataset:[{scenarioId:'orders',fileName:'orders.dataset.json'}],
+    })
+    await expect(parsePageToolPublicationManifest(JSON.stringify({...manifest,pagedata:[]}))).rejects.toThrow('Dataset proof')
   })
 
   it('refuses a node held by another tab without opening its journal', async () => {

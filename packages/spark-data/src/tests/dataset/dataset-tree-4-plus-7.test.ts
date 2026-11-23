@@ -274,6 +274,26 @@ describe('DataSet Tree 4+7 interfaces', () => {
       expect(get.mock.calls[0]?.[1]).toEqual({ parentId: '', treeMode: 'flat', limit: 20 })
     })
 
+    it('rebuilds the TreeManager from the changed DataTable API', async () => {
+      const get = vi.fn().mockResolvedValue([{ id: 1, parentId: null, name: 'Root' }])
+      const dataSet = createRemoteTreeDataSet(createTreeHttpClient({get}))
+      const view = dataSet.getView('NavigationNodes', 'default')!
+      const table = dataSet.getTable('NavigationNodes')!
+      try {
+        await view.loadTreeChildren(null)
+        const previous = view.treeManager
+        expect(previous).toBeDefined()
+        table.setApi({
+          list: {url: '/api/tree/nodes-v2', method: 'GET'},
+          children: {url: '/api/tree/nodes-v2', method: 'GET'},
+        })
+        expect(view.treeManager).toBeUndefined()
+        await view.loadTreeChildren(null)
+        expect(view.treeManager).not.toBe(previous)
+        expect(get.mock.calls[1]?.[0]).toBe('/api/tree/nodes-v2')
+      } finally {dataSet.destroy()}
+    })
+
     it('loadTreePath should call navigation path endpoint and return pathIds', async () => {
       const get = vi.fn().mockResolvedValue({ pathIds: [1, 2, 3] })
       const post = vi.fn()

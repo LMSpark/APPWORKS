@@ -4,11 +4,9 @@ import {SmartBidOperationModule} from '@/services/smart-bid/operation/agent-modu
 
 it('exposes one trusted frontend SSE dispatch command through the current PageRuntime',async()=>{
  const runtime={generation:1,destroyed:false,isLoaded:true,resolveView:()=>undefined}
- const dispatchOperation=vi.fn(async command=>({
-  state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNKNOWN' as const,turnId:'TURN',
-  attempt:{runId:'RUN',attemptRef:'ATTEMPT',requestKey:'Q',projectId:'P',
-   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)},
-  command,
+ const dispatchOperation=vi.fn(async input=>({
+  operationId:input.input.operationId,requestKey:input.input.requestKey,parameters:input.input,inputDigest:'a'.repeat(64),
+  outcome:{sessionId:'SSE-SESSION',turnId:'SSE-TURN',transport:'SSE' as const,state:'SSE_UNKNOWN' as const,dispatched:false},
  }))
  const host=createContentOperationScriptHost(runtime,{
   executeTool:vi.fn(async()=>({ok:true,data:null})),
@@ -23,15 +21,15 @@ it('exposes one trusted frontend SSE dispatch command through the current PageRu
 
  expect(dispatchOperation).toHaveBeenCalledOnce()
  expect(dispatchOperation.mock.calls[0]?.[0]).toMatchObject({input,signal:controller.signal})
- expect(result).toMatchObject({state:'CHECK_ORIGINAL',observation:'CLAIM_UNKNOWN'})
+ expect(result).toMatchObject({outcome:{sessionId:'SSE-SESSION',state:'SSE_UNKNOWN',transport:'SSE'}})
 })
 
 it('does not fall through to direct ClassModel execution when an SSE dispatcher is bound',async()=>{
  const runtime={generation:1,destroyed:false,isLoaded:true,resolveView:()=>undefined}
  const direct=vi.fn(async()=>({receiptRef:'DIRECT'}))
- const dispatchOperation=vi.fn(async()=>({state:'CHECK_ORIGINAL' as const,observation:'CLAIM_UNKNOWN' as const,
-  turnId:'TURN',attempt:{runId:'RUN',attemptRef:'TRY',requestKey:'Q',projectId:'P',
-   targetDigest:'a'.repeat(64),configurationLockHash:'b'.repeat(64)}}))
+ const dispatchOperation=vi.fn(async input=>({operationId:input.input.operationId,requestKey:input.input.requestKey,
+  parameters:input.input,inputDigest:'a'.repeat(64),
+  outcome:{sessionId:'SSE-SESSION',turnId:'SSE-TURN',transport:'SSE' as const,state:'NO_ACTION_RECEIPT' as const,dispatched:false}}))
  const host=createContentOperationScriptHost(runtime,{executeTool:vi.fn(async()=>({ok:true,data:null}))},{
   scenarioId:'SPACE',projectId:'P',rootKind:'OperationRoute',assertCurrent:()=>{},
   operationModule:new SmartBidOperationModule(direct),dispatchOperation,

@@ -945,6 +945,8 @@ export type DataViewCascadeFilterBinding = Readonly<{
   operator?: 'eq' | 'in' | 'contains'
   /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */
   omitEmpty?: boolean
+  /** 原生值缺失时的公开 Dataset Plan 策略；省略沿既有空值行为。 */
+  emptyValueMode?: 'emptyResult' | 'omit' | 'asNull'
 }>
 
 /** 父视图原生值到子视图查询输入的映射；与过滤字段绑定共同参与一次级联。 */
@@ -1524,6 +1526,12 @@ export type DataSetSaveChangesOptions = {
   mode?: DataSetSaveChangesMode
   /** 事务选项 */
   transaction?: DataSetSaveChangesTransactionOptions}
+
+/** DataSet 原生保存已确认后执行的同一调用域后续动作。 */
+export type DataSetSaveCompletionHandler = (
+  result: CrudResult<DataSetSaveChangesResult>,
+  options: DataSetSaveChangesOptions | undefined,
+) => void | Promise<void>
 
 /** DataSet.discardAndReload 的目标视图，按顺序丢弃后重新查询。 */
 export type DataSetDiscardAndReloadOptions = {

@@ -100,6 +100,7 @@ import { useDevFileEditor } from './useDevFileEditor'
 import type { DevState } from '../blueprint-state/useDevState'
 import type { DataRow } from '@spark-appworks/spark-data'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const rulePolicy = createRuleTreePolicy()
 const RULE_JSON_SCHEMA = createRuleJsonSchema()
@@ -331,7 +332,7 @@ async function restoreVersion(row: DataRow) {
   const version=Number(row['version'])
   if (!pageId || !alignActivePage()) return
   if(row['pageId']!==pageId||row['fileName']!==fileName||!Number.isSafeInteger(version)||version<0
-    ||row['snapshotFileName']!==`${version}__${fileName}`
+    ||row['snapshotFileName']!==formatFileSnapshotName(version,fileName)
     ||row['versionKey']!==JSON.stringify([pageId,fileName,version]))return
   const selectedNode=props.state.selectedNode.value,nodeId=selectedNode?.nodeId,navigationTarget=selectedNode?.navigation?.target
   const customPath=`${projectId}/${pageId}`

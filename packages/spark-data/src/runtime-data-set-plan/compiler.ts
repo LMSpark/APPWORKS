@@ -73,19 +73,23 @@ function jsonValue(value: unknown, path: string): DataViewFilterJsonValue {
   throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 过滤值不是合法 JSON`)
 }
 
-type ConvertedFilter = Readonly<{filter?: DataViewFilterTree; dependent: boolean}>
+type ConvertedFilterDependency = Readonly<{path: string; node: Record<string, unknown>}>
+type ConvertedFilter = Readonly<{
+  filter?: DataViewFilterTree
+  dependent: boolean
+  dependencies: readonly ConvertedFilterDependency[]
+}>
 type FilterContext = Pick<RuntimeDataSetPlanView, 'dependencies'>
 type ConvertFilterNodeInput = Readonly<{
   input: unknown
-  plan: RuntimeDataSetPlanFile
   view: FilterContext
   path: string
   allowOr?: boolean
 }>
 
 function convertFilterNode(options: ConvertFilterNodeInput): ConvertedFilter {
-  const {input, plan, view, path, allowOr = true} = options
-  if (input === undefined || input === null || input === false) return {dependent: false}
+  const {input, view, path, allowOr = true} = options
+  if (input === undefined || input === null || input === false) return {dependent: false, dependencies: []}
   const node = record(input, path)
   const logic = String(node['logic'] ?? node['Type'] ?? '').toLowerCase()
   if (logic === 'and' || logic === 'or') {
@@ -93,18 +97,19 @@ function convertFilterNode(options: ConvertFilterNodeInput): ConvertedFilter {
     const children = node['filters'] ?? node['Filters']
     if (!Array.isArray(children)) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: filters 必须是数组`)
     const converted = children.map((child, index) => convertFilterNode({
-      input: child, plan, view, path: `${path}[${index}]`, allowOr: logic !== 'or',
+      input: child, view, path: `${path}[${index}]`, allowOr: logic !== 'or',
     }))
     const filters = converted.flatMap(item => item.filter === undefined ? [] : [item.filter])
     const dependent = converted.some(item => item.dependent)
+    const dependencies = converted.flatMap(item => item.dependencies)
     if (logic === 'or' && dependent) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 不支持含 GetDependValue 的 OR 条件`)
-    if (!filters.length) return {dependent}
+    if (!filters.length) return {dependent, dependencies}
     if (filters.length === 1) {
       const only = filters[0]
-      if (!only) return {dependent}
-      return {filter: only, dependent}
+      if (!only) return {dependent, dependencies}
+      return {filter: only, dependent, dependencies}
     }
-    return {filter: {logic, filters}, dependent}
+    return {filter: {logic, filters}, dependent, dependencies}
   }
   const field = node['field'] ?? node['Field']
   if (typeof field !== 'string' || !field.trim()) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 缺少 Field`)
@@ -114,14 +119,15 @@ function convertFilterNode(options: ConvertFilterNodeInput): ConvertedFilter {
     if (typeof dependKey !== 'string' || !view.dependencies.some(item => item.dependKey === dependKey)) {
       throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 未声明 DependKey ${String(dependKey)}`)
     }
-    return {dependent: true}
+    return {dependent: true, dependencies: [{path, node}]}
   }
   const operator = filterOperator(node['operator'] ?? node['Operator'], `${path}.Operator`)
   const rawValue = isRecord(valueFunction)
     ? valueFunction
     : Object.hasOwn(node, 'value') ? node['value'] : node['Value']
   return {filter: {field, operator, ...(operator === 'is-null' || operator === 'is-not-null'
-    || operator === 'is-empty' || operator === 'is-not-empty' ? {} : {value: jsonValue(rawValue, `${path}.value`)})}, dependent: false}
+    || operator === 'is-empty' || operator === 'is-not-empty' ? {} : {value: jsonValue(rawValue, `${path}.value`)})},
+  dependent: false, dependencies: []}
 }
 
 function planColumns(plan: RuntimeDataSetPlanFile, modelId: string, options: CompileRuntimeDataSetPlanOptions): DataColumn[] {
@@ -161,36 +167,23 @@ function planViewId(view: RuntimeDataSetPlanView): string {
   return view.id.includes('::') ? view.code.trim() || view.name.trim() || view.id : view.id
 }
 
-function dependentFilters(plan: RuntimeDataSetPlanFile, view: RuntimeDataSetPlanView): DataViewCascade[] {
-  const raw = parseWireFilter(view.filter, `${view.id}.filter`)
+function dependentFilters(
+  plan: RuntimeDataSetPlanFile,
+  view: RuntimeDataSetPlanView,
+  dependencies: readonly ConvertedFilterDependency[],
+): DataViewCascade[] {
   const byDependKey = new Map(view.dependencies.map(item => [item.dependKey, item]))
   const sourceViews = new Map(plan.views.map(item => [item.id, item]))
   const models = new Map(plan.models.map(item => [item.id, item]))
-  const walk = (input: unknown, path: string, cascades: Map<string, {
+  const cascades = new Map<string, {
     parentTable: string; parentViewId: string; bindings: Array<{
       sourceField?: string; targetField: string; operator?: 'eq' | 'in'; emptyValueMode: 'emptyResult' | 'omit' | 'asNull'
     }>
-  }>): void => {
-    if (input === undefined || input === null || input === false) return
-    const node = record(input, path)
-    const logic = String(node['logic'] ?? node['Type'] ?? '').toLowerCase()
-    if (logic === 'and' || logic === 'or') {
-      if (logic === 'or') throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 不支持含 GetDependValue 的 OR 级联`)
-      const children = node['filters'] ?? node['Filters']
-      if (!Array.isArray(children)) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: filters 必须是数组`)
-      children.forEach((child, index) => {
-        const childRecord = isRecord(child) ? child : null
-        if (childRecord && isRecord(childRecord['ValueFun']) && childRecord['ValueFun']['Type'] === 'GetDependValue'
-          || childRecord && isRecord(childRecord['value']) && childRecord['value']['Type'] === 'GetDependValue') {
-          walk(child, `${path}[${index}]`, cascades)
-        } else if (isRecord(child) && (String(child['Type'] ?? '').toLowerCase() === 'and')) {
-          walk(child, `${path}[${index}]`, cascades)
-        }
-      })
-      return
-    }
+  }>()
+  for (const dependencyCondition of dependencies) {
+    const {node, path} = dependencyCondition
     const fn = node['ValueFun'] ?? node['value']
-    if (!isRecord(fn) || fn['Type'] !== 'GetDependValue') return
+    if (!isRecord(fn) || fn['Type'] !== 'GetDependValue') throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: dependency proof 丢失`)
     const dependKey = String(fn['DependKey'] ?? '')
     const dependency = byDependKey.get(dependKey)
     if (!dependency) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 未声明 DependKey ${dependKey}`)
@@ -211,20 +204,15 @@ function dependentFilters(plan: RuntimeDataSetPlanFile, view: RuntimeDataSetPlan
       emptyValueMode: dependency.emptyValueMode})
     cascades.set(key, group)
   }
-  const groups = new Map<string, {
-    parentTable: string; parentViewId: string; bindings: Array<{
-      sourceField: string; targetField: string; operator?: 'eq' | 'in'; emptyValueMode: 'emptyResult' | 'omit' | 'asNull'
-    }>
-  }>()
-  walk(raw, `${view.id}.filter`, groups)
   const childModel = models.get(view.dataModelId)
   if (!childModel) throw new Error(`RUNTIME_DATA_SET_PLAN.${view.id}: 目标模型不存在`)
-  return [...groups.values()].map(group => ({
+  return [...cascades.values()].map(group => ({
     kind: 'query' as const, cascadeId: `plan:${planViewId(view)}:${group.parentViewId}`,
     parentTable: group.parentTable, parentViewId: group.parentViewId,
     childTable: childModel.metaName, childViewId: planViewId(view),
     filterBindings: group.bindings.map(binding => ({
-      sourceField: binding.sourceField, targetField: binding.targetField,
+      ...(binding.sourceField === undefined ? {} : {sourceField: binding.sourceField}),
+      targetField: binding.targetField,
       ...(binding.operator === undefined ? {} : {operator: binding.operator}),
       emptyValueMode: binding.emptyValueMode,
     })),
@@ -238,7 +226,7 @@ function planRelations(plan: RuntimeDataSetPlanFile): DataResourceRelation[] {
     if (!parent || !child || relation.parentTable !== parent.metaName || relation.childTable !== child.metaName) {
       throw new Error(`RUNTIME_DATA_SET_PLAN.relation.${relation.id}: 模型端点不匹配`)
     }
-    const converted = convertFilterNode({input: parseWireFilter(relation.filter, `${relation.id}.filter`), plan,
+    const converted = convertFilterNode({input: parseWireFilter(relation.filter, `${relation.id}.filter`),
       view: {dependencies: []}, path: `${relation.id}.filter`, allowOr: false})
     if (converted.dependent || !converted.filter) throw new Error(`RUNTIME_DATA_SET_PLAN.relation.${relation.id}: 关系必须是完整过滤表达式`)
     return {
@@ -264,7 +252,7 @@ export function compileRuntimeDataSetPlan(
     for (const view of modelViews) {
       const viewId = planViewId(view)
       const converted = convertFilterNode({
-        input: parseWireFilter(view.filter, `${view.id}.filter`), plan, view, path: `${view.id}.filter`,
+        input: parseWireFilter(view.filter, `${view.id}.filter`), view, path: `${view.id}.filter`,
       })
       const projection = planProjection(plan, view, options)
       const definition = {
@@ -283,7 +271,7 @@ export function compileRuntimeDataSetPlan(
       }
       views[viewId] = definition
       if (view.isDefault) views['default'] = definition
-      cascades.push(...dependentFilters(plan, view))
+      cascades.push(...dependentFilters(plan, view, converted.dependencies))
     }
     if (!Object.hasOwn(views, 'default')) views['default'] = {}
     const resource = options.resolveModelResource?.({modelId: model.id, metaName: model.metaName})

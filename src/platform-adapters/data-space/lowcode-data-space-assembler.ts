@@ -16,6 +16,13 @@ import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 /** readModel 返回的正式模型定义，持有模型身份及规范输出字段。 */
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type FormalSpace = Readonly<{dataSpaceId: string; name: string}>
+type FormalModelBindingInput = Readonly<{
+ dataSet: DataSet
+ tableName: string
+ model: FormalModel
+ adapter?: NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>
+ validateView?: (view: SparkData.DataView) => void
+}>
 /** 装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。 */
 export type LowcodeDataSpaceAssemblerInput = Readonly<{
  config: ScenarioViewConfig
@@ -112,6 +119,32 @@ function assertProjectionOptions(value: unknown, resourceId: string | undefined,
 export class LowcodeDataSpaceAssembler {
  /** 注入已有模型查询保存 owner 和共享请求客户端；装配器不创建应用或租户 scope。 */
  public constructor(private readonly runtime: DataSpaceRuntimeApi, private readonly http: HttpClientBase) {}
+ private bindFormalModel(input: FormalModelBindingInput): void {
+  const table = input.dataSet.getTable(input.tableName)
+  if (!table) throw new Error(`场景表缺失: ${input.tableName}`)
+  let arrayRows: Array<Record<string, unknown>> | undefined
+  if (input.model.sourceType === '数组') {
+   const raw = input.model.raw['items']
+   if (typeof raw !== 'string') throw new Error(`数组 ${input.model.metaName} 缺少可读取的items文本`)
+   const rows = parseJsonDocument(raw)
+   if (!Array.isArray(rows) || !rows.every(isRecord)) throw new Error(`数组 ${input.model.metaName} 的items必须是对象数组`)
+   const outputs = DataSpaceDesignApi.resolveOutputFields(input.model)
+   arrayRows = rows.map(row => {
+    if (!isRecord(row)) throw new Error(`数组 ${input.model.metaName} 的items包含非对象`)
+    return Object.fromEntries(outputs
+     .filter(field => Object.hasOwn(row, field.name))
+     .map(field => [field.canonicalName, row[field.name]]))
+   })
+  }
+  table.forEachView(view => {
+   view.primaryKey = input.model.primaryKey
+   input.validateView?.(view)
+  })
+  this.runtime.bindModelTable(table, input.model, {
+   ...(arrayRows === undefined ? {} : {arrayRows}),
+   ...(input.adapter === undefined ? {} : {adapter: input.adapter}),
+  })
+ }
  /** 模型关系只生成结构映射；只有场景明确配置 viewCascades 才装配前端输入级联。 */
  public assemble(input: LowcodeDataSpaceAssemblerInput): LowcodeDataSpaceAssembly {
   if (!(input.config instanceof ScenarioViewConfig)) throw new Error('SCENARIO_VIEW_CONFIG_INSTANCE: 必须使用已校验的场景配置')
@@ -193,20 +226,7 @@ export class LowcodeDataSpaceAssembler {
    for (const [tableName, model] of bindings) {
     const table = dataSet.getTable(tableName)
     if (!table) throw new Error(`场景表缺失: ${tableName}`)
-    let arrayRows: Array<Record<string, unknown>> | undefined
-    if (model.sourceType === '数组') {
-     const raw = model.raw['items']
-     if (typeof raw !== 'string') throw new Error(`数组 ${model.metaName} 缺少可读取的items文本`)
-     const rows = parseJsonDocument(raw)
-     if (!Array.isArray(rows) || !rows.every(isRecord)) throw new Error(`数组 ${model.metaName} 的items必须是对象数组`)
-     const outputs = DataSpaceDesignApi.resolveOutputFields(model)
-     arrayRows = rows.map(row => {
-      if (!isRecord(row)) throw new Error(`数组 ${model.metaName} 的items包含非对象`)
-      return Object.fromEntries(outputs.filter(field => Object.hasOwn(row, field.name)).map(field => [field.canonicalName, row[field.name]]))
-     })
-    }
-    table.forEachView(view => {
-     view.primaryKey = model.primaryKey
+    this.bindFormalModel({dataSet, tableName, model, validateView: view => {
      const outputNames = new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName))
      // 装配后还包含框架注入的计算列（如_pk）；不能只校验文件声明的本地计算列。
      validateRemoteReferences({...view.toJson()}, new Set(table.columns
@@ -216,9 +236,7 @@ export class LowcodeDataSpaceAssembler {
       new Set(table.columns.filter(column => Boolean(column.computeExpression) && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()},
       new Set(LowcodeDataSpaceViewFields.selectionColumns(view, outputNames).map(column => column.name)))
-    })
-    const adapter=input.modelAdapters?.[model.id]
-    this.runtime.bindModelTable(table, model, {...(arrayRows===undefined?{}:{arrayRows}),...(adapter===undefined?{}:{adapter})})
+    }, ...(input.modelAdapters?.[model.id] === undefined ? {} : {adapter: input.modelAdapters[model.id]})})
    }
    for(const table of Object.values(dataSet.tables)){
     if(table.resourceType!=='command')continue
@@ -285,23 +303,7 @@ export class LowcodeDataSpaceAssembler {
      for (const model of input.models) {
        const table = dataSet.getTable(model.metaName)
        if (!table) continue
-       let arrayRows: Array<Record<string, unknown>> | undefined
-       if (model.sourceType === '数组') {
-         const raw = model.raw['items']
-         if (typeof raw !== 'string') throw new Error(`数组 ${model.metaName} 缺少可读取的items文本`)
-         const rows = parseJsonDocument(raw)
-         if (!Array.isArray(rows) || !rows.every(isRecord)) throw new Error(`数组 ${model.metaName} 的items必须是对象数组`)
-         const outputs = DataSpaceDesignApi.resolveOutputFields(model)
-         arrayRows = rows.map(row => {
-           if (!isRecord(row)) throw new Error(`数组 ${model.metaName} 的items包含非对象`)
-           return Object.fromEntries(outputs.filter(field => Object.hasOwn(row, field.name))
-             .map(field => [field.canonicalName, row[field.name]]))
-         })
-       }
-       table.forEachView(view => {
-         view.primaryKey = model.primaryKey
-       })
-       this.runtime.bindModelTable(table, model, ...(arrayRows === undefined ? [] : [{arrayRows}]))
+       this.bindFormalModel({dataSet, tableName: model.metaName, model})
      }
      this.runtime.validateQueryDefinitions(dataSet)
      return {dataSet, diagnostics: []}

@@ -32,8 +32,9 @@ import {
   type LowcodeNavigationTargetKind,
 } from './resources/shared/navigation-authorization-wire'
 import {applicationDesignItems, lowcodeEnterpriseNavigation, withApplicationDesign} from './system-navigation'
-import {invalidateRuntimeFile, readRuntimeFile} from './runtime-file-cache'
+import {invalidateRuntimeFile, readRuntimeFile, type RuntimeFileCacheScope} from './runtime-file-cache'
 import {parsePageToolPublicationManifest} from '@/services/project/page-tool-publication'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -760,6 +761,40 @@ function runtimeFileCacheOwner(projectId:string):string | undefined {
   return JSON.stringify([session.enterprise.id,session.identity.userId,projectId])
 }
 
+type ScopedRuntimeFileReadOptions = Readonly<{
+  projectId: string
+  locator: LowcodePlatform.LowcodeFileLocator
+  staleMessage: string
+  scope?: RuntimeFileCacheScope
+  readVersion: () => Promise<string>
+  readText: () => Promise<string>
+}>
+
+async function readScopedRuntimeFile(options: ScopedRuntimeFileReadOptions): Promise<string | null> {
+  const captured = lowcodeApi.readRequestScope()
+  const assertCurrent = (): void => {
+    const current = lowcodeApi.readRequestScope()
+    if (current.token !== captured.token || current.headers['X-AppId'] !== options.projectId) {
+      throw new Error(`SPARK_EXECUTION_SCOPE_STALE: ${options.staleMessage}`)
+    }
+  }
+  assertCurrent()
+  try {
+    return await readRuntimeFile({
+      owner: runtimeFileCacheOwner(options.projectId),
+      locator: options.locator,
+      ...(options.scope === undefined ? {} : {scope: options.scope}),
+      assertCurrent,
+      readVersion: options.readVersion,
+      readText: options.readText,
+    })
+  } catch (error) {
+    assertCurrent()
+    if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
+    throw error
+  }
+}
+
 function assertProjectFilePath(applicationId:string,customPath:string):string {
   const normalized=customPath.trim(),segments=normalized.split('/')
   if(normalized!==customPath||segments[0]!==applicationId||segments.length<2||/[\\%\u0000-\u001f\u007f?#]/.test(normalized)
@@ -772,24 +807,12 @@ function assertProjectFilePath(applicationId:string,customPath:string):string {
 export async function readLowcodeRuntimeDatasetPlan(projectId: string, scenarioId: string): Promise<string | null> {
   const normalizedProjectId = projectId.trim(), normalizedScenarioId = scenarioId.trim()
   if (!normalizedProjectId || !normalizedScenarioId) throw new Error('DATASET_PLAN_SCOPE: 应用或场景身份不能为空')
-  const scope = lowcodeApi.readRequestScope()
   const locator = {appType: 'designfile', customPath: 'DataSet', fileName: `${normalizedScenarioId}.dataset.json`} as const
-  try {
-    return await readRuntimeFile({
-      owner: runtimeFileCacheOwner(normalizedProjectId), locator,
-      assertCurrent: () => {
-        const current = lowcodeApi.readRequestScope()
-        if (current.token !== scope.token || current.headers['X-AppId'] !== normalizedProjectId) {
-          throw new Error('SPARK_EXECUTION_SCOPE_STALE: Dataset Plan 读取身份已失效')
-        }
-      },
-      readVersion: () => lowcodeApi.design.readFileLastModified(locator),
-      readText: () => lowcodeApi.design.readTextFile(locator),
-    })
-  } catch (error) {
-    if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
-    throw error
-  }
+  return await readScopedRuntimeFile({
+    projectId: normalizedProjectId, locator, staleMessage: 'Dataset Plan 读取身份已失效',
+    readVersion: () => lowcodeApi.design.readFileLastModified(locator),
+    readText: () => lowcodeApi.design.readTextFile(locator),
+  })
 }
 
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
@@ -847,25 +870,12 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
             return text
         }
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
-        const scope = lowcodeApi.readRequestScope()
         const locator={appType:'designfile',customPath,fileName:'pagedata.json'} as const
-        try {
-          return await readRuntimeFile({
-            owner:runtimeFileCacheOwner(normalizedProjectId),
-            locator,
-            assertCurrent:()=> {
-              const current=lowcodeApi.readRequestScope()
-              if(current.token!==scope.token||current.headers['X-AppId']!==normalizedProjectId)
-                throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
-            },
-            readVersion:()=>lowcodeApi.design.readFileLastModified(locator),
-            readText:()=>lowcodeApi.design.readTextFile(locator),
-          })
-        } catch (error) {
-          if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
-          if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
-          throw error
-        }
+        return await readScopedRuntimeFile({
+          projectId: normalizedProjectId, locator, staleMessage: '场景文件读取身份已失效',
+          readVersion: () => lowcodeApi.design.readFileLastModified(locator),
+          readText: () => lowcodeApi.design.readTextFile(locator),
+        })
       },
       writeText: async (scenarioId, text, expectedText) => {
         const resource = resolveSystemScenarioResource(scenarioId)
@@ -918,7 +928,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
           return text
         }
         const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile',
-          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: `${version}__pagedata.json` })
+          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: formatFileSnapshotName(version, 'pagedata.json') })
         assertCurrent()
         return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
       },
@@ -944,13 +954,14 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
           await createRepositoryScenarioVersion({resource, scope, version, text, expectedText: working, onAttempt})
           assertExecutionScope()
           assertCurrent?.()
-          return {version, fileName: `${version}__pagedata.json`, lastModified: null}
+          return {version, fileName: formatFileSnapshotName(version, 'pagedata.json'), lastModified: null}
         }
         assertExecutionScope()
         const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
         assertExecutionScope()
         assertCurrent?.()
-        if (versions.some(item => item.version === version || item.fileName === `${version}__pagedata.json`)) {
+        if (versions.some(item => item.version === version
+          || item.fileName === formatFileSnapshotName(version, 'pagedata.json'))) {
           throw new ProjectModel.ScenarioViewVersionNotAppliedError(`scenario:${scenarioId}`, scope, version,
             `场景快照编号 ${version} 已存在`)
         }
@@ -959,7 +970,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         assertExecutionScope()
         assertCurrent?.()
         if (working !== text) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
-        const fileName = `${version}__pagedata.json`
+        const fileName = formatFileSnapshotName(version, 'pagedata.json')
         onAttempt({scenarioId, resourceId: `scenario:${scenarioId}`, scope, version, fileName, text})
         assertExecutionScope()
         assertCurrent?.()
@@ -1036,16 +1047,11 @@ export function createPageToolFilesIo(projectId:string){
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       if(name.length===0||name!==name.trim()||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('FILE_SCOPE: 文件名无效')
       const customPath=toolFilePath(appId,page),locator={appType:'designfile',customPath,fileName:name} as const
-      try{return await readRuntimeFile({
-        owner:runtimeFileCacheOwner(appId),locator,
-        assertCurrent:()=> {
-          if(lowcodeApi.readRequestScope().headers['X-AppId']!==appId)
-            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工具文件请求所属应用已失效')
-        },
-        readVersion:()=>lowcodeApi.design.readFileLastModified(locator),
-        readText:()=>lowcodeApi.design.readTextFile(locator),
-      })}
-      catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
+      return await readScopedRuntimeFile({
+        projectId: appId, locator, staleMessage: '工具文件请求所属应用已失效',
+        readVersion: () => lowcodeApi.design.readFileLastModified(locator),
+        readText: () => lowcodeApi.design.readTextFile(locator),
+      })
     },
     upload:async(command:Readonly<{appId:string;pageId:string;fileName:string;text:string;replace?:true}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
@@ -1066,27 +1072,24 @@ export function createPageToolFilesIo(projectId:string){
     },
     uploadVersion:async({appId:app,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:string;version:number;text:string})=>{
       if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
-      await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),fileName:`${version}__${fileName}`,text})
+      await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),
+        fileName:formatFileSnapshotName(version,fileName),text})
     },
     readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:string;version:number}):Promise<string|null>=>{
       if(app!==appId||!Number.isSafeInteger(version)||version<0)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       const path=assertProjectFilePath(appId,customPath)
-      const versionedName=`${version}__${fileName}`
+      const versionedName=formatFileSnapshotName(version,fileName)
       const locator={appType:'designfile',customPath:path,fileName:versionedName} as const
-      try{return await readRuntimeFile({
-        owner:runtimeFileCacheOwner(appId),locator,
+      return await readScopedRuntimeFile({
+        projectId: appId, locator,
         scope:{mode:'published',sourceRevision:`published:${versionedName}`,publicationRef:`${versionedName}@${fileName}`},
-        assertCurrent:()=> {
-          if(lowcodeApi.readRequestScope().headers['X-AppId']!==appId)
-            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 文件快照所属应用已失效')
-        },
+        staleMessage: '文件快照所属应用已失效',
         readVersion:()=>Promise.resolve(`published:${versionedName}`),
         readText:async()=>{
           const bytes=await lowcodeApi.design.readFileBytes(locator)
           return new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes)
         },
-      })}
-      catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
+      })
     },
     remove:async(app:string,page:string,name:string)=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')

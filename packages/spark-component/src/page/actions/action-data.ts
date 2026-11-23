@@ -41,27 +41,17 @@ import {
   inferNextRowId,
   resolveRowId,
   resolveRowLabel,
-  getSelectedRows,
   interpolate,
   asRecord,
   resolveActionDataCapabilities,
   confirmIfNeeded,
   createActionNotifier,
+  resolveActionTargetRows,
   type ActionNotifier,
 } from './executor-helpers'
 import { isCrudResult, isCrudSuccess, getCrudErrorMessage } from '../../components/containers/support/crud/crud-result-helpers.js'
 
 // ── 目标行解析 ────────────────────────────────────────────────────────────
-
-/** 目标行解析结果：单行操作用 primary，批量操作用 rows。 */
-type TargetRows = {
-  /** 操作目标行列表 */
-  rows: DataRow[]
-  /**
-   * 单行场景（scope/current）的代表行；
-   * selected 批量场景时为 null（直接迭代 rows）
-   */
-  primary: DataRow | null}
 
 type AppendOperation = {
   view: DataView
@@ -78,29 +68,6 @@ type UpdateOperation = {
   notifier: ActionNotifier
   successFallback: string
   failureFallback: string}
-
-/**
- * 按 target 语义从 DataView 和执行作用域中解析操作目标行。
- * - `scope`：使用 scope.row（行内动作注入的当前行）
- * - `current`：使用 view.currentRow（视图当前选中行）
- * - `selected`：使用 view.selectedRows（复选框勾选的行集合）
- */
-function resolveTargetRows(
-  view: DataView,
-  target: ActionRowTarget,
-  scope: ActionExecutionScope | undefined,
-): TargetRows {
-  if (target === 'scope') {
-    const row = scope?.row ?? null
-    return { rows: row ? [row] : [], primary: row }
-  }
-  if (target === 'current') {
-    const row = view.currentRow ?? null
-    return { rows: row ? [row] : [], primary: row }
-  }
-  // selected
-  return { rows: getSelectedRows(view), primary: null }
-}
 
 /** 当目标行为空时的标准警告文案（区分 selected 批量和单行场景）。 */
 function targetEmptyFallback(target: ActionRowTarget): string {
@@ -294,7 +261,7 @@ export async function executeDelete(
   const view = ensureView(desc, ctx, notifier)
   if (!view) return
 
-  const { rows, primary } = resolveTargetRows(view, desc.target, scope)
+  const { rows, primary } = resolveActionTargetRows(view, desc.target, scope)
   if (rows.length === 0) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
     return
@@ -388,7 +355,7 @@ export async function executePatch(
   const view = ensureView(desc, ctx, notifier)
   if (!view) return
 
-  const { rows, primary } = resolveTargetRows(view, desc.target, scope)
+  const { rows, primary } = resolveActionTargetRows(view, desc.target, scope)
   if (rows.length === 0) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
     return

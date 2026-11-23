@@ -192,6 +192,28 @@ export function getSelectedRows(view: DataView): DataRow[] {
   return view.selectedRows.slice()
 }
 
+export type ActionTargetRows = Readonly<{
+  rows: DataRow[]
+  primary: DataRow | null
+}>
+
+/** Resolve one target contract for action permission checks and execution. */
+export function resolveActionTargetRows(
+  view: DataView,
+  target: ActionRowTarget,
+  scope: ActionExecutionScope | undefined,
+): ActionTargetRows {
+  if (target === 'scope') {
+    const row = scope?.row ?? null
+    return {rows: row ? [row] : [], primary: row}
+  }
+  if (target === 'current') {
+    const row = view.currentRow ?? null
+    return {rows: row ? [row] : [], primary: row}
+  }
+  return {rows: getSelectedRows(view), primary: null}
+}
+
 /**
  * 从任意 error 值中提取可读的错误消息字符串。
  * - Error 实例 → `.message`
@@ -479,9 +501,7 @@ function _targetRows(
   view: DataView,
   scope: ActionExecutionScope | undefined,
 ): DataRow[] {
-  if (descriptor.target === 'scope') return scope?.row ? [scope.row] : []
-  if (descriptor.target === 'current') return view.currentRow ? [view.currentRow] : []
-  return getSelectedRows(view)
+  return resolveActionTargetRows(view, descriptor.target, scope).rows
 }
 
 function _patchFields(descriptor: Extract<ActionDescriptor, { action: 'patch' }>): string[] {

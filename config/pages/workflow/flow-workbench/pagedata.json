@@ -42,7 +42,7 @@
       }
     },
     "WFOBJ_FLOW_RELATIONLINE_STEP": {
-      "columns": [{"name": "appendRevokeDisabled", "type": "boolean", "computeExpression": "STATUS + '' !== '0' || (StepState + '' !== '0' && StepState + '' !== '1')"}],
+      "columns": [],
       "modelBinding": {
         "modelName": "WFOBJ_FLOW_RELATIONLINE_STEP",
         "modelId": "8b5ef80f-6dfc-4769-9bbe-34c58128c73c"

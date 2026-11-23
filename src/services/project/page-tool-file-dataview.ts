@@ -7,8 +7,9 @@ import {bindFileDirectoryQueryAdapter, createFileResourceAdapterExecutor, getOrC
 import {PageTool, ProjectToolResource, pageToolPublicationVersionKey, parsePageToolPublicationVersions,
   type PageToolFileName, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import { LowcodeApiError } from '@/platform-adapters/api'
-import {isRequestError} from '@spark-appworks/spark-utils'
 import {createPageToolFilesIo} from '@/platform-adapters/lowcode-runtime'
+import {isFileMutationUnconfirmed, markFileMutationMayHaveApplied} from '@/platform-adapters/api/design/file-mutation-state'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const TABLE='ProjectToolFile'
 type PageFileIo=ReturnType<typeof createPageToolFilesIo>
@@ -32,10 +33,6 @@ function isPageToolFileName(value:unknown):value is PageToolFileName{
 function isPublicationFileName(value:unknown):value is PagePublicationFileName{
   return isPageToolFileName(value)||value==='publication-manifest.json'
 }
-function mutationMayHaveApplied(error:unknown):Error{
-  return Object.assign(new Error(error instanceof Error?error.message:String(error),{cause:error}),{fileResourceMutationMayHaveApplied:true})
-}
-
 /** Bind one fully identified page/file query to the formal file table in its DataSet. */
 export function createPageFileResourceView(input:Readonly<{
   dataSet:DataSet
@@ -175,7 +172,7 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       const text=await io.readVersion({appId,customPath:`${appId}/${filePage}`,fileName,version:numeric});if(text===null)throw new Error('FILE_RESOURCE_VERSION_MISSING: 历史文件不存在');return text},
     create:async(resource,text,onAttempt)=>{const {pageId:filePage,fileName}=knownPageFileResourceIdentity(resource),customPath=`${appId}/${filePage}`
       const versions=await io.listVersions({appId,customPath,fileName});assertCurrent()
-      const version=Math.max(0,...versions.map(item=>item.version))+1,versionedFileName=`${version}__${fileName}`
+      const version=Math.max(0,...versions.map(item=>item.version))+1,versionedFileName=formatFileSnapshotName(version,fileName)
       if(!Number.isSafeInteger(version)||version<1||versions.some(item=>item.version===version&&item.fileName===versionedFileName))throw new Error('FILE_RESOURCE_VERSION: 快照版本无效或冲突')
       onAttempt({version,fileName:versionedFileName});assertCurrent()
       try{await io.uploadVersion({appId,customPath,fileName,version,text})}catch(error){
@@ -187,7 +184,7 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       assertCurrent();const [after,readback]=await Promise.all([io.listVersions({appId,customPath,fileName}),io.readVersion({appId,customPath,fileName,version})]);assertCurrent()
       if(!after.some(item=>item.version===version&&item.fileName===versionedFileName)||readback!==text)throw new Error(`FILE_RESOURCE_VERSION_UNCONFIRMED: ${versionedFileName} 目录或原文回读不一致`)},
     verify:async(resource,attempt,text)=>{const {pageId:filePage,fileName}=knownPageFileResourceIdentity(resource),customPath=`${appId}/${filePage}`,version=Number(attempt.version)
-      if(!Number.isSafeInteger(version)||version<1||attempt.fileName!==`${version}__${fileName}`)return false
+      if(!Number.isSafeInteger(version)||version<1||attempt.fileName!==formatFileSnapshotName(version,fileName))return false
       const [versions,readback]=await Promise.all([io.listVersions({appId,customPath,fileName}),io.readVersion({appId,customPath,fileName,version})])
       return versions.some(item=>item.version===version&&item.fileName===attempt.fileName)&&readback===text},
   }
@@ -202,7 +199,7 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
         const customPath = `${appId}/${filePage}`
         text = await io.readVersion({appId, customPath, fileName, version})
         assertCurrent()
-        if (text === null) throw new Error(`FILE_RESOURCE_VERSION_MISSING: 发布快照 ${customPath}/${version}__${fileName} 不存在`)
+        if (text === null) throw new Error(`FILE_RESOURCE_VERSION_MISSING: 发布快照 ${customPath}/${formatFileSnapshotName(version,fileName)} 不存在`)
       } else {
         text = await io.read(appId, filePage, fileName)
         assertCurrent()
@@ -225,29 +222,28 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       const localDirty=toolFileName!==undefined&&page?.getDirtyFileNames().includes(toolFileName)===true
       if(input.rejectLocalDirty&&localDirty)throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑')
       await io.upload({appId,pageId:filePage,fileName,text,...(baseline === null ? {} : {replace:true as const})})
-      try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}
+      try{assertCurrent()}catch(error){throw markFileMutationMayHaveApplied(error)}
       if(input.rejectLocalDirty&&toolFileName!==undefined
         &&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(toolFileName)!==localText
-        ||page?.getDirtyFileNames().includes(toolFileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},
+        ||page?.getDirtyFileNames().includes(toolFileName)))throw markFileMutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件保存期间本地内容已变化'))},
     retryEquivalentWrite:async({target:resource,text,baseline:_baseline})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_RETRY_SCOPE: 仅工作文件替换允许同内容补偿')
       const page=workspace?.project.findPageTool(filePage),localText=page?.getFileText(fileName)
       const localDirty=page?.getDirtyFileNames().includes(fileName)===true
       if(input.rejectLocalDirty&&localDirty)throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑')
       await io.upload({appId,pageId:filePage,fileName,text,replace:true})
-      try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}
+      try{assertCurrent()}catch(error){throw markFileMutationMayHaveApplied(error)}
       if(input.rejectLocalDirty&&(workspace?.project.findPageTool(filePage)!==page||page?.getFileText(fileName)!==localText
-        ||page?.getDirtyFileNames().includes(fileName)))throw mutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件补偿期间本地内容已变化'))},
+        ||page?.getDirtyFileNames().includes(fileName)))throw markFileMutationMayHaveApplied(new Error('PAGE_TOOL_CONFLICT: 工具文件补偿期间本地内容已变化'))},
     remove:async({target:resource})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       await io.remove(appId,filePage,fileName)
-      try{assertCurrent()}catch(error){throw mutationMayHaveApplied(error)}},
+      try{assertCurrent()}catch(error){throw markFileMutationMayHaveApplied(error)}},
     onWriteConfirmed:(resource,text,baseline)=>{const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')return
       const page=workspace?.project.findPageTool(filePage),previousLocal=baseline?.fields?.['localText']
       if(page&&typeof previousLocal==='string'&&page.getFileText(fileName)===previousLocal)page.hydrateFileText(fileName,text)
       workspace?.notifyPageFileChanged(filePage,fileName)},
-    isUnknown:error=>isRequestError(error)&&error.response===undefined
-      ||typeof error==='object'&&error!==null&&('fileResourceWriteMayHaveApplied'in error||'fileResourceMutationMayHaveApplied'in error),
+    isUnknown:isFileMutationUnconfirmed,
     ...(input.history===false?{}:{history}),
   }
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1519,
+  "scannedFileCount": 1521,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -9032,6 +9032,7 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PickActionTextInput",
+          "ActionTargetRows",
           "ActionNotifier",
           "ConfirmationInput",
           "ResolvedActionDataCapabilities",
@@ -9497,6 +9498,19 @@
           "PrimaryKeyGeneratorConfig",
           "PrimaryKeyGenerator"
         ]
+      }
+    },
+    "packages/spark-data/src/core/save-recovery-evidence.ts": {
+      "file": "files/packages/spark-data/src/core/save-recovery-evidence.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:core/save-recovery-evidence",
+        "sourcePath": "packages/spark-data/src/core/save-recovery-evidence.ts",
+        "sourceFile": "packages/spark-data/src/core/save-recovery-evidence.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "core/save-recovery-evidence",
+        "jsdoc": "@spark-appworks/spark-data 的 core/save-recovery-evidence 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
       }
     },
     "packages/spark-data/src/core/tree-field.ts": {
@@ -12549,6 +12563,19 @@
         "symbols": []
       }
     },
+    "src/platform-adapters/api/design/file-mutation-state.ts": {
+      "file": "files/src/platform-adapters/api/design/file-mutation-state.ts.json",
+      "module": {
+        "name": "app:platform-adapters/api/design/file-mutation-state",
+        "sourcePath": "src/platform-adapters/api/design/file-mutation-state.ts",
+        "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
+        "packageName": "app",
+        "modulePath": "platform-adapters/api/design/file-mutation-state",
+        "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
     "src/platform-adapters/api/design/lowcode-design-api.ts": {
       "file": "files/src/platform-adapters/api/design/lowcode-design-api.ts.json",
       "module": {
@@ -12598,7 +12625,9 @@
         "modulePath": "platform-adapters/api/design/lowcode-file-identity",
         "jsdoc": "@module @/platform-adapters/api:design/lowcode-file-identity\n职责：保留正式文件 basename 和目录身份，拒绝已证实无法精确定位的内容请求。\n边界：不改写路径，不补后端 normalizePath 的含点目录缺口。\nAI用途：读、删及依赖回读的上传在派发前使用同一定位校验。",
         "jsdocSource": "source-file-jsdoc",
-        "symbols": []
+        "symbols": [
+          "FileSnapshotIdentity"
+        ]
       }
     },
     "src/platform-adapters/api/index.ts": {
@@ -23942,6 +23971,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "ActionTargetRows": {
+      "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
+      "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
+    },
     "ActionUiDecorator": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -27965,6 +27998,10 @@
     "FileResourceTransport": {
       "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
       "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
+    "FileSnapshotIdentity": {
+      "sourcePath": "src/platform-adapters/api/design/lowcode-file-identity.ts",
+      "file": "files/src/platform-adapters/api/design/lowcode-file-identity.ts.json"
     },
     "FilterBlueprintPlanningNodesOptions": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",

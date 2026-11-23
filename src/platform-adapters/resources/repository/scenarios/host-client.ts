@@ -7,6 +7,7 @@
 import {ScenarioViewVersionNotAppliedError, ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
 import {isNonnegativeSafeInteger, isRepositoryScenarioFailure, isRepositoryScenarioSuccess, REPOSITORY_SCENARIO_ENDPOINT, type RepositoryScenarioHistoryList, type RepositoryScenarioVersionSuccess} from './protocol'
 import type {SystemScenarioResource} from '@/registries/system-scenario-registry'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const REQUEST_TIMEOUT_MS = 30_000
 
@@ -81,7 +82,7 @@ export async function readRepositoryScenarioVersion(resource: Pick<SystemScenari
       {cache: 'no-store', credentials: 'same-origin', redirect: 'error', signal})
     const result = await readResponse(response)
     if (!response.ok || !isVersionSuccess(result) || result.resourceId !== resource.resourceId || result.scenarioId !== resource.scenarioId
-      || result.version !== version || result.fileName !== `${version}__pagedata.json`
+      || result.version !== version || result.fileName !== formatFileSnapshotName(version, 'pagedata.json')
       || !(await isValidRevision(result.text, result.sourceRevision))) {
       throw new Error('REPOSITORY_SCENARIO_HISTORY_READ_FAILED: 开发宿主未返回匹配的历史快照')
     }
@@ -109,7 +110,7 @@ export type CreateRepositoryScenarioVersionCommand = Readonly<{
 export async function createRepositoryScenarioVersion(command: CreateRepositoryScenarioVersionCommand): Promise<void> {
   const {resource, scope, version, text, expectedText, onAttempt} = command
   if (!Number.isSafeInteger(version) || version < 0 || !scope.trim()) throw new Error('REPOSITORY_SCENARIO_VERSION_INVALID: 历史attempt身份无效')
-  const fileName = `${version}__pagedata.json`
+  const fileName = formatFileSnapshotName(version, 'pagedata.json')
   onAttempt(Object.freeze({scenarioId: resource.scenarioId, resourceId: resource.resourceId, scope, version, fileName, text}))
   await withRequestDeadline(async signal => {
     const response = await fetch(REPOSITORY_SCENARIO_ENDPOINT, {method: 'POST', cache: 'no-store', credentials: 'same-origin', redirect: 'error',
@@ -156,13 +157,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {return type
 function isVersionSummary(value: unknown): value is RepositoryScenarioHistoryList['versions'][number] {
   if (!isRecord(value)) return false
   const version = value['version'], lastModified = value['lastModified']
-  return isNonnegativeSafeInteger(version) && value['fileName'] === `${version}__pagedata.json`
+  return isNonnegativeSafeInteger(version) && value['fileName'] === formatFileSnapshotName(version, 'pagedata.json')
     && (lastModified === null || typeof lastModified === 'number' && Number.isFinite(lastModified))
 }
 function isVersionSuccess(value: unknown): value is RepositoryScenarioVersionSuccess {
   if (!isRecord(value)) return false
   const version = value['version']
   return typeof value['resourceId'] === 'string' && typeof value['scenarioId'] === 'string'
-    && isNonnegativeSafeInteger(version) && value['fileName'] === `${version}__pagedata.json`
+    && isNonnegativeSafeInteger(version) && value['fileName'] === formatFileSnapshotName(version, 'pagedata.json')
     && typeof value['text'] === 'string' && typeof value['sourceRevision'] === 'string'
 }

@@ -38,6 +38,7 @@ import type {DataView, DataSet} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import { readRepositoryScenarioText } from '@/platform-adapters/resources/repository/scenarios/resource'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
@@ -441,7 +442,7 @@ export function useDevState() {
     }
     const versions=await sourceView.listSourceVersions()
     assertCurrent()
-    const versionedFileName=`${input.version}__${input.fileName}`
+    const versionedFileName=formatFileSnapshotName(input.version,input.fileName)
     if(!versions.some(item=>item.version===input.version&&item.label===versionedFileName))throw new Error('PAGE_TOOL_RESTORE_VERSION_MISSING: 目标版本不存在')
     const sourceText=await sourceView.previewSourceVersion(input.version)
     assertCurrent()

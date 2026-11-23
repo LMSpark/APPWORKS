@@ -100,6 +100,28 @@ describe('runtime data set plan', () => {
     dataSet.destroy()
   })
 
+  it('uses the same traversal for nested lowercase dependencies and static OR filters', () => {
+    const raw = JSON.parse(planText())
+    const child = raw['views'][1]
+    child['filter'] = JSON.stringify({logic: 'and', filters: [
+      {logic: 'and', filters: [
+        {field: 'parentId', Operator: 'equal', value: {Type: 'GetDependValue', DependKey: 'parentIds'}},
+        {logic: 'or', filters: [
+          {field: 'enabled', Operator: 'equal', value: 1},
+          {field: 'enabled', Operator: 'equal', value: 2},
+        ]},
+      ]},
+    ]})
+    const compiled = compileRuntimeDataSetPlan(parseRuntimeDataSetPlanFile(JSON.stringify(raw)))
+    expect(compiled.viewCascades).toHaveLength(1)
+    expect(compiled.metadata.tables['Child']?.views['V_CHILD']?.scopeFilter).toEqual({
+      logic: 'or', filters: [
+        {field: 'enabled', operator: 'eq', value: 1},
+        {field: 'enabled', operator: 'eq', value: 2},
+      ],
+    })
+  })
+
   it('builds the unchanged file contract from saved metadata rows and pagedata view definitions', () => {
     const text = buildRuntimeDataSetPlanText({
       scenarioId: 'SPACE',

@@ -12,6 +12,7 @@ import {
   type PageToolPublicationFileName,
 } from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 type Progress = 'pending' | 'confirmed'
 type Snapshot = Readonly<{version: number; state: Progress}>
@@ -115,7 +116,7 @@ export async function createPageToolPublicationManifest(input: Readonly<{
     scenarios.add(source.scenarioId)
     scenarioIds.push(source.scenarioId)
     pagedata.push(Object.freeze({
-      scenarioId: source.scenarioId, version: source.version, fileName: `${source.version}__pagedata.json`,
+      scenarioId: source.scenarioId, version: source.version, fileName: formatFileSnapshotName(source.version, 'pagedata.json'),
       sourceRevision: source.sourceRevision, sha256: await sha256(source.text), text: source.text,
     }))
   }
@@ -195,7 +196,8 @@ export async function parsePageToolPublicationManifest(text: string): Promise<Pa
     const pagedata: PageToolPublicationPagedataSnapshot[] = []
     for (const item of value['pagedata']) {
       if (!isRecord(item) || !identity(item['scenarioId']) || typeof item['version'] !== 'number'
-        || !Number.isSafeInteger(item['version']) || item['version'] < 0 || item['fileName'] !== `${item['version']}__pagedata.json`
+        || !Number.isSafeInteger(item['version']) || item['version'] < 0
+        || item['fileName'] !== formatFileSnapshotName(item['version'], 'pagedata.json')
         || !digestPattern.test(String(item['sha256'])) || !identity(item['sourceRevision']) || typeof item['text'] !== 'string'
         || pagedata.some(snapshot => snapshot.scenarioId === item['scenarioId']) || !scenarioIds.includes(item['scenarioId'])) {
         throw Error('发布 manifest pagedata 快照无效')
@@ -322,7 +324,7 @@ export class PageToolPublication {
     const {intent, fileView, fileName, text, assertTarget} = input
     let snapshot = intent.snapshots[fileName]
     if (snapshot) {
-      const versionName = `${snapshot.version}__${fileName}`
+      const versionName = formatFileSnapshotName(snapshot.version, fileName)
       if (snapshot.state === 'pending') {
         const versions = await fileView.listSourceVersions()
         assertTarget()
@@ -351,7 +353,7 @@ export class PageToolPublication {
       let capturedVersion: number | undefined
       const history=await fileView.createSourceVersion(attempt=>{
         if (typeof attempt.version !== 'number' || !Number.isSafeInteger(attempt.version) || attempt.version < 1
-          || attempt.fileName !== `${attempt.version}__${fileName}`) throw new Error('原快照版本身份无效')
+          || attempt.fileName !== formatFileSnapshotName(attempt.version, fileName)) throw new Error('原快照版本身份无效')
         capturedVersion = attempt.version
         intent.snapshots[fileName] = {version: attempt.version, state: 'pending'}
         this.write(intent)
@@ -367,7 +369,8 @@ export class PageToolPublication {
         throw error
       })
       if(history.state!=='confirmed'||typeof history.version!=='number'||!Number.isSafeInteger(history.version)||history.version<1
-        || history.fileName!==`${history.version}__${fileName}` || (capturedVersion !== undefined && capturedVersion !== history.version)) {
+        || history.fileName!==formatFileSnapshotName(history.version,fileName)
+        || (capturedVersion !== undefined && capturedVersion !== history.version)) {
         throw new Error(`${fileName} 文件 DataView 未确认快照回执`)
       }
       if (capturedVersion === undefined && await fileView.previewSourceVersion(history.version) !== text) {
@@ -399,7 +402,7 @@ export class PageToolPublication {
       if (snapshot.text !== text || snapshot.sourceRevision !== sourceRevision || snapshot.sha256 !== await sha256(text)) {
         throw Error(`${scenarioId} 原场景快照与本次发布内容不符`)
       }
-      const versionName = `${snapshot.version}__pagedata.json`
+      const versionName = formatFileSnapshotName(snapshot.version, 'pagedata.json')
       if (snapshot.state === 'pending') {
         const versions = await fileView.listSourceVersions()
         assertTarget()
@@ -427,7 +430,7 @@ export class PageToolPublication {
       let capturedVersion: number | undefined
       const history = await fileView.createSourceVersion(attempt => {
         if (typeof attempt.version !== 'number' || !Number.isSafeInteger(attempt.version) || attempt.version < 0
-          || attempt.fileName !== `${attempt.version}__pagedata.json`) throw new Error('场景原快照版本身份无效')
+          || attempt.fileName !== formatFileSnapshotName(attempt.version, 'pagedata.json')) throw new Error('场景原快照版本身份无效')
         capturedVersion = attempt.version
         intent.scenarioSnapshots[scenarioId] = {version: attempt.version, state: 'pending',
           sha256: shaValue, sourceRevision, text}
@@ -444,7 +447,7 @@ export class PageToolPublication {
         throw error
       })
       if (history.state !== 'confirmed' || typeof history.version !== 'number' || !Number.isSafeInteger(history.version)
-        || history.version < 0 || history.fileName !== `${history.version}__pagedata.json`
+        || history.version < 0 || history.fileName !== formatFileSnapshotName(history.version, 'pagedata.json')
         || (capturedVersion !== undefined && capturedVersion !== history.version)) {
         throw new Error(`${scenarioId} 场景 DataView 未确认快照回执`)
       }

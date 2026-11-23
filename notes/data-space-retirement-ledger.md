@@ -2,6 +2,14 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-23 同义重复逻辑按语义单点收敛
+
+- **本轮 SSOT：**`appendRevokeDisabled` 展示列删除后，workflow 撤回资格统一由 `canRevokeFlowAppendRecord` 判断；标准 action 的 permission 与 execution 共同使用 `resolveActionTargetRows`；Runtime Plan filter 的静态过滤树与 dependency conditions 由 `convertFilterNode` 单遍递归产出。
+- **SPARK data 装配与恢复收口：**pagedata 与 Runtime Plan 的 formal model 共同经 `bindFormalModel` 绑定数组 owner；`DataView` 与 formal query owner 共用 `save-recovery-evidence` 的 canonical value/FNV evidence，但保留各自 row capture、baseline 与权限边界。
+- **文件链收口：**平台运行文件读取统一走 `readScopedRuntimeFile`；Runtime Plan 与 PageToolFile transport 共同使用 file mutation unknown marker；`N__filename` 的格式与解析统一走 `lowcode-file-identity`，覆盖目录历史、快照创建/验证、发布 proof、开发宿主及恢复 UI。
+- **明确不合并：**普通 working 文件、repository scenario Plan、PageTool publication receipt 及 file source history 的 owner/unknown/recovery 语义不同，只抽取身份、scope guard 或 evidence 编码，不合并保存旅程，也不引入自动重试。
+- **验证：**snapshot codec 定向 4 文件 118/118，workflow/action/Plan/filter/assembler/save/read/mutation 定向回归持续通过；根测试 774 文件 12,298 项、workspace 包测试 155 文件 2,449 项、root typecheck、lint、`verify:rules`、ClassModel/consumer ledger 生成及生产 build 均通过。初次全仓并发仅在 15.8 秒时长的既有 data-space 长链用例超时，未放宽业务超时，单独复跑 26/26；随后限制为 4 workers 的完整复跑全绿。
+
 ### 2026-11-23 D3 独立 Dataset Plan 保存直出
 
 - **参考与源码事实：**参考仓 `data-set-design-state.ts` 在 metadata/布局保存后显式调用 `saveDataSetRuntimePlanFile`，Plan 文件形态为 `DataSet/<scenarioId>.dataset.json`；实际并非后端 Base_DataModel CRUD 自动生成。正式资源不是只有数据库表，现有 Type 映射覆盖数据库表/数据库视图/逻辑视图/字典/接口/JSON/文件/数组；pagedata 的 page-local file/command owner 不等于正式模型。

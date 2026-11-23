@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-23 同义重复逻辑语义收敛
+
+- **复杂度**：复杂；横跨 workflow 展示/命令、标准 action、Runtime Plan、formal owner、SPARK data recovery、文件 IO 与页面历史恢复。
+- **验证**：snapshot codec 定向 4 文件 118/118；根测试 774 文件 12,298 项、workspace 包测试 155 文件 2,449 项；root `typecheck`、lint、`verify:rules`、ClassModel/consumer ledger 生成与生产 build 通过。
+- **返工**：快照 codec 首次 import patch 因上下文不匹配未应用，改为当前 import 读取后分域切换；lint 发现 save recovery 共享后的未使用 import 并清理；首轮全仓并发在既有长链用例 15.8 秒超时后停止，未改业务超时，单测与 4-worker 全量复跑均通过。
+- **30 天存活**：待 2026-12-23 回查；重点确认未再出现 snapshot 命名模板、双 filter walker、重复 target resolver、revoke predicate 计算列及 save evidence 编码。
+- **人工干预**：用户要求循环推进并提交推送；未修改、启动或部署 Java，未创建额外 worktree，写入仍仅走 SPARK data。
+
 ### 2026-11-21 SmartBid Page06 unknown 文件恢复
 
 - **复杂度**：复杂；跨 spark-data source lifecycle、FileResource transport、lowcode upload 分类及页面编辑器恢复 UX。

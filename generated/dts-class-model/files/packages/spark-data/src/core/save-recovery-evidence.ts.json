@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:core/save-recovery-evidence",
+    "sourcePath": "packages/spark-data/src/core/save-recovery-evidence.ts",
+    "sourceFile": "packages/spark-data/src/core/save-recovery-evidence.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "core/save-recovery-evidence",
+    "jsdoc": "@spark-appworks/spark-data 的 core/save-recovery-evidence 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T19:04:47.991Z",
+  "models": {}
+}

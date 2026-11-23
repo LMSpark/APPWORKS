@@ -39,6 +39,7 @@
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import type {DataView, DataViewSourceHistoryStatus, DataViewSourceVersion} from '@spark-appworks/spark-data'
 import {DATA_SOURCE, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const props = defineProps<{
   open: boolean
@@ -61,7 +62,8 @@ const previewVersion = ref<string | number | null>(null)
 const status = ref<DataViewSourceHistoryStatus>({state: 'idle', version: null, fileName: null, message: null})
 const busy = ref(false), error = ref(''), message = ref('')
 let generation = 0, alive = true
-const previewLabel = computed(() => previewVersion.value === null ? '' : `${previewVersion.value}__pagedata.json`)
+const previewLabel = computed(() => previewVersion.value === null ? ''
+  : formatFileSnapshotName(Number(previewVersion.value), 'pagedata.json'))
 
 watch(() => [props.open, props.view] as const, ([open]) => {if (open) void load()}, {immediate: true})
 onBeforeUnmount(() => {alive = false; generation++; sparkRemove(DATA_SOURCE); if (busy.value) emit('pending', false)})

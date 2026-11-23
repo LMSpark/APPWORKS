@@ -133,7 +133,6 @@
               "label": "撤回",
               "link": true,
               "buttonType": "primary",
-              "disabled": "$[appendRevokeDisabled]",
               "onClick": "runRevokeAppend"
             }
           }

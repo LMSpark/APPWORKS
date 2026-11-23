@@ -15,8 +15,8 @@ import {
   type FileResourceTransport,
 } from '@spark-appworks/spark-data'
 import { LowcodeApiError } from '@/platform-adapters/api'
-import {isRecord, isRequestError} from '@spark-appworks/spark-utils'
 import {lowcodeApi, lowcodeDesignFileUpload} from '@/platform-adapters/lowcode-runtime'
+import {isFileMutationUnconfirmed, markFileMutationMayHaveApplied} from '@/platform-adapters/api/design/file-mutation-state'
 
 export const RUNTIME_DATA_SET_PLAN_FILE_TABLE = 'RuntimeDataSetPlanFile'
 const RESOURCE_ID = 'spark.runtimeDataSetPlan.file'
@@ -55,12 +55,10 @@ function transport(input: PublishRuntimeDataSetPlanInput): FileResourceTransport
       input.assertCurrent()
       await lowcodeDesignFileUpload.uploadWorkingText({...locator, text})
       try {input.assertCurrent()} catch (error) {
-        throw Object.assign(new Error(error instanceof Error ? error.message : String(error), {cause: error}),
-          {fileResourceMutationMayHaveApplied: true})
+        throw markFileMutationMayHaveApplied(error)
       }
     },
-    isUnknown: error => isRequestError(error) && error.response === undefined
-      || isRecord(error) && ('fileResourceMutationMayHaveApplied' in error || 'fileResourceWriteMayHaveApplied' in error),
+    isUnknown: isFileMutationUnconfirmed,
   }
 }
 

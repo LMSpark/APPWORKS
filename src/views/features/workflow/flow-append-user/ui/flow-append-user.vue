@@ -115,7 +115,6 @@ const listConfig = computed<SparkNode>(() => {
     props: {...listRule.props, dataViewKey: listViewKey.value, actions: {children: [{
       ...revokeButton,
       props: {...revokeButton.props,
-        disabled: revokeButton.props?.['disabled'],
         onBeforeRender: ({row}: {row?: DataRow | null}) => ({
           disabled: revokeDisabled() || !row || !canRevokeFlowAppendRecord({
             STATUS: row['STATUS'], StepState: row['StepState'],

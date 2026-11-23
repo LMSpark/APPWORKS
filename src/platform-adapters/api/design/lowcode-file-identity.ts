@@ -6,6 +6,26 @@
  */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
+export type FileSnapshotIdentity = Readonly<{version: number; fileName: string; snapshotFileName: string}>
+
+export function formatFileSnapshotName(version: number, fileName: string): string {
+  if (!Number.isSafeInteger(version) || version < 0) throw new LowcodeApiError(0, '快照编号必须是非负安全整数')
+  return `${version}__${exactFileName(fileName)}`
+}
+
+export function parseFileSnapshotName(value: unknown, expectedFileName?: string): FileSnapshotIdentity | undefined {
+  if (typeof value !== 'string') return undefined
+  const separator = value.indexOf('__')
+  if (separator < 1) return undefined
+  const prefix = value.slice(0, separator), fileName = value.slice(separator + 2)
+  if (expectedFileName !== undefined && fileName !== exactFileName(expectedFileName)) return undefined
+  if (!/^(0|[1-9]\d*)$/.test(prefix)) return undefined
+  const version = Number(prefix)
+  if (!Number.isSafeInteger(version)) throw new LowcodeApiError(0, `快照编号超出安全范围：${value}`)
+  exactFileName(fileName)
+  return {version, fileName, snapshotFileName: value}
+}
+
 /** 原样返回单个 basename；目录列表和内容定位共享，空白是名称的一部分。 */
 export function exactFileName(value: unknown): string {
   if (typeof value !== 'string' || value.length === 0 || value === '.' || value === '..' || /[\\/\u0000]/.test(value)) {

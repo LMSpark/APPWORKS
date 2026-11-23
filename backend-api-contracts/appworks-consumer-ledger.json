@@ -883,7 +883,7 @@
     {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-api.ts",
-      "sourceLine": 264,
+      "sourceLine": 261,
       "scope": "app-composition"
     },
     {

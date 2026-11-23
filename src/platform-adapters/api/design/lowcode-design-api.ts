@@ -8,7 +8,7 @@ import { isRecord, isRequestError, type HttpClientBase } from '@spark-appworks/s
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
-import { exactFileContentPath, exactFileDirectoryPath, exactFileName } from './lowcode-file-identity.js'
+import { exactFileContentPath, exactFileDirectoryPath, exactFileName, parseFileSnapshotName } from './lowcode-file-identity.js'
 import type { DataSpaceRequestScope } from '@spark-appworks/spark-data'
 
 /** 实际 HTTP 通道与请求身份读取器；token 变化使迟到响应失效。 */
@@ -242,12 +242,9 @@ export class LowcodeDesignApi {
     const entries = await this.listFiles({ appType: locator.appType, folderPath: locator.customPath })
     const versions: LowcodeFileVersionSummary[] = []
     for (const entry of entries) {
-      const separator = entry.name.indexOf('__')
-      if (separator < 1 || entry.name.slice(separator + 2) !== fileName) continue
-      const prefix = entry.name.slice(0, separator)
-      if (!/^(0|[1-9]\d*)$/.test(prefix)) continue
-      const version = Number(prefix)
-      if (!Number.isSafeInteger(version)) throw new LowcodeApiError(0, `快照编号超出安全范围：${entry.name}`)
+      const snapshot = parseFileSnapshotName(entry.name, fileName)
+      if (!snapshot) continue
+      const {version} = snapshot
       if (versions.some(item => item.version === version)) throw new LowcodeApiError(0, `快照文件重复：${entry.name}`)
       versions.push({ version, fileName: entry.name, lastModified: entry.lastModified })
     }

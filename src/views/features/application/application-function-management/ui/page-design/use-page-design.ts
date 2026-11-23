@@ -27,6 +27,7 @@ import {
 import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
 import { lowcodeApi, readLowcodeRuntimeDatasetPlan } from '@/platform-adapters/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
+import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
 const DELIVERY_FILES = PAGE_TOOL_FILE_NAMES
@@ -474,7 +475,7 @@ export function usePageDesign(state: DevState) {
         const version = await journal.snapshot({intent, fileView, fileName, text, assertTarget,
           onAttempt: name => attemptedSnapshots.push(name)})
         assertTarget()
-        written.push(`${version}__${fileName}`)
+        written.push(formatFileSnapshotName(version,fileName))
         fileSources.push({fileName, version, text})
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
         versions = Object.freeze({ ...versions, [pageToolPublicationVersionKey(fileName)]: version })
@@ -489,7 +490,7 @@ export function usePageDesign(state: DevState) {
             onAttempt: name => attemptedSnapshots.push(`${source.scenarioId}/${name}`),
           })
           pagedataSources.push(snapshot)
-          written.push(`${source.scenarioId}/${snapshot.version}__pagedata.json`)
+          written.push(`${source.scenarioId}/${formatFileSnapshotName(snapshot.version,'pagedata.json')}`)
         }
       }
       assertTarget()

@@ -117,7 +117,6 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
       return
     }
     const buttons = wrapper.findAll('button').filter(button => button.text() === '撤回')
-    expect(list.rows.map(row => row['appendRevokeDisabled'])).toEqual([false, true])
     expect(buttons).toHaveLength(2)
     expect(buttons[0]!.attributes('disabled')).toBeUndefined(); expect(buttons[1]!.attributes('disabled')).toBeDefined()
     if (outcome.startsWith('add-')) {

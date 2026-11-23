@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/design/file-mutation-state",
+    "sourcePath": "src/platform-adapters/api/design/file-mutation-state.ts",
+    "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/design/file-mutation-state",
+    "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T19:11:19.195Z",
+  "models": {}
+}

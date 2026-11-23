@@ -92,7 +92,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.665Z",
+  "generatedAt": "2026-11-23T19:18:29.721Z",
   "models": {
     "CreateRepositoryScenarioVersionCommand": {
       "name": "CreateRepositoryScenarioVersionCommand",

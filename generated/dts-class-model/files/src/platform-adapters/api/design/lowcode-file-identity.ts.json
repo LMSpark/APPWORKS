@@ -9,9 +9,69 @@
     "modulePath": "platform-adapters/api/design/lowcode-file-identity",
     "jsdoc": "@module @/platform-adapters/api:design/lowcode-file-identity\n职责：保留正式文件 basename 和目录身份，拒绝已证实无法精确定位的内容请求。\n边界：不改写路径，不补后端 normalizePath 的含点目录缺口。\nAI用途：读、删及依赖回读的上传在派发前使用同一定位校验。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "FileSnapshotIdentity"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-11-23T08:03:44.293Z",
-  "models": {}
+  "$defs": {
+    "FileSnapshotIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileSnapshotIdentity",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "snapshotFileName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "fileName",
+        "snapshotFileName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T19:16:04.874Z",
+  "models": {
+    "FileSnapshotIdentity": {
+      "name": "FileSnapshotIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: number;\n    fileName: string;\n    snapshotFileName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: number;\n    fileName: string;\n    snapshotFileName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "snapshotFileName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
 }

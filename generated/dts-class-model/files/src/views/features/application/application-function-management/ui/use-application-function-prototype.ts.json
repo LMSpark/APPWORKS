@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@308875": {
+            "__@RefSymbol@308913": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@308875"
+            "__@RefSymbol@308913"
           ],
           "additionalProperties": false
         },
@@ -44,13 +44,13 @@
                 true
               ]
             },
-            "__@RefSymbol@308875": {
+            "__@RefSymbol@308913": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@308875"
+            "__@RefSymbol@308913"
           ],
           "additionalProperties": false
         },
@@ -60,13 +60,13 @@
             "value": {
               "type": "number"
             },
-            "__@RefSymbol@308875": {
+            "__@RefSymbol@308913": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@308875"
+            "__@RefSymbol@308913"
           ],
           "additionalProperties": false
         },

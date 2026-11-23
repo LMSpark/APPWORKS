@@ -17,6 +17,22 @@
       "type": "object",
       "title": "TableMetadataLike",
       "properties": {
+        "api": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
         "columns": {
           "type": "array",
           "items": {
@@ -238,7 +254,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@304320": {
+                "__@iterator@304379": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -293,7 +309,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@304320"
+                "__@iterator@304379"
               ],
               "additionalProperties": false
             },
@@ -523,7 +539,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@304320": {
+                "__@iterator@304379": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -578,7 +594,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@304320"
+                "__@iterator@304379"
               ],
               "additionalProperties": false
             },
@@ -592,22 +608,6 @@
               "const": "reference"
             }
           ]
-        },
-        "api": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "types.ts.json#/$defs/CrudApi"
-            }
-          ]
-        },
-        "crudConfig": {
-          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
         },
         "tableName": {
           "type": "string"

@@ -2709,17 +2709,17 @@
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
       "shardFile": "files/packages/spark-data/src/data-table.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.010Z"
+      "sourceModifiedAt": "2026-11-23T04:02:52.415Z"
     },
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-21T18:34:32.380Z"
+      "sourceModifiedAt": "2026-11-23T03:54:54.330Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
       "shardFile": "files/packages/spark-data/src/dataset-crud-tool.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.014Z"
+      "sourceModifiedAt": "2026-11-23T03:39:49.681Z"
     },
     "packages/spark-data/src/dataset-history.ts": {
       "sourceFile": "packages/spark-data/src/dataset-history.ts",
@@ -3209,7 +3209,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.236Z"
+      "sourceModifiedAt": "2026-11-23T03:40:57.597Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3904,7 +3904,7 @@
     "src/lowcode/data-space/lowcode-data-space-assembler.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json",
-      "sourceModifiedAt": "2026-11-22T19:32:08.867Z"
+      "sourceModifiedAt": "2026-11-23T04:05:44.660Z"
     },
     "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",

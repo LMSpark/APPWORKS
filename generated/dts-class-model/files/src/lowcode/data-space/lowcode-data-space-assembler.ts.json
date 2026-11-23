@@ -124,8 +124,7 @@
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "type": "object",
-            "title": "Executor"
+            "$ref": "../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
           }
         },
         "commandBindings": {
@@ -133,7 +132,7 @@
           "properties": {},
           "additionalProperties": {
             "type": "object",
-            "title": "(view: DataView) => BindCommandSubmitOptions"
+            "title": "(view: SparkData.DataView) => BindCommandSubmitOptions"
           }
         },
         "projectionBindings": {
@@ -141,7 +140,7 @@
           "properties": {},
           "additionalProperties": {
             "type": "object",
-            "title": "(view: DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]"
+            "title": "(view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]"
           }
         },
         "modelAdapters": {
@@ -262,7 +261,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-22T19:32:08.867Z",
+  "generatedAt": "2026-11-23T04:05:44.660Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -372,11 +371,11 @@
       "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -517,7 +516,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        plan: RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n    }"
+                        "name": "{\n        plan: SparkData.RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n    }"
                       }
                     ]
                   }

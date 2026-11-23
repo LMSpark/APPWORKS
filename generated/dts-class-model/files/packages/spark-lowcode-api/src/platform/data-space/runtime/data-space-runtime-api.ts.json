@@ -307,6 +307,23 @@
           "additionalProperties": false
         },
         "method.releaseQueryCache.return": true,
+        "method.bindModelTable.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../../../../spark-data/src/data-table.ts.json#/$defs/DataTable"
+            },
+            "model": {
+              "type": "object",
+              "title": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>"
+            },
+            "options": {
+              "$ref": "data-space-model-binding.ts.json#/$defs/DataSpaceModelBindingOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindModelTable.return": true,
         "method.bindModelView.params": {
           "type": "object",
           "properties": {
@@ -467,7 +484,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.236Z",
+  "generatedAt": "2026-11-23T03:40:57.597Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -773,8 +790,55 @@
               }
             },
             {
+              "name": "bindModelTable",
+              "jsdoc": "将正式模型及当前请求scope绑定到SparkData.DataTable；同表各派生视图复用同一owner adapter，结果和权限仍逐视图隔离。\n正式数组使用 DataTable 级 adapter factory，为后续新增视图生成各自的数组查询实例。",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkData.DataTable"
+                  }
+                },
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "Awaited",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ReturnType",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "DataSpaceDesignApi['readModel']"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceModelBindingOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "bindModelView",
-              "jsdoc": "将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。\n正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。",
+              "jsdoc": "单视图兼容入口；新装配与宿主应优先使用 bindModelTable，避免后续视图遗漏 owner adapter。",
               "parameters": [
                 {
                   "name": "view",

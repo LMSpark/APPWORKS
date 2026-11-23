@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 258,
-  "directUnmatchedCount": 123,
+  "consumerCount": 261,
+  "directUnmatchedCount": 126,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -392,6 +392,24 @@
       "expression": "/api/tree/nodes",
       "sourceFile": "packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts",
       "sourceLine": 8,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/nodes-v2",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts",
+      "sourceLine": 287,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/nodes-v2",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts",
+      "sourceLine": 288,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/nodes-v2",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts",
+      "sourceLine": 293,
       "scope": "tooling"
     },
     {

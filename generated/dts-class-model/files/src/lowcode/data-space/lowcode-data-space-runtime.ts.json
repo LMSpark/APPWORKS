@@ -36,8 +36,7 @@
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "type": "object",
-            "title": "Executor"
+            "$ref": "../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
           }
         },
         "projectionBindings": {

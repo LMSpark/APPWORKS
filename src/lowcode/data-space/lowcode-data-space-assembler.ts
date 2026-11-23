@@ -3,9 +3,9 @@
  * 职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。
  */
 import { DataSpaceDesignApi, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
-import * as SparkData from '@spark-appworks/spark-data'
+import type * as SparkData from '@spark-appworks/spark-data'
 import { DataSet, DataViewQuery, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, compileRuntimeDataSetPlan } from '@spark-appworks/spark-data'
-import type { BindCommandSubmitOptions, DataResourceRelation, DataViewFilterTree, RuntimeDataSetPlanFile } from '@spark-appworks/spark-data'
+import type { BindCommandSubmitOptions, DataResourceRelation } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
@@ -72,7 +72,7 @@ function validateRelationFields(relation: DataResourceRelation, dataSet: DataSet
    throw new Error(`resourceRelations ${relation.relationId} 字段引用不存在或端点不匹配: ${tableName}.${fieldName}`)
   }
  }
- const walk = (node: DataViewFilterTree): void => {
+ const walk = (node: SparkData.DataViewFilterTree): void => {
   if ('logic' in node) { node.filters.forEach(walk); return }
   field(node.field, relation.childTable, true)
   const value = node.value
@@ -237,7 +237,7 @@ export class LowcodeDataSpaceAssembler {
 
  /** Materialize the backend-owned independent Dataset Plan, then bind the verified formal model owners. */
  public assembleRuntimePlan(input: Readonly<{
-   plan: RuntimeDataSetPlanFile
+   plan: SparkData.RuntimeDataSetPlanFile
    space: FormalSpace
    models: readonly FormalModel[]
  }>): LowcodeDataSpaceAssembly {

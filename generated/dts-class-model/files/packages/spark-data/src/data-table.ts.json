@@ -20,6 +20,119 @@
     ]
   },
   "$defs": {
+    "DataTableQueryExecutor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableQueryExecutor",
+      "properties": {
+        "derivedQueries": {
+          "const": "bound-view-only"
+        },
+        "parentResults": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "localAggregates": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveIndependently": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "invalidateQueryCache": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "releaseQueryCache": {
+          "type": "object",
+          "title": "(page: object) => void"
+        },
+        "queryColumns": {
+          "type": "object",
+          "title": "(view: DataView) => readonly DataColumn[]"
+        },
+        "executeQuery": {
+          "type": "object",
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+        },
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; recovery?: Readonly<...>; }>[];..."
+        },
+        "hasUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+        },
+        "acknowledgeSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+        },
+        "refreshSavedRowPermissions": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+        },
+        "appendQueryResult": {
+          "type": "object",
+          "title": "(base: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>, addition: Readonly<...>) =..."
+        },
+        "abandonUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+        },
+        "source": {
+          "$ref": "query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+        }
+      },
+      "required": [
+        "executeQuery"
+      ],
+      "additionalProperties": false
+    },
+    "DataTableQueryBindingOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableQueryBindingOptions",
+      "properties": {
+        "resource": {
+          "$ref": "data-view.ts.json#/$defs/DataViewResourceIdentity"
+        }
+      },
+      "required": [
+        "resource"
+      ],
+      "additionalProperties": false
+    },
+    "DataTableExecutionConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableExecutionConfig",
+      "properties": {
+        "api": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        }
+      },
+      "additionalProperties": false
+    },
     "DataTableAddColumnsResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -304,6 +417,14 @@
           },
           "additionalProperties": false
         },
+        "method.captureExecutionConfig.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureExecutionConfig.return": {
+          "$ref": "#/$defs/DataTableExecutionConfig"
+        },
         "method.setQuerySaveRule.params": {
           "type": "object",
           "properties": {
@@ -395,6 +516,33 @@
           "additionalProperties": false
         },
         "method.setCrudConfig.return": true,
+        "method.clearCrudConfig.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearCrudConfig.return": true,
+        "method.bindQueryExecutor.params": {
+          "type": "object",
+          "properties": {
+            "executor": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/DataTableQueryExecutor"
+                },
+                {
+                  "type": "object",
+                  "title": "DataTableQueryExecutorFactory"
+                }
+              ]
+            },
+            "options": {
+              "$ref": "#/$defs/DataTableQueryBindingOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindQueryExecutor.return": true,
         "method.toJson.params": {
           "type": "object",
           "properties": {},
@@ -514,8 +662,157 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.010Z",
+  "generatedAt": "2026-11-23T04:02:52.415Z",
   "models": {
+    "DataTableQueryExecutor": {
+      "name": "DataTableQueryExecutor",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "derivedQueries",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResults",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "localAggregates",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveIndependently",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "invalidateQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "releaseQueryCache",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryColumns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executeQuery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "save",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "acknowledgeSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendQueryResult",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataTableQueryExecutorFactory": {
+      "name": "DataTableQueryExecutorFactory",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(view: DataView) => DataTableQueryExecutor",
+        "members": {}
+      }
+    },
+    "DataTableQueryBindingOptions": {
+      "name": "DataTableQueryBindingOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resource: NonNullable<Parameters<DataView['bindQueryExecutor']>[1]>['resource'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resource: NonNullable<Parameters<DataView['bindQueryExecutor']>[1]>['resource'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataTableExecutionConfig": {
+      "name": "DataTableExecutionConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Pick<TableMetadata, 'api' | 'crudConfig'>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Pick<TableMetadata, 'api' | 'crudConfig'>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
       "jsdoc": "DataTable.addColumns 的执行结果摘要。",
@@ -910,6 +1207,16 @@
           ],
           "methods": [
             {
+              "name": "captureExecutionConfig",
+              "jsdoc": "捕获本模型在当前查询或保存时使用的接口与策略；转换函数保留引用，嵌套 endpoint 配置独立复制。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataTableExecutionConfig",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
               "name": "setQuerySaveRule",
               "jsdoc": "注册或清除本实例的同步保存约束；原未知提交继续按原捕获核验，不执行新规则。",
               "parameters": [
@@ -1073,6 +1380,54 @@
                     "type": "reference",
                     "name": "CrudOperationConfig",
                     "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearCrudConfig",
+              "jsdoc": "清除模型级 CRUD 策略，并使所有视图的缓存执行适配回到当前表配置。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "bindQueryExecutor",
+              "jsdoc": "为当前 DataTable 绑定一次模型级 query/save owner adapter。\n各 DataView 仍持有独立查询结果、权限、编辑态与私有保存基线；新增命名视图自动继承同一适配器。",
+              "parameters": [
+                {
+                  "name": "executor",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataTableQueryExecutor",
+                        "sourcePath": "packages/spark-data/src/data-table.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "DataTableQueryExecutorFactory",
+                        "sourcePath": "packages/spark-data/src/data-table.ts"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTableQueryBindingOptions",
+                    "sourcePath": "packages/spark-data/src/data-table.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

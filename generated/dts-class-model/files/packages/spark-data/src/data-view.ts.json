@@ -1720,6 +1720,14 @@
           "additionalProperties": false
         },
         "method.bindQueryExecutor.return": true,
+        "method.hasQueryExecutorBinding.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasQueryExecutorBinding.return": {
+          "type": "boolean"
+        },
         "method.createQueryView.params": {
           "type": "object",
           "properties": {
@@ -3259,6 +3267,12 @@
           "type": "object",
           "title": "Promise<NestedTreeSearchResult[]>"
         },
+        "method.onDataTableExecutionConfigChanged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDataTableExecutionConfigChanged.return": true,
         "method.setPage.params": {
           "type": "object",
           "properties": {
@@ -3426,7 +3440,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-21T18:34:32.380Z",
+  "generatedAt": "2026-11-23T03:54:54.330Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5725,6 +5739,15 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "hasQueryExecutorBinding",
+              "jsdoc": "当前视图是否已由 DataTable owner adapter 装配；派生视图不得重复改绑到源视图的实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {
@@ -8452,6 +8475,15 @@
                     }
                   }
                 ]
+              }
+            },
+            {
+              "name": "onDataTableExecutionConfigChanged",
+              "jsdoc": "DataTable 接口或 CRUD 策略变化时，仅失效依赖表契约的执行缓存，不改变 owner、查询基线、权限或 unknown 捕获。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

@@ -436,8 +436,9 @@ export class DataTable {
 
   private resolveQueryExecutor(
     view: DataView,
-    binding: DataTableQueryExecutor | DataTableQueryExecutorFactory = this._queryBinding!.executor,
+    binding: DataTableQueryExecutor | DataTableQueryExecutorFactory | undefined = this._queryBinding?.executor,
   ): DataTableQueryExecutor {
+    if (binding === undefined) throw new Error('DATA_TABLE_QUERY_BINDING: DataTable 尚未绑定 owner adapter')
     return typeof binding === 'function' ? binding(view) : binding
   }
 

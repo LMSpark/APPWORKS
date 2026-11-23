@@ -20,14 +20,13 @@ function dateInput(raw:string,now:Date):InitializationDate {
 }
 /** @param options 当前已核设计、原查询owner及日期时钟。 @returns 可绑定标准日期字段的输入合同。 */
 export async function resolveCodeInitializationDate(options:Options):Promise<InitializationDate>{
-  const {dataSet,runtime,plan}=options,path=new Set<string>(),resolved=new Set<string>()
+  const {dataSet,plan}=options,path=new Set<string>(),resolved=new Set<string>()
   const guard=()=>{if(getCodeInitializationPlan(dataSet).signature!==plan.signature)throw new Error('编码初始化日期目标已改变')}
   const source=(tableName:string):DataView=>{
     const base=dataSet.getView(tableName);if(!base?.dataTable)throw new Error('初始化父编码视图缺失')
     const existing=base.dataTable.getView('initializationDateSource');if(existing)return existing
     const view=base.dataTable.getOrCreateView('initializationDateSource');view.primaryKey=base.primaryKey
     view.configure({autoLoad:false,queryConfig:{...base.queryConfig,allPages:true},fieldProjection:base.fieldProjection})
-    view.bindQueryExecutor({localAggregates:false,executeQuery:(current,params)=>runtime.executeQuery(current,params)})
     return view
   }
   const find=async(codeId:string,nodes:readonly InitializationNode[]):Promise<string>=>{

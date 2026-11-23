@@ -8,7 +8,7 @@ const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvid
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/features/application/application-function-management/ui/page-design/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
-    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: computed(() => (state as typeof state & {restoredText?: ReturnType<typeof ref<string>>}).restoredText?.value ?? fixture.text),
+    isDirty: state.dirty, isUnconfirmed: ref(false), retryableUnconfirmed: ref(false), isReady: ref(true), text: computed(() => (state as typeof state & {restoredText?: ReturnType<typeof ref<string>>}).restoredText?.value ?? fixture.text),
     isFileDirty: () => state.dirty.value, save: fixture.save, refresh: fixture.refresh,
   }),
 }))

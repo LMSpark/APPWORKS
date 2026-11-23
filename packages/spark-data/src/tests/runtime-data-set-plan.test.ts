@@ -184,8 +184,8 @@ describe('runtime data set plan', () => {
     expect(stableRuntimeDataSetPlanText(previous, generated, 'SPACE')).toBe(previous)
   })
 
-  it('rejects query semantics that reference Plan v1 cannot encode', () => {
-    expect(() => buildRuntimeDataSetPlan({
+  it('round-trips complete paging semantics through Plan v1', () => {
+    const plan = buildRuntimeDataSetPlan({
       scenarioId: 'SPACE',
       space: {rowid: 'SPACE', Name: 'Space'},
       models: [{rowid: 'MODEL', Name: 'Rows', MetaName: 'source_rows', Type: '数据库表'}],
@@ -193,9 +193,25 @@ describe('runtime data set plan', () => {
       relations: [],
       scenarioConfig: {scenarioId: 'SPACE', tables: {Rows: {
         modelBinding: {modelId: 'MODEL', modelName: 'Rows'},
-        views: {default: {queryConfig: {allPages: true}}},
+        views: {default: {page: 2, pageSize: 75, queryConfig: {pagination: 'paged', allPages: true}}},
       }}, resourceRelations: []},
-    })).toThrow('全量/非分页查询语义')
+    })
+    const parsed = parseRuntimeDataSetPlanFile(buildRuntimeDataSetPlanText({
+      scenarioId: 'SPACE',
+      space: {rowid: 'SPACE', Name: 'Space'},
+      models: [{rowid: 'MODEL', Name: 'Rows', MetaName: 'source_rows', Type: '数据库表'}],
+      fields: [],
+      relations: [],
+      scenarioConfig: {scenarioId: 'SPACE', tables: {Rows: {
+        modelBinding: {modelId: 'MODEL', modelName: 'Rows'},
+        views: {default: {page: 2, pageSize: 75, queryConfig: {pagination: 'paged', allPages: true}}},
+      }}, resourceRelations: []},
+    }), 'SPACE')
+    expect(plan.views[0]).toMatchObject({pagination: 'paged', allPages: true, page: 2, pageSize: 75})
+    expect(parsed.views[0]).toMatchObject({pagination: 'paged', allPages: true, page: 2, pageSize: 75})
+    expect(compileRuntimeDataSetPlan(parsed).metadata.tables['Rows']?.views['default']).toMatchObject({
+      page: 2, pageSize: 75, queryConfig: {pagination: 'paged', allPages: true},
+    })
   })
 
   it.each([

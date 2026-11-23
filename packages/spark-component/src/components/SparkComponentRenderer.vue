@@ -580,7 +580,12 @@ const effectiveNode = computed<SparkNode>(() => {
   if (!props) return node
   const row = resolveScopedRow({ rawProps: props, parentContext: parentCapabilityContext.value })
   const getRouteQuery = consumeSparkCapability(parentCapabilityContext.value, PAGE_ROUTE_QUERY)
-  const resolved = resolvePlaceholderProps(props, row, getRouteQuery?.())
+  const actions = node.type === 'r-table' ? props['actions'] : undefined
+  const resolvable = actions === undefined ? props : Object.fromEntries(
+    Object.entries(props).filter(([key]) => key !== 'actions'),
+  )
+  const resolvedProps = resolvePlaceholderProps(resolvable, row, getRouteQuery?.())
+  const resolved = actions === undefined ? resolvedProps : {...resolvedProps, actions}
   if (resolved === props) return node
   return { ...node, props: resolved }
 })

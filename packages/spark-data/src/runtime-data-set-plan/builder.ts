@@ -6,7 +6,9 @@
  */
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataViewFilterJsonValue} from '../query/filter/data-view-filter-contract'
+import type {DataViewFieldCascade} from '../types'
 import {parseRuntimeDataSetPlanFile} from './parser'
+import {DataViewFieldCascadeDefinition} from '../strategies/cascade/field-cascade-definition'
 import {
   RUNTIME_DATA_SET_PLAN_KIND,
   RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION,
@@ -210,9 +212,10 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
   const views: RuntimeDataSetPlanView[] = [], viewFields: RuntimeDataSetPlanViewField[] = []
   const viewIdentity = new Map<string, string>()
   for (const [tableName, rawTable] of Object.entries(configTables)) {
-    if (!isRecord(rawTable) || rawTable['resourceType'] === 'file' || rawTable['resourceType'] === 'command') continue
+    if (!isRecord(rawTable)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}: 表配置无效`)
     const binding = rawTable['modelBinding']
     const tableViews = rawTable['views']
+    if (binding === undefined) continue
     if (!isRecord(binding) || !isRecord(tableViews)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}: 模型绑定或视图无效`)
     const modelId = identity(binding['modelId'], `${tableName}.modelBinding.modelId`)
     if (!modelsById.has(modelId)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}: 正式模型不存在`)
@@ -231,7 +234,7 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       const dependentFilters: RuntimePlanFilter[] = []
       for (const [cascadeIndex, rawCascade] of cascades.entries()) {
         if (!isRecord(rawCascade)) continue
-        if (rawCascade['kind'] === 'field') throw new Error('RUNTIME_DATA_SET_PLAN_BUILD.viewCascades: field 级联不属于 Dataset Plan 合约')
+        if (rawCascade['kind'] === 'field') continue
         if (rawCascade['childTable'] !== tableName || rawCascade['childViewId'] !== viewId) continue
         const bindings = rawCascade['filterBindings']
         if (!Array.isArray(bindings)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: filterBindings 无效`)
@@ -261,9 +264,6 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       const allFilters = [...staticFilter ? [staticFilter] : [], ...dependentFilters]
       const filter = allFilters.length === 0 ? '' : JSON.stringify(allFilters.length === 1 ? allFilters[0] : {Type: 'And', Filters: allFilters})
       const queryConfig = isRecord(rawView['queryConfig']) ? rawView['queryConfig'] : {}
-      if (queryConfig['pagination'] === 'none' || queryConfig['allPages'] === true) {
-        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}.${viewId}: 参考 Plan 合约不保存全量/非分页查询语义`)
-      }
       const projection = Array.isArray(rawView['fieldProjection']) ? rawView['fieldProjection'].filter(isRecord) : []
       views.push({
         id: recordId, code: viewId, name: viewId, description: '',
@@ -272,6 +272,10 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
         parentField: text(isRecord(rawView['treeConfig']) ? rawView['treeConfig']['parentIdField'] : ''),
         hasChildField: text(isRecord(rawView['treeConfig']) ? rawView['treeConfig']['hasChildrenField'] : ''),
         selfType: '', topValue: '', cacheType: '',
+        pagination: queryConfig['pagination'] === 'none' ? 'none' : 'paged',
+        allPages: queryConfig['allPages'] === true,
+        page: typeof rawView['page'] === 'number' ? rawView['page'] : 1,
+        pageSize: typeof rawView['pageSize'] === 'number' ? rawView['pageSize'] : 20,
       })
       const projections: Array<{item: RuntimePlanRecord; matched: RuntimeDataSetPlanModelField; index: number}> =
         projection.length ? projection.map((item, projectionIndex) => {
@@ -311,7 +315,15 @@ export function buildRuntimeDataSetPlan(input: BuildRuntimeDataSetPlanInput): Ru
   if (input.space['rowid'] !== scenarioId) throw new Error('RUNTIME_DATA_SET_PLAN_BUILD.space: 目标空间身份不匹配')
   const models = input.models.map(planModel)
   const modelsById = new Map(models.map(model => [model.id, model]))
-  const modelsByTable = new Map(models.map(model => [model.metaName, model]))
+  const modelsByTable = new Map<string, RuntimeDataSetPlanModel>()
+  const configTables = input.scenarioConfig['tables']
+  if (isRecord(configTables)) {
+    for (const [tableName, table] of Object.entries(configTables)) {
+      if (!isRecord(table) || !isRecord(table['modelBinding'])) continue
+      const model = modelsById.get(text(table['modelBinding']['modelId']))
+      if (model) modelsByTable.set(tableName, model)
+    }
+  }
   const modelFields = input.fields.map(planModelField).filter((item): item is RuntimeDataSetPlanModelField => item !== null)
   const configRelations = input.scenarioConfig['resourceRelations']
   const relations = Array.isArray(configRelations)
@@ -321,12 +333,20 @@ export function buildRuntimeDataSetPlan(input: BuildRuntimeDataSetPlanInput): Ru
     })
     : input.relations.map((item, index) => formalRelation(item, index, modelsById))
   const {views, viewFields} = planViewsAndFields(input, modelsById, modelFields)
+  const fieldCascades: DataViewFieldCascade[] = []
+  const rawCascades = input.scenarioConfig['viewCascades']
+  if (rawCascades !== undefined) {
+    if (!Array.isArray(rawCascades)) throw new Error('RUNTIME_DATA_SET_PLAN_BUILD.viewCascades: 必须是数组')
+    for (const cascade of rawCascades) {
+      if (isRecord(cascade) && cascade['kind'] === 'field') fieldCascades.push(DataViewFieldCascadeDefinition.parse(cascade))
+    }
+  }
   const body = {
     schemaVersion: RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION, kind: RUNTIME_DATA_SET_PLAN_KIND, scenarioId,
     name: text(input.space['Name']), description: text(input.space['description']), type: text(input.space['Type']),
     source: {dataSetId: scenarioId, exportedFrom: 'data-space-design' as const, graphFile: `${scenarioId}.json`},
     inputParams: inputParams(input.space['inputParams']),
-    models, modelFields, views, viewFields, relations,
+    models, modelFields, views, viewFields, fieldCascades, relations,
     linkage: {edges: relations.map(relation => ({
       parentModelId: relation.parentModelId, childModelId: relation.childModelId,
       depType: relation.depType, filter: relation.filter, trigger: 'current' as const,

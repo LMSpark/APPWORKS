@@ -318,6 +318,19 @@ function hasPlaceholderString(value: unknown, visited = new WeakSet<object>()): 
   return Object.values(value).some(item => hasPlaceholderString(item, visited))
 }
 
+function hasResolvablePlaceholder(value: unknown, routeQuery: Readonly<Record<string, unknown>> | undefined,
+  visited = new WeakSet<object>()): boolean {
+  if (typeof value === 'string') return value.includes('$[')
+  if (!Array.isArray(value) && !isPlaceholderRecord(value)) return false
+  if (!Array.isArray(value) && Object.keys(value).length === 1 && typeof value['$route'] === 'string') {
+    return routeQuery !== undefined
+  }
+  if (visited.has(value)) return false
+  visited.add(value)
+  return (Array.isArray(value) ? value : Object.values(value))
+    .some(item => hasResolvablePlaceholder(item, routeQuery, visited))
+}
+
 function resolveValuePlaceholders(
   value: unknown,
   options:Readonly<{
@@ -363,7 +376,7 @@ export function resolvePlaceholderProps(
   routeQuery?: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> {
   // 无 DATA_ROW 或 props 中根本没有占位符时直接复用原对象，避免无意义复制。
-  if (!row && !routeQuery) return props
+  if ((!row && !routeQuery) || !hasResolvablePlaceholder(props, routeQuery)) return props
   const result: Record<string, unknown> = {}
   const resolved = new WeakMap<object, unknown>([[props, result]])
   const options={row:row??{},routeQuery,resolved}

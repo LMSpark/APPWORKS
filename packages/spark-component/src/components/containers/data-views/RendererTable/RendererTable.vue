@@ -72,7 +72,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         >
           <template #default="scope">
             <div class="renderer-table-row-actions">
-              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
+              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="rowActionChildren(scope.row)" />
             </div>
           </template>
         </el-table-column>
@@ -117,7 +117,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         >
           <template #default="scope">
             <div class="renderer-table-row-actions">
-              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
+              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="rowActionChildren(scope.row)" />
             </div>
           </template>
         </el-table-column>
@@ -148,6 +148,7 @@ import {
   useSparkPageComponent,
   SparkComponentRenderer,
   DATA_SOURCE,
+  resolvePlaceholderProps,
 } from '../../../internal'
 import type { RTableProps, TableRowClassContext } from './RendererTable.props'
 import * as SparkData from '@spark-appworks/spark-data'
@@ -287,6 +288,21 @@ function rowFragmentChildren(node: SparkNode): SparkNode[] {
 
 function toScopeRow(value: unknown): DataRow | undefined {
   return resolveDataViewRow(dataState.resolvedView.value, toDataRecord(value)) ?? undefined
+}
+
+function rowActionChildren(value: unknown): SparkNode[] {
+  const row = toScopeRow(value)
+  if (!row) return actionScopeChildren.value
+  const resolveNode = (node: SparkNode): SparkNode => {
+    const original = node.props
+    const props = original ? resolvePlaceholderProps(original, row) : original
+    const children = getSparkNodeChildren(node.children)
+    const resolvedChildren = children.length ? children.map(resolveNode) : undefined
+    return props === original && resolvedChildren === undefined
+      ? node
+      : {...node, ...(props === original ? {} : {props}), ...(resolvedChildren === undefined ? {} : {children: resolvedChildren})}
+  }
+  return actionScopeChildren.value.map(resolveNode)
 }
 
 // ── 基础 el-table props：resizable 默认 true，且与 border 联动 ──────────────────────────

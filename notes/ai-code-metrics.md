@@ -3678,3 +3678,11 @@
 - **验证**：spark-data 1441/1441；formal owner 807/807；platform adapters 703/703；合并迁移专项 1513/1513；root typecheck、lint、`verify:rules`、ClassModel、consumer ledger、package/frontend build、docs、page-thin 与 diff-check 通过。
 - **30 天存活**：待 2026-12-23 回查；重点核 `packages/spark-lowcode-api` 与 `src/lowcode` 未回生、DataTable/DataView owner 未出现 host 并行实现、backend wire 仍为唯一事实源。
 - **人工干预**：用户要求一次性归并、禁止兼容层，并明确将旧 `src/lowcode` 改名为 `src/platform-adapters`；未修改/启动/部署 Java，未写正式业务数据。
+
+### 2026-11-23 退役后全仓回归闭环
+
+- **复杂度**：复杂；涵盖 DataView owner 重绑、Dataset Plan 分页/关系/字段级联、表行动作占位符、系统页 owner 失效、数组主键投影与 verifier 测试加载。
+- **返工次数**：2 次诊断修正（保留 route placeholder；表行动作改为行作用域解析）；1 次全套高并发资源超时改用 `--maxWorkers=4`，不放宽业务超时。
+- **验证**：根 774 files / 12297 tests；8 个 workspace 包 155 files / 2448 tests；typecheck、lint、`verify:rules`、ClassModel、ledger、docs、page-thin 与 build 全通过。
+- **30 天存活**：待 2026-12-23 回查；重点核 r-table actions 不再在外层消费行占位符、Dataset Plan 不触发无关 metadata 全量读取、系统页组件替换保持 error。
+- **人工干预**：用户要求“继续推进”；未修改/启动 Java，未写正式业务数据，未恢复兼容入口。

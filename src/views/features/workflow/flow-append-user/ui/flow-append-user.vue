@@ -51,8 +51,9 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
-import {getSparkNodeChildren, isSparkNode, nodeId, type SparkNode} from '@spark-appworks/spark-data'
+import {getSparkNodeChildren, isSparkNode, nodeId, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import type {FlowAppendUserContext} from '@/platform-adapters/resources/system/workflow/manage'
+import {canRevokeFlowAppendRecord} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
 import {useFlowAppendUser} from './use-flow-append-user'
 
 const props = withDefaults(defineProps<{
@@ -114,7 +115,12 @@ const listConfig = computed<SparkNode>(() => {
     props: {...listRule.props, dataViewKey: listViewKey.value, actions: {children: [{
       ...revokeButton,
       props: {...revokeButton.props,
-        disabled: revokeDisabled() ? true : revokeButton.props?.['disabled'],
+        disabled: revokeButton.props?.['disabled'],
+        onBeforeRender: ({row}: {row?: DataRow | null}) => ({
+          disabled: revokeDisabled() || !row || !canRevokeFlowAppendRecord({
+            STATUS: row['STATUS'], StepState: row['StepState'],
+          }),
+        }),
       },
     }]}},
     children: getSparkNodeChildren(listRule.children).map(field => {

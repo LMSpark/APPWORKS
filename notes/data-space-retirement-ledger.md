@@ -3522,6 +3522,13 @@ flowchart TD
 - **验证：**spark-data **62 files / 1441 tests**；迁移后的 formal owner **17 files / 807 tests**；`src/platform-adapters/api` **33 files / 703 tests**；合并专项回归 **51 files / 1513 tests**。根 typecheck、lint、`verify:rules`、ClassModel/consumer ledger、frontend/package build、docs 与 `git diff --check` 均通过。全仓测试还存在与本次迁移无关的既有失败；不以局部通过替代其根因，独立登记后继续处理。
 - **边界：**本批未修改或启动 Java 后端、未写正式业务数据、未宣称跨来源事务；数据库与 pagedata/文件仍分别确认真实回执。旧目录、旧包及兼容入口均已删除，不恢复为迁移壳。
 
+### 2026-11-23 退役后的全仓回归闭环
+
+- **继续验证结果：**将退役提交后的 13 个失败域按单控制链复核并全部修复；其中初始化视图不再重绑 DataTable owner、DevFileEditor 测试补齐 `retryableUnconfirmed`、Route/Row/表行动作占位符分别按作用域解析、组件替换后系统页 owner 失效不被自动 rematch、数组新主键自动进入显式字段投影。
+- **Dataset Plan 合同补全：**`pagination/allPages/page/pageSize` 与字段级联进入独立 Plan，关系端点按内部 table key 映射正式 model；保存完成只在正式 metadata/definition clean 后发布，临时加载恢复为 Idle，非 Plan 相关视图保存不触发全量发布。
+- **验证：**受限 worker 的根套件 **774 files / 12297 tests** 全通过；workspace 包 **155 files / 2448 tests** 全通过。typecheck、lint、`verify:rules`、ClassModel、consumer ledger、docs、page-thin、package/frontend build 均通过。
+- **边界：**没有恢复 `spark-lowcode-api` 兼容层，没有修改 Java、没有真实业务写入；独立 Plan、pagedata 与正式数据库记录仍分别确认持久结果。
+
 ### 2026-10-28 SPARK data 后续切片复审与认证边界
 
 - **当前基线与现场：**复核开始时 `HEAD=1835557b680381c054aa9720ee9865ff1b4b0689`，与 `origin/codex/ai-data-entry` 一致，工作树干净。当前 IAB URL 为本地 `/login`，没有可直接复用的已认证 SPA 页面。用户已在本任务明确提供测试账号和使用授权；不得再次索要账号或密码，也不在台账记录明文凭据。

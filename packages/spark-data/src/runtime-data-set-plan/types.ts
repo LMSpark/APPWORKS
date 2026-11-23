@@ -4,6 +4,8 @@
  * 边界：文件只描述数据空间结构，不承载 rows、权限凭据、运行草稿或页面工具文件。
  * AI用途：生成或验证 `{scenarioId}.dataset.json` 时，沿此唯一文件合同读写。
  */
+import type { DataViewFieldCascade } from '../types'
+
 export const RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION = 1 as const
 export const RUNTIME_DATA_SET_PLAN_KIND = 'spark.runtimeDataSetPlan' as const
 
@@ -148,6 +150,14 @@ export type RuntimeDataSetPlanView = Readonly<{
   topValue: string
   /** 视图缓存策略。 */
   cacheType: string
+  /** 查询分页模式；缺省兼容既有 paged Plan。 */
+  pagination: 'paged' | 'none'
+  /** 是否逐页读取完整后端集合。 */
+  allPages: boolean
+  /** 初始页码；非分页视图忽略。 */
+  page: number
+  /** 每页行数；非分页视图忽略。 */
+  pageSize: number
 }>
 
 /** 视图字段的人读显示策略；map 只影响呈现，不参与查询级联。 */
@@ -259,6 +269,8 @@ export type RuntimeDataSetPlanFile = Readonly<{
   views: readonly RuntimeDataSetPlanView[]
   /** DataView 字段投影。 */
   viewFields: readonly RuntimeDataSetPlanViewField[]
+  /** 字段值输入级联；query 级联由 view.dependencies 编码。 */
+  fieldCascades: readonly DataViewFieldCascade[]
   /** 稳定模型关系。 */
   relations: readonly RuntimeDataSetPlanRelation[]
   /** 设计关系边摘要，不替代 relations。 */

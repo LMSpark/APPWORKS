@@ -257,6 +257,14 @@ export class LowcodeDataSpaceDesignSession {
     if (options.publishRuntimeDataSetPlan) {
       this.#removeSaveCompletion = metadataDataSet.setSaveCompletionHandler(async (result, saveOptions) => {
         if (saveOptions?.views?.length && saveOptions.views.every(view => view.tableName === RUNTIME_DATA_SET_PLAN_FILE_TABLE)) return
+        const relevantTables = new Set([
+          ...LowcodeDataSpaceMetadata.tables,
+          'DataTableBindingDefinition',
+          'DataViewDefinition',
+          'DataResourceRelationDefinition',
+          'DataViewCascadeDefinition',
+        ])
+        if (saveOptions?.views?.length && saveOptions.views.every(view => !relevantTables.has(view.tableName))) return
         const changed = (result.data?.createdCount ?? 0) + (result.data?.savedCount ?? 0) + (result.data?.deletedCount ?? 0)
         if (!changed) return
         await this.persistRuntimeDataSetPlan()
@@ -270,27 +278,44 @@ export class LowcodeDataSpaceDesignSession {
     const publish = this.options.publishRuntimeDataSetPlan
     if (!publish) return
     this.assertOwner()
+    const pendingMetadata = LowcodeDataSpaceMetadata.tables.some(name => {
+      const view = this.metadataDataSet.getView(name, 'default')
+      return view?.dirtyTracking.hasPendingChanges() === true
+        || view?.hasEditingChanges() === true
+        || view?.hasUnconfirmedSave === true
+    })
+    if (pendingMetadata) return
     const file = this.#file
     if (!file || !file.isPersisted || file.isDirty || file.saveStatus !== 'idle') {
       throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE: 场景定义文件尚未确认保存')
     }
-    await this.#metadata.load([...LowcodeDataSpaceMetadata.tables])
-    for (const name of LowcodeDataSpaceMetadata.tables) {
+    const deferred = LowcodeDataSpaceMetadata.tables.flatMap(name => {
       const view = this.metadataDataSet.getView(name, 'default')
-      if (!view) throw new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: 缺少正式 ${name} 视图`)
-      const refreshed = await view.requestRefresh()
-      if (!refreshed.success) throw refreshed.error ?? new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: ${name} 回读失败`)
-    }
-    this.assertOwner()
-    if (file !== this.#file || state(file).dirty || state(file).saveStatus !== 'idle') {
-      throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE_STALE: 定义文件保存期间已变化')
-    }
-    await publish({
-      scenarioId: this.targetId,
-      metadataDataSet: this.metadataDataSet,
-      scenarioConfig: file.value.toJSON(),
-      assertCurrent: () => this.assertLive(),
+      return view?.requestState === SparkData.RequestState.Idle ? [view] : []
     })
+    try {
+      await this.#metadata.load([...LowcodeDataSpaceMetadata.tables])
+      for (const name of LowcodeDataSpaceMetadata.tables) {
+        const view = this.metadataDataSet.getView(name, 'default')
+        if (!view) throw new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: 缺少正式 ${name} 视图`)
+        const refreshed = await view.requestRefresh()
+        if (!refreshed.success) throw refreshed.error ?? new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: ${name} 回读失败`)
+      }
+      this.assertOwner()
+      if (file !== this.#file || state(file).dirty || state(file).saveStatus !== 'idle') {
+        throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE_STALE: 定义文件保存期间已变化')
+      }
+      await publish({
+        scenarioId: this.targetId,
+        metadataDataSet: this.metadataDataSet,
+        scenarioConfig: file.value.toJSON(),
+        assertCurrent: () => this.assertLive(),
+      })
+    } finally {
+      for (const view of deferred) {
+        if (!view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges() && !view.hasUnconfirmedSave) view.resetState()
+      }
+    }
   }
 
   private assertLive(): void {

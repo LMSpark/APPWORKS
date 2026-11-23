@@ -34,6 +34,7 @@ export function dataSpaceChainFixture(options: {metadataCreate?: boolean} = {}) 
   const target = 'CHAIN-TARGET'
   const requests: RequestConfig[] = []
   const fileWrites: string[] = []
+  const planFileWrites: string[] = []
   const files = new Map([[target, JSON.stringify({scenarioId: target, tables: {
     OrderTable: {modelBinding: {modelId: 'ORDER-MODEL', modelName: 'Orders'},
       columns: [{name: 'doubleMinimum', type: 'number', computeExpression: 'minimum * 2'}], views: {default: {autoLoad: false}}},
@@ -90,7 +91,12 @@ export function dataSpaceChainFixture(options: {metadataCreate?: boolean} = {}) 
   let writable = true
   const readScope = () => ({token: scope, headers: {'X-AppId': 'CHAIN-APP'}})
   const fileGateway = {readScope: () => scope, readText: async (id: string) => files.get(id) ?? null,
-    writeText: async (id: string, text: string) => {expect([target, meta]).toContain(id); files.set(id, text); fileWrites.push(text)}}
+    writeText: async (id: string, text: string) => {
+      expect([target, meta, `${target}.dataset.json`, `${meta}.dataset.json`]).toContain(id)
+      files.set(id, text)
+      if(id.endsWith('.dataset.json'))planFileWrites.push(text)
+      else fileWrites.push(text)
+    }}
   const workspace = () => new ProjectWorkspace({projectId: 'CHAIN-APP',
     blueprint: {}, scenarioViews: fileGateway})
   const signed = (name: string, row: Row) => ({...structuredClone(row), lingma_sys_key: `signature:${name}:${String(row['rowid'])}`,
@@ -160,6 +166,6 @@ export function dataSpaceChainFixture(options: {metadataCreate?: boolean} = {}) 
       allowAdd: options.metadataCreate === true && ['Base_DataModel', 'Base_DataModel_Field'].includes(name),
       data: {Items: all.slice((index - 1) * size, index * size).map(row => signed(name, row)), Count: all.length}}}
   }
-  return {meta, target, requests, records, files, fileWrites, request, workspace, fileGateway, readScope, addModel,
+  return {meta, target, requests, records, files, fileWrites, planFileWrites, request, workspace, fileGateway, readScope, addModel,
     denyWrite: () => {writable = false}, expire: () => {scope = 'EXPIRED'}}
 }

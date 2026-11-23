@@ -329,6 +329,24 @@
         },
         "cacheType": {
           "type": "string"
+        },
+        "pagination": {
+          "enum": [
+            "none",
+            "paged"
+          ]
+        },
+        "allPages": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
         }
       },
       "required": [
@@ -345,7 +363,11 @@
         "hasChildField",
         "selfType",
         "topValue",
-        "cacheType"
+        "cacheType",
+        "pagination",
+        "allPages",
+        "page",
+        "pageSize"
       ],
       "additionalProperties": false
     },
@@ -593,6 +615,12 @@
             "$ref": "#/$defs/RuntimeDataSetPlanViewField"
           }
         },
+        "fieldCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataViewFieldCascade"
+          }
+        },
         "relations": {
           "type": "array",
           "items": {
@@ -655,13 +683,14 @@
         "modelFields",
         "views",
         "viewFields",
+        "fieldCascades",
         "relations",
         "linkage"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-22T18:11:26.905Z",
+  "generatedAt": "2026-11-23T15:49:06.156Z",
   "models": {
     "RuntimeDataSetPlanDependencyEmptyValueMode": {
       "name": "RuntimeDataSetPlanDependencyEmptyValueMode",
@@ -995,11 +1024,11 @@
       "jsdoc": "Plan 中单个命名 DataView 的查询与依赖配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n    /** 查询分页模式；缺省兼容既有 paged Plan。 */\n    pagination: 'paged' | 'none';\n    /** 是否逐页读取完整后端集合。 */\n    allPages: boolean;\n    /** 初始页码；非分页视图忽略。 */\n    page: number;\n    /** 每页行数；非分页视图忽略。 */\n    pageSize: number;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n}>",
+            "typeText": "Readonly<{\n    /** 命名 DataView 正式 ID。 */\n    id: string;\n    /** 设计态代码。 */\n    code: string;\n    /** 视图名称。 */\n    name: string;\n    /** 视图说明。 */\n    description: string;\n    /** 所属模型 ID。 */\n    dataModelId: string;\n    /** 是否模型默认视图。 */\n    isDefault: boolean;\n    /** 查询输出类型。 */\n    outputType: string;\n    /** 后端 Filter JSON；GetDependValue 由 spark-data 物化。 */\n    filter: string;\n    /** 当前视图的源字段依赖。 */\n    dependencies: readonly RuntimeDataSetPlanDependency[];\n    /** 树查询父字段。 */\n    parentField: string;\n    /** 树查询子节点标记字段。 */\n    hasChildField: string;\n    /** 树查询类型。 */\n    selfType: string;\n    /** 树查询根值。 */\n    topValue: string;\n    /** 视图缓存策略。 */\n    cacheType: string;\n    /** 查询分页模式；缺省兼容既有 paged Plan。 */\n    pagination: 'paged' | 'none';\n    /** 是否逐页读取完整后端集合。 */\n    allPages: boolean;\n    /** 初始页码；非分页视图忽略。 */\n    page: number;\n    /** 每页行数；非分页视图忽略。 */\n    pageSize: number;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1086,6 +1115,30 @@
             {
               "name": "cacheType",
               "jsdoc": "视图缓存策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagination",
+              "jsdoc": "查询分页模式；缺省兼容既有 paged Plan。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allPages",
+              "jsdoc": "是否逐页读取完整后端集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "jsdoc": "初始页码；非分页视图忽略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "每页行数；非分页视图忽略。",
               "readable": true,
               "writable": false
             }
@@ -1335,11 +1388,11 @@
       "jsdoc": "后端生成的独立 Runtime Dataset Plan 根合同。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 字段值输入级联；query 级联由 view.dependencies 编码。 */\n    fieldCascades: readonly DataViewFieldCascade[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    /** 独立 Plan schema 版本。 */\n    schemaVersion: typeof RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION;\n    /** 独立 Plan 文件类型。 */\n    kind: typeof RUNTIME_DATA_SET_PLAN_KIND;\n    /** Base_DataSet.rowid。 */\n    scenarioId: string;\n    /** 数据空间名称。 */\n    name: string;\n    /** 数据空间说明。 */\n    description: string;\n    /** 数据空间类型。 */\n    type: string;\n    /** 后端生成时间。 */\n    savedAt: string;\n    /** 后端稳定结构哈希。 */\n    contentHash: string;\n    /** 文件导出来源。 */\n    source: Readonly<{\n        /** 原数据空间 ID。 */\n        dataSetId: string;\n        /** 固定导出域。 */\n        exportedFrom: 'data-space-design';\n        /** 设计布局文件名；运行时不读取布局。 */\n        graphFile: string;\n    }>;\n    /** 运行入参定义。 */\n    inputParams: readonly RuntimeDataSetPlanInputParam[];\n    /** 正式模型投影。 */\n    models: readonly RuntimeDataSetPlanModel[];\n    /** 模型字段投影。 */\n    modelFields: readonly RuntimeDataSetPlanModelField[];\n    /** 命名 DataView。 */\n    views: readonly RuntimeDataSetPlanView[];\n    /** DataView 字段投影。 */\n    viewFields: readonly RuntimeDataSetPlanViewField[];\n    /** 字段值输入级联；query 级联由 view.dependencies 编码。 */\n    fieldCascades: readonly DataViewFieldCascade[];\n    /** 稳定模型关系。 */\n    relations: readonly RuntimeDataSetPlanRelation[];\n    /** 设计关系边摘要，不替代 relations。 */\n    linkage: Readonly<{\n        /** 模型关系链接。 */\n        edges: ReadonlyArray<Readonly<{\n            /** 父模型 ID。 */\n            parentModelId: string;\n            /** 子模型 ID。 */\n            childModelId: string;\n            /** 关系类型。 */\n            depType: string;\n            /** 过滤表达式。 */\n            filter: string;\n            /** 固定运行触发方式。 */\n            trigger: 'current';\n        }>>;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1426,6 +1479,12 @@
             {
               "name": "viewFields",
               "jsdoc": "DataView 字段投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldCascades",
+              "jsdoc": "字段值输入级联；query 级联由 view.dependencies 编码。",
               "readable": true,
               "writable": false
             },

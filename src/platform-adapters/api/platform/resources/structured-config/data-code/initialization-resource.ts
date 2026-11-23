@@ -34,9 +34,10 @@ export function createCodeInitializationView(options:Options):SparkData.DataView
   const view=table.getOrCreateView('default');view.configure({commitMode:'staged',autoLoad:false})
   let captured:SparkData.DataSpaceQueryContext|undefined
   const readCaptured=()=>captured
-  source.bindQueryExecutor({localAggregates:false,
-    executeQuery:async(current,params)=>{captured=await runtime.executeQuery(current,params);return captured},
-  })
+  source.validateQueryResult=queryResult=>{
+    if(!(queryResult instanceof SparkData.DataSpaceQueryContext))throw new Error('初始化原查询 owner 不合法')
+    captured=queryResult
+  }
   const snapshots=new WeakMap<Result,Snapshot>(),attempts=new WeakMap<Result,Attempt>()
   const target=():CodeInitializationTarget=>structuredClone(options.readTarget())
   const assertCurrent=(expected:CodeInitializationTarget)=>{

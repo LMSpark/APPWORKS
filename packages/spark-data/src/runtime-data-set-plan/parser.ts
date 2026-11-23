@@ -5,6 +5,7 @@
  * AI用途：装配独立 Dataset 前，先用同一解析器确认 schemaVersion、scenarioId、views 与 dependencies。
  */
 import { isRecord } from '@spark-appworks/spark-utils'
+import { DataViewFieldCascadeDefinition } from '../strategies/cascade/field-cascade-definition'
 import {
   RUNTIME_DATA_SET_PLAN_KIND,
   RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION,
@@ -59,7 +60,7 @@ function dependency(input: unknown, path: string): RuntimeDataSetPlanDependency 
     dependKey: identity(value['dependKey'], `${path}.dependKey`),
     sourceDataViewId: identity(value['sourceDataViewId'], `${path}.sourceDataViewId`),
     sourceModelId: identity(value['sourceModelId'], `${path}.sourceModelId`),
-    sourceField: identity(value['sourceField'], `${path}.sourceField`),
+    sourceField: text(value['sourceField'], `${path}.sourceField`),
     label: text(value['label'], `${path}.label`),
     emptyValueMode,
   })
@@ -113,9 +114,14 @@ function parsePlanModelField(input: unknown, path: string): RuntimeDataSetPlanFi
 function parsePlanView(input: unknown, path: string): RuntimeDataSetPlanFile['views'][number] {
   const value = object(input, path)
   exactKeys(value, ['id', 'code', 'name', 'description', 'dataModelId', 'isDefault', 'outputType', 'filter',
-    'dependencies', 'parentField', 'hasChildField', 'selfType', 'topValue', 'cacheType'], path)
+    'dependencies', 'parentField', 'hasChildField', 'selfType', 'topValue', 'cacheType',
+    'pagination', 'allPages', 'page', 'pageSize'], path)
   const dependencies = array(value['dependencies'], `${path}.dependencies`).map((item, index) =>
     dependency(item, `${path}.dependencies[${index}]`))
+  const pagination = value['pagination']
+  if (pagination !== undefined && pagination !== 'paged' && pagination !== 'none') {
+    throw new Error(`RUNTIME_DATA_SET_PLAN.${path}.pagination: 仅支持 paged 或 none`)
+  }
   const dependKeys = new Set<string>()
   for (const item of dependencies) {
     if (dependKeys.has(item.dependKey)) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: DependKey 重复 ${item.dependKey}`)
@@ -130,6 +136,10 @@ function parsePlanView(input: unknown, path: string): RuntimeDataSetPlanFile['vi
     parentField: text(value['parentField'], `${path}.parentField`),
     hasChildField: text(value['hasChildField'], `${path}.hasChildField`), selfType: text(value['selfType'], `${path}.selfType`),
     topValue: text(value['topValue'], `${path}.topValue`), cacheType: text(value['cacheType'], `${path}.cacheType`),
+    pagination: pagination ?? 'paged',
+    allPages: value['allPages'] === undefined ? false : boolean(value['allPages'], `${path}.allPages`),
+    page: value['page'] === undefined ? 1 : number(value['page'], `${path}.page`),
+    pageSize: value['pageSize'] === undefined ? 20 : number(value['pageSize'], `${path}.pageSize`),
   })
 }
 
@@ -180,7 +190,7 @@ export function parseRuntimeDataSetPlanFile(raw: string, expectedScenarioId?: st
   try { input = JSON.parse(raw) } catch { throw new Error('RUNTIME_DATA_SET_PLAN: 文件不是合法 JSON') }
   const root = object(input, 'root')
   exactKeys(root, ['schemaVersion', 'kind', 'scenarioId', 'name', 'description', 'type', 'savedAt', 'contentHash',
-    'source', 'inputParams', 'models', 'modelFields', 'views', 'viewFields', 'relations', 'linkage'], 'root')
+    'source', 'inputParams', 'models', 'modelFields', 'views', 'viewFields', 'fieldCascades', 'relations', 'linkage'], 'root')
   if (root['schemaVersion'] !== RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION) {
     throw new Error(`RUNTIME_DATA_SET_PLAN.schemaVersion: 不支持 ${String(root['schemaVersion'])}`)
   }
@@ -202,6 +212,8 @@ export function parseRuntimeDataSetPlanFile(raw: string, expectedScenarioId?: st
   const modelFields = array(root['modelFields'], 'modelFields').map((item, index) => parsePlanModelField(item, `modelFields[${index}]`))
   const views = array(root['views'], 'views').map((item, index) => parsePlanView(item, `views[${index}]`))
   const viewFields = array(root['viewFields'], 'viewFields').map((item, index) => parsePlanViewField(item, `viewFields[${index}]`))
+  const fieldCascades = root['fieldCascades'] === undefined ? [] : array(root['fieldCascades'], 'fieldCascades')
+    .map(item => DataViewFieldCascadeDefinition.parse(item))
   const relations = array(root['relations'], 'relations').map((item, index) => parsePlanRelation(item, `relations[${index}]`))
   const inputParams = array(root['inputParams'], 'inputParams').map((rawInput, index) => {
     const path = `inputParams[${index}]`, value = object(rawInput, path)
@@ -237,7 +249,8 @@ export function parseRuntimeDataSetPlanFile(raw: string, expectedScenarioId?: st
     source: Object.freeze({dataSetId: scenarioId, exportedFrom: 'data-space-design' as const,
       graphFile: text(source['graphFile'], 'source.graphFile')}),
     inputParams: Object.freeze(inputParams), models: Object.freeze(models), modelFields: Object.freeze(modelFields),
-    views: Object.freeze(views), viewFields: Object.freeze(viewFields), relations: Object.freeze(relations),
+    views: Object.freeze(views), viewFields: Object.freeze(viewFields), fieldCascades: Object.freeze(fieldCascades),
+    relations: Object.freeze(relations),
     linkage: Object.freeze({edges: Object.freeze(edges)}),
   })
 }

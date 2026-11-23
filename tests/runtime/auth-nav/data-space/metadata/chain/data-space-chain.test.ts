@@ -25,6 +25,12 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
   }
   const http = new TestHttp()
   const runtime = new DataSpaceRuntimeApi({http, readScope: transport.scope})
+  const fileId = (input: {fileName: string}) => input.fileName
+  const scenarioViews = () => {
+    const views = transport.gateways().scenarioViews
+    if (!views) throw new Error('missing scenarioViews fixture')
+    return views
+  }
   return {createPageToolFilesIo: () => ({list: async () => [], read: async () => null,
     upload: async () => {throw new Error('unexpected ProjectToolFile upload')},
     remove: async () => {throw new Error('unexpected ProjectToolFile remove')},
@@ -33,7 +39,11 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
     readVersion: async () => null}), lowcodeHttp: http, createLowcodeProjectGateways: transport.gateways, lowcodeApi: {
     readRequestScope: transport.scope,
     dataSpace: {runtime, design: new DataSpaceDesignApi({http, runtime, readScope: transport.scope})},
-  }, lowcodeDesignFileUpload: async () => {throw new Error('unexpected design file upload')}}
+    design: {readTextFile: async (input: {fileName: string}) => scenarioViews().readText(fileId(input))},
+  }, lowcodeDesignFileUpload: {
+    uploadWorkingText: async (input: {fileName: string; text: string}) =>
+      scenarioViews().writeText(fileId(input), input.text),
+  }}
 })
 vi.mock('@/services/project/project-shell', () => ({getAppProjectBlueprintWorkspace: transport.workspace}))
 import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'

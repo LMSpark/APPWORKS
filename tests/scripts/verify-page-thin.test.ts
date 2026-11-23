@@ -1,15 +1,18 @@
 import {mkdirSync,mkdtempSync,rmSync,writeFileSync} from 'node:fs'
+import {execFileSync} from 'node:child_process'
+import {pathToFileURL} from 'node:url'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {afterEach,expect,it} from 'vitest'
-// @ts-ignore TS7016 -- Node .mjs verifier
-import {scanPageThin} from '../../tools/verify-page-thin.mjs'
 const roots:string[]=[]
 function scan(source:string){
  const root=mkdtempSync(join(tmpdir(),'page-thin-'));roots.push(root)
- mkdirSync(join(root,'src','lowcode'),{recursive:true});mkdirSync(join(root,'tools'))
- writeFileSync(join(root,'src','lowcode','example.ts'),source)
- return scanPageThin({root})
+ mkdirSync(join(root,'src','platform-adapters'),{recursive:true});mkdirSync(join(root,'tools'))
+ writeFileSync(join(root,'src','platform-adapters','example.ts'),source)
+ const verifier=pathToFileURL(join(process.cwd(),'tools','verify-page-thin.mjs')).href
+ return JSON.parse(execFileSync(process.execPath,['--input-type=module','-e',
+  `import(${JSON.stringify(verifier)}).then(({scanPageThin})=>process.stdout.write(JSON.stringify(scanPageThin({root:${JSON.stringify(root)}}))))`],
+ {encoding:'utf8'}))
 }
 afterEach(()=>{for(const root of roots.splice(0))rmSync(root,{recursive:true,force:true})})
 it('keeps formal execution fingerprints and independent reread checks',()=>{

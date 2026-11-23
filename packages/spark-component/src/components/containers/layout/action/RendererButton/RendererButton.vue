@@ -169,7 +169,7 @@ const effectiveDisabled = computed(() => {
   if (!permissionAllowed.value && permissionDeniedMode.value === 'disable') {
     return true
   }
-  return isDisabled.value || hostActionDisabled.value
+  return isDisabled.value || resolvedProps.value['disabled'] === true || hostActionDisabled.value
 })
 
 // ── 五、视觉样式解析 ─────────────────────────────────────────────────────

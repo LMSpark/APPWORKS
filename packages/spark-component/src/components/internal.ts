@@ -14,7 +14,7 @@
  */
 
 // ── Composable ──
-export { useSparkComponent, useSparkConsume, useSparkPageComponent, useSparkContextScope } from '../core/index.js'
+export { resolvePlaceholderProps, useSparkComponent, useSparkConsume, useSparkPageComponent, useSparkContextScope } from '../core/index.js'
 export type {
   UseSparkComponentReturn,
   UseSparkPageComponentReturn,

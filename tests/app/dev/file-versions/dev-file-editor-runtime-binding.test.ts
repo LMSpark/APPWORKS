@@ -12,7 +12,7 @@ vi.mock('@/services/project-model-artifacts', () => ({createRuleJsonSchema: () =
 vi.mock('@/views/features/application/application-function-management/ui/page-design/useDevFileEditor', async () => {
   const {computed, ref} = await import('vue')
   return {useDevFileEditor: () => ({
-    isDirty: ref(false), isUnconfirmed: ref(false), isReady: ref(true),
+    isDirty: ref(false), isUnconfirmed: ref(false), retryableUnconfirmed: ref(false), isReady: ref(true),
     text: computed(() => 'file text'), isFileDirty: () => false,
     save: vi.fn().mockResolvedValue(undefined), refresh: vi.fn().mockResolvedValue(undefined),
   })}

@@ -464,7 +464,8 @@ describe('existing array headers use the formal definition batch',()=>{
       expect(implicit.dataTable?.columns.find(c=>c.name===key)?.isPrimaryKey).toBe(true)
       if(mode!=='promote')expect(implicit.columns.find(c=>c.name===key)?.isPrimaryKey).toBe(true)
     }
-    if(mode!=='plain')expect(JSON.parse(f.stored.get('A')!).tables.ArrayRows.views.implicit.fieldProjection.map((p:{primaryKey:boolean})=>p.primaryKey)).toEqual([false,id==='F2'])
+    if(mode!=='plain')expect(JSON.parse(f.stored.get('A')!).tables.ArrayRows.views.implicit.fieldProjection
+      .map((p:{primaryKey:boolean})=>p.primaryKey)).toEqual([false,id==='F2',...(id==='F3'?[true]:[])])
   })
   it.each(['IsPKey','IsOutput','PrimaryKeyFields','remote'] as const)('keeps a lazy primary draft on preflight %s failure',async failure=>{
     const {f,session,writes}=await setup({overviewOnly:true});await session.loadModelFields('M1')

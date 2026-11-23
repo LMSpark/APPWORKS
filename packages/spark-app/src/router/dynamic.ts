@@ -419,6 +419,7 @@ constructor(options: DynamicRouterOptions) {
   private async rematchCommittedCurrentRoute(currentWasManaged:boolean): Promise<void> {
     if(currentWasManaged)return
     const current=this.router.currentRoute.value
+    if(current.meta['systemPageIdentityState']==='error')return
     const resolved=this.router.resolve(current.fullPath)
     const managed=resolved.matched.some(record=>this.registeredRoutes.has(record.path))
     const sameRecords=current.matched.length===resolved.matched.length

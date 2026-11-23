@@ -79,7 +79,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T08:11:44.867Z",
+  "generatedAt": "2026-11-23T17:09:24.268Z",
   "models": {
     "InitializationDate": {
       "name": "InitializationDate",

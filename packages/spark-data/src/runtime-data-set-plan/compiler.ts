@@ -168,7 +168,7 @@ function dependentFilters(plan: RuntimeDataSetPlanFile, view: RuntimeDataSetPlan
   const models = new Map(plan.models.map(item => [item.id, item]))
   const walk = (input: unknown, path: string, cascades: Map<string, {
     parentTable: string; parentViewId: string; bindings: Array<{
-      sourceField: string; targetField: string; operator?: 'eq' | 'in'; emptyValueMode: 'emptyResult' | 'omit' | 'asNull'
+      sourceField?: string; targetField: string; operator?: 'eq' | 'in'; emptyValueMode: 'emptyResult' | 'omit' | 'asNull'
     }>
   }>): void => {
     if (input === undefined || input === null || input === false) return
@@ -207,7 +207,7 @@ function dependentFilters(plan: RuntimeDataSetPlanFile, view: RuntimeDataSetPlan
     const sourceViewId = planViewId(sourceView)
     const key = JSON.stringify([sourceModel.metaName, sourceViewId])
     const group = cascades.get(key) ?? {parentTable: sourceModel.metaName, parentViewId: sourceViewId, bindings: []}
-    group.bindings.push({sourceField: dependency.sourceField, targetField, operator,
+    group.bindings.push({...(dependency.sourceField ? {sourceField: dependency.sourceField} : {}), targetField, operator,
       emptyValueMode: dependency.emptyValueMode})
     cascades.set(key, group)
   }
@@ -254,6 +254,7 @@ export function compileRuntimeDataSetPlan(
 ): CompiledRuntimeDataSetPlan {
   const tables: Record<string, TableMetadata> = {}
   const cascades: DataViewCascade[] = []
+  cascades.push(...plan.fieldCascades)
   for (const model of plan.models) {
     const modelViews = plan.views.filter(view => view.dataModelId === model.id)
     if (modelViews.filter(view => view.isDefault).length > 1) {
@@ -270,7 +271,9 @@ export function compileRuntimeDataSetPlan(
         ...(projection.length ? {fieldProjection: [...projection]} : {}),
         ...(converted.filter ? {scopeFilter: converted.filter} : {}),
         autoLoad: false, commitMode: 'staged' as const,
-        queryConfig: {outputType: view.outputType, pagination: 'paged' as const, autoQuery: view.dependencies.length > 0},
+        queryConfig: {outputType: view.outputType, pagination: view.pagination, allPages: view.allPages,
+          autoQuery: view.dependencies.length > 0},
+        page: view.page, pageSize: view.pageSize,
         ...(view.parentField ? {treeConfig: {
           idField: projection.find(field => field.primaryKey)?.viewField ?? plan.modelFields
             .find(field => field.dataModelId === model.id && field.isPKey)?.name ?? '',

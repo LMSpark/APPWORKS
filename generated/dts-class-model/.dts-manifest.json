@@ -644,7 +644,7 @@
     "packages/spark-app/src/router/dynamic.ts": {
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "shardFile": "files/packages/spark-app/src/router/dynamic.ts.json",
-      "sourceModifiedAt": "2026-11-21T19:07:11.279Z"
+      "sourceModifiedAt": "2026-11-23T17:02:34.863Z"
     },
     "packages/spark-app/src/router/external-link-frame-page.ts": {
       "sourceFile": "packages/spark-app/src/router/external-link-frame-page.ts",
@@ -679,7 +679,7 @@
     "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "shardFile": "files/packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.543Z"
+      "sourceModifiedAt": "2026-11-23T17:02:34.868Z"
     },
     "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue": {
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
@@ -979,7 +979,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.606Z"
+      "sourceModifiedAt": "2026-11-23T16:49:00.473Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -1129,7 +1129,7 @@
     "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.640Z"
+      "sourceModifiedAt": "2026-11-23T16:23:17.326Z"
     },
     "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime.ts",
@@ -2459,7 +2459,7 @@
     "packages/spark-component/src/components/internal.ts": {
       "sourceFile": "packages/spark-component/src/components/internal.ts",
       "shardFile": "files/packages/spark-component/src/components/internal.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.923Z"
+      "sourceModifiedAt": "2026-11-23T16:46:50.135Z"
     },
     "packages/spark-component/src/components/register-renderers.ts": {
       "sourceFile": "packages/spark-component/src/components/register-renderers.ts",
@@ -2474,7 +2474,7 @@
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/SparkComponentRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.586Z"
+      "sourceModifiedAt": "2026-11-23T16:57:08.221Z"
     },
     "packages/spark-component/src/components/support/beforeRender.ts": {
       "sourceFile": "packages/spark-component/src/components/support/beforeRender.ts",
@@ -2534,7 +2534,7 @@
     "packages/spark-component/src/core/useSparkComponent.ts": {
       "sourceFile": "packages/spark-component/src/core/useSparkComponent.ts",
       "shardFile": "files/packages/spark-component/src/core/useSparkComponent.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.935Z"
+      "sourceModifiedAt": "2026-11-23T17:18:04.957Z"
     },
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
@@ -3004,22 +3004,22 @@
     "packages/spark-data/src/runtime-data-set-plan/builder.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:29:33.357Z"
+      "sourceModifiedAt": "2026-11-23T15:51:08.733Z"
     },
     "packages/spark-data/src/runtime-data-set-plan/compiler.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/compiler.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:29:33.363Z"
+      "sourceModifiedAt": "2026-11-23T15:53:52.523Z"
     },
     "packages/spark-data/src/runtime-data-set-plan/parser.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/parser.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/parser.ts.json",
-      "sourceModifiedAt": "2026-11-22T19:30:50.206Z"
+      "sourceModifiedAt": "2026-11-23T15:50:12.698Z"
     },
     "packages/spark-data/src/runtime-data-set-plan/types.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/types.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/types.ts.json",
-      "sourceModifiedAt": "2026-11-22T18:11:26.905Z"
+      "sourceModifiedAt": "2026-11-23T15:49:06.156Z"
     },
     "packages/spark-data/src/script-types.ts": {
       "sourceFile": "packages/spark-data/src/script-types.ts",
@@ -3844,7 +3844,7 @@
     "src/platform-adapters/api/platform/resources/structured-config/data-code/initialization-resource.ts": {
       "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/data-code/initialization-resource.ts",
       "shardFile": "files/src/platform-adapters/api/platform/resources/structured-config/data-code/initialization-resource.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:27:16.766Z"
+      "sourceModifiedAt": "2026-11-23T17:09:24.246Z"
     },
     "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-query.ts": {
       "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-query.ts",
@@ -3949,7 +3949,7 @@
     "src/platform-adapters/data-space/model-source/array/lowcode-data-space-array-configuration.ts": {
       "sourceFile": "src/platform-adapters/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
       "shardFile": "files/src/platform-adapters/data-space/model-source/array/lowcode-data-space-array-configuration.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.580Z"
+      "sourceModifiedAt": "2026-11-23T16:04:04.448Z"
     },
     "src/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft.ts": {
       "sourceFile": "src/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft.ts",
@@ -4129,7 +4129,7 @@
     "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:44.259Z"
+      "sourceModifiedAt": "2026-11-23T17:41:13.937Z"
     },
     "src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4594,7 +4594,7 @@
     "src/platform-adapters/resources/structured-config/data-code/initialization-date.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/data-code/initialization-date.ts",
       "shardFile": "files/src/platform-adapters/resources/structured-config/data-code/initialization-date.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:11:44.867Z"
+      "sourceModifiedAt": "2026-11-23T17:09:24.268Z"
     },
     "src/platform-adapters/resources/structured-config/data-code/initialization-plan.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/data-code/initialization-plan.ts",
@@ -7454,7 +7454,7 @@
     "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue": {
       "sourceFile": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
       "shardFile": "files/src/views/features/workflow/flow-append-user/ui/flow-append-user.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.204Z"
+      "sourceModifiedAt": "2026-11-23T17:09:24.238Z"
     },
     "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts": {
       "sourceFile": "src/views/features/workflow/flow-append-user/ui/use-flow-append-user.ts",

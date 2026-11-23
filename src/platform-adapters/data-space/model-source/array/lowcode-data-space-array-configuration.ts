@@ -98,6 +98,17 @@ export class LowcodeDataSpaceArrayConfiguration {
           projection['resourceField']=after.name;projection['viewField']=after.canonicalName;projection['primaryKey']=after.primaryKey
           if(after.primaryKey)projection['output']=true
         }
+        if(bound.has(tableName)&&Array.isArray(view['fieldProjection'])){
+          const projected=new Set(view['fieldProjection'].flatMap(item=>isRecord(item)&&typeof item['fieldId']==='string'?[item['fieldId']]:[]))
+          const primary=change.candidate.fields.find(field=>field.primaryKey&&!projected.has(field.id))
+          if(primary)view['fieldProjection'].push({
+            fieldId:primary.id,resourceFieldId:primary.id,resourceField:primary.name,
+            viewField:primary.canonicalName,source:'resource',type:primary.type||'string',
+            label:primary.description||primary.canonicalName,output:true,
+            sortOrder:view['fieldProjection'].length,sortDirection:null,group:0,distinct:false,primaryKey:true,
+            value:'',valueFunction:'',expression:'',
+          })
+        }
         if(names.size)for(const key of ['scopeFilter','filterExpression'])if(Object.hasOwn(view,key))view[key]=filter(view[key],tableName,tableName)
       }
     }

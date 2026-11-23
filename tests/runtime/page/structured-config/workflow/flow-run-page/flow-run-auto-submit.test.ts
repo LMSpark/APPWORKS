@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {readCanAutoSubmitAfter} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit'
+import {readCanAutoSubmitAfter} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit'
 
 describe('readCanAutoSubmitAfter', () => {
   it('reads boolean and common payload shapes', () => {

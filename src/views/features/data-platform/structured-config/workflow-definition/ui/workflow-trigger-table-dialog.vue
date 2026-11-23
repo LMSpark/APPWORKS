@@ -23,8 +23,8 @@
 import {computed,onBeforeUnmount,onMounted,ref} from 'vue'
 import {buildDataViewKey,RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {applyWorkflowTriggerSelection,projectWorkflowTriggerSelection} from '@/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection'
+import {LowcodeWorkflowDefinition} from '@/platform-adapters/resources/structured-config/workflow-definition/resource'
+import {applyWorkflowTriggerSelection,projectWorkflowTriggerSelection} from '@/platform-adapters/resources/structured-config/workflow-definition/trigger/trigger-selection'
 const props=defineProps<{workflowId:string;dataViewKey:string;validateTarget:()=>void}>()
 const emit=defineEmits<{close:[];applied:[]}>()
 const {sparkConsume}=SparkComponent.useSparkComponent({type:'workflow-trigger-table-dialog'}),runtime=sparkConsume(SparkComponent.PAGE_RUNTIME)

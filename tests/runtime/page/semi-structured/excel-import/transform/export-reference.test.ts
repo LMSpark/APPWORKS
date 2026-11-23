@@ -4,7 +4,7 @@ import {DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
 async function fixture(mapped=true){
  const cfg={executionScope:'EXPORT',columns:[{sourceField:'name',key:0}],keyTargetField:'key',valueTargetField:'value',sourceFieldPolicy:'REMOVE'}
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'导出',exportType:'default',sheet_layout_json:'',relatedappid:'A1',table:'数据库一@table_one',parentField:'',foreignKeyField:''}],Base_ImportData_Field:mapped?['key','value'].map((name,i)=>({rowid:`F${i}`,configid:'C1',name,index:i?'B':'A',isReadOnly:0})):[],Base_Import_Transform_Rule:[{id:'R1',scheme_id:'E1',config_id:'C1',rule_name:'导出',rule_type:'UNPIVOT',source_field:'',target_field:'',sort_order:10,enabled:1,on_error:'FAIL_ROW',condition_json:'',config_json:JSON.stringify(cfg)}]})

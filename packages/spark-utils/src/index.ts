@@ -58,7 +58,9 @@ export {
   FileLoader,
   HttpClientBase,
   isRequestError,
+  AjaxResultError,
   Request,
+  requestAjaxResult,
   sendBeacon,
   TransformedFileLoader,
 } from './http/index.js'

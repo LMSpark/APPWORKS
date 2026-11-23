@@ -2,8 +2,8 @@ import {expect,it} from 'vitest'
 import {authorityScenarioViews} from '@/views/features/application/smart-bid/authority/authority-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createBidResourceVersionHost} from '@/views/features/application/smart-bid/authority/resource-version-reader'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('shows only the requested original metadata and suppresses unauthorized provenance',async()=>{
  const row={id:'VER-ID',resourceId:'RESOURCE',version:'V1',typeVersion:'LICENSE-V3',

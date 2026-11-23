@@ -38,6 +38,55 @@ export type { DataViewFilterWire } from './query/filter/data-view-filter-codec'
 export { DataViewQuery } from './query/data-view-query'
 export { DataViewParentResult } from './query/data-view-parent-result'
 export { DataViewQueryCache } from './query/data-view-query-cache'
+export type {
+  DataSpaceQueryField,
+  DataSpaceQueryIdentity,
+  DataSpaceQueryInput,
+  DataSpaceQueryNestedNode,
+  DataSpaceQueryOptions,
+  DataSpaceQueryPage,
+  DataSpaceQueryProjection,
+  DataSpaceQueryTree,
+  DataSpaceRequestScope,
+  DataSpaceWireQueryOptions,
+  DataSpaceWireQueryRequest,
+} from './query/formal-table-contract'
+export { DataSpaceRowPermission } from './query/formal-owner/row-permission'
+export type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from './query/formal-owner/row-permission'
+export { snapshotDataSpaceSaveActionOrder } from './query/formal-owner/save-order'
+export type { DataSpaceSaveAction } from './query/formal-owner/save-order'
+export { assertDataSpaceSaveSuccess, readDataSpaceSaveReceipt } from './query/formal-owner/save-result'
+export type { DataSpaceSavePlan, DataSpaceSaveReceipt } from './query/formal-owner/save-result'
+export { collectDataSpaceQueryPages, requireDataSpaceQueryPage } from './query/formal-owner/pagination'
+export { failDataSpaceMutationWithoutEffect, requireDataSpaceMutationInput } from './query/formal-owner/save-guard'
+export { parseDataSpaceValueFunction, parseOptionalDataSpaceValueFunction } from './query/formal-owner/value-function'
+export { encodeDataSpaceQueryTree } from './query/formal-owner/query-tree'
+export { captureDataSpaceViewQuery, encodeDataSpaceQueryOptions } from './query/formal-owner/query-options'
+export { DataSpaceQueryTable } from './query/formal-owner/query-table'
+export { DataSpaceRequestConfig } from './query/formal-owner/request-config'
+export { DataSpaceQueryContext } from './query/formal-owner/query-context'
+export { DataSpaceQueryNested } from './query/formal-owner/query-nested'
+export { DataSpaceApiError, DataSpaceRequest, DataSpaceSaveUnconfirmedError } from './query/formal-owner/request'
+export { DataSpaceQueryResource } from './query/formal-owner/query-resource'
+export { DataSpaceQueryCache } from './query/formal-owner/query-cache'
+export type { DataSpaceModelBindingOptions, DataSpaceModelReadAdapter } from './query/formal-owner/model-binding'
+export { DataSpaceModelCommandNotDispatchedError } from './query/formal-owner/model-command-error'
+export { DataSpaceSourceInput } from './query/formal-owner/source-input'
+export { DataSpaceQueryAggregation } from './query/formal-owner/query-aggregation'
+export { DataSpaceQueryGraph } from './query/formal-owner/query-graph'
+export { DataSpaceRuntimeApi } from './query/formal-owner/runtime-api'
+export {
+  createFormalFieldProjection,
+  resolveFormalFields,
+  resolveFormalNewRowFields,
+  resolveFormalOutputFields,
+  resolveFormalTableResource,
+} from './query/formal-owner/formal-model'
+export type {
+  FormalModelDescriptor,
+  FormalModelField,
+  DataSpaceSourceInputBinding,
+} from './query/formal-owner/formal-model'
 export { DataViewArrayQuery } from './query/data-view-array-query'
 export { sortDataRowsByExpression } from './query/sort-expression'
 export { DataViewLocalQuery } from './query/data-view-local-query'
@@ -81,6 +130,7 @@ export type { FieldRenderState, PermissionActionContext } from './script-types'
 
 export { TreeManager } from './node-tree/tree-manager'
 export { DataSetCrudTool } from './dataset-crud-tool'
+export { DataSetCommandAttempt } from './data-set-command/data-set-command-attempt'
 export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
 export { DataViewSelectionValue } from './strategies/selection/data-view-selection-value'
 export { parseRuntimeDataSetPlanFile } from './runtime-data-set-plan/parser'

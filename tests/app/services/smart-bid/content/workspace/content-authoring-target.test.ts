@@ -4,7 +4,7 @@ import {preparePublishedContentAuthoringCall,resolveContentAuthoringTarget,resol
 import {preparePublishedAuthorityGrantCall,preparePublishedResourceVersionCall,preparePublishedResourceUseCall,preparePublishedBidHandoffCall,preparePublishedTenderFollowupCall,preparePublishedBidResponseCall,preparePublishedResourceAllocationCall,preparePublishedConfigurationReleaseCall,preparePublishedBidClassModelCatalogCall,preparePublishedKnowledgeDirectoryCall,preparePublishedBidFindingsCall,preparePublishedContentDeadlineCall,preparePublishedContentReviewCall,preparePublishedContentSubmissionCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
 
 const auth=vi.hoisted(()=>({token:'SESSION',appId:'D8490EC99436A8B9AFDE205BE3153802',enterpriseId:'ORG'}))
-vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({lowcodeApi:{
  session:{get:()=>({identity:{userId:'ACTOR',enterpriseId:auth.enterpriseId},enterprise:{id:auth.enterpriseId}})},
  readRequestScope:()=>({token:auth.token,headers:{'X-AppId':auth.appId}}),
 }}))

@@ -5,8 +5,8 @@ import {readAdoptionSnapshot} from '@/views/features/application/smart-bid/autho
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
 import {CONTENT_ROOT_HASH_CONTRACT} from '@/services/smart-bid/content/hashes/content-root-hash'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 async function fixture(options:{count?:number|null;hidden?:boolean;wrongProject?:boolean;wrongHash?:boolean;wrongRoot?:boolean}={}){
  const q=new DataSpaceQueryTable({scenarioId:'S',metaName:'RevisionSnapshot'})

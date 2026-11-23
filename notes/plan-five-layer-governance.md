@@ -25,7 +25,7 @@
 - spark-project-model：蓝图领域、文件/版本与场景生命周期。
 - spark-ai：Agent turn/config/data-entry。
 - spark-utils：仅通用 HTTP、wire/error/event 原语。
-- src/lowcode：平台会话、应用目录、权限设计、上传及特定服务 adapter。
+- src/platform-adapters：平台会话、应用目录、权限设计、上传及特定服务 adapter。
 - backend-api-contracts：wire、endpoint 与 parity 合同。
 
 ### 总计划门槛
@@ -119,7 +119,7 @@
 只有正式合同成立时才创建：
 
 ```text
-src/lowcode/resources/system/
+src/platform-adapters/resources/system/
   governance-entry/
     catalog-entry-resource.ts
 
@@ -198,8 +198,8 @@ tests/runtime/application/
 
 | 文件 | 修改内容 |
 |---|---|
-| `src/lowcode/lowcode-runtime.ts` | 区分目录域入口和真实应用导航；目录域不得注入 `X-AppId` |
-| `src/lowcode/system-navigation.ts` | 本地登记作为候选；正式入口结果决定分区、目标和落点 |
+| `src/platform-adapters/lowcode-runtime.ts` | 区分目录域入口和真实应用导航；目录域不得注入 `X-AppId` |
+| `src/platform-adapters/system-navigation.ts` | 本地登记作为候选；正式入口结果决定分区、目标和落点 |
 | `src/main.ts` | 不再仅以登录态启用平台菜单；同一正式结果安装入口、路由和首次装配 |
 | `src/App.vue` | 平台/企业命令使用正式落点并复核执行域 |
 | `src/layout/AppHeader.vue` | 菜单显示与实际获准命令一致，不提供本地隐式放行 |
@@ -247,7 +247,7 @@ tests/runtime/application/
 - `packages/spark-data/src/**`
 - `packages/spark-project-model/src/**`
 - `packages/spark-ai/src/**`
-- `src/lowcode/**`
+- `src/platform-adapters/**`
 - `backend-api-contracts/**`
 - `package.json`、`pnpm-lock.yaml`、TS/Vite/Vitest/ESLint 配置
 - `generated/dts-class-model/**`

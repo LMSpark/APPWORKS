@@ -84,10 +84,10 @@ import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataView, type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import type {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview'
+import type {LowcodeDataSpaceQueryPreview} from '@/platform-adapters/data-space/view-design/preview/lowcode-data-space-query-preview'
 import type {DataSpaceQueryPreviewProps} from './DataSpaceQueryPreview.props'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
-import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
+import {LowcodeDataSpaceFieldValue} from '@/platform-adapters/data-space/model-source/field/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/platform-adapters/resources/repository/file-resource-query-parameters'
 
 const {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDetail, RendererFilter, RendererForm, RendererSection, RendererTable, useSparkComponent} = SparkComponent
 const props = defineProps<DataSpaceQueryPreviewProps>()

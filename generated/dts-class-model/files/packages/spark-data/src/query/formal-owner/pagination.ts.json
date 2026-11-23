@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/pagination",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/pagination.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/pagination.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/pagination",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/pagination 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpacePageResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageResponse",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": true
+        },
+        "total": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpacePageCollection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageCollection",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": true
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rows",
+        "total"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpacePageCollectionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageCollectionOptions",
+      "properties": {
+        "pageSize": {
+          "type": "number"
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.key.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "T"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.key.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T07:04:38.358Z",
+  "models": {
+    "DataSpacePageResponse": {
+      "name": "DataSpacePageResponse",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows?: readonly T[];\n    total?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows?: readonly T[];\n    total?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageCollection": {
+      "name": "DataSpacePageCollection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: readonly T[];\n    total: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: readonly T[];\n    total: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageCollectionOptions": {
+      "name": "DataSpacePageCollectionOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageSize?: number;\n    maxRows?: number;\n    signal?: AbortSignal;\n    assertCurrent?: () => void;\n    key?: (row: T) => unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageSize?: number;\n    maxRows?: number;\n    signal?: AbortSignal;\n    assertCurrent?: () => void;\n    key?: (row: T) => unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "key",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageFetcher": {
+      "name": "DataSpacePageFetcher",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(page: DataSpaceQueryPage) => Promise<DataSpacePageResponse<T>>",
+        "members": {}
+      }
+    }
+  }
+}

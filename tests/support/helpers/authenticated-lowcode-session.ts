@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {vi} from 'vitest'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 
 const priorSession = lowcodeApi.session.get()

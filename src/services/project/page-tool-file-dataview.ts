@@ -4,11 +4,11 @@
  * 边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。
  */
 import {bindFileDirectoryQueryAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView, type DataSet, type DataView, type FileResourceTarget, type FileResourceTransport} from '@spark-appworks/spark-data'
-import {PageTool, ProjectToolResource, type PageToolFileName, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
-import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
-import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import {PageTool, ProjectToolResource, pageToolPublicationVersionKey, parsePageToolPublicationVersions,
+  type PageToolFileName, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {isRequestError} from '@spark-appworks/spark-utils'
-import {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
+import {createPageToolFilesIo} from '@/platform-adapters/lowcode-runtime'
 
 const TABLE='ProjectToolFile'
 type PageFileIo=ReturnType<typeof createPageToolFilesIo>
@@ -196,8 +196,8 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
       let text:string|null
       if(typeof versionId==='string'&&versionId){
         if(!isPublicationFileName(fileName))throw new Error('PAGE_TOOL_FILE_VERSION_SCOPE: 只有发布文件具有发布快照')
-        const versions=LowcodePlatform.parseLowcodeBlueprintFileVersions(versionId)
-        const key=LowcodePlatform.lowcodeBlueprintFileVersionKey(fileName),version=versions[key]
+        const versions=parsePageToolPublicationVersions(versionId)
+        const key=pageToolPublicationVersionKey(fileName),version=versions[key]
         if(version===null)throw new Error(`发布指针缺少 ${fileName}`)
         const customPath = `${appId}/${filePage}`
         text = await io.readVersion({appId, customPath, fileName, version})

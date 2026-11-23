@@ -1,10 +1,10 @@
 import {describe, expect, it, vi} from 'vitest'
-import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {resolveDatabaseCatalogScenarioId} from '@/lowcode/resources/database/catalog/scenario'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
+import {resolveDatabaseCatalogScenarioId} from '@/platform-adapters/resources/database/catalog/scenario'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 
 const readModelBatch = vi.hoisted(() => vi.fn())
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {dataSpace: {design: {readModelBatch}}},
 }))
 

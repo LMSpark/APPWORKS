@@ -1,6 +1,6 @@
 import {expect, it, vi} from 'vitest'
 import {DataSet, ensureDataSetResourceView, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
-import {createFlowRunCandidatesBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
+import {createFlowRunCandidatesBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
 
 it('keeps each node candidate range in its original options query and rejects stale sources', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

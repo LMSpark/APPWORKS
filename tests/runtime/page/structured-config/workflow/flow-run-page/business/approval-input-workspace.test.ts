@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {FlowRunApprovalInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
+import {FlowRunApprovalInputWorkspace} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 
 it('keeps edits in parameter DataViews, validates people and counts, and rejects an expired options query', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

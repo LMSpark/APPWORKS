@@ -13,7 +13,7 @@ vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
 })
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
   lowcodeApi: {
     readRequestScope: (...args: unknown[]) => api.service.readRequestScope(...args),

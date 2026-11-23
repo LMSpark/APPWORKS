@@ -7,15 +7,16 @@ import DataSpaceViewEditor from '@/views/features/data-platform/data-set-managem
 import {PageRuntime, ProjectWorkspace, ScenarioDefinitionDocument} from '@spark-appworks/spark-project-model'
 import {RequestState, type DataSet, DataView} from '@spark-appworks/spark-data'
 import {isRecord, type RequestConfig} from '@spark-appworks/spark-utils'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 import {dataSpaceChainFixture} from './data-space-chain.fixture'
 import {sourceCases, sourceChainFixture} from './data-space-source-chain.fixture'
-import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 
 const transport = vi.hoisted(() => ({request: vi.fn(), scope: vi.fn(), workspace: vi.fn(), gateways: vi.fn()}))
-vi.mock('@/lowcode/lowcode-runtime', async () => {
-  const {DataSpaceRuntimeApi, DataSpaceDesignApi} = await import('@spark-appworks/spark-lowcode-api')
+vi.mock('@/platform-adapters/lowcode-runtime', async () => {
+  const {DataSpaceRuntimeApi} = await import('@spark-appworks/spark-data')
+  const {DataSpaceDesignApi} = await import('@/platform-adapters/api')
   const {HttpClientBase} = await import('@spark-appworks/spark-utils')
   class TestHttp extends HttpClientBase {
     protected override async executeRequest(config: RequestConfig) {
@@ -35,8 +36,8 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
   }, lowcodeDesignFileUpload: async () => {throw new Error('unexpected design file upload')}}
 })
 vi.mock('@/services/project/project-shell', () => ({getAppProjectBlueprintWorkspace: transport.workspace}))
-import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {loadLowcodeRuntimeScenario, loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'
+import {loadLowcodeRuntimeScenario, loadLowcodeScenarioDefinitions} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 
 const sessions: LowcodeDataSpaceDesignSession[] = []
 const runtimes: DataSet[] = []

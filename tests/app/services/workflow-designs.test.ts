@@ -5,7 +5,7 @@ const lowcodeRuntimeMock = vi.hoisted(() => ({
   createFileOwner: vi.fn(),
 }))
 
-vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', () => ({
+vi.mock('@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner', () => ({
   createAgentWorkflowFileDataViewOwner: lowcodeRuntimeMock.createFileOwner,
 }))
 

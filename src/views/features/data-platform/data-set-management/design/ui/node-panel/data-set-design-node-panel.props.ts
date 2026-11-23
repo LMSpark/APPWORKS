@@ -4,7 +4,7 @@
  * 边界：不传递独立数据、权限或保存通道。
  * AI用途：在模型节点挂载配置编辑器，并接入页面脏状态与修订通知。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 模型配置编辑器的当前调用范围。 */
 export type DataSpaceModelEditorProps = {

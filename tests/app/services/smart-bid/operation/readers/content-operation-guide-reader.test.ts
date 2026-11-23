@@ -19,7 +19,7 @@ import script from '@/views/features/application/smart-bid/authoring/page18/scri
 import style from '@/views/features/application/smart-bid/authoring/page18/style.css?raw'
 import {PageRuntimePool} from '../../../../../../packages/spark-app/src/router/page-runtime-pool'
 
-vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({lowcodeApi:{
  session:{get:()=>({identity:{userId:'USER'}})},readRequestScope:()=>({token:'TOKEN',headers:{'X-AppId':'APP'}}),
 }}))
 

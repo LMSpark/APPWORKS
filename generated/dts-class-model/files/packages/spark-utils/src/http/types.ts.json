@@ -75,8 +75,8 @@
         },
         "responseType": {
           "enum": [
-            "formdata",
             "text",
+            "formdata",
             "json",
             "document",
             "arraybuffer",
@@ -497,8 +497,8 @@
         },
         "responseType": {
           "enum": [
-            "formdata",
             "text",
+            "formdata",
             "json",
             "document",
             "arraybuffer",
@@ -581,8 +581,8 @@
         },
         "storage": {
           "enum": [
-            "sessionStorage",
             "localStorage",
+            "sessionStorage",
             "memory"
           ]
         },

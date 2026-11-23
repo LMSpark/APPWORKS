@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDatabaseServer} from '@/lowcode/resources/database/server/resource'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDatabaseServer} from '@/platform-adapters/resources/database/server/resource'
 import {
   DATABASE_SERVER_SCENARIO_ID,
   type DatabaseServerDesignMocks,
@@ -17,7 +17,7 @@ const service = vi.hoisted(() => ({
 let http: DatabaseServerHttp
 let runtime: DataSpaceRuntimeApi
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {
     return http
   },

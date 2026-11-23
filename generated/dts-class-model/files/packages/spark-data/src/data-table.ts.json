@@ -194,9 +194,9 @@
       "properties": {
         "kind": {
           "enum": [
-            "delete",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         "values": {
@@ -239,9 +239,9 @@
           "type": "array",
           "items": {
             "enum": [
-              "delete",
               "create",
-              "update"
+              "update",
+              "delete"
             ]
           }
         },

@@ -5,7 +5,7 @@ import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
 import {DataSet} from '@spark-appworks/spark-data'
 import {FieldText, RendererTable, Spark, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../../runtime/page/api-provider/api-provider.fixture'
 
 const originalStubs = config.global.stubs, cleanups: Array<() => void> = []

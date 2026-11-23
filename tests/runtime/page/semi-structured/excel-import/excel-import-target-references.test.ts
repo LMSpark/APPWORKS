@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest'
-import {validateExcelTargetReferences as validate} from '@/lowcode/resources/semi-structured/excel-import/target-references'
+import {validateExcelTargetReferences as validate} from '@/platform-adapters/resources/semi-structured/excel-import/target-references'
 import {DataViewFilter, DataViewFilterCodec} from '@spark-appworks/spark-data'
 const base = {node: {table: 'DB@old', parentField: 'parent_only'}, oldFields: ['keep', 'old'], children: [], rules: [],
   selection: {applicationId: 'APP', applicationName: '应用', table: 'DB@new', description: '', fields: [{name: 'keep', title: '', type: 0, index: ''}]}}

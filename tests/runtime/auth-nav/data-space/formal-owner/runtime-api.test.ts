@@ -1,0 +1,2310 @@
+import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
+import { HttpClientBase } from '@spark-appworks/spark-utils'
+import { DataViewFilter, SparkData } from '@spark-appworks/spark-data'
+import type { DataView } from '@spark-appworks/spark-data'
+import { describe, expect, it, vi } from 'vitest'
+
+import { LowcodeApi } from '../../../../../src/platform-adapters/api/lowcode-api.js'
+import { DataSpaceDesignApi } from '../../../../../src/platform-adapters/api/platform/data-space/design/data-space-design-api.js'
+import type { LowcodeSession } from '../../../../../src/platform-adapters/api/platform/lowcode-platform-api.js'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+
+class DataSpaceFixtureHttpClient extends HttpClientBase {
+  public requestConfig: RequestConfig | null = null
+  public queryRequests: RequestConfig[] = []
+  public queryResults: unknown[] = []
+  public queryGate: Promise<void> | undefined
+  public queryStarted: (() => void) | undefined
+  public refreshResult: unknown
+  public saveRequests: RequestConfig[] = []
+  public saveGate: Promise<void> | undefined
+  public saveStarted: (() => void) | undefined
+  public saveResult: unknown = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
+  public saveError: Error | undefined
+  public result: unknown = {
+    primaryKeyField: 'rowid',
+    data: {
+      Items: [{
+        rowid: 'ROW-1',
+        salary: 100,
+        lingma_sys_key: 'ROW-KEY',
+        lingma_sys_params: {
+          r: ['salary'],
+          e: ['salary'],
+          h: ['secret'],
+          m: ['bankAccount'],
+          d: true,
+        },
+      }],
+      Count: 1,
+    },
+    allowAdd: true,
+    lingma_sys_key: 'TABLE-KEY',
+  }
+
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    this.requestConfig = config
+    if (config.url === '/api/DataOperation/GetData') {
+      this.queryRequests.push(config)
+      this.queryStarted?.()
+      await this.queryGate
+    }
+    if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+      this.saveRequests.push(config)
+      this.saveStarted?.()
+      await this.saveGate
+      if (this.saveError) throw this.saveError
+    }
+    return {
+      data: { Code: 200, Result: config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD' ? this.saveResult
+        : config.url === '/api/LoginAuthority/refresh' && this.refreshResult !== undefined
+        ? this.refreshResult : config.url === '/api/DataOperation/GetData' && this.queryResults.length > 0
+          ? this.queryResults.shift() : this.result },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+    }
+  }
+}
+
+function activeApi(http: DataSpaceFixtureHttpClient): LowcodeApi {
+  const values = new Map<string, string>()
+  const api = new LowcodeApi({ http, sessionStorage: {
+    getItem: key => values.get(key) ?? null,
+    setItem: (key, value) => { values.set(key, value) },
+    removeItem: key => { values.delete(key) },
+  } })
+  api.session.save({ accessToken: 'access', refreshToken: 'refresh',
+    accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+    identity: { userId: 'USER-1', account: 'test', displayName: 'test',
+      enterpriseId: 'TENANT-1', enterpriseShortName: 'test', role: null, raw: {} },
+    enterprise: { id: 'TENANT-1', name: 'test', code: 'test', shortName: 'test',
+      shortCode: 'test', raw: {} },
+  })
+  api.application.save({ application: { id: 'APP-A', code: 'A', name: 'A', description: '',
+    enterpriseId: 'TENANT-1', enterpriseShortName: 'test', isDefault: false }, navigationRootId: 'ROOT-A' })
+  return api
+}
+
+describe('DataSpaceRuntimeApi', () => {
+  it('reads the exact newly saved row before allowing its next edit and never uses the table credential as a row credential',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http),identity={scenarioId:'SCENE',metaName:'Orders'}
+    http.queryResults=[http.result,{primaryKeyField:'rowid',data:{Count:1,Items:[{rowid:'NEW',salary:120,lingma_sys_key:'NEW-ROW-KEY',lingma_sys_params:{e:['salary'],d:true}}]}}]
+    const context=await api.dataSpace.runtime.query(identity,{fields:['rowid','salary']})
+    http.saveResult={maplistadd:[{physical:[{rowid:'NEW',salary:120}]}]}
+    const receipt=(await api.dataSpace.runtime.save({changes:[{identity,context,changes:{added:[{rowid:'NEW',salary:120}]}}]}))[0]!
+    expect(http.saveRequests).toHaveLength(1);expect(http.queryRequests).toHaveLength(2)
+    expect(receipt.context.total).toBe(2);expect(receipt.context.hasPendingSavedRowPermissions).toBe(false)
+    expect(JSON.stringify(http.queryRequests[1]?.data)).toContain('NEW')
+    expect(receipt.context.buildSaveRequest({changed:[{rowid:'NEW',salary:121}]})[0]?.CrudModel.Changed)
+      .toEqual([{rowid:'NEW',salary:121,lingma_sys_key:'NEW-ROW-KEY'}])
+  })
+  it('confirms the write when new-row permission reads fail and only retries reads through the recovery entry',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http),identity={scenarioId:'SCENE',metaName:'Orders'}
+    const empty={primaryKeyField:'rowid',data:{Count:0,Items:[]}}
+    http.queryResults=[http.result,empty]
+    const context=await api.dataSpace.runtime.query(identity)
+    http.saveResult={maplistadd:[{physical:[{rowid:'NEW',salary:120}]}]}
+    const receipt=(await api.dataSpace.runtime.save({changes:[{identity,context,changes:{added:[{rowid:'NEW',salary:120}]}}]}))[0]!
+    expect(receipt.context.hasPendingSavedRowPermissions).toBe(true)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(receipt.context)).toBe(false)
+    http.queryResults=[empty]
+    await expect(api.dataSpace.runtime.refreshSavedRowPermissions(receipt.context)).rejects.toThrow('SPARK_SAVED_ROW_')
+    expect(http.saveRequests).toHaveLength(1)
+    http.queryResults=[{primaryKeyField:'rowid',data:{Count:1,Items:[{rowid:'NEW',salary:120,lingma_sys_key:'RECOVERED-ROW',lingma_sys_params:{e:['salary']}}]}}]
+    const refreshed=await api.dataSpace.runtime.refreshSavedRowPermissions(receipt.context)
+    expect(refreshed.hasPendingSavedRowPermissions).toBe(false);expect(http.saveRequests).toHaveLength(1)
+    expect(refreshed.buildSaveRequest({changed:[{rowid:'NEW',salary:121}]})[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('RECOVERED-ROW')
+  })
+  it('keeps the query lifetime through real token refresh but invalidates identity and application round trips', async () => {
+    const values = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => { values.set(key, value) },
+      removeItem: (key: string) => { values.delete(key) },
+    }
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { token: 'new-access', refreshToken: 'new-refresh',
+      expire: Date.now() + 60_000, refreshExpire: Date.now() + 120_000 }
+    const api = new LowcodeApi({ http, sessionStorage: storage })
+    const session: LowcodeSession = {
+      accessToken: 'old-access', refreshToken: 'old-refresh',
+      accessExpiresAt: 1, refreshExpiresAt: Date.now() + 120_000,
+      identity: { userId: 'USER-1', account: 'test', displayName: 'test',
+        enterpriseId: 'TENANT-1', enterpriseShortName: 'test', role: null, raw: {} },
+      enterprise: { id: 'TENANT-1', name: 'test', code: 'test', shortName: 'test',
+        shortCode: 'test', raw: {} },
+    }
+    api.session.save(session)
+    const sessionRevision = api.session.revision
+    await api.platform.refreshSession()
+    expect(api.session.get()?.accessToken).toBe('new-access')
+    expect(api.session.revision).toBe(sessionRevision)
+    api.session.save({ ...session, identity: { ...session.identity } })
+    expect(api.session.revision).toBeGreaterThan(sessionRevision)
+    const replacementRevision = api.session.revision
+    api.session.clear()
+    api.session.save(session)
+    expect(api.session.revision).toBeGreaterThan(replacementRevision)
+
+    const application = { id: 'APP-A', code: 'A', name: 'A', description: '',
+      enterpriseId: 'TENANT-1', enterpriseShortName: 'test', isDefault: false }
+    api.application.save({ application, navigationRootId: 'ROOT-A' })
+    const applicationRevision = api.application.revision
+    api.application.save({ application: { ...application }, navigationRootId: 'ROOT-A' })
+    expect(api.application.revision).toBe(applicationRevision)
+    api.application.save({ application: { ...application, id: 'APP-B' }, navigationRootId: 'ROOT-B' })
+    api.application.save({ application, navigationRootId: 'ROOT-A' })
+    expect(api.application.revision).toBe(applicationRevision + 2)
+  })
+  it('queries the registered scenario model and keeps permission wire fields private', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' }, {
+      filter: DataViewFilter.condition({ field: 'salary', operator: 'gt', value: 0 }),
+      inputParams: [{ name: 'period', value: '2026-08' }, { name: 'enabled', value: false },
+        { name: 'offset', value: 0 }, { name: 'keyword', value: '' }],
+      sort: [{ field: 'salary', direction: 'desc' }],
+      fields: ['rowid', 'salary'],
+      page: { index: 1, size: 20 },
+    })
+    expect(http.requestConfig).toMatchObject({
+      url: '/api/DataOperation/GetData', method: 'POST', retry: 0, cache: false,
+      headers: { 'x-FormKey': 'FORM-1', Authorization: 'Bearer access',
+        'tenant-id': 'test', 'visit-tenant-id': 'test', 'x-FirstFolder': 'test', 'X-AppId': 'APP-A' },
+      data: {
+        Table: [expect.objectContaining({ Name: '薪资前端模型',
+          Filter: expect.objectContaining({ Field: 'salary' }),
+          inputParams: [{ Name: 'period', Value: '2026-08' }, { Name: 'enabled', Value: false },
+            { Name: 'offset', Value: 0 }, { Name: 'keyword', Value: '' }],
+          Fields: expect.arrayContaining([expect.objectContaining({ Name: 'salary', OrderType: 'descending' })]),
+        })], PageParam: { index: 1, size: 20 },
+      },
+    })
+    const data = http.requestConfig?.data
+    expect(JSON.stringify(data)).not.toMatch(/MetaName|PayrollSalary|PrimaryKeyFields|DbName/)
+    expect(context.rows).toEqual([{ rowid: 'ROW-1', salary: 100 }])
+    expect(context.total).toBe(1)
+    expect(context.countReported).toBe(true)
+    expect(context.addActionState()).toBe('enabled')
+    expect(context.fieldAccess('ROW-1', 'salary')).toMatchObject({ write: 'allowed', required: true })
+    expect(context.fieldAccess('ROW-1', 'secret')).toMatchObject({ read: 'invisible', write: 'denied' })
+    expect(context.fieldAccess('ROW-1', 'bankAccount')).toMatchObject({ read: 'masked', write: 'denied' })
+    expect(context).not.toHaveProperty('originalRows')
+    expect(context).not.toHaveProperty('systemKey')
+    expect(() => context.assertIdentity({ scenarioId: 'OTHER', metaName: '薪资前端模型' })).toThrow('SPARK_QUERY_CONTEXT_IDENTITY')
+  })
+
+  it('reads keyless query row visibility from the original runtime result row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const wirePermissions = { e: ['name'], h: ['hidden'], m: ['masked'], d: true }
+    http.result = { primaryKeyField: null, allowAdd: true,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'Visible', masked: 'Masked', hidden: 'Hidden',
+        lingma_sys_params: wirePermissions }], Count: 1 } }
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'KeylessPicker' })
+    const row = context.rows[0]
+    if (!row) throw new Error('keyless fixture row missing')
+    wirePermissions.h.push('name')
+    expect(row).toEqual({ rowid: 'BUSINESS-ID', name: 'Visible', masked: 'Masked', hidden: 'Hidden' })
+    expect(context.rowKey(row)).toBeUndefined()
+    expect(context.fieldAccess('BUSINESS-ID', 'name').write).toBe('denied')
+    expect(context.editActionState('BUSINESS-ID')).toBe('hidden')
+    expect(context.deleteActionState('BUSINESS-ID')).toBe('hidden')
+    expect(context.viewActionState('BUSINESS-ID')).toBe('disabled')
+    expect(context.readFieldAccess(row, 'name')).toBe('visible')
+    expect(context.readFieldAccess(row, 'masked')).toBe('masked')
+    expect(context.readFieldAccess(row, 'hidden')).toBe('invisible')
+    expect(context.readFieldAccess({ ...row }, 'name')).toBe('invisible')
+    expect(() => context.prepareNewRow({ name: 'New' })).toThrow('SPARK_NEW_ROW_KEY')
+    expect(() => context.prepareSaveChanges({ changed: [{ ...row, name: 'Changed' }] }))
+      .toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.prepareSaveChanges({ deleted: [row] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity: { scenarioId: 'FORM-1', metaName: 'KeylessPicker' },
+      context, changes: { changed: [{ ...row, name: 'Changed' }] } }] }))
+      .rejects.toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+
+    context.bindFormalModel({ id: 'MODEL', metaName: 'KeylessPicker', name: 'KeylessPicker', sourceName: 'dictionary',
+      sourceId: '', sourceType: '字典', primaryKey: '', businessMain: false, raw: {}, fields: [
+        { id: 'FIELD', modelId: 'MODEL', name: 'name', canonicalName: 'name', type: 'string', primaryKey: false,
+          description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+      ] })
+    expect(context.rowKey(row)).toBeUndefined()
+    expect(context.allowAdd).toBe(false)
+    expect(context.addActionState()).toBe('hidden')
+    expect(context.readFieldAccess(row, 'name')).toBe('visible')
+    expect(() => context.prepareSaveChanges({ added: [{ name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ added: [{ name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ changed: [{ ...row, name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ deleted: [row] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+
+    const foreignHttp = new DataSpaceFixtureHttpClient()
+    foreignHttp.result = { primaryKeyField: null, allowAdd: true,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'Visible', lingma_sys_params: { e: ['name'] } }], Count: 1 } }
+    const foreign = await activeApi(foreignHttp).dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'KeylessPicker' })
+    const foreignRow = foreign.rows[0]
+    if (!foreignRow) throw new Error('foreign keyless fixture row missing')
+    expect(context.readFieldAccess(foreignRow, 'name')).toBe('invisible')
+
+    const application = api.application.get()
+    if (!application) throw new Error('fixture application missing')
+    api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(() => context.readFieldAccess(row, 'name')).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+  })
+
+  it.each([
+    ['deny', 'invisible'],
+    ['visible-readonly', 'visible'],
+  ] as const)('uses the explicit %s missing-auth policy for keyless row reads', (policy, expected) => {
+    const identity = { scenarioId: 'FORM-1', metaName: 'KeylessPicker' }
+    const snapshot = new DataSpaceQueryTable(identity).applyResult({ primaryKeyField: null,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'No permission payload' }], Count: 1 }, allowAdd: false })
+    const context = new DataSpaceQueryContext({ identity, snapshot, scope: 'scope', readScope: () => 'scope',
+      missingAuthPolicy: policy })
+    const row = context.rows[0]
+    if (!row) throw new Error('missing-auth fixture row missing')
+
+    expect(context.readFieldAccess(row, 'name')).toBe(expected)
+  })
+
+  it('surfaces a nested business error envelope instead of reading it as empty data', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    http.queryResults = [{ primaryKeyField: null, allowAdd: true,
+      data: { Code: 1004, Message: '[1004] 表没有默认字段，不能恢复数据', Type: 'error' } }]
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' }))
+      .rejects.toThrow('[1004] 表没有默认字段，不能恢复数据')
+  })
+
+  it('uses the selected application ID in request headers after switching applications', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = api.application.get()
+    if (!context) throw new Error('fixture application missing')
+    await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })
+    expect(http.requestConfig?.headers?.['X-AppId']).toBe('APP-A')
+    api.application.save({ ...context, application: { ...context.application, id: 'APP-B', code: 'CODE-B' } })
+    await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })
+    expect(http.requestConfig?.headers?.['X-AppId']).toBe('APP-B')
+    expect(http.requestConfig?.data).not.toHaveProperty('applicationId')
+    expect(http.requestConfig?.data).not.toHaveProperty('tenantId')
+    http.result = '{}'
+    await api.design.readTextFile({ appType: 'designfile', customPath: 'SysForm/FORM-1', fileName: 'pagedata.json' })
+    expect(http.requestConfig?.headers).toMatchObject(api.readRequestScope().headers)
+    expect(http.requestConfig?.headers?.['Authorization']).toBe('Bearer access')
+  })
+
+  it('uses original SPARK missing-auth semantics only for registered returned rows', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = {
+      primaryKeyField: 'rowid', data: { Items: [{ rowid: 'ROW-1' }], Count: 1 },
+      allowAdd: false,
+    }
+    const api = activeApi(http)
+
+    const context = await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })
+    expect(context.fieldAccess('ROW-1', 'name').write).toBe('allowed')
+    expect(context.fieldAccess('UNKNOWN', 'name').write).toBe('denied')
+    expect(context.addActionState()).toBe('hidden')
+  })
+
+  it('rejects duplicate entity keys across otherwise complete pages', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    http.queryResults = [1, 2].map(() => ({ primaryKeyField: 'rowid',
+      data: { Items: [{ rowid: 'REPEATED' }], Count: 2 } }))
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'Payroll' },
+      { allPages: true, page: { index: 1, size: 1 } })).rejects.toThrow('记录主键重复')
+  })
+
+  it('collects every page through the root request owner before publishing a context', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    http.queryResults = [1, 2].map(index => ({ primaryKeyField: 'rowid', allowAdd: false,
+      data: { Items: [{ rowid: `ROW-${index}`, salary: index,
+        lingma_sys_params: { e: ['salary'] } }], Count: 2 } }))
+    const context = await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'Payroll' },
+      { allPages: true, page: { index: 1, size: 1 } })
+    expect(context.rows.map(row => row['rowid'])).toEqual(['ROW-1', 'ROW-2'])
+    expect(context.total).toBe(2)
+    expect(http.queryRequests.map(request => request.data)).toEqual([
+      expect.objectContaining({ PageParam: { index: 1, size: 1 } }),
+      expect.objectContaining({ PageParam: { index: 2, size: 1 } }),
+    ])
+    expect(http.queryRequests.every(request => request.headers?.['X-AppId'] === 'APP-A'
+      && request.headers?.['x-FormKey'] === 'FORM-1')).toBe(true)
+    expect(context.fieldAccess('ROW-2', 'salary').write).toBe('allowed')
+    http.queryResults = [{ data: { Items: [{ rowid: 'ROW-1' }], Count: 2 }, allowAdd: false },
+      { data: { Items: [] }, allowAdd: false }]
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'Payroll' },
+      { allPages: true, page: { index: 1, size: 1 } })).rejects.toThrow('分页缺少后端总数')
+    expect(context.rows).toHaveLength(2)
+  })
+
+  it('merges equal flights while keeping scenario and model identities separate', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const identity = { scenarioId: 'FORM-1', metaName: 'Payroll' }
+    const [first, same, otherScenario, otherModel] = await Promise.all([
+      api.dataSpace.runtime.query(identity), api.dataSpace.runtime.query(identity),
+      api.dataSpace.runtime.query({ ...identity, scenarioId: 'FORM-2' }),
+      api.dataSpace.runtime.query({ ...identity, metaName: 'Orders' }),
+    ])
+    expect(first).toBe(same)
+    expect(first).not.toBe(otherScenario)
+    expect(first).not.toBe(otherModel)
+    expect(http.queryRequests).toHaveLength(3)
+    await api.dataSpace.runtime.query(identity)
+    expect(http.queryRequests).toHaveLength(4)
+  })
+
+  it('invalidates retained results and permissions after the selected application changes', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const identity = { scenarioId: 'FORM-1', metaName: 'Payroll' }
+    const context = await api.dataSpace.runtime.query(identity)
+    const application = api.application.get()
+    if (!application) throw new Error('fixture application missing')
+    api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(context.hasPendingSavedRowPermissions).toBe(false)
+    expect(() => context.rows).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(() => context.fieldAccess('ROW-1', 'salary')).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    const next = await api.dataSpace.runtime.query(identity)
+    expect(next.rows).toHaveLength(1)
+    expect(http.requestConfig?.headers?.['X-AppId']).toBe('APP-B')
+  })
+
+  it('requires a real session and explicit application before a runtime query', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    api.application.clear()
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' }))
+      .rejects.toThrow('明确选中应用')
+    api.session.clear()
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' }))
+      .rejects.toThrow('有效登录身份')
+    expect(http.requestConfig).toBeNull()
+  })
+
+  it('allows automatic token refresh through the actual HTTP interceptor', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const session = api.session.get()
+    if (!session) throw new Error('fixture session missing')
+    api.session.save({ ...session, accessExpiresAt: 1 })
+    const revision = api.session.revision
+    http.refreshResult = { token: 'renewed-access', refreshToken: 'renewed-refresh',
+      expire: Date.now() + 60_000, refreshExpire: Date.now() + 120_000 }
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })).resolves.toMatchObject({ total: 1 })
+    expect(api.session.revision).toBe(revision)
+    expect(http.requestConfig?.headers?.['Authorization']).toBe('Bearer renewed-access')
+  })
+
+  it.each(['application', 'identity', 'logout'])('rejects a late result after %s changes and allows a fresh query', async change => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const session = api.session.get()
+    const application = api.application.get()
+    if (!session || !application) throw new Error('fixture identity missing')
+    let release: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.queryStarted = resolve })
+    const pending = api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })
+    const rejected = expect(pending).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    await started
+    if (change === 'application') {
+      api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+      api.application.save(application)
+    } else if (change === 'identity') {
+      api.session.save({ ...session, identity: { ...session.identity } })
+    } else {
+      api.session.clear()
+      api.session.save(session)
+    }
+    release?.()
+    await rejected
+    http.queryGate = undefined
+    await expect(api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: '薪资前端模型' })).resolves.toMatchObject({ total: 1 })
+  })
+})
+
+
+describe('DataSpace runtime save owner', () => {
+  const identity = { scenarioId: 'FORM-1', metaName: 'Payroll' }
+
+  it('saves owned query contexts once and registers the actual successor baseline', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const accepted = await api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120, _pk: 'local' }] } }] })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(http.saveRequests[0]).toMatchObject({ headers: { 'X-AppId': 'APP-A', 'x-FormKey': 'FORM-1' },
+      data: [{ TableName: 'Payroll', CrudModel: { Added: [], Deleted: [],
+        Changed: [{ rowid: 'ROW-1', salary: 120, lingma_sys_key: 'ROW-KEY' }] } }] })
+    expect(accepted[0]?.context.rows).toEqual([{ rowid: 'ROW-1', salary: 120 }])
+    expect(context.rows).toEqual([{ rowid: 'ROW-1', salary: 100 }])
+    const successor = accepted[0]?.context
+    if (!successor) throw new Error('missing successor')
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 130 }] }] }
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context: successor,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 130 }] } }] })).resolves.toHaveLength(1)
+  })
+
+  it('rejects a context issued by a different runtime owner before writing', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const other = activeApi(new DataSpaceFixtureHttpClient())
+    const context = await other.dataSpace.runtime.query(identity)
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })).rejects.toThrow('OWNER')
+    expect(http.saveRequests).toHaveLength(0)
+  })
+
+  it('does not reuse an already submitted baseline but leaves its read data intact', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
+    await api.dataSpace.runtime.save(command)
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('OWNER')
+    expect(context.rows[0]?.['salary']).toBe(100)
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('serializes overlapping models and captures queued caller values before waiting', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const firstContext = await api.dataSpace.runtime.query(identity)
+    const secondContext = await api.dataSpace.runtime.query(identity)
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const first = api.dataSpace.runtime.save({ changes: [{ identity, context: firstContext,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await started
+    const row = { rowid: 'ROW-1', salary: 150 }
+    const second = api.dataSpace.runtime.save({ changes: [{ identity, context: secondContext, changes: { changed: [row] } }] })
+    row.salary = 999
+    expect(http.saveRequests).toHaveLength(1)
+    release?.()
+    await Promise.all([first, second])
+    expect(http.saveRequests).toHaveLength(2)
+    expect(http.saveRequests[1]?.data).toMatchObject([{ CrudModel: { Changed: [{ salary: 150 }] } }])
+  })
+
+  it('waits for a pending model query before sending its save', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    let release: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.queryStarted = resolve })
+    const query = api.dataSpace.runtime.query(identity)
+    await started
+    const save = api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await Promise.resolve()
+    expect(http.saveRequests).toHaveLength(0)
+    release?.()
+    await Promise.all([query, save])
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('waits for an in-flight save before starting a fresh model query', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await started
+    const query = api.dataSpace.runtime.query(identity)
+    await Promise.resolve()
+    expect(http.queryRequests).toHaveLength(1)
+    release?.()
+    await Promise.all([save, query])
+    expect(http.queryRequests).toHaveLength(2)
+  })
+
+  it.each([[{deleted: [{rowid: 'ROW-1'}]}, []], [{changed: [{rowid: 'ROW-1', salary: 120}]}, [{rowid: 'ROW-1', salary: 130}]]] as const)(
+    'verifies a lost save only from exact-key field proof (%j)', async (changes, rows) => {
+      const http = new DataSpaceFixtureHttpClient()
+      const api = activeApi(http)
+      const context = await api.dataSpace.runtime.query(identity)
+      const command = {changes: [{identity, context, changes: structuredClone(changes)}]}
+      http.saveError = new Error('socket closed')
+      await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
+      http.queryResults.push({primaryKeyField: 'rowid', data: {Items: rows, Count: rows.length}})
+      if ('deleted' in changes) {
+        const receipts = await api.dataSpace.runtime.save(command)
+        expect(receipts[0]?.deleted).toEqual([{rowid: 'ROW-1', salary: 100}])
+        expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+      } else {
+        await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+        expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+      }
+      expect(http.saveRequests).toHaveLength(1)
+    })
+
+  it('does not replay a save already queued before the original receipt was lost', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const runtime = activeApi(http).dataSpace.runtime
+    const context = await runtime.query(identity)
+    const command = {changes: [{identity, context, changes: {changed: [{rowid:'ROW-1', salary:120}]}}]}
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => {release = resolve})
+    const started = new Promise<void>(resolve => {http.saveStarted = resolve})
+    const first = expect(runtime.save(command)).rejects.toThrow('socket closed')
+    await started
+    const queued = expect(runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    http.saveError = new Error('socket closed')
+    release?.()
+    await Promise.all([first, queued])
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it.each(['paged', 'none'] as const)('preserves an unreadable receipt as unknown without replay (pagination=%s)', async pagination => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity, {pagination})
+    const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
+    http.saveResult = {}
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+  })
+
+  it('confirms a matching changed row without replaying the lost write', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
+    http.saveError = new Error('socket closed')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({ ...(http.result as Record<string, unknown>), data: { Items: [{ rowid: 'ROW-1', salary: 120,
+      lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['salary'], e: ['salary'], h: [], m: [], d: true } }], Count: 1 } })
+    const receipts = await api.dataSpace.runtime.save(command)
+    expect(receipts[0]?.changed).toEqual([{rowid: 'ROW-1', salary: 120}])
+    expect(http.saveRequests).toHaveLength(1)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+    expect(http.queryRequests).toHaveLength(2)
+  })
+
+  it('preserves original ownership without constructing a receipt from returned rows',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http)
+    const context=await api.dataSpace.runtime.query(identity)
+    const command={changes:[{identity,context,changes:{changed:[{rowid:'ROW-1',salary:120}]}}]}
+    http.saveError=new Error('socket closed')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
+    http.saveError=undefined
+    const snapshot={...http.result as Record<string,unknown>,data:{Items:[{rowid:'ROW-1',salary:120,
+      lingma_sys_key:'ROW-KEY',lingma_sys_params:{r:['salary'],e:['salary'],h:[],m:[],d:true}}],Count:1}}
+    http.queryResults.push(snapshot)
+    const accept = vi.spyOn(context, 'acceptSaveReceipt')
+    await expect(api.dataSpace.runtime.save(command)).resolves.toMatchObject([{changed: [{rowid:'ROW-1', salary:120}]}])
+    expect(accept).not.toHaveBeenCalled()
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('preserves a root create with a lost receipt even if its primary key is visible', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    expect(context.prepareNewRow({rowid: 'LEGACY-ROW', SysId: 'APP-A', prowid: '000000'})).toMatchObject({rowid: 'LEGACY-ROW'})
+    const row = context.prepareNewRowWithIdentity({SysId: 'APP-A', prowid: '000000', name: '新模块'}, {field: 'rowid', value: 'ROOT-NEW'})
+    const command = {changes: [{identity, context, changes: {added: [row]}}]}
+    http.saveError = new Error('socket closed after create')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed after create')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [{...row,
+      lingma_sys_key: 'NEW-ROW-KEY', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}], Count: 1}})
+    await expect(api.dataSpace.runtime.save(command)).resolves.toMatchObject([{added: [{rowid: 'ROOT-NEW', name: '新模块'}]}])
+    expect(http.saveRequests).toHaveLength(1)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
+  })
+
+  it('refuses to mix another change into an unconfirmed batch', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    http.saveError = new Error('timeout')
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })).rejects.toThrow()
+    http.saveError = undefined
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 999 }] } }] }))
+      .rejects.toThrow('不能夹带')
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('does not use an empty exact result as proof that an added row was applied', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const command = {changes: [{identity, context, changes: {added: [{rowid:'MISSING', salary:120}]}}]}
+    http.saveError = new Error('socket closed after add')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed after add')
+    http.queryResults.push({primaryKeyField: 'rowid', data: {Items: [], Count: 0}})
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    expect(http.saveRequests).toHaveLength(1)
+  })
+
+  it('sends two owned models in one same-scenario request', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const otherIdentity = { ...identity, metaName: 'Lines' }
+    const context = await api.dataSpace.runtime.query(identity)
+    const otherContext = await api.dataSpace.runtime.query(otherIdentity)
+    http.saveResult = { maplistedit: [{ orders: [{ rowid: 'ROW-1', salary: 120 }] },
+      { lines: [{ rowid: 'ROW-1', salary: 150 }] }] }
+    const receipts = await api.dataSpace.runtime.save({ changes: [
+      { identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } },
+      { identity: otherIdentity, context: otherContext, changes: { changed: [{ rowid: 'ROW-1', salary: 150 }] } },
+    ] })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(receipts.map(receipt => [receipt.metaName, receipt.context.rows[0]?.['salary']]))
+      .toEqual([['Payroll', 120], ['Lines', 150]])
+  })
+
+  it('allows different model saves to run independently', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const otherIdentity = { ...identity, metaName: 'Lines' }
+    const context = await api.dataSpace.runtime.query(identity)
+    const otherContext = await api.dataSpace.runtime.query(otherIdentity)
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const first = api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await started
+    const second = api.dataSpace.runtime.save({ changes: [{ identity: otherIdentity, context: otherContext,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await vi.waitFor(() => expect(http.saveRequests).toHaveLength(2))
+    release?.()
+    await Promise.all([first, second])
+  })
+
+  it('cancels a queued save before transport without poisoning the model queue', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const firstContext = await api.dataSpace.runtime.query(identity)
+    const context = await api.dataSpace.runtime.query(identity)
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const first = api.dataSpace.runtime.save({ changes: [{ identity, context: firstContext,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    await started
+    const controller = new AbortController()
+    const change = { identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 150 }] } }
+    const queued = api.dataSpace.runtime.save({ changes: [change], signal: controller.signal })
+    const rejected = expect(queued).rejects.toThrow()
+    controller.abort()
+    release?.()
+    await first
+    await rejected
+    expect(http.saveRequests).toHaveLength(1)
+    await expect(api.dataSpace.runtime.save({ changes: [change] })).resolves.toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(2)
+  })
+
+  it('rejects a late save after an application change without publishing its successor', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })
+    const rejected = expect(save).rejects.toThrow('STALE')
+    await started
+    const application = api.application.get()
+    if (!application) throw new Error('missing application')
+    api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    release?.()
+    await rejected
+    expect(http.saveRequests).toHaveLength(1)
+  })
+})
+
+function connectedView(http: DataSpaceFixtureHttpClient, bind = true) {
+  const api = activeApi(http)
+  const ds = SparkData.createDataSet({ dataSetName: 'Payroll', scenarioId: 'FORM-1', tables: {
+    Payroll: { tableName: 'Payroll', modelBinding: { modelId: 'MODEL-1', modelName: 'Payroll' },
+      columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'salary', type: 'number' }],
+      views: { default: {}, list: { page: 1, pageSize: 20, queryContext: { enabled: false, offset: 0, text: '' } } } },
+  } })
+  const view = ds.getView('Payroll', 'list')
+  if (!view) throw new Error('fixture view missing')
+  const executeQuery = vi.spyOn(api.dataSpace.runtime, 'executeQuery')
+  const executor = api.dataSpace.runtime
+  if (bind) view.bindQueryExecutor(executor)
+  return { api, ds, view, executeQuery, executor }
+}
+
+function findRow(view: DataView, primaryKey: string | number) {
+  return view.rows.find(row => row[view.primaryKey] === primaryKey) ?? null
+}
+
+describe('DataView session result cache', () => {
+  it.each(['page', 'browser'] as const)('reuses %s results by complete input and keeps explicit refresh fresh', async cacheType => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      view.queryConfig = {cacheType}
+      await view.loadFromServer(); await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(1)
+      await view.setPage(2); await view.setPage(1)
+      expect(http.queryRequests).toHaveLength(2)
+      await view.setSort([{field: 'salary', direction: 'desc'}]); await view.setSort(undefined)
+      expect(http.queryRequests).toHaveLength(3)
+      await view.setFilter({field: 'salary', operator: 'gt', value: 0}); await view.setFilter(undefined)
+      expect(http.queryRequests).toHaveLength(4)
+      view.queryContext = {period: 'new'}; await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(5)
+      await view.refresh()
+      expect(http.queryRequests).toHaveLength(6)
+      expect(JSON.stringify(http.queryRequests)).not.toContain('cacheType')
+    } finally {ds.destroy()}
+  })
+
+  it.each(['page', 'browser'] as const)('isolates page instances and reuses only browser mode: %s', async cacheType => {
+    const http = new DataSpaceFixtureHttpClient(), first = connectedView(http), next = connectedView(http, false)
+    try {
+      first.view.queryConfig = {cacheType}; next.view.queryConfig = {cacheType}
+      next.view.bindQueryExecutor(first.executor)
+      await first.view.loadFromServer(); first.ds.destroy(); await next.view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(cacheType === 'browser' ? 1 : 2)
+      expect(next.view.rows[0]?.['salary']).toBe(100)
+      expect(next.view.rows[0]).not.toHaveProperty('lingma_sys_key')
+      first.api.session.clear()
+      await expect(next.view.loadFromServer()).rejects.toThrow('SCOPE_REQUIRED')
+    } finally {first.ds.destroy(); next.ds.destroy()}
+  })
+
+  it('invalidates before and after writes and never resurrects a submitted permission baseline', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      view.queryConfig = {cacheType: 'browser'}
+      await view.loadFromServer()
+      view.updateEditingValue('ROW-1', 'salary', 120)
+      expect((await ds.saveChanges()).success).toBe(true)
+      await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(2)
+      view.updateEditingValue('ROW-1', 'salary', 140)
+      expect((await ds.saveChanges()).success).toBe(true)
+    } finally {ds.destroy()}
+  })
+
+  it('does not refill an invalidated cache with an old in-flight response', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view, executor} = connectedView(http)
+    try {
+      view.queryConfig = {cacheType: 'browser'}
+      let release!: () => void
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      const started = new Promise<void>(resolve => {http.queryStarted = resolve})
+      const query = view.loadFromServer(); await started
+      executor.invalidateQueryCache(); release(); await query
+      await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+
+  it('clears browser results on logout and identity changes, including when returning to the same identity', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view, api, executor} = connectedView(http)
+    const clear = vi.spyOn(executor, 'invalidateQueryCache')
+    try {
+      view.queryConfig = {cacheType: 'browser'}
+      await view.loadFromServer()
+      const session = api.session.get()!, application = api.application.get()!
+      api.application.save({...application, application: {...application.application, id: 'APP-B'}})
+      api.application.save(application)
+      await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(2)
+      const before = clear.mock.calls.length
+      await api.platform.logout()
+      expect(clear.mock.calls.length).toBeGreaterThan(before)
+      api.session.save(session); api.application.save(application)
+      await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(3)
+    } finally {ds.destroy()}
+  })
+
+  it('does not reuse a result after a failed or unknown write', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view, api} = connectedView(http)
+    try {
+      view.queryConfig = {cacheType: 'browser'}
+      await view.loadFromServer()
+      const context = await api.dataSpace.runtime.executeQuery(view, {})
+      http.saveResult = null
+      await expect(api.dataSpace.runtime.save({changes: [{identity: {scenarioId: 'FORM-1', metaName: 'Payroll'}, context,
+        changes: {changed: [{rowid: 'ROW-1', salary: 120}]}}]})).rejects.toThrow()
+      await view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+
+  it('does not retain a rejected response and keeps cached views independently editable', async () => {
+    const http = new DataSpaceFixtureHttpClient(), first = connectedView(http), second = connectedView(http, false)
+    try {
+      first.view.queryConfig = {cacheType: 'browser'}; second.view.queryConfig = {cacheType: 'browser'}
+      second.view.bindQueryExecutor(first.executor)
+      const valid = http.result
+      http.result = null
+      await expect(first.view.loadFromServer()).rejects.toThrow()
+      http.result = valid
+      await first.view.loadFromServer(); await second.view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(2)
+      expect(first.view.rows[0]).not.toBe(second.view.rows[0])
+      first.view.updateEditingValue('ROW-1', 'salary', 150)
+      expect(second.view.getEditingRow('ROW-1')?.['salary']).toBe(100)
+      first.view.discardEditingRows()
+    } finally {first.ds.destroy(); second.ds.destroy()}
+  })
+})
+
+function connectedScenario(http: DataSpaceFixtureHttpClient, separateOwner = false) {
+  const api = activeApi(http)
+  const ds = SparkData.createDataSet({ dataSetName: 'Payroll', scenarioId: 'FORM-1', tables: {
+    Payroll: { tableName: 'Payroll', modelBinding: { modelId: 'MODEL-1', modelName: 'Payroll' },
+      columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'salary', type: 'number' }],
+      views: { default: {}, list: { page: 1, pageSize: 20 } } },
+    Bonus: { tableName: 'Bonus', modelBinding: { modelId: 'MODEL-2', modelName: 'Bonus' },
+      columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'salary', type: 'number' }],
+      views: { default: {}, list: { page: 1, pageSize: 20 } } },
+  } })
+  const view = ds.getView('Payroll', 'list')
+  const second = ds.getView('Bonus', 'list')
+  if (!view || !second) throw new Error('fixture views missing')
+  view.bindQueryExecutor(api.dataSpace.runtime)
+  second.bindQueryExecutor(separateOwner ? activeApi(http).dataSpace.runtime : api.dataSpace.runtime)
+  http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] },
+    { physical: [{ rowid: 'ROW-1', salary: 220 }] }] }
+  return { api, ds, view, second }
+}
+
+describe('DataSet actual SPARK batch save', () => {
+  it('sends two model views once and accepts both actual baselines', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.editRowById('ROW-1', { salary: 220 })
+    const oldFirst = vi.spyOn(view, 'saveChanges')
+    const oldSecond = vi.spyOn(second, 'saveChanges')
+    await expect(ds.saveChanges()).resolves.toMatchObject({ success: true, data: { savedCount: 2 } })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(oldFirst).not.toHaveBeenCalled()
+    expect(oldSecond).not.toHaveBeenCalled()
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(second.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.rows[0]?.['salary']).toBe(120)
+    expect(second.rows[0]?.['salary']).toBe(220)
+    expect(JSON.stringify(http.saveRequests[0]?.data)).not.toContain('_pk')
+    ds.destroy()
+  })
+
+  it('preserves both models when the batch fails without clearing pending changes', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.editRowById('ROW-1', { salary: 220 })
+    http.saveResult = {}
+    await expect(ds.saveChanges()).rejects.toThrow('桶')
+    expect(http.saveRequests).toHaveLength(1)
+    for (const target of [view, second]) {
+      expect(target.dirtyTracking.isDirty('ROW-1')).toBe(true)
+      expect(target.mutating).toBe(false)
+      expect(target.mutatingError).not.toBeNull()
+    }
+    ds.destroy()
+  })
+
+  it('applies both models drafts before issuing one batch', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    view.updateEditingValue('ROW-1', 'salary', 120)
+    second.updateEditingValue('ROW-1', 'salary', 220)
+    await expect(ds.saveChanges()).resolves.toMatchObject({ success: true, data: { appliedEditingRows: 2, savedCount: 2 } })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.hasEditingChanges()).toBe(false)
+    expect(second.hasEditingChanges()).toBe(false)
+    expect(http.saveRequests[0]?.data).toMatchObject([
+      { TableName: 'Payroll', CrudModel: { Changed: [{ rowid: 'ROW-1', salary: 120, lingma_sys_key: 'ROW-KEY' }] } },
+      { TableName: 'Bonus', CrudModel: { Changed: [{ rowid: 'ROW-1', salary: 220, lingma_sys_key: 'ROW-KEY' }] } },
+    ])
+    ds.destroy()
+  })
+
+  it('accepts different actions and totals in their respective models from one batch', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.removeRow('ROW-1')
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }],
+      maplistdelete: [{ physical: [{ rowid: 'ROW-1' }] }] }
+    await expect(ds.saveChanges()).resolves.toMatchObject({ success: true, data: { savedCount: 1, deletedCount: 1 } })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.total).toBe(1)
+    expect(second.total).toBe(0)
+    expect(second.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(second.rows).toEqual([])
+    ds.destroy()
+  })
+
+  it('requires every selected model baseline before sending any model', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    await expect(second.addRow({ rowid: 'NEW', salary: 220 })).rejects.toThrow('DATA_VIEW_NEW_ROW_OWNER')
+    expect(http.saveRequests).toHaveLength(0)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(second.dirtyTracking.isPendingCreate('NEW')).toBe(false)
+    ds.destroy()
+  })
+
+  it.each([false, true])('saves independently owned models in separate batches and retains their own receipts (second fails=%s)', async failSecond => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http, true)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.editRowById('ROW-1', { salary: 220 })
+    http.saveStarted = () => {
+      const count = http.saveRequests.length
+      http.saveResult = failSecond && count === 2 ? {} : {
+        maplistedit: [{physical: [{rowid: 'ROW-1', salary: count === 1 ? 120 : 220}]}],
+      }
+    }
+    if (failSecond) await expect(ds.saveChanges()).rejects.toThrow('桶')
+    else await expect(ds.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 2}})
+    expect(http.saveRequests).toHaveLength(2)
+    expect(http.saveRequests[0]?.data).toMatchObject([{TableName: 'Payroll', CrudModel: {Changed: [{rowid: 'ROW-1', salary: 120}]}}])
+    expect(http.saveRequests[1]?.data).toMatchObject([{TableName: 'Bonus', CrudModel: {Changed: [{rowid: 'ROW-1', salary: 220}]}}])
+    expect(http.saveRequests.map(request => (request.data as unknown[]).length)).toEqual([1, 1])
+    expect(view.rows[0]?.['salary']).toBe(120)
+    expect(second.rows[0]?.['salary']).toBe(220)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(false)
+    expect(second.dirtyTracking.isDirty('ROW-1')).toBe(failSecond)
+    ds.destroy()
+  })
+
+  it('keeps edits made in both models during the batch and saves them against the successors', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.editRowById('ROW-1', { salary: 220 })
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = ds.saveChanges()
+    await started
+    expect(view.mutating).toBe(true)
+    expect(second.mutating).toBe(true)
+    await view.editRowById('ROW-1', { salary: 150 })
+    await second.editRowById('ROW-1', { salary: 250 })
+    release?.()
+    await save
+    expect(view.rows[0]?.['salary']).toBe(150)
+    expect(second.rows[0]?.['salary']).toBe(250)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(second.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 150 }] },
+      { physical: [{ rowid: 'ROW-1', salary: 250 }] }] }
+    await ds.saveChanges()
+    expect(http.saveRequests).toHaveLength(2)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(second.dirtyTracking.hasPendingChanges()).toBe(false)
+    ds.destroy()
+  })
+
+  it('applies selected drafts before the single request and respects empty row selectors', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    view.updateEditingValue('ROW-1', 'salary', 120)
+    second.updateEditingValue('ROW-1', 'salary', 220)
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
+    await expect(ds.saveChanges({ views: [{ tableName: 'Payroll', viewId: 'list', ids: ['ROW-1'] },
+      { tableName: 'Bonus', viewId: 'list', ids: [] }] })).resolves.toMatchObject({
+        success: true, data: { appliedEditingRows: 1, savedCount: 1 } })
+    expect(second.hasEditingChanges()).toBe(true)
+    expect(second.rows[0]?.['salary']).toBe(100)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('omits a reverted model from the batch without requiring a spurious receipt', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    await second.editRowById('ROW-1', { salary: 220 })
+    await second.editRowById('ROW-1', { salary: 100 })
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
+    await expect(ds.saveChanges()).resolves.toMatchObject({ success: true, data: { savedCount: 1 } })
+    expect(http.saveRequests).toHaveLength(1)
+    expect(second.dirtyTracking.hasPendingChanges()).toBe(false)
+    ds.destroy()
+  })
+
+  it('does not apply disabled drafts or send their model', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, second } = connectedScenario(http)
+    await Promise.all([view.loadFromServer(), second.loadFromServer()])
+    await view.editRowById('ROW-1', { salary: 120 })
+    second.updateEditingValue('ROW-1', 'salary', 220)
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
+    await expect(ds.saveChanges({ applyEditingRows: false })).resolves.toMatchObject({
+      success: true, data: { appliedEditingRows: 0, savedCount: 1 } })
+    expect(second.hasEditingChanges()).toBe(true)
+    expect(second.rows[0]?.['salary']).toBe(100)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('keeps original query identity over local key overrides and rejects same-record drafts before applying', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view, executor} = connectedView(http)
+    const other = ds.getView('Payroll', 'default')!
+    other.bindQueryExecutor(executor)
+    view.primaryKey = 'localKey'; other.primaryKey = 'localKey'
+    http.queryResults = ['left', 'right'].map(localKey => ({primaryKeyField: 'rowid', data: {Items: [
+      {rowid: 'ROW-1', localKey, salary: 100, lingma_sys_key: `KEY-${localKey}`, lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}}))
+    await view.loadFromServer(); await other.loadFromServer()
+    expect(view.primaryKey).toBe('rowid'); expect(other.primaryKey).toBe('rowid')
+    expect(view.getPkKey(view.rows[0]!)).toBe('ROW-1'); expect(other.getPkKey(other.rows[0]!)).toBe('ROW-1')
+    expect(view.rows[0]?.['localKey']).toBe('left'); expect(other.rows[0]?.['localKey']).toBe('right')
+    view.updateEditingValue('ROW-1', 'salary', 120); other.updateEditingValue('ROW-1', 'salary', 220)
+    const apply = vi.spyOn(view, 'applyEditingRows')
+    await expect(ds.saveChanges()).rejects.toThrow('DATA_SET_SAVE_MODEL_CONFLICT')
+    expect(apply).not.toHaveBeenCalled(); expect(http.saveRequests).toHaveLength(0)
+    expect(view.hasEditingChanges()).toBe(true); expect(other.hasEditingChanges()).toBe(true)
+    ds.destroy()
+  })
+
+  it('rejects same-record views and a transaction requirement before applying drafts', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, executor } = connectedView(http)
+    const other = ds.getView('Payroll', 'default')
+    if (!other) throw new Error('fixture second view missing')
+    other.bindQueryExecutor(executor)
+    await Promise.all([view.loadFromServer(), other.loadFromServer()])
+    view.updateEditingValue('ROW-1', 'salary', 120)
+    other.updateEditingValue('ROW-1', 'salary', 220)
+    await expect(ds.saveChanges()).rejects.toThrow('DATA_SET_SAVE_MODEL_CONFLICT')
+    await expect(ds.saveChanges({ mode: 'transaction' })).rejects.toThrow('TRANSACTION_UNSUPPORTED')
+    expect(view.hasEditingChanges()).toBe(true)
+    expect(other.hasEditingChanges()).toBe(true)
+    expect(http.saveRequests).toHaveLength(0)
+    await expect(ds.saveChanges({ views: [{ tableName: 'Payroll', viewId: 'list' }] }))
+      .resolves.toMatchObject({ success: true, data: { appliedEditingRows: 1, savedCount: 1 } })
+    expect(other.getEditingPatch('ROW-1')).toEqual({ salary: 220 })
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+})
+
+describe('DataView original query execution boundary', () => {
+  it('keeps the original owner recoverable when query parameters change during a permission read', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'NEW', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await view.saveChanges()
+      await view.editRowById('ROW-1', {salary: 125})
+      const originalContext = view.queryContext
+      const fresh = {primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'NEW', salary: 200, lingma_sys_key: 'FRESH', lingma_sys_params: {e: ['salary']}},
+      ]}}
+      http.queryResults = [fresh]
+      let release!: () => void, started!: () => void
+      const readStarted = new Promise<void>(resolve => {started = resolve})
+      http.queryStarted = started
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      const refresh = view.refreshSavedRowPermissions()
+      await readStarted
+      view.queryContext = {otherTarget: true}
+      release()
+      await expect(refresh).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS_STALE')
+      view.queryContext = originalContext
+      http.queryResults = [fresh]
+      await view.refreshSavedRowPermissions()
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(125)
+      expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+      expect(http.saveRequests).toHaveLength(1)
+    } finally {ds.destroy()}
+  })
+  it.each([[false, 'paged'], [true, 'paged'], [false, 'none'], [true, 'none']] as const)('restores formal aliased primary-key permissions after add (unknown=%s pagination=%s)', async (unknown, pagination) => {
+    const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
+    try {
+      const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {
+        id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary', sourceId: 'RESOURCE-1',
+        sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {}, fields: [
+          {id: 'KEY', modelId: 'MODEL-1', name: 'physical_id', canonicalName: 'rowid', type: 'string', primaryKey: true,
+            description: '', output: true, computed: false, order: 0, orderType: '', raw: {}},
+          {id: 'SALARY', modelId: 'MODEL-1', name: 'physical_salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+            description: '', output: true, computed: false, order: 1, orderType: '', raw: {}},
+        ],
+      }
+      api.dataSpace.runtime.bindModelView(view, model)
+      view.queryConfig = {pagination}
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'ALIASED'}, {salary: 200})
+      if (unknown) {
+        http.saveError = new Error('socket closed')
+        await expect(view.saveChanges()).rejects.toThrow('socket closed')
+        http.queryResults = [{primaryKeyField:'rowid',data:{Count:1,Items:[
+          {rowid:'ALIASED',salary:200,lingma_sys_key:'ALIASED-ROW-KEY',lingma_sys_params:{e:['salary'],d:true}},
+        ]}}]
+        await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
+        expect(view.hasUnconfirmedSave).toBe(false)
+        expect(http.saveRequests).toHaveLength(1)
+        return
+      }
+      http.saveResult = {maplistadd: [{physical: [{physical_id: 'ALIASED', physical_salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'ALIASED', salary: 200, lingma_sys_key: 'ALIASED-ROW-KEY', lingma_sys_params: {e: ['salary'], d: true}},
+      ]}}]
+      await view.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(JSON.stringify(http.queryRequests.at(-1)?.data)).toContain('physical_id')
+      await view.editRowById('ALIASED', {salary: 201})
+      http.saveResult = {maplistedit: [{physical: [{physical_id: 'ALIASED', physical_salary: 201}]}]}
+      await view.saveChanges()
+      expect(JSON.stringify(http.saveRequests.at(-1)?.data)).toContain('ALIASED-ROW-KEY')
+    } finally {ds.destroy()}
+  })
+  it('leaves an older pending row unchanged when a later add obtains its own permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'A'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'A', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await view.saveChanges()
+      await view.addRowWithIdentity({field: 'rowid', value: 'B'}, {salary: 300})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'B', salary: 300}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'B', salary: 301, lingma_sys_key: 'B-ROW', lingma_sys_params: {e: ['salary']}},
+      ]}}]
+      await view.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      expect(findRow(view, 'A')?.['salary']).toBe(200)
+      expect(findRow(view, 'B')?.['salary']).toBe(301)
+      expect(view.fieldAccess(findRow(view, 'A'), 'salary').write).toBe('denied')
+      expect(view.fieldAccess(findRow(view, 'B'), 'salary').write).toBe('allowed')
+      expect(http.saveRequests).toHaveLength(2)
+      const application = api.application.get()
+      if (!application) throw new Error('fixture application missing')
+      api.application.save({...application, application: {...application.application, id: 'APP-B'}})
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      const queryCount = http.queryRequests.length
+      await expect(view.refreshSavedRowPermissions()).rejects.toThrow('SPARK_QUERY_CONTEXT_STALE')
+      expect(http.queryRequests).toHaveLength(queryCount)
+    } finally {ds.destroy()}
+  })
+  it('recovers confirmed new-row permissions with reads while preserving another dirty row and a later overlay', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'NEW', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await ds.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      expect(view.hasUnconfirmedSave).toBe(false)
+      await view.editRowById('ROW-1', {salary: 125})
+      view.updateEditingValue('ROW-1', 'salary', 130)
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'NEW', salary: 201, lingma_sys_key: 'FORMAL-NEW', lingma_sys_params: {e: ['salary'], d: true}},
+      ]}}]
+      let release!: () => void
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      const refresh = view.refreshSavedRowPermissions()
+      await expect(ds.saveChanges()).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY')
+      await expect(view.refreshSavedRowPermissions()).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS')
+      view.updateEditingValue('ROW-1', 'salary', 135)
+      release()
+      await refresh
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(view.total).toBe(2)
+      expect(findRow(view, 'NEW')?.['salary']).toBe(201)
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(125)
+      expect(view.hasEditingChanges('ROW-1')).toBe(true)
+      expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+      expect(http.saveRequests).toHaveLength(1)
+      await view.editRowById('NEW', {salary: 202})
+      expect(view.dirtyTracking.isDirty('NEW')).toBe(true)
+    } finally {ds.destroy()}
+  })
+  it('serializes DataView distinct configuration and explicit false overrides through the runtime query', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      view.queryConfig = {distinct: true}
+      await view.loadFromServer()
+      expect((http.queryRequests[0]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(true)
+
+      await view.loadFromServer({distinct: false})
+      expect((http.queryRequests[1]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(false)
+
+      view.queryConfig = {}
+      await view.loadFromServer()
+      expect((http.queryRequests[2]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(false)
+    } finally {ds.destroy()}
+  })
+
+  it.each(['original', 'derived', 'sibling'] as const)('rejects an old formal-model %s view after an application round trip, while a fresh table can query', async kind => {
+    const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
+    const model = DataSpaceDesignApi.projectModel({rowid: 'MODEL-1', Name: 'Payroll', Type: '数据库表', MetaName: 'PayrollSalary'}, [
+      {rowid: 'KEY', dataModelId: 'MODEL-1', Name: 'rowid', FieldType: 'string', IsOutput: 1},
+      {rowid: 'SALARY', dataModelId: 'MODEL-1', Name: 'salary', FieldType: 'number', IsOutput: 1},
+    ], 'rowid')
+    const runtime = api.dataSpace.runtime
+    runtime.bindModelView(view, model)
+    await view.loadFromServer()
+    const originalApplication = api.application.get()!
+    api.application.save({...originalApplication, application: {...originalApplication.application, id: 'APP-B'}})
+    api.application.save(originalApplication)
+    const target = kind === 'derived' ? view.createQueryView('derived-after-switch')
+      : kind === 'sibling' ? ds.getTable('Payroll')!.getOrCreateView('sibling-after-switch') : view
+    if (kind === 'sibling') target.bindQueryExecutor(runtime)
+    const before = http.queryRequests.length
+    try {
+      await expect(target.loadFromServer()).rejects.toThrow('SCOPE_STALE')
+      expect(http.queryRequests).toHaveLength(before)
+      expect(() => runtime.bindModelView(target, model)).toThrow('SCOPE_STALE')
+      const fresh = SparkData.createDataSet({dataSetName: 'fresh', scenarioId: 'FORM-1', tables: {Payroll: {
+        tableName: 'Payroll',
+        modelBinding: {modelId: model.id, modelName: model.metaName},
+        columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}, {name: 'salary', type: 'number'}],
+        views: {default: {}},
+      }}})
+      try {
+        const current = fresh.getView('Payroll')!
+        runtime.bindModelView(current, model)
+        await current.loadFromServer()
+        expect(current.rows).toHaveLength(1)
+        expect(http.queryRequests).toHaveLength(before + 1)
+      } finally {fresh.destroy()}
+    } finally {ds.destroy()}
+  })
+
+  it('maps equivalent repeated output fields to one formal request field', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view } = connectedView(http)
+    const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {
+      id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary', sourceId: 'RESOURCE-1',
+      sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {}, fields: [
+        { id: 'KEY', modelId: 'MODEL-1', name: 'rowid', canonicalName: 'rowid', type: 'string', primaryKey: true,
+          description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+        { id: 'SALARY', modelId: 'MODEL-1', name: 'salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+          description: '', output: true, computed: false, order: 1, orderType: '', raw: {} },
+        { id: 'SALARY-DUP', modelId: 'MODEL-1', name: 'salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+          description: '', output: true, computed: false, order: 1, orderType: '', raw: {} },
+      ],
+    }
+    api.dataSpace.runtime.bindModelView(view, model)
+
+    await view.loadFromServer({ fields: ['salary'] })
+
+    expect(http.queryRequests[0]?.data).toMatchObject({ OutputFieldMode: 'REQUEST',
+      Table: [{ Fields: [{ Name: 'salary' }, { Name: 'rowid' }] }] })
+    expect(JSON.stringify(http.queryRequests[0]?.data)).not.toContain('"AsName"')
+    ds.destroy()
+  })
+
+  it('parses ValueFun only for requested projection fields', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    view.fieldProjection = [
+      { fieldId: 'SALARY', source: 'resource', resourceFieldId: 'SALARY', resourceField: 'salary', viewField: 'salary',
+        type: 'number', label: 'Salary', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+        primaryKey: false, value: '', valueFunction: '', expression: '' },
+      { fieldId: 'MOBILE', source: 'resource', resourceFieldId: 'MOBILE', resourceField: 'MobileUrl', viewField: 'MobileUrl',
+        type: 'string', label: 'Mobile URL', output: true, sortOrder: 1, sortDirection: null, group: 0, distinct: false,
+        primaryKey: false, value: '', valueFunction: '{', expression: '' },
+    ]
+
+    try {
+      await expect(view.loadFromServer({ fields: ['salary'] })).resolves.toBeDefined()
+      expect(http.queryRequests).toHaveLength(1)
+      await expect(view.loadFromServer({ fields: ['MobileUrl'] })).rejects.toThrow('ValueFun 不是有效 JSON')
+      expect(http.queryRequests).toHaveLength(1)
+      await expect(view.loadFromServer()).rejects.toThrow('ValueFun 不是有效 JSON')
+      expect(http.queryRequests).toHaveLength(1)
+    } finally { ds.destroy() }
+  })
+
+  it('filters on a non-output model field without requesting it as output', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view } = connectedView(http)
+    const field = (name: string, output: boolean, order: number) => ({ id: name.toUpperCase(), modelId: 'MODEL-1', name,
+      canonicalName: name, type: 'string', primaryKey: name === 'rowid', description: '', output, computed: false, order, orderType: '', raw: {} })
+    api.dataSpace.runtime.bindModelView(view, { id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary',
+      sourceId: 'RESOURCE-1', sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {},
+      fields: [field('rowid', true, 0), field('salary', true, 1), field('dept', false, 2)] })
+
+    await view.loadFromServer({ fields: ['salary'], filter: { field: 'dept', operator: 'eq', value: 'D1' } })
+    const request = JSON.stringify(http.queryRequests[0]?.data)
+    expect(request).toContain('"Field":"dept"')
+    expect(http.queryRequests[0]?.data).toMatchObject({ Table: [{ Fields: [{ Name: 'salary' }, { Name: 'rowid' }] }] })
+
+    await expect(view.loadFromServer({ filter: { field: 'missing', operator: 'eq', value: 'x' } }))
+      .rejects.toThrow('SPARK_MODEL_FIELD_UNRESOLVED: missing')
+    ds.destroy()
+  })
+
+  it.each(['update', 'delete'])('keeps %s pending instead of using a legacy CRUD endpoint', async operation => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    const table = ds.getTable('Payroll')
+    if (!table) throw new Error('fixture table missing')
+    table.setApi({ update: { url: '/legacy-update', method: 'POST' }, delete: { url: '/legacy-delete', method: 'POST' } })
+    await view.loadFromServer()
+    expect(view.commitMode).toBe('immediate')
+    const update = vi.spyOn(view.crud, 'updateRecord').mockResolvedValue({ success: true })
+    const remove = vi.spyOn(view.crud, 'deleteRecord').mockResolvedValue({ success: true })
+    if (operation === 'update') {
+      expect(await view.editRowById('ROW-1', { salary: 120 })).toBe(true)
+      expect(view.dirtyTracking.dirtyRowIds.has('ROW-1')).toBe(true)
+      expect(view.rows[0]?.['salary']).toBe(120)
+    } else {
+      expect(await view.removeRow('ROW-1')).toBe(true)
+      expect(view.dirtyTracking.isPendingDelete('ROW-1')).toBe(true)
+      expect(view.dirtyTracking.getPendingDeleteSnapshot('ROW-1')).toMatchObject({ salary: 100 })
+    }
+    expect(update).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+    ds.destroy()
+  })
+
+  it('saves through the original owner without legacy dirty execution', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    view.commitMode = 'staged'
+    await view.editRowById('ROW-1', { salary: 120 })
+    const execute = vi.spyOn(view.dirtyTracking, 'executeChanges').mockResolvedValue({ success: true })
+    await expect(view.saveChanges()).resolves.toMatchObject({ success: true, data: { savedCount: 1 } })
+    expect(execute).not.toHaveBeenCalled()
+    expect(view.dirtyTracking.dirtyRowIds.has('ROW-1')).toBe(false)
+    expect(view.rows[0]?.['salary']).toBe(120)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('retains new edits during a save and uses the accepted baseline for the next save', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = view.saveChanges()
+    await started
+    expect(view.mutating).toBe(true)
+    await view.editRowById('ROW-1', { salary: 150 })
+    release?.()
+    await save
+    expect(view.mutating).toBe(false)
+    expect(view.rows[0]?.['salary']).toBe(150)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 150 }] }] }
+    await view.saveChanges()
+    expect(http.saveRequests[1]?.data).toMatchObject([{ CrudModel: { Changed: [{ salary: 150 }] } }])
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(false)
+    ds.destroy()
+  })
+
+  it.each([false, true])('confirms only returned fields when normalized to the original: %s', explicitlyReturned => {
+    return (async () => {
+      const http = new DataSpaceFixtureHttpClient()
+      const { ds, view } = connectedView(http)
+      await view.loadFromServer()
+      await view.editRowById('ROW-1', { salary: 120 })
+      http.saveResult = { maplistedit: [{ physical: [explicitlyReturned ? { salary: 100 } : {}] }] }
+      await view.saveChanges()
+      expect(view.rows[0]?.['salary']).toBe(explicitlyReturned ? 100 : 120)
+      expect(view.dirtyTracking.isDirty('ROW-1')).toBe(!explicitlyReturned)
+      ds.destroy()
+    })()
+  })
+
+  it('preserves editing patches entered while the pending business row is saved', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = view.saveChanges()
+    await started
+    view.updateEditingValue('ROW-1', 'salary', 150)
+    release?.()
+    await save
+    expect(view.getEditingPatch('ROW-1')).toEqual({ salary: 150 })
+    expect(view.rows[0]?.['salary']).toBe(120)
+    expect(view.hasEditingChanges()).toBe(true)
+    ds.destroy()
+  })
+
+  it('confirms a returned deletion without invoking a separate CRUD route', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.removeRow('ROW-1')
+    http.saveResult = { maplistdelete: [{ physical: [{ rowid: 'ROW-1' }] }] }
+    await expect(view.saveChanges()).resolves.toMatchObject({ success: true, data: { deletedCount: 1 } })
+    expect(view.dirtyTracking.isPendingDelete('ROW-1')).toBe(false)
+    expect(view.total).toBe(0)
+    ds.destroy()
+  })
+
+  it('retains generated identities for ordinary creates while explicit IDs use the separate identity API', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const generated = await view.addRow({salary: 200})
+    if ('success' in generated) throw new Error('新增未返回待提交行')
+    const generatedId = view.getPkKey(generated)
+    if (generatedId === undefined) throw new Error('普通新增未生成身份')
+    http.saveResult = { maplistadd: [{ physical: [{ rowid: 'ROW-2', salary: 210 }] }] }
+    await expect(view.saveChanges()).resolves.toMatchObject({ success: true, data: { createdCount: 1 } })
+    expect(view.rows.find(row => view.getPkKey(row) === generatedId)).toBeUndefined()
+    expect(view.rows.find(row => view.getPkKey(row) === 'ROW-2')).toMatchObject({ salary: 210 })
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(JSON.stringify(http.saveRequests[0]?.data)).not.toContain('_pk')
+
+    const explicit = await view.addRowWithIdentity({field: 'rowid', value: 'EXPLICIT'}, {salary: 220})
+    expect(explicit).toHaveProperty('rowid', 'EXPLICIT')
+    await expect(view.addRow({rowid: 'DIRECT', salary: 230})).rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED')
+    expect(view.dirtyTracking.pendingCreateIds.has('DIRECT')).toBe(false)
+    ds.destroy()
+  })
+
+  it('saves multiple explicit row IDs through one formal DataView/DataSet batch and accepts the exact row count', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'BATCH-A'}, {salary: 101})
+    await view.addRowWithIdentity({field: 'rowid', value: 'BATCH-B'}, {salary: 102})
+    http.saveResult = {maplistadd: [{physical: [
+      {rowid: 'BATCH-A', salary: 101}, {rowid: 'BATCH-B', salary: 102},
+    ]}]}
+
+    await expect(ds.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: ['BATCH-A', 'BATCH-B']}]}))
+      .resolves.toMatchObject({success: true, data: {viewCount: 1, createdCount: 2, savedCount: 0, deletedCount: 0}})
+
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.rows.filter(row => String(row['rowid']).startsWith('BATCH-'))).toEqual(expect.arrayContaining([
+      expect.objectContaining({rowid: 'BATCH-A', salary: 101}), expect.objectContaining({rowid: 'BATCH-B', salary: 102}),
+    ]))
+    ds.destroy()
+  })
+
+  it('keeps a partially accepted multi-add command unknown and never dispatches a second request', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'PARTIAL-A'}, {salary: 111})
+    await view.addRowWithIdentity({field: 'rowid', value: 'PARTIAL-B'}, {salary: 112})
+    http.saveResult = {maplistadd: [{physical: [{rowid: 'PARTIAL-A', salary: 111}]}]}
+    const save = () => ds.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: ['PARTIAL-A', 'PARTIAL-B']}]})
+
+    await expect(save()).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'PARTIAL-A', salary: 111, lingma_sys_key: 'PARTIAL-A-KEY', lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('PARTIAL-A')).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('PARTIAL-B')).toBe(true)
+    ds.destroy()
+  })
+
+  it('keeps an explicit identity unchanged while an unknown add receipt is verified through the original context', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'STABLE'}, {salary: 110})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'STABLE')).toMatchObject({salary: 110})
+
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'STABLE', salary: 110, lingma_sys_key: 'STABLE-KEY', lingma_sys_params: {r: ['salary'], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.rows).toContainEqual(expect.objectContaining({rowid: 'STABLE', salary: 110}))
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.hasPendingSavedRowPermissions).toBe(false)
+    ds.destroy()
+  })
+
+  it('accepts the original changed fields without consuming a later edit', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', {salary: 120})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    await view.editRowById('ROW-1', {salary: 121})
+    http.queryResults.push({...http.result as Record<string, unknown>, data:{Items:[
+      {rowid:'ROW-1', salary:120, lingma_sys_key:'ROW-KEY',
+        lingma_sys_params:{r:['salary'],e:['salary'],h:[],m:[],d:true}},
+    ], Count:1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true})
+    expect(view.rows[0]?.['salary']).toBe(121)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('rejects an explicit identity changed by a save receipt and keeps the same draft recoverable', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'FIXED-ID'}, {salary: 115})
+    http.saveResult = {maplistadd: [{physical: [{rowid: 'REWRITTEN-ID', salary: 115}]}]}
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_RECEIPT_EXPLICIT_IDENTITY')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('FIXED-ID')).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'FIXED-ID')).toMatchObject({salary: 115})
+    expect(http.saveRequests).toHaveLength(1)
+
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'FIXED-ID', salary: 115, lingma_sys_key: 'FIXED-KEY',
+        lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success:true, data:{createdCount:1}})
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    ds.destroy()
+  })
+
+  it('keeps an unknown explicit-identity receipt unresolved when verification returns a different identity', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'UNKNOWN-ID'}, {salary: 116})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'REWRITTEN-ID', salary: 116, lingma_sys_key: 'OTHER-KEY',
+        lingma_sys_params: {r: [], e: [], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'UNKNOWN-ID')).toMatchObject({salary: 116})
+    expect(view.dirtyTracking.pendingCreateIds.has('UNKNOWN-ID')).toBe(true)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('preserves pending changes and releases mutation state after a rejected save', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    http.saveResult = {}
+    await expect(view.saveChanges()).rejects.toThrow('桶')
+    expect(view.mutating).toBe(false)
+    expect(view.mutatingError).toBeInstanceOf(Error)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(view.rows[0]?.['salary']).toBe(120)
+    ds.destroy()
+  })
+
+  it('blocks refresh and retains the draft until an unknown result can be attributed', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    http.saveResult = {}
+    await expect(view.saveChanges()).rejects.toThrow()
+
+    expect(view.mutating).toBe(false)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(view.refresh()).rejects.toThrow('DATA_VIEW_UNCONFIRMED_SAVE')
+    expect(http.saveRequests).toHaveLength(1)
+
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    await expect(view.refresh()).rejects.toThrow('DATA_VIEW_UNCONFIRMED_SAVE')
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('refuses pending discard while an owner query or save is active', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    let releaseSave: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { releaseSave = resolve })
+    const saveStarted = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = view.saveChanges()
+    await saveStarted
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_BUSY')
+    expect(view.rows[0]?.['salary']).toBe(120)
+    releaseSave?.()
+    await save
+
+    let releaseQuery: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { releaseQuery = resolve })
+    const queryStarted = new Promise<void>(resolve => { http.queryStarted = resolve })
+    const query = view.loadFromServer()
+    await queryStarted
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_BUSY')
+    releaseQuery?.()
+    await query
+    ds.destroy()
+  })
+
+  it('discards only selected pending IDs and preserves remaining rows, selection, and permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [1, 2, 3].map(index => ({ rowid: `ROW-${index}`, salary: index * 100,
+        lingma_sys_key: `ROW-KEY-${index}`,
+        lingma_sys_params: { r: ['salary'], e: ['salary'], h: ['secret'], m: ['bankAccount'], d: true } })), Count: 3 } }
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const second = findRow(view, 'ROW-2')
+    const third = findRow(view, 'ROW-3')
+    if (!second || !third) throw new Error('fixture rows missing')
+    view.setCurrentRowById('ROW-2')
+    view.setSelectedRows([second, third])
+    await view.editRowById('ROW-1', { salary: 150 })
+    await view.editRowById('ROW-2', { salary: 250 })
+    view.updateEditingValue('ROW-2', 'salary', 275)
+    await view.removeRow('ROW-3')
+    await view.addRowWithIdentity({field: 'rowid', value: 'ROW-NEW'}, {salary: 400})
+
+    expect(view.discardPendingChanges([])).toBe(0)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.discardPendingChanges(['ROW-1', 'ROW-1'])).toBe(1)
+    expect(findRow(view, 'ROW-1')?.['salary']).toBe(100)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    expect(view.getEditingPatch('ROW-2')).toEqual({ salary: 275 })
+    expect(view.currentRow?.['rowid']).toBe('ROW-2')
+    expect(view.selectedRows.map(row => row['rowid'])).toEqual(['ROW-2'])
+
+    expect(view.discardPendingChanges(['ROW-3', 'ROW-NEW'])).toBe(2)
+    expect(findRow(view, 'ROW-3')?.['salary']).toBe(300)
+    expect(findRow(view, 'ROW-NEW')).toBeNull()
+    expect(view.currentRow?.['rowid']).toBe('ROW-2')
+    expect(view.selectedRows.map(row => row['rowid'])).toEqual(['ROW-2'])
+    expect(view.discardPendingChanges()).toBe(1)
+    expect(findRow(view, 'ROW-2')?.['salary']).toBe(200)
+    expect(view.getEditingPatch('ROW-2')).toBeUndefined()
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.total).toBe(3)
+    expect(view.fieldAccess(findRow(view, 'ROW-2'), 'salary')).toMatchObject({ read: 'visible', write: 'allowed' })
+    expect(view.fieldAccess(findRow(view, 'ROW-2'), 'secret')).toMatchObject({ read: 'invisible', write: 'denied' })
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it('validates every selected baseline before changing any pending row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [
+        { rowid: 'ROW-1', salary: 100, lingma_sys_key: 'KEY-1', lingma_sys_params: { e: ['salary'] } },
+        { rowid: 'ROW-2', salary: 200, lingma_sys_key: 'KEY-2A', lingma_sys_params: { e: ['salary'] } },
+        { rowid: 'ROW-2', salary: 201, lingma_sys_key: 'KEY-2B', lingma_sys_params: { e: ['salary'] } },
+      ], Count: 3 } }
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 150 })
+    await view.editRowById('ROW-2', { salary: 250 })
+    const pendingRows = view.rows.map(row => ({ ...row }))
+
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_ROW')
+    expect(view.rows).toEqual(pendingRows)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    ds.destroy()
+  })
+
+  it('synchronizes the configured tree cache after locally discarding an edited parent link', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [
+        { rowid: 'ROOT-A', parentId: null, salary: 1, lingma_sys_key: 'A', lingma_sys_params: { e: ['parentId'] } },
+        { rowid: 'ROOT-B', parentId: null, salary: 2, lingma_sys_key: 'B', lingma_sys_params: { e: ['parentId'] } },
+        { rowid: 'CHILD', parentId: 'ROOT-A', salary: 3, lingma_sys_key: 'C', lingma_sys_params: { e: ['parentId'] } },
+      ], Count: 3 } }
+    const { ds, view } = connectedView(http)
+    view.treeConfig = { idField: 'rowid', parentIdField: 'parentId' }
+    await view.loadFromServer()
+    await view.editRowById('CHILD', { parentId: 'ROOT-B' })
+    expect(view.treeManager?.getNode('CHILD')?.parentId).toBe('ROOT-B')
+
+    expect(view.discardPendingChanges(['CHILD'])).toBe(1)
+
+    expect(findRow(view, 'CHILD')?.['parentId']).toBe('ROOT-A')
+    expect(view.treeManager?.getNode('CHILD')?.parentId).toBe('ROOT-A')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it('rejects a pending delete when the same ID has reappeared in current rows', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.removeRow('ROW-1')
+    view.appendRow({ rowid: 'ROW-1', salary: 999 })
+    const currentRows = view.rows.map(row => ({ ...row }))
+
+    expect(() => view.discardPendingChanges(['ROW-1'])).toThrow('DATA_VIEW_DISCARD_ROW')
+
+    expect(view.rows).toEqual(currentRows)
+    expect(view.dirtyTracking.isPendingDelete('ROW-1')).toBe(true)
+    ds.destroy()
+  })
+
+  it('keeps a removed pending create discarded without touching another pending row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'ROW-NEW'}, {salary: 300})
+    view.updateEditingValue('ROW-NEW', 'salary', 350)
+    await view.removeRow('ROW-NEW')
+    await view.editRowById('ROW-1', { salary: 120 })
+
+    expect(view.discardPendingChanges(['ROW-NEW'])).toBe(0)
+
+    expect(view.rows.find(row => row['rowid'] === 'ROW-NEW')).toBeUndefined()
+    expect(view.hasEditingChanges('ROW-NEW')).toBe(false)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(findRow(view, 'ROW-1')?.['salary']).toBe(120)
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it.each(['edit', 'remove'])('keeps a later %s of a created row after its server identity arrives', async operation => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const created = await view.addRow({salary: 200})
+    if ('success' in created) throw new Error('新增未返回待提交行')
+    const createdId = view.getPkKey(created)
+    if (createdId === undefined) throw new Error('新增缺少身份')
+    http.saveResult = { maplistadd: [{ physical: [{ rowid: 'ROW-2', salary: 210 }] }] }
+    let release: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { release = resolve })
+    const started = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = view.saveChanges()
+    await started
+    if (operation === 'edit') await view.editRowById(createdId, { salary: 250 })
+    else await view.removeRow(createdId)
+    release?.()
+    await save
+    if (operation === 'edit') {
+      expect(view.rows.find(row => view.getPkKey(row) === 'ROW-2')).toMatchObject({ salary: 250 })
+      expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    } else {
+      expect(view.rows.find(row => view.getPkKey(row) === 'ROW-2')).toBeUndefined()
+      expect(view.dirtyTracking.isPendingDelete('ROW-2')).toBe(true)
+    }
+    ds.destroy()
+  })
+
+  it('saves only selected dirty rows and retains unselected changes', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    http.result = { primaryKeyField: 'rowid', data: { Items: [
+      { rowid: 'ROW-1', salary: 100, lingma_sys_key: 'one', lingma_sys_params: { e: ['salary'] } },
+      { rowid: 'ROW-2', salary: 200, lingma_sys_key: 'two', lingma_sys_params: { e: ['salary'] } },
+    ], Count: 2 } }
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    await view.editRowById('ROW-2', { salary: 220 })
+    await view.saveChanges(['ROW-1'])
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(false)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    expect(http.saveRequests[0]?.data).toMatchObject([{ CrudModel: { Changed: [{ rowid: 'ROW-1', salary: 120 }] } }])
+    expect(view.rows[1]?.['salary']).toBe(220)
+    ds.destroy()
+  })
+
+  it('clears a selected reverted row from the strong baseline without corrupting other save receipts', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    http.result = { primaryKeyField: 'rowid', data: { Items: [
+      { rowid: 'ROW-1', salary: 100, lingma_sys_key: 'one', lingma_sys_params: { e: ['salary'] } },
+      { rowid: 'ROW-2', salary: 200, lingma_sys_key: 'two', lingma_sys_params: { e: ['salary'] } },
+    ], Count: 2 } }
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    await view.editRowById('ROW-2', { salary: 220 })
+    await view.editRowById('ROW-2', { salary: 200 })
+    await expect(view.saveChanges()).resolves.toMatchObject({ success: true, data: { savedCount: 1 } })
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(false)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(false)
+    expect(http.saveRequests[0]?.data).toMatchObject([{ CrudModel: { Changed: [{ rowid: 'ROW-1' }] } }])
+    ds.destroy()
+  })
+
+  it('requires reconstruction when a legacy query has already run', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, executor } = connectedView(http, false)
+    vi.spyOn(view.crud, 'list').mockResolvedValue({ success: true, data: [{ rowid: 'ROW-1', salary: 100 }] })
+    await view.loadFromServer()
+    expect(() => view.bindQueryExecutor(executor)).toThrow('DATA_VIEW_QUERY_IDENTITY')
+    expect(view.rows[0]).toMatchObject({ salary: 100 })
+    ds.destroy()
+  })
+  it('loads through the injected owner and projects private original permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, executeQuery, executor } = connectedView(http)
+    view.bindQueryExecutor(executor)
+    const crud = vi.spyOn(view.crud, 'list')
+    expect((await view.loadFromServer()).success).toBe(true)
+    expect(crud).not.toHaveBeenCalled()
+    expect(executeQuery).toHaveBeenCalledWith(view, expect.objectContaining({
+      page: 1, pageSize: 20, context: { enabled: false, offset: 0, text: '' }, viewId: 'list',
+    }))
+    expect(view.rows[0]).toMatchObject({ rowid: 'ROW-1', salary: 100 })
+    expect(view.rows[0]).not.toHaveProperty('lingma_sys_params')
+    expect(view).not.toHaveProperty('permissionSnapshot')
+    expect(view).not.toHaveProperty('queryResult')
+    expect(view.fieldAccess(view.rows[0] ?? null, 'salary')).toMatchObject({ write: 'allowed', required: true })
+    expect(view.fieldAccess(view.rows[0] ?? null, 'secret')).toMatchObject({ read: 'invisible', write: 'denied' })
+    expect(view.editActionState(view.rows[0] ?? null)).toBe('enabled')
+    expect(view.deleteActionState(view.rows[0] ?? null)).toBe('enabled')
+    expect(view.createChildActionState(view.rows[0] ?? null)).toBe('hidden')
+    expect(view.fieldAccess({ rowid: 'UNKNOWN' }, 'salary').write).toBe('denied')
+    expect(view.toJson().rows).toEqual([])
+
+    view.updateEditingValue('ROW-1', 'salary', 120)
+    await expect(view.loadFromServer()).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(executeQuery).toHaveBeenCalledTimes(1)
+    expect(view.getEditingPatch('ROW-1')).toEqual({ salary: 120 })
+    ds.destroy()
+  })
+
+  it('uses requestData to send current filters and sorting to the owner without a CRUD endpoint', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, executeQuery } = connectedView(http)
+    view.filterExpression = { field: 'salary', operator: 'gt', value: 0 }
+    view.sortExpression = [{ field: 'salary', direction: 'desc' }]
+    await view.requestData()
+    expect(executeQuery).toHaveBeenCalledWith(view, expect.objectContaining({
+      filter: { field: 'salary', operator: 'gt', value: 0 }, sort: 'salary:desc',
+    }))
+    expect(view.rows[0]?.['rowid']).toBe('ROW-1')
+    expect(http.requestConfig?.data).toMatchObject({ PageParam: { index: 1, size: 20 }, Table: [{
+      Name: 'Payroll',
+      Filter: { Type: 'cond', Field: 'salary', Operator: 'greaterthan', ValueFun: { Type: 'GetConstValue', Value: 0 } },
+      Fields: [{ Name: 'rowid' }, { Name: 'salary', OrderType: 'descending' }],
+      inputParams: [{ Name: 'enabled', Value: false }, { Name: 'offset', Value: 0 }, { Name: 'text', Value: '' }],
+    }] })
+    ds.destroy()
+  })
+
+  it.each([{ page: 0 }, { pageSize: 0 }, { fields: [] }, { fields: ['missing'] },
+    { sort: 'missing:asc' }, { sort: 'salary:ascending' }, { sort: 'salary:asc,salary:desc' },
+    { search: 'ignored' }, { parentId: 'guessed-node' }])('rejects invalid view query parameters before transport: %j', async params => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await expect(view.loadFromServer(params)).rejects.toThrow()
+    expect(http.queryRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it('keeps edits and the old permission baseline when edits arrive during a query', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const oldRows = view.rows
+    let release: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { release = resolve })
+    const pending = view.loadFromServer()
+    view.updateEditingValue('ROW-1', 'salary', 120)
+    release?.()
+    await expect(pending).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(view.rows).toBe(oldRows)
+    expect(view.getEditingPatch('ROW-1')).toEqual({ salary: 120 })
+    expect(view.editActionState(view.rows[0] ?? null)).toBe('disabled')
+    ds.destroy()
+  })
+
+  it('maps projected aliases to model field Names and retains complete value-function payloads', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    const valueFun = { Type: 'GetGroupValue', GroupType: 'sum', Extra: [false, 0, ''] }
+    view.fieldProjection = [{ fieldId: 'F-SALARY', source: 'derived', resourceFieldId: null,
+      resourceField: 'salary', viewField: 'salaryDisplay', type: 'number', label: 'Salary', output: true,
+      sortOrder: 0, sortDirection: null, group: 1, distinct: false, primaryKey: false,
+      value: '', valueFunction: JSON.stringify(valueFun), expression: '' }]
+    await view.loadFromServer({ fields: ['salaryDisplay'], sort: 'salaryDisplay:desc', filter: {
+      logic: 'or', filters: [{ field: 'Related.amount', operator: 'in', value: [false, 0, ''] },
+        { field: 'salary', operator: 'gt', value: { Type: 'GetApiPublicParam', Name: 'minimum', Extra: valueFun } }],
+    } })
+    expect(http.requestConfig?.data).toMatchObject({ Table: [{ Name: 'Payroll', Fields: [{
+      Name: 'salary', AsName: 'salaryDisplay', Group: 1, ValueFun: valueFun, OrderType: 'descending',
+    }], Filter: { Type: 'or', Filters: [
+      { Field: 'Related.amount', Operator: 'in', ValueFun: { Type: 'GetConstValue', Value: [false, 0, ''] } },
+      { Field: 'salary', ValueFun: { Type: 'GetApiPublicParam', Name: 'minimum', Extra: valueFun } },
+    ] } }] })
+    ds.destroy()
+  })
+
+  it.each([undefined, 'child', 'parent'] as const)('reads SelfRef %s as one complete collection without paging or a reported count', async mode => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    http.queryResults = [{primaryKeyField: 'rowid', allowAdd: false,
+      data: [1, 2].map(index => ({ rowid: `ROW-${index}`, salary: index }))}]
+    await view.loadFromServer({ pageSize: 1, allPages: true, maxRows: 2,
+      ...(mode === undefined ? {outputType: 'SelfRefData'}
+        : {tree: { keyField: 'rowid', parentField: 'parentId', nodeId: 'ROOT', mode }}) })
+    expect(view.rows).toHaveLength(2)
+    expect(view.total).toBe(2)
+    expect(http.queryRequests.map(request => request.data)).toMatchObject([
+      { ...(mode === undefined ? {} : {nodeid: 'ROOT', keyField: 'rowid', parentField: 'parentId', type: mode}),
+        Table: [{ Name: 'Payroll', OutputType: 'SelfRefData' }] },
+    ])
+    expect(http.queryRequests[0]?.data).not.toHaveProperty('PageParam')
+    if (mode === undefined) expect(http.queryRequests[0]?.data).not.toHaveProperty('nodeid')
+    expect(view.addActionState()).toBe('hidden')
+    ds.destroy()
+  })
+
+  it.each([true, false])('rejects an oversized SelfRef collection without publishing partial rows (node query: %s)', async nodeQuery => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    http.queryResults = [{primaryKeyField: 'rowid', data: [{rowid: 'A'}, {rowid: 'B'}]}]
+    await expect(view.loadFromServer({maxRows: 1,
+      ...(nodeQuery ? {tree: {keyField: 'rowid', parentField: 'parentId', nodeId: 'ROOT'}}
+        : {outputType: 'SelfRefData'})})).rejects.toThrow('maxRows')
+    expect(view.rows).toEqual([])
+    expect(http.queryRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('accepts an empty SelfRef collection and restores strict pagination when switching to Table', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    view.queryConfig = {tree: {keyField: 'rowid', parentField: 'parentId', nodeId: 'ROOT'}}
+    http.queryResults = [{primaryKeyField: 'rowid', data: []}]
+    await view.loadFromServer()
+    expect(view.rows).toEqual([])
+    expect(view.total).toBe(0)
+    expect(http.queryRequests[0]?.data).not.toHaveProperty('PageParam')
+    view.queryConfig = {outputType: 'Table'}
+    http.queryResults = [{primaryKeyField: 'rowid', data: []}]
+    await expect(view.loadFromServer()).rejects.toThrow('分页缺少后端总数')
+    expect(http.queryRequests[1]?.data).toHaveProperty('PageParam')
+    ds.destroy()
+  })
+
+  it.each([true, false])('rejects a reported partial SelfRef collection instead of publishing it as complete (node query: %s)', async nodeQuery => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    http.queryResults = [{primaryKeyField: 'rowid', data: {Items: [{rowid: 'A'}], Count: 2}}]
+    await expect(view.loadFromServer(nodeQuery ? {tree: {keyField: 'rowid', parentField: 'parentId', nodeId: 'ROOT'}}
+      : {outputType: 'SelfRefData'})).rejects.toThrow('SelfRef集合不完整')
+    expect(view.rows).toEqual([])
+    expect(http.queryRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('retains old data after an error and pauses writes until successful recovery', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const oldRows = view.rows
+    http.queryResults = [{ data: { Items: [] }, allowAdd: false }]
+    await expect(view.loadFromServer()).rejects.toThrow('分页缺少后端总数')
+    expect(view.rows).toBe(oldRows)
+    expect(view.fieldAccess(view.rows[0] ?? null, 'salary').write).toBe('denied')
+    expect(view.addActionState()).toBe('disabled')
+    await view.loadFromServer()
+    expect(view.fieldAccess(view.rows[0] ?? null, 'salary').write).toBe('allowed')
+    ds.destroy()
+  })
+
+  it('rejects stale permissions and local writes after application identity changes', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const application = api.application.get()
+    if (!application) throw new Error('fixture application missing')
+    api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(view.hasPendingSavedRowPermissions).toBe(false)
+    expect(() => view.fieldAccess(view.rows[0] ?? null, 'salary')).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(() => view.updateEditingValue('ROW-1', 'salary', 120)).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    ds.destroy()
+  })
+
+  it('ignores a pending result after destruction without exposing its context', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    let release: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { release = resolve })
+    const pending = view.loadFromServer()
+    ds.destroy()
+    release?.()
+    expect((await pending).success).toBe(false)
+    expect(view.rows).toEqual([])
+    expect(() => view.addActionState()).toThrow()
+  })
+
+  it('does not release a shared original context when another view is destroyed', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view, executor } = connectedView(http)
+    const sibling = ds.getView('Payroll', 'default')
+    if (!sibling) throw new Error('fixture sibling missing')
+    sibling.queryContext = { ...view.queryContext }
+    sibling.bindQueryExecutor(executor)
+    await Promise.all([view.loadFromServer(), sibling.loadFromServer()])
+    expect(http.queryRequests).toHaveLength(1)
+    view.destroy()
+    expect(sibling.fieldAccess(sibling.rows[0] ?? null, 'salary').write).toBe('allowed')
+    expect(sibling.rows[0]?.['rowid']).toBe('ROW-1')
+    ds.destroy()
+  })
+
+  it('rejects a result from another scenario before replacing data or permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view, executeQuery } = connectedView(http)
+    await view.loadFromServer()
+    const rows = view.rows
+    http.queryResults = [{ primaryKeyField: 'rowid', allowAdd: false,
+      data: { Items: [{ rowid: 'OTHER', salary: 0, lingma_sys_params: { e: [] } }], Count: 1 } }]
+    executeQuery.mockImplementation(() => api.dataSpace.runtime.query({ scenarioId: 'OTHER', metaName: 'Payroll' }))
+    await expect(view.loadFromServer()).rejects.toThrow('SPARK_QUERY_CONTEXT_IDENTITY')
+    expect(view.rows).toBe(rows)
+    expect(view.total).toBe(1)
+    expect(view.fieldAccess(view.rows[0] ?? null, 'salary')).toMatchObject({ required: true, write: 'denied' })
+    ds.destroy()
+  })
+  it('prepares missing new-row identity from the original query key without component guesses', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    const first = await view.addRow({salary: 101})
+    const second = await view.addRow({salary: 102})
+    expect(first).toHaveProperty('rowid', expect.stringMatching(/^[A-F0-9]{32}$/))
+    expect(second).toHaveProperty('rowid', expect.stringMatching(/^[A-F0-9]{32}$/))
+    expect(first).not.toEqual(second)
+    expect(view.dirtyTracking.pendingCreateIds.size).toBe(2)
+    const explicit = await view.addRowWithIdentity({field: 'rowid', value: 'EXPLICIT'}, {salary: 103})
+    expect(explicit).toHaveProperty('rowid', 'EXPLICIT')
+    ds.destroy()
+  })
+
+})
+
+// 正式树模型使用后端 ParentField/TopValue，输出别名只用于业务行。
+describe('formal tree child-add credentials', () => {
+  async function fixture(rows: readonly Record<string, unknown>[], raw = { ParentField: 'ParentID', TopValue: 'ROOT' }) {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: rows, Count: rows.length } }
+    const api = activeApi(http)
+    const identity = { scenarioId: 'TREE-SCENE', metaName: 'TreeModel' }
+    const context = await api.dataSpace.runtime.query(identity)
+    context.bindFormalModel({ id: 'TREE-MODEL', metaName: 'TreeModel', name: 'TreeModel', sourceName: 'physical',
+      sourceId: 'DB', sourceType: 'table', primaryKey: 'nodeId', businessMain: true, raw,
+      fields: [['rowid', 'nodeId'], ['ParentID', 'parentId'], ['Title', 'title']].map(([name, canonicalName], index) => ({
+        id: String(index), modelId: 'TREE-MODEL', name: name ?? '', canonicalName: canonicalName ?? '', type: 'string',
+        primaryKey: index === 0, description: '', output: true, computed: false, order: index, orderType: '', raw: {},
+      })) })
+    return { http, api, identity, context }
+  }
+
+  it('sends the unique original parent token through the actual runtime save owner', async () => {
+    const { http, api, identity, context } = await fixture([
+      { nodeId: 'P1', parentId: 'ROOT', lingma_sys_key: 'PARENT-ONE', lingma_sys_params: { c: true } },
+      { nodeId: 'P2', parentId: 'ROOT', lingma_sys_key: 'PARENT-TWO', lingma_sys_params: { c: true } },
+    ])
+    http.saveResult = { maplistadd: [{ physical: [{ rowid: 'C1', ParentID: 'P2', Title: 'child' }] }] }
+    const receipts = await api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { added: [{ nodeId: 'C1', parentId: 'P2', title: 'child', _pk: 'front', lingma_sys_key: 'FORGED' }] } }] })
+    expect(http.saveRequests[0]?.data).toEqual([{ TableName: 'TreeModel', CrudModel: {
+      Added: [{ rowid: 'C1', ParentID: 'P2', Title: 'child', lingma_sys_key: 'PARENT-TWO' }], Changed: [], Deleted: [],
+    } }])
+    expect(receipts[0]?.added).toEqual([{ nodeId: 'C1', parentId: 'P2', title: 'child' }])
+    expect(context.rows[1]).not.toHaveProperty('lingma_sys_key')
+  })
+
+  it.each([undefined, null, '', '   ', 'ROOT'])('keeps root additions on the table credential for parent %s', async parentId => {
+    const { context } = await fixture([])
+    expect(context.buildSaveRequest({ added: [{ nodeId: 'NEW', parentId }] })[0]?.CrudModel.Added[0])
+      .toMatchObject({ rowid: 'NEW', lingma_sys_key: 'TABLE-KEY' })
+  })
+
+  it.each([false, undefined, 'true'])('rejects a parent without explicit c=true: %s', async c => {
+    const { http, api, identity, context } = await fixture([
+      { nodeId: 'P', lingma_sys_key: 'PARENT', lingma_sys_params: { c } },
+    ])
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { added: [{ nodeId: 'NEW', parentId: 'P' }] } }] })).rejects.toThrow('SPARK_CHILD_ADD_PARENT')
+    expect(http.saveRequests).toHaveLength(0)
+  })
+
+  it.each(['missing', 'duplicate', 'missing-token', 'unacknowledged'])('rejects %s parent credentials before HTTP', async kind => {
+    const parent = { nodeId: 'P', lingma_sys_key: 'PARENT', lingma_sys_params: { c: true } }
+    const rows = kind === 'duplicate' ? [parent, { ...parent }] : kind === 'missing-token'
+      ? [{ nodeId: 'P', lingma_sys_params: { c: true } }] : kind === 'missing' || kind === 'unacknowledged' ? [] : [parent]
+    const { http, api, identity, context } = await fixture(rows)
+    const added = kind === 'unacknowledged' ? [{ nodeId: 'P', parentId: 'ROOT' }, { nodeId: 'NEW', parentId: 'P' }]
+      : [{ nodeId: 'NEW', parentId: 'P' }]
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { added } }] }))
+      .rejects.toThrow('SPARK_CHILD_ADD_PARENT')
+    expect(http.saveRequests).toHaveLength(0)
+  })
+
+  it('rejects a self-parent instead of borrowing its original credential', async () => {
+    const { context } = await fixture([{ nodeId: 'P', lingma_sys_key: 'PARENT', lingma_sys_params: { c: true } }])
+    expect(() => context.buildSaveRequest({ added: [{ nodeId: 'P', parentId: 'P' }] })).toThrow('SPARK_CHILD_ADD_PARENT')
+  })
+
+  it('uses the actual formal topValue without assuming zero is a root', async () => {
+    const { context } = await fixture([{ nodeId: 0, lingma_sys_key: 'ZERO-PARENT', lingma_sys_params: { c: true } }])
+    expect(context.buildSaveRequest({ added: [{ nodeId: 'NEW', parentId: 0 }] })[0]?.CrudModel.Added[0])
+      .toMatchObject({ ParentID: 0, lingma_sys_key: 'ZERO-PARENT' })
+  })
+
+  it('uses an explicitly configured zero topValue as the root marker', async () => {
+    const { context } = await fixture([], { ParentField: 'ParentID', TopValue: '0' })
+    expect(context.buildSaveRequest({ added: [{ nodeId: 'NEW', parentId: 0 }] })[0]?.CrudModel.Added[0])
+      .toMatchObject({ ParentID: 0, lingma_sys_key: 'TABLE-KEY' })
+  })
+
+  it('requires a fresh parent query after its create receipt supplies no signed c credential', async () => {
+    const { http, api, identity, context } = await fixture([])
+    http.saveResult = { maplistadd: [{ physical: [{ rowid: 'P', ParentID: 'ROOT' }] }] }
+    const [receipt] = await api.dataSpace.runtime.save({ changes: [{ identity, context,
+      changes: { added: [{ nodeId: 'P', parentId: 'ROOT' }] } }] })
+    if (!receipt) throw new Error('fixture parent receipt missing')
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context: receipt.context,
+      changes: { added: [{ nodeId: 'CHILD', parentId: 'P' }] } }] })).rejects.toThrow('SPARK_CHILD_ADD_PARENT')
+    expect(http.saveRequests).toHaveLength(1)
+  })
+})
+
+describe('DataView incremental append through the original runtime owner', () => {
+  const ROW_2 = {rowid: 'ROW-2', salary: 200, lingma_sys_key: 'ROW-2-KEY', lingma_sys_params: {e: ['salary']}}
+  const addition = (items: unknown[], count = items.length) => ({primaryKeyField: 'rowid', data: {Count: count, Items: items}})
+  const selector = () => DataViewFilter.condition({field: 'rowid', operator: 'in', value: ['ROW-1', 'ROW-2']}).toJSON()
+
+  it('appends only new rows with their own permissions, keeps drafts and saves both rows with their credentials', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      view.updateEditingValue('ROW-1', 'salary', 150)
+      http.queryResults = [addition([{rowid: 'ROW-1', salary: 999, lingma_sys_key: 'DUP-KEY', lingma_sys_params: {e: ['salary']}}, ROW_2])]
+      const appended = await view.appendQueryRows({filter: selector()})
+      expect(appended.map(row => row['rowid'])).toEqual(['ROW-2'])
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1', 'ROW-2'])
+      expect(view.total).toBe(2)
+      expect(JSON.stringify(http.queryRequests[1]?.data)).toContain('ROW-2')
+      expect(view.getEditingPatch('ROW-1')).toEqual({salary: 150})
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(100)
+      const row2 = findRow(view, 'ROW-2')
+      if (!row2) throw new Error('appended row missing')
+      expect(view.fieldAccess(row2, 'salary').write).toBe('allowed')
+      expect(view.filterExpression).toBeUndefined()
+      view.discardEditingRows()
+      await view.editRowById('ROW-1', {salary: 150})
+      await view.editRowById('ROW-2', {salary: 210})
+      http.saveResult = {maplistedit: [{physical: [{rowid: 'ROW-1', salary: 150}, {rowid: 'ROW-2', salary: 210}]}]}
+      const result = await view.saveChanges()
+      expect(result).toMatchObject({success: true})
+      const saved = JSON.stringify(http.saveRequests[0]?.data)
+      expect(saved).toContain('ROW-KEY')
+      expect(saved).toContain('ROW-2-KEY')
+      expect(saved).not.toContain('DUP-KEY')
+    } finally {ds.destroy()}
+  })
+
+  it('rejects incomplete additions and pending create drafts without changing the loaded rows', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      http.queryResults = [addition([ROW_2], 3)]
+      await expect(view.appendQueryRows({filter: selector()})).rejects.toThrow(/DATA_VIEW_APPEND_INCOMPLETE|缺页/)
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1'])
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 1})
+      await expect(view.appendQueryRows({filter: selector()})).rejects.toThrow('DATA_VIEW_APPEND_STATE')
+      expect(http.queryRequests).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+
+  it('discards an addition whose original query identity changed while it was in flight', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      let release!: () => void, started!: () => void
+      const readStarted = new Promise<void>(resolve => {started = resolve})
+      http.queryStarted = started
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      http.queryResults = [addition([ROW_2])]
+      const append = view.appendQueryRows({filter: selector()})
+      await readStarted
+      view.queryContext = {otherTarget: true}
+      release()
+      await expect(append).rejects.toThrow('DATA_VIEW_APPEND_STALE')
+      expect(view.rows.map(row => row['rowid'])).toEqual(['ROW-1'])
+    } finally {ds.destroy()}
+  })
+
+  it('refuses to merge contexts from another owner and keeps the base context unchanged', async () => {
+    const http = new DataSpaceFixtureHttpClient(), api = activeApi(http)
+    const identity = {scenarioId: 'SCENE', metaName: 'Orders'}
+    const base = await api.dataSpace.runtime.query(identity)
+    http.queryResults = [addition([ROW_2])]
+    const foreign = await activeApi(http).dataSpace.runtime.query(identity)
+    expect(() => api.dataSpace.runtime.appendQueryResult(base, foreign)).toThrow('SPARK_APPEND_OWNER')
+    http.queryResults = [addition([ROW_2])]
+    const own = await api.dataSpace.runtime.query(identity)
+    const merged = api.dataSpace.runtime.appendQueryResult(base, own)
+    expect(merged.total).toBe(2)
+    expect(merged.buildSaveRequest({changed: [{rowid: 'ROW-2', salary: 201}]})[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('ROW-2-KEY')
+    expect(base.total).toBe(1)
+  })
+})

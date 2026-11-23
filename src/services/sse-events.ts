@@ -17,13 +17,11 @@ import type {
   AiAgentAppSseEvent,
   AiAgentAppSseEventName,
   AiAgentAppSseEventSource,
-} from '@spark-appworks/spark-ai/agent'
-import type {
   LowcodeNotificationMessage,
   LowcodeRealtimeEvent,
   LowcodeRealtimeSubscription,
-} from '@spark-appworks/spark-lowcode-api'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+} from '@spark-appworks/spark-ai/agent'
+import { lowcodeRealtime } from '@/platform-adapters/lowcode-runtime'
 
 const logger = Logger('SSE')
 
@@ -247,7 +245,7 @@ function ensureConnection(): void {
     rejectSharedReady = reject
   })
   try {
-    sharedSubscription = lowcodeApi.realtime.connect({
+    sharedSubscription = lowcodeRealtime.connect({
       scope: 'spark-appworks',
       onEvent: dispatchLowcodeRealtimeEvent,
     })
@@ -271,7 +269,7 @@ function dispatchLowcodeRealtimeEvent(event: LowcodeRealtimeEvent): void {
     return
   }
   try {
-    const notification = lowcodeApi.realtime.decodeNotification(event)
+    const notification = lowcodeRealtime.decodeNotification(event)
     if (notification !== null) {
       for (const callback of notificationSubscribers) callback(notification)
       return

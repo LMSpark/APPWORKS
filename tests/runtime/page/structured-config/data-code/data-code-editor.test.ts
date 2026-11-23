@@ -8,8 +8,8 @@ import ElementPlus, {ElSelect, ElInputNumber} from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm, FieldText, RendererTable, RendererButton} from '@spark-appworks/spark-component'
 import {RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {CodeExampleWorkspace} from '@/lowcode/resources/structured-config/data-code/example-workspace'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
+import {CodeExampleWorkspace} from '@/platform-adapters/resources/structured-config/data-code/example-workspace'
 import {createSourceDataSet, sourceRecords} from './source-picker/fixture'
 import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
 import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
@@ -18,7 +18,7 @@ import DataCodeEditor from '@/views/features/data-platform/structured-config/dat
 import {codeService, designText} from './data-code.fixture'
 
 const state = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof codeService>}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.current.http},
   lowcodeApi: {readRequestScope: () => state.current.readRequestScope(), dataSpace: {
     get design() {return state.current}, get runtime() {return state.current.runtime},

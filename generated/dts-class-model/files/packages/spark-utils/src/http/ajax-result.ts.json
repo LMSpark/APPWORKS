@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/ajax-result",
+    "sourcePath": "packages/spark-utils/src/http/ajax-result.ts",
+    "sourceFile": "packages/spark-utils/src/http/ajax-result.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/ajax-result",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/ajax-result\n职责：严格解包 AjaxResult，并保留拒绝码。\n边界：不负责端点、认证或重试策略。\nAI用途：复用旧 wire 合同，同时允许命令 owner 区分业务拒绝与未知 HTTP 结果。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "AjaxResultError"
+    ]
+  },
+  "$defs": {
+    "AjaxResultError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AjaxResultError",
+      "properties": {
+        "code": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "AjaxResultRequestOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AjaxResultRequestOptions",
+      "properties": {
+        "preserveHttpError": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "errorType": {
+          "type": "object",
+          "title": "new (code: number, message: string) => Error"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T07:06:16.745Z",
+  "models": {
+    "AjaxResultError": {
+      "name": "AjaxResultError",
+      "jsdoc": "`code` comes from AjaxResult.Code; zero denotes a local validation or protocol error.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(code: number, message: string)",
+          "parameters": [
+            {
+              "name": "code",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AjaxResultRequestOptions": {
+      "name": "AjaxResultRequestOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Keep the original HTTP RequestError instead of unwrapping its response body. */\n    preserveHttpError?: boolean;\n    /** Let an adapter classify malformed or rejected envelopes in its own domain. */\n    errorType?: new (code: number, message: string) => Error;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Keep the original HTTP RequestError instead of unwrapping its response body. */\n    preserveHttpError?: boolean;\n    /** Let an adapter classify malformed or rejected envelopes in its own domain. */\n    errorType?: new (code: number, message: string) => Error;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preserveHttpError",
+              "jsdoc": "Keep the original HTTP RequestError instead of unwrapping its response body.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "errorType",
+              "jsdoc": "Let an adapter classify malformed or rejected envelopes in its own domain.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

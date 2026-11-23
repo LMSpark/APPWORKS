@@ -482,11 +482,11 @@
         "declarationKind": {
           "enum": [
             "function",
+            "enum",
+            "component",
             "class",
             "interface",
             "typeAlias",
-            "enum",
-            "component",
             "const"
           ]
         }

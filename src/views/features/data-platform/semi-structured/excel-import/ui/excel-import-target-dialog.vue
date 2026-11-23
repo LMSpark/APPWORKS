@@ -9,8 +9,8 @@ AI用途：Excel编辑器选择与替换目标表时复用原PageRuntime及标�
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {projectExcelTarget} from '@/lowcode/resources/semi-structured/excel-import/target-selection'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
+import {projectExcelTarget} from '@/platform-adapters/resources/semi-structured/excel-import/target-selection'
 const props = defineProps<{dataViewKey: string; recordId: string; busy: boolean; validateTarget: () => void}>()
 const emit = defineEmits<{close: []; confirm: [source: DataSet]}>()
 const {sparkConsume} = useSparkComponent({type: 'excel-import-target-dialog'}), runtime = sparkConsume(PAGE_RUNTIME)

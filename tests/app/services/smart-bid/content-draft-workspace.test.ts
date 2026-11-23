@@ -5,8 +5,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const originalStubs = {...config.global.stubs}
 let wrapper: VueWrapper | undefined, runtime: PageRuntime | undefined

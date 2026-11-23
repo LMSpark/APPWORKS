@@ -6,8 +6,8 @@ import {SUBTREE_FIELD_POLICY} from '../../../../packages/spark-component/src/per
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '../../../../packages/spark-project-model/src/page/runtime-page'
 import {PageTool} from '../../../../packages/spark-project-model/src/page/page-tool'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const Input = defineComponent({
   props: ['modelValue', 'disabled'], emits: ['update:modelValue'],

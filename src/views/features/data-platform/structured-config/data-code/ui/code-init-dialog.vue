@@ -32,9 +32,9 @@ AI用途：编码设计宿主传完整主记录视图键，弹窗不接收第二
 import {computed,onBeforeUnmount,onMounted,ref,shallowRef} from 'vue'
 import {buildDataViewKey,parseDataViewKey,RequestState,type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME,FieldDate,FieldText,RendererButton,RendererDialog,RendererForm,RendererTable,useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import type {CodeInitializationWorkspace} from '@/lowcode/resources/structured-config/data-code/initialization-workspace'
-import type {InitializationDate} from '@/lowcode/resources/structured-config/data-code/initialization-date'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
+import type {CodeInitializationWorkspace} from '@/platform-adapters/resources/structured-config/data-code/initialization-workspace'
+import type {InitializationDate} from '@/platform-adapters/resources/structured-config/data-code/initialization-date'
 const props=defineProps<{dataViewKey:string}>(),emit=defineEmits<{close:[]}>()
 const {sparkConsume}=useSparkComponent({type:'code-init-dialog'}),runtime=sparkConsume(PAGE_RUNTIME),target=props.dataViewKey
 const workspace=shallowRef<CodeInitializationWorkspace>(),loading=ref(true),acting=ref(false),ready=ref(false),error=ref(''),revision=ref(0)

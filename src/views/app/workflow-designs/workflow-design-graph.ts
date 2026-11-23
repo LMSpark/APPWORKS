@@ -10,7 +10,7 @@ import {
   AGENT_WORKFLOW_LINE_TABLE,
   AGENT_WORKFLOW_NODE_TABLE,
   projectWorkflowDesign,
-} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection'
+} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection'
 import {addWorkflowDesignLine, createWorkflowDesignNode, type WorkflowDesignNodeCreateKind} from '@/services/workflow-designs'
 
 /** 节点卡片半宽/半高；投影行的 x/y 是左上角，RendererGraph 使用中心坐标。 */

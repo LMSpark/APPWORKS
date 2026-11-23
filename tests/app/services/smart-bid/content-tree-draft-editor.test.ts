@@ -1,7 +1,7 @@
 import {expect, it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 import {ContentTreeDraftEditor} from '@/services/smart-bid/content-tree-draft-editor'
 
 async function fixture(writable = true, wireText = false) {

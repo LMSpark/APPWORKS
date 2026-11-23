@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/data-space/lowcode-data-space-assembler",
+    "sourcePath": "src/platform-adapters/data-space/lowcode-data-space-assembler.ts",
+    "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-assembler.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/data-space/lowcode-data-space-assembler",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-assembler\n职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceAssemblerInput",
+      "LowcodeDataSpaceAssembly",
+      "LowcodeDataSpaceAssembler"
+    ]
+  },
+  "$defs": {
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/FormalModelField"
+          }
+        },
+        "raw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "FormalSpace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalSpace",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSpaceId",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssemblerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssemblerInput",
+      "properties": {
+        "config": {
+          "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "space": {
+          "$ref": "#/$defs/FormalSpace"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FormalModel"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "../api/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRelation"
+          }
+        },
+        "fileExecutors": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
+          }
+        },
+        "commandBindings": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(view: SparkData.DataView) => BindCommandSubmitOptions"
+          }
+        },
+        "projectionBindings": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]"
+          }
+        },
+        "modelAdapters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "../../../packages/spark-data/src/query/formal-owner/model-binding.ts.json#/$defs/DataSpaceModelReadAdapter"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "command"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "config",
+        "space",
+        "models",
+        "relations"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembly": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembly",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "dataSet",
+        "diagnostics"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembler": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembler",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../packages/spark-data/src/query/formal-owner/runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+            },
+            "http": {
+              "$ref": "../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeDataSpaceAssemblerInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceAssembly"
+        },
+        "method.assembleRuntimePlan.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "plan": {
+                  "$ref": "../../../packages/spark-data/src/runtime-data-set-plan/types.ts.json#/$defs/RuntimeDataSetPlanFile"
+                },
+                "space": {
+                  "$ref": "#/$defs/FormalSpace"
+                },
+                "models": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FormalModel"
+                  }
+                }
+              },
+              "required": [
+                "plan",
+                "space",
+                "models"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assembleRuntimePlan.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceAssembly"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T09:15:58.253Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "readModel 返回的正式模型定义，持有模型身份及规范输出字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceInputBindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FormalSpace": {
+      "name": "FormalSpace",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssemblerInput": {
+      "name": "LowcodeDataSpaceAssemblerInput",
+      "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "space",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileExecutors",
+              "jsdoc": "显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commandBindings",
+              "jsdoc": "显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectionBindings",
+              "jsdoc": "无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelAdapters",
+              "jsdoc": "正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembly": {
+      "name": "LowcodeDataSpaceAssembly",
+      "jsdoc": "独立场景运行空间及无法解析结构关系的诊断；空间生命周期归调用方。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembler": {
+      "name": "LowcodeDataSpaceAssembler",
+      "jsdoc": "后端模型提供正式字段，文件、命令和只读投影使用配置列及各自注入的owner；均装配到同一DataSet。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "注入已有模型查询保存 owner 和共享请求客户端；装配器不创建应用或租户 scope。",
+          "signatureText": "constructor(runtime: DataSpaceRuntimeApi, http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "runtime",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRuntimeApi"
+              }
+            },
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "assemble",
+              "jsdoc": "模型关系只生成结构映射；只有场景明确配置 viewCascades 才装配前端输入级联。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceAssemblerInput",
+                    "sourcePath": "src/platform-adapters/data-space/lowcode-data-space-assembler.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembly",
+                "sourcePath": "src/platform-adapters/data-space/lowcode-data-space-assembler.ts"
+              }
+            },
+            {
+              "name": "assembleRuntimePlan",
+              "jsdoc": "Materialize the backend-owned independent Dataset Plan, then bind the verified formal model owners.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        plan: SparkData.RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembly",
+                "sourcePath": "src/platform-adapters/data-space/lowcode-data-space-assembler.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

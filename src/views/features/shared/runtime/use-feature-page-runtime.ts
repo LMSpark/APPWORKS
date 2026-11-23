@@ -10,7 +10,7 @@ import type {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {resolveExecutionProjectId} from '@/services/application-scope'
 
 /** 一个原生功能页的正式数据身份及组件上下文。 */

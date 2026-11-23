@@ -53,7 +53,7 @@ flowchart BT
   pm["spark-project-model<br/>Blueprint / PageTool / Scenario / PageRuntime"]
   comp["spark-component<br/>Renderer / fields / binding / permission consumption"]
   app["spark-app<br/>bootstrap / router / tabs / runtime pool"]
-  lowapi["spark-lowcode-api<br/>formal lowcode API / wire contracts"]
+  platform["src/platform-adapters<br/>session / platform / resource adapters"]
   ai["spark-ai<br/>Agent / ClassModel / workflow"]
   host["src 应用宿主<br/>auth / navigation / adapters / domain pages"]
 
@@ -77,9 +77,9 @@ flowchart BT
   host --> comp
   host --> data
   host --> pm
-  host --> lowapi
+  host --> platform
   host --> ai
-  lowapi --> utils
+  platform --> utils
 ```
 
 ### 2.2 包职责
@@ -92,8 +92,7 @@ flowchart BT
 | `spark-project-model` | 蓝图、PageTool、ScenarioViewConfig、PageRuntime | 不持有运行 DataSet 数据真源 |
 | `spark-component` | 组件注册、容器/字段、SparkPageRenderer、绑定和权限消费 | 不自行查询、保存或复制权限凭据 |
 | `spark-app` | 启动、DynamicRouter、RuntimeNavigation、标签页、插件 | 不解释具体业务模型 |
-| `spark-lowcode-api` | lowcode 平台请求、wire 合同、DataSpaceRuntimeApi | 不编排页面 UI |
-| `src/lowcode` | 应用请求身份、系统/用户场景装配、资源 owner、命令绑定 | 只连接正式 owner，不另建数据链 |
+| `src/platform-adapters` | 应用请求身份、系统/用户场景装配、资源 owner、命令绑定 | 只连接正式 owner，不另建数据链 |
 | `src/views` | 页面语义、`rule.json` 布局、必要窄业务宿主 | 不持页面 rows/草稿/权限真源，不拼 HTTP，不默认编写页面脚本 |
 | `spark-ai` | Agent、ClassModel、工具循环、Agent Workflow | 不替代源码/真实服务事实 |
 

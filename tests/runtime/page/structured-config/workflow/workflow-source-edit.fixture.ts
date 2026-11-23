@@ -1,6 +1,6 @@
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 export async function workflowSourceEditFixture(pages:PageRuntime[],options:Readonly<{legacyModelFlagTypes?:boolean;legacyRelationFlagTypes?:boolean}>={}){

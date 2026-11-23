@@ -1,4 +1,4 @@
-import type { LowcodeNotificationMessage } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeNotificationMessage } from '@spark-appworks/spark-ai/agent'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick } from 'vue'
 
@@ -19,7 +19,7 @@ vi.mock('@/services/sse-events', () => ({
   onPageConfigChange: () => () => undefined,
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({ lowcodeApi: { realtime } }))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({ lowcodeRealtime: realtime }))
 
 type FakeNotification = { title: string; options: NotificationOptions; onclick: (() => void) | null; close: () => void }
 

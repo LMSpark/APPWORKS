@@ -7,11 +7,11 @@ import type {PageTool} from '@spark-appworks/spark-project-model'
 import {
   flowWorkbenchTabBinding,
   type FlowWorkbenchTab,
-} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
-import {readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
+import {readLowcodePrincipal} from '@/platform-adapters/lowcode-runtime'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-adapters/resources/system/workflow/manage'
 
 const SCENARIO_ID = FLOW_WORKBENCH_SCENARIO_ID
 

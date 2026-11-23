@@ -75,7 +75,6 @@
         "@spark-appworks/spark-component": "workspace:*",
         "@spark-appworks/spark-data": "workspace:*",
         "@spark-appworks/spark-json-document": "workspace:*",
-        "@spark-appworks/spark-lowcode-api": "workspace:*",
         "@spark-appworks/spark-project-model": "workspace:*",
         "@spark-appworks/spark-utils": "workspace:*",
         "@zip.js/zip.js": "2.25.0",

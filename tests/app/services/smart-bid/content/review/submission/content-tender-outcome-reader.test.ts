@@ -3,8 +3,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredTenderOutcome} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('keeps recommendations and whole-round decisions separate and rejects another bidder',async()=>{
  const scope={projectId:'P',lotId:'LOT',roundId:'R',stageId:'STAGE',subjectId:'ENT'}

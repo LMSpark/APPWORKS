@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-runtime",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-detail-runtime\n职责：运行详情页聚合刷新步骤/待办与设计只读图，不发起办理写入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FlowRunDetailPreparedPage",
+      "PrepareFlowRunDetailPageCommand"
+    ]
+  },
+  "$defs": {
+    "FlowRunDetailPreparedPage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunDetailPreparedPage",
+      "properties": {
+        "nodeViewKey": {
+          "type": "string"
+        },
+        "edgeViewKey": {
+          "type": "string"
+        },
+        "stepViewKey": {
+          "type": "string"
+        },
+        "waitingViewKey": {
+          "type": "string"
+        },
+        "graphLayout": {
+          "$ref": "../flow-design-graph-projection.ts.json#/$defs/FlowDesignGraphLayout"
+        },
+        "nodeBadgeField": {
+          "const": "runGraphBadge"
+        },
+        "nodeBadges": {
+          "$ref": "flow-run-detail-graph-projection.ts.json#/$defs/FlowRunGraphNodeBadges"
+        }
+      },
+      "required": [
+        "nodeViewKey",
+        "edgeViewKey",
+        "stepViewKey",
+        "waitingViewKey",
+        "graphLayout",
+        "nodeBadgeField",
+        "nodeBadges"
+      ],
+      "additionalProperties": false
+    },
+    "PrepareFlowRunDetailPageCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrepareFlowRunDetailPageCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "wfid": {
+          "type": "string"
+        },
+        "flowid": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.804Z",
+  "models": {
+    "FlowRunDetailPreparedPage": {
+      "name": "FlowRunDetailPreparedPage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeViewKey: string;\n    edgeViewKey: string;\n    stepViewKey: string;\n    waitingViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n    nodeBadgeField: typeof FLOW_RUN_GRAPH_NODE_BADGE_FIELD;\n    nodeBadges: FlowRunGraphNodeBadges;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeViewKey: string;\n    edgeViewKey: string;\n    stepViewKey: string;\n    waitingViewKey: string;\n    graphLayout: FlowDesignGraphLayout;\n    nodeBadgeField: typeof FLOW_RUN_GRAPH_NODE_BADGE_FIELD;\n    nodeBadges: FlowRunGraphNodeBadges;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "waitingViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "graphLayout",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeBadgeField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeBadges",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PrepareFlowRunDetailPageCommand": {
+      "name": "PrepareFlowRunDetailPageCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wfid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowid",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

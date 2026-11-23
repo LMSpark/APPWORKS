@@ -1,14 +1,14 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
-import {LogicViewOutputEdit} from '@/lowcode/resources/structured-config/logic-view/output/publication-edit'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
+import {LogicViewOutputEdit} from '@/platform-adapters/resources/structured-config/logic-view/output/publication-edit'
 import {configureLogicFixture} from '../logic-view.fixture'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {isRecord} from '@spark-appworks/spark-utils'
 const service=vi.hoisted(()=>({readSpaceDefinition:vi.fn(),readModel:vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),readRequestScope:vi.fn(),createGateways:vi.fn()}))
 let http:ApiBackend,owner:DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return http},createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),lowcodeApi:{design:{},readRequestScope:service.readRequestScope,dataSpace:{design:service,get runtime(){return owner}}}}))
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({get lowcodeHttp(){return http},createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),lowcodeApi:{design:{},readRequestScope:service.readRequestScope,dataSpace:{design:service,get runtime(){return owner}}}}))
 const pages:PageRuntime[]=[]
 const field=(enname:string,cnname=enname)=>({enname,cnname,description:cnname,DataType:enname==='id'?'int':'varchar',IsPKey:enname==='id'?1:0})
 beforeEach(()=>{

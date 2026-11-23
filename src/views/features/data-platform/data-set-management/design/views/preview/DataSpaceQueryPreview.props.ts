@@ -4,7 +4,7 @@
  * 边界：只传设计会话和身份，不传业务行、授权凭据或另一份配置。
  * AI用途：选中正式模型或命名视图后挂载预览，关闭弹窗即卸载并释放运行实例。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 import type {RFilterProps} from '@spark-appworks/spark-component'
 
 /** 预览选择中的tableName是文件内部键，modelName是公开绑定使用的正式注册名。 */

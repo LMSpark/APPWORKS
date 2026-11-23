@@ -33,8 +33,8 @@ import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,RendererTable,FieldText} from '@spark-appworks/spark-component'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
-import {stageWorkflowCopyTarget} from '@/lowcode/resources/structured-config/workflow-definition/source/copy-target'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {stageWorkflowCopyTarget} from '@/platform-adapters/resources/structured-config/workflow-definition/source/copy-target'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;disabled:boolean}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const controls=shallowRef<DataSpaceSourceControls>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)

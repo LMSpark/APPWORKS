@@ -1,0 +1,574 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader",
+    "sourcePath": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "sourceFile": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader",
+    "jsdoc": "app 的 platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceModelSourceReader（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceModelSourceReader"
+    ]
+  },
+  "$defs": {
+    "PageDataSpaceModelSourceQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourceQuery",
+      "properties": {
+        "type": {
+          "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSource",
+      "properties": {
+        "type": {
+          "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dbid": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "providerId": {
+          "type": "string"
+        },
+        "routeSpec": true,
+        "outputPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name",
+        "description",
+        "dbid",
+        "databaseName",
+        "providerId"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourcePrepared",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelSourceReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelSourceReader",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTableTarget.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "dbid": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "databaseName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dbid",
+                "name",
+                "databaseName"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTableTarget.return": {
+          "type": "object",
+          "title": "Promise<Pick<PageDataSpaceModelSourcePrepared, 'source' | 'fields'>>"
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceModelSourceQuery"
+            },
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "#/$defs/PageDataSpaceModelSource"
+            },
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "options": {
+              "type": "object",
+              "title": "NonNullable<Parameters<PageDataSpaceModelSourceReader['prepare']>[2]>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceModelSourcePrepared>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.254Z",
+  "models": {
+    "PageDataSpaceModelSourceQuery": {
+      "name": "PageDataSpaceModelSourceQuery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['query']>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "keyword",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSource": {
+      "name": "PageDataSpaceModelSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['prepare']>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dbid",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "providerId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "routeSpec",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputPath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "name": "PageDataSpaceModelSourcePrepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<PageDataSpaceModelSourceReader['prepare']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<PageDataSpaceModelSourceReader['prepare']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelSourceReader": {
+      "name": "LowcodeDataSpaceModelSourceReader",
+      "jsdoc": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "显式宿主复用本次正式元数据实例（例如工作流）；省略时保留数据空间设计场景合同。绑定后不能借同场景的新实例继续查询。",
+          "signatureText": "constructor(metadata?: DataSet)",
+          "parameters": [
+            {
+              "name": "metadata",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "PageDataSpaceModelSourceReader",
+            "targetName": "PageDataSpaceModelSourceReader"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "readTableTarget",
+              "jsdoc": "显式命令按数据库ID和表名核真实目标；私有查询不改来源控件的筛选、选择或草稿。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dbid: string;\n        name: string;\n        databaseName: string;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Pick",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "PageDataSpaceModelSourcePrepared",
+                        "sourcePath": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                      },
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "literal",
+                            "value": "source"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "fields"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourceQuery",
+                    "sourcePath": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                },
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSource",
+                    "sourcePath": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                },
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "NonNullable",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "Parameters<PageDataSpaceModelSourceReader['prepare']>[2]"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourcePrepared",
+                    "sourcePath": "src/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime\n职责：办理页装配：刷新实例、表单候选与步骤上下文。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FlowRunFormRecord",
+      "FlowRunPreparedPage",
+      "PrepareFlowRunPageCommand"
+    ]
+  },
+  "$defs": {
+    "FlowRunFormRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunFormRecord",
+      "properties": {
+        "tabKey": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "queryString": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tabKey",
+        "label",
+        "sourcePath",
+        "queryString",
+        "formKey"
+      ],
+      "additionalProperties": false
+    },
+    "FlowRunPreparedPage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunPreparedPage",
+      "properties": {
+        "instanceTitle": {
+          "type": "string"
+        },
+        "flowObjectId": {
+          "type": "string"
+        },
+        "flowModelId": {
+          "type": "string"
+        },
+        "busRowId": {
+          "type": "string"
+        },
+        "stepId": {
+          "type": "string"
+        },
+        "formTabs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FlowRunFormRecord"
+          }
+        },
+        "userDirectoryViewKey": {
+          "type": "string"
+        },
+        "stepHistoryViewKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "instanceTitle",
+        "flowObjectId",
+        "flowModelId",
+        "busRowId",
+        "stepId",
+        "formTabs",
+        "userDirectoryViewKey",
+        "stepHistoryViewKey"
+      ],
+      "additionalProperties": false
+    },
+    "PrepareFlowRunPageCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrepareFlowRunPageCommand",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "wfid": {
+          "type": "string"
+        },
+        "flowid": {
+          "type": "string"
+        },
+        "stepId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.811Z",
+  "models": {
+    "FlowRunFormRecord": {
+      "name": "FlowRunFormRecord",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tabKey: string;\n    label: string;\n    sourcePath: string;\n    queryString: string;\n    formKey: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tabKey: string;\n    label: string;\n    sourcePath: string;\n    queryString: string;\n    formKey: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tabKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourcePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryString",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunPreparedPage": {
+      "name": "FlowRunPreparedPage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    stepId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    instanceTitle: string;\n    flowObjectId: string;\n    flowModelId: string;\n    busRowId: string;\n    stepId: string;\n    formTabs: readonly FlowRunFormRecord[];\n    userDirectoryViewKey: string;\n    stepHistoryViewKey: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instanceTitle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowObjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busRowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formTabs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userDirectoryViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepHistoryViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PrepareFlowRunPageCommand": {
+      "name": "PrepareFlowRunPageCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wfid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

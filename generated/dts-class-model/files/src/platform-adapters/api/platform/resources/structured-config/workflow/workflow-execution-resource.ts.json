@@ -1,0 +1,440 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource",
+    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+    "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource",
+    "jsdoc": "@module @/platform-adapters/api:platform/resources/structured-config/workflow/workflow-execution-resource\n职责：数据工作流的单节点/整流测试作为真实服务命令接入原DataSet保存链。\n边界：执行可能产生业务副作用；不重试、不伪造幂等或核验协议，不把失败节点当成功。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowExecutionGraph",
+      "WorkflowExecutionResource"
+    ]
+  },
+  "$defs": {
+    "WorkflowExecutionGraph": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionGraph",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditional": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "workflowId",
+        "nodeIds",
+        "requiredNodeIds",
+        "conditional"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowExecutionCommandInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionCommandInput",
+      "properties": {
+        "commandId": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "node",
+            "workflow"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "input": true
+      },
+      "required": [
+        "commandId",
+        "mode",
+        "nodeId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "PreparedWorkflowExecution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreparedWorkflowExecution",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "graph": {
+          "$ref": "#/$defs/WorkflowExecutionGraph"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "WorkflowExecutionResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionResourceInput",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "onPrepareInput": {
+          "type": "object",
+          "title": "(row: Readonly<DataRow>) => void"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/WorkflowExecutionCommandInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<PreparedWorkflowExecution>"
+        },
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "headers": {
+              "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            }
+          },
+          "required": [
+            "token",
+            "headers"
+          ],
+          "additionalProperties": false
+        },
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true
+      }
+    },
+    "WorkflowExecutionResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/WorkflowExecutionResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.338Z",
+  "models": {
+    "WorkflowExecutionGraph": {
+      "name": "WorkflowExecutionGraph",
+      "jsdoc": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiredNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conditional",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionCommandInput": {
+      "name": "WorkflowExecutionCommandInput",
+      "jsdoc": "原命令行的身份及解析后输入；执行目标由本次首轮合同返回。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    commandId: string;\n    mode: 'node' | 'workflow';\n    nodeId: string;\n    input: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    commandId: string;\n    mode: 'node' | 'workflow';\n    nodeId: string;\n    input: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "commandId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PreparedWorkflowExecution": {
+      "name": "PreparedWorkflowExecution",
+      "jsdoc": "异步准备后仍须在派发前及回执接纳前复核的原执行合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    graph?: WorkflowExecutionGraph;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    graph?: WorkflowExecutionGraph;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "graph",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionResourceInput": {
+      "name": "WorkflowExecutionResourceInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    /** 同步固定已准备的首轮合同；不接收替代命令行。 */\n    onPrepareInput: NonNullable<BindCommandSubmitOptions['onPrepareInput']>;\n    /** 校验原命令、目标及正式定义，返回本次捕获的目标与执行图。 */\n    prepare(input: WorkflowExecutionCommandInput): Promise<PreparedWorkflowExecution>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。 */\n    guard(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    /** 同步固定已准备的首轮合同；不接收替代命令行。 */\n    onPrepareInput: NonNullable<BindCommandSubmitOptions['onPrepareInput']>;\n    /** 校验原命令、目标及正式定义，返回本次捕获的目标与执行图。 */\n    prepare(input: WorkflowExecutionCommandInput): Promise<PreparedWorkflowExecution>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。 */\n    guard(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onPrepareInput",
+              "jsdoc": "同步固定已准备的首轮合同；不接收替代命令行。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "校验原命令、目标及正式定义，返回本次捕获的目标与执行图。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "WorkflowExecutionCommandInput",
+                    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PreparedWorkflowExecution",
+                    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "guard",
+              "jsdoc": "只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionResource": {
+      "name": "WorkflowExecutionResource",
+      "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: WorkflowExecutionResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "WorkflowExecutionResourceInput",
+                "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "为场景已装配的原命令视图提供绑定，不创建表或视图；未知执行不提供放弃后重发能力。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

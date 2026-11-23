@@ -1,13 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, FieldValueFunction, FilterValueFunctionDialog, RendererButton, RendererToolbar, RendererForm, RendererFilter} from '@spark-appworks/spark-component'
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
-import {LogicViewSourceViews} from '@/lowcode/resources/structured-config/logic-view/source-views'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import {LogicViewSourceViews} from '@/platform-adapters/resources/structured-config/logic-view/source-views'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {LogicViewHttp,configureLogicFixture} from './logic-view.fixture'
 
@@ -28,7 +28,7 @@ const models = buildFormalModels({
 })
 const parameterBase = buildFormalModels({_Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'testvalue']})[0]!
 models.push({...parameterBase, primaryKey: 'parid', fields: parameterBase.fields.map(field => ({...field, primaryKey: field.name === 'parid'}))})
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({readText:()=>{throw Error('Unexpected tool file read')},writeText:()=>{throw Error('Unexpected tool file write')}}),
   lowcodeApi: {design:{},readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},

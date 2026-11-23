@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest'
 import {fixture,storage} from './flow-design-data.fixture'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {cancelFlowDesignChanges,prepareFlowDesignViews,stageFlowDesignGraph,saveFlowDesignInfo} from '@/lowcode/resources/system/workflow/manage'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {cancelFlowDesignChanges,prepareFlowDesignViews,stageFlowDesignGraph,saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
 
 describe('flow document deletion through its original file DataView',()=>{
  it('creates a missing design file, reads it again, cancels edits and removes it through the original view',async()=>{

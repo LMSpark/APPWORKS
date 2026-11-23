@@ -5,7 +5,7 @@
  * AI用途：恢复参考设计器的主业务模型、模型数量、关系数量和来源摘要。
  */
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import type {RGraphProps} from '@spark-appworks/spark-component'
 
 /** 数据空间设计的只读工作台投影，生命周期随元数据DataSet结束。 */

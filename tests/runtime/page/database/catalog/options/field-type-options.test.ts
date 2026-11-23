@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest'
 import {DataSet,bindDataSetReadonlyCommandQuery,ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {databaseCatalogFieldTypeOptions} from '@/lowcode/resources/database/catalog/table/field-type-options'
+import {databaseCatalogFieldTypeOptions} from '@/platform-adapters/resources/database/catalog/table/field-type-options'
 
 it.each(['rows','page'] as const)('preserves the %s query boundary while mapping the service JSON type label',async mode=>{
  const dataSet=DataSet.fromJson({scenarioId:'TYPE-OPTIONS',tables:{}})

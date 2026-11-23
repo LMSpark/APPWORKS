@@ -21,7 +21,7 @@ import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {RequestState,type DataRow} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import * as Components from '@spark-appworks/spark-component'
-import {createExcelTransformConfig} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
+import {createExcelTransformConfig} from '@/platform-adapters/resources/semi-structured/excel-import/transform/definition'
 import RuleDialog from './excel-import-transform-rule-dialog.vue'
 import OperationDialog from './excel-import-transform-operation-dialog.vue'
 

@@ -63,7 +63,7 @@ import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/sp
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RToolbarProps} from '@spark-appworks/spark-component'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import type {useBlueprintNavHost} from './use-blueprint-nav-host'
 
 const {DisplayAlert, FieldJson, FieldSelect, FieldText, RendererButton, RendererDialog, RendererDivider, RendererForm, RendererTable} = SparkComponent

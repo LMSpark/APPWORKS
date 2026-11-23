@@ -1,4 +1,4 @@
-import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
+import {ensureFlowRunApprovalViews} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {config, flushPromises, mount} from '@vue/test-utils'
@@ -9,11 +9,11 @@ import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-p
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererTable, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
-import {createApprovalCommandBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
+import {createApprovalOptionsBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
+import {createApprovalCommandBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
 
 class FlowAppendRevokeHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []

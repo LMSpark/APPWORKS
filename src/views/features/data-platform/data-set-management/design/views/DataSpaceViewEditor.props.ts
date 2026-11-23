@@ -4,7 +4,7 @@
  * 边界：只描述页面与编辑器的连接合同；不接收独立文件副本，不提供业务数据授权。
  * AI用途：组装数据空间设计页时据此传入原会话和当前模型，避免把内部表键当模型名称。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 已在页面按正式权限和身份定位的模型上下文；文件定义仍属于原会话。 */
 export type DataSpaceViewEditorProps = {

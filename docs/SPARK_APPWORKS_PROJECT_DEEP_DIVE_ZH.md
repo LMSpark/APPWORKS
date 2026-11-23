@@ -58,12 +58,12 @@ AI通过ProjectWorkspace.loadScenarioDefinitions按目标T取得正式元数据D
 | spark-utils / spark-json-document | 共享原语、正式字面量、JSON与不可变树 |
 | spark-project-model | 项目蓝图、工具、场景文件、运行调用与IO编排 |
 | spark-data | DataSet/DataTable/DataView、编辑、关系、树算法 |
-| spark-data + src/lowcode | DataTable/DataView/owner 是业务数据入口；宿主注入平台 scope 与特定服务适配，wire 归 backend-api-contracts。现有 spark-lowcode-api 正按域退役 |
+| spark-data + src/platform-adapters | DataTable/DataView/owner 是业务数据入口；宿主注入平台 scope 与特定服务适配，wire 归 backend-api-contracts |
 | spark-component | 能力系统、组件、页面渲染与权限消费 |
 | spark-app | 应用壳、路由、认证、主题与调用宿主 |
 | spark-ai | 浏览器tool loop、ClassModel与工作流 |
 
-宿主 src/lowcode 将领域模型与平台 API 接线；AppWorks 不启动服务器、不保存平台密钥。
+宿主 src/platform-adapters 将领域模型与平台 API 接线；AppWorks 不启动服务器、不保存平台密钥。
 
 ## 继续阅读
 

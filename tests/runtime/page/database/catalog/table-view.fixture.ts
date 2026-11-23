@@ -1,5 +1,6 @@
 import type {Mock} from 'vitest'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {DataViewFilter, DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
@@ -16,8 +17,8 @@ import {
   DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
-} from '@/lowcode/resources/database/catalog/table-view'
-import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
+} from '@/platform-adapters/resources/database/catalog/table-view'
+import {DATABASE_SERVER_MODEL} from '@/platform-adapters/resources/database/server/resource'
 
 export const DATABASE_TABLE_VIEW_SCENARIO_ID = 'FORM-DB-TAV'
 

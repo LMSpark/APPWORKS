@@ -67,13 +67,13 @@ import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
 
 const {DisplayAlert, PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent} = SparkComponent
 import {useRoute} from 'vue-router'
-import {readDatabaseCatalogScope} from '@/lowcode/resources/database/catalog/scenario'
+import {readDatabaseCatalogScope} from '@/platform-adapters/resources/database/catalog/scenario'
 import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
-  DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/directory'
-import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
-import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/lowcode/resources/database/directory'
-import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
-import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
+  DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/platform-adapters/resources/database/directory'
+import {DATABASE_SERVER_MODEL} from '@/platform-adapters/resources/database/server/resource'
+import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/platform-adapters/resources/database/directory'
+import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/platform-adapters/resources/database/dataset-extensions'
+import {DATABASE_SERVER_LIST_FIELDS} from '@/platform-adapters/resources/database/server/catalog-metadata'
 import {
   databaseCatalogDbBeginCreate,
   databaseCatalogDbBeginEdit,
@@ -89,7 +89,7 @@ import {
   requireDatabaseCatalogDbView,
   requireDatabaseCatalogServerView,
   type DatabaseCatalogDbEditState,
-} from '@/lowcode/resources/database/catalog/db-view-ops'
+} from '@/platform-adapters/resources/database/catalog/db-view-ops'
 import RegisterDatabaseDialog from '@/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue'
 
 const TABLE_VIEW_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'

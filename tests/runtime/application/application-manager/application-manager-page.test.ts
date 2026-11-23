@@ -32,10 +32,10 @@ vi.mock('@/services/project/enterprise-landing', () => ({EnterpriseDefaultApplic
   destroy: () => { defaultApp.destroyed++ },
 })}}))
 
-vi.mock('@/lowcode/resources/application/project-blueprint-document', () => ({
+vi.mock('@/platform-adapters/resources/application/project-blueprint-document', () => ({
   submitBlueprintDocument: (...args: unknown[]) => pageMocks.submitDocument(...args),
 }))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
   lowcodeApi: {
     readRequestScope: (...args: unknown[]) => api.service.readRequestScope(...args),

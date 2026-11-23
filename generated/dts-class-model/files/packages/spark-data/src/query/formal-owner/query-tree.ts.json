@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/query-tree",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/query-tree.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/query-tree.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/query-tree",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/query-tree 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T07:09:04.001Z",
+  "models": {}
+}

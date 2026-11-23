@@ -1,9 +1,10 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {LowcodeApiError,DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {openJsonDocumentView,createJsonDocumentExecutor,JSON_DOCUMENT_COLUMNS,JSON_DOCUMENT_RESOURCE_ID} from '@/lowcode/resources/semi-structured/json-data/document-resource'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {openJsonDocumentView,createJsonDocumentExecutor,JSON_DOCUMENT_COLUMNS,JSON_DOCUMENT_RESOURCE_ID} from '@/platform-adapters/resources/semi-structured/json-data/document-resource'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
 const sets:DataSet[]=[]

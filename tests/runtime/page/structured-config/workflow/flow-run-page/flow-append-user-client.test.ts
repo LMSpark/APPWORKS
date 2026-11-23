@@ -1,6 +1,6 @@
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {describe, expect, it} from 'vitest'
-import {createFlowAppendUserClient} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client'
+import {createFlowAppendUserClient} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client'
 
 class FlowHttpStub extends HttpClientBase {
   readonly calls: RequestConfig[] = []

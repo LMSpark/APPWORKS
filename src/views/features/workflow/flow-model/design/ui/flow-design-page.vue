@@ -46,7 +46,7 @@ import {
   saveFlowDesignInfo,flowDesignWorkspaceViews,flowDesignGraphLayout,stageFlowDesignGraph,cancelFlowDesignChanges,hasFlowDesignChanges,
   syncFlowDesignNodeAuthView,
   type FlowDesignPreparedViews,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
 const {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererGraph, RendererSection, useSparkComponent} = SparkComponent

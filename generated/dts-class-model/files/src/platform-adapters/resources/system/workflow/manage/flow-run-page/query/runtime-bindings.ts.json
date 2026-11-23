@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings\n职责：为原审批工作台装配只读选项投影并捕获正式步骤/实例。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "config": {
+          "$ref": "../../../../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "http": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+        },
+        "readScope": {
+          "type": "object",
+          "title": "() => FlowRequestScope"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:02:15.432Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: FlowRunPageClientOptions['http'];\n    readScope: FlowRunPageClientOptions['readScope'];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: FlowRunPageClientOptions['http'];\n    readScope: FlowRunPageClientOptions['readScope'];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

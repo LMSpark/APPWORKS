@@ -7,7 +7,7 @@ import { createDynamicRouter } from '../../../../packages/spark-app/src/router/d
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '../../../../packages/spark-app/src/navigation/action-registry'
 import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
-import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
+import { activateLowcodeApplication } from '@/platform-adapters/lowcode-runtime'
 import App from '@/App.vue'
 import AppList from '@/views/app/AppList.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
@@ -17,7 +17,7 @@ const lowcodeState = vi.hoisted((): LowcodeState => ({ applicationId: 'old', own
 const shellState = vi.hoisted(() => ({ reload: vi.fn(async () => null), resetWorkspace: vi.fn() }))
 const appListData = vi.hoisted(() => ({rows: [{rowid: 'APP-A', AppName: 'app-a', AppDesc: 'App A'}], refresh: vi.fn(async () => ({success: true}))}))
 
-vi.mock('@/lowcode/lowcode-runtime', () => {
+vi.mock('@/platform-adapters/lowcode-runtime', () => {
   const receipt = (intent: number) => ({
     assertCurrent() {
       if (intent !== lowcodeState.ownerIntent) throw new Error('platform selection stale')
@@ -60,7 +60,7 @@ vi.mock('@spark-appworks/spark-project-model', async importOriginal => {
     dispose() {this.destroyed = true}
   }}
 })
-vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+vi.mock('@/platform-adapters/lowcode-application-catalog', () => ({
   loadLowcodeApplicationCatalog: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'})),
   getFormalModelView: () => ({primaryKey: 'rowid', queryConfig: {allPages: true},
     dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}}, rows: appListData.rows,

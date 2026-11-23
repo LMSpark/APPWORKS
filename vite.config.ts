@@ -87,7 +87,7 @@ export default defineConfig(({ command, mode }) => {
       '@spark-appworks/spark-component/runtime': path.resolve(root, 'packages', 'spark-component', 'src', 'runtime', 'index.ts'),
       '@spark-appworks/spark-component': path.resolve(root, 'packages', 'spark-component', 'src', 'index.ts'),
       '@spark-appworks/spark-data': path.resolve(root, 'packages', 'spark-data', 'src', 'index.ts'),
-      '@spark-appworks/spark-lowcode-api': path.resolve(root, 'packages', 'spark-lowcode-api', 'src', 'index.ts'),
+      '@/platform-adapters/api': path.resolve(root, 'src', 'platform-adapters', 'api', 'index.ts'),
       '@spark-appworks/spark-utils/internal': path.resolve(root, 'packages', 'spark-utils', 'src', 'internal', 'index.ts'),
       '@spark-appworks/spark-utils': path.resolve(root, 'packages', 'spark-utils', 'src', 'index.ts'),
       '@spark-appworks/spark-json-document': path.resolve(root, 'packages', 'spark-json-document', 'src', 'index.ts'),
@@ -235,8 +235,8 @@ export default defineConfig(({ command, mode }) => {
           if (normalizedId.includes('packages/spark-data')) {
             return 'spark-data'
           }
-          if (normalizedId.includes('packages/spark-lowcode-api')) {
-            return 'spark-lowcode-api'
+          if (normalizedId.includes('src/platform-adapters/api')) {
+            return 'platform-adapters'
           }
           if (normalizedId.includes('packages/spark-ai')) {
             return 'spark-ai'

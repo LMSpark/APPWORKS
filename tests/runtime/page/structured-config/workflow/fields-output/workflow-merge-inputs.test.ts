@@ -1,12 +1,13 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {SparkData,RequestState,type DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createWorkflowLayoutExecutor} from '@/platform-adapters/resources/structured-config/workflow-definition/layout/layout-resource'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
-import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs'
+import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/platform-adapters/resources/structured-config/workflow-definition/fields/merge-inputs'
 
 const sets:DataSet[]=[],pages:PageRuntime[]=[]
 const backends=new WeakMap<DataSet,ApiBackend>()

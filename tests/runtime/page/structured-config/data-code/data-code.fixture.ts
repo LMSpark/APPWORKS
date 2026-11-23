@@ -1,5 +1,5 @@
 import {vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import designText from '../../../../../config/pages/structured-config/data-code-editor/pagedata.json?raw'

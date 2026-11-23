@@ -15,8 +15,8 @@ import rule from '@/views/features/application/smart-bid/authoring/page11/rule.j
 import script from '@/views/features/application/smart-bid/authoring/page11/script.js?raw'
 import style from '@/views/features/application/smart-bid/authoring/page11/style.css?raw'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 function isAuthoringSession(value:unknown):value is ContentAuthoringScriptSession{
  return value!==null&&typeof value==='object'&&'assertCurrent' in value&&
@@ -26,11 +26,11 @@ function isAuthoringSession(value:unknown):value is ContentAuthoringScriptSessio
 
 const auth = vi.hoisted(() => ({token:'session-1', userId:'U', appId:'APP'}))
 const load = vi.hoisted(() => vi.fn())
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi:{
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({lowcodeApi:{
  session:{get:()=>auth.userId ? {identity:{userId:auth.userId}} : null},
  readRequestScope:()=>({token:auth.token,headers:{'X-AppId':auth.appId}}),
 }}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario:load}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario:load}))
 
 const target = {applicationId:'APP',pageId:'PAGE',scenarioId:'SPACE',projectId:'P',draftId:'D'}
 const param = (name:string) => ({Type:'GetInputParam',ParamName:name})

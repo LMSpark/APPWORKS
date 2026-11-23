@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {captureWorkflowUserSelection} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/user-selection'
+import {captureWorkflowUserSelection} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/user-selection'
 
 it('captures only original candidates, validates counts and expires after a same-value refresh', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

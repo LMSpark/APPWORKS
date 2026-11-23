@@ -4,7 +4,7 @@ import {
   addFlowDesignEdge,
   addFlowDesignNode,
   removeFlowDesignGraphSelection,
-} from '@/lowcode/resources/system/workflow/manage/flow-design/flow-design-graph-edit'
+} from '@/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-graph-edit'
 
 type MockView = {
   destroyed: boolean

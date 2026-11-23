@@ -31,11 +31,11 @@ vi.mock('@spark-appworks/spark-project-model', () => ({
     dispose() { this.destroyed = true; state.disposed++ }
   },
 }))
-vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+vi.mock('@/platform-adapters/lowcode-application-catalog', () => ({
   loadLowcodeApplicationCatalog: state.applicationCatalogLoad,
   getFormalModelView: (dataSet: {getView: () => unknown}) => dataSet.getView(),
 }))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}},
   readLowcodePrincipal: () => ({enterpriseName: 'acme'}),
 }))

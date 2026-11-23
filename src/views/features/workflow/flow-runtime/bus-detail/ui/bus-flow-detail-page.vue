@@ -47,7 +47,7 @@ import {
   prepareFlowRunPage,
   readFlowRuntimeRouteQuery,
   type FlowRunPreparedPage,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {

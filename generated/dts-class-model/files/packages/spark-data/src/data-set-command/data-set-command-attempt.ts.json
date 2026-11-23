@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:data-set-command/data-set-command-attempt",
+    "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-attempt.ts",
+    "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-attempt.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "data-set-command/data-set-command-attempt",
+    "jsdoc": "@spark-appworks/spark-data 的 data-set-command/data-set-command-attempt 模块。\n导出 DtsTypeDeclarationModel symbol: DataSetCommandAttempt（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSetCommandAttempt"
+    ]
+  },
+  "$defs": {
+    "DataSetCommandAttempt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCommandAttempt",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isPrepared.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isPrepared.return": {
+          "type": "boolean"
+        },
+        "method.isDispatched.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isDispatched.return": {
+          "type": "boolean"
+        },
+        "method.isFailed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isFailed.return": {
+          "type": "boolean"
+        },
+        "method.isUnknown.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isUnknown.return": {
+          "type": "boolean"
+        },
+        "method.isConfirmed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isConfirmed.return": {
+          "type": "boolean"
+        },
+        "method.isActive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isActive.return": {
+          "type": "boolean"
+        },
+        "method.dispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispatch.return": true,
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.confirm.return": true,
+        "method.fail.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fail.return": true,
+        "method.unknown.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.unknown.return": true,
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:32:44.473Z",
+  "models": {
+    "DataSetCommandAttempt": {
+      "name": "DataSetCommandAttempt",
+      "jsdoc": "One command identity's execution lifecycle; no transport, result, or page state is owned here.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "One command identity's execution lifecycle; no transport, result, or page state is owned here.",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "isPrepared",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isDispatched",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isFailed",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isUnknown",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isConfirmed",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isActive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "dispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "confirm",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "fail",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "unknown",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reset",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

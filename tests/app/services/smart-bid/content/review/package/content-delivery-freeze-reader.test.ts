@@ -9,8 +9,8 @@ import {prepareRegisteredDeliveryZipPackage} from '@/views/features/application/
 import {verifyRegisteredPackingCandidate} from '@/views/features/application/smart-bid/authoring/model/review/package/content-submission-package-reader'
 import {readRegisteredDeliveryFreeze} from '@/views/features/application/smart-bid/authoring/model/review/package/content-delivery-freeze-reader'
 import {contentDeliveryPackageScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('preserves unknown on a complete empty original read and requires readable terminal evidence',async()=>{
  const groupScope={enterpriseId:'ORG',projectId:'P',lotId:'L',roundId:'R',stageId:'D',obligationGroupId:'G'}

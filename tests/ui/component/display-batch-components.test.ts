@@ -1,6 +1,6 @@
 import { SparkData, type DataView, type SparkNode } from '@spark-appworks/spark-data'
-import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
 /**
  * Tests for Batch 4-6 display components:
  * - DisplayIcon (display-icon)

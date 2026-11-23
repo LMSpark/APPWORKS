@@ -58,7 +58,7 @@ spark-data 还保留不带 scenarioId 的通用 DataSet，以及显式配置 end
 - [动作执行](../../packages/spark-component/src/page/actions/action-data.ts)
 - [保存编排](../../packages/spark-data/src/dataset.ts)
 - [视图编辑与原context保存](../../packages/spark-data/src/data-view.ts)
-- [平台API合同](../../packages/spark-lowcode-api/README.md)
+- [平台适配入口](../../src/platform-adapters/api/index.ts)
 
 ```bash
 pnpm exec vitest run tests/ui/component/zero-code-events.test.ts tests/runtime/data-view/dataview-crud-bridge.test.ts

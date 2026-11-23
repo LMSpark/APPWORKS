@@ -7,7 +7,7 @@
  */
 import {computed, ref, watch, type Ref} from 'vue'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import type {BlueprintTreeContext} from '../use-application-function-page'
 import {readBlueprintCurrentText} from '../application-function-page-contract'
 

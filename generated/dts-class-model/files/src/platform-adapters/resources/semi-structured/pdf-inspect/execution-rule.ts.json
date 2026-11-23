@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/semi-structured/pdf-inspect/execution-rule",
+    "sourcePath": "src/platform-adapters/resources/semi-structured/pdf-inspect/execution-rule.ts",
+    "sourceFile": "src/platform-adapters/resources/semi-structured/pdf-inspect/execution-rule.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/semi-structured/pdf-inspect/execution-rule",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/execution-rule\n职责：从本次 DataSet 读取唯一启用的正式核验规则。\n边界：只验证正式字段与读取证明，规则执行由原任务服务完成。\nAI用途：在选取 PDF 文件和派发任务前捕获同一规则的可读证据。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T20:59:32.698Z",
+  "models": {}
+}

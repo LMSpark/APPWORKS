@@ -54,7 +54,7 @@ import {
   FLOW_MONITOR_SCENARIO_ID,
   FLOW_WORKBENCH_SCENARIO_ID,
   readFlowRuntimeRouteQuery,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
@@ -64,7 +64,7 @@ import style from './tool/style.css?raw'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 import FlowRunRouteRenderer from './flow-run-route-renderer.vue'
-import {ensureFlowRunApprovalViews} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
+import {ensureFlowRunApprovalViews} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {useFlowRunPage} from './use-flow-run-page'
 
 const props = defineProps<{mobile?: boolean}>()

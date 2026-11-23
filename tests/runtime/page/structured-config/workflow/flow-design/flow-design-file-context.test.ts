@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
 import {fixture} from './flow-design-data.fixture'
-import {prepareFlowDesignViews,resolveFlowDesignFileContext} from '@/lowcode/resources/system/workflow/manage'
+import {prepareFlowDesignViews,resolveFlowDesignFileContext} from '@/platform-adapters/resources/system/workflow/manage'
 describe('formal flow design file context',()=>{
  it('uses SysForm only from a confirmed empty sysid and rejects an external model copy',async()=>{
   const {runtime}=await fixture()

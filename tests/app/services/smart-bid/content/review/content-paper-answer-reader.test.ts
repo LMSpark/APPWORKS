@@ -4,8 +4,8 @@ import {createContentReviewScriptHost} from '@/views/features/application/smart-
 import {readRegisteredPaperAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-paper-answer-reader'
 import {contentProductionReviewScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/production/production-scenario-views'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('requires the exact registered copy and page before returning the original observed value',async()=>{
  const row={id:'OBS',projectId:'P',paperRef:'PAPER',copyRef:'COPY',revisionId:'R',

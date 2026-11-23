@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters\n职责：流程工作台各页签过滤语义（对齐参考 flow-workbench-filters.ts），供 pagedata 与测试核对。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowWorkbenchTab",
+      "FlowWorkbenchTabBinding",
+      "FlowWorkbenchFilterLeaf",
+      "FlowWorkbenchFilterExpression"
+    ]
+  },
+  "$defs": {
+    "FlowWorkbenchTab": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FlowWorkbenchTab",
+      "enum": [
+        "pending",
+        "processed",
+        "shared",
+        "started"
+      ]
+    },
+    "FlowWorkbenchTabBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowWorkbenchTabBinding",
+      "properties": {
+        "tab": {
+          "$ref": "#/$defs/FlowWorkbenchTab"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tab",
+        "modelName",
+        "viewId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowWorkbenchFilterLeaf": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowWorkbenchFilterLeaf",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "required": [
+        "field",
+        "operator",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "FlowWorkbenchFilterExpression": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowWorkbenchFilterExpression",
+      "properties": {
+        "logic": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/FlowWorkbenchFilterLeaf"
+              },
+              {
+                "$ref": "#/$defs/FlowWorkbenchFilterExpression"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "logic",
+        "filters"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.851Z",
+  "models": {
+    "FlowWorkbenchTab": {
+      "name": "FlowWorkbenchTab",
+      "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters\n职责：流程工作台各页签过滤语义（对齐参考 flow-workbench-filters.ts），供 pagedata 与测试核对。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'pending' | 'processed' | 'shared' | 'started'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'processed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'shared'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'started'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FlowWorkbenchTabBinding": {
+      "name": "FlowWorkbenchTabBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tab: FlowWorkbenchTab;\n    modelName: string;\n    viewId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tab: FlowWorkbenchTab;\n    modelName: string;\n    viewId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tab",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowWorkbenchFilterLeaf": {
+      "name": "FlowWorkbenchFilterLeaf",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    operator: string;\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    operator: string;\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowWorkbenchFilterExpression": {
+      "name": "FlowWorkbenchFilterExpression",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    logic: 'and' | 'or';\n    filters: ReadonlyArray<FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    logic: 'and' | 'or';\n    filters: ReadonlyArray<FlowWorkbenchFilterLeaf | FlowWorkbenchFilterExpression>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "logic",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filters",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@ import {runPageDesignAiSession} from '@/services/page-design/page-design-ai-runn
 import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
 
 const storage=vi.hoisted(()=>({files:new Map<string,string>()}))
-vi.mock('@/lowcode/lowcode-runtime',()=>({
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({
   createPageToolFilesIo:()=>({
     list:async()=>[],
     read:async(appId:string,pageId:string,fileName:string)=>storage.files.get(`${appId}/${pageId}/${fileName}`)??null,

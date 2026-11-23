@@ -1,10 +1,10 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
-import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
-import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
-import {createStagedDesignExecutor} from '@/lowcode/resources/repository/staged-design-file-view'
-import type {PageDataSpaceModelSourcePrepared} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {LogicViewNodeCommands} from '@/platform-adapters/resources/structured-config/logic-view/node-commands'
+import {logicFieldRowAdapter} from '@/platform-adapters/resources/structured-config/logic-view/field-row-adapter'
+import {logicNodeFunctionContext} from '@/platform-adapters/resources/structured-config/logic-view/function-context'
+import {createStagedDesignExecutor} from '@/platform-adapters/resources/repository/staged-design-file-view'
+import type {PageDataSpaceModelSourcePrepared} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 const prepared:PageDataSpaceModelSourcePrepared={source:{type:'table',id:'T',name:'Orders',description:'订单',dbid:'DB',databaseName:'Business',providerId:''},

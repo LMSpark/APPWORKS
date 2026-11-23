@@ -8,8 +8,8 @@ import {ContentAuthoringCommands} from '@/views/features/application/smart-bid/a
 import {createContentAuthoringScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
 import {prepareDraftCandidateRequest} from '@/services/smart-bid/content/draft/content-draft-candidate-request'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 
 async function fixture(writable=true,other=false,createRuntime?:(ds:DataSet)=>Promise<PageRuntime>,primaryKey='id',

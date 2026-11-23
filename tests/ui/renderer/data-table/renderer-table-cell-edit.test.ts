@@ -5,8 +5,8 @@ import ElementPlus, {ElPagination, ElTable, ElTableColumn} from 'element-plus'
 import {DataSet} from '@spark-appworks/spark-data'
 import {FieldText, RendererForm, RendererTable, Spark, PAGE_RUNTIME, DATA_ROW, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 
 const originalStubs = config.global.stubs
 const cleanups: Array<() => void> = []

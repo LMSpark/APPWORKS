@@ -1,9 +1,9 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {DataView} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createModelCreateHandle,createModelCreateHost} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createModelCreateHandle,createModelCreateHost} from '@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-create-session'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from '../workflow-native-design.fixture'
 const pages:PageRuntime[]=[]

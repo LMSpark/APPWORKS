@@ -35,7 +35,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RFilterProps} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const {PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererForm, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent

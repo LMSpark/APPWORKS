@@ -59,8 +59,7 @@
       "title": "BlueprintNodeFormData",
       "properties": {
         "source": {
-          "type": "object",
-          "title": "BlueprintSource"
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/BlueprintSource"
         },
         "kind": {
           "enum": [
@@ -75,17 +74,17 @@
         "projectId": {
           "type": "string"
         },
-        "children": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
-          }
-        },
         "nodeId": {
           "type": "string"
         },
         "parentNodeId": {
           "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
         },
         "capability": {
           "$ref": "#/$defs/OptionalFormFields"
@@ -466,7 +465,7 @@
         },
         "method.loadProjectRecords.return": {
           "type": "object",
-          "title": "Promise<readonly LowcodeProjectBlueprintRecord[]>"
+          "title": "Promise<readonly ProjectBlueprintRecord[]>"
         },
         "method.removeLeafNode.params": {
           "type": "object",
@@ -928,7 +927,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-21T07:17:30.861Z",
+  "generatedAt": "2026-11-23T08:03:43.831Z",
   "models": {
     "SelectedNodeSaveProgress": {
       "name": "SelectedNodeSaveProgress",
@@ -1565,7 +1564,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "readonly LowcodeProjectBlueprintRecord[]"
+                    "name": "readonly ProjectBlueprintRecord[]"
                   }
                 ]
               }

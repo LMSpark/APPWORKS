@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import type {DimensionSourceSavedBinding} from '@/lowcode/resources/structured-config/dimension-source/binding-editor'
-import {DimensionSourceEventEditor} from '@/lowcode/resources/structured-config/dimension-source/event-editor'
+import type {DimensionSourceSavedBinding} from '@/platform-adapters/resources/structured-config/dimension-source/binding-editor'
+import {DimensionSourceEventEditor} from '@/platform-adapters/resources/structured-config/dimension-source/event-editor'
 import {catalogField, createDimensionSourceRuntime} from './dimension.fixture'
 
 const runtimes: PageRuntime[] = []

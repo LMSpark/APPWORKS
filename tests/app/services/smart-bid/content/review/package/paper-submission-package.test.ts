@@ -6,8 +6,8 @@ import {createContentSubmissionScriptHost} from '@/views/features/application/sm
 import script from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
 import {reviewRegisteredPaperSubmissionPackage} from '@/views/features/application/smart-bid/authoring/model/review/package/content-paper-submission-package-reader'
 import {contentDeliveryPackageScenarioViews,contentPackageSignatureScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('checks the actual seal, version and number of copies while retaining partial observations',()=>{
  let witnessCurrent=true

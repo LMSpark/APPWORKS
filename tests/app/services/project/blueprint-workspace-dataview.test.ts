@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {DataSet, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 
 const PROJECT='APP-1'

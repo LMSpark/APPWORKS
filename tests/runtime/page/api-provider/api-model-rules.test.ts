@@ -3,13 +3,13 @@ import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-mode
 import type {DataView} from '@spark-appworks/spark-data'
 import {createApiService,seed,API,CONFIG,META,pagedata} from './api-provider.fixture'
 const api=vi.hoisted(()=>({current:undefined as unknown as ReturnType<typeof createApiService>}))
-vi.mock('@/lowcode/lowcode-runtime',()=>({
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({
  get lowcodeHttp(){return api.current.state.http},
  lowcodeApi:{readRequestScope:()=>api.current.service.readRequestScope(),dataSpace:{get design(){return api.current.service},get runtime(){return api.current.state.runtime}}},
  createLowcodeProjectGateways:()=>({scenarioViews:{readScope:()=> 'scope',readText:async(id:string)=>pagedata[id]??null,writeText:async()=>{throw Error('No file writes')}}}),
  lowcodeDesignFileUpload:async()=>{throw Error('No uploads')},
 }))
-const {loadLowcodeRuntimeScenario,loadScenarioDataSet}=await import('@/lowcode/data-space/lowcode-data-space-runtime')
+const {loadLowcodeRuntimeScenario,loadScenarioDataSet}=await import('@/platform-adapters/data-space/lowcode-data-space-runtime')
 const pages:PageRuntime[]=[]
 beforeEach(()=>{api.current=createApiService();api.current.reset(seed)})
 afterEach(()=>{pages.splice(0).forEach(p=>p.dispose());vi.restoreAllMocks()})

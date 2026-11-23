@@ -5,7 +5,7 @@
  */
 import type {PageServiceCapability} from '@spark-appworks/spark-component'
 import type {DataView} from '@spark-appworks/spark-data'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 
 export const APP_AUTH_SCENARIOS = {
   myRequests: '47DA54EA853C8780976D43CF2369B096',

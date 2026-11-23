@@ -1,6 +1,6 @@
 # transport
 
-Host 与 APP 之间的 **AI turn I/O 契约**（无 HTTP 实现）。
+Host 与 APP 之间的 **AI turn I/O 契约**，以及可由宿主注入的 `LowcodeRealtimeApi` HTTP/SSE 适配器。
 
 ## 核心类型（`transport-types.ts`）
 
@@ -10,7 +10,7 @@ Host 与 APP 之间的 **AI turn I/O 契约**（无 HTTP 实现）。
 
 ## APP 实现
 
-`src/services/ai-turn-bridge.ts` → 生产 `appAiAgent` 使用 `session-turn`（`src/services/ai-host.ts`）。
+`src/platform-adapters/lowcode-runtime.ts` 注入认证 HTTP、fetch 与当前会话；`src/services/sse-events.ts` 管理共享连接和事件分发。`src/services/ai/ai-turn-bridge.ts` 负责将事件与具体 ToolLoop turn 绑定。
 
 ## 文档
 

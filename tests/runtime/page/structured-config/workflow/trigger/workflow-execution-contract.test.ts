@@ -1,7 +1,7 @@
 import {afterEach,expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {workflowSourceEditFixture} from '../workflow-source-edit.fixture'
-import {WorkflowExecutionContract} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-contract'
+import {WorkflowExecutionContract} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-contract'
 const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))
 it('accepts same-value native refreshes without replacing the first definition contract',async()=>{
@@ -38,7 +38,7 @@ it('does not promote an interrupted opening pass into a ready execution contract
 it('keeps the opening contract active through native node validation',async()=>{
  const f=await workflowSourceEditFixture(pages),contract=new WorkflowExecutionContract({dataSet:f.ds,workflowId:'W',guard:()=>undefined}),pass=contract.begin('capture')
  const checked=vi.spyOn(pass,'assertCurrent')
- const {WorkflowExecutionContext}=await import('@/lowcode/resources/structured-config/workflow-definition/execution/execution-context')
+ const {WorkflowExecutionContext}=await import('@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context')
  const context=new WorkflowExecutionContext(f.ds,'W',()=>undefined,pass)
  try{await context.validateNode('QUERY');expect(checked).toHaveBeenCalled();pass.finish()}finally{context.dispose()}
 })

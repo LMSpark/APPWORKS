@@ -1,10 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
 import {DataSet} from '@spark-appworks/spark-data'
 import {Request, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi, lowcodeHttp} from '@/platform-adapters/lowcode-runtime'
 import {installRepositoryScenarioTestFetch} from '../../../../support/helpers/authenticated-lowcode-session'
-import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
+import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/platform-adapters/lowcode-application-catalog'
 
 const priorSession = lowcodeApi.session.get()
 const priorApplication = lowcodeApi.application.get()
@@ -67,7 +67,7 @@ function formalQueryRequests(): Array<{config: RequestConfig; body: QueryWire}> 
 }
 
 async function requireNavigationRootReader(): Promise<(systemId: string, assertCurrent: () => void) => Promise<string>> {
-  const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+  const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
   }
   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
@@ -163,7 +163,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([readerModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -185,7 +185,7 @@ describe('authenticated application catalog DataView', () => {
       EntId: 'ENT-1', EntShortName: 'enterprise-one', IsSys: 1}]
     const readerModel = formalModel
     mockNavigationMetadata(readerModel)
-    const catalog = await import('@/lowcode/lowcode-application-catalog')
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog')
 
     await expect(catalog.readLowcodeApplications(() => undefined)).resolves.toEqual([{
       id: 'APP-1', name: '财务管理', code: 'finance', description: '财务系统说明',
@@ -205,7 +205,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '应用目录',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -230,7 +230,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '应用目录',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([readerModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -255,7 +255,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '应用目录',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -279,7 +279,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -307,7 +307,7 @@ describe('authenticated application catalog DataView', () => {
       })
       vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
       const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-      const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
         readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
       }
       expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -330,7 +330,7 @@ describe('authenticated application catalog DataView', () => {
     })
     const readModel = vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -360,7 +360,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -381,7 +381,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '应用目录',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -401,7 +401,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string; code?: string; description?: string}>
     }
 
@@ -424,7 +424,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '应用目录',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -448,7 +448,7 @@ describe('authenticated application catalog DataView', () => {
       return [formalModel]
     })
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -473,7 +473,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -495,7 +495,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplicationById: (id: string, assertCurrent: () => void) => Promise<{id: string; name: string}>
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
@@ -527,7 +527,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([formalModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
     }
     expect(typeof catalog.readLowcodeApplications).toBe('function')
@@ -619,7 +619,7 @@ describe('authenticated application catalog DataView', () => {
     })
     const readModel = vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([rootModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
     }
     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
@@ -679,7 +679,7 @@ describe('authenticated application catalog DataView', () => {
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([rootModel])
     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
     }
     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
@@ -718,7 +718,7 @@ describe('authenticated application catalog DataView', () => {
       dataSpaceId: CATALOG_SCENARIO_ID, name: '功能管理',
     })
     vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockResolvedValue([rootModel])
-    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    const catalog = await import('@/platform-adapters/lowcode-application-catalog') as unknown as {
       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
     }
     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')

@@ -974,7 +974,7 @@
       "title": "DataViewQuerySaveRecoveryEntry",
       "properties": {
         "action": {
-          "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-order.ts.json#/$defs/DataSpaceSaveAction"
+          "$ref": "query/formal-owner/save-order.ts.json#/$defs/DataSpaceSaveAction"
         },
         "identity": {
           "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"

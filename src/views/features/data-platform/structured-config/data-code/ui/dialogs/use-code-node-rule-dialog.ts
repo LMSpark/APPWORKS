@@ -6,8 +6,8 @@ import {computed, nextTick, onBeforeUnmount, ref, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {isJsonObject, parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {codeNodeTypeLabel} from '@/lowcode/resources/structured-config/data-code/design-ops'
-import {readCodeRuleBusinessTable} from '@/lowcode/resources/structured-config/data-code/rule-target'
+import {codeNodeTypeLabel} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
+import {readCodeRuleBusinessTable} from '@/platform-adapters/resources/structured-config/data-code/rule-target'
 
 type RuleTarget = Readonly<{dataViewKey: string; nodeId: string | number; busTableRowid: string}>
 /** @param props 本次原节点绑定及业务表身份。 @param kind 规则类型。 @param close 释放弹窗，不提交后端。 */

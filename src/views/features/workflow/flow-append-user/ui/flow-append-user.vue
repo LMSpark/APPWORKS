@@ -52,7 +52,7 @@
 import {computed} from 'vue'
 import {RendererDialog, RendererSection, SparkComponentRenderer} from '@spark-appworks/spark-component'
 import {getSparkNodeChildren, isSparkNode, nodeId, type SparkNode} from '@spark-appworks/spark-data'
-import type {FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
+import type {FlowAppendUserContext} from '@/platform-adapters/resources/system/workflow/manage'
 import {useFlowAppendUser} from './use-flow-append-user'
 
 const props = withDefaults(defineProps<{

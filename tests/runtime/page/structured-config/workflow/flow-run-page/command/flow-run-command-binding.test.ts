@@ -3,9 +3,9 @@ import {describe, expect, it} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {createApprovalCommandBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
-import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
-import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
+import {createApprovalCommandBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
+import {submitApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
+import {createApprovalOptionsBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
 
 class Http extends HttpClientBase {
   result = true

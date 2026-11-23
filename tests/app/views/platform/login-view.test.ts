@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import {readFileSync} from 'node:fs'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
-import {LowcodeApiError, PlatformAuthResource} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError, PlatformAuthResource } from '@/platform-adapters/api'
 import {FieldSelect, FieldText, PAGE_SERVICE, RendererButton, RendererDrawer, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import LoginView from '@/views/platform/LoginView.vue'
 
@@ -20,7 +20,7 @@ const state = vi.hoisted(() => ({
   dataSets: new Set<DataSet>(),
 }))
 
-vi.mock('@/lowcode/data-space/lowcode-public-scenario', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-public-scenario', () => ({
   loadLowcodePublicScenario: async ({scenarioId, assertCurrent}: {scenarioId: string; assertCurrent: () => void}) => {
     const config: unknown = JSON.parse(readFileSync('config/pages/platform/login/pagedata.json', 'utf8'))
     if (typeof config !== 'object' || config === null || !('tables' in config)) throw Error('bad pagedata')

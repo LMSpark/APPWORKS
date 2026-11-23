@@ -4,7 +4,7 @@ import {
   buildFlowWorkbenchTabFilterFields,
   flowWorkbenchMetaName,
   flowWorkbenchTabBinding,
-} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
+} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
 
 describe('flow-workbench filters', () => {
   it('maps tabs to meta and views', () => {

@@ -1,6 +1,6 @@
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PageRuntime, ScenarioViewConfig, type PageTool} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../page/api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../page/structured-config/catalog/structured-config-catalog.fixture'
 

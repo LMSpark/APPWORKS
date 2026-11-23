@@ -2,9 +2,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {codeModels, codeService, DESIGN, designText} from '../data-code.fixture'
-import * as Reference from '@/lowcode/resources/structured-config/data-code/reference-ops'
+import * as Reference from '@/platform-adapters/resources/structured-config/data-code/reference-ops'
 import {createSourceFixture} from './fixture'
 const owners: PageRuntime[] = []
 afterEach(() => owners.splice(0).forEach(owner => owner.dispose()))

@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest'
 import {preparePublishedSmartBidPageCall} from '@/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call'
 
-vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({lowcodeApi:{
  session:{get:()=>({identity:{userId:'USER'}})},readRequestScope:()=>({token:'TOKEN',headers:{'X-AppId':'D8490EC99436A8B9AFDE205BE3153802'}}),
 }}))
 

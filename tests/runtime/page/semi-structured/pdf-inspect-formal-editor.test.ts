@@ -7,21 +7,22 @@ import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-route
 import {computed, defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldJson, FieldText, RendererButton, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
-import {DataSpaceRuntimeApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeDesignFileUpload } from '@/platform-adapters/api'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {SystemPageIdentityPool} from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import PdfList from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
-import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
+import {LowcodePdfInspect} from '@/platform-adapters/resources/semi-structured/pdf-inspect/resource'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
 import PdfEditor from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {PDF, topicModels, topicTexts} from '../structured-config/catalog/formal-topic.fixture'
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,
   catalogRuntime: undefined as unknown as DataSpaceRuntimeApi}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   lowcodeCatalogDataSpace: {get runtime() {return state.catalogRuntime}, design: {
     readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId,name:'PDF'}),

@@ -4,14 +4,14 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElTree, ElButton} from 'element-plus'
 import {FieldValueFunction, FieldNumber, FieldSelect, FieldText, RendererForm, RendererButton, RendererDialog, RendererTabs, FilterValueFunctionDialog, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
-import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
+import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
-import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/platform-adapters/data-space/model-source/field/lowcode-data-space-field-edit-session'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
 
-vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', async () => {
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', async () => {
   const {DataSet} = await import('@spark-appworks/spark-data')
   return {readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}), loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
     scenarioId, tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},

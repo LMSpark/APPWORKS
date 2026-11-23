@@ -28,10 +28,10 @@ AI用途：组件根据DataTable.columns中DataColumn.allowAIAdd及原DataView�
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {DictionarySchema} from '@spark-appworks/spark-lowcode-api'
+import { DictionarySchema } from '@/platform-adapters/api'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererDialog, RendererForm, RendererTable, SparkAiDataEntry, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 
 const props = withDefaults(defineProps<{

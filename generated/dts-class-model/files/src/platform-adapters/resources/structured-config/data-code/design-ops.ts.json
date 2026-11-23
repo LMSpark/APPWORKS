@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/structured-config/data-code/design-ops",
+    "sourcePath": "src/platform-adapters/resources/structured-config/data-code/design-ops.ts",
+    "sourceFile": "src/platform-adapters/resources/structured-config/data-code/design-ops.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/structured-config/data-code/design-ops",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/design-ops\n编码定义的领域编译与提交范围；查询、草稿、权限及提交仍由正式DataSet/DataView负责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T20:59:32.710Z",
+  "models": {}
+}

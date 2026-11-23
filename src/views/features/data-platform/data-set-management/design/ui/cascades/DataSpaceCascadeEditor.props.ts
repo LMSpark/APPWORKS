@@ -4,7 +4,7 @@
  * 边界：接收元数据行身份，复用原文件保存与校验责任方。
  * AI用途：在层次页面维护两种原生级联。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 数据级联编辑器的当前调用上下文。 */
 export type DataSpaceCascadeEditorProps = {

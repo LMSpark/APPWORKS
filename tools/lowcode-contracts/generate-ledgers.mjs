@@ -117,7 +117,6 @@ async function buildLowcodeLedger() {
 
 function consumerScope(file) {
   const normalized = slash(relative(APPWORKS_ROOT, file))
-  if (normalized.startsWith('packages/spark-lowcode-api/')) return 'publishable-lowcode-api'
   if (normalized.startsWith('src/')) return 'app-composition'
   if (normalized.startsWith('tests/')) return 'test'
   return 'tooling'

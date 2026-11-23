@@ -1,17 +1,17 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import type {DataView} from '@spark-appworks/spark-data'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
-import {LogicViewPublication} from '@/lowcode/resources/structured-config/logic-view/output/publication'
-import {DataSpaceDefinitionSave} from '@/lowcode/data-space/model-source/data-space-definition-save'
-import {LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
+import {LogicViewPublication} from '@/platform-adapters/resources/structured-config/logic-view/output/publication'
+import {DataSpaceDefinitionSave} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
+import {LOGIC_VIEW_DESIGN_VIEW} from '@/platform-adapters/resources/structured-config/logic-view/design-ops'
 import {configureLogicFixture,LogicViewHttp} from '../logic-view.fixture'
 import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
 const service=vi.hoisted(()=>({readSpaceDefinition:vi.fn(),readModel:vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),readRequestScope:vi.fn(),createGateways:vi.fn()}))
 let http:PublicationHttp,owner:DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return http},createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),lowcodeApi:{design:{},readRequestScope:service.readRequestScope,dataSpace:{design:service,get runtime(){return owner}}}}))
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({get lowcodeHttp(){return http},createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),lowcodeApi:{design:{},readRequestScope:service.readRequestScope,dataSpace:{design:service,get runtime(){return owner}}}}))
 class PublicationHttp extends LogicViewHttp{
  fileUnconfirmed=false
  onFile?:()=>void

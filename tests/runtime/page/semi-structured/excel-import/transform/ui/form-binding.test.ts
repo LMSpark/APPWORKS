@@ -5,7 +5,7 @@ import ElementPlus from 'element-plus'
 import {FieldJson,RendererForm,Spark,PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../../excel-import-design.fixture'
-import {excelTransformFormSchema} from '@/lowcode/resources/semi-structured/excel-import/transform/forms'
+import {excelTransformFormSchema} from '@/platform-adapters/resources/semi-structured/excel-import/transform/forms'
 
 describe('Excel transform configuration form binding',()=>{
  it('writes native mapping values to the fixed original rule and cancels without touching another draft',async()=>{

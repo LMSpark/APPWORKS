@@ -4,7 +4,7 @@ import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldJson, FieldText, PAGE_SERVICE, RendererGraph, RendererTable, Spark, registerAllRenderers, useSparkComponent, type GraphSelection, type PageServiceCapability} from '@spark-appworks/spark-component'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
-import type {AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import type {AgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
 
 const mocks = vi.hoisted(() => ({
@@ -30,8 +30,8 @@ vi.mock('element-plus', async importOriginal => ({
 vi.mock('vue-router', () => ({onBeforeRouteLeave: (guard: typeof mocks.leave) => {mocks.leave = guard}}))
 vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOriginal<Record<string, unknown>>(), useSystemPageDirtySource: () => undefined}))
 
-vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
-  const actual = await importOriginal<typeof import('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner')>()
+vi.mock('@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner')>()
   return {...actual, createAgentWorkflowFileDataViewOwner: async () => {
     const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {creation: true, publication: true, readback: text => mocks.readback(text),
       afterCreate: () => mocks.afterCreate(), directoryError: () => mocks.directoryError(), readError: path => mocks.readError(path)})

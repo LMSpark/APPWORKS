@@ -274,7 +274,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@304379": {
+            "__@iterator@305020": {
               "type": "object",
               "title": "() => StringIterator<string>"
             },
@@ -341,7 +341,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@304379",
+            "__@iterator@305020",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -395,12 +395,12 @@
       "type": "object",
       "title": "AiAgentTaskChatOptions",
       "properties": {
-        "turn": {
-          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
-        },
         "signal": {
           "type": "object",
           "title": "AbortSignal"
+        },
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
         },
         "onReasoning": {
           "type": "object",

@@ -6,8 +6,8 @@ import {readRegisteredSubmissionRequest} from '@/views/features/application/smar
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import page13 from '@/views/features/application/smart-bid/authoring/page13/script.js?raw'
 import page14 from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reads a fixed original request and rejects payload drift despite an unchanged stored digest',async()=>{
  const payload={projectId:'P',attemptRef:'A',requestKey:'Q',channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:'OLD'}

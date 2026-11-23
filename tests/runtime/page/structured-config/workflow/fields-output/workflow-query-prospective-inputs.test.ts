@@ -1,6 +1,6 @@
 import {afterEach,describe,expect,it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {workflowQueryInputPresentation,workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges} from '@/lowcode/resources/structured-config/workflow-definition/fields/query-inputs'
+import {workflowQueryInputPresentation,workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges} from '@/platform-adapters/resources/structured-config/workflow-definition/fields/query-inputs'
 import {workflowSourceEditFixture} from '../workflow-source-edit.fixture'
 const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))

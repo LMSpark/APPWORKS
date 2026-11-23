@@ -1,0 +1,4833 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "backend-api-contracts/common",
+    "sourcePath": "backend-api-contracts/common.ts",
+    "sourceFile": "backend-api-contracts/common.ts",
+    "modulePath": "backend-api-contracts/common",
+    "jsdoc": "lowcode-jdk17 后端原始 JSON 契约 —— 公共类型定义。\n本文件汇总后端各控制器共用的请求体、响应外壳、枚举与流程相关 DTO，\n供 `endpoints.ts` 中的接口注册表按需引用。\n对应控制器范围：LoginController、MessageController、DataInterfaceController、\nBasicFunController、FlowController、DbInfoController、ViewController、\nViewDataController、JsonDataController、FileController、SheetDataController、\nSm2Controller 等。\n规则：\n1. 属性名严格保留 Jackson 实际序列化名称，不做前端 camelCase 归一。\n2. unknown 表示控制器/DTO 未限定结构，不代表可忽略。\n3. multipart、二进制流和 servlet 参数在 endpoints.ts 中单独定义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WireJsonObject",
+      "WireJsonArray",
+      "AjaxResult",
+      "PageParam",
+      "SendCodeType",
+      "SendCodeScene",
+      "OAuthProvider",
+      "LoginType",
+      "Register",
+      "Login",
+      "LowcodeLoginWireInput",
+      "LowcodeLoginWireResult",
+      "LowcodeRefreshWireResult",
+      "SendCodeCommand",
+      "ReceiverTypeEnum",
+      "MessageTypeEnum",
+      "JsonSseMessage",
+      "OfflineMessageVo",
+      "OrderType",
+      "FieldParam",
+      "ValueFun",
+      "WireFilterOperator",
+      "BaseCondition",
+      "TableParam",
+      "TableInput",
+      "EJFilter",
+      "QDField",
+      "QDFilter",
+      "QDTable",
+      "DataManagerRequest",
+      "GroupFunType",
+      "GroupDataParam",
+      "CrudModel",
+      "CrudModelRequest",
+      "SubmitNode",
+      "FlowExecObjInput",
+      "FlowBackInput",
+      "CanAutoSubmitAfterInput",
+      "WFMWORKFORM",
+      "WFMFLOWNODE",
+      "WFMNODEREALATION",
+      "FunctionFlowNode",
+      "FlowDesignSaveInput",
+      "CodeNodeDesign",
+      "CodeNodesList",
+      "DBTypeEnum",
+      "ServerInfo",
+      "SyncDataRequest",
+      "MigrateRuleEnum",
+      "MigrateTableFieldRequest",
+      "ViewDataVo",
+      "BatchJsonData",
+      "WorkflowTestRequest",
+      "FileInfo",
+      "BaseImportDataField",
+      "BaseImportConfig",
+      "Sm2PublicKeyResult"
+    ]
+  },
+  "$defs": {
+    "WireJsonObject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WireJsonObject",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "WireJsonArray": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "WireJsonArray",
+      "items": {
+        "$ref": "#/$defs/WireJsonObject"
+      }
+    },
+    "AjaxResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AjaxResult",
+      "properties": {
+        "Code": {
+          "type": "number"
+        },
+        "Message": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "Result": true,
+        "Type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "Extras": true,
+        "Time": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "Code"
+      ],
+      "additionalProperties": false
+    },
+    "PageParam": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageParam",
+      "properties": {
+        "index": {
+          "type": "number"
+        },
+        "size": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "index",
+        "size"
+      ],
+      "additionalProperties": false
+    },
+    "SendCodeType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SendCodeType",
+      "enum": [
+        "MOBILE",
+        "EMAIL"
+      ]
+    },
+    "SendCodeScene": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SendCodeScene",
+      "enum": [
+        "REGISTER",
+        "LOGIN",
+        "REGISTER_ENT",
+        "ENT_USER_LOGIN",
+        "RESET_PASSWORD",
+        "BIND",
+        "REBIND",
+        "EDIT_ENT",
+        "ENT_USER_BIND",
+        "ENT_USER_REBIND",
+        "CHANGE_PASSWORD",
+        "CHANGE_PASSWORD_BY_OLD_PASS",
+        "BIND_THIRD_ACCOUNT",
+        "UNBIND_THIRD_ACCOUNT",
+        "FACE",
+        "IDENTITY_VERIFY_BIND",
+        "ALIYUN_IDENTITY_VERIFY_BIND",
+        "ADMIN_RESET_PASSWORD"
+      ]
+    },
+    "OAuthProvider": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OAuthProvider",
+      "enum": [
+        "WECHAT_MINIAPP",
+        "WECHAT_WEB",
+        "WECHAT_MP",
+        "WECHAT_CORP_WEB",
+        "DINGTALK_WEB"
+      ]
+    },
+    "LoginType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LoginType",
+      "enum": [
+        "MOBILE",
+        "EMAIL",
+        "FACE",
+        "WECHAT_MINIAPP",
+        "WECHAT_WEB",
+        "WECHAT_CORP_WEB",
+        "DINGTALK_WEB",
+        "PASSWORD",
+        "SSO",
+        "CODE",
+        "TICKET"
+      ]
+    },
+    "Register": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Register",
+      "properties": {
+        "ent": {
+          "type": "string"
+        },
+        "loginName": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "sex": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "user_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "depId": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SendCodeType"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ent",
+        "loginName",
+        "username",
+        "password"
+      ],
+      "additionalProperties": false
+    },
+    "Login": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Login",
+      "properties": {
+        "strUser": {
+          "type": "string"
+        },
+        "strPwd": {
+          "type": "string"
+        },
+        "entName": {
+          "type": "string"
+        },
+        "isBound": {
+          "type": "boolean"
+        },
+        "type": {
+          "$ref": "#/$defs/LoginType"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "strUser",
+        "strPwd",
+        "entName"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeLoginWireInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeLoginWireInput",
+      "properties": {
+        "strUser": {
+          "type": "string"
+        },
+        "strPwd": {
+          "type": "string"
+        },
+        "entName": {
+          "type": "string"
+        },
+        "isBound": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "type": {
+          "enum": [
+            "MOBILE",
+            "EMAIL",
+            "FACE",
+            "WECHAT_MINIAPP",
+            "WECHAT_WEB",
+            "WECHAT_CORP_WEB",
+            "DINGTALK_WEB",
+            "PASSWORD",
+            "SSO",
+            "CODE",
+            "TICKET"
+          ]
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "strUser",
+        "strPwd",
+        "entName"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeLoginWireResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeLoginWireResult",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expire": {
+          "type": "number"
+        },
+        "refreshExpire": {
+          "type": "number"
+        },
+        "userinfo": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "entinfo": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "token",
+        "refreshToken",
+        "expire",
+        "refreshExpire",
+        "userinfo",
+        "entinfo"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeRefreshWireResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRefreshWireResult",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expire": {
+          "type": "number"
+        },
+        "refreshExpire": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "token",
+        "refreshToken",
+        "expire",
+        "refreshExpire"
+      ],
+      "additionalProperties": false
+    },
+    "SendCodeCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SendCodeCommand",
+      "properties": {
+        "ent": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SendCodeType"
+        },
+        "account": {
+          "type": "string"
+        },
+        "scene": {
+          "$ref": "#/$defs/SendCodeScene"
+        },
+        "code": {
+          "type": "string"
+        },
+        "exCode": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "account",
+        "scene"
+      ],
+      "additionalProperties": false
+    },
+    "ReceiverTypeEnum": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ReceiverTypeEnum",
+      "enum": [
+        "CLIENT_ID",
+        "CONNECTION_UID",
+        "USER",
+        "ENT",
+        "ALL"
+      ]
+    },
+    "MessageTypeEnum": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "MessageTypeEnum",
+      "enum": [
+        "TIP",
+        "USER_MESSAGE",
+        "ACKNOWLEDGMENT",
+        "SYSTEM_NOTIFICATION",
+        "SYSTEM_DOWNLOAD",
+        "SYSTEM_ERROR",
+        "SYSTEM_KICKOUT"
+      ]
+    },
+    "JsonSseMessage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonSseMessage",
+      "properties": {
+        "rowId": {
+          "type": "string"
+        },
+        "entId": {
+          "type": "string"
+        },
+        "entShortName": {
+          "type": "string"
+        },
+        "senderId": {
+          "type": "string"
+        },
+        "receiverType": {
+          "$ref": "#/$defs/ReceiverTypeEnum"
+        },
+        "receiverId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "messageType": {
+          "$ref": "#/$defs/MessageTypeEnum"
+        },
+        "sendMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createTime": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "receiverType",
+        "messageType"
+      ],
+      "additionalProperties": false
+    },
+    "OfflineMessageVo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OfflineMessageVo",
+      "properties": {
+        "entShortName": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "messageList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        }
+      },
+      "required": [
+        "entShortName",
+        "userId"
+      ],
+      "additionalProperties": false
+    },
+    "OrderType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OrderType",
+      "enum": [
+        "ascending",
+        "descending"
+      ]
+    },
+    "FieldParam": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldParam",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "AsName": {
+          "type": "string"
+        },
+        "OrderType": {
+          "$ref": "#/$defs/OrderType"
+        },
+        "Order": {
+          "type": "number"
+        },
+        "ValueFun": {
+          "$ref": "#/$defs/ValueFun"
+        },
+        "Value": true,
+        "Expression": {
+          "type": "string"
+        },
+        "IsOutput": {
+          "type": "boolean"
+        },
+        "Group": {
+          "type": "boolean"
+        },
+        "FieldType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Name"
+      ],
+      "additionalProperties": false
+    },
+    "ValueFun": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ValueFun",
+      "properties": {
+        "Type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Type"
+      ],
+      "additionalProperties": false
+    },
+    "WireFilterOperator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WireFilterOperator",
+      "enum": [
+        "equal",
+        "notequal",
+        "greaterthan",
+        "greaterthanorequal",
+        "lessthan",
+        "lessthanorequal",
+        "isnull",
+        "isnotnull",
+        "contains",
+        "nolike",
+        "startswith",
+        "nostartswith",
+        "endswith",
+        "notendswith",
+        "in",
+        "notin",
+        "isempty",
+        "isnotempty"
+      ]
+    },
+    "BaseCondition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BaseCondition",
+      "properties": {
+        "Type": {
+          "type": "string"
+        },
+        "Filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BaseCondition"
+          }
+        },
+        "Field": {
+          "type": "string"
+        },
+        "Operator": {
+          "$ref": "#/$defs/WireFilterOperator"
+        },
+        "ValueFun": {
+          "$ref": "#/$defs/ValueFun"
+        },
+        "Value": true
+      },
+      "required": [
+        "Type"
+      ],
+      "additionalProperties": false
+    },
+    "TableParam": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableParam",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "MetaName": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "PrimaryKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ForeignKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Filter": {
+          "$ref": "#/$defs/BaseCondition"
+        },
+        "Type": {
+          "type": "string"
+        },
+        "DbId": {
+          "type": "string"
+        },
+        "DbName": {
+          "type": "string"
+        },
+        "Fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldParam"
+          }
+        },
+        "IsBusinessMain": {
+          "type": "boolean"
+        },
+        "ChildTables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TableParam"
+          }
+        },
+        "OutputType": {
+          "type": "string"
+        },
+        "JoinType": {
+          "type": "string"
+        },
+        "JoinFilter": {
+          "$ref": "#/$defs/BaseCondition"
+        },
+        "inputParams": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "DISTINCT": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "Name"
+      ],
+      "additionalProperties": false
+    },
+    "TableInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableInput",
+      "properties": {
+        "Table": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TableParam"
+          }
+        },
+        "PageParam": {
+          "$ref": "#/$defs/PageParam"
+        },
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "nodeid": {
+          "type": "string"
+        },
+        "isDistinct": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "Table"
+      ],
+      "additionalProperties": false
+    },
+    "EJFilter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EJFilter",
+      "properties": {
+        "Field": {
+          "type": "string"
+        },
+        "Operator": {
+          "type": "string"
+        },
+        "Condition": {
+          "type": "string"
+        },
+        "value": true,
+        "predicates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EJFilter"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "QDField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QDField",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "asName": {
+          "type": "string"
+        },
+        "fieldType": {
+          "type": "string"
+        },
+        "valueFun": {
+          "$ref": "#/$defs/ValueFun"
+        },
+        "_value": true,
+        "value": true
+      },
+      "required": [
+        "Name"
+      ],
+      "additionalProperties": false
+    },
+    "QDFilter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QDFilter",
+      "properties": {
+        "Type": {
+          "type": "string"
+        },
+        "Filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QDFilter"
+          }
+        },
+        "Field": {
+          "type": "string"
+        },
+        "Operator": {
+          "$ref": "#/$defs/WireFilterOperator"
+        },
+        "ValueFun": {
+          "$ref": "#/$defs/ValueFun"
+        },
+        "Value": true
+      },
+      "required": [
+        "Type"
+      ],
+      "additionalProperties": false
+    },
+    "QDTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QDTable",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "primaryKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "foreignKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QDFilter"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QDField"
+          }
+        },
+        "childTables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QDTable"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "DataManagerRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataManagerRequest",
+      "properties": {
+        "KeyField": {
+          "type": "string"
+        },
+        "ParentField": {
+          "type": "string"
+        },
+        "TopValue": true,
+        "HasChildField": {
+          "type": "string"
+        },
+        "IdMapping": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "ReturnType": {
+          "type": "string"
+        },
+        "DataSource": {
+          "$ref": "#/$defs/QDTable"
+        },
+        "skip": {
+          "type": "number"
+        },
+        "take": {
+          "type": "number"
+        },
+        "top": {
+          "type": "number"
+        },
+        "select": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sorted": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "where": {
+          "$ref": "#/$defs/EJFilter"
+        }
+      },
+      "additionalProperties": false
+    },
+    "GroupFunType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "GroupFunType",
+      "enum": [
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count"
+      ]
+    },
+    "GroupDataParam": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GroupDataParam",
+      "properties": {
+        "groupField": {
+          "type": "string"
+        },
+        "valField": {
+          "type": "string"
+        },
+        "funType": {
+          "$ref": "#/$defs/GroupFunType"
+        },
+        "valAsName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "groupField",
+        "valField",
+        "funType"
+      ],
+      "additionalProperties": false
+    },
+    "CrudModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudModel",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "CrudModelRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudModelRequest",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "crudModel": {
+          "$ref": "#/$defs/CrudModel"
+        }
+      },
+      "required": [
+        "tableName",
+        "crudModel"
+      ],
+      "additionalProperties": false
+    },
+    "SubmitNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SubmitNode",
+      "properties": {
+        "NodeId": {
+          "type": "string"
+        },
+        "ExecUserList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "NodeId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowExecObjInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowExecObjInput",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "nextNode": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SubmitNode"
+          }
+        },
+        "Idea": {
+          "type": "string"
+        },
+        "notifyType": {
+          "type": "string"
+        },
+        "flowId": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "formParams": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "busRowid": {
+          "type": "string"
+        },
+        "flowObjId": {
+          "type": "string"
+        },
+        "curStepId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flowId"
+      ],
+      "additionalProperties": false
+    },
+    "FlowBackInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowBackInput",
+      "properties": {
+        "flowObjId": {
+          "type": "string"
+        },
+        "curStepId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "Idea": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flowObjId",
+        "curStepId"
+      ],
+      "additionalProperties": false
+    },
+    "CanAutoSubmitAfterInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CanAutoSubmitAfterInput",
+      "properties": {
+        "curStepId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "curStepId"
+      ],
+      "additionalProperties": false
+    },
+    "WFMWORKFORM": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WFMWORKFORM",
+      "properties": {
+        "ROWID": {
+          "type": "string"
+        },
+        "FORMID": {
+          "type": "string"
+        },
+        "URL": {
+          "type": "string"
+        },
+        "MobileUrl": {
+          "type": "string"
+        },
+        "FormName": {
+          "type": "string"
+        },
+        "FlowID": {
+          "type": "string"
+        },
+        "CnPath": {
+          "type": "string"
+        },
+        "BusField": {
+          "type": "string"
+        },
+        "BusTable": {
+          "type": "string"
+        },
+        "TitleField": {
+          "type": "string"
+        },
+        "Width": {
+          "type": "number"
+        },
+        "Height": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WFMFLOWNODE": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WFMFLOWNODE",
+      "properties": {
+        "ROWID": {
+          "type": "string"
+        },
+        "TITLE": {
+          "type": "string"
+        },
+        "FLOWID": {
+          "type": "string"
+        },
+        "TYPEID": {
+          "type": "string"
+        },
+        "EXEOBJ": {
+          "type": "string"
+        },
+        "EXEUSERFROM": {
+          "type": "string"
+        },
+        "MEMO": {
+          "type": "string"
+        },
+        "CrtDate": {
+          "type": "string"
+        },
+        "NodeOrder": {
+          "type": "number"
+        },
+        "AllowToApotheosis": {
+          "type": "boolean"
+        },
+        "AllowToReject": {
+          "type": "boolean"
+        },
+        "AllowToDelegate": {
+          "type": "boolean"
+        },
+        "AllowToCooperate": {
+          "type": "boolean"
+        },
+        "AllowToShare": {
+          "type": "boolean"
+        },
+        "IsAutoOverTime": {
+          "type": "boolean"
+        },
+        "AutoExecType": {
+          "type": "string"
+        },
+        "AutoHour": {
+          "type": "number"
+        },
+        "AllowToEnd": {
+          "type": "boolean"
+        },
+        "NotifyAllExecUser": {
+          "type": "boolean"
+        },
+        "NotifyContent": {
+          "type": "string"
+        },
+        "NotifyInterface": {
+          "type": "string"
+        },
+        "NodeRoleID": {
+          "type": "string"
+        },
+        "NodeFormID": {
+          "type": "string"
+        },
+        "NodeCode": {
+          "type": "string"
+        },
+        "minExecNum": {
+          "type": "number"
+        },
+        "maxExecNum": {
+          "type": "number"
+        },
+        "AllowOneSend": {
+          "type": "boolean"
+        },
+        "AllowToAppend": {
+          "type": "boolean"
+        },
+        "AllowToCreator": {
+          "type": "boolean"
+        },
+        "isSinkNode": {
+          "type": "boolean"
+        },
+        "submitStrategy": {
+          "type": "string"
+        },
+        "isFlowInitiatorNode": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WFMNODEREALATION": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WFMNODEREALATION",
+      "properties": {
+        "ROWID": {
+          "type": "string"
+        },
+        "TITLE": {
+          "type": "string"
+        },
+        "FLOWID": {
+          "type": "string"
+        },
+        "TypeID": {
+          "type": "string"
+        },
+        "UpNodeID": {
+          "type": "string"
+        },
+        "NextNodeID": {
+          "type": "string"
+        },
+        "IsMoreUser": {
+          "type": "boolean"
+        },
+        "MaxUserNum": {
+          "type": "number"
+        },
+        "MinUserNum": {
+          "type": "number"
+        },
+        "ConditionExpress": {
+          "type": "string"
+        },
+        "RelationOrder": {
+          "type": "number"
+        },
+        "AllowToAppend": {
+          "type": "boolean"
+        },
+        "AllowToRevoke": {
+          "type": "boolean"
+        },
+        "AllowToBack": {
+          "type": "boolean"
+        },
+        "AllowToForceRevoke": {
+          "type": "boolean"
+        },
+        "AllowToForceBack": {
+          "type": "boolean"
+        },
+        "AllowOneSend": {
+          "type": "boolean"
+        },
+        "signatureNum": {
+          "type": "number"
+        },
+        "submitType": {
+          "type": "string"
+        },
+        "RevokeConditionConfig": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "FlowAutoSubmitConfig": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "direction": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FunctionFlowNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FunctionFlowNode",
+      "properties": {
+        "rowid": {
+          "type": "string"
+        },
+        "FlowID": {
+          "type": "string"
+        },
+        "NodeID": {
+          "type": "string"
+        },
+        "FunID": {
+          "type": "string"
+        },
+        "Fileid": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FlowDesignSaveInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowDesignSaveInput",
+      "properties": {
+        "FlowModId": {
+          "type": "string"
+        },
+        "DesignJson": {
+          "type": "string"
+        },
+        "DesignImg": {
+          "type": "string"
+        },
+        "FlowNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WFMFLOWNODE"
+          }
+        },
+        "FlowNodeRelations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WFMNODEREALATION"
+          }
+        },
+        "FunAndFlowNode": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FunctionFlowNode"
+          }
+        }
+      },
+      "required": [
+        "FlowModId"
+      ],
+      "additionalProperties": false
+    },
+    "CodeNodeDesign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeNodeDesign",
+      "properties": {
+        "rowid": {
+          "type": "string"
+        },
+        "CodeDesignID": {
+          "type": "string"
+        },
+        "NodeNo": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "NodeType": {
+          "type": "string"
+        },
+        "CodeNodeDesignJson": {
+          "type": "string"
+        },
+        "createuser": {
+          "type": "string"
+        },
+        "createtime": {
+          "type": "string"
+        },
+        "updateuser": {
+          "type": "string"
+        },
+        "updatetime": {
+          "type": "string"
+        },
+        "wfid": {
+          "type": "string"
+        },
+        "flowstate": {
+          "type": "string"
+        },
+        "ReportID": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CodeNodesList": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeNodesList",
+      "properties": {
+        "codeNodesList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CodeNodeDesign"
+          }
+        }
+      },
+      "required": [
+        "codeNodesList"
+      ],
+      "additionalProperties": false
+    },
+    "DBTypeEnum": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DBTypeEnum",
+      "enum": [
+        "MYSQL",
+        "SQLSERVER",
+        "DM",
+        "POSTGRESQL"
+      ]
+    },
+    "ServerInfo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ServerInfo",
+      "properties": {
+        "rowId": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/DBTypeEnum"
+        },
+        "serverName": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "port": {
+          "type": "number"
+        },
+        "entId": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "serverName",
+        "ipAddress",
+        "username",
+        "password",
+        "port"
+      ],
+      "additionalProperties": false
+    },
+    "SyncDataRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SyncDataRequest",
+      "properties": {
+        "source_db": {
+          "type": "string"
+        },
+        "source_table": {
+          "type": "string"
+        },
+        "target_db": {
+          "type": "string"
+        },
+        "target_table": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_db",
+        "source_table",
+        "target_db",
+        "target_table"
+      ],
+      "additionalProperties": false
+    },
+    "MigrateRuleEnum": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "MigrateRuleEnum",
+      "const": "SnowflakeID"
+    },
+    "MigrateTableFieldRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MigrateTableFieldRequest",
+      "properties": {
+        "db": {
+          "type": "string"
+        },
+        "table": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "rule": {
+          "$ref": "#/$defs/MigrateRuleEnum"
+        },
+        "batchSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "db",
+        "table",
+        "field",
+        "rule"
+      ],
+      "additionalProperties": false
+    },
+    "ViewDataVo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ViewDataVo",
+      "properties": {
+        "viewId": {
+          "type": "string"
+        },
+        "data": true
+      },
+      "required": [
+        "viewId",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "BatchJsonData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BatchJsonData",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "addJsonData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "editJsonData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "delJsonData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowTestRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowTestRequest",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "inputParams": {
+          "$ref": "../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        },
+        "startParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        }
+      },
+      "required": [
+        "workflowId"
+      ],
+      "additionalProperties": false
+    },
+    "FileInfo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileInfo",
+      "properties": {
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "appType": {
+          "type": "string"
+        },
+        "isCrossEnt": {
+          "type": "boolean"
+        },
+        "isReplace": {
+          "type": "boolean"
+        },
+        "content": {
+          "type": "string"
+        },
+        "convertType": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BaseImportDataField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BaseImportDataField",
+      "properties": {
+        "rowId": {
+          "type": "string"
+        },
+        "configId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        },
+        "refTable": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "textField": {
+          "type": "string"
+        },
+        "filterField": {
+          "type": "string"
+        },
+        "filterValue": {
+          "type": "string"
+        },
+        "isDict": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "prefixes": {
+          "type": "string"
+        },
+        "isHide": {
+          "type": "boolean"
+        },
+        "isProtected": {
+          "type": "boolean"
+        },
+        "intIndex": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "BaseImportConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BaseImportConfig",
+      "properties": {
+        "rowId": {
+          "type": "string"
+        },
+        "pId": {
+          "type": "string"
+        },
+        "schemeId": {
+          "type": "string"
+        },
+        "sheet": {
+          "type": "number"
+        },
+        "sheetName": {
+          "type": "string"
+        },
+        "titleIndex": {
+          "type": "number"
+        },
+        "dataIndex": {
+          "type": "number"
+        },
+        "table": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BaseImportDataField"
+          }
+        },
+        "childTables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BaseImportConfig"
+          }
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "foreignKeyField": {
+          "type": "string"
+        },
+        "filters": {
+          "$ref": "#/$defs/BaseCondition"
+        },
+        "sorted": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        },
+        "exportType": {
+          "type": "string"
+        },
+        "dbName": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "primaryKeyField": {
+          "type": "string"
+        },
+        "fieldTypeMap": {
+          "$ref": "../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+        },
+        "dataRowMap": {
+          "$ref": "#/$defs/WireJsonObject"
+        },
+        "exportData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WireJsonObject"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Sm2PublicKeyResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Sm2PublicKeyResult",
+      "properties": {
+        "encryptKeyBase64": {
+          "type": "string"
+        },
+        "algorithm": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "type": "number"
+        },
+        "issuedAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "encryptKeyBase64",
+        "algorithm",
+        "expiresAt",
+        "issuedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:43.047Z",
+  "models": {
+    "WireJsonObject": {
+      "name": "WireJsonObject",
+      "jsdoc": "未定型后端 JSON 对象袋（台账用）。不是 `@spark-appworks/spark-json-document` 的递归 `JsonObject`。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WireJsonArray": {
+      "name": "WireJsonArray",
+      "jsdoc": "未定型后端 JSON 对象数组。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "WireJsonObject[]",
+        "members": {}
+      }
+    },
+    "AjaxResult": {
+      "name": "AjaxResult",
+      "jsdoc": "后端通用响应外壳 AjaxResult。\n注意：字段为首字母大写，由后端 Jackson 序列化决定，不可改小写。\n与 `@/platform-adapters/api` 的 `AjaxResult` 同形（`tools/verify-ajax-result-parity.mjs`）。\n`Code` 必填：运行客户端按数字 Code 解包，台账不得再声明可选 Code。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 业务状态码。 */\n    Code: number;\n    /** 提示或错误信息。 */\n    Message?: string | null;\n    /** 业务结果数据，泛型由调用方决定。 */\n    Result?: T;\n    /** 消息类型：success / warn / error 或其它字符串。 */\n    Type?: string | null;\n    /** 附加数据。 */\n    Extras?: unknown;\n    /** 服务端时间戳字符串。 */\n    Time?: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 业务状态码。 */\n    Code: number;\n    /** 提示或错误信息。 */\n    Message?: string | null;\n    /** 业务结果数据，泛型由调用方决定。 */\n    Result?: T;\n    /** 消息类型：success / warn / error 或其它字符串。 */\n    Type?: string | null;\n    /** 附加数据。 */\n    Extras?: unknown;\n    /** 服务端时间戳字符串。 */\n    Time?: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Code",
+              "jsdoc": "业务状态码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Message",
+              "jsdoc": "提示或错误信息。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Result",
+              "jsdoc": "业务结果数据，泛型由调用方决定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Type",
+              "jsdoc": "消息类型：success / warn / error 或其它字符串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Extras",
+              "jsdoc": "附加数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Time",
+              "jsdoc": "服务端时间戳字符串。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageParam": {
+      "name": "PageParam",
+      "jsdoc": "分页参数：页码与每页条数。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "jsdoc": "页码（从 1 开始）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "size",
+              "jsdoc": "每页条数。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SendCodeType": {
+      "name": "SendCodeType",
+      "jsdoc": "验证码发送渠道：手机或邮箱。与 `@/platform-adapters/api` 的 `SendCodeType` 同形（`tools/verify-send-code-parity.mjs`）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"MOBILE\" | \"EMAIL\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"MOBILE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"EMAIL\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SendCodeScene": {
+      "name": "SendCodeScene",
+      "jsdoc": "验证码业务场景。\n- REGISTER：用户注册\n- LOGIN：验证码登录\n- REGISTER_ENT：企业注册\n- ENT_USER_LOGIN：企业用户登录\n- RESET_PASSWORD：重置密码\n- BIND：绑定账号\n- REBIND：重新绑定账号\n- EDIT_ENT：编辑企业信息\n- ENT_USER_BIND：企业用户绑定\n- ENT_USER_REBIND：企业用户重新绑定\n- CHANGE_PASSWORD：修改密码（通过验证码）\n- CHANGE_PASSWORD_BY_OLD_PASS：通过旧密码修改密码\n- BIND_THIRD_ACCOUNT：绑定第三方账号\n- UNBIND_THIRD_ACCOUNT：解绑第三方账号\n- FACE：人脸识别\n- IDENTITY_VERIFY_BIND：实名认证绑定\n- ALIYUN_IDENTITY_VERIFY_BIND：阿里云实名认证绑定\n- ADMIN_RESET_PASSWORD：管理员重置密码\n与 `@/platform-adapters/api` 的 `SendCodeScene` 同形（`tools/verify-send-code-parity.mjs`）。\n门面注册子集为 Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"REGISTER\" | \"LOGIN\" | \"REGISTER_ENT\" | \"ENT_USER_LOGIN\" | \"RESET_PASSWORD\" | \"BIND\" | \"REBIND\" | \"EDIT_ENT\" | \"ENT_USER_BIND\" | \"ENT_USER_REBIND\" | \"CHANGE_PASSWORD\" | \"CHANGE_PASSWORD_BY_OLD_PASS\" | \"BIND_THIRD_ACCOUNT\" | \"UNBIND_THIRD_ACCOUNT\" | \"FACE\" | \"IDENTITY_VERIFY_BIND\" | \"ALIYUN_IDENTITY_VERIFY_BIND\" | \"ADMIN_RESET_PASSWORD\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"REGISTER\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"LOGIN\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"REGISTER_ENT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ENT_USER_LOGIN\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"RESET_PASSWORD\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"BIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"REBIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"EDIT_ENT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ENT_USER_BIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ENT_USER_REBIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"CHANGE_PASSWORD\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"CHANGE_PASSWORD_BY_OLD_PASS\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"BIND_THIRD_ACCOUNT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"UNBIND_THIRD_ACCOUNT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"FACE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"IDENTITY_VERIFY_BIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ALIYUN_IDENTITY_VERIFY_BIND\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ADMIN_RESET_PASSWORD\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "OAuthProvider": {
+      "name": "OAuthProvider",
+      "jsdoc": "OAuth 第三方登录提供者。\n- WECHAT_MINIAPP：微信小程序\n- WECHAT_WEB：微信网页扫码\n- WECHAT_MP：微信公众号\n- WECHAT_CORP_WEB：企业微信网页\n- DINGTALK_WEB：钉钉网页",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"WECHAT_MINIAPP\" | \"WECHAT_WEB\" | \"WECHAT_MP\" | \"WECHAT_CORP_WEB\" | \"DINGTALK_WEB\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_MINIAPP\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_WEB\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_MP\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_CORP_WEB\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"DINGTALK_WEB\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LoginType": {
+      "name": "LoginType",
+      "jsdoc": "登录方式。\n- WECHAT_MINIAPP：微信小程序登录\n- WECHAT_WEB：微信网页登录\n- WECHAT_CORP_WEB：企业微信网页登录\n- DINGTALK_WEB：钉钉网页登录\n- MOBILE：手机号登录\n- EMAIL：邮箱登录\n- PASSWORD：账号密码登录\n- FACE：人脸识别登录\n- SSO：单点登录\n- CODE：验证码登录\n- TICKET：票据登录",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"WECHAT_MINIAPP\" | \"WECHAT_WEB\" | \"WECHAT_CORP_WEB\" | \"DINGTALK_WEB\" | \"MOBILE\" | \"EMAIL\" | \"PASSWORD\" | \"FACE\" | \"SSO\" | \"CODE\" | \"TICKET\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_MINIAPP\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_WEB\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"WECHAT_CORP_WEB\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"DINGTALK_WEB\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"MOBILE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"EMAIL\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"PASSWORD\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"FACE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SSO\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"CODE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"TICKET\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Register": {
+      "name": "Register",
+      "jsdoc": "企业用户注册请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "ent",
+              "jsdoc": "企业标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loginName",
+              "jsdoc": "登录账号。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "username",
+              "jsdoc": "用户显示名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "password",
+              "jsdoc": "密码（明文或加密后由后端处理）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sex",
+              "jsdoc": "性别。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phone",
+              "jsdoc": "手机号。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "email",
+              "jsdoc": "邮箱。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "jsdoc": "验证码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "user_types",
+              "jsdoc": "用户类型列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "depId",
+              "jsdoc": "部门 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "jobId",
+              "jsdoc": "岗位 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "验证码类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "token",
+              "jsdoc": "关联令牌。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Login": {
+      "name": "Login",
+      "jsdoc": "base-service 登录请求体。\n注意：Login 的\n@JsonProperty 后实际接收小写字段（strUser、strPwd、entName），\n与其它 DTO 的大写命名风格不同，保留后端原始定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "strUser",
+              "jsdoc": "登录账号。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "strPwd",
+              "jsdoc": "登录密码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entName",
+              "jsdoc": "企业名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBound",
+              "jsdoc": "是否已绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "登录方式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "token",
+              "jsdoc": "关联令牌。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeLoginWireInput": {
+      "name": "LowcodeLoginWireInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Login>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Login>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "strUser",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "strPwd",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBound",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeLoginWireResult": {
+      "name": "LowcodeLoginWireResult",
+      "jsdoc": "lowcode 登录成功 wire 结果；userinfo/entinfo 仍是后端原始对象。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    token: string;\n    refreshToken: string;\n    expire: number;\n    refreshExpire: number;\n    userinfo: Readonly<Record<string, unknown>>;\n    entinfo: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    token: string;\n    refreshToken: string;\n    expire: number;\n    refreshExpire: number;\n    userinfo: Readonly<Record<string, unknown>>;\n    entinfo: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expire",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshExpire",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userinfo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entinfo",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRefreshWireResult": {
+      "name": "LowcodeRefreshWireResult",
+      "jsdoc": "刷新令牌 wire 结果；不包含用户信息。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    token: string;\n    refreshToken: string;\n    expire: number;\n    refreshExpire: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    token: string;\n    refreshToken: string;\n    expire: number;\n    refreshExpire: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expire",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshExpire",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SendCodeCommand": {
+      "name": "SendCodeCommand",
+      "jsdoc": "验证码发送/校验命令。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "ent",
+              "jsdoc": "企业标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "验证码类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "account",
+              "jsdoc": "接收账号（手机号或邮箱）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scene",
+              "jsdoc": "业务场景。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "code",
+              "jsdoc": "验证码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exCode",
+              "jsdoc": "扩展验证码（如图形验证）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "目标地址，覆盖 account 推断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "token",
+              "jsdoc": "关联令牌。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReceiverTypeEnum": {
+      "name": "ReceiverTypeEnum",
+      "jsdoc": "消息接收者类型。\n- CLIENT_ID：按客户端连接 ID 投递\n- CONNECTION_UID：按连接 UID 投递\n- USER：按用户 ID 投递\n- ENT：按企业广播\n- ALL：全量广播",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"CLIENT_ID\" | \"CONNECTION_UID\" | \"USER\" | \"ENT\" | \"ALL\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"CLIENT_ID\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"CONNECTION_UID\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"USER\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ENT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ALL\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "MessageTypeEnum": {
+      "name": "MessageTypeEnum",
+      "jsdoc": "SSE / 站内消息类型。\n- TIP：轻提示消息\n- USER_MESSAGE：用户间消息\n- ACKNOWLEDGMENT：消息回执\n- SYSTEM_NOTIFICATION：系统通知\n- SYSTEM_DOWNLOAD：系统下载任务\n- SYSTEM_ERROR：系统错误\n- SYSTEM_KICKOUT：强制下线",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"TIP\" | \"USER_MESSAGE\" | \"ACKNOWLEDGMENT\" | \"SYSTEM_NOTIFICATION\" | \"SYSTEM_DOWNLOAD\" | \"SYSTEM_ERROR\" | \"SYSTEM_KICKOUT\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"TIP\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"USER_MESSAGE\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"ACKNOWLEDGMENT\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SYSTEM_NOTIFICATION\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SYSTEM_DOWNLOAD\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SYSTEM_ERROR\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SYSTEM_KICKOUT\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonSseMessage": {
+      "name": "JsonSseMessage",
+      "jsdoc": "SSE / 站内消息体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowId",
+              "jsdoc": "消息行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entId",
+              "jsdoc": "企业 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entShortName",
+              "jsdoc": "企业短名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "senderId",
+              "jsdoc": "发送者 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiverType",
+              "jsdoc": "接收者类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "receiverId",
+              "jsdoc": "接收者 ID（按 receiverType 解释）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "消息标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "消息内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageType",
+              "jsdoc": "消息类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sendMethods",
+              "jsdoc": "发送方式列表（如站内、短信、邮件）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createTime",
+              "jsdoc": "创建时间。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OfflineMessageVo": {
+      "name": "OfflineMessageVo",
+      "jsdoc": "离线消息 VO。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "entShortName",
+              "jsdoc": "企业短名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "userId",
+              "jsdoc": "用户 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "messageList",
+              "jsdoc": "离线消息列表。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OrderType": {
+      "name": "OrderType",
+      "jsdoc": "排序方向。与 `@/platform-adapters/api` 的 `OrderType` 同形（`tools/verify-wire-query-parity.mjs`）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"ascending\" | \"descending\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"ascending\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"descending\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldParam": {
+      "name": "FieldParam",
+      "jsdoc": "字段查询参数。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "AsName",
+              "jsdoc": "字段别名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OrderType",
+              "jsdoc": "排序方向。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Order",
+              "jsdoc": "排序优先级。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "jsdoc": "字段值函数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Value",
+              "jsdoc": "字段值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Expression",
+              "jsdoc": "表达式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsOutput",
+              "jsdoc": "是否输出到结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Group",
+              "jsdoc": "是否参与分组。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FieldType",
+              "jsdoc": "字段类型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ValueFun": {
+      "name": "ValueFun",
+      "jsdoc": "字段值函数定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "jsdoc": "函数类型。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WireFilterOperator": {
+      "name": "WireFilterOperator",
+      "jsdoc": "wire 过滤操作符（Jackson Filter.Operator）。\n比较类：equal / notequal / greaterthan / greaterthanorequal / lessthan / lessthanorequal\n空值类：isnull / isnotnull / isempty / isnotempty\n模糊类：contains / nolike / startswith / nostartswith / endswith / notendswith\n集合类：in / notin\n正式名 `WireFilterOperator`，禁止与 spark-data `FilterOperator` 同名混用。\n与 `@/platform-adapters/api` 同形（`tools/verify-wire-query-parity.mjs`）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"equal\" | \"notequal\" | \"greaterthan\" | \"greaterthanorequal\" | \"lessthan\" | \"lessthanorequal\" | \"isnull\" | \"isnotnull\" | \"contains\" | \"nolike\" | \"startswith\" | \"nostartswith\" | \"endswith\" | \"notendswith\" | \"in\" | \"notin\" | \"isempty\" | \"isnotempty\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"equal\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"notequal\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"greaterthan\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"greaterthanorequal\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"lessthan\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"lessthanorequal\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"isnull\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"isnotnull\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"contains\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"nolike\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"startswith\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"nostartswith\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"endswith\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"notendswith\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"in\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"notin\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"isempty\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"isnotempty\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BaseCondition": {
+      "name": "BaseCondition",
+      "jsdoc": "基础过滤条件树节点。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "jsdoc": "条件类型（and / or / leaf）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Filters",
+              "jsdoc": "子条件（组合类型时使用）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Field",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Operator",
+              "jsdoc": "操作符。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "jsdoc": "字段值函数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Value",
+              "jsdoc": "比较值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TableParam": {
+      "name": "TableParam",
+      "jsdoc": "表查询参数。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "jsdoc": "表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "MetaName",
+              "jsdoc": "元数据表名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ShortName",
+              "jsdoc": "表短名（用于 SQL 别名）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "PrimaryKeyFields",
+              "jsdoc": "主键字段列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ForeignKeyFields",
+              "jsdoc": "外键字段列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Filter",
+              "jsdoc": "过滤条件树。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Type",
+              "jsdoc": "表类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DbId",
+              "jsdoc": "数据库 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DbName",
+              "jsdoc": "数据库名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Fields",
+              "jsdoc": "字段定义列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsBusinessMain",
+              "jsdoc": "是否业务主表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ChildTables",
+              "jsdoc": "子表定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OutputType",
+              "jsdoc": "输出类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "JoinType",
+              "jsdoc": "连接类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "JoinFilter",
+              "jsdoc": "连接过滤条件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "jsdoc": "输入参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DISTINCT",
+              "jsdoc": "是否去重。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TableInput": {
+      "name": "TableInput",
+      "jsdoc": "TableInput 数据查询协议请求体。\n后端核心查询协议，覆盖表/字段/过滤/连接/分页/树形查询等维度，\n被 DataInterfaceController、BasicFunController、ViewDataController、JsonDataController 共用。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Table",
+              "jsdoc": "表定义数组。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "PageParam",
+              "jsdoc": "分页参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyField",
+              "jsdoc": "树形查询键字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "树形查询父字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "jsdoc": "是否有子节点字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "查询类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeid",
+              "jsdoc": "节点 ID（树形查询）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDistinct",
+              "jsdoc": "是否去重。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "EJFilter": {
+      "name": "EJFilter",
+      "jsdoc": "EJ 过滤条件（DataManager 用）。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Field",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Operator",
+              "jsdoc": "操作符。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Condition",
+              "jsdoc": "条件连接符。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "比较值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "predicates",
+              "jsdoc": "子条件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "QDField": {
+      "name": "QDField",
+      "jsdoc": "QD 字段定义（DataManager 用）。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "asName",
+              "jsdoc": "字段别名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldType",
+              "jsdoc": "字段类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFun",
+              "jsdoc": "字段值函数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_value",
+              "jsdoc": "内部值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "字段值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "QDFilter": {
+      "name": "QDFilter",
+      "jsdoc": "QD 过滤条件（DataManager 用）。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "jsdoc": "条件类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Filters",
+              "jsdoc": "子条件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Field",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Operator",
+              "jsdoc": "操作符。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "jsdoc": "字段值函数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Value",
+              "jsdoc": "比较值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "QDTable": {
+      "name": "QDTable",
+      "jsdoc": "QD 表定义（DataManager 用）。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shortName",
+              "jsdoc": "表短名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyFields",
+              "jsdoc": "主键字段列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "foreignKeyFields",
+              "jsdoc": "外键字段列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filters",
+              "jsdoc": "过滤条件列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "字段定义列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTables",
+              "jsdoc": "子表定义。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataManagerRequest": {
+      "name": "DataManagerRequest",
+      "jsdoc": "DataManager 数据查询请求。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "KeyField",
+              "jsdoc": "树形查询键字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ParentField",
+              "jsdoc": "树形查询父字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TopValue",
+              "jsdoc": "取值上限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "HasChildField",
+              "jsdoc": "是否有子节点字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IdMapping",
+              "jsdoc": "ID 映射。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ReturnType",
+              "jsdoc": "返回类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DataSource",
+              "jsdoc": "数据源表定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "skip",
+              "jsdoc": "跳过条数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "take",
+              "jsdoc": "取条数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "top",
+              "jsdoc": "取前 N 条。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "select",
+              "jsdoc": "选择字段列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sorted",
+              "jsdoc": "排序定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "where",
+              "jsdoc": "过滤条件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GroupFunType": {
+      "name": "GroupFunType",
+      "jsdoc": "分组聚合函数类型。\n- sum：求和\n- avg：平均\n- min：最小值\n- max：最大值\n- count：计数\n与 `@/platform-adapters/api` 的 `GroupFunType` 同形（`tools/verify-wire-query-parity.mjs`）。\n前端视图聚合用 spark-data `AggregateType`（额外含 join），禁止混名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"sum\" | \"avg\" | \"min\" | \"max\" | \"count\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"sum\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"avg\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"min\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"max\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"count\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "GroupDataParam": {
+      "name": "GroupDataParam",
+      "jsdoc": "分组聚合查询参数。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "groupField",
+              "jsdoc": "分组字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valField",
+              "jsdoc": "值字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "funType",
+              "jsdoc": "聚合函数类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valAsName",
+              "jsdoc": "结果别名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CrudModel": {
+      "name": "CrudModel",
+      "jsdoc": "CRUD 变更模型。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "jsdoc": "新增行数组。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "jsdoc": "修改行数组。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "jsdoc": "删除行数组。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CrudModelRequest": {
+      "name": "CrudModelRequest",
+      "jsdoc": "单表 CRUD 请求。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "目标表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "crudModel",
+              "jsdoc": "CRUD 变更模型。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SubmitNode": {
+      "name": "SubmitNode",
+      "jsdoc": "流程提交下一节点定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "NodeId",
+              "jsdoc": "节点 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ExecUserList",
+              "jsdoc": "执行人列表。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowExecObjInput": {
+      "name": "FlowExecObjInput",
+      "jsdoc": "流程启动/提交请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "操作类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextNode",
+              "jsdoc": "下一节点与执行人。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Idea",
+              "jsdoc": "处理意见。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notifyType",
+              "jsdoc": "通知方式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowId",
+              "jsdoc": "流程实例 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "formKey",
+              "jsdoc": "表单键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formParams",
+              "jsdoc": "表单参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busRowid",
+              "jsdoc": "业务数据行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowObjId",
+              "jsdoc": "流程对象 ID（JSON 字段 flowObjId）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "curStepId",
+              "jsdoc": "当前步骤 ID。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowBackInput": {
+      "name": "FlowBackInput",
+      "jsdoc": "流程退回请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "flowObjId",
+              "jsdoc": "流程对象 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "curStepId",
+              "jsdoc": "当前步骤 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "目标退回节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Idea",
+              "jsdoc": "处理意见。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CanAutoSubmitAfterInput": {
+      "name": "CanAutoSubmitAfterInput",
+      "jsdoc": "判断是否可自动提交请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "curStepId",
+              "jsdoc": "当前步骤 ID。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WFMWORKFORM": {
+      "name": "WFMWORKFORM",
+      "jsdoc": "流程表单定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "ROWID",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FORMID",
+              "jsdoc": "表单 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "URL",
+              "jsdoc": "表单 URL。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MobileUrl",
+              "jsdoc": "移动端 URL。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FormName",
+              "jsdoc": "表单名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FlowID",
+              "jsdoc": "流程 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CnPath",
+              "jsdoc": "分类路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "BusField",
+              "jsdoc": "业务字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "BusTable",
+              "jsdoc": "业务表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TitleField",
+              "jsdoc": "标题字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Width",
+              "jsdoc": "宽度。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Height",
+              "jsdoc": "高度。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WFMFLOWNODE": {
+      "name": "WFMFLOWNODE",
+      "jsdoc": "流程节点定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "ROWID",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TITLE",
+              "jsdoc": "节点标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FLOWID",
+              "jsdoc": "流程 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TYPEID",
+              "jsdoc": "节点类型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "EXEOBJ",
+              "jsdoc": "执行对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "EXEUSERFROM",
+              "jsdoc": "执行用户来源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MEMO",
+              "jsdoc": "备注。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CrtDate",
+              "jsdoc": "创建日期。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeOrder",
+              "jsdoc": "节点顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToApotheosis",
+              "jsdoc": "是否允许加签。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToReject",
+              "jsdoc": "是否允许退回。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToDelegate",
+              "jsdoc": "是否允许转办。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToCooperate",
+              "jsdoc": "是否允许协办。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToShare",
+              "jsdoc": "是否允许共享。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsAutoOverTime",
+              "jsdoc": "是否自动超时。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AutoExecType",
+              "jsdoc": "自动执行类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AutoHour",
+              "jsdoc": "自动超时小时数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToEnd",
+              "jsdoc": "是否允许结束。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NotifyAllExecUser",
+              "jsdoc": "是否通知所有执行人。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NotifyContent",
+              "jsdoc": "通知内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NotifyInterface",
+              "jsdoc": "通知接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeRoleID",
+              "jsdoc": "节点角色 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeFormID",
+              "jsdoc": "节点表单 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeCode",
+              "jsdoc": "节点编码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minExecNum",
+              "jsdoc": "最小执行人数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxExecNum",
+              "jsdoc": "最大执行人数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowOneSend",
+              "jsdoc": "是否允许一次发送。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToAppend",
+              "jsdoc": "是否允许追加。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToCreator",
+              "jsdoc": "是否允许回到发起人。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isSinkNode",
+              "jsdoc": "是否汇聚节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitStrategy",
+              "jsdoc": "提交策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isFlowInitiatorNode",
+              "jsdoc": "是否流程发起人节点。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WFMNODEREALATION": {
+      "name": "WFMNODEREALATION",
+      "jsdoc": "流程节点关系定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "ROWID",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TITLE",
+              "jsdoc": "关系标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FLOWID",
+              "jsdoc": "流程 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TypeID",
+              "jsdoc": "关系类型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "UpNodeID",
+              "jsdoc": "上游节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NextNodeID",
+              "jsdoc": "下游节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsMoreUser",
+              "jsdoc": "是否多用户。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MaxUserNum",
+              "jsdoc": "最大用户数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MinUserNum",
+              "jsdoc": "最小用户数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ConditionExpress",
+              "jsdoc": "条件表达式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "RelationOrder",
+              "jsdoc": "关系顺序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToAppend",
+              "jsdoc": "是否允许追加。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToRevoke",
+              "jsdoc": "是否允许撤回。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToBack",
+              "jsdoc": "是否允许退回。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToForceRevoke",
+              "jsdoc": "是否允许强制撤回。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowToForceBack",
+              "jsdoc": "是否允许强制退回。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AllowOneSend",
+              "jsdoc": "是否允许一次发送。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signatureNum",
+              "jsdoc": "签名数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitType",
+              "jsdoc": "提交类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "RevokeConditionConfig",
+              "jsdoc": "撤回条件配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FlowAutoSubmitConfig",
+              "jsdoc": "流程自动提交配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "jsdoc": "方向。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FunctionFlowNode": {
+      "name": "FunctionFlowNode",
+      "jsdoc": "功能节点与流程节点关联。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowid",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FlowID",
+              "jsdoc": "流程 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeID",
+              "jsdoc": "节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunID",
+              "jsdoc": "功能 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Fileid",
+              "jsdoc": "文件 ID。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowDesignSaveInput": {
+      "name": "FlowDesignSaveInput",
+      "jsdoc": "流程设计保存请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "FlowModId",
+              "jsdoc": "流程模型 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "DesignJson",
+              "jsdoc": "设计画布 JSON。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DesignImg",
+              "jsdoc": "设计图片（Base64）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FlowNodes",
+              "jsdoc": "流程节点列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FlowNodeRelations",
+              "jsdoc": "流程节点关系列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunAndFlowNode",
+              "jsdoc": "功能与流程节点关系列表。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeNodeDesign": {
+      "name": "CodeNodeDesign",
+      "jsdoc": "代码节点设计记录。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowid",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CodeDesignID",
+              "jsdoc": "代码设计 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeNo",
+              "jsdoc": "节点编号。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "节点描述。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeType",
+              "jsdoc": "节点类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CodeNodeDesignJson",
+              "jsdoc": "节点设计 JSON。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createuser",
+              "jsdoc": "创建人。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createtime",
+              "jsdoc": "创建时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updateuser",
+              "jsdoc": "更新人。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updatetime",
+              "jsdoc": "更新时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wfid",
+              "jsdoc": "工作流 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowstate",
+              "jsdoc": "流程状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ReportID",
+              "jsdoc": "报表 ID。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeNodesList": {
+      "name": "CodeNodesList",
+      "jsdoc": "代码节点列表请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "codeNodesList",
+              "jsdoc": "代码节点设计数组。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DBTypeEnum": {
+      "name": "DBTypeEnum",
+      "jsdoc": "数据库类型。\n- MYSQL：MySQL\n- SQLSERVER：SQL Server\n- DM：达梦\n- POSTGRESQL：PostgreSQL",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"MYSQL\" | \"SQLSERVER\" | \"DM\" | \"POSTGRESQL\"",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "\"MYSQL\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"SQLSERVER\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"DM\""
+          },
+          {
+            "kind": "union",
+            "typeText": "\"POSTGRESQL\""
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ServerInfo": {
+      "name": "ServerInfo",
+      "jsdoc": "数据库服务器信息。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowId",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "数据库类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "serverName",
+              "jsdoc": "服务器名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ipAddress",
+              "jsdoc": "IP 地址。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "username",
+              "jsdoc": "用户名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "password",
+              "jsdoc": "密码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "port",
+              "jsdoc": "端口。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entId",
+              "jsdoc": "企业 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "描述。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SyncDataRequest": {
+      "name": "SyncDataRequest",
+      "jsdoc": "数据同步请求体。\n注意：字段使用下划线命名（source_db、source_table 等），保留后端原始定义。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "source_db",
+              "jsdoc": "源数据库。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "source_table",
+              "jsdoc": "源表。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target_db",
+              "jsdoc": "目标数据库。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target_table",
+              "jsdoc": "目标表。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "MigrateRuleEnum": {
+      "name": "MigrateRuleEnum",
+      "jsdoc": "字段值迁移规则。\n- SnowflakeID：将字段值替换为雪花 ID",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "\"SnowflakeID\"",
+        "members": {}
+      }
+    },
+    "MigrateTableFieldRequest": {
+      "name": "MigrateTableFieldRequest",
+      "jsdoc": "字段迁移请求体。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "db",
+              "jsdoc": "数据库。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "table",
+              "jsdoc": "表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "field",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rule",
+              "jsdoc": "迁移规则。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "batchSize",
+              "jsdoc": "批大小。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ViewDataVo": {
+      "name": "ViewDataVo",
+      "jsdoc": "视图数据 VO。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "jsdoc": "视图 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "视图数据内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BatchJsonData": {
+      "name": "BatchJsonData",
+      "jsdoc": "JSON 数据批量变更请求。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "数据集名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "addJsonData",
+              "jsdoc": "新增 JSON 数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editJsonData",
+              "jsdoc": "修改 JSON 数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "delJsonData",
+              "jsdoc": "删除 JSON 数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowTestRequest": {
+      "name": "WorkflowTestRequest",
+      "jsdoc": "工作流测试运行请求。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "jsdoc": "工作流 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "节点 ID（单节点测试）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "jsdoc": "节点输入参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startParams",
+              "jsdoc": "启动参数。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileInfo": {
+      "name": "FileInfo",
+      "jsdoc": "文件操作请求参数。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "customPath",
+              "jsdoc": "自定义存储目录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "jsdoc": "文件名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appType",
+              "jsdoc": "应用/存储类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isCrossEnt",
+              "jsdoc": "是否跨企业。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isReplace",
+              "jsdoc": "同名是否覆盖。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "文件文本内容（字符串上传场景）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "convertType",
+              "jsdoc": "转换类型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BaseImportDataField": {
+      "name": "BaseImportDataField",
+      "jsdoc": "Excel 导入/导出字段配置。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowId",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configId",
+              "jsdoc": "配置 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "字段标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "列索引。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refTable",
+              "jsdoc": "引用表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "值字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textField",
+              "jsdoc": "文本字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterField",
+              "jsdoc": "过滤字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterValue",
+              "jsdoc": "过滤值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDict",
+              "jsdoc": "是否字典字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "字段类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pattern",
+              "jsdoc": "格式 pattern。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefixes",
+              "jsdoc": "前缀。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isHide",
+              "jsdoc": "是否隐藏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isProtected",
+              "jsdoc": "是否受保护。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "intIndex",
+              "jsdoc": "整数索引。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BaseImportConfig": {
+      "name": "BaseImportConfig",
+      "jsdoc": "Excel 导入/导出工作表配置。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "rowId",
+              "jsdoc": "行 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pId",
+              "jsdoc": "父配置 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemeId",
+              "jsdoc": "方案 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sheet",
+              "jsdoc": "工作表序号。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sheetName",
+              "jsdoc": "工作表名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleIndex",
+              "jsdoc": "标题行索引。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataIndex",
+              "jsdoc": "数据行索引。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "table",
+              "jsdoc": "目标表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "字段配置列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTables",
+              "jsdoc": "子表配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "父字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "foreignKeyField",
+              "jsdoc": "外键字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filters",
+              "jsdoc": "过滤条件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sorted",
+              "jsdoc": "排序定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exportType",
+              "jsdoc": "导出类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dbName",
+              "jsdoc": "数据库名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "jsdoc": "表名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyField",
+              "jsdoc": "主键字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldTypeMap",
+              "jsdoc": "字段类型映射。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataRowMap",
+              "jsdoc": "数据行映射。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exportData",
+              "jsdoc": "导出数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Sm2PublicKeyResult": {
+      "name": "Sm2PublicKeyResult",
+      "jsdoc": "SM2 临时公钥协商结果。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {
+          "attributes": [
+            {
+              "name": "encryptKeyBase64",
+              "jsdoc": "加密密钥的 Base64。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "algorithm",
+              "jsdoc": "算法标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expiresAt",
+              "jsdoc": "过期时间戳（毫秒）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "issuedAt",
+              "jsdoc": "签发时间戳（毫秒）。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

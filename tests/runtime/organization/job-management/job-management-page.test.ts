@@ -9,7 +9,7 @@ import {getSystemScenarioResource, resolveSystemScenarioResource} from '@/regist
 import {api, JOB_PATH, JOB_SCENARIO, resetJobFixture} from './job-management.fixture'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
   lowcodeApi: {
     readRequestScope: (...args: unknown[]) => api.service.readRequestScope(...args),

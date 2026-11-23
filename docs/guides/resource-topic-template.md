@@ -91,7 +91,7 @@
 | 数据维护 | 目录宿主打开独立dictionary-data-page工作区，通过唯一dictionaryId prop传入；按已保存标题显示六字段，标准表格工具栏触发操作，saveData只提交条目 |
 | 公共承载 | 已有字典场景的DataSet、两个正式模型及DataView；DictionaryWorkspace组织领域约束，标准组件直接绑定 |
 
-样板验收使用实际Vue、标准组件、PageRuntime及正式查询/保存owner，只在装配入口及HTTP边界提供夹具。用例见[独立页面流程](../../tests/runtime/page/dictionary/dictionary-workflow.test.ts)与[领域约束](../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.test.ts)：设计标题保存后由新数据页消费、两个提交范围隔离、新建先设计后数据、取消、权限、参数/目标切换与未知回执。HTTP夹具结果不等于线上写入验收；当前证据及未闭合项仍以唯一台账为准。
+样板验收使用实际Vue、标准组件、PageRuntime及正式查询/保存owner，只在装配入口及HTTP边界提供夹具。用例见[独立页面流程](../../tests/runtime/page/dictionary/dictionary-workflow.test.ts)与[领域约束](../../src/platform-adapters/api/platform/resources/structured-config/dictionary/workspace.test.ts)：设计标题保存后由新数据页消费、两个提交范围隔离、新建先设计后数据、取消、权限、参数/目标切换与未知回执。HTTP夹具结果不等于线上写入验收；当前证据及未闭合项仍以唯一台账为准。
 
 数据维护还须验证辅助字段的实际写入与重开，例如字典ordIdx的排序、显式零值、取消和无写权限。生命周期区分装配在途、查询在途和保存在途，分别核失效结果与实例释放；不能拿其中一类用例代替全部。缓存页签须验证不同方案身份的草稿与取消互不覆盖。
 

@@ -6,15 +6,15 @@
  */
 import type { InjectionKey } from 'vue'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
 import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
-} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
-import {loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {loadLowcodeScenarioDefinitions} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 
 // --- project-switch ---
 

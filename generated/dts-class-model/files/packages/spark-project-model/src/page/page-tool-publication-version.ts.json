@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/page-tool-publication-version",
+    "sourcePath": "packages/spark-project-model/src/page/page-tool-publication-version.ts",
+    "sourceFile": "packages/spark-project-model/src/page/page-tool-publication-version.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/page-tool-publication-version",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-tool-publication-version\n职责：解析与编码工具发布文件的正式发布引用。\n边界：文件名快照独立存在，裸文件是工作内容；场景文件通过 manifest 引用各自快照。\nAI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PageToolPublicationFileName"
+    ]
+  },
+  "$defs": {
+    "PageToolPublicationFileName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageToolPublicationFileName",
+      "enum": [
+        "rule.json",
+        "script.js",
+        "style.css",
+        "publication-manifest.json"
+      ]
+    },
+    "PageToolPublicationVersionKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageToolPublicationVersionKey",
+      "enum": [
+        "script",
+        "style",
+        "rule",
+        "manifest"
+      ]
+    },
+    "PageToolPublicationVersions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolPublicationVersions",
+      "properties": {
+        "script": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "style": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "rule": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "manifest": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "script",
+        "style",
+        "rule",
+        "manifest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T07:48:56.517Z",
+  "models": {
+    "PageToolPublicationFileName": {
+      "name": "PageToolPublicationFileName",
+      "jsdoc": "三份工具文件及一次发布说明；场景共享 pagedata.json 由说明文件引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof PAGE_TOOL_PUBLICATION_FILE_NAMES[number]",
+        "members": {}
+      }
+    },
+    "PageToolPublicationVersionKey": {
+      "name": "PageToolPublicationVersionKey",
+      "jsdoc": "VersionId 的具名发布引用分段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'rule' | 'script' | 'style' | 'manifest'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'rule'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'script'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'style'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'manifest'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageToolPublicationVersions": {
+      "name": "PageToolPublicationVersions",
+      "jsdoc": "各工具文件的非负快照编号或缺失引用；不是实际历史列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<PageToolPublicationVersionKey, number | null>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<PageToolPublicationVersionKey, number | null>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "script",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "style",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rule",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "manifest",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

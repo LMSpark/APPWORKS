@@ -9,13 +9,14 @@ import {FieldNumber, RendererFilter, RendererTable, Spark} from '@spark-appworks
 import DataSpaceQueryPreview from '@/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceDesignApi, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview'
+import {LowcodeDataSpaceQueryPreview} from '@/platform-adapters/data-space/view-design/preview/lowcode-data-space-query-preview'
 
 describe('parent-result preview input ownership', () => {
   it('hosts the preview runtime through the shared native session', () => {
-    const source = readFileSync(resolve(process.cwd(), 'src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts'), 'utf8')
+    const source = readFileSync(resolve(process.cwd(), 'src/platform-adapters/data-space/view-design/preview/lowcode-data-space-query-preview.ts'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain("targetId: [scenarioId, modelName, viewId].join(':')")
     expect(source).not.toContain('new PageRuntime')

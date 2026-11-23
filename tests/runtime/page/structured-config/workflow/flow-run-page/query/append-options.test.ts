@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {createFlowAppendOptionsBinding} from '@/lowcode/resources/system/workflow/manage/flow-append-user/options-binding'
+import {createFlowAppendOptionsBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/options-binding'
 
 it('binds configuration to the original parent and the matching node instead of the first response entry', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

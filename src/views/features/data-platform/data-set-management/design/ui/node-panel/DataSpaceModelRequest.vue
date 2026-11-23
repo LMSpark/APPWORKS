@@ -51,7 +51,7 @@
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {FieldText, FieldSelect, RendererSection, RendererForm, RendererButton, FilterExpressionEditor} from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, type DataViewFilterTree} from '@spark-appworks/spark-data'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 
 const OUTPUT_TYPE_OPTIONS = [{label: 'Table', value: 'Table'}, {label: 'Join', value: 'Join'}, {label: 'Tree', value: 'Tree'}]

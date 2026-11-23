@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentFactVersion,verifyRegisteredCommitmentFact} from '@/views/features/application/smart-bid/authoring/model/content-fact-version-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 async function fixture(options:{value?:unknown;status?:string;count?:number|null;wrong?:string;hidden?:string;record?:Record<string,unknown>}={}){
  const record={id:'FV_ORIGINAL',projectId:'P',key:'PRICE',version:2,kind:'PRICE',value:Object.hasOwn(options,'value')?options.value:'0.00',

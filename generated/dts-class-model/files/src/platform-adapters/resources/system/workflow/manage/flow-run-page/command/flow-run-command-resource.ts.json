@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource\n职责：审批命令通过原DataView提交；缺少权威核验合同时保留未知意图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowRunCommandResource"
+    ]
+  },
+  "$defs": {
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true,
+        "method.dispatch.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.dispatch.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.captureTarget.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureTarget.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.captureInput.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureInput.return": {
+          "type": "object",
+          "title": "() => void"
+        }
+      }
+    },
+    "FlowRunCommandResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunCommandResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Options"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanPrepare.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "input": {
+              "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanPrepare.return": true,
+        "method.registerInputProof.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "key": {
+              "type": "string"
+            },
+            "assertInput": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerInputProof.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.806Z",
+  "models": {
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n    /** 临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。 */\n    captureInput?: (row: Readonly<DataRow>) => (() => void) | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    guard: () => void;\n    dispatch: (row: Readonly<DataRow>) => Promise<void>;\n    captureTarget: (row: Readonly<DataRow>) => () => void;\n    /** 临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。 */\n    captureInput?: (row: Readonly<DataRow>) => (() => void) | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "guard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispatch",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "captureTarget",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "captureInput",
+              "jsdoc": "临时候选/输入证明不决定已确认目标是否成为新查询，避免关闭编辑器解除防重。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reflection",
+                  "declaration": {
+                    "signatures": [
+                      {
+                        "parameters": [],
+                        "type": {
+                          "type": "intrinsic",
+                          "name": "void"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FlowRunCommandResource": {
+      "name": "FlowRunCommandResource",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Options)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Options",
+                "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "assertCanPrepare",
+              "jsdoc": "在原绑定owner校验当次输入；不创建命令、改变查询或执行HTTP。宿主须先经原view.refresh激活owner。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "registerInputProof",
+              "jsdoc": "将本次参数校验函数交给原命令owner，在准备和实际派发前复核；不存参数副本。返回清理函数仅释放未派发的本次命令，未知命令保留。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertInput",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "binding",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

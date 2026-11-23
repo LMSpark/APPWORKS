@@ -60,11 +60,11 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {buildDataViewKey,type DataSet,type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {getValueAtJsonPath,isJsonObject, parseJsonDocument, type JsonPath, type JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {FieldJson, RendererButton,RendererDialog,RendererTable,RendererForm, RendererTabs, RendererTabPane,type RFilterProps} from '@spark-appworks/spark-component'
-import {LogicViewSourceViews,type LogicViewSourceType} from '@/lowcode/resources/structured-config/logic-view/source-views'
-import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
-import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
-import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
-import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {LogicViewSourceViews,type LogicViewSourceType} from '@/platform-adapters/resources/structured-config/logic-view/source-views'
+import {LogicViewNodeCommands} from '@/platform-adapters/resources/structured-config/logic-view/node-commands'
+import {logicFieldRowAdapter} from '@/platform-adapters/resources/structured-config/logic-view/field-row-adapter'
+import {logicNodeFunctionContext} from '@/platform-adapters/resources/structured-config/logic-view/function-context'
+import {LowcodeDataSpaceSourceCatalog} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 const props=defineProps<{viewKey:string;view:DataView;parameterViewKey:string;metadata?:DataSet|undefined;disabled:boolean}>()
 const emit=defineEmits<{'editing-change':[value:boolean]}>()
 const path=ref<JsonPath|null>(null),tab=ref('basic'),revision=ref(0),pending=ref(new Set<string>())

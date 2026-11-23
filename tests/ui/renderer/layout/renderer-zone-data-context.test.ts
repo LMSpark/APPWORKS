@@ -10,8 +10,8 @@ import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, FieldText, RendererButton,
 import RendererHeader from '../../../../packages/spark-component/src/components/containers/zones/RendererHeader.vue'
 import RendererFooter from '../../../../packages/spark-component/src/components/containers/zones/RendererFooter.vue'
 import RendererTail from '../../../../packages/spark-component/src/components/containers/zones/RendererTail.vue'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 import type {BeforeRenderContext} from '../../../../packages/spark-component/src/components/support/beforeRender'
 
 const cleanup: Array<() => void> = []

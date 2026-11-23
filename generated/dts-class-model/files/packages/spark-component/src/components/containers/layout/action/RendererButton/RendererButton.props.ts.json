@@ -26,8 +26,8 @@
       "properties": {
         "permAction": {
           "enum": [
-            "delete",
             "create",
+            "delete",
             "edit",
             "create-child"
           ]

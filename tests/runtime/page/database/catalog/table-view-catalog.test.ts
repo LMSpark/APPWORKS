@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceModelNotFoundError, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DataSpaceModelNotFoundError } from '@/platform-adapters/api'
 import {
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL,
@@ -9,17 +10,17 @@ import {
   DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
   LowcodeDatabaseTableView,
-} from '@/lowcode/resources/database/catalog/table-view'
-import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
+} from '@/platform-adapters/resources/database/catalog/table-view'
+import {DATABASE_SERVER_MODEL} from '@/platform-adapters/resources/database/server/resource'
 import {
   databaseCatalogHasDesensitizationRules,
   databaseCatalogHasEncryptionDictionary,
   databaseCatalogHasFieldTypeDictionary,
-} from '@/lowcode/resources/database/catalog/table/field-metadata'
+} from '@/platform-adapters/resources/database/catalog/table/field-metadata'
 import {
   DATABASE_CATALOG_ENCRYPTION_DICT_MODEL,
   DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL,
-} from '@/lowcode/resources/database/catalog/table-view'
+} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -29,7 +30,7 @@ import {
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))

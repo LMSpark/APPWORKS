@@ -1,7 +1,7 @@
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import {LowcodeJsonData} from '@/platform-adapters/resources/semi-structured/json-data/resource'
 import {isRecord} from '@spark-appworks/spark-utils'
 
 /** Opens the exact catalog record in the tool's existing scenario. */

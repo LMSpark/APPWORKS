@@ -2,11 +2,12 @@ import {withDefinitionResources} from '../view-design/definition-resource.fixtur
 import {createConfirmedMetadataFixture} from '../view-design/definition-resource.fixture'
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, DataView, RequestState} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceDesignApi } from '@/platform-adapters/api'
 import {ProjectWorkspace, type ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceAssembler} from '../../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceViewDesign} from '../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 import {dataSpacePageFixture} from '../../../page/design/native/data-space-page.fixture'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>

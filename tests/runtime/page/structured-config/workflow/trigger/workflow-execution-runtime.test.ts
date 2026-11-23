@@ -2,8 +2,8 @@ import {afterEach,expect,it,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {workflowExecutionFixture} from './workflow-execution.fixture'
-import {readWorkflowExecutionPresentation} from '@/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings'
-import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-context'
+import {readWorkflowExecutionPresentation} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/runtime-bindings'
+import {WorkflowExecutionContext} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 it('binds before workflow input injection and executes a staged native command exactly once',async()=>{

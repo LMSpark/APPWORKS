@@ -72,11 +72,13 @@ if (stubs['spark-component-renderer'] === undefined) {
 }
 config.global.stubs = stubs
 
-const originalGetComputedStyle = window.getComputedStyle.bind(window)
-const getComputedStyleOverride: typeof window.getComputedStyle = (element, pseudoElement) => {
-	if (typeof pseudoElement === 'string' && pseudoElement.trim() !== '') {
+if (typeof window !== 'undefined') {
+	const originalGetComputedStyle = window.getComputedStyle.bind(window)
+	const getComputedStyleOverride: typeof window.getComputedStyle = (element, pseudoElement) => {
+		if (typeof pseudoElement === 'string' && pseudoElement.trim() !== '') {
+			return originalGetComputedStyle(element)
+		}
 		return originalGetComputedStyle(element)
 	}
-	return originalGetComputedStyle(element)
+	window.getComputedStyle = getComputedStyleOverride
 }
-window.getComputedStyle = getComputedStyleOverride

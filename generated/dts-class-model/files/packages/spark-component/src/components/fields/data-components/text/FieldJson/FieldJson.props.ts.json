@@ -93,10 +93,10 @@
         "mode": {
           "enum": [
             "text",
+            "tree",
+            "rows",
             "form",
             "table",
-            "rows",
-            "tree",
             "properties",
             "outline"
           ]
@@ -234,8 +234,8 @@
           "type": "array",
           "items": {
             "enum": [
-              "delete",
               "create",
+              "delete",
               "edit"
             ]
           }

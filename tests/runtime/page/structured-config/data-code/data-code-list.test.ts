@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
@@ -11,7 +11,7 @@ import {RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {defineComponent, h} from 'vue'
 import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import DataCodeList from '@/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
@@ -26,7 +26,7 @@ const models = buildFormalModels({
   Base_UserInfo: ['ID', 'rowid', 'UserName'],
   Base_StructureType: ['rowid', 'Mrowid', 'Name'],
 }).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId}p${({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName] ?? '001'}`}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === DESIGN ? designText : catalogText}}),

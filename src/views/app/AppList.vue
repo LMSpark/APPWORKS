@@ -41,14 +41,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
  */
 import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { getNavHomePath, NativePageRuntimeSession } from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
-import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
+import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/platform-adapters/lowcode-application-catalog'
 
 type ProjectItem = {
   projectId: string

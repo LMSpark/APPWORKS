@@ -2,11 +2,11 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {SparkData, type DataSet} from '@spark-appworks/spark-data'
 
 const state = vi.hoisted(() => ({load: vi.fn(), readScope: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: state.load}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: state.load}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {readRequestScope: state.readScope}, lowcodeHttp: {},
 }))
-const {LowcodeDataCode} = await import('@/lowcode/resources/structured-config/data-code/resource')
+const {LowcodeDataCode} = await import('@/platform-adapters/resources/structured-config/data-code/resource')
 const DESIGN = '868E62F90DB8118C74CDC9F6BCA61157'
 const loaded: DataSet[] = []
 beforeEach(() => {

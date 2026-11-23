@@ -7,14 +7,14 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import ElementPlus from 'element-plus'
 import {DataSet, DataViewFilter, isDataRow, type DataRow, type DataView, type DataViewFilterTree, type DataViewNewRowIdentity} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
 import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-function-management/ui/application-function-page-contract'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import * as BlueprintDocument from '@/lowcode/resources/application/project-blueprint-document'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import * as BlueprintDocument from '@/platform-adapters/resources/application/project-blueprint-document'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {catalogField, createDimensionRuntime} from '../../../../runtime/application/dimension/dimension.fixture'
 import {useApplicationFunctionPage} from '@/views/features/application/application-function-management/ui/use-application-function-page'
 import ApplicationFunctionPage from '@/views/features/application/application-function-management/ui/application-function-page.vue'
@@ -40,7 +40,7 @@ const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution
   patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>),
   catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[], applications: undefined as DataRow[] | undefined}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
-vi.mock('@/lowcode/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
+vi.mock('@/platform-adapters/resources/shared/ai-data-entry-host', () => ({AiDataEntryHost: class {
   createDraftRunner() {return aiRunner}
 }}))
 vi.mock('@/views/features/application/application-function-management/ui/blueprint-state/useDevState', () => ({useDevState: () => fixtureState.current,
@@ -75,7 +75,7 @@ vi.mock('@/views/features/application/application-function-management/ui/bluepri
   return {default: define({name: 'DataPlanningPane', props: {state: {type: Object, required: true}, fieldAccess: {type: Object, required: true}},
     setup: () => () => render('div', {class: 'data-planning-pane-stub'})})}
 })
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
   loadLowcodeRuntimeScenario: vi.fn(),
   readLowcodeExecutionProject: () => {
     const projectId = fixtureState.execution

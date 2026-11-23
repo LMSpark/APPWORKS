@@ -11,7 +11,7 @@ import Page from '@/views/features/system/cache-management/ui/cache-management-p
 
 const mocks=vi.hoisted(()=>({load:vi.fn(),route:{path:'/apps/APP/features/system/cache-management/ui/cache-management-page',meta:{blueprintScenarioId:'348D1C50B204C779AABBE2489C5E2FDF',nodeId:'CACHE_NODE',systemPageIdentityState:'resolved'}}}))
 vi.mock('vue-router',async importOriginal=>({...(await importOriginal<typeof import('vue-router')>()),useRoute:()=>route,useRouter:()=>undefined}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:mocks.load}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:mocks.load}))
 vi.mock('@spark-appworks/spark-app',async()=>{
  const {NativePageRuntimeSession}=await import('../../../packages/spark-app/src/router/native-page-runtime-session')
  return {NativePageRuntimeSession,useSystemPageDirtySource:()=>undefined}

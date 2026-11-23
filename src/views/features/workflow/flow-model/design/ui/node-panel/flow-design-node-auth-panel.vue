@@ -29,7 +29,7 @@ import {
 import {
   FLOW_DESIGN_SCENARIO_ID,
   defaultFlowDesignNodeAuthRow,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {
   featureTableToolbar,
   runFeatureTableAction,

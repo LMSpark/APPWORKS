@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {LowcodeDataSpaceModelNameProjection} from '@/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection'
+import {LowcodeDataSpaceModelNameProjection} from '@/platform-adapters/data-space/model-source/rename/lowcode-data-space-model-name-projection'
 const models=[{rowid:'M1',Name:'Orders'},{rowid:'M2',Name:'Other'}]
 const fields=[{dataModelId:'M1',Name:'id',AsName:''},{dataModelId:'M1',Name:'Orders.literal',AsName:''}]
 function projection(){return new LowcodeDataSpaceModelNameProjection({models,fields,previousName:'Orders',nextName:'Fork'})}

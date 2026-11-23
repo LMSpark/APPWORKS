@@ -2,7 +2,7 @@
  * @module app:views/features/application/smart-bid/authority/published-enterprise-owner
  * 职责：从当前低码认证会话取得已发布企业页的企业身份。
  */
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 
 export type PublishedEnterpriseBinding=Readonly<{enterpriseId:string;assertCurrent:()=>void}>

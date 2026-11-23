@@ -1,10 +1,11 @@
 import {formalBaseDataSetModelBinding, withDefinitionResources} from '../view-design/definition-resource.fixture'
 import {describe, expect, it} from 'vitest'
-import {DataSpaceDesignApi, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceAssembler} from '../../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceViewDesign} from '../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type Row = Record<string, unknown>

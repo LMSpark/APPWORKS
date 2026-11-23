@@ -1,8 +1,8 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {createTestProjectToolFileExecutor, dataSpacePageFixture} from '../data-space-page.fixture'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceArrayConfiguration} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration'
+import {LowcodeDataSpaceArrayConfiguration} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-configuration'
 const fixtures:ReturnType<typeof dataSpacePageFixture>[]=[]
 afterEach(()=>fixtures.splice(0).forEach(f=>f.dispose()))
 async function setup(options:Parameters<typeof dataSpacePageFixture>[0]={}) {

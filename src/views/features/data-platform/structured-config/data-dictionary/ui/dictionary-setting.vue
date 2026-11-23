@@ -20,10 +20,10 @@ AI用途：实现专题方案设计页时保留元数据空间和已保存方案
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {DictionarySchema} from '@spark-appworks/spark-lowcode-api'
+import { DictionarySchema } from '@/platform-adapters/api'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererForm, RendererButton} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 
 const props = defineProps<{dictionaryId: string; create?: boolean; applicationScenarioId?: string}>()

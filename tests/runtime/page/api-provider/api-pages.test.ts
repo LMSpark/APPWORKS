@@ -25,7 +25,7 @@ vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
 })
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.current.state.http},
   lowcodeApi: {readRequestScope: (...args: unknown[]) => api.current.service.readRequestScope(...args),
     dataSpace: {get design() {return api.current.service}, get runtime() {return api.current.state.runtime}}},
@@ -157,7 +157,7 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(api.current.state.http.saves[0]).toMatchObject({table:'Base_Interface_PublicParam',added:[],deleted:[],changed:[{rowid:'Q3',interfaceId:'I1',outputfield:'token',interfaceName:'取令牌',accessPath:'/token'}]})
     expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')).toMatchObject({providerId:'P1',paramName:'second_token',desc:'保留说明',interfaceId:'I1',outputfield:'token'})
     expect(records('Base_Interface_PublicParam').filter(row=>row['interfaceId']==='I1'&&row['outputfield']==='token')).toHaveLength(2)
-    const {loadLowcodeRuntimeScenario}=await import('@/lowcode/data-space/lowcode-data-space-runtime')
+    const {loadLowcodeRuntimeScenario}=await import('@/platform-adapters/data-space/lowcode-data-space-runtime')
     const reopened:PageRuntime=new PageRuntime({pageId:'parameter-binding-reopen',scenarioIds:[API,META],deferredScenarioIds:[META],scenarioInputs:{[API]:{providerId:'P1'}},loadScenario:id=>loadLowcodeRuntimeScenario({projectId:'APP',scenarioId:id,getPage:()=>reopened})})
     try{await reopened.load();const parameters=reopened.getDataSet(API)!.getView('Base_Interface_PublicParam','outputBinding')!;await parameters.refresh()
       expect(parameters.rows.find(row=>row['rowid']==='Q3')).toMatchObject({interfaceId:'I1',outputfield:'token',paramName:'second_token'})

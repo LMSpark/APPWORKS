@@ -1,0 +1,44 @@
+/**
+ * lowcode HTTP 薄封装：发起请求并强制解包 `AjaxResult`。
+ * HTTP 4xx/5xx 若仍携带 AjaxResult 体则按业务码处理；非 AjaxResult 或 `Code !== 200` 一律抛 `LowcodeApiError`。
+ */
+import { requestAjaxResult, type HttpClientBase, type Method, type RequestConfig } from '@spark-appworks/spark-utils'
+
+import { LowcodeApiError } from './lowcode-api-error.js'
+
+/** 面向 lowcode 后端的通用请求客户端，返回值仅为 AjaxResult.Result 载荷。 */
+export class LowcodeClient {
+  public constructor(private readonly http: HttpClientBase) {}
+
+  /** 执行单次 lowcode 请求；`authenticated: false` 时跳过根门面注入的 Bearer（如登录接口）。 */
+  public async requestResult(command: LowcodeClientCommand): Promise<unknown> {
+    const config: RequestConfig = {
+      url: command.path,
+      method: command.method,
+      ...(command.data === undefined ? {} : { data: command.data }),
+      ...(command.params === undefined ? {} : { params: { ...command.params } }),
+      ...(command.headers === undefined ? {} : { headers: { ...command.headers } }),
+      ...(command.retry === undefined ? {} : {retry: command.retry}),
+      ...(command.authenticated === false ? { meta: { lowcodeSkipAuth: true } } : {}),
+    }
+
+    return await requestAjaxResult(this.http, config, {
+      errorType: LowcodeApiError,
+      preserveHttpError: command.preserveHttpError === true,
+    })
+  }
+}
+
+/** 单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。 */
+export type LowcodeClientCommand = Readonly<{
+  path: string
+  method: Method
+  data?: unknown
+  params?: Readonly<Record<string, unknown>>
+  headers?: Readonly<Record<string, string>>
+  authenticated?: boolean
+  /** Override HttpClientBase retry defaults for this request only. */
+  retry?: number
+  /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */
+  preserveHttpError?: boolean
+}>

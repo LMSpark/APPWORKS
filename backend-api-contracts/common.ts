@@ -28,7 +28,7 @@ export type WireJsonArray = WireJsonObject[];
  * 后端通用响应外壳 AjaxResult。
  *
  * 注意：字段为首字母大写，由后端 Jackson 序列化决定，不可改小写。
- * 与 `@spark-appworks/spark-lowcode-api` 的 `AjaxResult` 同形（`tools/verify-ajax-result-parity.mjs`）。
+ * 与 `@/platform-adapters/api` 的 `AjaxResult` 同形（`tools/verify-ajax-result-parity.mjs`）。
  * `Code` 必填：运行客户端按数字 Code 解包，台账不得再声明可选 Code。
  */
 export type AjaxResult<T = unknown> = Readonly<{
@@ -58,7 +58,7 @@ export interface PageParam {
 // 二、认证与登录
 // ============================================================================
 
-/** 验证码发送渠道：手机或邮箱。与 `@spark-appworks/spark-lowcode-api` 的 `SendCodeType` 同形（`tools/verify-send-code-parity.mjs`）。 */
+/** 验证码发送渠道：手机或邮箱。与 `@/platform-adapters/api` 的 `SendCodeType` 同形（`tools/verify-send-code-parity.mjs`）。 */
 export type SendCodeType = "MOBILE" | "EMAIL";
 
 /**
@@ -83,7 +83,7 @@ export type SendCodeType = "MOBILE" | "EMAIL";
  * - ALIYUN_IDENTITY_VERIFY_BIND：阿里云实名认证绑定
  * - ADMIN_RESET_PASSWORD：管理员重置密码
  *
- * 与 `@spark-appworks/spark-lowcode-api` 的 `SendCodeScene` 同形（`tools/verify-send-code-parity.mjs`）。
+ * 与 `@/platform-adapters/api` 的 `SendCodeScene` 同形（`tools/verify-send-code-parity.mjs`）。
  * 门面注册子集为 Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>。
  */
 export type SendCodeScene =
@@ -178,6 +178,26 @@ export interface Login {
   token?: string;
 }
 
+export type LowcodeLoginWireInput = Readonly<Login>
+
+/** lowcode 登录成功 wire 结果；userinfo/entinfo 仍是后端原始对象。 */
+export type LowcodeLoginWireResult = Readonly<{
+  token: string
+  refreshToken: string
+  expire: number
+  refreshExpire: number
+  userinfo: Readonly<Record<string, unknown>>
+  entinfo: Readonly<Record<string, unknown>>
+}>
+
+/** 刷新令牌 wire 结果；不包含用户信息。 */
+export type LowcodeRefreshWireResult = Readonly<{
+  token: string
+  refreshToken: string
+  expire: number
+  refreshExpire: number
+}>
+
 /** 验证码发送/校验命令。 */
 export interface SendCodeCommand {
   /** 企业标识。 */
@@ -270,7 +290,7 @@ export interface OfflineMessageVo {
 // 四、数据查询协议（TableInput / DataManager）
 // ============================================================================
 
-/** 排序方向。与 `@spark-appworks/spark-lowcode-api` 的 `OrderType` 同形（`tools/verify-wire-query-parity.mjs`）。 */
+/** 排序方向。与 `@/platform-adapters/api` 的 `OrderType` 同形（`tools/verify-wire-query-parity.mjs`）。 */
 export type OrderType = "ascending" | "descending";
 
 /** 字段查询参数。 */
@@ -314,7 +334,7 @@ export interface ValueFun {
  * 集合类：in / notin
  *
  * 正式名 `WireFilterOperator`，禁止与 spark-data `FilterOperator` 同名混用。
- * 与 `@spark-appworks/spark-lowcode-api` 同形（`tools/verify-wire-query-parity.mjs`）。
+ * 与 `@/platform-adapters/api` 同形（`tools/verify-wire-query-parity.mjs`）。
  */
 export type WireFilterOperator =
   | "equal" | "notequal" | "greaterthan" | "greaterthanorequal"
@@ -505,7 +525,7 @@ export interface DataManagerRequest {
  * - max：最大值
  * - count：计数
  *
- * 与 `@spark-appworks/spark-lowcode-api` 的 `GroupFunType` 同形（`tools/verify-wire-query-parity.mjs`）。
+ * 与 `@/platform-adapters/api` 的 `GroupFunType` 同形（`tools/verify-wire-query-parity.mjs`）。
  * 前端视图聚合用 spark-data `AggregateType`（额外含 join），禁止混名。
  */
 export type GroupFunType = "sum" | "avg" | "min" | "max" | "count";

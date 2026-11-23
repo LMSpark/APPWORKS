@@ -1,7 +1,7 @@
 import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import type {DataSpaceDesignApi} from '@/platform-adapters/api'
 
 export function buildFormalModels(entries: Record<string, readonly string[]>) {
   return Object.entries(entries).map(([name, fields]) => ({

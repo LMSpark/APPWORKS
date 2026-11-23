@@ -13,9 +13,9 @@ import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import {isJsonObject,type JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {PAGE_RUNTIME,useSparkComponent,type RJsonProps} from '@spark-appworks/spark-component'
-import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
-import {excelLayoutTableKey} from '@/lowcode/resources/semi-structured/excel-import/layout/routes'
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
+import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/platform-adapters/resources/semi-structured/excel-import/layout/definition'
+import {excelLayoutTableKey} from '@/platform-adapters/resources/semi-structured/excel-import/layout/routes'
+import {ExcelPhysicalFieldDirectory} from '@/platform-adapters/resources/semi-structured/excel-import/metadata/physical-fields'
 type JsonArrayRowAdapter=NonNullable<RJsonProps['rowAdapter']>
 const props=withDefaults(defineProps<{dataViewKey:string;disabled?:boolean;beforeChange?:(value:unknown,previous:unknown,control:{cancel:boolean})=>void}>(),{disabled:false})
 const emit=defineEmits<{'session-change':[value:boolean]}>()

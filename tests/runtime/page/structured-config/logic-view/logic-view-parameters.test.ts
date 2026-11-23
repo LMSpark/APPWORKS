@@ -1,14 +1,15 @@
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {configureLogicFixture} from './logic-view.fixture'
 import {afterEach,beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi, DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
 let http: ApiBackend, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({get lowcodeHttp() {return http},
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({get lowcodeHttp() {return http},
   createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({readText:()=>{throw Error('Unexpected tool file read')},writeText:()=>{throw Error('Unexpected tool file write')}}), lowcodeApi: {
   design:{},readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}},
 }}))

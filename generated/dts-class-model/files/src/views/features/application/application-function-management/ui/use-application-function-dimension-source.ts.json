@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@306971": {
+            "__@RefSymbol@308787": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@306971"
+            "__@RefSymbol@308787"
           ],
           "additionalProperties": false
         },
@@ -41,13 +41,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@306971": {
+            "__@RefSymbol@308787": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@306971"
+            "__@RefSymbol@308787"
           ],
           "additionalProperties": false
         },
@@ -60,19 +60,19 @@
                 true
               ]
             },
-            "__@RefSymbol@306971": {
+            "__@RefSymbol@308787": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@306971"
+            "__@RefSymbol@308787"
           ],
           "additionalProperties": false
         },
         "readModels": {
           "type": "object",
-          "title": "(input: DataSpaceFormalScenarioReadInput) => Promise<readonly Readonly<{ id: string; metaName: string; name: string; sourceName: string; ... 6 more ...; sourceInputBindings?: readonly DataSpaceSourceInputBinding[]; }>[]>"
+          "title": "(input: DataSpaceFormalScenarioReadInput) => Promise<readonly FormalModelDescriptor[]>"
         },
         "error": {
           "type": "object",
@@ -131,7 +131,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.047Z",
+  "generatedAt": "2026-11-23T08:02:15.335Z",
   "models": {
     "ApplicationFunctionDimensionSourceInput": {
       "name": "ApplicationFunctionDimensionSourceInput",

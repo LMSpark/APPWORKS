@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readContentTenderRecord} from '@/views/features/application/smart-bid/authoring/model/content-tender-record-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const ref={runId:'RUN',type:'FORMAT',ordinal:0,recordVersion:'002',recordHash:'a'.repeat(64)}
 function fixture(override:Readonly<Record<string,unknown>>={}){

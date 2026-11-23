@@ -6,9 +6,9 @@ import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, bindD
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererForm, Spark, registerAllRenderers, useSparkComponent, type PageSelectorOption} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
-import {createFlowRunCandidatesBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
-import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
-import {submitApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {createFlowRunCandidatesBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
+import {FlowRunCommandResource} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
+import {submitApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 const originalStubs = {...config.global.stubs}
 afterEach(() => {config.global.stubs = originalStubs})
 

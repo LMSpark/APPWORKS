@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/structured-config/dimension-source/event-editor",
+    "sourcePath": "src/platform-adapters/resources/structured-config/dimension-source/event-editor.ts",
+    "sourceFile": "src/platform-adapters/resources/structured-config/dimension-source/event-editor.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/structured-config/dimension-source/event-editor",
+    "jsdoc": "@module app:lowcode/resources/structured-config/dimension-source/event-editor\n职责：已保存数据模型来源绑定的“维护数据模型事件”owner：按绑定事件编码装载唯一事件合同（Bil_Dimension_Rule_Template），\n核验来源绑定与正式模型、模板编码唯一及规则/绑定引用约束，以一次 DataSet 保存提交。\n边界：只服务 data-model 来源且事件编码不属于平台注册事件；内置事件合同不可修改。业务分类与来源字段候选、必填与不可变由 pagedata\n列规则承担，启用事件的业务日期字段由场景模型规则承担；正式模型与主键经同一 PageRuntime 中 7AB 的候选视图读取。不维护规则本身。\nAI用途：调整数据模型事件合同约束时在此修改，页面只负责打开、表单绑定与提示。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DimensionSourceEventEditorInput",
+      "DimensionSourceEventEditor"
+    ]
+  },
+  "$defs": {
+    "DimensionSourceEventEditorInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceEventEditorInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "target": {
+          "$ref": "view-support.ts.json#/$defs/DimensionSourceTarget"
+        },
+        "binding": {
+          "$ref": "binding-editor.ts.json#/$defs/DimensionSourceSavedBinding"
+        }
+      },
+      "required": [
+        "dataSet",
+        "target",
+        "binding"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionSourceEventEditor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DimensionSourceEventEditor",
+      "properties": {
+        "template": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "categories": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "outputFields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventId": {
+          "$ref": "view-support.ts.json#/$defs/Id"
+        },
+        "isNew": {
+          "type": "boolean"
+        },
+        "unknown": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DimensionSourceEventEditorInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.formFields.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.formFields.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.hasDraft.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasDraft.return": {
+          "type": "boolean"
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.723Z",
+  "models": {
+    "DimensionSourceEventEditorInput": {
+      "name": "DimensionSourceEventEditorInput",
+      "jsdoc": "事件编辑器装配输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet；须与 7AB 同处一个 PageRuntime。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceTarget;\n    /** 已保存且无草稿的数据模型来源绑定。 */\n    binding: DimensionSourceSavedBinding;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 维度设计场景（88A4）运行 DataSet；须与 7AB 同处一个 PageRuntime。 */\n    dataSet: DataSet;\n    /** 本次编辑的正式目标。 */\n    target: DimensionSourceTarget;\n    /** 已保存且无草稿的数据模型来源绑定。 */\n    binding: DimensionSourceSavedBinding;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "维度设计场景（88A4）运行 DataSet；须与 7AB 同处一个 PageRuntime。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "本次编辑的正式目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "binding",
+              "jsdoc": "已保存且无草稿的数据模型来源绑定。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DimensionSourceEventEditor": {
+      "name": "DimensionSourceEventEditor",
+      "jsdoc": "数据模型事件合同编辑器；一次实例只服务一个来源绑定。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: DimensionSourceEventEditorInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "DimensionSourceEventEditorInput",
+                "sourcePath": "src/platform-adapters/resources/structured-config/dimension-source/event-editor.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "template",
+              "jsdoc": "按事件编码编辑的事件合同 DataView（editByEvent）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "categories",
+              "jsdoc": "已启用业务分类候选（Biz_Category.enabled）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFields",
+              "jsdoc": "当前模型正式输出字段候选（7AB，值为输出名）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventId",
+              "jsdoc": "当前事件合同行 ID；未装载时为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isNew",
+              "jsdoc": "当前为新建事件合同。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unknown",
+              "jsdoc": "存在保存结果未知的提交。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "formFields",
+              "jsdoc": "事件合同表单字段。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "hasDraft",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "load",
+              "jsdoc": "复核来源绑定与正式模型后装载唯一事件合同；不存在时新增草稿。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "业务核验后以一次 DataSet 保存提交事件合同并回读；无修改返回 false。保存结果未知时重试只核验原提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "丢弃事件合同草稿；保存结果未知时拒绝。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

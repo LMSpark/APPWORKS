@@ -27,6 +27,7 @@ describe('build-packages ordering', () => {
     const order = resolvePackagesInBuildOrder(PACKAGES_DIR, ['spark-ai'])
     expect(order).toEqual([
       'spark-utils',
+      'spark-data',
       'spark-json-document',
       'spark-ai',
     ])

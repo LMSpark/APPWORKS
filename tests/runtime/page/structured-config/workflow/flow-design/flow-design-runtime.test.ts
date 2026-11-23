@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {fixture} from './flow-design-data.fixture'
-import {prepareFlowDesignViews} from '@/lowcode/resources/system/workflow/manage'
+import {prepareFlowDesignViews} from '@/platform-adapters/resources/system/workflow/manage'
 describe('prepareFlowDesignViews',()=>{
  it('returns full bindings from the selected formal model and the same file DataView',async()=>{
   const {runtime,ds}=await fixture(true,false),result=await prepareFlowDesignViews(runtime,'FM-1')

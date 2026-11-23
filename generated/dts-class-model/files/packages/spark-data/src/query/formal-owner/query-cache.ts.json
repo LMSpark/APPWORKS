@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/query-cache",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/query-cache.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/query-cache.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/query-cache",
+    "jsdoc": "@module @/platform-adapters/api:platform/data-space/runtime/query/data-space-query-cache\n职责：复用当前请求域的执行器及在途查询，按DataView显式配置消费spark-data结果缓存。\n边界：默认不缓存完成结果；身份变化销毁旧资源，缓存不落Web Storage。\nAI用途：页面和浏览器会话复用同一正式查询上下文，保存和刷新清除缓存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceQueryCache"
+    ]
+  },
+  "$defs": {
+    "ResultCacheRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResultCacheRequest",
+      "properties": {
+        "page": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
+        "definition": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        },
+        "method.accept.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.accept.return": true
+      }
+    },
+    "DataSpaceQueryCacheOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryCacheOptions",
+      "properties": {
+        "http": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+        },
+        "readScope": {
+          "type": "object",
+          "title": "() => DataSpaceRequestScope"
+        }
+      },
+      "required": [
+        "http",
+        "readScope"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryCacheQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryCacheQueryInput",
+      "properties": {
+        "projection": {
+          "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryProjection"
+        },
+        "identity": {
+          "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "options": {
+          "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        },
+        "config": {
+          "$ref": "request-config.ts.json#/$defs/DataSpaceRequestConfig"
+        },
+        "cache": {
+          "$ref": "#/$defs/ResultCacheRequest"
+        }
+      },
+      "required": [
+        "identity"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryCache": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryCache",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSpaceQueryCacheOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.invalidateResults.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidateResults.return": true,
+        "method.releaseResults.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseResults.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataSpaceQueryCacheQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
+        },
+        "method.executeOnce.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "Omit<DataSpaceQueryCacheQueryInput, 'cache'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeOnce.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.629Z",
+  "models": {
+    "ResultCacheRequest": {
+      "name": "ResultCacheRequest",
+      "jsdoc": "已核定的结果缓存请求，独立于后端GetData线协议。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 页面DataSet身份；省略表示当前owner的浏览器会话范围。 */\n    page?: object;\n    /** 正式模型定义和视图身份，作为查询键的一部分。 */\n    definition: unknown;\n    /** 请求完成时核对页面实例仍可使用，失效后不回填。 */\n    isCurrent(): boolean;\n    /** 缓存前完成正式输出绑定与必要字段检查，失败不缓存。 */\n    accept?(context: DataSpaceQueryContext): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 页面DataSet身份；省略表示当前owner的浏览器会话范围。 */\n    page?: object;\n    /** 正式模型定义和视图身份，作为查询键的一部分。 */\n    definition: unknown;\n    /** 请求完成时核对页面实例仍可使用，失效后不回填。 */\n    isCurrent(): boolean;\n    /** 缓存前完成正式输出绑定与必要字段检查，失败不缓存。 */\n    accept?(context: DataSpaceQueryContext): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "jsdoc": "页面DataSet身份；省略表示当前owner的浏览器会话范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definition",
+              "jsdoc": "正式模型定义和视图身份，作为查询键的一部分。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "isCurrent",
+              "jsdoc": "请求完成时核对页面实例仍可使用，失效后不回填。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "accept",
+              "jsdoc": "缓存前完成正式输出绑定与必要字段检查，失败不缓存。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-data/src/query/formal-owner/query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryCacheOptions": {
+      "name": "DataSpaceQueryCacheOptions",
+      "jsdoc": "查询资源的 HTTP 与 scope 配置，所有资源共享同一请求身份读取器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ConstructorParameters<typeof DataSpaceQueryResource>[0]",
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryCacheQueryInput": {
+      "name": "DataSpaceQueryCacheQueryInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projection",
+              "jsdoc": "正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cache",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryCache": {
+      "name": "DataSpaceQueryCache",
+      "jsdoc": "请求owner内的执行器、在途请求及显式配置的结果复用；保留原权限上下文。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "保存资源配置，后续按场景建立执行器并检查当前 scope。",
+          "signatureText": "constructor(options: DataSpaceQueryCacheOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryCacheOptions",
+                "sourcePath": "packages/spark-data/src/query/formal-owner/query-cache.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "invalidate",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "invalidateResults",
+              "jsdoc": "保留已接纳上下文的有效性，只清除可复用结果及旧在途复用入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "releaseResults",
+              "jsdoc": "页面释放时删除对应DataSet的缓存引用。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "object"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryCacheQueryInput",
+                    "sourcePath": "packages/spark-data/src/query/formal-owner/query-cache.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-data/src/query/formal-owner/query-context.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeOnce",
+              "jsdoc": "服务命令沿原封包/作用域执行一次，明确绕过读取结果与在途请求复用。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataSpaceQueryCacheQueryInput",
+                        "sourcePath": "packages/spark-data/src/query/formal-owner/query-cache.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "cache"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-data/src/query/formal-owner/query-context.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, DataViewFilter} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDatabaseServer} from '@/lowcode/resources/database/server/resource'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDatabaseServer} from '@/platform-adapters/resources/database/server/resource'
 import {
   databaseServerBeginCreate,
   databaseServerCancelEdit,
@@ -9,7 +9,7 @@ import {
   databaseServerTestConnection,
   requireDatabaseServerRegisterView,
   requireDatabaseServerView,
-} from '@/lowcode/resources/database/server/view-ops'
+} from '@/platform-adapters/resources/database/server/view-ops'
 import {
   DATABASE_SERVER_SCENARIO_ID,
   DatabaseServerHttp,
@@ -18,7 +18,7 @@ import {
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseServerHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))

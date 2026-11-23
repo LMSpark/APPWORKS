@@ -4,11 +4,11 @@ import {defineComponent, h, ref} from 'vue'
 import {Spark} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSet} from '@spark-appworks/spark-data'
-import {prepareFlowRunDetailPage, type FlowRunDetailPreparedPage} from '@/lowcode/resources/system/workflow/manage'
+import {prepareFlowRunDetailPage, type FlowRunDetailPreparedPage} from '@/platform-adapters/resources/system/workflow/manage'
 import {useFlowRunDetailPage} from '@/views/features/workflow/flow-runtime/detail/ui/use-flow-run-detail-page'
 
-vi.mock('@/lowcode/resources/system/workflow/manage', async original => ({
-  ...await original<typeof import('@/lowcode/resources/system/workflow/manage')>(), prepareFlowRunDetailPage: vi.fn(),
+vi.mock('@/platform-adapters/resources/system/workflow/manage', async original => ({
+  ...await original<typeof import('@/platform-adapters/resources/system/workflow/manage')>(), prepareFlowRunDetailPage: vi.fn(),
 }))
 afterEach(() => vi.restoreAllMocks())
 

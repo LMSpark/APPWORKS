@@ -12,7 +12,7 @@
 
 ## 当前配置
 
-- `navigation/vue-pages.json`：Vue 系统页注册（路径、组件、`scope` 平台/企业/应用层级、分组与顺序），作为路由组件、平台与企业菜单（`src/lowcode/system-navigation.ts` 投影）和设计器页面选项的配置源。
+- `navigation/vue-pages.json`：Vue 系统页注册（路径、组件、`scope` 平台/企业/应用层级、分组与顺序），作为路由组件、平台与企业菜单（`src/platform-adapters/system-navigation.ts` 投影）和设计器页面选项的配置源。
 - `pages/system-scenarios.json`：仓内系统场景登记，按 scenario 身份指向 `config/pages/**/pagedata.json`，不含应用身份。登记场景正文经 SPARK data file DataView executor 读取，开发态可经 SPARK data 保存，构建态只读；未登记场景继续使用各自正式 lowcode 来源，读取失败不互相回退。
 - `schemas/*.schema.json`：配置协议的 JSON Schema。
 

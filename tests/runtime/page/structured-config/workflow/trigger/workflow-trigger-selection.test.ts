@@ -1,8 +1,8 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {applyWorkflowTriggerSelection} from '@/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {applyWorkflowTriggerSelection} from '@/platform-adapters/resources/structured-config/workflow-definition/trigger/trigger-selection'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {WORKFLOW,topicModels,topicTexts} from '../../catalog/formal-topic.fixture'
 const pages:PageRuntime[]=[]

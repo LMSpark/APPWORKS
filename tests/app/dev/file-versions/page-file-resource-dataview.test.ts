@@ -5,11 +5,11 @@ import appConfig from '../../../../config/pages/application/project-blueprint/pa
 import dataSpaceDesignConfig from '../../../../config/pages/data-platform/data-space-design/pagedata.json'
 import {createPageFileResourceView,createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
-import type {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
+import type {createPageToolFilesIo} from '@/platform-adapters/lowcode-runtime'
 import {readPageToolFileText} from '@/services/project/page-tool-file-operations'
 
 const storage=vi.hoisted(()=>({io:undefined as unknown}))
-vi.mock('@/lowcode/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/lowcode/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
+vi.mock('@/platform-adapters/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/platform-adapters/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
 
 describe('formal ProjectToolFile DataView',()=>{
   it('reads released runtime text without falling back to the working file', async () => {

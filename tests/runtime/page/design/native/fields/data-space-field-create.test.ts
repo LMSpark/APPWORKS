@@ -7,13 +7,13 @@ import {FieldText, FieldValueFunction, FilterValueFunctionDialog, PAGE_RUNTIME, 
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import DataSpaceFieldCreate from '@/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue'
 import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
-import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
+import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 
-vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', async () => {
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', async () => {
   const {DataSet} = await import('@spark-appworks/spark-data')
   return {readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}), loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
     scenarioId, tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},

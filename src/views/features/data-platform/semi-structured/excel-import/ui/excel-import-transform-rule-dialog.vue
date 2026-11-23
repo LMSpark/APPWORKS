@@ -10,8 +10,8 @@
 import {computed,ref} from 'vue'
 import {isRecord} from '@spark-appworks/spark-utils'
 import * as Components from '@spark-appworks/spark-component'
-import {EXCEL_TRANSFORM_RULE_TYPES,EXCEL_TRANSFORM_ERROR_POLICIES,createExcelTransformConfig,excelTransformEnumValue} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
-import {excelTransformFormSchema} from '@/lowcode/resources/semi-structured/excel-import/transform/forms'
+import {EXCEL_TRANSFORM_RULE_TYPES,EXCEL_TRANSFORM_ERROR_POLICIES,createExcelTransformConfig,excelTransformEnumValue} from '@/platform-adapters/resources/semi-structured/excel-import/transform/definition'
+import {excelTransformFormSchema} from '@/platform-adapters/resources/semi-structured/excel-import/transform/forms'
 
 const {PAGE_RUNTIME,useSparkComponent,useDataViewRecordEditing}=Components
 const props=withDefaults(defineProps<{dataViewKey:string;recordId:string|number;fieldOptionsKey:string;created?:boolean}>(),{created:false})

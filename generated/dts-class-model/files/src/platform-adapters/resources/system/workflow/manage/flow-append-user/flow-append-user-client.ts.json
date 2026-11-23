@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-client\n职责：追加办理人候选及添加适配（GetExeUsers / FlowAddReceiveUser）；撤回复用原审批命令适配。\n边界：经 lowcode HTTP 与正式执行域请求；列表查询优先消费 DataView 行筛选。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowAppendUserRequestScope",
+      "FlowAppendUserClientOptions",
+      "FlowAppendUserClient"
+    ]
+  },
+  "$defs": {
+    "FlowAppendUserRequestScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendUserRequestScope",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "token",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "FlowAppendUserClientOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendUserClientOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "#/$defs/FlowAppendUserRequestScope"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "FlowAppendUserClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendUserClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/FlowAppendUserClientOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getExecutionUsers.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "anyOf": [
+                {
+                  "$ref": "flow-append-user-records.ts.json#/$defs/FlowAppendUserContext"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getExecutionUsers.return": {
+          "type": "object",
+          "title": "Promise<readonly unknown[]>"
+        },
+        "method.addReceiveUsers.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "anyOf": [
+                {
+                  "$ref": "flow-append-user-records.ts.json#/$defs/FlowAppendUserContext"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "receiveUserList": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addReceiveUsers.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.788Z",
+  "models": {
+    "FlowAppendUserRequestScope": {
+      "name": "FlowAppendUserRequestScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowAppendUserClientOptions": {
+      "name": "FlowAppendUserClientOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    scenarioId: string;\n    readScope: () => FlowAppendUserRequestScope;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    scenarioId: string;\n    readScope: () => FlowAppendUserRequestScope;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "FlowAppendUserRequestScope",
+                "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FlowAppendUserClient": {
+      "name": "FlowAppendUserClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: FlowAppendUserClientOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "FlowAppendUserClientOptions",
+                "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-client.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getExecutionUsers",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Partial",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "FlowAppendUserContext",
+                            "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addReceiveUsers",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Partial",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "FlowAppendUserContext",
+                            "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-records.ts"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "receiveUserList",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

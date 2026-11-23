@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, type DataColumn} from '@spark-appworks/spark-data'
-import {attachTableSyncMetaDataView} from '@/lowcode/resources/database/dataset-extensions'
+import {attachTableSyncMetaDataView} from '@/platform-adapters/resources/database/dataset-extensions'
 import {DatabaseTableViewHttp} from './catalog/table-view.fixture'
 
 const sets: DataSet[] = []

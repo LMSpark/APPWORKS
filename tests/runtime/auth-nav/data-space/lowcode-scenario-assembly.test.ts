@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, parseRuntimeDataSetPlanFile, resolveDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {ProjectWorkspace, ScenarioDefinitionResource} from '@spark-appworks/spark-project-model'
-import { DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '../../../../packages/spark-project-model/src/scenario/scenario-view-config'
 import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
-import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {LowcodeDataSpaceViewFields} from '../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
+import { LowcodeDataSpaceAssembler } from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceViewFields} from '../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields'
 
 class NoRequest extends HttpClientBase { protected override async executeRequest(): Promise<never> { throw new Error('unexpected request') } }
 const formal = { id: 'MODEL', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders', sourceId: 'DB', sourceType: 'table', primaryKey: 'orderId', businessMain: true,

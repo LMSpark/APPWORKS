@@ -7,9 +7,9 @@ import { SparkData, type DataView } from '@spark-appworks/spark-data'
 import { mountFieldInContext } from '../../../support/helpers/mount-field-in-context'
 import { mount } from '@vue/test-utils'
 import ElementPlus, { ElForm, ElInputNumber } from 'element-plus'
-import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import { DataSpaceDesignApi } from '../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
+import { DataSpaceDesignApi } from '../../../../src/platform-adapters/api/platform/data-space/design/data-space-design-api'
 
 it('reports original UTF-16 coordinates for readonly textarea text selection', async () => {
   const selections: unknown[] = []

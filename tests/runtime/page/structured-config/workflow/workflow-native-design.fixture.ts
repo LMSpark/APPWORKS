@@ -1,6 +1,6 @@
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
-import {createWorkflowScenarioBindings} from '@/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings'
+import {createWorkflowScenarioBindings} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {readFileSync} from 'node:fs'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 export const WORKFLOW_DESIGN='0DD8D28D462F51C5790AA6FBFAE39366'

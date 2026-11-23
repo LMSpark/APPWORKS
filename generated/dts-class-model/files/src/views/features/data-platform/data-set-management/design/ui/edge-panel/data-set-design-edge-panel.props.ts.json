@@ -20,7 +20,7 @@
       "title": "DataSpaceRelationEditorProps",
       "properties": {
         "session": {
-          "$ref": "../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+          "$ref": "../../../../../../../platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
         },
         "rowKey": {
           "anyOf": [
@@ -50,7 +50,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.209Z",
+  "generatedAt": "2026-11-23T08:02:15.278Z",
   "models": {
     "DataSpaceRelationEditorProps": {
       "name": "DataSpaceRelationEditorProps",

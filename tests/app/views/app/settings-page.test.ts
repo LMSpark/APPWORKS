@@ -30,7 +30,7 @@ vi.mock('@/registries/vue-page-registry', () => ({
   getVuePageOptions: () => [{path: '/vue-page'}],
   hasVuePage: (path: string) => path === '/vue-page',
 }))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {application: {get: () => ({application: {name: 'Alpha'}})}},
 }))
 vi.mock('@/services/project/project-shell', () => ({reloadAndSyncNavigation: state.reload}))

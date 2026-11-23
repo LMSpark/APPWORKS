@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/ai/data-entry-host-capability.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "ai/data-entry-host-capability",
-    "jsdoc": "@module @spark-appworks/spark-component:ai/data-entry-host-capability\n职责：定义通用AI批量新增组件与应用级会话owner之间的窄能力合同。\n边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖spark-lowcode-api，也不承载Agent配置或系统提示词。\nAI用途：应用宿主通过此能力把已配置的AI录入会话附着到标准组件，临时卸载时只撤销附件。",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/data-entry-host-capability\n职责：定义通用AI批量新增组件与应用级会话owner之间的窄能力合同。\n边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖平台 HTTP 适配，也不承载Agent配置或系统提示词。\nAI用途：应用宿主通过此能力把已配置的AI录入会话附着到标准组件，临时卸载时只撤销附件。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "AiDataEntrySessionSurface",
@@ -206,7 +206,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.584Z",
+  "generatedAt": "2026-11-23T08:42:45.488Z",
   "models": {
     "AiDataEntrySessionSurface": {
       "name": "AiDataEntrySessionSurface",

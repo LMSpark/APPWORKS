@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest'
 import {isJsonObject} from '@spark-appworks/spark-json-document'
-import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
+import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/platform-adapters/resources/semi-structured/excel-import/layout/definition'
 function complete(){
  const value=createSingleExportLayout('db@head','db@detail')
  const parts=readSingleExportLayout(JSON.stringify(value))!

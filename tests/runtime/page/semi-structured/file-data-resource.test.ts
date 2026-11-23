@@ -1,7 +1,7 @@
 import {File as NodeFile} from 'node:buffer'
 import {DataSet} from '@spark-appworks/spark-data'
-import type {LowcodeBinaryFileUploadReceipt} from '@spark-appworks/spark-lowcode-api'
-import {FILE_DATA_COLUMNS, FILE_DATA_RESOURCE_ID, FILE_DATA_TABLE, FILE_DATA_VIEWS, FileDataResource} from '@/lowcode/resources/semi-structured/file-data/file-data-resource'
+import type {LowcodeBinaryFileUploadReceipt} from '@/platform-adapters/api'
+import {FILE_DATA_COLUMNS, FILE_DATA_RESOURCE_ID, FILE_DATA_TABLE, FILE_DATA_VIEWS, FileDataResource} from '@/platform-adapters/resources/semi-structured/file-data/file-data-resource'
 
 import {config,flushPromises,mount} from '@vue/test-utils'
 import {defineComponent,h} from 'vue'
@@ -13,7 +13,7 @@ import {provideTestPageService} from '../../../support/helpers/page-service-host
 import configText from '../../../../config/pages/semi-structured/file-manager/pagedata.json?raw'
 
 const runtimeSource=vi.hoisted(()=>({dataSet:undefined as DataSet|undefined}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime',()=>({
   loadLowcodeRuntimeScenario:vi.fn(async()=>runtimeSource.dataSet),
 }))
 

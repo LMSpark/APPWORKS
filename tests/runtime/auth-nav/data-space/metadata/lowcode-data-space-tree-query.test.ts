@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
 import { ScenarioViewFile } from '@spark-appworks/spark-project-model'
 import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
 import { RequestState, type TreeConfig } from '@spark-appworks/spark-data'
-import { LowcodeDataSpaceAssembler } from '@/lowcode/data-space/lowcode-data-space-assembler'
+import { LowcodeDataSpaceAssembler } from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import { buildTreeTableRows } from '../../../../../packages/spark-component/src/components/containers/data-views/view-tree-state'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>

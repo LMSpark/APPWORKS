@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, dataSetCommandQueryResultFromLocalRows, ensureDataSetResourceView, ensureDataSetStaticInputTable} from '@spark-appworks/spark-data'
-import {attachDatabaseDirectoryConnectionTestViews, attachServerConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
+import {attachDatabaseDirectoryConnectionTestViews, attachServerConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/platform-adapters/resources/database/dataset-extensions'
 import {DatabaseServerHttp} from './server/resource.fixture'
 
 const sets: DataSet[] = []

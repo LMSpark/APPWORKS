@@ -133,16 +133,7 @@
         "models": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "metaName": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "metaName"
-            ],
-            "additionalProperties": false
+            "$ref": "project-blueprint-record.ts.json#/$defs/BlueprintModel"
           }
         }
       },

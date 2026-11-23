@@ -8,8 +8,8 @@ import {RequestState, type DataView, type DataSetMetadata} from '@spark-appworks
 import {isRecord} from '@spark-appworks/spark-utils'
 import {GraphLayout} from '@spark-appworks/spark-component'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceViewLayout} from '@/lowcode/data-space/view-design/lowcode-data-space-view-layout'
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceViewLayout} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-layout'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 原会话公开的场景文件快照，布局不另持有持久owner。 */
 type FileState = Omit<NonNullable<LowcodeDataSpaceDesignSession['viewState']>, 'text'> & {text: string | null}

@@ -4,7 +4,7 @@
  * 边界：不提供第二套数据、权限或提交接口。
  * AI用途：待配置节点选择来源与已有模型替换；模型目录通过布局节点进入，不直接挂载创建器。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 来源创建组件的当前会话范围。 */
 export type DataSpaceModelSourceProps = {

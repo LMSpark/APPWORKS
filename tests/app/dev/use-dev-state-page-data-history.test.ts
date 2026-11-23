@@ -11,8 +11,8 @@ import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-manage
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
 import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, Spark, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {PageRuntime, ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
@@ -43,7 +43,7 @@ const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterce
 }))
 
 // This consumer fixture supplies C; the metadata chain suite verifies the production loader against formal records.
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
   loadScenarioDataSet: previewLoad,
   assembleLowcodeRuntimeScenario: async (input: {scenarioId: string}) => {
     const result = await previewLoad(input) as {dataSet: DataSet}
@@ -143,7 +143,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   },
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeHttp: {
     get: httpGet,
     post: httpPost,

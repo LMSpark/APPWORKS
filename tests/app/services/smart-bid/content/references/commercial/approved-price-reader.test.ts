@@ -4,8 +4,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredApprovedPrice} from '@/views/features/application/smart-bid/response/model/approved-price-reader'
 import {createApprovedPriceScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/approved-price-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reads only the scoped original approval and rejects mismatched or concealed rows',async()=>{
  const row={id:'ID',scopeRef:'LOT',approvalRef:'A',version:'V1',approverRef:'OWNER',value:'0.00',unit:'%',

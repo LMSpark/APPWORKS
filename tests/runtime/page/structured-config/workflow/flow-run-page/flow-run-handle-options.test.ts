@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest'
 import {
   parseFlowRunHandleNodeOptions,
   readFlowRunAllowForceBack,
-} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
+} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
 
 describe('flow-run-handle-options', () => {
   it('reads raw service ROWID and the original display memo without losing node identity', () => {

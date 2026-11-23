@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
-import {compileLogicViewOutputFields} from '@/lowcode/resources/structured-config/logic-view/output/publication-plan'
-import type {PageDataSpaceModelSourcePrepared} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {compileLogicViewOutputFields} from '@/platform-adapters/resources/structured-config/logic-view/output/publication-plan'
+import type {PageDataSpaceModelSourcePrepared} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 
 const source:PageDataSpaceModelSourcePrepared={
  source:{type:'table',id:'T',name:'Orders',description:'订单',dbid:'DB',databaseName:'Database',providerId:''},

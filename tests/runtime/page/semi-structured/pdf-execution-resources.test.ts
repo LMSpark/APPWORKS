@@ -1,13 +1,14 @@
 import {expect,it,vi} from 'vitest'
 import {readFileSync} from 'node:fs'
-import {DataSpaceRuntimeApi,LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeDesignFileUpload } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey,resolveDataViewKey} from '@spark-appworks/spark-data'
 import {HttpClientBase,isRecord,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createPdfInspectionProjectionBindings,PDF_INSPECTION_HISTORY_TABLE,PDF_INSPECTION_SCENARIO_ID} from '@/lowcode/resources/semi-structured/pdf-inspect/runtime-bindings'
-import {capturePdfInspectionUpload,createPdfInspectionUploadBindings,PDF_INSPECTION_UPLOAD_TABLE,stagePdfInspectionFile} from '@/lowcode/resources/semi-structured/pdf-inspect/upload-command'
-import {createPdfInspectionInitBindings,PDF_INSPECTION_INIT_TABLE,settlePdfInspectionTask,stagePdfInspectionTask} from '@/lowcode/resources/semi-structured/pdf-inspect/init-command'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createPdfInspectionProjectionBindings,PDF_INSPECTION_HISTORY_TABLE,PDF_INSPECTION_SCENARIO_ID} from '@/platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings'
+import {capturePdfInspectionUpload,createPdfInspectionUploadBindings,PDF_INSPECTION_UPLOAD_TABLE,stagePdfInspectionFile} from '@/platform-adapters/resources/semi-structured/pdf-inspect/upload-command'
+import {createPdfInspectionInitBindings,PDF_INSPECTION_INIT_TABLE,settlePdfInspectionTask,stagePdfInspectionTask} from '@/platform-adapters/resources/semi-structured/pdf-inspect/init-command'
 
 class HistoryHttp extends HttpClientBase{
  calls:RequestConfig[]=[]

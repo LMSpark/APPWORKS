@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/index",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/index",
+    "jsdoc": "app 的 platform-adapters/resources/system/workflow/manage/flow-run-page/index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-20T20:59:32.812Z",
+  "models": {}
+}

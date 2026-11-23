@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 断言项目蓝图公共事实源：NodeKind 只定义在 spark-utils，
- * ProjectBlueprintNode class 只定义在 spark-project-model，lowcode-api 只保留后端记录。
+ * ProjectBlueprintNode 和记录归 spark-project-model，lowcode-api 不保留蓝图出口。
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -13,16 +13,22 @@ import { isCliEntrypoint, printViolations, relativePath } from './verifier-commo
 const SSOT_REL = 'packages/spark-utils/src/contract/project-blueprint-node-kind.ts'
 const CONSUMER_RELS = [
   'packages/spark-project-model/src/blueprint/project-blueprint-node.ts',
-  'packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts',
+  'packages/spark-project-model/src/io/project-blueprint-record-codec.ts',
 ]
 const TYPE_NAME = 'ProjectBlueprintNodeKind'
 const CONST_NAME = 'PROJECT_BLUEPRINT_NODE_KINDS'
 const MODEL_NODE_REL = 'packages/spark-project-model/src/blueprint/project-blueprint-node.ts'
-const LOWCODE_NODE_REL = 'packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts'
+const MODEL_RECORD_REL = 'packages/spark-project-model/src/blueprint/project-blueprint-record.ts'
 const NODE_CLASS_NAME = 'ProjectBlueprintNode'
-const LOWCODE_RECORD_NAME = 'LowcodeProjectBlueprintRecord'
-const LOWCODE_SRC_REL = 'packages/spark-lowcode-api/src'
+const RECORD_NAME = 'ProjectBlueprintRecord'
+const LOWCODE_SRC_REL = 'src/platform-adapters/api'
 const FORBIDDEN_LOWCODE_SYMBOLS = [
+  'platform/project-blueprint',
+  'LowcodeProjectBlueprint',
+  'ProjectBlueprintRecord',
+  'BlueprintFileVersion',
+  'LOWCODE_BLUEPRINT_FILE_NAMES',
+  'PageToolPublicationVersion',
   'BlueprintRuntimeNavigation',
   'ProjectBlueprintOutputs',
   'ProjectBlueprintStructureOutputs',
@@ -38,7 +44,7 @@ const FORBIDDEN_LOWCODE_SYMBOLS = [
 ]
 const FORBIDDEN_LOWCODE_CLASS_NAMES = [
   'ProjectBlueprint',
-  'LowcodeProjectBlueprint',
+  NODE_CLASS_NAME,
   'ProjectBlueprintApi',
 ]
 const FORBIDDEN_LOWCODE_TYPE_ALIASES = [
@@ -81,7 +87,7 @@ function scanForbiddenLowcodeSymbols(root, violations) {
       violations.push({
         file: rel,
         line,
-        message: `lowcode-api 禁止回生 ${symbol}；壳导航/领域输出由根 src/lowcode 与 spark-project-model 装配`,
+        message: `平台适配器禁止回生 ${symbol}；壳导航/领域输出由 src/platform-adapters 与 spark-project-model 装配`,
       })
     }
     for (const className of FORBIDDEN_LOWCODE_CLASS_NAMES) {
@@ -91,7 +97,7 @@ function scanForbiddenLowcodeSymbols(root, violations) {
       violations.push({
         file: rel,
         line: line + 1,
-        message: `lowcode-api 禁止领域聚合 class ${className}`,
+        message: `平台适配器禁止领域聚合 class ${className}`,
       })
     }
     for (const typeName of FORBIDDEN_LOWCODE_TYPE_ALIASES) {
@@ -101,7 +107,7 @@ function scanForbiddenLowcodeSymbols(root, violations) {
       violations.push({
         file: rel,
         line: line + 1,
-        message: `lowcode-api 禁止过期正式名 ${typeName}；改用 LowcodeNavigation* / LowcodeProjectBlueprintDocument*`,
+        message: `平台适配器禁止定义 ${typeName}；蓝图领域合同与宿主授权不属于该层`,
       })
     }
   }
@@ -234,25 +240,15 @@ export function verifyProjectBlueprintSsot(root = process.cwd()) {
   }
 
   const modelNodePath = path.join(root, MODEL_NODE_REL)
-  const lowcodeNodePath = path.join(root, LOWCODE_NODE_REL)
-  if (fs.existsSync(modelNodePath) && fs.existsSync(lowcodeNodePath)) {
+  if (fs.existsSync(modelNodePath)) {
     const modelSource = createSource(MODEL_NODE_REL, fs.readFileSync(modelNodePath, 'utf8'))
-    const lowcodeSource = createSource(LOWCODE_NODE_REL, fs.readFileSync(lowcodeNodePath, 'utf8'))
     if (findClass(modelSource, NODE_CLASS_NAME) === null) {
       violations.push({ file: MODEL_NODE_REL, line: 0, message: `缺少唯一领域 class ${NODE_CLASS_NAME}` })
     }
-    const duplicateClass = findClass(lowcodeSource, NODE_CLASS_NAME)
-    if (duplicateClass !== null) {
-      const { line } = lowcodeSource.getLineAndCharacterOfPosition(duplicateClass.getStart(lowcodeSource))
-      violations.push({
-        file: LOWCODE_NODE_REL,
-        line: line + 1,
-        message: `${NODE_CLASS_NAME} 只能由 spark-project-model 定义，lowcode-api 禁止平行领域实体`,
-      })
-    }
-    if (findTypeAlias(lowcodeSource, LOWCODE_RECORD_NAME) === null) {
-      violations.push({ file: LOWCODE_NODE_REL, line: 0, message: `缺少后端记录 ${LOWCODE_RECORD_NAME}` })
-    }
+  }
+  const recordPath = path.join(root, MODEL_RECORD_REL)
+  if (!fs.existsSync(recordPath) || findTypeAlias(createSource(MODEL_RECORD_REL, fs.readFileSync(recordPath, 'utf8')), RECORD_NAME) === null) {
+    violations.push({ file: MODEL_RECORD_REL, line: 0, message: `缺少领域记录 ${RECORD_NAME}` })
   }
 
   scanForbiddenLowcodeSymbols(root, violations)
@@ -268,7 +264,7 @@ function main() {
     process.exitCode = 1
     return
   }
-  console.log(`OK: ${TYPE_NAME} owned by spark-utils; ${NODE_CLASS_NAME} owned by spark-project-model; lowcode records-only`)
+  console.log(`OK: ${TYPE_NAME} owned by spark-utils; ${NODE_CLASS_NAME} and ${RECORD_NAME} owned by spark-project-model`)
 }
 
 if (isCliEntrypoint(import.meta.url)) {

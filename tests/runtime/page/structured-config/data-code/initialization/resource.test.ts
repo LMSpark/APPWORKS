@@ -1,9 +1,9 @@
 import {afterEach,describe,expect,it} from 'vitest'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {codeService,designText,DESIGN} from '../data-code.fixture'
-import {createCodeInitializationView} from '@spark-appworks/spark-lowcode-api'
+import { createCodeInitializationView } from '@/platform-adapters/api'
 
 const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))

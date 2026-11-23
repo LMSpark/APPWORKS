@@ -1,8 +1,8 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {LowcodeApiError,LowcodeDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError, LowcodeDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
-import {WORKFLOW_LAYOUT_COLUMNS,WORKFLOW_LAYOUT_RESOURCE_ID,WORKFLOW_LAYOUT_TABLE,createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
+import {WORKFLOW_LAYOUT_COLUMNS,WORKFLOW_LAYOUT_RESOURCE_ID,WORKFLOW_LAYOUT_TABLE,createWorkflowLayoutExecutor} from '@/platform-adapters/resources/structured-config/workflow-definition/layout/layout-resource'
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 async function fixture(initial:string|null='{"nodes":[{"id":"N1","x":1,"y":2}],"edges":[],"keep":false}'){

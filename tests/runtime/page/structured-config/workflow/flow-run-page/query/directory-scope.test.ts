@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {createFlowRunCandidatesBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
+import {createFlowRunCandidatesBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
 
 it.each(['zero', 'empty', 'hidden-name', 'partial', 'limited', 'replacement'] as const)('keeps directory scope for %s', async mode => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

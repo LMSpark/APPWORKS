@@ -4,7 +4,7 @@
  * 边界：不传递独立数据或保存通道。
  * AI用途：模型删除确认、取消和未决结果核验。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 模型删除入口的实例范围。 */
 export type DataSpaceModelRemovalProps = {

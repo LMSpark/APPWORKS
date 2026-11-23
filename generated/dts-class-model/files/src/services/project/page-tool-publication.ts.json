@@ -509,7 +509,7 @@
                   "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
                 },
                 "fileName": {
-                  "$ref": "../../../packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts.json#/$defs/LowcodeBlueprintFileName"
+                  "$ref": "../../../packages/spark-project-model/src/page/page-tool-publication-version.ts.json#/$defs/PageToolPublicationFileName"
                 },
                 "text": {
                   "type": "string"
@@ -591,7 +591,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-22T17:58:15.676Z",
+  "generatedAt": "2026-11-23T07:50:33.330Z",
   "models": {
     "Progress": {
       "name": "Progress",
@@ -685,7 +685,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<LowcodeBlueprintFileName, Snapshot>>;\n    scenarioSnapshots: Record<string, ScenarioSnapshot>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
+        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<PageToolPublicationFileName, Snapshot>>;\n    scenarioSnapshots: Record<string, ScenarioSnapshot>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
         "members": {
           "attributes": [
             {
@@ -1072,7 +1072,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        intent: PageToolPublicationIntent;\n        fileView: DataView;\n        fileName: LowcodeBlueprintFileName;\n        text: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
+                        "name": "{\n        intent: PageToolPublicationIntent;\n        fileView: DataView;\n        fileName: PageToolPublicationFileName;\n        text: string;\n        assertTarget(): void;\n        onAttempt(name: string): void;\n    }"
                       }
                     ]
                   }

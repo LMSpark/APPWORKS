@@ -3,11 +3,11 @@ import {config,flushPromises,mount,type VueWrapper} from '@vue/test-utils'
 import {defineComponent,h} from 'vue'
 import ElementPlus,{ElDatePicker} from 'element-plus'
 import {PAGE_RUNTIME,Spark,FieldText,FieldDate,RendererButton,RendererDialog,registerAllRenderers,useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
 import CodeInitDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue'
 import {workspaceFixture} from './workspace-fixture'
 import {DESIGN} from '../data-code.fixture'
-vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{},lowcodeHttp:{}}))
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({lowcodeApi:{},lowcodeHttp:{}}))
 const original={...config.global.stubs},wrappers:VueWrapper[]=[]
 beforeEach(()=>{
   registerAllRenderers();const stubs={...original}

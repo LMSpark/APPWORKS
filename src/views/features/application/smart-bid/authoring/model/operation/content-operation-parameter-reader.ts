@@ -4,7 +4,7 @@
  * 边界：不查询伪 ContextManifest/GenerationRun 模型；只读取调用方传入的固定参数和正式 owner receipt。
  * AI用途：页面重查时直接核对原 command、inputDigest、sessionId、turnId 和 actionReceipt。
  */
-import {coerceStrictJsonValue,type JsonValue} from '@spark-appworks/spark-json-document'
+import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -28,6 +28,7 @@ function readDispatch(value:unknown,scope:Scope):SmartBidAgentDispatchResult{
   inputError:'OPERATION_PARAMETER_REQUIRED',scopeError:'OPERATION_PARAMETER_SCOPE',
  })
  const actionReceipt=outcome['actionReceipt']
+ const normalizedActionReceipt=coerceStrictJsonValue(actionReceipt)
  const state=requiredTurnState(outcome['state'])
  if(value['operationId']!==command.operationId||value['requestKey']!==command.requestKey||
   !identity(outcome['sessionId'])||!identity(outcome['turnId'])||outcome['transport']!=='SSE'||
@@ -36,7 +37,7 @@ function readDispatch(value:unknown,scope:Scope):SmartBidAgentDispatchResult{
   state==='ACTION_APPLIED'&&!Object.hasOwn(outcome,'actionReceipt')||
   state==='ACTION_APPLIED'&&outcome['dispatched']!==true||
   state!=='ACTION_APPLIED'&&outcome['dispatched']!==false||
-  actionReceipt!==undefined&&coerceStrictJsonValue(actionReceipt)===undefined)throw Error('OPERATION_PARAMETER_SCOPE')
+  actionReceipt!==undefined&&normalizedActionReceipt===undefined)throw Error('OPERATION_PARAMETER_SCOPE')
  return Object.freeze({
   operationId:command.operationId,requestKey:command.requestKey,
   parameters:command,
@@ -44,7 +45,7 @@ function readDispatch(value:unknown,scope:Scope):SmartBidAgentDispatchResult{
   outcome:Object.freeze({
    sessionId:outcome['sessionId'],turnId:outcome['turnId'],transport:'SSE',state,
    dispatched:outcome['dispatched'],
-   ...(Object.hasOwn(outcome,'actionReceipt')?{actionReceipt:actionReceipt as JsonValue}:{}),
+   ...(normalizedActionReceipt===undefined?{}:{actionReceipt:normalizedActionReceipt}),
    ...(typeof outcome['error']==='string'?{error:outcome['error']}:{}),
   }),
  })

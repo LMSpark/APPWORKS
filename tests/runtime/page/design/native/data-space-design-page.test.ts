@@ -8,14 +8,14 @@ import ElementPlus, {ElButton, ElInputNumber, ElSelect, ElOption, ElTabs, ElTabP
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 import {createTestProjectToolFileExecutor, dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
-import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
+import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet, DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
 import {FilterExpressionEditor, RendererFilterExpression} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
+import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import blueprintConfig from '../../../../../config/pages/application/project-blueprint/pagedata.json'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import DataSpaceQueryPreview from '@/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue'
@@ -33,13 +33,13 @@ import {RendererGraph} from '@spark-appworks/spark-component'
 import {DataSpaceLayoutEdit} from '@/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit'
 import definitionConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 
-vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
   loadLowcodeRuntimeScenario: vi.fn(),
   readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}),
 }))
-vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
-  const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
+vi.mock('@/platform-adapters/lowcode-runtime', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/platform-adapters/lowcode-runtime')>()
   return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {
     readRequestScope: () => ({token:'PAGE-TEST',headers:{'X-AppId':'APP'}}),
   })}

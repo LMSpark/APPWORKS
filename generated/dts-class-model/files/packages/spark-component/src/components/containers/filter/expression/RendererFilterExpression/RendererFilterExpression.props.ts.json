@@ -36,10 +36,10 @@
       "type": "object",
       "title": "FilterColumnTable",
       "properties": {
-        "name": {
+        "label": {
           "type": "string"
         },
-        "label": {
+        "name": {
           "type": "string"
         }
       },
@@ -212,14 +212,14 @@
         "members": {
           "attributes": [
             {
-              "name": "name",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "label",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
             }
           ]
         }

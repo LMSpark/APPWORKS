@@ -9,7 +9,7 @@ import {
   FLOW_RUN_GRAPH_NODE_BADGE_FIELD,
   prepareFlowRunDetailPage,
   type FlowRunDetailPreparedPage,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 
 export type FlowRunDetailRouteQuery = Readonly<{wfid: string; flowid: string}>
 

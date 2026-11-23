@@ -42,6 +42,8 @@ export type {
   ScenarioViewVersionCreateCommand,
 } from './project/project-workspace'
 export type { ProjectBlueprintGateway } from './io/project-blueprint-client'
+export { createProjectBlueprintRecordReader } from './io/project-blueprint-record-store'
+export { decodeProjectBlueprintRows, encodeProjectBlueprintFields } from './io/project-blueprint-record-codec'
 export type { ProjectReferenceGateway } from './io/project-reference-client'
 export type {
   ProjectPageReference,
@@ -53,6 +55,14 @@ export type {
 } from './blueprint/project-blueprint-edit'
 
 // ── 项目蓝图节点与 DTO ──────────────────────────────────────
+
+export { createProjectBlueprintRecord, validateProjectBlueprintRecords } from './blueprint/project-blueprint-record'
+export type { ProjectBlueprintRecord } from './blueprint/project-blueprint-record'
+export type {
+  ProjectBlueprintDocumentKind,
+  ProjectBlueprintDocumentSubmitOptions,
+  ProjectBlueprintDocumentTask,
+} from './blueprint/project-blueprint-document'
 
 export {
   isProjectBlueprintTreeNodeData,
@@ -86,6 +96,14 @@ export type {
 export { PageTool } from './page/page-tool'
 export type { PageToolOptions, PageToolDefinition } from './page/page-tool'
 export { PAGE_TOOL_FILE_NAMES } from './page/page-file'
+export {
+  PAGE_TOOL_PUBLICATION_FILE_NAMES,
+  encodePageToolPublicationVersions,
+  pageToolPublicationVersionKey,
+  pageToolPublicationVersionedFileName,
+  parsePageToolPublicationVersions,
+} from './page/page-tool-publication-version'
+export type { PageToolPublicationFileName } from './page/page-tool-publication-version'
 
 export type {
   PageToolFileName,

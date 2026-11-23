@@ -1,7 +1,7 @@
 import {afterEach,describe,expect,it} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
-import {assertWorkflowNodeOutputChanges} from '@/lowcode/resources/structured-config/workflow-definition/output/node-output-references'
+import {assertWorkflowNodeOutputChanges} from '@/platform-adapters/resources/structured-config/workflow-definition/output/node-output-references'
 import {workflowSourceEditFixture} from '../workflow-source-edit.fixture'
 
 const pages:PageRuntime[]=[]

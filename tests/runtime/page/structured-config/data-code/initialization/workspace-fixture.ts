@@ -1,5 +1,5 @@
 import {fixture} from './fixture'
-import {CodeInitializationWorkspace} from '@/lowcode/resources/structured-config/data-code/initialization-workspace'
+import {CodeInitializationWorkspace} from '@/platform-adapters/resources/structured-config/data-code/initialization-workspace'
 export async function workspaceFixture(){
   const f=await fixture(),calls:Array<{date:string}>=[]
   f.service.http.records['Base_CodeSerialPerform']=[{rowid:'OLD',CodeDesignID:'C1',NodeDesignId:null,NodeCode:'A202611',Code:'003'}]

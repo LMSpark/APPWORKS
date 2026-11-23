@@ -9,13 +9,10 @@ import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { getNavTree, resolveNavNodeRuntimeTarget, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
  type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
-import { PageTool, parseConfigToolPageId, type PageToolFileName } from '@spark-appworks/spark-project-model'
 import {
-  encodeLowcodeBlueprintFileVersions,
-  lowcodeBlueprintFileVersionKey,
-  parseLowcodeBlueprintFileVersions,
-  type LowcodeBlueprintFileName,
-} from '@spark-appworks/spark-lowcode-api'
+  PAGE_TOOL_FILE_NAMES, PageTool, encodePageToolPublicationVersions, pageToolPublicationVersionKey,
+  parseConfigToolPageId, parsePageToolPublicationVersions, type PageToolFileName, type PageToolPublicationFileName,
+} from '@spark-appworks/spark-project-model'
 import { buildConfigPageNavigationPath, readConfigPageScenarioCall } from '@/services/application-scope'
 import { onPageConfigChange } from '@/services/sse-events'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
@@ -28,11 +25,11 @@ import {
   type PageToolPublicationScenarioSource,
 } from '@/services/project/page-tool-publication'
 import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
-import { lowcodeApi, readLowcodeRuntimeDatasetPlan } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi, readLowcodeRuntimeDatasetPlan } from '@/platform-adapters/lowcode-runtime'
 import type { DevState } from '../blueprint-state/useDevState'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
-const DELIVERY_FILES = ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]
+const DELIVERY_FILES = PAGE_TOOL_FILE_NAMES
 
 export function resolvePageToolCall(tool: PageTool, target: string, mainScenarioId?: string) {
   if (parseConfigToolPageId(target) !== tool.pageId) throw new Error('配置工具调用目标与页面身份不符')
@@ -323,12 +320,12 @@ export function usePageDesign(state: DevState) {
     const mainScenarioId = String(current.value('conid') ?? '').trim()
     const originalVersionId = String(current.value('VersionId') ?? '')
     let expectedVersionId = originalVersionId
-    let fileViews=new Map<LowcodeBlueprintFileName,DataView>()
+    let fileViews=new Map<PageToolPublicationFileName,DataView>()
     const written: string[] = []
     const confirmed: string[] = []
     const attemptedSnapshots: string[] = []
     const attemptedReferences: string[] = []
-    const readFileText=(fileName:LowcodeBlueprintFileName):string=>{
+    const readFileText=(fileName:PageToolPublicationFileName):string=>{
       const view=fileViews.get(fileName)
       const row=view?.currentRow
       const id=view&&row?view.getPkKey(row):undefined
@@ -390,7 +387,7 @@ export function usePageDesign(state: DevState) {
     const finishPublication = async () => {
       assertTarget()
       const readbackVersions = String(current.value('VersionId') ?? '').trim()
-      if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) {
+      if (encodePageToolPublicationVersions(parsePageToolPublicationVersions(readbackVersions)) !== expectedVersionId) {
         throw new Error('四文件发布指针回读不一致')
       }
       recoverPublication = undefined
@@ -465,7 +462,7 @@ export function usePageDesign(state: DevState) {
       }))
       assertTarget()
       const intent = journal.open(call, digest, originalVersionId)
-      let versions = parseLowcodeBlueprintFileVersions(expectedVersionId.trim())
+      let versions = parsePageToolPublicationVersions(expectedVersionId.trim())
       const fileSources: PageToolPublicationFileSource[] = []
       for (const fileName of DELIVERY_FILES) {
         assertTarget()
@@ -480,7 +477,7 @@ export function usePageDesign(state: DevState) {
         written.push(`${version}__${fileName}`)
         fileSources.push({fileName, version, text})
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
-        versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
+        versions = Object.freeze({ ...versions, [pageToolPublicationVersionKey(fileName)]: version })
       }
       const pagedataSources: PageToolPublicationScenarioSource[] = []
       if (!useDatasetPublication) {
@@ -538,7 +535,7 @@ export function usePageDesign(state: DevState) {
       assertTarget()
       written.push(`${manifestVersion}__publication-manifest.json`)
       versions = Object.freeze({...versions, manifest: manifestVersion})
-      expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
+      expectedVersionId = encodePageToolPublicationVersions(versions)
       if(originalVersionId===expectedVersionId){
         assertTarget()
         await finishPublication()

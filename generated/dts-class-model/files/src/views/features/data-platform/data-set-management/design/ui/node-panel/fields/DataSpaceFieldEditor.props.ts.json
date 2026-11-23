@@ -20,7 +20,7 @@
       "title": "DataSpaceFieldEditorProps",
       "properties": {
         "session": {
-          "$ref": "../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+          "$ref": "../../../../../../../../platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
         },
         "fieldId": {
           "type": "string"
@@ -61,7 +61,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.220Z",
+  "generatedAt": "2026-11-23T08:02:15.283Z",
   "models": {
     "DataSpaceFieldEditorProps": {
       "name": "DataSpaceFieldEditorProps",

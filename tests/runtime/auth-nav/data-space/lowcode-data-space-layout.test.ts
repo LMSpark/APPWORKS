@@ -4,8 +4,8 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 
 const transport = { request: vi.fn() }
 const originalTransport = Object.getOwnPropertyDescriptor(Request.prototype, 'executeRequest')
-let runtime: typeof import('../../../../src/lowcode/lowcode-runtime')
-let layout: typeof import('../../../../src/lowcode/data-space/lowcode-data-space-layout').lowcodeDataSpaceLayout
+let runtime: typeof import('../../../../src/platform-adapters/lowcode-runtime')
+let layout: typeof import('../../../../src/platform-adapters/data-space/lowcode-data-space-layout').lowcodeDataSpaceLayout
 
 function selectApplication(applicationId = 'APP-1'): void {
   runtime.lowcodeApi.session.save({ accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
@@ -25,8 +25,8 @@ describe('lowcode data space layout reader', () => {
       ...originalTransport,
       value: async (config: RequestConfig) => transport.request(config),
     })
-    runtime = await import('../../../../src/lowcode/lowcode-runtime')
-    ;({ lowcodeDataSpaceLayout: layout } = await import('../../../../src/lowcode/data-space/lowcode-data-space-layout'))
+    runtime = await import('../../../../src/platform-adapters/lowcode-runtime')
+    ;({ lowcodeDataSpaceLayout: layout } = await import('../../../../src/platform-adapters/data-space/lowcode-data-space-layout'))
   }, 60000)
   afterAll(() => { if (originalTransport) Object.defineProperty(Request.prototype, 'executeRequest', originalTransport) })
   afterEach(() => {

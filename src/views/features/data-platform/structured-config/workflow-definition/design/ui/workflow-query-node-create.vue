@@ -52,11 +52,11 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,RendererTable,FieldSelect,FieldText} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
-import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
+import {LowcodeDataSpaceSourceCatalog} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
-import {openWorkflowNodeModelBinding,type WorkflowNodeModelBinding} from '@/lowcode/resources/structured-config/workflow-definition/source/query-node-create'
+import {openWorkflowNodeModelBinding,type WorkflowNodeModelBinding} from '@/platform-adapters/resources/structured-config/workflow-definition/source/query-node-create'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;disabled?:boolean;onCreated?:(id:string)=>void|Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const controls=shallowRef<DataSpaceSourceControls>(),owner=shallowRef<WorkflowNodeModelBinding>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)

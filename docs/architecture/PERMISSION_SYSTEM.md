@@ -71,12 +71,12 @@ DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。�
 
 | 内容 | 位置 |
 |---|---|
-| 双通道与行能力 | 当前位于 `packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts`；目标归 SPARK Data owner 合同 |
-| 原查询与保存基线 | 当前位于 `packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts`；目标归 DataView owner 生命周期 |
+| 双通道与行能力 | 当前位于 `src/platform-adapters/api/platform/data-space/runtime/protocol/data-space-permission.ts`；目标归 SPARK Data owner 合同 |
+| 原查询与保存基线 | 当前位于 `src/platform-adapters/api/platform/data-space/runtime/query/data-space-query-context.ts`；目标归 DataView owner 生命周期 |
 | 查询/保存 owner 与实际请求 | `data-space-runtime-api.ts`、`protocol/data-space-request.ts`（同 runtime 目录） |
 | DataView 查询、呈现与回执 | `packages/spark-data/src/data-view.ts` |
-| 模型装配 | `src/lowcode/data-space/lowcode-data-space-assembler.ts` |
+| 模型装配 | `src/platform-adapters/data-space/lowcode-data-space-assembler.ts` |
 | 组件消费 | `packages/spark-component/src/permission/`、`components/fields/context/useFieldPermission.ts` |
 | 参考 SPARK API | `E:/r/sparkproject/packages/data/spark-api/src/protocol/permissions.ts`、`public/query-permission.ts` |
 | 后端字段及强验证 | `RowPermissionHandler.java`、`PermissionAssembler.java`、`DataPermissionAspect.java`、`PermCompactToken.java`（lowcode-jdk17） |
-| 权限/保存合同测试 | `packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-permission-parity.test.ts`、`data-space-save-parity.test.ts`；`tests/auth-nav/`、`tests/renderer/` 中权限消费者测试 |
+| 权限/保存合同测试 | `src/platform-adapters/api/platform/data-space/runtime/tests/data-space-permission-parity.test.ts`、`data-space-save-parity.test.ts`；`tests/auth-nav/`、`tests/renderer/` 中权限消费者测试 |

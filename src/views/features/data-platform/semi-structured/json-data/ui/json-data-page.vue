@@ -10,7 +10,7 @@ import {NativePageRuntimeSession,useSystemPageDirtySource} from '@spark-appworks
 import {DisplayAlert,SparkPageRenderer} from '@spark-appworks/spark-component'
 import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
 import {APPLICATION_CATALOG_PROJECT_ID,resolveExecutionProjectId} from '@/services/application-scope'
-import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import {LowcodeJsonData} from '@/platform-adapters/resources/semi-structured/json-data/resource'
 import {createJsonDataScriptHost} from './json-data-script-host'
 import rule from './rule.json?raw'
 import script from './script.js?raw'

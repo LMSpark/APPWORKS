@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest'
-import {parseFlowRunExecUsers} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-exec-users'
+import {parseFlowRunExecUsers} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users'
 it.each([true, [], {}, '   '])('rejects a nonnumeric people limit %j instead of coercing it to a count', value => {
   expect(() => parseFlowRunExecUsers({execUser: [{nodeId: 'N', minNum: value, maxNum: 2, userList: []}]})).toThrow()
 })

@@ -36,8 +36,8 @@ import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
-import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
+import {WorkflowConnectorCondition} from '@/platform-adapters/resources/structured-config/workflow-definition/connector-condition'
+import {WorkflowConnectors} from '@/platform-adapters/resources/structured-config/workflow-definition/connectors'
 const props=defineProps<{
  /** 本次宿主提供的唯一元数据实例。 */
  dataSet:DataSet

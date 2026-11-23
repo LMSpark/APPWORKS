@@ -5,14 +5,14 @@ import {createRouter,createMemoryHistory} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import {defineComponent, h, ref, isRef, type Ref} from 'vue'
 import {fixture} from './flow-design-data.fixture'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID, saveFlowDesignInfo} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
-vi.mock('@/lowcode/resources/system/workflow/manage', async importOriginal => ({
-  ...await importOriginal<typeof import('@/lowcode/resources/system/workflow/manage')>(),
+vi.mock('@/platform-adapters/resources/system/workflow/manage', async importOriginal => ({
+  ...await importOriginal<typeof import('@/platform-adapters/resources/system/workflow/manage')>(),
   saveFlowDesignInfo: vi.fn(async () => ({complete:true})),
 }))
 

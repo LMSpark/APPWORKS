@@ -8,8 +8,8 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldFileBrowser, FieldFilePath, FieldImage, FieldUpload, PageUploadError, PAGE_RUNTIME, PAGE_SERVICE,
   RendererForm, Spark, useSparkComponent, type PageUploadedFile} from '@spark-appworks/spark-component'
 import {buildPageService} from '../../../../packages/spark-component/src/page/services/buildPageService'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const components: Array<{name: string; component: Component; browse: boolean}> = [
   {name: 'upload', component: FieldUpload, browse: false},

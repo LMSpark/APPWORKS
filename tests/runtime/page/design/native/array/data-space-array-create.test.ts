@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
-import {LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
+import {LowcodeDataSpaceArrayDraft} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[]=[]
 afterEach(()=>{vi.restoreAllMocks();fixtures.splice(0).forEach(f=>f.dispose())})

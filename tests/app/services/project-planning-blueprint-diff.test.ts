@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
+import { decodeProjectBlueprintRows } from '@spark-appworks/spark-project-model'
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { planProjectBlueprintReplacement } from '@/services/project-planning/project-planning-blueprint-diff'
 
@@ -60,8 +60,8 @@ describe('projectPlanning full-tree replacement plan', () => {
     const baseRow = {rowid: 'item', prowid: 'root', SysId: projectId, name: 'item', FunName: 'item', conType: 'Navitem'}
     const clearedFields = planProjectBlueprintReplacement(root([zero]), [empty], {projectId}).commands[0]!.fields
     const zeroFields = planProjectBlueprintReplacement(root([empty]), [zero], {projectId}).commands[0]!.fields
-    const cleared = normalizeLowcodeProjectBlueprintRecords([{...baseRow, ...clearedFields}])[0]
-    const configured = normalizeLowcodeProjectBlueprintRecords([{...baseRow, ...zeroFields}])[0]
+    const cleared = decodeProjectBlueprintRows([{...baseRow, ...clearedFields}])[0]
+    const configured = decodeProjectBlueprintRows([{...baseRow, ...zeroFields}])[0]
 
     expect(cleared?.navigation?.openMode).toBeUndefined()
     expect(cleared?.navigation?.displayMode).toBeUndefined()

@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
-import {canRevokeFlowAppendRecord} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
-import {readFlowAppendReceivers} from '@/lowcode/resources/system/workflow/manage/flow-append-user/command-input'
+import {canRevokeFlowAppendRecord} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
+import {readFlowAppendReceivers} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/command-input'
 
 it('validates immutable receiver values and the original revoke rule', () => {
   expect(readFlowAppendReceivers(['U1:A'])).toEqual(['U1:A'])

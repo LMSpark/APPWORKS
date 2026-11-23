@@ -12,7 +12,7 @@ import { collectSourceFiles, forEachParsedSource, isCliEntrypoint, lineFor, prin
  * 基线只许收紧：现存违规登记在基线，新增即失败，减少须 --update 收档。
  */
 export const PAGE_THIN_BASELINE_FILE = 'tools/page-thin-baseline.json'
-const ROOTS = ['src/views/features', 'src/lowcode']
+const ROOTS = ['src/views/features', 'src/platform-adapters']
 const RULES = [
   { id: 'command-status', pattern: /'(?:idle|previewing|saving|unknown|readback)'\s*\|(?!\|)/gu, message: '命令状态机（应由 spark-data 公共能力承接）' },
   { id: 'static-copy', pattern: /resourceType\s*=\s*['"]static-data['"]/gu, message: '页面自建 static-data 表（须证明不是正式数据副本）' },

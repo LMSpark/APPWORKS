@@ -7,7 +7,7 @@ import RendererFilter from '../../../../packages/spark-component/src/components/
 import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import type {RFilterProps} from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.types'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../../runtime/page/api-provider/api-provider.fixture'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 

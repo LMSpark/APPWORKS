@@ -12,7 +12,7 @@ import type {
   AiAgentTurnCallbacks,
 } from '@spark-appworks/spark-ai/agent'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { lowcodeRealtime } from '@/platform-adapters/lowcode-runtime'
 import { onAnyServerEnvelopeEvent, waitForAppSseConnection } from '@/services/sse-events'
 
 const AI_TURN_EVENT_TIMEOUT_MS = 300_000
@@ -120,7 +120,7 @@ export function createAiAgentTurnCallbacks(options: AiAgentTurnBridgeOptions = {
         })
         // lowcode /api/ai/turns 每次创建一段新的持久会话；不复用 spark-ai
         // 的本地业务 sessionId，避免覆盖或重复创建已有后端会话。
-        const ack = await lowcodeApi.realtime.startAgentTurn({ agentId, message })
+        const ack = await lowcodeRealtime.startAgentTurn({ agentId, message })
         options.onAccepted?.({sessionId:ack.sessionId,turnId:ack.turnId,localTurnId:input.turn.turnId})
         collector.bind(ack)
         const outcome = await collector.result
@@ -174,7 +174,7 @@ export function createAiAgentTurnCallbacks(options: AiAgentTurnBridgeOptions = {
           turnId: binding.pendingTurnId,
           details: { toolResultCount: toolResults.length },
         })
-        await lowcodeApi.realtime.appendAgentToolResults({
+        await lowcodeRealtime.appendAgentToolResults({
           sessionId: binding.sessionId,
           turnId: binding.pendingTurnId,
           toolResults,

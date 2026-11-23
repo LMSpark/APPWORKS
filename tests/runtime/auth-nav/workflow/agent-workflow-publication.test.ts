@@ -1,9 +1,9 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
-import {LowcodeApiError, type LowcodeDesignApi, type LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError, type LowcodeDesignApi, type LowcodeDesignFileUpload } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {AGENT_WORKFLOW_PUBLICATION_TABLE, createAgentWorkflowPublicationBindings} from '@/lowcode/resources/repository/agent-workflow/publication'
+import {AGENT_WORKFLOW_PUBLICATION_TABLE, createAgentWorkflowPublicationBindings} from '@/platform-adapters/resources/repository/agent-workflow/publication'
 
 type FileLocator = Parameters<LowcodeDesignApi['readTextFile']>[0]
 type UploadText = Parameters<LowcodeDesignFileUpload['uploadTextVersion']>[0]

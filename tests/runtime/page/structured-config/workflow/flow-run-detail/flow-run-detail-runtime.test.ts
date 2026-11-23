@@ -3,7 +3,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 
 import {fixture} from '../flow-design/flow-design-data.fixture'
 
-const {FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID, prepareFlowRunDetailPage} = await import('@/lowcode/resources/system/workflow/manage')
+const {FLOW_DESIGN_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID, prepareFlowRunDetailPage} = await import('@/platform-adapters/resources/system/workflow/manage')
 
 const MONITOR_SCENARIO_ID = 'E328FBBF518141973C575D612CD75151'
 

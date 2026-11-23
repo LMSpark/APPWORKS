@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {buildWorkflowOperationOutput,workflowOperationOutputFields,workflowOperationOutputText} from '@/lowcode/resources/structured-config/workflow-definition/output/operation-output'
+import {buildWorkflowOperationOutput,workflowOperationOutputFields,workflowOperationOutputText} from '@/platform-adapters/resources/structured-config/workflow-definition/output/operation-output'
 
 const model={rowid:'M',dataSetId:'W',Type:'数据库表',requestType:'add',DbId:'DB',DbName:'database',MetaName:'Business'}
 const physical=[{Name:'rowid',FieldType:'varchar',IsPKey:1},{Name:'ReportID',FieldType:'varchar',IsPKey:0},{Name:'flowstate',FieldType:'int',IsPKey:0},{Name:'lingma_sys_ent',FieldType:'varchar',IsPKey:1}]

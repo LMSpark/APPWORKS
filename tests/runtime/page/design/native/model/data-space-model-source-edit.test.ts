@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 import {RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {createModelSourceEditHost, createModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
+import {createModelSourceEditHost, createModelSourceEditHandle} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []

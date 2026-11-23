@@ -1,5 +1,5 @@
-import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import type {DataSpaceDesignApi} from '@/platform-adapters/api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import myRequests from '../../../../config/pages/application/enterprise-app-auth/my-requests/pagedata.json'
 import apply from '../../../../config/pages/application/enterprise-app-auth/apply/pagedata.json'
 import review from '../../../../config/pages/application/enterprise-app-auth/review/pagedata.json'

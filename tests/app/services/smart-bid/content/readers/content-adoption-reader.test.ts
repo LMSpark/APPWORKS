@@ -4,8 +4,8 @@ import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapsh
 import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
 import {inspectRegisteredAdoption,readContentAdoption} from '@/views/features/application/smart-bid/authoring/model/adoption/content-adoption-reader'
 import {prepareAdoptedProduction} from '@/views/features/application/smart-bid/authoring/model/adoption/adopted-production-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const request={candidateRevisionId:'C',requestKey:'K',requestDigest:'D',previewRef:'PV'}
 it('recomputes the old merge root from its exact baseline and withdraws proof when the baseline reloads',async()=>{

@@ -1,13 +1,13 @@
 import {afterEach, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {createSourceFixture} from '../../structured-config/data-code/source-picker/fixture'
-import {projectExcelTarget, stageExcelTarget} from '@/lowcode/resources/semi-structured/excel-import/target-selection'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {projectExcelTarget, stageExcelTarget} from '@/platform-adapters/resources/semi-structured/excel-import/target-selection'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {EXCEL_DESIGN, excelDesignModels, designText} from './excel-import-design.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
-import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
+import {ExcelConfigurationEdit} from '@/platform-adapters/resources/semi-structured/excel-import/configuration-edit'
 const disposers: Array<() => void> = []
 afterEach(() => disposers.splice(0).forEach(dispose => dispose()))
 async function source() {

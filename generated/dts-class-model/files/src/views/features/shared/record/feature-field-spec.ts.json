@@ -57,9 +57,9 @@
         "kind": {
           "enum": [
             "number",
+            "text",
             "select",
             "radio",
-            "text",
             "textarea",
             "switch"
           ]

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings",
+    "sourcePath": "src/platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
+    "sourceFile": "src/platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/runtime-bindings\n职责：把正式 PDF 场景的限制、历史、结果与恢复投影接入 SPARK Data。\n边界：沿当前应用作用域读取原任务，运行时只读绑定不创建任务。\nAI用途：核对 PDF 查询视图的授权、资源身份和生命周期。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:03:44.211Z",
+  "models": {}
+}

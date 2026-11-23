@@ -1,8 +1,8 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {openWorkflowQuerySourceNodeCommit} from '@/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit'
+import {openWorkflowQuerySourceNodeCommit} from '@/platform-adapters/resources/structured-config/workflow-definition/source/query-source-node-commit'
 import {workflowSourceEditFixture} from '../workflow-source-edit.fixture'
-import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 const output=[{rowid:'ITEMS',pid:null,Name:'items',FieldType:'Array',isParent:true,keep:{future:true}},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},

@@ -5,11 +5,11 @@
 import {computed, onBeforeUnmount, reactive, ref, shallowRef, toRaw, watch} from 'vue'
 import {buildDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useDataViewState, useSparkComponent} from '@spark-appworks/spark-component'
-import {normalizeFlowAppendUserContext, type FlowAppendUserContext} from '@/lowcode/resources/system/workflow/manage'
-import {FlowAppendInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace'
-import {canRevokeFlowAppendRecord} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
-import {captureFlowAppendStep, queryFlowAppendParticipants} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list'
-import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {normalizeFlowAppendUserContext, type FlowAppendUserContext} from '@/platform-adapters/resources/system/workflow/manage'
+import {FlowAppendInputWorkspace} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace'
+import {canRevokeFlowAppendRecord} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-records'
+import {captureFlowAppendStep, queryFlowAppendParticipants} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-list'
+import {submitApprovalCommand, verifyApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
 
 export type UseFlowAppendUserOptions = Readonly<{

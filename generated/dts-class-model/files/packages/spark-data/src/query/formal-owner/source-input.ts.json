@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/source-input",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/source-input.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/source-input.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/source-input",
+    "jsdoc": "@module @/platform-adapters/api:platform/data-space/runtime/query/data-space-source-input\n职责：将正式来源入参映射应用到一次已捕获的业务输入。\n边界：只执行明确的输入引用和JSON常量，不模拟服务端系统值或身份。\nAI用途：保留输入类型、映射优先级和同次取值快照，拒绝无执行合同的函数。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceSourceInput"
+    ]
+  },
+  "$defs": {
+    "DataSpaceSourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSourceInput",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validateBindings.params": {
+          "type": "object",
+          "properties": {
+            "bindings": {
+              "type": "array",
+              "items": {
+                "$ref": "formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+              }
+            },
+            "mode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateBindings.return": true,
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "bindings": {
+              "type": "array",
+              "items": {
+                "$ref": "formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+              }
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryInput"
+              }
+            },
+            "mode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryInput"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T09:26:00.191Z",
+  "models": {
+    "DataSpaceSourceInput": {
+      "name": "DataSpaceSourceInput",
+      "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validateBindings",
+              "jsdoc": "校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。",
+              "parameters": [
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceSourceInputBinding[]"
+                  }
+                },
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapped"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "direct"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resolve",
+              "jsdoc": "mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。",
+              "parameters": [
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceSourceInputBinding[]"
+                  }
+                },
+                {
+                  "name": "inputs",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "readonly DataSpaceQueryInput[]"
+                    }
+                  }
+                },
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapped"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "direct"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataSpaceQueryInput[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row\n职责：从工作台各页签行解析办理/详情路由参数。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowWorkbenchRowRoute"
+    ]
+  },
+  "$defs": {
+    "FlowWorkbenchRowRoute": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowWorkbenchRowRoute",
+      "properties": {
+        "wfid": {
+          "type": "string"
+        },
+        "flowid": {
+          "type": "string"
+        },
+        "stepId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "wfid",
+        "flowid",
+        "stepId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.852Z",
+  "models": {
+    "FlowWorkbenchRowRoute": {
+      "name": "FlowWorkbenchRowRoute",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    wfid: string;\n    flowid: string;\n    stepId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    wfid: string;\n    flowid: string;\n    stepId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "wfid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stepId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

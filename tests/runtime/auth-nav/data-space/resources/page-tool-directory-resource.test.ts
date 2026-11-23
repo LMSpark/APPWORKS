@@ -4,7 +4,7 @@ import scenario from '../../../../../config/pages/data-platform/data-space-desig
 import {createPageFileDirectoryView} from '@/services/project/page-tool-file-dataview'
 
 const io = vi.hoisted(() => ({list: vi.fn(async (_appId: string, _pageId: string) => Array.from({length: 31}, (_, index) => `${index}.json`))}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({createPageToolFilesIo: () => io}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({createPageToolFilesIo: () => io}))
 
 function fixture() {
   io.list.mockClear()

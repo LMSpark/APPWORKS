@@ -79,7 +79,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.011Z",
+  "generatedAt": "2026-11-23T08:02:15.349Z",
   "models": {
     "WorkflowNodeDraft": {
       "name": "WorkflowNodeDraft",

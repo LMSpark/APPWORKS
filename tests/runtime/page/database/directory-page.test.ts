@@ -10,10 +10,10 @@ import {NAV_KEY, useNavigation, type NavigationContext, type RuntimeNavigationIt
 import type {DataRow, DataView as SparkDataView} from '@spark-appworks/spark-data'
 import DatabaseDirectoryPage from '@/views/DataBaseManage/DataBaseManage/index.vue'
 import {DATABASE_TABLE_VIEW_SCENARIO_ID, DatabaseTableViewHttp, bootstrapDatabaseTableViewRuntime} from './catalog/table-view.fixture'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {DATABASE_CATALOG_DB_MODEL} from '@/lowcode/resources/database/catalog/table-view'
-import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/directory'
-import {attachDatabaseDirectoryConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {DATABASE_CATALOG_DB_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
+import {LowcodeDatabaseDirectory} from '@/platform-adapters/resources/database/directory'
+import {attachDatabaseDirectoryConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/platform-adapters/resources/database/dataset-extensions'
 import {databaseTableViewModels} from './catalog/table-view.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {buildComponentMap} from '@/registries/vue-page-registry'
@@ -25,7 +25,7 @@ const mocks = vi.hoisted(() => ({
   activePath: [] as RuntimeNavigationItem[],
 }))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: mocks.readRequestScope, readAuthenticatedRequestScope: mocks.readAuthenticatedRequestScope,
     application: {get: mocks.application}, dataSpace: {design: mocks, get runtime() {return runtime}}},
@@ -459,7 +459,7 @@ describe('database directory page', () => {
     const row = dbView.rows[0]!
     const id = dbView.getPkKey(row)!
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
-    const ops = await import('@/lowcode/resources/database/catalog/db-view-ops')
+    const ops = await import('@/platform-adapters/resources/database/catalog/db-view-ops')
     let unconfirmed = false
     const deletion = vi.spyOn(ops, 'databaseCatalogDbDelete').mockImplementation(async () => {
       if (!unconfirmed) {
@@ -503,7 +503,7 @@ describe('database directory page', () => {
   it('discards a late create result after the old page instance is replaced', async () => {
     let releaseCreate!: () => void
     const gate = new Promise<void>(resolve => {releaseCreate = resolve})
-    const ops = await import('@/lowcode/resources/database/catalog/db-view-ops')
+    const ops = await import('@/platform-adapters/resources/database/catalog/db-view-ops')
     const original = ops.databaseCatalogDbBeginCreate
     const pending = vi.spyOn(ops, 'databaseCatalogDbBeginCreate').mockImplementation(async (...args) => {
       const edit = await original(...args)
@@ -527,7 +527,7 @@ describe('database directory page', () => {
   it('does not publish a late unregistered-name result into the replacement page instance', async () => {
     let releaseQuery!: (names: readonly string[]) => void
     const gate = new Promise<readonly string[]>(resolve => {releaseQuery = resolve})
-    const ops = await import('@/lowcode/resources/database/catalog/db-view-ops')
+    const ops = await import('@/platform-adapters/resources/database/catalog/db-view-ops')
     const pending = vi.spyOn(ops, 'databaseCatalogQueryUnregisteredDbNames').mockReturnValue(gate)
     const wrapper = await open()
     await selectRow(wrapper.findAllComponents(RendererTable)[0]!)

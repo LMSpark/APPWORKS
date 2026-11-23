@@ -12,6 +12,7 @@
     "noEmitOnError": true,
     "composite": false,
     "paths": {
+      "@spark-appworks/spark-data": ["../spark-data/dist/index.d.ts"],
       "@spark-appworks/spark-utils": ["../spark-utils/dist/index.d.ts"],
       "@spark-appworks/spark-json-document": ["../spark-json-document/dist/index.d.ts"],
       "@spark-appworks/spark-json-document/schema": ["../spark-json-document/dist/schema/index.d.ts"],

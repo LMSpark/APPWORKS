@@ -1,6 +1,6 @@
 import { deepClone, isProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
-import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
-import { createLowcodeProjectBlueprintRecord, lowcodeProjectBlueprintFields } from '@spark-appworks/spark-lowcode-api'
+import { createProjectBlueprintRecord, encodeProjectBlueprintFields,
+  type ProjectBlueprintTreeData, type ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 
 type WireFields = Record<string, string | number | null>
 
@@ -209,13 +209,13 @@ function assertWireRepresentable(node: ProjectBlueprintTreeNodeData, previous?: 
 }
 
 function toWireFields(node: ProjectBlueprintTreeNodeData): WireFields {
-  const record = createLowcodeProjectBlueprintRecord({
+  const record = createProjectBlueprintRecord({
     nodeId: node.nodeId, parentNodeId: node.parentNodeId, projectId: node.projectId, kind: node.kind,
     capability: node.capability, ...(node.navigation === undefined ? {} : {navigation: node.navigation}),
     ...(node.dataSpace === undefined ? {} : {dataSpace: node.dataSpace}),
     ...(node.prototype === undefined ? {} : {prototype: node.prototype}), source: node.source,
   })
-  const fields: WireFields = lowcodeProjectBlueprintFields(record)
+  const fields: WireFields = encodeProjectBlueprintFields(record)
   if (node.navigation?.openMode === undefined) fields['NavigationType'] = null
   if (!node.navigation?.displayMode?.trim()) fields['NavigationShowType'] = null
   return fields

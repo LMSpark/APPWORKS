@@ -1,7 +1,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {SparkData,RequestState,DataViewFilter,DataViewFilterCodec,type DataSet} from '@spark-appworks/spark-data'
-import {workflowQueryInputPresentation,workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges,WorkflowQueryInputs} from '@/lowcode/resources/structured-config/workflow-definition/fields/query-inputs'
-import {workflowExecutionInputs} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs'
+import {workflowQueryInputPresentation,workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges,WorkflowQueryInputs} from '@/platform-adapters/resources/structured-config/workflow-definition/fields/query-inputs'
+import {workflowExecutionInputs} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-inputs'
 
 const sets:DataSet[]=[]
 afterEach(()=>{sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})

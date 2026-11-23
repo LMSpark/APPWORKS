@@ -7,9 +7,9 @@ import DevPreviewTab from '@/views/features/application/application-function-man
 import { createDevStateWithConfigPages, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY as SCENARIO } from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY as SCENARIO } from '@/platform-adapters/api'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi } from '@/platform-adapters/lowcode-runtime'
 
 const SwitchStub = defineComponent({
   name: 'ElSwitch',

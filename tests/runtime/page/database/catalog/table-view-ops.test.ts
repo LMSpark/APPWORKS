@@ -1,8 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDatabaseTableView} from '@/lowcode/resources/database/catalog/table-view'
-import {attachTableRegisterCommandView} from '@/lowcode/resources/database/dataset-extensions'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDatabaseTableView} from '@/platform-adapters/resources/database/catalog/table-view'
+import {attachTableRegisterCommandView} from '@/platform-adapters/resources/database/dataset-extensions'
 import {
   databaseCatalogDbSelectedId,
   databaseCatalogQueryUnregisteredTableNames,
@@ -10,12 +10,12 @@ import {
   databaseCatalogTableSaveEdit,
   requireDatabaseCatalogDbViewForTable,
   requireDatabaseCatalogTableView,
-} from '@/lowcode/resources/database/catalog/table/view-ops'
+} from '@/platform-adapters/resources/database/catalog/table/view-ops'
 import {
   databaseCatalogQueryUnregisteredViewNames,
   databaseCatalogSyncTableMetadata,
-} from '@/lowcode/resources/database/catalog/table/sync-view-ops'
-import {requireDatabaseTableRegisterView} from '@/lowcode/resources/database/catalog/table/register-view-ops'
+} from '@/platform-adapters/resources/database/catalog/table/sync-view-ops'
+import {requireDatabaseTableRegisterView} from '@/platform-adapters/resources/database/catalog/table/register-view-ops'
 import {
   databaseCatalogRegisterTables,
   databaseCatalogRegisterViews,
@@ -23,12 +23,12 @@ import {
   databaseCatalogVerifyViewRegistration,
   databaseCatalogBeginRegistrationBatch,
   databaseCatalogDiscardPendingRegistration,
-} from '@/lowcode/resources/database/catalog/table/register-view-ops'
+} from '@/platform-adapters/resources/database/catalog/table/register-view-ops'
 import {
   databaseCatalogCanDeleteRow,
   databaseCatalogDeleteRow,
-} from '@/lowcode/resources/database/catalog/object-view-ops'
-import {databaseCatalogCopyTable} from '@/lowcode/resources/database/catalog/table/copy-view-ops'
+} from '@/platform-adapters/resources/database/catalog/object-view-ops'
+import {databaseCatalogCopyTable} from '@/platform-adapters/resources/database/catalog/table/copy-view-ops'
 import {
   DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
@@ -38,7 +38,7 @@ import {
   DATABASE_VIEW_REGISTER_TABLE,
   DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_TABLE_SYNC_META_TABLE,
-} from '@/lowcode/resources/database/catalog/table-view'
+} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -47,7 +47,7 @@ import {
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))

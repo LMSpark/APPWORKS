@@ -9,7 +9,7 @@ import {
   applyWorkflowDesignChanges,
   composeWorkflowDesign,
   projectWorkflowDesign,
-} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection'
+} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection'
 
 const sample = (name: string): unknown => JSON.parse(readFileSync(resolve(process.cwd(),
   `config/agent-workflows/lmspark/homepage/${name}/design.json`), 'utf8'))

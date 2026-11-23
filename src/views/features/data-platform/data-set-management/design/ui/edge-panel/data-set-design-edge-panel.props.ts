@@ -4,7 +4,7 @@
  * 边界：接收定义行身份，不接收独立关系真源或保存实现。
  * AI用途：在模型关系节点复用原DataSet和场景文件owner。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 本次页面调用的关系编辑上下文。 */
 export type DataSpaceRelationEditorProps = {

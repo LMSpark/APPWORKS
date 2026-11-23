@@ -1,8 +1,7 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase, Request } from '@spark-appworks/spark-utils'
-import {
-  DataSpaceDesignApi, DataSpaceRuntimeApi,
-} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import { DataSet, DataViewFilter, RequestState } from '@spark-appworks/spark-data'
 import { afterEach, beforeAll, afterAll, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
@@ -10,11 +9,11 @@ import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 
 const transport = { request: vi.fn() }
 const originalTransport = Object.getOwnPropertyDescriptor(Request.prototype, 'executeRequest')
-let runtime: typeof import('../../../../src/lowcode/lowcode-runtime')
+let runtime: typeof import('../../../../src/platform-adapters/lowcode-runtime')
 
 import { ScenarioViewConfig } from '../../../../packages/spark-project-model/src/scenario/scenario-view-config'
-import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import { LowcodeDataSpaceViewFields } from '../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
+import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import { LowcodeDataSpaceViewFields } from '../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields'
 import {getSystemScenarioResource} from '../../../../src/registries/system-scenario-registry'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -92,7 +91,7 @@ describe('host scenario file request wiring', () => {
         return response
       },
     })
-    runtime = await import('../../../../src/lowcode/lowcode-runtime')
+    runtime = await import('../../../../src/platform-adapters/lowcode-runtime')
   })
 
   it('reads tool snapshot text with fatal UTF-8 decoding while preserving a BOM', async () => {

@@ -5,8 +5,8 @@ import {assessBidHandoff,compareBidHandoffVersions} from '@/services/smart-bid/c
 import {bidHandoffScenarioViews,readRegisteredBidHandoff} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader'
 import {createBidHandoffScriptHost} from '@/views/features/application/smart-bid/collaboration/handoff/bid-handoff-script-host'
 import script from '@/views/features/application/smart-bid/collaboration/handoff/page08/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('keeps responsibility with the original assignee until the current version is accepted',async()=>{
  const scope={projectId:'P',lotId:'L',roundId:'R',stageId:'RESULT'}

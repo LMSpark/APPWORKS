@@ -4,7 +4,7 @@ import {
   FLOW_DESIGN_SCENARIO_ID,
   defaultFlowDesignNodeAuthRow,
   syncFlowDesignNodeAuthView,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 
 type MockView = {
   destroyed: boolean

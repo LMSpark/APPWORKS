@@ -2,8 +2,8 @@ import {expect,it} from 'vitest'
 import {responseScenarioViews} from '@/views/features/application/smart-bid/response/model/response-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredApprovedPriceDetail} from '@/views/features/application/smart-bid/response/model/price-sheet-reader'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 
 it('recalculates the authorized original pricing row and refuses a hidden line list',async()=>{
  const row={id:'ID',scopeRef:'LOT',detailRef:'DETAIL',pricingVersion:'V1',currency:'CNY',precision:2,rounding:'HALF_UP',

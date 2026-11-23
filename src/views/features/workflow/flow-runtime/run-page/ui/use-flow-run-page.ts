@@ -18,18 +18,18 @@ import {
   type readFlowRuntimeRouteQuery,
   type FlowAppendUserContext,
   type FlowRunPreparedPage,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {
   parseFlowRunHandleNodeOptions,
   readFlowRunAllowForceBack,
-} from '@/lowcode/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
-import {FlowRunApprovalInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
+} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options'
+import {FlowRunApprovalInputWorkspace} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {submitFlowBusinessPage} from '../model/flow-run-business-submit'
 import {
   createFlowBusinessPageRegistry,
   createFlowBusinessTabBuilder,
 } from '../model/flow-run-business-tab'
-import {assertApprovalCommandAvailable, submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {assertApprovalCommandAvailable, submitApprovalCommand, verifyApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'

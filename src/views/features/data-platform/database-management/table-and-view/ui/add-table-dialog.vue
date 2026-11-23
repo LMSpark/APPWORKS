@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import {RendererButton, RendererDialog, RendererForm} from '@spark-appworks/spark-component'
 import type {SparkNode} from '@spark-appworks/spark-data'
-import type {DatabaseCatalogTableEditingUi} from '@/lowcode/resources/database/catalog/table/view-ops'
+import type {DatabaseCatalogTableEditingUi} from '@/platform-adapters/resources/database/catalog/table/view-ops'
 
 defineProps<{
   tableKey: string

@@ -51,9 +51,9 @@ import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/server/resource'
+import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/platform-adapters/resources/database/server/resource'
 import {DATABASE_SERVER_EDIT_FORM_FIELDS, DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS,
-  DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
+  DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/platform-adapters/resources/database/server/catalog-metadata'
 import {
   databaseServerBeginCreate,
   databaseServerBeginEdit,
@@ -67,7 +67,7 @@ import {
   databaseServerTestConnection,
   requireDatabaseServerView,
   type DatabaseServerEditState,
-} from '@/lowcode/resources/database/server/view-ops'
+} from '@/platform-adapters/resources/database/server/view-ops'
 
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps

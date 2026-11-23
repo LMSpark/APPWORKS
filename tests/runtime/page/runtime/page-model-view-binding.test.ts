@@ -3,15 +3,16 @@ import {flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, buildDataViewKey, resolveDataViewKey, resolveDataViewMember, diagnoseDataViewKey, DataMember} from '@spark-appworks/spark-data'
-import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {createLowcodeProjectBlueprintRecord, DataSpaceRuntimeApi, LowcodeApiError, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {createProjectBlueprintRecord, PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeApiError, type DataSpaceDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {Spark, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import DisplayText from '../../../../packages/spark-component/src/components/display/data-components/value/DisplayText/DisplayText.vue'
-import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {assembleLowcodeRuntimeNavigation, lowcodeApi, readLowcodePageFiles} from '../../../../src/lowcode/lowcode-runtime'
-import * as scenarioRuntime from '../../../../src/lowcode/data-space/lowcode-data-space-runtime'
+import {LowcodeDataSpaceAssembler} from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import {assembleLowcodeRuntimeNavigation, lowcodeApi, readLowcodePageFiles} from '../../../../src/platform-adapters/lowcode-runtime'
+import * as scenarioRuntime from '../../../../src/platform-adapters/data-space/lowcode-data-space-runtime'
 import blueprintConfig from '../../../../config/pages/application/project-blueprint/pagedata.json'
 
 const calls: PageRuntime[] = []
@@ -176,7 +177,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   }`
   const target = 'cfg:orders-tool?additionalScenarioIds=LOOKUP'
   const versionId = 'rule=2;script=3;style=4'
-  const records = ['A', 'B'].map(scenarioId => createLowcodeProjectBlueprintRecord({
+  const records = ['A', 'B'].map(scenarioId => createProjectBlueprintRecord({
     nodeId: scenarioId, projectId:'APP', parentNodeId:'ROOT', kind:'page', capability:{name:scenarioId},
     navigation:{title:scenarioId, target, order:0, publishInMenu:true, showChildren:false, beginGroup:false},
     dataSpace:{scenarioId, models:[]}, source:{VersionId:` ${versionId} `},

@@ -74,9 +74,17 @@ function jsonValue(value: unknown, path: string): DataViewFilterJsonValue {
 }
 
 type ConvertedFilter = Readonly<{filter?: DataViewFilterTree; dependent: boolean}>
+type FilterContext = Pick<RuntimeDataSetPlanView, 'dependencies'>
+type ConvertFilterNodeInput = Readonly<{
+  input: unknown
+  plan: RuntimeDataSetPlanFile
+  view: FilterContext
+  path: string
+  allowOr?: boolean
+}>
 
-function convertFilterNode(input: unknown, plan: RuntimeDataSetPlanFile, view: RuntimeDataSetPlanView,
-  path: string, allowOr = true): ConvertedFilter {
+function convertFilterNode(options: ConvertFilterNodeInput): ConvertedFilter {
+  const {input, plan, view, path, allowOr = true} = options
   if (input === undefined || input === null || input === false) return {dependent: false}
   const node = record(input, path)
   const logic = String(node['logic'] ?? node['Type'] ?? '').toLowerCase()
@@ -84,7 +92,9 @@ function convertFilterNode(input: unknown, plan: RuntimeDataSetPlanFile, view: R
     if (logic === 'or' && !allowOr) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: OR 分支不能包含 GetDependValue`)
     const children = node['filters'] ?? node['Filters']
     if (!Array.isArray(children)) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: filters 必须是数组`)
-    const converted = children.map((child, index) => convertFilterNode(child, plan, view, `${path}[${index}]`, logic !== 'or'))
+    const converted = children.map((child, index) => convertFilterNode({
+      input: child, plan, view, path: `${path}[${index}]`, allowOr: logic !== 'or',
+    }))
     const filters = converted.flatMap(item => item.filter === undefined ? [] : [item.filter])
     const dependent = converted.some(item => item.dependent)
     if (logic === 'or' && dependent) throw new Error(`RUNTIME_DATA_SET_PLAN.${path}: 不支持含 GetDependValue 的 OR 条件`)
@@ -228,8 +238,8 @@ function planRelations(plan: RuntimeDataSetPlanFile): DataResourceRelation[] {
     if (!parent || !child || relation.parentTable !== parent.metaName || relation.childTable !== child.metaName) {
       throw new Error(`RUNTIME_DATA_SET_PLAN.relation.${relation.id}: 模型端点不匹配`)
     }
-    const converted = convertFilterNode(parseWireFilter(relation.filter, `${relation.id}.filter`), plan,
-      {id: relation.id, dataModelId: relation.childModelId} as RuntimeDataSetPlanView, `${relation.id}.filter`, false)
+    const converted = convertFilterNode({input: parseWireFilter(relation.filter, `${relation.id}.filter`), plan,
+      view: {dependencies: []}, path: `${relation.id}.filter`, allowOr: false})
     if (converted.dependent || !converted.filter) throw new Error(`RUNTIME_DATA_SET_PLAN.relation.${relation.id}: 关系必须是完整过滤表达式`)
     return {
       relationId: relation.id, parentTable: relation.parentTable, childTable: relation.childTable,
@@ -252,7 +262,9 @@ export function compileRuntimeDataSetPlan(
     const views: TableMetadata['views'] = {default: {}}
     for (const view of modelViews) {
       const viewId = planViewId(view)
-      const converted = convertFilterNode(parseWireFilter(view.filter, `${view.id}.filter`), plan, view, `${view.id}.filter`)
+      const converted = convertFilterNode({
+        input: parseWireFilter(view.filter, `${view.id}.filter`), plan, view, path: `${view.id}.filter`,
+      })
       const projection = planProjection(plan, view, options)
       const definition = {
         ...(projection.length ? {fieldProjection: [...projection]} : {}),

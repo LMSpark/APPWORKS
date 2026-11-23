@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/platform/data-space/design/data-space-model-not-found-error",
+    "sourcePath": "src/platform-adapters/api/platform/data-space/design/data-space-model-not-found-error.ts",
+    "sourceFile": "src/platform-adapters/api/platform/data-space/design/data-space-model-not-found-error.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/platform/data-space/design/data-space-model-not-found-error",
+    "jsdoc": "@module @/platform-adapters/api:platform/data-space/design/data-space-model-not-found-error\n职责：区分正式精确查询确认零行与权限、网络、重复及损坏合同错误。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceModelNotFoundError"
+    ]
+  },
+  "$defs": {
+    "DataSpaceModelNotFoundError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceModelNotFoundError",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            },
+            "metaName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.360Z",
+  "models": {
+    "DataSpaceModelNotFoundError": {
+      "name": "DataSpaceModelNotFoundError",
+      "jsdoc": "仅由正式模型精确查询在rows与total均为零时产生；不表示其他来源获得业务写权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSpaceId: string, metaName: string)",
+          "parameters": [
+            {
+              "name": "dataSpaceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "metaName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "LowcodeApiError",
+            "targetName": "LowcodeApiError"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

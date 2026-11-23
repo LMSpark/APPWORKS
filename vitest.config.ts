@@ -12,7 +12,7 @@ export default defineConfig({
     environment: 'jsdom',
     testTimeout: 15_000,
     hookTimeout: 60_000,
-    include: ['tests/**/*.test.ts', 'packages/**/src/tests/**/*.test.ts', 'packages/**/tests/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'src/platform-adapters/api/**/*.test.ts', 'packages/**/src/tests/**/*.test.ts', 'packages/**/tests/**/*.test.ts', 'packages/spark-ai/src/agent/**/*.test.ts'],
     setupFiles: ['./tests/vitest-setup.ts']
   },
   resolve: {
@@ -30,8 +30,7 @@ export default defineConfig({
       '@spark-appworks/spark-component/runtime': resolve(root, './packages/spark-component/src/runtime/index.ts'),
       '@spark-appworks/spark-component': resolve(root, './packages/spark-component/src/index.ts'),
       '@spark-appworks/spark-data': resolve(root, './packages/spark-data/src/index.ts'),
-      '@spark-appworks/spark-lowcode-api/contracts': resolve(root, './packages/spark-lowcode-api/src/contracts/index.ts'),
-      '@spark-appworks/spark-lowcode-api': resolve(root, './packages/spark-lowcode-api/src/index.ts'),
+      '@/platform-adapters/api': resolve(root, './src/platform-adapters/api/index.ts'),
       '@spark-appworks/spark-project-model': resolve(root, './packages/spark-project-model/src/index.ts'),
       '@spark-appworks/spark-app': resolve(root, './packages/spark-app/src/index.ts'),
       '@spark-appworks/spark-ai/agent': resolve(root, './packages/spark-ai/src/agent/index.ts'),

@@ -3,7 +3,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
+import {ExcelPhysicalFieldDirectory} from '@/platform-adapters/resources/semi-structured/excel-import/metadata/physical-fields'
 describe('original independent physical field directories',()=>{
  it('binds root and detail physical fields independently without changing the selected node',async()=>{
   const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',relatedappid:'A1',table:'数据库一@table_one'},{rowid:'C2',schemeid:'E1',pid:'C1',relatedappid:'A2',table:'数据库二@table_two'}],Base_ImportData_Field:[],Base_Import_Transform_Rule:[]})

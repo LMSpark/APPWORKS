@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/shared/navigation-authorization-resource",
+    "sourcePath": "src/platform-adapters/resources/shared/navigation-authorization-resource.ts",
+    "sourceFile": "src/platform-adapters/resources/shared/navigation-authorization-resource.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/shared/navigation-authorization-resource",
+    "jsdoc": "app 的 platform-adapters/resources/shared/navigation-authorization-resource 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:02:15.413Z",
+  "models": {}
+}

@@ -1,10 +1,13 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {LowcodeApiError, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError } from '@/platform-adapters/api'
+import type {ProjectBlueprintRecord} from '@spark-appworks/spark-project-model'
 import {
   lowcodeApi,
+  lowcodeBlueprintRecords,
+  lowcodeNavigationAuthorization,
   resolveLowcodePagePublication,
   resolveLowcodePageNavigationReceipt,
-} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/lowcode-runtime'
 import {createPageToolPublicationManifest} from '@/services/project/page-tool-publication'
 
 function saveExecutionScope(applicationId: string): void {
@@ -23,7 +26,7 @@ function saveExecutionScope(applicationId: string): void {
   })
 }
 
-function blueprintRecord(applicationId: string, pageId: string, versionId: string): LowcodeProjectBlueprintRecord {
+function blueprintRecord(applicationId: string, pageId: string, versionId: string): ProjectBlueprintRecord {
   return {
     nodeId: 'NODE', parentNodeId: 'ROOT', projectId: applicationId, kind: 'page',
     capability: {name: pageId},
@@ -62,7 +65,7 @@ describe('lowcode page publication resolver', () => {
         text: JSON.stringify({scenarioId: 'SCENE', tables: {}}),
       }],
     })
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
       blueprintRecord('APP', 'TOOL', 'rule=2;script=3;style=4;manifest=6'),
     ])
     const readBytes = vi.spyOn(lowcodeApi.design, 'readFileBytes')
@@ -86,10 +89,10 @@ describe('lowcode page publication resolver', () => {
     ] as const)('reports %s before materializing a page', async (state, authorization) => {
       if (state === 'BLUEPRINT_ONLY') {
         saveExecutionScope('APP-RECEIPT')
-        vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+        vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
           blueprintRecord('APP-RECEIPT', 'TOOL', ''),
         ])
-        vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
+        vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({
           items: authorization, contexts: [],
         })
       }
@@ -102,10 +105,10 @@ describe('lowcode page publication resolver', () => {
 
     it('distinguishes missing manifest, scenario and identity requirements', async () => {
       saveExecutionScope('APP-STATES')
-      vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
+      vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({
         items: [authorizedNode], contexts: [],
       })
-      const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+      const records = vi.spyOn(lowcodeBlueprintRecords, 'readRecords')
       records.mockResolvedValue([blueprintRecord('APP-STATES', 'TOOL', '')])
       const command = {
         projectId: 'APP-STATES', nodeId: 'NODE', pageId: 'TOOL',
@@ -138,10 +141,10 @@ describe('lowcode page publication resolver', () => {
           text: JSON.stringify({scenarioId: 'SCENE', tables: {}}),
         }],
       })
-      vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+      vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
         blueprintRecord('APP-READY', 'TOOL', 'rule=2;script=3;style=4;manifest=6'),
       ])
-      vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
+      vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({
         items: [authorizedNode], contexts: [],
       })
       vi.spyOn(lowcodeApi.design, 'readFileBytes')
@@ -169,10 +172,10 @@ describe('lowcode page publication resolver', () => {
           text: JSON.stringify({scenarioId: 'SCENE', tables: {}}),
         }],
       })
-      vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+      vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
         blueprintRecord('APP-PROOF', 'TOOL', 'rule=2;script=3;style=4;manifest=6'),
       ])
-      vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
+      vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({
         items: [authorizedNode], contexts: [],
       })
       vi.spyOn(lowcodeApi.design, 'readFileBytes')
@@ -196,7 +199,7 @@ describe('lowcode page publication resolver', () => {
       ],
       pagedata: [],
     })
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
       blueprintRecord('APP-CONFLICT', 'TOOL', 'rule=9;script=3;style=4;manifest=6'),
     ])
     vi.spyOn(lowcodeApi.design, 'readFileBytes')
@@ -209,7 +212,7 @@ describe('lowcode page publication resolver', () => {
 
   it('reports a missing manifest snapshot instead of falling back to working files', async () => {
     saveExecutionScope('APP-MISSING')
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
       blueprintRecord('APP-MISSING', 'TOOL', 'rule=2;script=3;style=4;manifest=6'),
     ])
     vi.spyOn(lowcodeApi.design, 'readFileBytes').mockRejectedValue(new LowcodeApiError(404, 'missing'))
@@ -221,7 +224,7 @@ describe('lowcode page publication resolver', () => {
 
   it('rejects legacy three-file VersionId without a manifest', async () => {
     saveExecutionScope('APP-LEGACY')
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
       blueprintRecord('APP-LEGACY', 'LEGACY', '8'),
     ])
     const readBytes = vi.spyOn(lowcodeApi.design, 'readFileBytes')

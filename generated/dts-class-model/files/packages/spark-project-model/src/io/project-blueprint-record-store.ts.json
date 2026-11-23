@@ -1,0 +1,1299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/project-blueprint-record-store",
+    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-record-store.ts",
+    "sourceFile": "packages/spark-project-model/src/io/project-blueprint-record-store.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/project-blueprint-record-store",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-record-store\n职责：通过注入的 SPARK Data owner 读取蓝图记录并确认节点命令回读。\n边界：宿主提供已注册模型身份；凭据仍由原查询 owner 持有，不由 source 重建。\nAI用途：使用正式四组记录编辑蓝图，区分业务保存、授权读取和文档任务提交。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ProjectBlueprintRecordStore"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintMutableField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintMutableField",
+      "enum": [
+        "name",
+        "funCode",
+        "FunName",
+        "FunOrderValue",
+        "prowid",
+        "NavigationImageWxz",
+        "MobileUrl",
+        "IsShowChildItem",
+        "BeginGroup",
+        "NavigationShowType",
+        "ChildItemLocation",
+        "HorizontalAlignment",
+        "memo",
+        "htmlDesc",
+        "conid",
+        "conType",
+        "DifficultyFactor",
+        "Manhour",
+        "Number",
+        "Sum",
+        "Total",
+        "personCharge",
+        "status",
+        "NavigationUrl",
+        "VersionId",
+        "IsShowAtNav",
+        "NavigationType"
+      ]
+    },
+    "BlueprintPatchFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintPatchFields",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "funCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "FunName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "FunOrderValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "prowid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationImageWxz": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "MobileUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "IsShowChildItem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "BeginGroup": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationShowType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "ChildItemLocation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "HorizontalAlignment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "memo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "htmlDesc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "conid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "conType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "DifficultyFactor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Manhour": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Sum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Total": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "personCharge": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "VersionId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "IsShowAtNav": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintRecordPatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintRecordPatch",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "funCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "FunName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "FunOrderValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "prowid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationImageWxz": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "MobileUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "IsShowChildItem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "BeginGroup": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationShowType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "ChildItemLocation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "HorizontalAlignment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "memo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "htmlDesc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "conid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "conType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "DifficultyFactor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Manhour": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Sum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "Total": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "personCharge": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "VersionId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "IsShowAtNav": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "NavigationType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintRecordOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintRecordOwner",
+      "properties": {
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly DataSpaceRuntimeSaveChange[]; signal?: AbortSignal; }>) => Promise<DataSpaceRequestSaveResult>"
+        },
+        "query": {
+          "type": "object",
+          "title": "(identity: DataSpaceQueryIdentity, options?: DataSpaceQueryOptions) => Promise<DataSpaceQueryContext>"
+        }
+      },
+      "required": [
+        "save",
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintRecordStoreOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintRecordStoreOptions",
+      "properties": {
+        "owner": {
+          "$ref": "#/$defs/BlueprintRecordOwner"
+        },
+        "identity": {
+          "$ref": "../../../spark-data/src/query/formal-table-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        }
+      },
+      "required": [
+        "owner",
+        "identity"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintRecordStore": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintRecordStore",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/BlueprintRecordStoreOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRecords.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRecords.return": {
+          "type": "object",
+          "title": "Promise<readonly ProjectBlueprintRecord[]>"
+        },
+        "method.updateNodeFields.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "patch": {
+              "$ref": "#/$defs/ProjectBlueprintRecordPatch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeFields.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintRecord>"
+        },
+        "method.updateNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "node": {
+              "$ref": "../blueprint/project-blueprint-record.ts.json#/$defs/ProjectBlueprintRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintRecord>"
+        },
+        "method.createNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "node": {
+              "$ref": "../blueprint/project-blueprint-record.ts.json#/$defs/ProjectBlueprintRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintRecord>"
+        },
+        "method.deleteNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintRecord>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T07:49:17.462Z",
+  "models": {
+    "ProjectBlueprintMutableField": {
+      "name": "ProjectBlueprintMutableField",
+      "jsdoc": "蓝图可提交的既有 wire 字段；实际写权限仍由原查询上下文 E 白名单决定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof PROJECT_BLUEPRINT_MUTABLE_FIELDS[number]",
+        "members": {}
+      }
+    },
+    "BlueprintPatchFields": {
+      "name": "BlueprintPatchFields",
+      "jsdoc": "单节点字段变更；不接受权限、签名或请求应用身份作为业务 patch。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<Record<ProjectBlueprintMutableField, string | number>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Partial<Record<ProjectBlueprintMutableField, string | number>>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "funCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunOrderValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationImageWxz",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MobileUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsShowChildItem",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "BeginGroup",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationShowType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ChildItemLocation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "HorizontalAlignment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "memo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "htmlDesc",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DifficultyFactor",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Manhour",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Number",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Sum",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "personCharge",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "VersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsShowAtNav",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintRecordPatch": {
+      "name": "ProjectBlueprintRecordPatch",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<BlueprintPatchFields>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<BlueprintPatchFields>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "funCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunOrderValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationImageWxz",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "MobileUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsShowChildItem",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "BeginGroup",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationShowType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ChildItemLocation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "HorizontalAlignment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "memo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "htmlDesc",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DifficultyFactor",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Manhour",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Number",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Sum",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "personCharge",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "VersionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsShowAtNav",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NavigationType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintRecordOwner": {
+      "name": "BlueprintRecordOwner",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<DataSpaceRuntimeApi, 'query' | 'save'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<DataSpaceRuntimeApi, 'query' | 'save'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "save",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "query",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintRecordStoreOptions": {
+      "name": "BlueprintRecordStoreOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    owner: BlueprintRecordOwner;\n    identity: DataSpaceQueryIdentity;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    owner: BlueprintRecordOwner;\n    identity: DataSpaceQueryIdentity;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintRecordStore": {
+      "name": "ProjectBlueprintRecordStore",
+      "jsdoc": "正式记录 IO 共用原 SPARK Data owner；应用编辑工作区直接使用其 DataView。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "注入现有请求与原查询保存 owner；不从公开 source 重建授权凭据。",
+          "signatureText": "constructor(options: BlueprintRecordStoreOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "BlueprintRecordStoreOptions",
+                "sourcePath": "packages/spark-project-model/src/io/project-blueprint-record-store.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readRecords",
+              "jsdoc": "原模型查询 owner 持权限与保存凭据；正式记录仅包含消费行。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly ProjectBlueprintRecord[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeFields",
+              "jsdoc": "只更新一个导航节点的六阶段所属字段，并以正式 GetData 读回确认。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "patch",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecordPatch",
+                    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-record-store.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNode",
+              "jsdoc": "正式分组仅提交发生变化的字段；权限与凭据仍由私有原查询上下文持有。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createNode",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteNode",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

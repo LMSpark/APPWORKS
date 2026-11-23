@@ -1,13 +1,13 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
-import {createStagedDesignExecutor, parseJsonObject} from '@/lowcode/resources/repository/staged-design-file-view'
+import {createStagedDesignExecutor, parseJsonObject} from '@/platform-adapters/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {LogicViewDesignClient} from '@spark-appworks/spark-lowcode-api'
-import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import { LogicViewDesignClient } from '@/platform-adapters/api'
+import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '@/platform-adapters/resources/structured-config/logic-view/design-ops'
 import logicCatalog from '../../../../config/pages/structured-config/logic-view-catalog/pagedata.json'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, verifyAndDiscardDataSpaceDefinitionCapture,
-  type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
+  type DataSpaceDefinitionCaptureBatch} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
 
 let http: StructuredCatalogHttp
 const readScope = () => ({token: 'scope', headers: {'X-AppId': 'APP'}})

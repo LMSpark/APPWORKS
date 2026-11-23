@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DataViewFilter } from '@spark-appworks/spark-data'
-import type { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
-import { LowcodeModelRelationAdapter } from '../../../../src/lowcode/data-space/lowcode-model-relation-adapter'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
+import { LowcodeModelRelationAdapter } from '../../../../src/platform-adapters/data-space/lowcode-model-relation-adapter'
 import {dataSpacePageFixture} from '../../page/design/native/data-space-page.fixture'
 
 describe('complete metadata relationship sources', () => {

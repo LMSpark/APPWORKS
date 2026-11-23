@@ -1,8 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, RequestState} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/directory'
-import {DATABASE_CATALOG_DB_MODEL} from '@/lowcode/resources/database/catalog/table-view'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDatabaseDirectory} from '@/platform-adapters/resources/database/directory'
+import {DATABASE_CATALOG_DB_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
   databaseCatalogDbBeginCreate,
   databaseCatalogDbCancelEdit,
@@ -11,7 +11,7 @@ import {
   databaseCatalogServerSelectedId,
   requireDatabaseCatalogDbView,
   requireDatabaseCatalogServerView,
-} from '@/lowcode/resources/database/catalog/db-view-ops'
+} from '@/platform-adapters/resources/database/catalog/db-view-ops'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -21,7 +21,7 @@ import {
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
@@ -40,7 +40,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbView(ds)
-    const beginEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
+    const beginEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
     expect(beginEdit, '现有 _base_dbInfo 行应有 DataView 编辑入口').toBeTypeOf('function')
 
     const row = dbView.rows[0]!
@@ -56,7 +56,7 @@ describe('database/catalog/db-view-ops', () => {
     dbView.updateEditingValue(id, 'Name', '业务库-更新')
     dbView.updateEditingValue(id, 'SchemaName', 'app')
     dbView.updateEditingValue(id, 'Remark', '目录说明')
-    await (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit)
+    await (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit)
 
     const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
     const payload = request?.data as Array<{TableName?: string; CrudModel?: {Changed?: Record<string, unknown>[]; Added?: unknown[]; Deleted?: unknown[]}}>
@@ -75,7 +75,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const view = requireDatabaseCatalogDbView(ds)
-    const remove = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete
+    const remove = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete
     expect(remove, '现有 _base_dbInfo 行应有经 DataView 的单行删除入口').toBeTypeOf('function')
     const target = view.rows[0]!
     const id = view.getPkKey(target)!
@@ -100,7 +100,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const view = requireDatabaseCatalogDbView(ds)
-    const remove = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete
+    const remove = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete
     expect(remove, '删除入口必须在提交前核对权限和身份').toBeTypeOf('function')
     const row = view.rows[0]!
     const id = view.getPkKey(row)!
@@ -120,7 +120,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const view = requireDatabaseCatalogDbView(ds)
-    const remove = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete!
+    const remove = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbDelete!
     const id = view.getPkKey(view.rows[0]!)!
     let unconfirmed = false
     let saves = 0
@@ -150,7 +150,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbView(ds)
-    const beginEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
+    const beginEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
     expect(beginEdit, '现有 _base_dbInfo 行应有权限和身份守卫的编辑入口').toBeTypeOf('function')
 
     const row = dbView.rows[0]!
@@ -161,18 +161,18 @@ describe('database/catalog/db-view-ops', () => {
     vi.spyOn(dbView, 'fieldAccess').mockImplementation((target, field) => target === row && field === 'Remark'
       ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
       : {read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'})
-    await expect((await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit))
+    await expect((await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit))
       .rejects.toThrow()
     expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
 
     vi.restoreAllMocks()
-    const cancelEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbCancelEdit
+    const cancelEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbCancelEdit
     cancelEdit(dbView, edit)
     const refreshedRow = dbView.rows.find(item => dbView.getPkKey(item) === edit.id)!
     dbView.setSelectedRows([refreshedRow])
     const stale = beginEdit!(dbView, refreshedRow)
     dbView.rows.splice(dbView.rows.indexOf(refreshedRow), 1)
-    await expect((await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, stale))
+    await expect((await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, stale))
       .rejects.toThrow()
     expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
   })
@@ -181,7 +181,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbView(ds)
-    const beginEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit!
+    const beginEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit!
     const row = dbView.rows[0]!
     dbView.setSelectedRows([row])
     const edit = beginEdit(dbView, row)
@@ -203,7 +203,7 @@ describe('database/catalog/db-view-ops', () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbView(ds)
-    const beginEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
+    const beginEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbBeginEdit
     expect(beginEdit, '现有 _base_dbInfo 行应支持 DataView 编辑态取消').toBeTypeOf('function')
     const row = dbView.rows[0]!
     dbView.setSelectedRows([row])
@@ -212,7 +212,7 @@ describe('database/catalog/db-view-ops', () => {
     const edit = beginEdit!(dbView, row)
     dbView.updateEditingValue(id, 'Name', '取消后不得保留')
     dbView.updateEditingValue(id, 'Remark', '取消说明')
-    const cancelEdit = (await import('@/lowcode/resources/database/catalog/db-view-ops')).databaseCatalogDbCancelEdit
+    const cancelEdit = (await import('@/platform-adapters/resources/database/catalog/db-view-ops')).databaseCatalogDbCancelEdit
     expect(cancelEdit(dbView, edit)).toBeUndefined()
     expect(row).toMatchObject(before)
     expect(dbView.hasEditingChanges(id)).toBe(false)

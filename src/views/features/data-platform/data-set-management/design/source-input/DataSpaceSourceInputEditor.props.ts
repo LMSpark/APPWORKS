@@ -4,7 +4,7 @@
  * 边界：只传会话和正式字段ID，不接收权限副本或独立保存方法。
  * AI用途：按字段节点挂载来源入参编辑器，复用原DataView状态和持久链。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 来源入参编辑器的当前调用范围。 */
 export type DataSpaceSourceInputEditorProps = {

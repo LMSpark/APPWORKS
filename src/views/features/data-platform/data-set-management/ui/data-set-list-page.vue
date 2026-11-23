@@ -67,7 +67,7 @@ import {useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
+import {LowcodeDataSpaceCatalog} from '@/platform-adapters/data-space/lowcode-data-space-catalog'
 import {parseApplicationPathScope} from '@/services/application-scope'
 
 type RFilterProps = SparkComponent.RFilterProps

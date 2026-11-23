@@ -341,6 +341,13 @@ export type {
   AiAgentAppSseEventName,
 } from './conversation/transport/app-sse-events'
 
+export { LowcodeRealtimeApi } from './conversation/transport/lowcode-realtime-api'
+export type {
+  LowcodeNotificationMessage,
+  LowcodeRealtimeEvent,
+  LowcodeRealtimeSubscription,
+} from './conversation/transport/lowcode-realtime-api'
+
 // ── 9. 工具循环执行器 ───────────────────────────────────────
 
 export {
@@ -360,6 +367,14 @@ export type {
 export {
   sparkAgUi,
 } from './conversation/ag-ui'
+
+// ── 11. DataView-backed Agent resources and data entry ──────
+
+export { AiTurnResource } from './conversation/turn/ai-turn-resource'
+export { AiTurnDraftRunner } from './conversation/turn/ai-turn-draft-runner'
+export { AiAgentConfigResource } from './agent-config/ai-agent-config-resource'
+export { AiDataEntrySession, type AiDataEntryAdapter } from './data-entry/ai-data-entry-session'
+export { deriveAiDataEntryFields } from './data-entry/ai-data-entry-fields'
 
 export type {
   AGUIEvent,

@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {describe, expect, it} from 'vitest'
-import {flowWorkbenchTabBinding} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
+import {flowWorkbenchTabBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
 
 const FLOW_WORKBENCH_SCENARIO = 'A5BADCEE11D2438CB9E75C2453A220A6'
 

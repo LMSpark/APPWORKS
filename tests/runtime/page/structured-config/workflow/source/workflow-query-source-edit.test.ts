@@ -1,11 +1,11 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataView} from '@spark-appworks/spark-data'
-import {openWorkflowQuerySourceEdit} from '@/lowcode/resources/structured-config/workflow-definition/source/query-source-edit'
+import {openWorkflowQuerySourceEdit} from '@/platform-adapters/resources/structured-config/workflow-definition/source/query-source-edit'
 import {workflowSourceEditFixture} from '../workflow-source-edit.fixture'
-import {createModelSourceEditHost,createModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
-import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references'
-import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+import {createModelSourceEditHost,createModelSourceEditHandle} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
+import {LowcodeDataSpaceFieldRemoveReferences} from '@/platform-adapters/data-space/model-source/removal/lowcode-data-space-field-remove-references'
+import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 const source={type:'table' as const,id:'NEXT',name:'NextSource',description:'新来源',dbid:'DB2',databaseName:'next-db',providerId:''}

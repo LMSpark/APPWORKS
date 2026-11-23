@@ -1,7 +1,7 @@
 import {expect, it} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
-import {queryFlowAppendParticipants} from '@/lowcode/resources/system/workflow/manage/flow-append-user/flow-append-user-list'
+import {queryFlowAppendParticipants} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/flow-append-user-list'
 
 it('queries the exact relation in its declared named view without replacing the source history', async () => {
   const config = JSON.parse(readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8'))

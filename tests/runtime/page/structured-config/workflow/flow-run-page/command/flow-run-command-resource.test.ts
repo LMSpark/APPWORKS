@@ -1,7 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
-import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {FlowRunCommandResource} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
+import {submitApprovalCommand, verifyApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 
 describe('approval command through the original DataSet', () => {
   it('retains an unknown command and verifies without dispatching it twice', async () => {

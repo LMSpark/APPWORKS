@@ -33,9 +33,9 @@ AI用途：元模型工作区的数组编辑弹窗、取消和未知提交核验
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import {buildDataViewKey, RequestState, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldText, FieldJson, RendererButton, RendererDialog, RendererForm, RendererToolbar, type RToolbarProps} from '@spark-appworks/spark-component'
-import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
-import type {ArrayEditHandle} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-session'
-import type {DataSpaceDefinitionRecoveryOptions} from '@/lowcode/data-space/model-source/data-space-definition-save'
+import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft'
+import type {ArrayEditHandle} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-session'
+import type {DataSpaceDefinitionRecoveryOptions} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
 import DataSpaceArrayHeaders from './DataSpaceArrayHeaders.vue'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 const props=defineProps<DataSpaceModelEditorProps>()

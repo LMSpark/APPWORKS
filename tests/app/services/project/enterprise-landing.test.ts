@@ -56,10 +56,10 @@ const ui = vi.hoisted(() => ({
   showMessage: (message: string, type: 'info' | 'warning' = 'info') => state.messages.push(`${type}:${message}`),
 }))
 vi.mock('@spark-appworks/spark-app', () => ({getNavHomePath: () => '/home'}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {session: {get: () => ({enterprise: {shortName: 'acme'}})}},
 }))
-vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+vi.mock('@/platform-adapters/lowcode-application-catalog', () => ({
   loadLowcodeEnterpriseCatalog: vi.fn(async () => dataSet),
   getFormalModelView: () => view,
   readLowcodeApplications: vi.fn(async () => state.applications),

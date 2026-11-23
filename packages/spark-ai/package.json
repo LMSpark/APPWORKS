@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@ag-ui/core": "catalog:",
+    "@spark-appworks/spark-data": "workspace:*",
     "@spark-appworks/spark-json-document": "workspace:*",
     "@spark-appworks/spark-utils": "workspace:*",
     "comlink": "catalog:"

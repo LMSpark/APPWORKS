@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 
 type NavigationSyncState = {

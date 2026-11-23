@@ -3,8 +3,8 @@ import { defineComponent, h, nextTick, reactive, toRaw } from 'vue'
 import { FieldSwitch } from '@spark-appworks/spark-component'
 import { SparkData, type DataColumn, type DataView } from '@spark-appworks/spark-data'
 import { mountFieldInContext } from '../../../support/helpers/mount-field-in-context'
-import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
 
 const ElFormItemStub = defineComponent({
   props: ['label', 'prop', 'rules'],

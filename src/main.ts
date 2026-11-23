@@ -52,7 +52,7 @@ import type {
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
-import { loadLowcodeRuntimeScenario } from './lowcode/data-space/lowcode-data-space-runtime'
+import { loadLowcodeRuntimeScenario } from './platform-adapters/data-space/lowcode-data-space-runtime'
 import { preparePublishedContentAuthoringCall } from './views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
 import {preparePublishedSmartBidPageCall} from './views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
@@ -66,8 +66,8 @@ import {
   resolveLowcodePageNavigationReceipt,
   readLowcodePrincipal,
   readLowcodeRuntimeNavigation,
-} from './lowcode/lowcode-runtime'
-import { lowcodePlatformNavigation } from './lowcode/system-navigation'
+} from './platform-adapters/lowcode-runtime'
+import { lowcodePlatformNavigation } from './platform-adapters/system-navigation'
 import {
   APPLICATION_CATALOG_PROJECT_ID,
   PLATFORM_PATH_PREFIX,

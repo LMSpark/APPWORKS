@@ -1,4 +1,4 @@
-import type { LowcodeRealtimeEvent } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeRealtimeEvent } from '@spark-appworks/spark-ai/agent'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const realtime = vi.hoisted(() => ({
@@ -7,21 +7,19 @@ const realtime = vi.hoisted(() => ({
   close: vi.fn(),
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', async () => {
-  const { LowcodeApi } = await vi.importActual<typeof import('@spark-appworks/spark-lowcode-api')>('@spark-appworks/spark-lowcode-api')
+vi.mock('@/platform-adapters/lowcode-runtime', async () => {
+  const { LowcodeRealtimeApi } = await vi.importActual<typeof import('@spark-appworks/spark-ai/agent')>('@spark-appworks/spark-ai/agent')
   const { HttpClientBase } = await vi.importActual<typeof import('@spark-appworks/spark-utils')>('@spark-appworks/spark-utils')
   class UnusedHttpClient extends HttpClientBase {
     protected override executeRequest(): never {
       throw new Error('notification decoding must not issue HTTP requests')
     }
   }
-  const api = new LowcodeApi({ http: new UnusedHttpClient() })
+  const api = new LowcodeRealtimeApi({ http: new UnusedHttpClient(), readSession: () => null })
   return {
-    lowcodeApi: {
-      realtime: {
-        connect: realtime.connect,
-        decodeNotification: (event: LowcodeRealtimeEvent) => api.realtime.decodeNotification(event),
-      },
+    lowcodeRealtime: {
+      connect: realtime.connect,
+      decodeNotification: (event: LowcodeRealtimeEvent) => api.decodeNotification(event),
     },
   }
 })

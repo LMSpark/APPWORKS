@@ -1,0 +1,1304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-table-contract",
+    "sourcePath": "packages/spark-data/src/query/formal-table-contract.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-table-contract.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-table-contract",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-table-contract 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceQueryIdentity, DataSpaceRequestScope, DataSpaceQueryPage, DataSpaceQueryTree, DataSpaceQueryInput, DataSpaceQueryField, DataSpaceQueryOptions, DataSpaceQueryNestedNode 等（共 11 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceQueryIdentity",
+      "DataSpaceRequestScope",
+      "DataSpaceQueryPage",
+      "DataSpaceQueryTree",
+      "DataSpaceQueryInput",
+      "DataSpaceQueryField",
+      "DataSpaceQueryOptions",
+      "DataSpaceQueryNestedNode",
+      "DataSpaceQueryProjection",
+      "DataSpaceWireQueryOptions",
+      "DataSpaceWireQueryRequest"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQueryIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "metaName"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceRequestScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestScope",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "token",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryPage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryPage",
+      "properties": {
+        "index": {
+          "type": "number"
+        },
+        "size": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "index",
+        "size"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryTree": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryTree",
+      "properties": {
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "hasChildrenField": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "parent",
+            "child"
+          ]
+        }
+      },
+      "required": [
+        "keyField",
+        "parentField",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryInput",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryValueFunction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryValueFunction",
+      "properties": {
+        "Type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Type"
+      ],
+      "additionalProperties": {
+        "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+      }
+    },
+    "DataSpaceQueryField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "alias": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "group": {
+          "type": "number"
+        },
+        "isOutput": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "expression": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "enum": [
+            null,
+            "ascending",
+            "descending"
+          ]
+        },
+        "valueFun": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceQueryValueFunction"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQuerySort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQuerySort",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "required": [
+        "field",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryOptions",
+      "properties": {
+        "filter": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataViewFilter"
+        },
+        "sort": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQuerySort"
+          }
+        },
+        "pagination": {
+          "enum": [
+            "none",
+            "paged"
+          ]
+        },
+        "page": {
+          "$ref": "#/$defs/DataSpaceQueryPage"
+        },
+        "allPages": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "distinct": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "tree": {
+          "$ref": "#/$defs/DataSpaceQueryTree"
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQueryInput"
+          }
+        },
+        "singleFlight": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/DataSpaceQueryField"
+              }
+            ]
+          }
+        },
+        "outputFieldMode": {
+          "enum": [
+            "MODEL",
+            "REQUEST"
+          ]
+        },
+        "outputType": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataViewQueryChild"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryNestedNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryNestedNode",
+      "properties": {
+        "model": {
+          "$ref": "formal-owner/formal-model.ts.json#/$defs/FormalModelDescriptor"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQueryNestedNode"
+          }
+        }
+      },
+      "required": [
+        "model",
+        "columns",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceQueryProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryProjection",
+      "properties": {
+        "newRowFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "nested": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "navigation",
+                "hierarchy"
+              ]
+            },
+            "root": {
+              "$ref": "#/$defs/DataSpaceQueryNestedNode"
+            }
+          },
+          "required": [
+            "mode",
+            "root"
+          ],
+          "additionalProperties": false
+        },
+        "owner": {
+          "type": "object",
+          "title": "SmartBidExecutable"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "DataSpaceWireQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireQueryOptions",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "modelName": {
+                "type": "string"
+              },
+              "options": {
+                "$ref": "#/$defs/DataSpaceWireQueryOptions"
+              }
+            },
+            "required": [
+              "modelName",
+              "options"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "filter": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "Type": {
+                  "const": "cond"
+                },
+                "Field": {
+                  "type": "string"
+                },
+                "Operator": {
+                  "enum": [
+                    "equal",
+                    "notequal",
+                    "greaterthan",
+                    "greaterthanorequal",
+                    "lessthan",
+                    "lessthanorequal",
+                    "isnull",
+                    "isnotnull",
+                    "contains",
+                    "nolike",
+                    "startswith",
+                    "nostartswith",
+                    "endswith",
+                    "notendswith",
+                    "in",
+                    "notin",
+                    "isempty",
+                    "isnotempty"
+                  ]
+                },
+                "Value": {
+                  "type": "null"
+                },
+                "ValueFun": {
+                  "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
+                }
+              },
+              "required": [
+                "Type",
+                "Field",
+                "Operator",
+                "Value",
+                "ValueFun"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "Type": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "Filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "filter/data-view-filter-codec.ts.json#/$defs/DataViewFilterWire"
+                  }
+                }
+              },
+              "required": [
+                "Type",
+                "Filters"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "sortFields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Field": {
+                "type": "string"
+              },
+              "OrderType": {
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              },
+              "Order": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "Field",
+              "OrderType",
+              "Order"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pageIndex": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "allPages": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "distinct": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "outputType": {
+          "type": "string"
+        },
+        "outputFieldMode": {
+          "enum": [
+            "MODEL",
+            "REQUEST"
+          ]
+        },
+        "tree": {
+          "type": "object",
+          "properties": {
+            "keyField": {
+              "type": "string"
+            },
+            "parentField": {
+              "type": "string"
+            },
+            "nodeid": {
+              "type": "string"
+            },
+            "hasChildField": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "parent",
+                "child"
+              ]
+            }
+          },
+          "required": [
+            "keyField",
+            "parentField",
+            "nodeid",
+            "hasChildField",
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Name": {
+                "type": "string"
+              },
+              "AsName": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "IsOutput": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "Group": {
+                "type": "number"
+              },
+              "Expression": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "Order": {
+                "type": "number"
+              },
+              "OrderType": {
+                "enum": [
+                  null,
+                  "ascending",
+                  "descending"
+                ]
+              },
+              "ValueFun": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "title": "DataSpaceQueryValueFunction"
+              }
+            },
+            "required": [
+              "Name",
+              "IsOutput"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Name": {
+                "type": "string"
+              },
+              "Value": true
+            },
+            "required": [
+              "Name",
+              "Value"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireQueryRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireQueryRequest",
+      "properties": {
+        "Table": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "OutputFieldMode": {
+          "enum": [
+            "MODEL",
+            "REQUEST"
+          ]
+        },
+        "PageParam": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "number"
+            },
+            "size": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "index",
+            "size"
+          ],
+          "additionalProperties": false
+        },
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "nodeid": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "parent",
+            "child"
+          ]
+        }
+      },
+      "required": [
+        "Table"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T09:15:58.253Z",
+  "models": {
+    "DataSpaceQueryIdentity": {
+      "name": "DataSpaceQueryIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestScope": {
+      "name": "DataSpaceRequestScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryPage": {
+      "name": "DataSpaceQueryPage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    index: number;\n    size: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    index: number;\n    size: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "size",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryTree": {
+      "name": "DataSpaceQueryTree",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<QueryParams['tree']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<QueryParams['tree']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasChildrenField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryInput": {
+      "name": "DataSpaceQueryInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryValueFunction": {
+      "name": "DataSpaceQueryValueFunction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryField": {
+      "name": "DataSpaceQueryField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    alias?: string | null;\n    group?: number;\n    isOutput?: boolean;\n    expression?: string | null;\n    order?: number;\n    orderType?: 'ascending' | 'descending' | null;\n    valueFun?: DataSpaceQueryValueFunction | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    alias?: string | null;\n    group?: number;\n    isOutput?: boolean;\n    expression?: string | null;\n    order?: number;\n    orderType?: 'ascending' | 'descending' | null;\n    valueFun?: DataSpaceQueryValueFunction | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isOutput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFun",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQuerySort": {
+      "name": "DataSpaceQuerySort",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    direction: 'asc' | 'desc';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    direction: 'asc' | 'desc';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryOptions": {
+      "name": "DataSpaceQueryOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    children?: QueryParams['children'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    children?: QueryParams['children'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sort",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagination",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "singleFlight",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFieldMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryNestedNode": {
+      "name": "DataSpaceQueryNestedNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    model: FormalModelDescriptor;\n    columns: readonly DataColumn[];\n    children: readonly DataSpaceQueryNestedNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    model: FormalModelDescriptor;\n    columns: readonly DataColumn[];\n    children: readonly DataSpaceQueryNestedNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryProjection": {
+      "name": "DataSpaceQueryProjection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    newRowFields?: readonly string[];\n    columns: readonly DataColumn[];\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    owner: object;\n    signature: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    newRowFields?: readonly string[];\n    columns: readonly DataColumn[];\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    owner: object;\n    signature: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "newRowFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nested",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signature",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireQueryOptions": {
+      "name": "DataSpaceWireQueryOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    children?: ReadonlyArray<Readonly<{\n        modelName: string;\n        options: DataSpaceWireQueryOptions;\n    }>>;\n    filter?: DataViewFilterWire;\n    sortFields?: ReadonlyArray<Readonly<{\n        Field: string;\n        OrderType: 'ascending' | 'descending';\n        Order: number;\n    }>>;\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: Readonly<{\n        keyField: string;\n        parentField: string;\n        nodeid: string;\n        hasChildField: string;\n        type: 'child' | 'parent';\n    }>;\n    fields?: ReadonlyArray<Readonly<{\n        Name: string;\n        AsName?: string | null;\n        IsOutput: boolean;\n        Group?: number;\n        Expression?: string | null;\n        Order?: number;\n        OrderType?: 'ascending' | 'descending' | null;\n        ValueFun?: DataSpaceQueryValueFunction | null;\n    }>>;\n    inputParams?: ReadonlyArray<Readonly<{\n        Name: string;\n        Value: unknown;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    children?: ReadonlyArray<Readonly<{\n        modelName: string;\n        options: DataSpaceWireQueryOptions;\n    }>>;\n    filter?: DataViewFilterWire;\n    sortFields?: ReadonlyArray<Readonly<{\n        Field: string;\n        OrderType: 'ascending' | 'descending';\n        Order: number;\n    }>>;\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: Readonly<{\n        keyField: string;\n        parentField: string;\n        nodeid: string;\n        hasChildField: string;\n        type: 'child' | 'parent';\n    }>;\n    fields?: ReadonlyArray<Readonly<{\n        Name: string;\n        AsName?: string | null;\n        IsOutput: boolean;\n        Group?: number;\n        Expression?: string | null;\n        Order?: number;\n        OrderType?: 'ascending' | 'descending' | null;\n        ValueFun?: DataSpaceQueryValueFunction | null;\n    }>>;\n    inputParams?: ReadonlyArray<Readonly<{\n        Name: string;\n        Value: unknown;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFieldMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireQueryRequest": {
+      "name": "DataSpaceWireQueryRequest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Table: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    OutputFieldMode?: DataSpaceWireQueryOptions['outputFieldMode'];\n    PageParam?: Readonly<{\n        index: number;\n        size: number;\n    }>;\n    keyField?: string;\n    parentField?: string;\n    nodeid?: string;\n    hasChildField?: string;\n    type?: 'child' | 'parent';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Table: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    OutputFieldMode?: DataSpaceWireQueryOptions['outputFieldMode'];\n    PageParam?: Readonly<{\n        index: number;\n        size: number;\n    }>;\n    keyField?: string;\n    parentField?: string;\n    nodeid?: string;\n    hasChildField?: string;\n    type?: 'child' | 'parent';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Table",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OutputFieldMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "PageParam",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

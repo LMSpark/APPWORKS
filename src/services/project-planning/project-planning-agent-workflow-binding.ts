@@ -18,7 +18,7 @@ import type {
   ProjectWorkspace,
   ProjectBlueprintTreeNodeData,
 } from '@spark-appworks/spark-project-model'
-import { lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
+import { decodeProjectBlueprintRows, encodeProjectBlueprintFields } from '@spark-appworks/spark-project-model'
 import type { BlueprintLeafMoveBatchCommand, BlueprintNodeFormData, BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { planProjectBlueprintReplacement, type ProjectBlueprintReplacementCommand } from './project-planning-blueprint-diff'
 
@@ -362,9 +362,9 @@ function guardProjectPlanningBlueprint(
       for(const command of moves){
         const actual=confirmedNodes.find(node=>node.nodeId===command.nodeId),planned=requestedNodes.find(node=>node.nodeId===command.nodeId)
         if(!actual||!planned||actual.projectId!==owner.projectId||actual.parentNodeId!==planned.parentNodeId)throw new Error(`项目策划移动批次正式回读身份不一致：${command.nodeId}`)
-        const record=normalizeLowcodeProjectBlueprintRecords([actual.source])[0]
+        const record=decodeProjectBlueprintRows([actual.source])[0]
         if(!record)throw new Error(`项目策划移动批次回读不能还原正式记录 ${command.nodeId}`)
-        const wire=lowcodeProjectBlueprintFields(record)
+        const wire=encodeProjectBlueprintFields(record)
         const mismatches=Object.entries(command.fields).filter(([field,value])=>field!=='prowid'&&String(wire[field])!==String(value))
         if(Object.hasOwn(command.fields,'prowid')&&actual.parentNodeId!==String(command.fields['prowid']))throw new Error(`项目策划移动批次正式回读父身份不一致 ${command.nodeId}`)
         if(mismatches.length)throw new Error(`项目策划移动批次正式回读与命令字段不一致 ${command.nodeId}：${mismatches.map(([field])=>field).join(', ')}`)
@@ -414,9 +414,9 @@ function guardProjectPlanningBlueprint(
       for(const command of plan.commands){
         const actual=flatten(confirmed).find(node=>node.nodeId===command.nodeId)
         if(actual?.projectId!==owner.projectId)throw new Error(`项目策划混合命令正式回读缺少目标 ${command.nodeId}`)
-        const record=normalizeLowcodeProjectBlueprintRecords([actual.source])[0]
+        const record=decodeProjectBlueprintRows([actual.source])[0]
         if(!record)throw new Error(`项目策划混合命令回读不能还原正式记录 ${command.nodeId}`)
-        const wire=lowcodeProjectBlueprintFields(record)
+        const wire=encodeProjectBlueprintFields(record)
         if(command.kind==='create'&&actual.parentNodeId!==command.parentNodeId)throw new Error(`项目策划混合新增回读父身份不一致 ${command.nodeId}`)
         const expectedFields=command.kind==='create'?(creates.find(item=>item.nodeId===command.nodeId)?.fields??{}):command.fields
         const mismatches=Object.entries(expectedFields).filter(([field,value])=>String(wire[field])!==String(value))
@@ -471,9 +471,9 @@ function guardProjectPlanningBlueprint(
         const confirmedNode=flatten(confirmed).find(candidate=>candidate.nodeId===update.nodeId)
         if(!previous)throw new Error(`项目策划 DataView 更新缺少原树身份 ${update.nodeId}`)
         if(confirmedNode?.parentNodeId!==previous.parentNodeId||(confirmedNode.children?.length??0)!==0)throw new Error(`项目策划 DataView 更新后正式树回读身份不一致 ${update.nodeId}`)
-        const confirmedRecord=normalizeLowcodeProjectBlueprintRecords([confirmedNode.source])[0]
+        const confirmedRecord=decodeProjectBlueprintRows([confirmedNode.source])[0]
         if(!confirmedRecord)throw new Error(`项目策划更新回读不能还原为正式 Base_NavigationInfo 记录 ${update.nodeId}`)
-        const confirmedWire=lowcodeProjectBlueprintFields(confirmedRecord)
+        const confirmedWire=encodeProjectBlueprintFields(confirmedRecord)
         const mismatches=Object.entries(update.fields).filter(([field,value])=>String(confirmedWire[field])!==String(value))
         if(mismatches.length>0)throw new Error(`项目策划 DataView 正式回读与更新字段不一致 ${update.nodeId}：${mismatches.map(([field])=>field).join(', ')}`)
       }
@@ -547,9 +547,9 @@ function guardProjectPlanningBlueprint(
     for (const submitted of plannedChildren) {
       const confirmedNode = flatten(confirmed).find(node => node.nodeId === submitted.nodeId && node.parentNodeId === submitted.parentNodeId)
       if (!confirmedNode) throw new Error(`项目策划新增命令完成后，当前 DataView 树回读缺少目标节点 ${submitted.nodeId}`)
-      const confirmedRecord = normalizeLowcodeProjectBlueprintRecords([confirmedNode.source])[0]
+      const confirmedRecord = decodeProjectBlueprintRows([confirmedNode.source])[0]
       if (!confirmedRecord) throw new Error(`项目策划新增回读不能还原为正式 Base_NavigationInfo 记录 ${submitted.nodeId}`)
-      const confirmedWire = lowcodeProjectBlueprintFields(confirmedRecord)
+      const confirmedWire = encodeProjectBlueprintFields(confirmedRecord)
       const wireMismatches = Object.entries(submitted.fields).filter(([field, value]) => String(confirmedWire[field]) !== String(value))
       if (wireMismatches.length > 0) {
         throw new Error(`项目策划 DataView 正式回读与提交字段不一致 ${submitted.nodeId}：${wireMismatches.map(([field]) => field).join(', ')}`)

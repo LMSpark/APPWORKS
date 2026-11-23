@@ -175,7 +175,7 @@ import {DataViewFilter, RequestState, type SparkNode} from '@spark-appworks/spar
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {FieldCheckbox, FieldSelect, FieldText, FieldValueFunction, RendererForm, RendererTable, RendererButton, RendererDialog} from '@spark-appworks/spark-component'
 import type {DataSpaceModelSourceProps} from './DataSpaceModelSource.props'
-import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {LowcodeDataSpaceSourceCatalog} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 import {DataSpaceSourceControls} from './data-space-source-controls'
 
 const props = defineProps<DataSpaceModelSourceProps>()

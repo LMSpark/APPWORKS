@@ -13,8 +13,8 @@ import css from '@/views/features/application/smart-bid/authoring/page11/style.c
 import {ContentAuthoringCommands} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-commands'
 import {createContentAuthoringScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
 import {submissionObligationScenarioView} from '@/views/features/application/smart-bid/followup/submission-obligation-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 registerAllRenderers()
 function draftNodes(draft:unknown):unknown[]{

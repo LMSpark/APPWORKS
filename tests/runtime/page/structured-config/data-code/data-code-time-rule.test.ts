@@ -6,7 +6,7 @@ import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-mod
 import {RequestState, type DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {PAGE_RUNTIME, Spark, FieldText, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
 import ParentCodeDialog from '@/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue'
 import {codeModels, codeService, designText, DESIGN} from './data-code.fixture'

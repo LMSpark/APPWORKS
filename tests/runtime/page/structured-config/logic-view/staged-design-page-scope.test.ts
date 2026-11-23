@@ -4,10 +4,10 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {computed, defineComponent, h, ref} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {Spark} from '@spark-appworks/spark-component'
-import {createStagedDesignExecutor} from '@/lowcode/resources/repository/staged-design-file-view'
+import {createStagedDesignExecutor} from '@/platform-adapters/resources/repository/staged-design-file-view'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 
 const wrappers: Array<ReturnType<typeof mount>> = []

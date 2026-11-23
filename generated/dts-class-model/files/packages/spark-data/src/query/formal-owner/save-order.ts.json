@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/save-order",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/save-order.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/save-order.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/save-order",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/save-order 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceSaveAction（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceSaveAction"
+    ]
+  },
+  "$defs": {
+    "DataSpaceSaveAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceSaveAction",
+      "enum": [
+        "added",
+        "changed",
+        "deleted"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-23T07:03:31.216Z",
+  "models": {
+    "DataSpaceSaveAction": {
+      "name": "DataSpaceSaveAction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof actions[number]",
+        "members": {}
+      }
+    }
+  }
+}

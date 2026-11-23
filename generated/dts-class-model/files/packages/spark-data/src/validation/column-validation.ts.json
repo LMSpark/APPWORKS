@@ -19,13 +19,13 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ValidationRuleType",
       "enum": [
-        "type",
-        "pattern",
         "min",
         "max",
         "required",
+        "type",
         "minLength",
-        "maxLength"
+        "maxLength",
+        "pattern"
       ]
     },
     "ColumnValidationRule": {
@@ -37,8 +37,8 @@
           "properties": {
             "type": {
               "enum": [
-                "type",
-                "required"
+                "required",
+                "type"
               ]
             },
             "message": {

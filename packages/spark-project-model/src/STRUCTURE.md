@@ -2,10 +2,10 @@
 
 ```text
 blueprint/  ProjectBlueprintNode、正式分组 DTO、索引、树投影和编辑草稿
-page/       PageTool、三文件内容模型、PageRuntime
+page/       PageTool、三文件内容与发布引用、PageRuntime
 scenario/   ScenarioViewConfig、ScenarioViewFile
 project/    ProjectBlueprint、ProjectBlueprintDesign、ProjectSession、ProjectWorkspace
-io/         蓝图与引用 gateway
+io/         蓝图记录 codec、SPARK Data owner 接入、引用 gateway
 ```
 
 领域身份与生命周期见 [MODEL-HIERARCHY.md](./MODEL-HIERARCHY.md)。

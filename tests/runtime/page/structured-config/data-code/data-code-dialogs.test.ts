@@ -7,10 +7,10 @@ import TimeStringDialog from '@/views/features/data-platform/structured-config/d
 import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
 import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
 import {codeService, designText} from './data-code.fixture'
 const state = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof codeService>}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.current.http},
   lowcodeApi: {readRequestScope: () => state.current.readRequestScope(), dataSpace: {
     get design() {return state.current}, get runtime() {return state.current.runtime},

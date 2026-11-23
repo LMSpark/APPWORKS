@@ -7,8 +7,8 @@ import script from '@/views/features/application/smart-bid/collaboration/tasks/p
 import {prepareReviewFindingRecheck} from '@/services/smart-bid/content/review/finding/review-finding-recheck'
 import {prepareReviewFindingRegistration} from '@/services/smart-bid/content/review/finding/review-finding-registration'
 import {bidFindingsScenarioViews} from '@/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('accepts complete zero findings and rejects findings from a different checker version',async()=>{
  const selection={targetHash:'a'.repeat(64),checkerHash:'b'.repeat(64)}

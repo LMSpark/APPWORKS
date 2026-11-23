@@ -8,10 +8,10 @@ import ElementPlus from 'element-plus'
 import {RendererTree, RendererFilterExpression, FilterExpressionEditor, FieldJson, FieldCheckbox, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {ElSelect, ElCheckbox, ElTabs} from 'element-plus'
 import {RendererTabs,RendererTabPane} from '@spark-appworks/spark-component'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
-import {createSingleExportLayout,readSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
+import {createSingleExportLayout,readSingleExportLayout} from '@/platform-adapters/resources/semi-structured/excel-import/layout/definition'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
 import {EXCEL_DESIGN, excelDesignModels, designText,EXCEL_DICTIONARY,excelDictionaryReferenceModels} from './excel-import-design.fixture'
@@ -24,7 +24,7 @@ vi.mock('@spark-appworks/spark-app', async () => {
   const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
   return {NativePageRuntimeSession, useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}
 })
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === EXCEL_DESIGN ? designText : id === SOURCE_SCENE ? sourceText : id===EXCEL_DICTIONARY?dictionaryText:topicTexts[id] ?? null}}),
   lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76','tenant-id':'tenant'}}), dataSpace: {

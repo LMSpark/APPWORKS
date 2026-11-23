@@ -17,4 +17,4 @@
 ## 相关文档
 
 - [../docs/guides/CONFIG_SYSTEM.md](../docs/guides/CONFIG_SYSTEM.md)
-- [../packages/spark-lowcode-api/README.md](../packages/spark-lowcode-api/README.md)
+- [../src/platform-adapters/api/index.ts](../src/platform-adapters/api/index.ts)

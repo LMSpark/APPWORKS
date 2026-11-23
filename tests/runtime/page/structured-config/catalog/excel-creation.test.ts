@@ -1,10 +1,10 @@
 import {afterEach,describe,expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createExcelCatalogBindings,startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createExcelCatalogBindings,startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/platform-adapters/resources/semi-structured/excel-import/catalog/creation'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL,topicModels,topicTexts} from './formal-topic.fixture'
 

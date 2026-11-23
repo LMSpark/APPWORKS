@@ -5,7 +5,7 @@ import {
   FLOW_MONITOR_SCENARIO_ID,
   FLOW_WORKBENCH_SCENARIO_ID,
   prepareFlowRunPage,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 
 type MockView = {
   destroyed: boolean

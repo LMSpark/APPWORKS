@@ -1,15 +1,15 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {DataSet} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage/flow-model-manager'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {WorkflowFlowModelManager} from '@/platform-adapters/resources/system/workflow/manage/flow-model-manager'
 import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 
 const auth = vi.hoisted(() => ({userId: 'USER', applicationId: 'APP'}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({readLowcodePrincipal: () => auth.userId ? {...auth} : null}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({readLowcodePrincipal: () => auth.userId ? {...auth} : null}))
 const dataSets: DataSet[] = []
 afterEach(() => {dataSets.splice(0).forEach(ds => ds.destroy()); auth.userId = 'USER'; vi.useRealTimers()})
 

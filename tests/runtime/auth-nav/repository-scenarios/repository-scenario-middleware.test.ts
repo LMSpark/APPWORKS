@@ -223,7 +223,7 @@ describe('repository scenario Vite middleware', () => {
     }
 
     const navigationAbsolutePath = path.resolve(root, 'config/navigation/vue-pages.json')
-    const otherSourcePath = path.resolve(root, 'src/lowcode/lowcode-runtime.ts')
+    const otherSourcePath = path.resolve(root, 'src/platform-adapters/lowcode-runtime.ts')
     const unchangedOptions = {type: 'update' as const, timestamp: 1, modules: [], read: () => '', server}
     expect(await invoke(repositoryHook, {...unchangedOptions, file: navigationAbsolutePath})).toBeUndefined()
     expect(await invoke(repositoryHook, {...unchangedOptions, file: otherSourcePath})).toBeUndefined()

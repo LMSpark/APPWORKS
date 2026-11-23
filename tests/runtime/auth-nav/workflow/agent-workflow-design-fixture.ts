@@ -1,14 +1,14 @@
 import {vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
-import {AGENT_WORKFLOW_DESIGN_TABLES} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource'
-import type {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
-import {createLowcodeFileResourceExecutors} from '@/lowcode/resources/repository/file-resource-registry'
+import {AGENT_WORKFLOW_DESIGN_TABLES} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-resource'
+import type {createAgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {createLowcodeFileResourceExecutors} from '@/platform-adapters/resources/repository/file-resource-registry'
 
-import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
-import {createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/lowcode/resources/repository/agent-workflow/publication'
+import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
+import {createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/publication'
 
 type RegisteredFileResourceInput = Parameters<typeof createLowcodeFileResourceExecutors>[0]
 /** Test file API: only the reads the workflow resources use; other registry resources fail if touched. */

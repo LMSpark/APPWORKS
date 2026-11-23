@@ -4,7 +4,7 @@
  * 边界：只传会话及身份，不传字段行或权限副本。
  * AI用途：模型字段与共用字段规则绑定同一modelFields命名视图。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 统一模型字段工作区参数。 */
 export type DataSpaceModelFieldsProps = {

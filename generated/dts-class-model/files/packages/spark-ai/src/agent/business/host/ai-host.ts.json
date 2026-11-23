@@ -123,8 +123,8 @@
         "status": {
           "enum": [
             "error",
-            "warning",
-            "ok"
+            "ok",
+            "warning"
           ]
         }
       },
@@ -168,8 +168,8 @@
         "status": {
           "enum": [
             "error",
-            "warning",
-            "ok"
+            "ok",
+            "warning"
           ]
         },
         "inspectReport": {

@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {buildWorkflowQueryOutput} from '@/lowcode/resources/structured-config/workflow-definition/output/query-output'
+import {buildWorkflowQueryOutput} from '@/platform-adapters/resources/structured-config/workflow-definition/output/query-output'
 
 const field={rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'dataModel',Name:'name',AsName:'',FieldType:'varchar',description:'名称',IsOutput:1}
 const original=[

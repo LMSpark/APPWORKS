@@ -2,12 +2,12 @@ import {expect,it,vi} from 'vitest'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {DataRow,DataView} from '@spark-appworks/spark-data'
 const service=vi.hoisted(()=>({readSpaceDefinition:vi.fn(async()=>({dataSpaceId:'SPACE',name:'Commands'})),readModelBatch:vi.fn(async()=>[]),readRelations:vi.fn(async()=>[])}))
-vi.mock('../../../../src/lowcode/lowcode-runtime',async()=>{
- const {HttpClientBase}=await import('@spark-appworks/spark-utils'),{DataSpaceRuntimeApi}=await import('@spark-appworks/spark-lowcode-api')
+vi.mock('../../../../src/platform-adapters/lowcode-runtime',async()=>{
+ const {HttpClientBase}=await import('@spark-appworks/spark-utils'),{DataSpaceRuntimeApi}=await import('@spark-appworks/spark-data')
  const http=new class extends HttpClientBase{protected override async executeRequest():Promise<never>{throw Error('Unexpected network')}}()
  return{lowcodeApi:{dataSpace:{design:service,runtime:new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})}},lowcodeHttp:http,lowcodeDesignFileUpload:undefined,createLowcodeProjectGateways:()=>{throw Error('Unexpected file owner')}}
 })
-import {loadScenarioDataSet} from '../../../../src/lowcode/data-space/lowcode-data-space-runtime'
+import {loadScenarioDataSet} from '../../../../src/platform-adapters/data-space/lowcode-data-space-runtime'
 function config(){return new ScenarioViewConfig('SPACE',JSON.stringify({scenarioId:'SPACE',schemaVersion:2,resourceRelations:[],tables:{Run:{resourceType:'command',resourceId:'test-command',columns:[{name:'commandId',type:'string',isPrimaryKey:true},{name:'key',type:'string'}],views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}}}}}))}
 it('loads configured commands without querying a fake formal model',async()=>{
  service.readModelBatch.mockClear()

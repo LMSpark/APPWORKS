@@ -1,0 +1,1467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/platform/lowcode-platform-api",
+    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
+    "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/platform/lowcode-platform-api",
+    "jsdoc": "低代码平台门面 API：登录/刷新/登出、企业目录与注册、应用选择与导航根解析。\n会话与应用上下文分别委托 {@link LowcodeSessionStore}、{@link LowcodeApplicationStore} 持久化；\n登录成功会清空应用上下文，避免跨企业/跨应用残留导航身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeLoginCredentials",
+      "LowcodeVerificationScene",
+      "LowcodeVerificationRequest",
+      "LowcodeUserRegistration",
+      "LowcodeEnterpriseRegistration",
+      "LowcodeRegistrationResult",
+      "LowcodeIdentity",
+      "LowcodeEnterprise",
+      "LowcodeSession",
+      "LowcodePlatformApiOptions",
+      "LowcodeApplicationSelectionReceipt",
+      "LowcodePlatformApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeLoginCredentials": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeLoginCredentials",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseName",
+        "account",
+        "password"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeVerificationScene": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeVerificationScene",
+      "enum": [
+        "REGISTER",
+        "REGISTER_ENT"
+      ]
+    },
+    "LowcodeVerificationRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeVerificationRequest",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "../../../../backend-api-contracts/common.ts.json#/$defs/SendCodeType"
+        },
+        "account": {
+          "type": "string"
+        },
+        "scene": {
+          "$ref": "#/$defs/LowcodeVerificationScene"
+        }
+      },
+      "required": [
+        "enterpriseName",
+        "channel",
+        "account",
+        "scene"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeUserRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeUserRegistration",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "sex": {
+          "enum": [
+            "M",
+            "F"
+          ]
+        },
+        "channel": {
+          "$ref": "../../../../backend-api-contracts/common.ts.json#/$defs/SendCodeType"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "verificationCode": {
+          "type": "string"
+        },
+        "userType": {
+          "type": "string"
+        },
+        "departmentId": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enterpriseName",
+        "account",
+        "displayName",
+        "password",
+        "sex",
+        "channel",
+        "phone",
+        "email",
+        "verificationCode"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeEnterpriseRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterpriseRegistration",
+      "properties": {
+        "englishName": {
+          "type": "string"
+        },
+        "chineseName": {
+          "type": "string"
+        },
+        "domainKey": {
+          "type": "string"
+        },
+        "chineseShortName": {
+          "type": "string"
+        },
+        "administratorAccount": {
+          "type": "string"
+        },
+        "administratorPassword": {
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "../../../../backend-api-contracts/common.ts.json#/$defs/SendCodeType"
+        },
+        "verificationAccount": {
+          "type": "string"
+        },
+        "verificationCode": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "englishName",
+        "chineseName",
+        "domainKey",
+        "chineseShortName",
+        "administratorAccount",
+        "administratorPassword",
+        "channel",
+        "verificationAccount",
+        "verificationCode",
+        "phone",
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeRegistrationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRegistrationResult",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": true
+      },
+      "required": [
+        "id",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeIdentity",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "enterpriseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "enterpriseShortName": {
+          "type": "string"
+        },
+        "role": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "userId",
+        "account",
+        "displayName",
+        "enterpriseId",
+        "enterpriseShortName",
+        "role",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeEnterprise": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterprise",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "shortCode": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "code",
+        "shortName",
+        "shortCode",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSession",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "accessExpiresAt": {
+          "type": "number"
+        },
+        "refreshExpiresAt": {
+          "type": "number"
+        },
+        "identity": {
+          "$ref": "#/$defs/LowcodeIdentity"
+        },
+        "enterprise": {
+          "$ref": "#/$defs/LowcodeEnterprise"
+        }
+      },
+      "required": [
+        "accessToken",
+        "refreshToken",
+        "accessExpiresAt",
+        "refreshExpiresAt",
+        "identity",
+        "enterprise"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodePlatformApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePlatformApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "session": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        },
+        "application": {
+          "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readApplicationById.params": {
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readApplicationById.return": {
+          "type": "object",
+          "title": "Promise<LowcodeApplication>"
+        },
+        "method.readNavigationRootId.params": {
+          "type": "object",
+          "properties": {
+            "systemId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readNavigationRootId.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    },
+    "LowcodeApplicationSelectionReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationSelectionReceipt",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "LowcodeApplicationActivation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationActivation",
+      "properties": {
+        "application": {
+          "$ref": "lowcode-application.ts.json#/$defs/LowcodeApplication"
+        },
+        "navigationRootId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "application",
+        "navigationRootId",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodePlatformApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePlatformApi",
+      "properties": {
+        "session": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        },
+        "application": {
+          "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodePlatformApiOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.params": {
+          "type": "object",
+          "properties": {
+            "credentials": {
+              "$ref": "#/$defs/LowcodeLoginCredentials"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.return": {
+          "type": "object",
+          "title": "Promise<LowcodeSession>"
+        },
+        "method.listEnterprises.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listEnterprises.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeEnterpriseCatalogItem[]>"
+        },
+        "method.sendVerificationCode.params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/LowcodeVerificationRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sendVerificationCode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.registerUser.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeUserRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerUser.return": {
+          "type": "object",
+          "title": "Promise<LowcodeRegistrationResult>"
+        },
+        "method.registerEnterprise.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeEnterpriseRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerEnterprise.return": {
+          "type": "object",
+          "title": "Promise<LowcodeRegistrationResult>"
+        },
+        "method.refreshSession.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshSession.return": {
+          "type": "object",
+          "title": "Promise<LowcodeSession>"
+        },
+        "method.logout.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.logout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.selectApplication.params": {
+          "type": "object",
+          "properties": {
+            "application": {
+              "$ref": "lowcode-application.ts.json#/$defs/LowcodeApplication"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectApplication.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.activateApplication.params": {
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "type": "string"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            },
+            "beforeCommit": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.activateApplication.return": {
+          "type": "object",
+          "title": "Promise<LowcodeApplicationActivation>"
+        },
+        "method.enterApplicationCatalog.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.enterApplicationCatalog.return": {
+          "$ref": "#/$defs/LowcodeApplicationSelectionReceipt"
+        },
+        "method.cancelPendingApplicationSelection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancelPendingApplicationSelection.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:13:33.171Z",
+  "models": {
+    "LowcodeLoginCredentials": {
+      "name": "LowcodeLoginCredentials",
+      "jsdoc": "企业域登录凭据；请求体映射为 strUser、strPwd、entName（大小写固定）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    password: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    password: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "password",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeVerificationScene": {
+      "name": "LowcodeVerificationScene",
+      "jsdoc": "验证码业务场景；本门面仅支持注册子集（全集见 contracts SendCodeScene）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>",
+            "targetName": "Extract"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeVerificationRequest": {
+      "name": "LowcodeVerificationRequest",
+      "jsdoc": "发送验证码请求；wire 字段 ent、type、account、scene。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    channel: SendCodeType;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    channel: SendCodeType;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scene",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeUserRegistration": {
+      "name": "LowcodeUserRegistration",
+      "jsdoc": "用户注册输入；wire 含 loginName、username、user_types、depId、jobId 等固定键名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: SendCodeType;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: SendCodeType;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "password",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phone",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "email",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "departmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "jobId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterpriseRegistration": {
+      "name": "LowcodeEnterpriseRegistration",
+      "jsdoc": "企业注册输入；ent 子对象 wire 键为 PascalCase（Name、CName、ShortName、ShortCName 等）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: SendCodeType;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: SendCodeType;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "englishName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "domainKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "administratorAccount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "administratorPassword",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationAccount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phone",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "email",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRegistrationResult": {
+      "name": "LowcodeRegistrationResult",
+      "jsdoc": "注册操作结果；id 从 rowid/ROWID/userId 等 wire 别名中择优提取。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | null;\n    raw: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | null;\n    raw: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeIdentity": {
+      "name": "LowcodeIdentity",
+      "jsdoc": "登录后会话身份；由 userinfo 的 ROWID/ID、LoginName、EntId 等 wire 字段归一化。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    userId: string;\n    account: string;\n    displayName: string;\n    enterpriseId: string | null;\n    enterpriseShortName: string;\n    role: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    userId: string;\n    account: string;\n    displayName: string;\n    enterpriseId: string | null;\n    enterpriseShortName: string;\n    role: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "userId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "role",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterprise": {
+      "name": "LowcodeEnterprise",
+      "jsdoc": "登录后会话企业快照；由 entinfo 的 rowid、Name、CName、ShortName 等 wire 字段归一化。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | null;\n    name: string | null;\n    code: string | null;\n    shortName: string;\n    shortCode: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | null;\n    name: string | null;\n    code: string | null;\n    shortName: string;\n    shortCode: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSession": {
+      "name": "LowcodeSession",
+      "jsdoc": "完整低代码会话：双 token、过期时间与身份/企业快照。\naccessToken/refreshToken 已剥离 Bearer 前缀；刷新时 Authorization 与 X-Authorization 分别携带二者。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    accessToken: string;\n    refreshToken: string;\n    accessExpiresAt: number;\n    refreshExpiresAt: number;\n    identity: LowcodeIdentity;\n    enterprise: LowcodeEnterprise;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    accessToken: string;\n    refreshToken: string;\n    accessExpiresAt: number;\n    refreshExpiresAt: number;\n    identity: LowcodeIdentity;\n    enterprise: LowcodeEnterprise;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "accessToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accessExpiresAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshExpiresAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterprise",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodePlatformApiOptions": {
+      "name": "LowcodePlatformApiOptions",
+      "jsdoc": "Dependencies owned by the host for platform APIs; application lookup is supplied by the SPARK DataView layer.\n`readApplicationById` runs inside the platform selection fence and must call `assertCurrent` before and after\nasynchronous metadata/query work. Omitting it makes activation fail closed; activation never falls back to HTTP.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n    /** Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed. */\n    readNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n    /** Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed. */\n    readNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readApplicationById",
+              "jsdoc": "Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work.",
+              "parameters": [
+                {
+                  "name": "applicationId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplication",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-application.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readNavigationRootId",
+              "jsdoc": "Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed.",
+              "parameters": [
+                {
+                  "name": "systemId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationSelectionReceipt": {
+      "name": "LowcodeApplicationSelectionReceipt",
+      "jsdoc": "同步校验某次应用选择或目录选择是否仍是平台当前意图。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationActivation": {
+      "name": "LowcodeApplicationActivation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}> & LowcodeApplicationSelectionReceipt",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "LowcodeApplicationSelectionReceipt",
+            "targetName": "LowcodeApplicationSelectionReceipt"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodePlatformApi": {
+      "name": "LowcodePlatformApi",
+      "jsdoc": "低代码平台 HTTP 门面；并发 refreshSession 共享同一 in-flight Promise，避免重复刷新。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: LowcodePlatformApiOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodePlatformApiOptions",
+                "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "login",
+              "jsdoc": "企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。",
+              "parameters": [
+                {
+                  "name": "credentials",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeLoginCredentials",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listEnterprises",
+              "jsdoc": "拉取公开企业目录；无需已登录会话。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeEnterpriseCatalogItem[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sendVerificationCode",
+              "jsdoc": "发送注册/企业注册验证码；公开接口，账号与企业名会先 trim。",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeVerificationRequest",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerUser",
+              "jsdoc": "注册用户；必填字段缺失时本地 fail-fast，不发起无效请求。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeUserRegistration",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeRegistrationResult",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerEnterprise",
+              "jsdoc": "注册企业；ent 子对象 wire 键大小写必须与平台约定一致。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeEnterpriseRegistration",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeRegistrationResult",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshSession",
+              "jsdoc": "刷新 token 对；并发调用合并为单次请求，无会话时 401。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "logout",
+              "jsdoc": "登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectApplication",
+              "jsdoc": "选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。",
+              "parameters": [
+                {
+                  "name": "application",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeApplication",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-application.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "activateApplication",
+              "jsdoc": "拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。\n@param beforeCommit 所有异步读取完成后、保存应用会话前同步复核宿主条件；抛错则不保存，不能传异步函数。",
+              "parameters": [
+                {
+                  "name": "applicationId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "beforeCommit",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplicationActivation",
+                    "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "enterApplicationCatalog",
+              "jsdoc": "开始目录意图、清除应用上下文，并返回可同步复核的当前性凭据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApplicationSelectionReceipt",
+                "sourcePath": "src/platform-adapters/api/platform/lowcode-platform-api.ts"
+              }
+            },
+            {
+              "name": "cancelPendingApplicationSelection",
+              "jsdoc": "撤销仍在等待提交的应用选择；已提交选择和其 receipt 不受影响。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

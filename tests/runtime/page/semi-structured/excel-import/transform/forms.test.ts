@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
-import {excelTransformFormSchema} from '@/lowcode/resources/semi-structured/excel-import/transform/forms'
-import {EXCEL_TRANSFORM_RULE_TYPES} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
+import {excelTransformFormSchema} from '@/platform-adapters/resources/semi-structured/excel-import/transform/forms'
+import {EXCEL_TRANSFORM_RULE_TYPES} from '@/platform-adapters/resources/semi-structured/excel-import/transform/definition'
 
 describe('Excel transformation typed configuration forms',()=>{
  const fields='SPACE@Base_ImportData_Field@foreignKeyFields'

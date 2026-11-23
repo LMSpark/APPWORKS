@@ -1,7 +1,7 @@
 import {DataSet, RequestState, type DataRow} from '@spark-appworks/spark-data'
-import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
-import type {LowcodeDesignApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
-import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
+import { LowcodeApiError } from '@/platform-adapters/api'
+import type {LowcodeDesignApi, LowcodeDesignFileUpload} from '@/platform-adapters/api'
+import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-resource'
 
 const columns = [
   {name: 'workflowId', type: 'string', isPrimaryKey: true},
@@ -373,12 +373,12 @@ describe('Agent Workflow target space resolution', () => {
 
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
-import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {createAgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowDesignTables, bindRegisteredFileResources} from './agent-workflow-design-fixture'
 
 describe('Agent Workflow file owner lifecycle', () => {
   it('hosts catalog preflight and the file data set through one native session', () => {
-    const source = readFileSync(resolve(process.cwd(), 'src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts'), 'utf8')
+    const source = readFileSync(resolve(process.cwd(), 'src/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner.ts'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('session.isCurrent(preflightRuntime)')
     expect(source).toContain("pageId: 'agent-workflow-file-data'")

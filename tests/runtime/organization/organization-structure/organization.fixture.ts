@@ -1,4 +1,4 @@
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import organizationConfig from '../../../../config/pages/organization/organization-structure/pagedata.json?raw'
 import {ApiBackend, createApiService, pagedata} from '../../page/api-provider/api-provider.fixture'

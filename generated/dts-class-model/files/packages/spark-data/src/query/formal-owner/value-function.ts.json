@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/value-function",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/value-function.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/value-function.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/value-function",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/value-function 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T07:42:06.416Z",
+  "models": {}
+}

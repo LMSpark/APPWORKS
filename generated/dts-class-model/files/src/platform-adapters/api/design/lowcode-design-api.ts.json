@@ -1,0 +1,726 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/design/lowcode-design-api",
+    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts",
+    "sourceFile": "src/platform-adapters/api/design/lowcode-design-api.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/design/lowcode-design-api",
+    "jsdoc": "@module @/platform-adapters/api:design/lowcode-design-api\n职责：读取设计文件原文、原字节与实际目录快照，确认文件删除。\n边界：请求后核对 scope；列表不推断发布指针，删除回列确认不提供 CAS。\nAI用途：按实际 N__filename 历史定位文件，上传确认交给文件上传 owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeFileLocator",
+      "LowcodeFileDirectory",
+      "LowcodeFileEntry",
+      "LowcodeFileVersionSummary",
+      "LowcodeFileStat",
+      "LowcodeDesignApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeDesignApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../../../../packages/spark-data/src/query/formal-table-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
+    "LowcodeFileLocator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileLocator",
+      "properties": {
+        "appType": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "isCrossEnterprise": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "appType",
+        "customPath",
+        "fileName"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileDirectory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileDirectory",
+      "properties": {
+        "appType": {
+          "type": "string"
+        },
+        "folderPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "appType",
+        "folderPath"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileEntry",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "lastModified"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileVersionSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileVersionSummary",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "fileName",
+        "lastModified"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileStat": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileStat",
+      "properties": {
+        "size": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "contentType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "lastModified": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "etag": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "size",
+        "contentType",
+        "lastModified",
+        "etag"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDesignApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeDesignApiOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileBytes.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileBytes.return": {
+          "type": "object",
+          "title": "Promise<Uint8Array>"
+        },
+        "method.readTextFile.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTextFile.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.statFileV2.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.statFileV2.return": {
+          "type": "object",
+          "title": "Promise<LowcodeFileStat>"
+        },
+        "method.readFileHash.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileHash.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.readFileLastModified.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileLastModified.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.listFiles.params": {
+          "type": "object",
+          "properties": {
+            "directory": {
+              "$ref": "#/$defs/LowcodeFileDirectory"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listFiles.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeFileEntry[]>"
+        },
+        "method.listFileVersions.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listFileVersions.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeFileVersionSummary[]>"
+        },
+        "method.removeFile.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.291Z",
+  "models": {
+    "LowcodeDesignApiOptions": {
+      "name": "LowcodeDesignApiOptions",
+      "jsdoc": "实际 HTTP 通道与请求身份读取器；token 变化使迟到响应失效。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileLocator": {
+      "name": "LowcodeFileLocator",
+      "jsdoc": "单文件读取定位；appType/customPath/fileName 组合须与后端文件命名空间一致，跨企业读需显式 `isCrossEnterprise`。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appType: string;\n    customPath: string;\n    fileName: string;\n    isCrossEnterprise?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appType: string;\n    customPath: string;\n    fileName: string;\n    isCrossEnterprise?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isCrossEnterprise",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileDirectory": {
+      "name": "LowcodeFileDirectory",
+      "jsdoc": "目录列表查询键；folderPath 可为空字符串表示根级，appType 必填。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appType: string;\n    folderPath: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appType: string;\n    folderPath: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "folderPath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileEntry": {
+      "name": "LowcodeFileEntry",
+      "jsdoc": "后端实际文件名和修改时间；未知时间保留 null，不生成伪时间。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileVersionSummary": {
+      "name": "LowcodeFileVersionSummary",
+      "jsdoc": "实际存在的规范 N__filename 快照及非负安全编号；最大编号只供调用方分配候选，不代表当前或发布版本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileStat": {
+      "name": "LowcodeFileStat",
+      "jsdoc": "File V2 实际元数据；etag 为空时不能用它充当内容证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    size: number | null;\n    contentType: string | null;\n    lastModified: number | string | null;\n    etag: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    size: number | null;\n    contentType: string | null;\n    lastModified: number | string | null;\n    etag: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "size",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "etag",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDesignApi": {
+      "name": "LowcodeDesignApi",
+      "jsdoc": "设计文件读取和删除 owner；保留原字节，版本列表严格匹配同文件规范名并拒绝重复编号。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "持有 HTTP 与 scope 读取器，文件读取和删除均使用实际请求身份。",
+          "signatureText": "constructor(options: LowcodeDesignApiOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDesignApiOptions",
+                "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readFileBytes",
+              "jsdoc": "下载原始文件字节；接受 ArrayBuffer 或保留偏移/长度的字节视图，不解包 AjaxResult 或转换文本。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Uint8Array"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readTextFile",
+              "jsdoc": "读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "statFileV2",
+              "jsdoc": "优先读取 File V2 单文件元数据；V2 不可用或只返回非哈希 etag 时由调用方选择 V1 证明。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeFileStat",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFileHash",
+              "jsdoc": "返回文件内容的 SHA-256；优先使用 V2 stat etag，V2 明确不可用或 etag 未提供内容 hash 时只回读一次 V1 原字节。\n读取失败不创建 mutation attempt，也不会因为时间戳相同而确认文件。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readFileLastModified",
+              "jsdoc": "读取正式文件最后修改时间；该时间仅作为文件缓存版本，不是业务记录版本。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listFiles",
+              "jsdoc": "列出正式目录快照；整批校验名称、唯一性及安全整数时间，异常不伪装为空目录。",
+              "parameters": [
+                {
+                  "name": "directory",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileDirectory",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeFileEntry[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listFileVersions",
+              "jsdoc": "仅返回目录实际存在的规范编号快照；裸工作文件不代表任何版本。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeFileVersionSummary[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeFile",
+              "jsdoc": "正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失，后续核验失败携带既有fileResourceMutationMayHaveApplied标记，交原文件链只读核验。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "src/platform-adapters/api/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

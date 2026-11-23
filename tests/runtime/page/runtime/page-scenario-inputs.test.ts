@@ -3,13 +3,13 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, type LocationQueryRaw} from 'vue-router'
 import {flushPromises} from '@vue/test-utils'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
 import {buildPageService} from '../../../../packages/spark-component/src/page/services/buildPageService'
 import {buildPageRuntimeServices} from '../../../../packages/spark-component/src/page/services/providePageRuntimeServices'
-import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
 
 const calls: PageRuntime[] = []
 afterEach(() => {for (const call of calls.splice(0)) call.dispose()})

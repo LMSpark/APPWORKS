@@ -1,4 +1,3 @@
-import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
 import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
@@ -10,19 +9,19 @@ import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
-import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@spark-appworks/spark-lowcode-api'
+import { loadLowcodeRuntimeScenario } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { createLowcodeProjectGateways, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
+import { PageRuntime, ProjectWorkspace, type ProjectBlueprintRecord } from '@spark-appworks/spark-project-model'
+import { createLowcodeProjectGateways, createPageToolFilesIo } from '@/platform-adapters/lowcode-runtime'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
-import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/lowcode/system-navigation'
+import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/platform-adapters/system-navigation'
 
 const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
 const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
 const navigationRootReader = vi.hoisted(() => ({read: vi.fn<(systemId: string, assertCurrent: () => void) => Promise<string>>()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
-vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
+vi.mock('@/platform-adapters/lowcode-application-catalog', () => ({
   readLowcodeApplications: applicationListReader.read,
   readLowcodeApplicationById: applicationCatalogReader.read,
   readLowcodeNavigationRootId: navigationRootReader.read,
@@ -34,8 +33,10 @@ import {
   enterLowcodeApplicationCatalog,
   lowcodeEnterpriseDisplayName,
   lowcodeApi,
+  lowcodeBlueprintRecords,
+  lowcodeNavigationAuthorization,
   readLowcodeRuntimeNavigation,
-} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/lowcode-runtime'
 
 function saveExecutionScope(applicationId: string, navigationRootId = `ROOT-${applicationId}`): void {
   lowcodeApi.session.save({
@@ -206,7 +207,7 @@ describe('project reference application catalog owner', () => {
 
   it('preserves target-project blueprint reads behind the project reference gateway', async () => {
     saveExecutionScope('APP-CURRENT')
-    const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+    const readBlueprint = vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([
       record({nodeId: 'TARGET-PAGE', name: 'report', title: '目标页面', kind: 'page', target: 'cfg:report', order: 1}),
     ])
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
@@ -223,13 +224,13 @@ type BlueprintFixtureInput = Readonly<{
   parentNodeId?: string
   name: string
   title: string
-  kind?: LowcodeProjectBlueprintRecord['kind']
+  kind?: ProjectBlueprintRecord['kind']
   target?: string
   scenarioId?: string
   order?: number
 }>
 
-function record(input: BlueprintFixtureInput): LowcodeProjectBlueprintRecord {
+function record(input: BlueprintFixtureInput): ProjectBlueprintRecord {
   return {
     nodeId: input.nodeId,
     parentNodeId: input.parentNodeId ?? '',
@@ -245,7 +246,7 @@ function record(input: BlueprintFixtureInput): LowcodeProjectBlueprintRecord {
 
 describe('lowcode project navigation projection', () => {
   it('hosts startup navigation through the shared native session', () => {
-    const source = readFileSync('src/lowcode/lowcode-runtime.ts', 'utf8')
+    const source = readFileSync('src/platform-adapters/lowcode-runtime.ts', 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).not.toContain('new ProjectModel.PageRuntime')
   })
@@ -318,7 +319,7 @@ describe('lowcode project navigation projection', () => {
     const draft = {rowid: 'DRAFT', SysId: 'APP-A', prowid: 'ROOT-APP-A', FunOrderValue: 1,
       name: '未发布页面', FunName: '未发布页面', conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 0}
     vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [root, draft]}).dataSet)
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization')
       .mockRejectedValue(new Error('导航菜单不存在'))
 
     const navigation = await readLowcodeRuntimeNavigation()
@@ -340,7 +341,7 @@ describe('lowcode project navigation projection', () => {
     const rows = kind === 'missing-root' ? [] : kind === 'published-child' ? [root, child] : [root]
     vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows}).dataSet)
     const failure = new Error('导航菜单不存在')
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(failure)
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockRejectedValue(failure)
 
     await expect(readLowcodeRuntimeNavigation()).rejects.toBe(failure)
     expect(authorization).toHaveBeenCalledWith('APP-A', 'ROOT-APP-A')
@@ -360,7 +361,7 @@ describe('lowcode project navigation projection', () => {
       const hiddenFields = kind === 'hidden-target' ? ['NavigationUrl'] : kind === 'hidden-publish' ? ['IsShowAtNav'] : []
       vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [root, child], hiddenFields}).dataSet)
       const failure = new Error('菜单授权未确认')
-      const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(failure)
+      const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockRejectedValue(failure)
 
       await expect(readLowcodeRuntimeNavigation()).rejects.toBe(failure)
       expect(authorization).toHaveBeenCalledWith('APP-A', 'ROOT-APP-A')
@@ -370,8 +371,8 @@ describe('lowcode project navigation projection', () => {
 
   it('rejects navigation when the execution application changes during authorization read', async () => {
     saveExecutionScope('APP-A')
-    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-    const authorizationRead = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+    const authorizationRead = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
 
     const navigation = readLowcodeRuntimeNavigation()
     await vi.waitFor(() => expect(authorizationRead).toHaveBeenCalledOnce())
@@ -384,11 +385,11 @@ describe('lowcode project navigation projection', () => {
   it.each(['session-reset', 'application-round-trip', 'navigation-root-change'] as const)(
     'rejects navigation when %s changes while authorization is pending', async (change) => {
       saveExecutionScope('APP-A')
-      vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
-      const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-      vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+      vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([])
+      const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+      vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
       const navigation = readLowcodeRuntimeNavigation()
-      await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+      await vi.waitFor(() => expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledOnce())
 
       if (change === 'session-reset') {
         lowcodeApi.session.clear()
@@ -413,7 +414,7 @@ describe('lowcode project navigation projection', () => {
       return `ROOT-${systemId}`
     })
     const resolveRoot = navigationRootReader.read.mockResolvedValue('ROOT-B')
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({ items: [], contexts: [] })
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({ items: [], contexts: [] })
 
     const navigation = await readLowcodeRuntimeNavigation('APP-B')
 
@@ -433,8 +434,8 @@ describe('lowcode project navigation projection', () => {
     const row: DataRow = {rowid: 'NODE-B', SysId: 'APP-B', prowid: '000000', FunOrderValue: 1, name: 'Page B', FunName: 'Page B',
       conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}
     vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [row]}).dataSet)
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+    const records = vi.spyOn(lowcodeBlueprintRecords, 'readRecords')
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization')
       .mockResolvedValue({items: [{id: 'NODE-B', target: 'vue:dashboard', targetKind: 'vue', formKey: null, children: []}], contexts: []})
 
     const navigation = await readLowcodeRuntimeNavigation('APP-B')
@@ -483,7 +484,7 @@ describe('lowcode project navigation projection', () => {
     const queryStarted = new Promise<void>(resolve => {startQuery = resolve})
     const fixture = createNavigationDataSet({beforeQuery: async () => {startQuery(); await queryGate.promise}})
     vi.mocked(loadLowcodeRuntimeScenario).mockResolvedValue(fixture.dataSet)
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(new Error('authorization read failed'))
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockRejectedValue(new Error('authorization read failed'))
     const runtimeDispose = vi.spyOn(PageRuntime.prototype, 'dispose')
     const ownerDispose = vi.spyOn(BlueprintWorkspaceDataView.prototype, 'dispose')
 
@@ -795,7 +796,7 @@ describe('lowcode project navigation projection', () => {
     const deferredApplication = deferred<unknown>()
     applicationCatalogReader.read.mockReturnValue(deferredApplication.promise)
     const resolveRoot = navigationRootReader.read
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+    const records = vi.spyOn(lowcodeBlueprintRecords, 'readRecords')
 
     const navigation = readLowcodeRuntimeNavigation('APP-B')
     await vi.waitFor(() => expect(applicationCatalogReader.read).toHaveBeenCalledOnce())
@@ -816,7 +817,7 @@ describe('lowcode project navigation projection', () => {
       return value
     }))
     navigationRootReader.read.mockReturnValue(root.promise)
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+    const records = vi.spyOn(lowcodeBlueprintRecords, 'readRecords')
 
     const navigation = readLowcodeRuntimeNavigation('APP-B')
     await vi.waitFor(() => expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', expect.any(Function)))
@@ -845,12 +846,12 @@ describe('lowcode project navigation projection', () => {
 
   it('rechecks after the authorization response before assembling navigation', async () => {
     saveExecutionScope('APP-A')
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
-    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([])
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
 
     const navigation = readLowcodeRuntimeNavigation()
-    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledOnce())
     authorization.resolve({ items: [], contexts: [] })
     queueMicrotask(() => {
       lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
@@ -861,11 +862,11 @@ describe('lowcode project navigation projection', () => {
 
   it('turns a late request failure into stale-scope failure after the execution application changes', async () => {
     saveExecutionScope('APP-A')
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
-    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([])
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
     const navigation = readLowcodeRuntimeNavigation()
-    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledOnce())
     lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
     authorization.reject(new Error('late backend failure'))
 
@@ -876,25 +877,25 @@ describe('lowcode project navigation projection', () => {
     saveExecutionScope('APP-A')
     const originalSession = lowcodeApi.session.get()
     if (originalSession === null) throw new Error('session fixture missing')
-    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-    vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([])
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
     const navigation = readLowcodeRuntimeNavigation()
-    await vi.waitFor(() => expect(lowcodeApi.blueprint.readNavigationAuthorization).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledOnce())
     lowcodeApi.session.save({ ...originalSession, accessToken: 'fixture-refreshed-access' })
     authorization.resolve({ items: [], contexts: [] })
     await expect(navigation).resolves.toMatchObject({ projectId: 'APP-A' })
 
     const stableError = new Error('fixture authorization failure')
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(stableError)
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockRejectedValue(stableError)
     await expect(readLowcodeRuntimeNavigation()).rejects.toBe(stableError)
   })
 
   it('uses the local catalog without reading a request scope when no application is selected', async () => {
     lowcodeApi.application.clear()
     const scope = vi.spyOn(lowcodeApi, 'readRequestScope')
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
-    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization')
+    const records = vi.spyOn(lowcodeBlueprintRecords, 'readRecords')
+    const authorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization')
 
     await expect(readLowcodeRuntimeNavigation()).resolves.toEqual(lowcodeEnterpriseNavigation())
 
@@ -1090,7 +1091,7 @@ describe('lowcode project navigation projection', () => {
   })
 
   it('skips maintenance pages and maintenance groups when selecting the landing page', () => {
-    const maintenance = (node: LowcodeProjectBlueprintRecord): LowcodeProjectBlueprintRecord => ({
+    const maintenance = (node: ProjectBlueprintRecord): ProjectBlueprintRecord => ({
       ...node, capability: {...node.capability, deliveryStatus: 'maintenance'},
     })
     const initial = {applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1'}

@@ -12,8 +12,8 @@ import {producedFileScenarioViews} from '@/views/features/application/smart-bid/
 import {readRegisteredAuthorityGrantRegistration} from '@/views/features/application/smart-bid/authority/authority-grant-registration-reader'
 import {createAuthorityGrantScriptHost} from '@/views/features/application/smart-bid/authority/authority-grant-script-host'
 import script from '@/views/features/application/smart-bid/authority/page04/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('binds a revocation to its authority, affected scope and original version',async()=>{
  const request={enterpriseId:'ORG',grantId:'GRANT',requestKey:'Q',expectedVersion:'V1',intent:'REVOKE' as const,decisionRef:'DECISION'}

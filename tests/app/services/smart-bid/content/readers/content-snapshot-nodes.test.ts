@@ -2,8 +2,8 @@ import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey,type DataView,type QueryParams} from '@spark-appworks/spark-data'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {readContentSnapshotNodes} from '@/views/features/application/smart-bid/authoring/model/content-snapshot-nodes'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 async function fixture(mode='normal'){
  const nodes=[{nodeId:'D',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},

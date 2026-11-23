@@ -22,7 +22,7 @@ AI用途：功能页“AI添加”入口复用；可生成的字段由正式模�
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
+import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
 
 const {AI_DATA_ENTRY_HOST, PAGE_RUNTIME, RendererDialog, RendererButton, DisplayAlert, SparkAiDataEntry, useSparkComponent} = Components
 const props = withDefaults(defineProps<{dataViewKey: string; title?: string; width?: number}>(), {title: 'AI添加', width: 760})

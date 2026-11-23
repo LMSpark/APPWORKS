@@ -43,7 +43,7 @@ import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appwork
 import {buildDataViewKey, type DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RFilterProps} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import DictionarySetting from './dictionary-setting.vue'
 import DictionaryData from './dictionary-data-page.vue'
 

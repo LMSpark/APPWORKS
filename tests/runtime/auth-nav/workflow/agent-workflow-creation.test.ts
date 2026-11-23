@@ -1,10 +1,10 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, type DataView} from '@spark-appworks/spark-data'
-import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
-import {projectWorkflowDesign, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORKFLOW_NODE_TABLE, AGENT_WORKFLOW_LINE_TABLE} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection'
+import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
+import {projectWorkflowDesign, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORKFLOW_NODE_TABLE, AGENT_WORKFLOW_LINE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection'
 
 function fixture(configure?: (view: DataView) => void) {
   const files = new Map<string, string>()

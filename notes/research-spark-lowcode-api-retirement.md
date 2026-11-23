@@ -46,7 +46,7 @@
 - 仅通用 HTTP、错误、wire 解包、缓存、事件与 JSON 原语。
 - 不接收特定平台业务逻辑、权限计算或数据空间保存规则。
 
-### src/lowcode
+### src/platform-adapters
 
 - 当前应用/租户会话与宿主请求 scope。
 - 应用/平台目录服务装配。
@@ -79,17 +79,17 @@ spark-project-model
 spark-ai
   -> Agent/Workflow/AI turn
 
-src/lowcode
+src/platform-adapters
   -> 平台、会话、资源与特定服务 adapter
   -> 将 adapter 装配进 SPARK Data
 ```
 
-`spark-data` 不反向依赖宿主。`src/lowcode` 不形成第二业务数据入口。
+`spark-data` 不反向依赖宿主。`src/platform-adapters` 不形成第二业务数据入口。
 
 ## 关键迁移原则
 
 1. 不能把整个 `spark-lowcode-api/src/**` 搬入一个新目录。
-2. 不能为了删除包把页面直接 import `src/lowcode/**` 后继续手调查询/保存。
+2. 不能为了删除包把页面直接 import `src/platform-adapters/**` 后继续手调查询/保存。
 3. `DataSpaceRuntimeApi` 的业务数据执行职责必须归 SPARK Data；宿主只注入 scope、HTTP 与 wire adapter。
 4. `LowcodeApi` 聚合门面必须删除，消费者按能力依赖明确 DataSet 或宿主 service。
 5. 内部测试路径迁移不能替代公开合同；测试与实现同域迁移。

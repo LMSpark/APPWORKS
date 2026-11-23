@@ -1,7 +1,7 @@
 import {describe,it,expect} from 'vitest'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords} from '../../../structured-config/data-code/source-picker/fixture'
-import {resolveExcelPhysicalObject} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-source'
+import {resolveExcelPhysicalObject} from '@/platform-adapters/resources/semi-structured/excel-import/metadata/physical-source'
 describe('Excel physical metadata identity',()=>{
  it('resolves within the specified application even when another application has the same database and table names',async()=>{
   const http=new ApiBackend();http.records=sourceRecords()

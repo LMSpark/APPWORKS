@@ -10,6 +10,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@spark-appworks/spark-data': resolve(root, '../spark-data/src/index.ts'),
+      '@spark-appworks/spark-json-document/schema': resolve(root, '../spark-json-document/src/schema/index.ts'),
+      '@spark-appworks/spark-json-document/tree': resolve(root, '../spark-json-document/src/tree/index.ts'),
       '@spark-appworks/spark-json-document': resolve(root, '../spark-json-document/src/index.ts'),
       '@spark-appworks/spark-utils/internal': resolve(root, '../spark-utils/src/internal/index.ts'),
       '@spark-appworks/spark-utils': resolve(root, '../spark-utils/src/index.ts'),

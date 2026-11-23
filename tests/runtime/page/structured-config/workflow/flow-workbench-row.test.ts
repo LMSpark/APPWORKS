@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {readFlowWorkbenchRowRoute} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
+import {readFlowWorkbenchRowRoute} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
 
 describe('readFlowWorkbenchRowRoute', () => {
   it('reads waiting row', () => {

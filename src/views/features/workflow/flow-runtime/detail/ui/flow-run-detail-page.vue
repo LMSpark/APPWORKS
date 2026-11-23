@@ -58,7 +58,7 @@ import {
   FLOW_WORKBENCH_SCENARIO_ID,
   buildFlowRunPageRoute,
   readFlowRuntimeRouteQuery,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import FlowRunDetailStepTable from './flow-run-detail-step-table.vue'

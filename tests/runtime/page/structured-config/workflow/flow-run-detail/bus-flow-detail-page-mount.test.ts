@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
-import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-adapters/resources/system/workflow/manage'
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
 import FlowRunPage from '@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
@@ -14,7 +14,7 @@ import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 const {loadScenario} = vi.hoisted(() => ({loadScenario: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
 // Vitest strips CSS imports by default. Pass the actual tool text to the runtime.
 vi.mock('@/views/features/workflow/flow-runtime/detail/ui/tool/style.css?raw', async () => {
   const {readFileSync} = await import('node:fs')

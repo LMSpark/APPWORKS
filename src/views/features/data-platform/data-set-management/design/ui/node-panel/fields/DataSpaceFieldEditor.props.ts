@@ -4,7 +4,7 @@
  * 边界：只传当前会话和字段身份，不传数据或权限副本。
  * AI用途：在已确认所属模型的字段节点挂载编辑器。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 import type {SparkNode} from '@spark-appworks/spark-data'
 
 /** 正式字段配置编辑器的当前调用范围。 */

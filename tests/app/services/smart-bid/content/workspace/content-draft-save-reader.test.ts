@@ -1,8 +1,8 @@
 import {expect,it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredOriginalContentDraftSave} from '@/views/features/application/smart-bid/authoring/model/content-draft-save-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reads only the original authorized save result and keeps a missing result unknown',async()=>{
  const input={requestKey:'Q',requestDigest:'a'.repeat(64),contentDigest:'b'.repeat(64),expectedDraftVersion:'V1'}

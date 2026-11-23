@@ -5,7 +5,7 @@
  * 负责人 RoleIdField/CategoryID 来自视图常驻范围（pagedata），只是数据值，不作任何前端权限判断。
  */
 import type {DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 
 export const APPLICATION_MANAGER_SCENARIO = '0C70F74793F9E858B71E0DBDEC784D57'
 export const DATABASE_RELATIONS_SCENARIO = '93DF05182084B1F0E8DA7283E83BBE0C'

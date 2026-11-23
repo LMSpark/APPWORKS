@@ -4,8 +4,8 @@ import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/su
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
 import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 import {reconcileSubmissionDeadline} from '@/services/smart-bid/content/review/submission-reconciliation'
 import {reconcileDeadlineFieldValues} from '@/views/features/application/smart-bid/authoring/model/review/deadline/content-deadline-field-reconciliation'
 

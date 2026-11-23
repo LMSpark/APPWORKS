@@ -3,11 +3,11 @@ import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
-import { activateLowcodeApplication, enterLowcodeApplicationCatalog } from '@/lowcode/lowcode-runtime'
+import { activateLowcodeApplication, enterLowcodeApplicationCatalog } from '@/platform-adapters/lowcode-runtime'
 
 type GuardPrincipal = { enterpriseName: string; applicationId: string | null }
 type GuardTestState = {
@@ -40,7 +40,7 @@ const testState = vi.hoisted((): GuardTestState => ({
   },
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: { platform: { cancelPendingApplicationSelection: () => testState.cancelPendingSelection() } },
   activateLowcodeApplication: vi.fn(async (applicationId: string, signal?: AbortSignal, beforeCommit?: () => void) => {
     return testState.activation(applicationId, signal, beforeCommit)

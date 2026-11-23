@@ -25,7 +25,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {codeNodeTypeLabel, saveCodingSequences, selectCodingSequence} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {codeNodeTypeLabel, saveCodingSequences, selectCodingSequence} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
 const props = defineProps<{dataViewKey: string; nodeId: string | number}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'sequence-selector-dialog'}), runtime = sparkConsume(PAGE_RUNTIME)

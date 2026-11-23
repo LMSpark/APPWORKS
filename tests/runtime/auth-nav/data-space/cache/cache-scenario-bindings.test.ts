@@ -1,11 +1,11 @@
 import {afterEach,expect,it} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {HttpClientBase,isRecord,type HttpResponse,type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createCacheScenarioBindings} from '@/lowcode/resources/system/cache-management/runtime-bindings'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createCacheScenarioBindings} from '@/platform-adapters/resources/system/cache-management/runtime-bindings'
 import {cacheScenarioModels} from './cache-scenario.fixture'
 
 const scene='348D1C50B204C779AABBE2489C5E2FDF',sets:DataSet[]=[]

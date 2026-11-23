@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/platform/resources/structured-config/dictionary/application-resource",
+    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-resource.ts",
+    "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-resource.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/platform/resources/structured-config/dictionary/application-resource",
+    "jsdoc": "@module @/platform-adapters/api:platform/resources/structured-config/dictionary/application-resource\n职责：把当前应用级字典接入只读DataView，标准选项组件消费同一结果与scope证明。\n边界：只有读取，不授予业务编辑权限；不缓存标签或接受伪造的场景模型绑定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApplicationDictionaryResource",
+      "AuthenticatedDictionaryResource"
+    ]
+  },
+  "$defs": {
+    "DictionaryResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionaryResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "application-query.ts.json#/$defs/ApplicationDictionaryResourceOptions"
+            },
+            "scope": {
+              "enum": [
+                "application",
+                "authenticated"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindReadonlyCommandQueryOptions"
+        }
+      }
+    },
+    "ApplicationDictionaryResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplicationDictionaryResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "application-query.ts.json#/$defs/ApplicationDictionaryResourceOptions"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "AuthenticatedDictionaryResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AuthenticatedDictionaryResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "application-query.ts.json#/$defs/ApplicationDictionaryResourceOptions"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.322Z",
+  "models": {
+    "DictionaryResource": {
+      "name": "DictionaryResource",
+      "jsdoc": "应用字典只读资源；名称属于来源身份，每个查询捕获本次应用执行域。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: ApplicationDictionaryResourceOptions, scope: 'application' | 'authenticated')",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ApplicationDictionaryResourceOptions",
+                "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-query.ts"
+              }
+            },
+            {
+              "name": "scope",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "application"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "authenticated"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "绑定配置声明的原视图；派生查询不另开字典或复制可编辑候选。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindReadonlyCommandQueryOptions"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ApplicationDictionaryResource": {
+      "name": "ApplicationDictionaryResource",
+      "jsdoc": "应用字典始终要求当前应用身份。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: ApplicationDictionaryResourceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ApplicationDictionaryResourceOptions",
+                "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-query.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "DictionaryResource",
+            "targetName": "DictionaryResource"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AuthenticatedDictionaryResource": {
+      "name": "AuthenticatedDictionaryResource",
+      "jsdoc": "企业目录的只读字典，使用宿主本次登录/应用范围；不授予候选记录编辑权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: ApplicationDictionaryResourceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ApplicationDictionaryResourceOptions",
+                "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/dictionary/application-query.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "DictionaryResource",
+            "targetName": "DictionaryResource"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
-import {createExcelTransformConfig} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
-import {validateExcelTransformRule} from '@/lowcode/resources/semi-structured/excel-import/transform/validation'
+import {createExcelTransformConfig} from '@/platform-adapters/resources/semi-structured/excel-import/transform/definition'
+import {validateExcelTransformRule} from '@/platform-adapters/resources/semi-structured/excel-import/transform/validation'
 import evidence from '../../../../../support/fixtures/excel-import/transform-preflight.json'
 
 const base = {rule_type:'TRIM',source_field:'code',target_field:'code',sort_order:10,enabled:1,on_error:'FAIL_ROW',condition_json:'',config_json:'{"executionScope":"IMPORT"}'}

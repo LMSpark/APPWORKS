@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {visitExcelTransformExpression as visit} from '@/lowcode/resources/semi-structured/excel-import/transform/expression'
+import {visitExcelTransformExpression as visit} from '@/platform-adapters/resources/semi-structured/excel-import/transform/expression'
 describe('Excel controlled expression references',()=>{
  it('walks only actually consumed field nodes, keeps native args and ignores literal-shaped fields',()=>{
   const names:string[]=[]

@@ -33,7 +33,7 @@ AI用途：设计页数组新建入口，确认、取消和未知结果处理。
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldText, FieldJson, RendererButton, RendererDialog, RendererForm, RendererToolbar, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
+import {LowcodeDataSpaceArrayDraft} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 import DataSpaceArrayHeaders from './DataSpaceArrayHeaders.vue'
 const props=defineProps<Pick<DataSpaceModelEditorProps,'session'|'revision'|'disabled'>>()

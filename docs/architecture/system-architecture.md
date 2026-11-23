@@ -31,7 +31,7 @@ flowchart LR
   Scene --> DS["DataSet / DataView<br/>每次调用独立装配"]
 ```
 
-- **动态应用项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**动态运行菜单**只是蓝图经候选筛选与后台授权后的输出。本仓系统壳页面（平台级、企业级及每个应用末尾的“应用设计”分组）由 `config/navigation/vue-pages.json` 登记并经 `src/lowcode/system-navigation.ts` 投影，不等同于动态业务应用的蓝图；SmartBid 等业务应用仍由正式项目蓝图、导航节点与场景声明组成。系统场景按 `config/pages/system-scenarios.json` 登记读取仓内 pagedata。本地定义不包含授权规则。
+- **动态应用项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**动态运行菜单**只是蓝图经候选筛选与后台授权后的输出。本仓系统壳页面（平台级、企业级及每个应用末尾的“应用设计”分组）由 `config/navigation/vue-pages.json` 登记并经 `src/platform-adapters/system-navigation.ts` 投影，不等同于动态业务应用的蓝图；SmartBid 等业务应用仍由正式项目蓝图、导航节点与场景声明组成。系统场景按 `config/pages/system-scenarios.json` 登记读取仓内 pagedata。本地定义不包含授权规则。
 - 候选筛选：后端字段 `IsShowAtNav` 为 1 时，wire 层把记录标为 `runtimeNavigationCandidate`；宿主只保留"候选且授权树中存在同一 id"的节点。
 - `PageTool` 仅持有 `rule.json`、`script.js`、`style.css` 三个工具文件。四个已登记系统程序场景的 `pagedata.json` 位于仓内 `config/pages/`，由 `applications/appworks.json` 按 scenario 身份固定映射；普通动态应用消费共享 7AB 时也读取这份声明，但其动态业务模型继续由正式 DataView/权限装配。其他动态业务场景继续从各自正式 lowcode 来源读取。运行数据依据对应场景配置、正式模型和权限装配，工具不持有业务数据。
 
@@ -65,7 +65,7 @@ flowchart BT
   host --> ai
 ```
 
-- 依赖无环、无上行。目标架构中 SPARK Data 是业务数据入口；平台／会话／特定服务 adapter 在宿主 `src/lowcode/`，wire/endpoint 事实在 `backend-api-contracts`。现有 `spark-lowcode-api` 仅作迁移兼容层，不能新增并行 query/save 门面。
+- 依赖无环、无上行。SPARK Data 是业务数据入口；平台／会话／特定服务 adapter 在宿主 `src/platform-adapters/`，wire/endpoint 事实在 `backend-api-contracts`；不得新增并行 query/save 门面。
 - `spark-component` 对 `spark-ai` 只有测试期依赖，运行时代码不引用它。
 - 开发与测试时，所有 `@spark-appworks/*` 通过 Vite/Vitest alias 直接指向 `packages/*/src`，不依赖各包 `dist/`。
 - `spark-ai` 只有三个公共入口：`.`、`./agent`、`./class-model`，不允许深路径引用。
@@ -78,7 +78,7 @@ flowchart BT
 | `spark-project-model` | 项目蓝图、场景配置及页面调用生命周期；工具文件数据操作由 spark-data FileResource DataView/DataSet 承接，运行文件由 PageRuntimePool 按 publication proof 整组读取 |
 | `spark-component` | 组件注册表、能力上下文树、`SparkPageRenderer`、页面动作与绑定、权限判定 |
 | `spark-app` | 应用壳：启动、`DynamicRouter`、`RuntimeNavigation*` 合同、标签页、插件、主题 |
-| `src/lowcode` | 平台、会话、目录及特定服务 adapter；将正式 scope/协议装配进 SPARK Data，不向页面另开业务数据 API |
+| `src/platform-adapters` | 平台、会话、目录及特定服务 adapter；将正式 scope/协议装配进 SPARK Data，不向页面另开业务数据 API |
 | `spark-ai` | 浏览器内 Agent 运行时、ClassModel 知识与工具、Agent Workflow 定义与激活 |
 
 ## 项目模型
@@ -140,7 +140,7 @@ flowchart BT
 
 ```text
 数据空间设计 (dataSpace.design)  ─┐
-当前用户权限 (permission.runtime) ─┼─> 宿主 src/lowcode/data-space/* ─> DataSet / DataView
+当前用户权限 (permission.runtime) ─┼─> 宿主 src/platform-adapters/data-space/* ─> DataSet / DataView
 运行查询 (dataSpace.runtime)      ─┘
 ```
 

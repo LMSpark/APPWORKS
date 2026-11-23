@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-append-user/dictionary-bindings",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/dictionary-bindings.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-append-user/dictionary-bindings",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/dictionary-bindings\n职责：把参考页两类应用字典声明接到既有只读DataView适配。\n边界：步骤与办理字典各有来源，不用实例状态替代，不维护页面标签数组。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:03:44.022Z",
+  "models": {}
+}

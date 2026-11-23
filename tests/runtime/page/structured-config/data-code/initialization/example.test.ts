@@ -1,8 +1,8 @@
 import {describe,expect,it,vi} from 'vitest'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {fixture} from './fixture'
-import {CodeExampleWorkspace} from '@/lowcode/resources/structured-config/data-code/example-workspace'
-import {saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {CodeExampleWorkspace} from '@/platform-adapters/resources/structured-config/data-code/example-workspace'
+import {saveDataCodeDesign} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
 
 describe('code example through the current native views',()=>{
   it('uses effective sorted nodes, compiles fixed text without altering node drafts and persists only on design save',async()=>{

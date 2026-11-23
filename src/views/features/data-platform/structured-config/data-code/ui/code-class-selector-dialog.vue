@@ -36,7 +36,7 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {codeNodeTypeLabel, saveCodeClasses, selectCodeClass} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {codeNodeTypeLabel, saveCodeClasses, selectCodeClass} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
 import CodeClassEditDialog from './code-class-edit-dialog.vue'
 const props = defineProps<{dataViewKey: string; nodeId: string | number}>()
 const emit = defineEmits<{close: []}>()

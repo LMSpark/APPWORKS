@@ -7,7 +7,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererFilter, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, ORGANIZATION_SCENARIO, resetUserFixture, USER_NAVIGATION, USER_PATH} from './user-management.fixture'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
   lowcodeApi: {
     readRequestScope: (...args: unknown[]) => api.service.readRequestScope(...args),

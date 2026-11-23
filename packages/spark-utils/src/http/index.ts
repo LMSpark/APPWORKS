@@ -20,6 +20,7 @@ export { Request, createRequest } from './Request'
 export { createHttpClient } from './HttpClientFactory'
 export { FileLoader, TransformedFileLoader, createFileLoader } from './FileLoader'
 export { isRequestError } from './guards'
+export { AjaxResultError, requestAjaxResult } from './ajax-result.js'
 export { sendBeacon } from './beacon'
 export type { LoadOptions, JsonLoadOptions, TextLoadOptions, TransformLoadOptions, TransformedFileLoadOptions } from './FileLoader'
 export type {

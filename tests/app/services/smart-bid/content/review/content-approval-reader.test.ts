@@ -3,8 +3,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readContentApproval,readContentApprovals} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-reader'
 import {readApprovalCoverageEvidence} from '@/views/features/application/smart-bid/authoring/model/review/content-approval-coverage'
 import {readContentReviewCoverage} from '@/views/features/application/smart-bid/authoring/model/review/content-review-coverage-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reads the original approval by exact identity and refuses an unreadable authority record',async()=>{
  const row={id:'A',projectId:'P',nodeId:'D',scope:'DOCUMENT',effectiveHash:'a'.repeat(64),revisionId:'R',approverId:'U',

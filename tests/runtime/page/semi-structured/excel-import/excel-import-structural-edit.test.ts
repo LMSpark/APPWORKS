@@ -1,6 +1,6 @@
 import {afterEach, expect, it, vi} from 'vitest'
-import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
-import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
+import {ExcelConfigurationEdit} from '@/platform-adapters/resources/semi-structured/excel-import/configuration-edit'
+import {assertExcelFieldRemoval} from '@/platform-adapters/resources/semi-structured/excel-import/edit-references'
 import {excelDesignRuntime} from './excel-import-design.fixture'
 const disposers:Array<()=>void>=[]
 afterEach(()=>disposers.splice(0).forEach(dispose=>dispose()))

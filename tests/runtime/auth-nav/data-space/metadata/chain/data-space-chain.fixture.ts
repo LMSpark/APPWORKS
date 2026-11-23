@@ -1,5 +1,5 @@
 import {expect} from 'vitest'
-import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
 import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import {isRecord, type RequestConfig} from '@spark-appworks/spark-utils'
 import metadataConfig from '../../../../../../config/pages/data-platform/data-space-design/pagedata.json'

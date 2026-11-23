@@ -1,5 +1,5 @@
 import {afterEach, expect, it, vi} from 'vitest'
-import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/excel-import/configuration-removal'
+import {ExcelConfigurationRemoval} from '@/platform-adapters/resources/semi-structured/excel-import/configuration-removal'
 import {excelDesignRuntime} from './excel-import-design.fixture'
 const disposers: Array<() => void> = []
 afterEach(() => disposers.splice(0).forEach(dispose => dispose()))

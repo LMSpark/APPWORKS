@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest'
 import {fixture,storage} from './flow-design-data.fixture'
-import {saveFlowDesignInfo,addFlowDesignNode,addFlowDesignEdge,removeFlowDesignGraphSelection,stageFlowDesignGraph,cancelFlowDesignChanges,prepareFlowDesignViews,WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
+import {saveFlowDesignInfo,addFlowDesignNode,addFlowDesignEdge,removeFlowDesignGraphSelection,stageFlowDesignGraph,cancelFlowDesignChanges,prepareFlowDesignViews,WorkflowFlowModelManager} from '@/platform-adapters/resources/system/workflow/manage'
 
 describe('flow design saves through its original data workspace',()=>{
  it('persists a newly connected node and form through the same DataSet and rereads their graph',async()=>{

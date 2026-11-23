@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, type DataView} from '@spark-appworks/spark-data'
-import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
+import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
 
 const runtimeState = vi.hoisted(() => ({
   scope: {token: 'TOKEN-A', headers: {'tenant-id': 'tenant-a', 'X-AppId': 'APP-A'}},
@@ -11,7 +11,7 @@ const runtimeState = vi.hoisted(() => ({
   turnStatus: 'RUNNING',
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeApi: {readRequestScope: () => runtimeState.scope},
   lowcodeHttp: {
     request: async (config: {method?: string; url?: string; data?: unknown}) => {

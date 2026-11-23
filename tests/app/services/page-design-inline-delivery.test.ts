@@ -4,12 +4,12 @@ import {ProjectWorkspace,ScenarioDefinitionResource,type PageToolFileName,type P
 import {createPageDesignInlineDeliveryPort} from '@/services/page-design/page-design-inline-delivery'
 import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
-import type {createPageToolFilesIo} from '@/lowcode/lowcode-runtime'
+import type {createPageToolFilesIo} from '@/platform-adapters/lowcode-runtime'
 import fileConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 import definitionConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 
 const storage=vi.hoisted(()=>({io:undefined as unknown}))
-vi.mock('@/lowcode/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/lowcode/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
+vi.mock('@/platform-adapters/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/platform-adapters/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
 
 function createFileOwner(options:{rejectFile?:string;scenarioViews?:ProjectWorkspaceOptions['scenarioViews'];scenarioDefinitions?:ProjectWorkspaceOptions['scenarioDefinitions']}={}){
   const files=new Map<string,string>([['APP/PAGE/rule.json','[]'],['APP/PAGE/script.js','base'],['APP/PAGE/style.css','base']])

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig, ProjectToolResource, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
@@ -18,8 +18,8 @@ const mocks = vi.hoisted(() => ({
   request: vi.fn(),
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', async () => {
-  const {DataSpaceRuntimeApi} = await import('@spark-appworks/spark-lowcode-api')
+vi.mock('@/platform-adapters/lowcode-runtime', async () => {
+  const {DataSpaceRuntimeApi} = await import('@spark-appworks/spark-data')
   const {HttpClientBase} = await import('@spark-appworks/spark-utils')
   class NoRequest extends HttpClientBase {
     protected override async executeRequest(): Promise<never> {
@@ -49,7 +49,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
 })
 
 import {resolve} from 'node:path'
-import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 
 const scope = (token: string, appId: string) => ({ token, headers: { 'X-AppId': appId } })
 

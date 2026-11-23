@@ -5,8 +5,8 @@ import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
 import {DataSet, type DataColumn} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldText, PAGE_RUNTIME, RendererTable, Spark, useSparkComponent} from '@spark-appworks/spark-component'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 import {useDataViewState} from '../../../../packages/spark-component/src/components/containers/data-views/view-runtime-state'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], sets: DataSet[] = []

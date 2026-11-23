@@ -1,6 +1,6 @@
 import {afterEach, expect, it, vi} from 'vitest'
 import {excelDesignRuntime} from './excel-import-design.fixture'
-import {ExcelAssociationFields} from '@/lowcode/resources/semi-structured/excel-import/association-fields'
+import {ExcelAssociationFields} from '@/platform-adapters/resources/semi-structured/excel-import/association-fields'
 const disposers: Array<() => void> = []
 afterEach(() => disposers.splice(0).forEach(dispose => dispose()))
 async function fixture() {

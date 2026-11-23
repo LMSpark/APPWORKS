@@ -10,7 +10,7 @@
 </template>
 <script setup lang="ts">
 import {FieldJson, RendererForm} from '@spark-appworks/spark-component'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import type {DataSpaceParametersEditorProps} from './DataSpaceParametersEditor.props'
 defineProps<DataSpaceParametersEditorProps>()
 const rowAdapter = DataSpaceDesignApi.inputParameterRowAdapter()

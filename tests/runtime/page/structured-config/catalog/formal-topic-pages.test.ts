@@ -8,13 +8,13 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, SparkPageRenderer, registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
 import WorkflowTrigger from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue'
 vi.mock('@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue',()=>({default:{name:'WorkflowEditorStub',props:['rowid'],data:()=>({hasPending:false,busy:false,unconfirmed:false}),methods:{discardChanges(this:{hasPending:boolean}){this.hasPending=false;return true}},template:'<div>workflow-editor</div>'}}))
 import Excel from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
 import {withTestPageService} from '../../../../support/helpers/page-service-host'
@@ -25,7 +25,7 @@ vi.mock('@spark-appworks/spark-app', async () => {
   return {NativePageRuntimeSession, useSystemPageDirtySource: () => {}}
 })
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,appId:'D99A1DCE9894698799101EFD70F8FC76'}))
-vi.mock('@/lowcode/lowcode-runtime', () => {
+vi.mock('@/platform-adapters/lowcode-runtime', () => {
  const module = {
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),

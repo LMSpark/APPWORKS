@@ -8,8 +8,8 @@ import {DataSet,parseDataViewKey,type DataView} from '@spark-appworks/spark-data
 import {hashRevisionSnapshot} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {hashContentNode} from '@/services/smart-bid/content-node-hash'
 import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revision-content-root'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean;baselineRequirementVersion?:string;baselineFactId?:string;responseReview?:{reviewedBy:string|null;reviewedAt:string|null}}={}){
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})

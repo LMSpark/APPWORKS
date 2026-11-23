@@ -5,10 +5,10 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {RequestState} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, Spark, FieldSelect, FieldText, RendererButton, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
 import {codeModels, codeService, designText, DESIGN} from './data-code.fixture'
-import * as CodeDesignOps from '@/lowcode/resources/structured-config/data-code/design-ops'
+import * as CodeDesignOps from '@/platform-adapters/resources/structured-config/data-code/design-ops'
 import {createSourceDataSet, sourceRecords, SOURCE_SCENE} from './source-picker/fixture'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}

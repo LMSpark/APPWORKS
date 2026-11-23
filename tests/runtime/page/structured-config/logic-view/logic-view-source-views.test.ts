@@ -1,15 +1,15 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {configureLogicFixture,LogicViewHttp} from './logic-view.fixture'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LogicViewSourceViews} from '@/lowcode/resources/structured-config/logic-view/source-views'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LogicViewSourceViews} from '@/platform-adapters/resources/structured-config/logic-view/source-views'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 const state=vi.hoisted(()=>({readModel:vi.fn(),readRequestScope:vi.fn(),readSpaceDefinition:vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
 let http:LogicViewHttp,owner:DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime',()=>({createLowcodeProjectGateways:(...args:unknown[])=>state.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),get lowcodeHttp(){return http},lowcodeApi:{design:{},readRequestScope:state.readRequestScope,
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({createLowcodeProjectGateways:(...args:unknown[])=>state.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),get lowcodeHttp(){return http},lowcodeApi:{design:{},readRequestScope:state.readRequestScope,
   dataSpace:{design:state,get runtime(){return owner}}}}))
 const sets:DataSet[]=[],pages:PageRuntime[]=[]
 beforeEach(()=>{state.readModel.mockReset();state.readRequestScope.mockReset();http=new LogicViewHttp();owner=new DataSpaceRuntimeApi({http,readScope:state.readRequestScope})

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/design/lowcode-file-identity",
+    "sourcePath": "src/platform-adapters/api/design/lowcode-file-identity.ts",
+    "sourceFile": "src/platform-adapters/api/design/lowcode-file-identity.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/design/lowcode-file-identity",
+    "jsdoc": "@module @/platform-adapters/api:design/lowcode-file-identity\n职责：保留正式文件 basename 和目录身份，拒绝已证实无法精确定位的内容请求。\n边界：不改写路径，不补后端 normalizePath 的含点目录缺口。\nAI用途：读、删及依赖回读的上传在派发前使用同一定位校验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:03:44.293Z",
+  "models": {}
+}

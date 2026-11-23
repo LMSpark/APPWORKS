@@ -49,7 +49,7 @@ AI用途：调整桌面字段分组或标签时只改模板。
 import {computed} from 'vue'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import type {useBlueprintDesktop} from './use-blueprint-desktop'
 
 const {DisplayAlert, FieldCheckbox, FieldNumber, FieldSelect, FieldText, RendererButton, RendererDialog, RendererDivider, RendererForm} = SparkComponent

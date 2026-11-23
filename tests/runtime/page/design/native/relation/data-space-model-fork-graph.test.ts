@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {LowcodeDataSpaceModelForkGraph} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph'
+import {LowcodeDataSpaceModelForkGraph} from '@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph'
 
 const models=['P','M','C','U'].map(name=>({rowid:name,dataSetId:'S',Name:name,MetaName:`Physical${name}`,Filter:'',JoinFilter:''}))
 const fields=models.map(model=>({rowid:`F${model.rowid}`,dataSetId:'S',dataModelId:model.rowid,Name:'id',type:'dataModel',FieldType:'varchar',ValueFun:''}))

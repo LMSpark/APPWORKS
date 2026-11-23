@@ -1,4 +1,4 @@
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import applicationManagerScenario from '../../../../config/pages/application/application-manager/pagedata.json'
 import databaseRelationsScenario from '../../../../config/pages/application/database-relations/pagedata.json'

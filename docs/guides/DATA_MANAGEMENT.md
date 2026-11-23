@@ -108,5 +108,5 @@ TreeManager 负责本地节点、路径、子树与缓存；UI 通过 DataView �
 验证应覆盖正式装配、命名视图、级联、无效绑定拒绝、dirty/stale、权限、原回执与销毁。模拟请求测试不能宣称真实后端写入成功。
 
 - [组件开发](COMPONENT_DEVELOPMENT.md)
-- [平台 API](../../packages/spark-lowcode-api/README.md)
+- [平台适配入口](../../src/platform-adapters/api/index.ts)
 - [数据包](../../packages/spark-data/README.md)

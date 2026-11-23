@@ -1,6 +1,6 @@
 import {expect, it, vi} from 'vitest'
 import {DataSet, ensureDataSetResourceView, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
-import {createFlowRunContinuationBinding} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/continuation-binding'
+import {createFlowRunContinuationBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/continuation-binding'
 
 it('reads continuation through the original options identity and does not turn an unknown response into false', async () => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})

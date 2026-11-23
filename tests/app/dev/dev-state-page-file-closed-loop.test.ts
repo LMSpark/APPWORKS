@@ -7,9 +7,9 @@ import ElementPlus from 'element-plus'
 import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 import { DataSet, DataViewSaveNotAppliedError, type DataRow } from '@spark-appworks/spark-data'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import { useDevState } from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {
   createDevStateWithConfigPages,
   DEMO_PAGE_FIXTURE,
@@ -20,7 +20,7 @@ import {
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
-import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
+import { lowcodeHttp as http } from '@/platform-adapters/lowcode-runtime'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
@@ -71,8 +71,8 @@ function mockBlueprintScenarioFixture(dataSet:DataSet,reopenedDataSet?:()=>DataS
     return reopenedDataSet?.()??dataSet
   })
 }
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',async importOriginal=>({
-  ...await importOriginal<typeof import('@/lowcode/data-space/lowcode-data-space-runtime')>(),
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime',async importOriginal=>({
+  ...await importOriginal<typeof import('@/platform-adapters/data-space/lowcode-data-space-runtime')>(),
   loadLowcodeRuntimeScenario:blueprintRuntime.load,
 }))
 
@@ -118,7 +118,7 @@ vi.mock('@spark-appworks/spark-app', async () => {
   }
 })
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   lowcodeHttp: httpFns,
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
@@ -1622,7 +1622,7 @@ describe('DevState 页面文件闭环', () => {
     try {
       await expect(second.openEditingProject({projectId:'APP-A'},{force:true})).resolves.toBe(true)
       httpFns.scopeToken='different-auth-context'
-      expect((await import('@/lowcode/lowcode-runtime')).lowcodeApi.readRequestScope().token).toBe('different-auth-context')
+      expect((await import('@/platform-adapters/lowcode-runtime')).lowcodeApi.readRequestScope().token).toBe('different-auth-context')
       await expect(second.loadBlueprintWorkspaceDataView()).rejects.toThrow('认证请求作用域已变化')
       httpFns.scopeToken='fixture-token'
       const recoveredOwner=await second.loadBlueprintWorkspaceDataView()

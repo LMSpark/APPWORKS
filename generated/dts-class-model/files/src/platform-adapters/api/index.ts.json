@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/index",
+    "sourcePath": "src/platform-adapters/api/index.ts",
+    "sourceFile": "src/platform-adapters/api/index.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/index",
+    "jsdoc": "平台适配公共入口。\n聚合宿主会话、目录、设计资产、数据空间设计与权限适配；数据查询和保存只由 SPARK Data 提供。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:13:33.163Z",
+  "models": {}
+}

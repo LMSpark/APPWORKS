@@ -41,9 +41,9 @@
       "properties": {
         "kind": {
           "enum": [
-            "delete",
             "create",
             "update",
+            "delete",
             "move",
             "reorder"
           ]
@@ -141,7 +141,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-21T06:50:07.177Z",
+  "generatedAt": "2026-11-23T07:50:33.357Z",
   "models": {
     "WireFields": {
       "name": "WireFields",

@@ -78,13 +78,12 @@ packages/
 ├── spark-data/                  # 📊 数据空间（DataSet、DataView、TreeManager、关系与聚合）
 ├── spark-json-document/         # 🧾 结构化 JSON 文档与树数据基础
 ├── spark-project-model/         # 📄 项目蓝图、PageTool、ScenarioViewFile 与 PageRuntime
-├── spark-lowcode-api/           # 过渡适配层；按语义迁入 SPARK Data/领域包/宿主后删除
 ├── spark-utils/                 # 🛠️ 共享工具（Logger、HTTP、能力键、基础类型）
 └── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
 ```
 
-- 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model`；平台/会话/wire 适配由 `src/lowcode` 与 `backend-api-contracts` 承接，旧 lowcode 包处于退役迁移中
-- AI 主线：`spark-ai` + `generated/dts-class-model`；Agent 在前端运行并通过治理后的 lowcode API 消费平台能力
+- 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model`；平台/会话/wire 适配由 `src/platform-adapters` 与 `backend-api-contracts` 承接
+- AI 主线：`spark-ai` + `generated/dts-class-model`；Agent 在前端运行并通过治理后的平台 adapter 消费能力
 - 公共基础：`spark-utils`
 - 目录索引： [packages/README.md](packages/README.md) 、 [scripts/README.md](scripts/README.md) 、 [tools/README.md](tools/README.md)
 
@@ -92,7 +91,7 @@ packages/
 
 ```text
 SPARK_AppWorks/
-├── src/                              # 应用入口、lowcode 装配、服务与业务页
+├── src/                              # 应用入口、平台适配、服务与业务页
 ├── packages/                         # 9 个正式 workspace 包
 ├── tests/                            # 应用、运行时、脚本、组件与治理回归
 │   └── support/fixtures/             # 长期测试夹具

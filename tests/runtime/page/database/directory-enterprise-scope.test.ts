@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import type {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/directory'
-import {LowcodeDatabaseServer} from '@/lowcode/resources/database/server/resource'
-import {LowcodeDatabaseTableView} from '@/lowcode/resources/database/catalog/table-view'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDatabaseDirectory} from '@/platform-adapters/resources/database/directory'
+import {LowcodeDatabaseServer} from '@/platform-adapters/resources/database/server/resource'
+import {LowcodeDatabaseTableView} from '@/platform-adapters/resources/database/catalog/table-view'
 import {DATABASE_TABLE_VIEW_SCENARIO_ID, DatabaseTableViewHttp, bootstrapDatabaseTableViewRuntime} from './catalog/table-view.fixture'
 
 const mocks = vi.hoisted(() => ({
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   applicationRevision: 0,
 }))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi, appRuntime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: mocks.selectedScope, readAuthenticatedRequestScope: mocks.readAuthenticatedRequestScope,
     application: {get: mocks.application, get revision() {return mocks.applicationRevision}}, dataSpace: {design: mocks, get runtime() {return appRuntime}}},

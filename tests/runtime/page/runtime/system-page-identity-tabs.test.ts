@@ -5,12 +5,12 @@ import { createMemoryHistory, createRouter, useRoute, useRouter } from 'vue-rout
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { appPageUiState, closeAppDialog, useSystemPageDirtySource } from '@spark-appworks/spark-app'
 import { PAGE_SERVICE, useSparkComponent, type PageServiceCapability } from '@spark-appworks/spark-component'
-import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { SystemPageIdentityResolver } from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-resolver'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '../../../../packages/spark-app/src/navigation/action-registry'
-import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
+import { activateLowcodeApplication } from '@/platform-adapters/lowcode-runtime'
 import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
 import App from '../../../../src/App.vue'
 
@@ -62,7 +62,7 @@ afterEach(() => {
   vi.mocked(activateLowcodeApplication).mockReset()
 })
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   activateLowcodeApplication: vi.fn(), enterLowcodeApplicationCatalog: vi.fn(), hasLowcodeSession: () => true,
   lowcodeApi: { platform: { logout: vi.fn(() => new Promise<void>(() => undefined)) } }, lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => ({ enterpriseName: 'acme', applicationId: 'project', username: 'tester' }),

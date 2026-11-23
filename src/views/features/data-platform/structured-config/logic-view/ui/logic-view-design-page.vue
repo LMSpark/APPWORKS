@@ -52,9 +52,9 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldJson, RendererButton, RendererDialog, RendererForm, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
 import LogicViewNodeEditor from './logic-view-node-editor.vue'
-import {LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
-import {LogicViewPublication} from '@/lowcode/resources/structured-config/logic-view/output/publication'
+import {LOGIC_VIEW_DESIGN_VIEW} from '@/platform-adapters/resources/structured-config/logic-view/design-ops'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
+import {LogicViewPublication} from '@/platform-adapters/resources/structured-config/logic-view/output/publication'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 
 const route = useRoute()

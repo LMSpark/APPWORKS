@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/api/platform/resources/structured-config/logic-view/design-client",
+    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/logic-view/design-client.ts",
+    "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/logic-view/design-client.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/api/platform/resources/structured-config/logic-view/design-client",
+    "jsdoc": "@module @/platform-adapters/api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图对象数组的 read/write（ViewData 合同），保存须有正式成功回执。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LogicViewDesignPayload",
+      "LogicViewDesignClient"
+    ]
+  },
+  "$defs": {
+    "LogicViewDesignPayload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewDesignPayload",
+      "properties": {
+        "viewId": {
+          "type": "string"
+        },
+        "data": true
+      },
+      "required": [
+        "viewId",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "LogicViewDesignClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewDesignClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "readScope": {
+                  "type": "object",
+                  "title": "() => DataSpaceRequestScope"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "readScope"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<LogicViewDesignPayload>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "payload": {
+              "$ref": "#/$defs/LogicViewDesignPayload"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T08:03:44.336Z",
+  "models": {
+    "LogicViewDesignPayload": {
+      "name": "LogicViewDesignPayload",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    viewId: string;\n    data: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    viewId: string;\n    data: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LogicViewDesignClient": {
+      "name": "LogicViewDesignClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "本次正式DataSet的场景及当前执行域；不借用目录外的应用或身份。",
+          "signatureText": "constructor(http: HttpClientBase, context: Readonly<{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }>)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "context",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LogicViewDesignPayload",
+                    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/logic-view/design-client.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "payload",
+                  "type": {
+                    "type": "reference",
+                    "name": "LogicViewDesignPayload",
+                    "sourcePath": "src/platform-adapters/api/platform/resources/structured-config/logic-view/design-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

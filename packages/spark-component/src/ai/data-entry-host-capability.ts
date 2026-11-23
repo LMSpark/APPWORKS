@@ -1,7 +1,7 @@
 /**
  * @module @spark-appworks/spark-component:ai/data-entry-host-capability
  * 职责：定义通用AI批量新增组件与应用级会话owner之间的窄能力合同。
- * 边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖spark-lowcode-api，也不承载Agent配置或系统提示词。
+ * 边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖平台 HTTP 适配，也不承载Agent配置或系统提示词。
  * AI用途：应用宿主通过此能力把已配置的AI录入会话附着到标准组件，临时卸载时只撤销附件。
  */
 import {defineCapability, isCallable, isRecord} from '@spark-appworks/spark-utils'

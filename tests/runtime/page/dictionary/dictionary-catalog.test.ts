@@ -4,10 +4,11 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, SparkData, DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
-import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
+import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
@@ -16,7 +17,7 @@ import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
 import DictionarySetting from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
-import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture'
+import {DictionaryHttp, fixture} from '../../../../src/platform-adapters/api/platform/resources/structured-config/dictionary/tests/workspace.fixture'
 import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -26,7 +27,7 @@ import {RouterView} from 'vue-router'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: CatalogHttp, runtime: DataSpaceRuntimeApi, dictionaryHttp: DictionaryHttp
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
@@ -201,7 +202,7 @@ describe('dictionary catalog formal view assembly', () => {
     expect(view.toJson().queryConfig?.filterLookups?.[0]).toEqual({
       field: 'createuser', sourceViewKey: 'CATALOG@Base_UserInfo@default', matchField: 'rowid', valueField: 'rowid',
     })
-    const implementation = readFileSync(resolve(process.cwd(), 'src/lowcode/resources/structured-config/dictionary/resource.ts'), 'utf8')
+    const implementation = readFileSync(resolve(process.cwd(), 'src/platform-adapters/resources/structured-config/dictionary/resource.ts'), 'utf8')
     expect(implementation).not.toContain('filterLookups')
     expect(implementation).not.toContain('crttime')
     expect(implementation).not.toContain('rootParentValue')

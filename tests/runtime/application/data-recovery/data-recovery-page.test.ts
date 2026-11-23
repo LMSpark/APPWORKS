@@ -6,7 +6,7 @@ import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-route
 import ElementPlus from 'element-plus'
 import {DataSet, bindDataSetReadonlyCommandQuery, getSparkNodeChildren} from '@spark-appworks/spark-data'
 import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import * as scenarioLoader from '@/lowcode/data-space/lowcode-data-space-runtime'
+import * as scenarioLoader from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import DataRecoveryPage from '@/views/features/system/data-recovery/ui/data-recovery-page.vue'
 import {withTestPageService} from '../../../support/helpers/page-service-host'
 

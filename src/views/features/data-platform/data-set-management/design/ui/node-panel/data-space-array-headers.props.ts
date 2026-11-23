@@ -4,7 +4,7 @@
  * 边界：标准组件绑定输入视图；正式持久化由父级定义owner处理。
  * AI用途：新建和已有数组共用表头窗口。
  */
-import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
+import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft'
 /** 一次未确认的表头编辑；关闭由调用方释放输入视图。 */
 export type DataSpaceArrayHeadersProps = {
   /** 表头组件绑定的唯一局部输入视图。 */

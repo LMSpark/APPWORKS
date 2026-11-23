@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-document'
+import {WorkflowLayoutDocument} from '@/platform-adapters/resources/structured-config/workflow-definition/layout/layout-document'
 
 it('removes only captured layout identities and retains unrelated objects and unknown members',()=>{
  const source=JSON.stringify({custom:{keep:true},nodes:[{id:'A',x:1,y:2,custom:'deleted'},{id:'B',x:3,y:4,custom:'kept'}],edges:[{id:'AB',sourceNodeId:'A',targetNodeId:'B'},{id:'HISTORIC',sourceNodeId:'A',targetNodeId:'B',custom:'keep'}]})

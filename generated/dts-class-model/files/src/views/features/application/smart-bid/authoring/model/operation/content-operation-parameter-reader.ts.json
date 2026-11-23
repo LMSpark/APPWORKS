@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader",
     "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader\n职责：把已持有的 SmartBid 派发参数与 SSE ACK 作为页面原试次输入核验。\n边界：不查询伪 ContextManifest/GenerationRun 模型；只读取调用方传入的固定参数和正式 owner receipt。\nAI用途：页面重查时直接核对原 command、inputDigest、sessionId、turnId 和 actionReceipt。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {
@@ -32,7 +32,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T03:15:03.907Z",
+  "generatedAt": "2026-11-23T09:32:12.823Z",
   "models": {
     "Scope": {
       "name": "Scope",

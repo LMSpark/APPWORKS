@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/semi-structured/excel-import/transform/sort-fields",
+    "sourcePath": "src/platform-adapters/resources/semi-structured/excel-import/transform/sort-fields.ts",
+    "sourceFile": "src/platform-adapters/resources/semi-structured/excel-import/transform/sort-fields.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/semi-structured/excel-import/transform/sort-fields",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/sort-fields\n职责：沿原运行实例读取Excel排序物理字段，并在原节点模型保存链验证排序。\n边界：不缓存业务行、不持有排序草稿、不提交或规范化既有定义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelSortOwner"
+    ]
+  },
+  "$defs": {
+    "ExcelSortOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelSortOwner",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPage.return": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.693Z",
+  "models": {
+    "ExcelSortOwner": {
+      "name": "ExcelSortOwner",
+      "jsdoc": "原设计实例及其宿主；不另创建数据空间或查询执行器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次设计的原生0F93实例。 */\n    dataSet: DataSet;\n    /** 原页面宿主，按需加载34B；不得替换成另建查询上下文。 */\n    getPage?: () => PageRuntime;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次设计的原生0F93实例。 */\n    dataSet: DataSet;\n    /** 原页面宿主，按需加载34B；不得替换成另建查询上下文。 */\n    getPage?: () => PageRuntime;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次设计的原生0F93实例。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPage",
+              "jsdoc": "原页面宿主，按需加载34B；不得替换成另建查询上下文。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

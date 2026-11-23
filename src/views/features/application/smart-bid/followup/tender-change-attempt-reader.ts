@@ -11,7 +11,13 @@ const digest=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9
 const error='TENDER_CHANGE_ATTEMPT_SCOPE'
 
 /** 只接受显式 Agent 参数；运行结果不是 D3 GenerationRun 数据模型。 */
-export function readTenderChangeAttempts(host:ContentRevisionReadHost,basisRevisionId:string,input:unknown,includeEvidence=false){
+export function readTenderChangeAttempts(options:Readonly<{
+ host:ContentRevisionReadHost
+ basisRevisionId:string
+ input:unknown
+ includeEvidence?:boolean
+}>){
+ const {host,basisRevisionId,input,includeEvidence=false}=options
  const {scenarioId,projectId}=host
  const scope={projectId,basisRevisionId}
  host.assertCurrent()

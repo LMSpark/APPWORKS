@@ -676,7 +676,7 @@ Lowcode AI Service is the Gateway.
 
 ## 12. 当前事实源
 
-- `packages/spark-lowcode-api/README.md`：lowcode 前端 API、会话和 SSE 接入边界；
+- `src/platform-adapters/api/`：平台会话、设计资产与特定服务适配边界；
 - `packages/spark-ai/docs/transport-and-session-zh-cn.md`：浏览器 Tool Loop、HTTP/SSE 和会话追加协议；
 - `packages/spark-ai/docs/native-runtime-and-agent-flow-zh-cn.md`：ClassModel、Tool Loop、`model_script` 和业务实例执行链；
 - `packages/spark-ai/src/agent/tool-loop/README.md`：工具生产线约束；

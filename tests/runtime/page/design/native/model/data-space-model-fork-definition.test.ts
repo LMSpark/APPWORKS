@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest'
-import {LowcodeDataSpaceModelForkDefinition} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition'
+import {LowcodeDataSpaceModelForkDefinition} from '@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition'
 const model={rowid:'M1',dataSetId:'S',Name:'Orders',MetaName:'Orders',Type:'数据库表',Filter:JSON.stringify({Type:'cond',Field:'Orders.id',Operator:'equal',ValueFun:{Type:'GetInputParam',ParamName:'N.id'}}),JoinFilter:JSON.stringify({Type:'cond',Field:'Orders.id',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:'Orders.id'}}),lingma_sys_key:'secret',createtime:'old',custom:'keep'}
 const fields=[{rowid:'F1',dataSetId:'S',dataModelId:'M1',Name:'id',AsName:'alias',type:'dataModel',FieldType:'varchar',IsOutput:1,IsPKey:1,ValueFun:JSON.stringify({Type:'GetRefData',RefTableName:'Orders',RefFieldName:'id',FkFieldName:'id'}),custom:0},
  {rowid:'F2',dataSetId:'S',dataModelId:'M1',Name:'computed',type:'dataModel',FieldType:'计算字段',ValueFun:JSON.stringify({Type:'GetTableField',Field:'Orders.id'}),Expression:'MASK_RULE',lingma_sys_params:{e:['ValueFun']}}]

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/data-space/lowcode-data-space-layout",
+    "sourcePath": "src/platform-adapters/data-space/lowcode-data-space-layout.ts",
+    "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-layout.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/data-space/lowcode-data-space-layout",
+    "jsdoc": "app 的 platform-adapters/data-space/lowcode-data-space-layout 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-23T08:03:43.912Z",
+  "models": {}
+}

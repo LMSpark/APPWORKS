@@ -5,7 +5,8 @@
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
 import {buildDataViewKey, DataSetSavePreflightError, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
+import {decodeProjectBlueprintRows, encodeProjectBlueprintFields, validateProjectBlueprintRecords, type ProjectBlueprintRecord} from '@spark-appworks/spark-project-model'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',
@@ -499,7 +500,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   /** Load the same permission-filtered records for consumers that need rows instead of a tree. */
-  public async loadProjectRecords(): Promise<readonly LowcodeProjectBlueprintRecord[]> {
+  public async loadProjectRecords(): Promise<readonly ProjectBlueprintRecord[]> {
     this.assertUsable()
     if (this.isBusy || this.hasUnconfirmedSave) throw new Error('蓝图 DataView 正在保存或回执待核验，不能加载项目记录')
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
@@ -690,9 +691,9 @@ export class BlueprintWorkspaceDataView {
     const beforeNodes=flatten(beforeTree),currentNodes=flatten(current),targetNodes=flatten(expectedTree)
     const index=(nodes:readonly ProjectBlueprintTreeNodeData[])=>new Map(nodes.map(node=>[node.nodeId,node]))
     const wireFields=(node:ProjectBlueprintTreeNodeData):Record<string,string|number>=>{
-      const record=normalizeLowcodeProjectBlueprintRecords([node.source])[0]
+      const record=decodeProjectBlueprintRows([node.source])[0]
       if(!record)throw new Error(`蓝图 DataView 移动节点缺少正式 wire 投影：${node.nodeId}`)
-      return lowcodeProjectBlueprintFields({...record,parentNodeId:node.parentNodeId,...(node.navigation===undefined?{}:{navigation:node.navigation})})
+      return encodeProjectBlueprintFields({...record,parentNodeId:node.parentNodeId,...(node.navigation===undefined?{}:{navigation:node.navigation})})
     }
     const stableValue=(value:unknown):string=>{
       if(Array.isArray(value))return `[${value.map(stableValue).join(',')}]`
@@ -1269,7 +1270,7 @@ export class BlueprintWorkspaceDataView {
     const row=this.currentRow(),key=this.requireRowKey(row),overlay=this.view.getEditingRow(key)??row
     const visible:Record<string,unknown>={}
     for(const field of BLUEPRINT_WORKSPACE_FIELD_NAMES)if(this.hasOutput(field)&&this.view.fieldAccess(row,field).read==='visible'&&Object.hasOwn(overlay,field))visible[field]=overlay[field]
-    const record=normalizeLowcodeProjectBlueprintRecords([visible])[0]
+    const record=decodeProjectBlueprintRows([visible])[0]
     if(!record)throw new Error('蓝图 DataView 当前行无法映射正式节点')
     const readable=(field:string):boolean=>Object.hasOwn(visible,field)
     const text=(field:string):string|undefined=>readable(field)?String(visible[field]??''):undefined
@@ -1316,8 +1317,8 @@ export class BlueprintWorkspaceDataView {
     const row=this.currentRow(),before=this.nodeData()
     if(next.nodeId!==this.#nodeId||next.projectId!==this.#projectId||next.parentNodeId!==before.parentNodeId)throw new Error('蓝图节点编辑不得改变节点身份或父节点')
     if(next.kind!==before.kind&&!this.canWrite('conType'))throw new Error('蓝图 DataView 不允许写入正式字段 conType')
-    const toRecord=(node:BlueprintNodeFormData):LowcodeProjectBlueprintRecord=>{
-      const base=normalizeLowcodeProjectBlueprintRecords([node.source])[0]
+    const toRecord=(node:BlueprintNodeFormData):ProjectBlueprintRecord=>{
+      const base=decodeProjectBlueprintRows([node.source])[0]
       if(!base)throw new Error('蓝图 DataView 当前行缺少正式 wire 投影')
       const capability={name:node.capability.name??base.capability.name,...(node.capability.description===undefined?{}:{description:node.capability.description}),
         ...(node.capability.code===undefined?{}:{code:node.capability.code}),...(node.capability.ownerId===undefined?{}:{ownerId:node.capability.ownerId}),
@@ -1337,8 +1338,8 @@ export class BlueprintWorkspaceDataView {
     const beforeRecord=toRecord(before)
     const nextRecord=toRecord(next)
     const wireFields=BLUEPRINT_WORKSPACE_FIELD_NAMES.filter(field=>field!=='conType'||before.kind!=='unknown'||next.kind!=='unknown')
-    const currentWire:Record<string,string|number|null>=lowcodeProjectBlueprintFields(beforeRecord,wireFields)
-    const nextWire:Record<string,string|number|null>=lowcodeProjectBlueprintFields(nextRecord,wireFields)
+    const currentWire:Record<string,string|number|null>=encodeProjectBlueprintFields(beforeRecord,wireFields)
+    const nextWire:Record<string,string|number|null>=encodeProjectBlueprintFields(nextRecord,wireFields)
     if(before.navigation?.openMode===undefined)currentWire['NavigationType']=null
     if(next.navigation?.openMode===undefined)nextWire['NavigationType']=null
     if(!before.navigation?.displayMode?.trim())currentWire['NavigationShowType']=null
@@ -1434,7 +1435,7 @@ export class BlueprintWorkspaceDataView {
     return {nodeId:`project-blueprint:${this.#projectId}`,parentNodeId:'',projectId:this.#projectId,kind:'module',capability:{name:this.#projectId},source:{},children:roots}
   }
 
-  private projectedRecords(): readonly LowcodeProjectBlueprintRecord[] {
+  private projectedRecords(): readonly ProjectBlueprintRecord[] {
     this.assertUsable()
     if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载完整项目树行')
     for(const field of ['rowid','SysId','prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未输出树投影字段 ${field}`)
@@ -1454,7 +1455,7 @@ export class BlueprintWorkspaceDataView {
       return visible
     })
     for(const row of rows)if(!String(row['rowid']??'').trim())throw new Error('蓝图 DataView 返回了缺少 rowid 的树行')
-    return validateLowcodeProjectBlueprintRecords(this.#projectId,normalizeLowcodeProjectBlueprintRecords(rows))
+    return validateProjectBlueprintRecords(this.#projectId,decodeProjectBlueprintRows(rows))
   }
 
   public childCreateActionState(parentNodeId:string):'enabled'|'hidden'|'disabled'|'unknown'{

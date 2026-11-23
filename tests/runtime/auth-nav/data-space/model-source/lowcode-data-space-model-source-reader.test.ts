@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, DataViewFilter, resolveDataViewMember, type DataView, type QueryParams } from '@spark-appworks/spark-data'
-import { DataSpaceQueryContext } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import { DataSpaceQueryTable } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceRuntimeApi} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api'
-import {DictionaryHttp} from '../../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-data'
+import {DictionaryHttp} from '../../../../../src/platform-adapters/api/platform/resources/structured-config/dictionary/tests/workspace.fixture'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 
 const { runtimeQuery, readRequestScope, loadDictionaryDefinition } = vi.hoisted(() => ({
   runtimeQuery: vi.fn(),
@@ -13,15 +13,15 @@ const { runtimeQuery, readRequestScope, loadDictionaryDefinition } = vi.hoisted(
   readRequestScope: vi.fn(() => ({token: 'scope-a', headers: {'X-AppId': 'app-a'}})),
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({lowcodeApi: {
   readRequestScope,
   dataSpace:{runtime:{query:runtimeQuery}},
 }}))
-vi.mock('@/lowcode/resources/structured-config/dictionary/resource', () => ({LowcodeDictionary: {loadDefinition: loadDictionaryDefinition}}))
+vi.mock('@/platform-adapters/resources/structured-config/dictionary/resource', () => ({LowcodeDictionary: {loadDefinition: loadDictionaryDefinition}}))
 
-import { LowcodeDataSpaceModelSourceReader } from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+import { LowcodeDataSpaceModelSourceReader } from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
-import {readPlatformApiInputFields,readPlatformApiOutputFields} from '@/lowcode/data-space/model-source/platform-api-route-spec'
+import {readPlatformApiInputFields,readPlatformApiOutputFields} from '@/platform-adapters/data-space/model-source/platform-api-route-spec'
 
 type QueryIdentity = Readonly<{metaName: string}>
 type QueryOptions = Readonly<{filter?: Readonly<{toJSON(): Readonly<{value?: unknown}>}>}>

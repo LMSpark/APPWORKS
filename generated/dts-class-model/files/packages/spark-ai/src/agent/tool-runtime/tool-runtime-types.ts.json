@@ -374,8 +374,8 @@
         "status": {
           "enum": [
             "error",
-            "warning",
-            "ok"
+            "ok",
+            "warning"
           ]
         },
         "rootKinds": {

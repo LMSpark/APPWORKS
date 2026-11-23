@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, type DataView} from '@spark-appworks/spark-data'
-import * as preview from '@/lowcode/resources/database/catalog/table/preview-view-ops'
+import * as preview from '@/platform-adapters/resources/database/catalog/table/preview-view-ops'
 import {DatabaseTableViewHttp} from '../table-view.fixture'
 
 const sets: DataSet[] = []

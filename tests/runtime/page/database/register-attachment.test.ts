@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {attachServerRegisterView, attachTableRegisterCommandView, attachViewRegisterCommandView} from '@/lowcode/resources/database/dataset-extensions'
-import {DATABASE_SERVER_REGISTER_COLUMNS} from '@/lowcode/resources/database/server/catalog-metadata'
+import {attachServerRegisterView, attachTableRegisterCommandView, attachViewRegisterCommandView} from '@/platform-adapters/resources/database/dataset-extensions'
+import {DATABASE_SERVER_REGISTER_COLUMNS} from '@/platform-adapters/resources/database/server/catalog-metadata'
 import {DatabaseTableViewHttp} from './catalog/table-view.fixture'
 
 const sets: DataSet[] = []

@@ -28,8 +28,8 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {openWorkflowNodeRemoval,type WorkflowNodeRemoval} from '@/lowcode/resources/structured-config/workflow-definition/node-removal'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {openWorkflowNodeRemoval,type WorkflowNodeRemoval} from '@/platform-adapters/resources/structured-config/workflow-definition/node-removal'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;dataViewKey:string;eligible:boolean;operation?:boolean;copy?:boolean;merge?:boolean;disabled?:boolean;onRemoved:()=>Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const owner=shallowRef<WorkflowNodeRemoval>(),busy=ref(false),error=ref(''),revision=ref(0)

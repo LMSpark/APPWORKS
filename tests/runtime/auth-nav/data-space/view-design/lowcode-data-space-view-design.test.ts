@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import {createConfirmedMetadataFixture, withDefinitionResources} from './definition-resource.fixture'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '../../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
 import { DataSet, RequestState, type DataView, type QueryParams, type ViewMetadata } from '@spark-appworks/spark-data'
 import { ProjectWorkspace, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
-import { DataSpaceQueryTable } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import { LowcodeDataSpaceViewDesign } from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
+import { LowcodeDataSpaceViewDesign } from '../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 const selection = { scenarioId: 'SPACE', tableName: 'Orders', modelId: 'MODEL', modelName: 'OrdersModel', viewId: 'summary' }
 const definitionSave = {views: [{tableName: 'DataViewDefinition', viewId: 'default'}]}

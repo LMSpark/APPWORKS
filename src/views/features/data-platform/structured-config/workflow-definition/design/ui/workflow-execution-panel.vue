@@ -46,8 +46,8 @@ AI用途：宿主和节点设置调用open进入同一测试工作区，多个�
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {buildDataViewKey,type DataSet,type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {prepareWorkflowExecutionInput,readWorkflowExecutionPresentation} from '@/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings'
-import type {WorkflowTestInputGroup} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs'
+import {prepareWorkflowExecutionInput,readWorkflowExecutionPresentation} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/runtime-bindings'
+import type {WorkflowTestInputGroup} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-inputs'
 const {RendererDialog,RendererForm,RendererButton,FieldText,FieldJson}=SparkComponent
 const props=defineProps<{
  /** 本次宿主正式实例。 */

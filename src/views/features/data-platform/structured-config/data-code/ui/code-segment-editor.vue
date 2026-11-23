@@ -24,8 +24,8 @@ AI用途：编码编辑器内的窄分段区域，传入完整节点绑定及宿
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {buildDataViewKey, parseDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {isFixedCodeNode} from '@/lowcode/resources/structured-config/data-code/design-ops'
-import {addCodeSegment, changeCodeSegmentType, removeCodeSegments} from '@/lowcode/resources/structured-config/data-code/segment-ops'
+import {isFixedCodeNode} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
+import {addCodeSegment, changeCodeSegmentType, removeCodeSegments} from '@/platform-adapters/resources/structured-config/data-code/segment-ops'
 const props = defineProps<{dataViewKey: string; interactionLocked: boolean}>()
 const emit = defineEmits<{select: [row: DataRow]}>()
 const {sparkConsume} = useSparkComponent({type: 'code-segment-editor'}), runtime = sparkConsume(PAGE_RUNTIME)

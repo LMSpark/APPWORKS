@@ -1,6 +1,6 @@
 import {expect, it} from 'vitest'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {FlowRunApprovalInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
+import {FlowRunApprovalInputWorkspace} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 
 it.each(['1', '0'])('loads the directory only for allowChange=%s and captures choices through the original candidate view', async allowChange => {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}}), users = DataSet.fromJson({scenarioId: 'DIRECTORY', tables: {}})

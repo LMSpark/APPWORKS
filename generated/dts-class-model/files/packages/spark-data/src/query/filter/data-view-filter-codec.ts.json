@@ -30,8 +30,6 @@
             },
             "Operator": {
               "enum": [
-                "contains",
-                "in",
                 "equal",
                 "notequal",
                 "greaterthan",
@@ -40,11 +38,13 @@
                 "lessthanorequal",
                 "isnull",
                 "isnotnull",
+                "contains",
                 "nolike",
                 "startswith",
                 "nostartswith",
                 "endswith",
                 "notendswith",
+                "in",
                 "notin",
                 "isempty",
                 "isnotempty"

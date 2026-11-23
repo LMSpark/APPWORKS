@@ -229,16 +229,15 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataViewFieldCascadeState, type DataViewFilterFunctionContext, type SparkNodeChildren} from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {DataSpaceQueryAggregation} from '@spark-appworks/spark-lowcode-api'
 import type {DataSpaceViewEditorProps} from './DataSpaceViewEditor.props'
 import DataSpaceQueryPreview from './preview/DataSpaceQueryPreview.vue'
 import DataSpaceQueryPlan from './query-plan/DataSpaceQueryPlan.vue'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
-import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
+import {LowcodeDataSpaceFieldValue} from '@/platform-adapters/data-space/model-source/field/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/platform-adapters/resources/repository/file-resource-query-parameters'
 
 const {FieldJson, FieldNumber, FieldSelect, FieldCheckbox, FieldText, RendererButton, RendererDialog, RendererForm, RendererFilterExpression, RendererSection, RendererTabs, RendererTabPane} = SparkComponent
 const props = defineProps<DataSpaceViewEditorProps>()
@@ -257,8 +256,8 @@ const propertyPending = computed(() => [...propertyEdits.value.values()].some(Bo
 const queryPlanPending = computed(() => propertyEdits.value.get('query-plan') === true)
 const otherPropertyPending = computed(() => [...propertyEdits.value].some(([name, pending]) => name !== 'query-plan' && pending))
 const projectionDialogOpen = ref(false)
-const projectionFunctionContext = DataSpaceQueryAggregation.editorContext()
-const projectionChildren: SparkNodeChildren = [
+const projectionFunctionContext = SparkData.DataSpaceQueryAggregation.editorContext()
+const projectionChildren: SparkData.SparkNodeChildren = [
   {type: 'r-text', props: {field: 'viewField', label: '字段', readonly: true, minWidth: 140}},
   {type: 'r-text', props: {field: 'label', label: '标题', readonly: true, minWidth: 140}},
   {type: 'r-checkbox', props: {field: 'output', label: '输出', width: 80}},
@@ -290,12 +289,12 @@ const bindingView = dataSet.getView('DataTableBindingDefinition', 'default')!
 const readbackViews = [view.value, bindingView, dataSet.getView('DataTableBindingDefinition', 'fileModels')].filter(item => item !== undefined)
 const readbackFailure = computed(() => {
   tick.value
-  const failed = readbackViews.find(item => item.requestState === RequestState.Failed)
+  const failed = readbackViews.find(item => item.requestState === SparkData.RequestState.Failed)
   return failed ? failed.loadingError?.message ?? '查询未完成' : ''
 })
 for (const item of readbackViews) item.events.on('requestStateChanged', changed)
-const definitionViewKey = buildDataViewKey('DataViewDefinition', 'default', dataSet.scenarioId)
-const modelViewKey = buildDataViewKey('Base_DataModel', 'default', dataSet.scenarioId)
+const definitionViewKey = SparkData.buildDataViewKey('DataViewDefinition', 'default', dataSet.scenarioId)
+const modelViewKey = SparkData.buildDataViewKey('Base_DataModel', 'default', dataSet.scenarioId)
 const sourceInputMode = computed(() => {
   const config = row.value?.['queryConfig']
   return isRecord(config) && config['sourceInputMode'] === 'direct' ? 'direct' : 'mapped'
@@ -315,9 +314,9 @@ const parameterCatalog = computed(() => {
 })
 const filterParameterNames = computed(() => JSON.stringify(Object.entries(parameterCatalog.value.schema.properties ?? {})
   .map(([name, schema]) => ({value: name, label: typeof schema !== 'boolean' && schema.description || name}))))
-const functionCatalog = shallowRef<DataViewFilterFunctionContext>({})
+const functionCatalog = shallowRef<SparkData.DataViewFilterFunctionContext>({})
 const functionCatalogError = ref('')
-const filterFunctionContext = computed(() => DataViewFilter.editorContext({...functionCatalog.value, inputParams: JSON.parse(filterParameterNames.value)}))
+const filterFunctionContext = computed(() => SparkData.DataViewFilter.editorContext({...functionCatalog.value, inputParams: JSON.parse(filterParameterNames.value)}))
 function filterEditingChanged(editing: boolean): void {filterPending.value = editing}
 const legacyFields = [
   {name: 'OutputType', label: '输出类型'}, {name: 'Filter', label: '过滤条件'},
@@ -335,7 +334,7 @@ const controlTable = dataSet.addTable(`ViewControls_${crypto.randomUUID().replac
   ['id', 'ownerKey', 'binding', 'newName', 'newTable'].map(name => ({name, type: 'string', isPrimaryKey: name === 'id'})))
 controlTable.resourceType = 'static-data'
 const controls = controlTable.getOrCreateView('default')
-const controlViewKey = buildDataViewKey(controlTable.tableName, controls.viewId, dataSet.scenarioId)
+const controlViewKey = SparkData.buildDataViewKey(controlTable.tableName, controls.viewId, dataSet.scenarioId)
 controls.commitMode = 'staged'
 controls.replaceRows([{id: 'controls', ownerKey: ownerKey.value, binding: '', newName: '', newTable: ''}])
 controls.setCurrentRowById('controls')
@@ -369,7 +368,7 @@ watch(() => props.session, session => {
     if (address.tableName === 'DataViewDefinition') tick.value++
   })
 }, {immediate: true})
-function fieldState(field: string): DataViewFieldCascadeState {
+function fieldState(field: string): SparkData.DataViewFieldCascadeState {
   tick.value
   try {return props.session.metadataDataSet.getFieldCascadeState({tableName: 'DataViewDefinition', viewId: 'default', field})}
   catch (cause) {return {status: 'error', options: [], valueStatus: 'unverified', error: describeError(cause)}}
@@ -519,7 +518,7 @@ watch(() => {
   } catch {return ''}
 }, key => {if (key) void loadFields().catch(() => {}); else fieldAttempt++}, {immediate: true})
 // 仅声明呈现；原生查询校验、字段身份和保存仍由DataView/ScenarioViewConfig处理。
-const sortChildren = computed<SparkNodeChildren>(() => [
+const sortChildren = computed<SparkData.SparkNodeChildren>(() => [
   {type: 'r-select', props: {field: 'field', label: '字段', filterable: true, clearable: false,
     options: columnState.value.columns.filter(column => !column.isComputed && !column.computeExpression && column.name !== '_pk')
       .map(column => ({value: column.name, label: column.label ? `${column.label}（${column.name}）` : column.name}))}},
@@ -531,7 +530,7 @@ const querySchema = computed<JsonSchemaObject>(() => {
   const field = (title: string): JsonSchemaObject => ({title, type: 'string', oneOf: fieldChoices})
   return {type: 'object', properties: {
     pagination: {title: '分页方式', type: 'string', oneOf: [{const: 'paged', title: '分页'}, {const: 'none', title: '不分页'}], description: '不分页保留后端总数是否报告的语义，并按结果上限拒绝超限。'},
-    outputType: {title: '输出类型', type: 'string', oneOf: (props.fileResource ? DataViewLocalQuery.outputTypes : DataViewQuery.outputTypes).map(item => ({const: item.value, title: item.label}))},
+    outputType: {title: '输出类型', type: 'string', oneOf: (props.fileResource ? SparkData.DataViewLocalQuery.outputTypes : SparkData.DataViewQuery.outputTypes).map(item => ({const: item.value, title: item.label}))},
     allPages: {title: '读取完整集合', type: 'boolean', description: '省略时沿用默认查询；自引用结果不分页。'},
     maxRows: {title: '完整集合上限（行）', type: 'integer', minimum: 1},
     autoQuery: {title: '过滤输入变化后立即查询', type: 'boolean'},
@@ -540,7 +539,7 @@ const querySchema = computed<JsonSchemaObject>(() => {
     ], description: '页面缓存随本次页面释放；浏览器缓存仅当前会话内复用，刷新浏览器、退出或切换身份清除。显式刷新和保存清除结果。'}} : {}),
     ...(!props.fileResource ? {tree: {title: '自引用参数', type: 'object', description: '配置后仅适用于自引用查询；不改变本地树展示配置。',
       properties: {keyField: field('节点主键字段'), parentField: field('父字段'), hasChildrenField: field('子节点标志字段'),
-        nodeId: {title: '起始节点值', type: 'string'}, mode: {title: '自引用输出类型', type: 'string', oneOf: DataViewQuery.treeModes.map(item => ({const: item.value, title: item.label}))}}},
+        nodeId: {title: '起始节点值', type: 'string'}, mode: {title: '自引用输出类型', type: 'string', oneOf: SparkData.DataViewQuery.treeModes.map(item => ({const: item.value, title: item.label}))}}},
     sourceInputMode: {title: '来源参数方式', type: 'string', oneOf: [{const: 'mapped', title: '按已配置映射'}, {const: 'direct', title: '直接传入'}]}} : {}),
     fields: {title: '请求字段列表', type: 'array', items: {type: 'string', oneOf: fieldChoices}, description: '选择正式输出字段，至少一项；移除配置沿用默认输出。身份及依赖字段由查询适配器补齐。'},
     filterLookups: {title: '辅助过滤视图', type: 'array', description: '将文本条件转为辅助视图的值集合，不是输出字段选择；按完整视图绑定配置，使用JSON数组。'},

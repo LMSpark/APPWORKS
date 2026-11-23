@@ -1,6 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 import type {DataView} from '@spark-appworks/spark-data'
-import {applyFlowRunGraphNodeBadges, buildFlowRunGraphNodeBadges, FLOW_RUN_GRAPH_NODE_BADGE_FIELD} from '@/lowcode/resources/system/workflow/manage'
+import {applyFlowRunGraphNodeBadges, buildFlowRunGraphNodeBadges, FLOW_RUN_GRAPH_NODE_BADGE_FIELD} from '@/platform-adapters/resources/system/workflow/manage'
 
 describe('flow run detail graph projection', () => {
   it('marks waiting nodes ahead of completed', () => {

@@ -1,11 +1,11 @@
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
+import {ExcelPhysicalFieldDirectory} from '@/platform-adapters/resources/semi-structured/excel-import/metadata/physical-fields'
 import {describe,it,expect,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
+import {readExcelSortFields} from '@/platform-adapters/resources/semi-structured/excel-import/transform/sort-fields'
 async function fixture(onStateChange?:()=>void){
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'节点',relatedappid:'A1',table:'数据库一@table_one',sorted:''}],Base_ImportData_Field:[],Base_Import_Transform_Rule:[]})
  const sourceHttp=new ApiBackend();sourceHttp.records=sourceRecords();const source=await createSourceDataSet(sourceHttp)

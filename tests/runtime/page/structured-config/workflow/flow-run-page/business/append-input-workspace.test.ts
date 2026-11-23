@@ -3,10 +3,10 @@ import {expect, it} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {FlowAppendInputWorkspace} from '@/lowcode/resources/system/workflow/manage/flow-append-user/input-workspace'
-import {createApprovalOptionsBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
-import {createApprovalCommandBindings} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
-import {submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {FlowAppendInputWorkspace} from '@/platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace'
+import {createApprovalOptionsBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
+import {createApprovalCommandBindings} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
+import {submitApprovalCommand, verifyApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 
 class AppendHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []

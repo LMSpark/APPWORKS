@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, RequestState} from '@spark-appworks/spark-data'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {readNavigationAuthorizationDataView} from '@/lowcode/resources/shared/navigation-authorization-resource'
+import {lowcodeApi, lowcodeNavigationAuthorization} from '@/platform-adapters/lowcode-runtime'
+import {readNavigationAuthorizationDataView} from '@/platform-adapters/resources/shared/navigation-authorization-resource'
 
 const executionAppId = 'EXEC-APP'
 const executionRootId = 'EXEC-ROOT'
@@ -38,7 +38,7 @@ describe('navigation authorization semantic resource', () => {
       dataSet = created
       return created
     })
-    const readAuthorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockImplementation(async () => {
+    const readAuthorization = vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockImplementation(async () => {
       expect(dataSet?.getView('NavigationAuthorization', 'default')?.requestState).toBe(RequestState.Loading)
       return evidence
     })
@@ -61,7 +61,7 @@ describe('navigation authorization semantic resource', () => {
       return created
     })
     const failure = new Error('menu authorization unavailable')
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockRejectedValue(failure)
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockRejectedValue(failure)
 
     await expect(readNavigationAuthorizationDataView({applicationId: targetAppId,
       navigationRootId: targetRootId, assertCurrent: () => undefined})).rejects.toBe(failure)
@@ -73,7 +73,7 @@ describe('navigation authorization semantic resource', () => {
     ['relation context', '{"items":[],"contexts":[{"id":"REL","navigationId":"MENU","title":"","childRowId":"CHILD","textParameterName":"","valueParameterName":"","workflowId":"","flowState":"invalid","valueField":"","textField":"","titlePlacement":""}]}'],
   ])('rejects malformed %s in the official authorization response', async (_kind, payload) => {
     selectExecutionApplication()
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockImplementation(async () => JSON.parse(payload))
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockImplementation(async () => JSON.parse(payload))
 
     await expect(readNavigationAuthorizationDataView({applicationId: targetAppId,
       navigationRootId: targetRootId, assertCurrent: () => undefined})).rejects.toThrow('NAVIGATION_AUTHORIZATION_RESULT_INVALID')
@@ -82,7 +82,7 @@ describe('navigation authorization semantic resource', () => {
   it('rejects when the execution application changes during the authorization query', async () => {
     selectExecutionApplication()
     let complete: ((value: typeof evidence) => void) | undefined
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockImplementation(() => new Promise(resolve => {complete = resolve}))
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockImplementation(() => new Promise(resolve => {complete = resolve}))
     const request = readNavigationAuthorizationDataView({applicationId: targetAppId,
       navigationRootId: targetRootId, assertCurrent: () => undefined})
     await vi.waitFor(() => expect(complete).toBeTypeOf('function'))
@@ -94,7 +94,7 @@ describe('navigation authorization semantic resource', () => {
   it('rejects when the execution navigation root changes during the authorization query', async () => {
     selectExecutionApplication()
     let complete: ((value: typeof evidence) => void) | undefined
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockImplementation(() => new Promise(resolve => {complete = resolve}))
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockImplementation(() => new Promise(resolve => {complete = resolve}))
     const request = readNavigationAuthorizationDataView({applicationId: targetAppId,
       navigationRootId: targetRootId, assertCurrent: () => undefined})
     await vi.waitFor(() => expect(complete).toBeTypeOf('function'))

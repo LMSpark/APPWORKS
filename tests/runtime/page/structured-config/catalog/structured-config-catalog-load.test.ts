@@ -1,17 +1,17 @@
 import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import logicCatalog from '../../../../../config/pages/structured-config/logic-view-catalog/pagedata.json'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
+import {LowcodeWorkflowDefinition} from '@/platform-adapters/resources/structured-config/workflow-definition/resource'
+import {LowcodeJsonData} from '@/platform-adapters/resources/semi-structured/json-data/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 import {WORKFLOW, topicModels, topicTexts} from './formal-topic.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id===LowcodeLogicView.navigationScenarioId?JSON.stringify(logicCatalog):topicTexts[id] ?? catalogText}}),

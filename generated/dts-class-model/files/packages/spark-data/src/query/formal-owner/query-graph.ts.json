@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/query-graph",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/query-graph.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/query-graph.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/query-graph",
+    "jsdoc": "@module @/platform-adapters/api:platform/data-space/runtime/query/data-space-query-graph\n职责：解析当前DataSet的显式SQL模型查询图及分层正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryGraph"
+    ]
+  },
+  "$defs": {
+    "QueryGraphInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QueryGraphInput",
+      "properties": {
+        "view": {
+          "$ref": "../../data-view.ts.json#/$defs/DataView"
+        },
+        "model": {
+          "$ref": "formal-model.ts.json#/$defs/FormalModelDescriptor"
+        },
+        "options": {
+          "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../data-table.ts.json#/$defs/DataTable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "$ref": "formal-model.ts.json#/$defs/FormalModelDescriptor"
+        }
+      }
+    },
+    "DataSpaceQueryGraph": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryGraph",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/QueryGraphInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            },
+            "projection": {
+              "$ref": "../formal-table-contract.ts.json#/$defs/DataSpaceQueryProjection"
+            }
+          },
+          "required": [
+            "options",
+            "projection"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-23T09:26:00.202Z",
+  "models": {
+    "QueryGraphInput": {
+      "name": "QueryGraphInput",
+      "jsdoc": "当前视图的正式子计划解析输入；正式定义继续归原运行owner所有。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次根视图，决定DataSet和结果释放范围。 */\n    view: DataView;\n    /** 当前运行owner已绑定的根正式模型。 */\n    model: FormalModelDescriptor;\n    /** 已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。 */\n    options: DataSpaceQueryOptions;\n    /** 从同一运行owner取得表的正式绑定，同时核对绑定scope。 */\n    readModel: (table: DataTable) => FormalModelDescriptor | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次根视图，决定DataSet和结果释放范围。 */\n    view: DataView;\n    /** 当前运行owner已绑定的根正式模型。 */\n    model: FormalModelDescriptor;\n    /** 已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。 */\n    options: DataSpaceQueryOptions;\n    /** 从同一运行owner取得表的正式绑定，同时核对绑定scope。 */\n    readModel: (table: DataTable) => FormalModelDescriptor | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "本次根视图，决定DataSet和结果释放范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "jsdoc": "当前运行owner已绑定的根正式模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readModel",
+              "jsdoc": "从同一运行owner取得表的正式绑定，同时核对绑定scope。",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTable",
+                    "sourcePath": "packages/spark-data/src/data-table.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FormalModelDescriptor",
+                  "sourcePath": "packages/spark-data/src/query/formal-owner/formal-model.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryGraph": {
+      "name": "DataSpaceQueryGraph",
+      "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "捕获完整正式模型图，派发、分页、缓存接纳与结果读取复用同一失效检查。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryGraphInput",
+                    "sourcePath": "packages/spark-data/src/query/formal-owner/query-graph.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        options: DataSpaceQueryOptions;\n        projection: DataSpaceQueryProjection;\n    }"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

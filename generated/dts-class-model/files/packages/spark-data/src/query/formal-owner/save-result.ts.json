@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/save-result",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/save-result.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/save-result",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/save-result 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceSavePlan, DataSpaceSaveReceipt（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceSavePlan",
+      "DataSpaceSaveReceipt"
+    ]
+  },
+  "$defs": {
+    "DataSpaceSavePlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "DataSpaceSavePlan",
+      "items": {
+        "type": "object",
+        "properties": {
+          "TableName": {
+            "type": "string"
+          },
+          "CrudModel": {
+            "type": "object",
+            "properties": {
+              "Added": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              },
+              "Changed": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              },
+              "Deleted": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            },
+            "required": [
+              "Added",
+              "Changed",
+              "Deleted"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "TableName",
+          "CrudModel"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "DataSpaceSaveReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveReceipt",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "metaName",
+        "added",
+        "changed",
+        "deleted"
+      ],
+      "additionalProperties": false
+    },
+    "FormalSaveSuccessOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalSaveSuccessOptions",
+      "properties": {
+        "fallback": {
+          "type": "string"
+        },
+        "treatErrorMessageAsFailure": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T09:15:58.253Z",
+  "models": {
+    "DataSpaceSavePlan": {
+      "name": "DataSpaceSavePlan",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyArray<Readonly<{\n    TableName: string;\n    CrudModel: Readonly<{\n        Added: ReadonlyArray<Record<string, unknown>>;\n        Changed: ReadonlyArray<Record<string, unknown>>;\n        Deleted: ReadonlyArray<Record<string, unknown>>;\n    }>;\n}>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyArray<Readonly<{\n    TableName: string;\n    CrudModel: Readonly<{\n        Added: ReadonlyArray<Record<string, unknown>>;\n        Changed: ReadonlyArray<Record<string, unknown>>;\n        Deleted: ReadonlyArray<Record<string, unknown>>;\n    }>;\n}>>",
+            "targetName": "ReadonlyArray"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveReceipt": {
+      "name": "DataSpaceSaveReceipt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: Array<Record<string, unknown>>;\n    changed: Array<Record<string, unknown>>;\n    deleted: Array<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    metaName: string;\n    added: Array<Record<string, unknown>>;\n    changed: Array<Record<string, unknown>>;\n    deleted: Array<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FormalSaveSuccessOptions": {
+      "name": "FormalSaveSuccessOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fallback?: string;\n    treatErrorMessageAsFailure?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fallback?: string;\n    treatErrorMessageAsFailure?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fallback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "treatErrorMessageAsFailure",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

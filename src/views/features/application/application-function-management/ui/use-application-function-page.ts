@@ -3,14 +3,15 @@ import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { getNavTree, NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { buildDataViewKey, DataViewFilter, ensureDataSetStaticInputTable, isDataRow, type DataRow, type DataSet, type DataView } from '@spark-appworks/spark-data'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
-import { parseConfigToolPageId, type PageRuntime } from '@spark-appworks/spark-project-model'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, parseLowcodeBlueprintFileVersions, RichTextImageUploadResource, type AiTurnDraftRunner } from '@spark-appworks/spark-lowcode-api'
-import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
-import { submitBlueprintDocument } from '@/lowcode/resources/application/project-blueprint-document'
-import { readDataSpaceDesignModels } from '@/lowcode/resources/data-space/design/read-formal-models'
-import { AiDataEntryHost } from '@/lowcode/resources/shared/ai-data-entry-host'
-import { hasDimensionLedgerRecords } from '@/lowcode/resources/structured-config/dimension-source/ledger-guard'
+import { parseConfigToolPageId, parsePageToolPublicationVersions, type PageRuntime } from '@spark-appworks/spark-project-model'
+import type { AiTurnDraftRunner } from '@spark-appworks/spark-ai/agent'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, RichTextImageUploadResource } from '@/platform-adapters/api'
+import { loadLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import { lowcodeApi, lowcodeDesignFileUpload, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
+import { submitBlueprintDocument } from '@/platform-adapters/resources/application/project-blueprint-document'
+import { readDataSpaceDesignModels } from '@/platform-adapters/resources/data-space/design/read-formal-models'
+import { AiDataEntryHost } from '@/platform-adapters/resources/shared/ai-data-entry-host'
+import { hasDimensionLedgerRecords } from '@/platform-adapters/resources/structured-config/dimension-source/ledger-guard'
 import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { BLUEPRINT_APPLICATION_MEMBER_SCENARIO_ID, BLUEPRINT_DIMENSION_LEDGER_SCENARIO_ID, BLUEPRINT_NODE_STATUS_SCENARIO_ID, useDevState } from './blueprint-state/useDevState'
 import { blueprintEditingFields as editingFields } from './application-function-page-contract'
@@ -424,7 +425,7 @@ export function useApplicationFunctionPage() {
           const saved=nodes.find(node=>node.row['rowid']===id)
           const publishedVersion=saved?.row['VersionId']
           if(saved?.hidden.includes('VersionId') || typeof publishedVersion !== 'string' || !publishedVersion.trim()) return false
-          const versions = parseLowcodeBlueprintFileVersions(publishedVersion.trim())
+          const versions = parsePageToolPublicationVersions(publishedVersion.trim())
           return versions.rule !== null && versions.script !== null && versions.style !== null
         }})
     } catch (cause) {

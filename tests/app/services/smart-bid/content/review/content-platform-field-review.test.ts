@@ -5,8 +5,8 @@ import {contentProductionReviewScenarioViews} from '@/views/features/application
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createContentReviewScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-script-host'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('pins approved proposed value to the exact adopted response and platform field',async()=>{
  const selection={projectId:'P',revisionId:'R',assignmentId:'A',fieldId:'F'}

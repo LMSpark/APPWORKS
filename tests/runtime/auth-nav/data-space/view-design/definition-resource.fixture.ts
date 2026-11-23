@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs'
 import {DataSet, RequestState, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
-import type {ViewDesignAssembleInput} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {ViewDesignAssembleInput} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 type DefinitionBindings = Pick<ViewDesignAssembleInput,'fileExecutors'|'projectionBindings'>
 
 /** Return the target model identity from the formal data-space design page config. */

@@ -6,7 +6,7 @@ import {
   hasLowcodeSession,
   lowcodeApi,
   readLowcodePrincipal,
-} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/lowcode-runtime'
 import {
   APPLICATION_CATALOG_PROJECT_ID,
   buildApplicationPath,

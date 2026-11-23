@@ -21,7 +21,7 @@
       "properties": {
         "session": {
           "type": "object",
-          "title": "import(\"../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design\").LowcodeDataSpaceDesignSession"
+          "title": "import(\"../../../../../../../../platform-adapters/data-space/view-design/lowcode-data-space-view-design\").LowcodeDataSpaceDesignSession"
         },
         "modelId": {
           "type": "string"

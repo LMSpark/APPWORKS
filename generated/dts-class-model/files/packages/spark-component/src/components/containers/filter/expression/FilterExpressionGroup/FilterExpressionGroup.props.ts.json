@@ -37,10 +37,10 @@
                 "enum": [
                   "number",
                   "boolean",
-                  "select",
-                  "date",
                   "text",
-                  "datetime"
+                  "date",
+                  "datetime",
+                  "select"
                 ]
               },
               "operators": {

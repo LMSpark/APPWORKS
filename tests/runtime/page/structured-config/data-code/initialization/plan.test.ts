@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest'
 import {fixture} from './fixture'
-import {getCodeInitializationPlan} from '@/lowcode/resources/structured-config/data-code/initialization-plan'
-import {resolveCodeInitializationDate} from '@/lowcode/resources/structured-config/data-code/initialization-date'
+import {getCodeInitializationPlan} from '@/platform-adapters/resources/structured-config/data-code/initialization-plan'
+import {resolveCodeInitializationDate} from '@/platform-adapters/resources/structured-config/data-code/initialization-date'
 describe('saved initialization plan and date contract',()=>{
   it.each([['yyyyMMdd','YYYYMMDD','date','YYYY-MM-DD','2026-11-02'],['yyyyMM','YYYYMM','month','YYYY-MM','2026-11'],['yy','YY','year','YYYY','2026']])(
     'separates display pattern %s from the confirmed service date input',async(pattern,format,dateType,valueFormat,value)=>{

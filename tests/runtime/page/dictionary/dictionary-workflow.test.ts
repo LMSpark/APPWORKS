@@ -8,15 +8,15 @@ import {AI_DATA_ENTRY_HOST, PAGE_RUNTIME, Spark, SparkAiDataEntry, registerAllRe
 import {DataSet} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
-import {lowcodeHttp} from '@/lowcode/lowcode-runtime'
-import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
+import {lowcodeHttp} from '@/platform-adapters/lowcode-runtime'
+import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import DictionaryDesign from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
-import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture'
+import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../src/platform-adapters/api/platform/resources/structured-config/dictionary/tests/workspace.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: () => ({token: 'TEST-SCOPE', headers: {'tenant-id': 'TENANT', 'X-AppId': 'APP'}})}, lowcodeHttp: {}}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: () => ({token: 'TEST-SCOPE', headers: {'tenant-id': 'TENANT', 'X-AppId': 'APP'}})}, lowcodeHttp: {}}))
 const originalStubs = {...config.global.stubs}
 const sets: DataSet[] = [], wrappers: VueWrapper[] = []
 const hosts = new WeakMap<VueWrapper, {dynamic: ReturnType<typeof createDynamicRouter>; designId: Ref<string>; dataId: Ref<string | undefined>; openState: Ref<boolean>}>()

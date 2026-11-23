@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest'
-import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
 it.each([false, true])('reads child-plan fields from the formal model independently of a narrow default projection (%s)', async narrowDefault => {

@@ -1,11 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {SparkData, type DataSet} from '@spark-appworks/spark-data'
 const state = vi.hoisted(() => ({load: vi.fn(), scope: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: state.load}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: state.scope}, lowcodeHttp: {}}))
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: state.load}))
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: state.scope}, lowcodeHttp: {}}))
+import {LowcodeWorkflowDefinition} from '@/platform-adapters/resources/structured-config/workflow-definition/resource'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
+import {LowcodePdfInspect} from '@/platform-adapters/resources/semi-structured/pdf-inspect/resource'
 const loaded: DataSet[] = []
 beforeEach(() => {
   state.scope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'EXECUTION_APP'}})

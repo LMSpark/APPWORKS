@@ -106,12 +106,12 @@ Agent 派发已统一走 Spark AI SSE，旧 claim/agent task 已删除；Dataset
   - 原生解析 Plan 的 models/views/dependencies/GetDependValue。
   - 将设计态 `DependKey/SourceDataViewId/SourceField/EmptyValueMode` 直接落到 DataView query cascade。
   - command/logical-view/file resource 仍走现有 DataView source 生命周期和权限。
-- `src/lowcode/lowcode-runtime.ts`
+- `src/platform-adapters/lowcode-runtime.ts`
   - D3 场景文件读取改为 `DataSet/<scenarioId>.dataset.json`；删除 D3 pagedata 运行分支。
   - 不增加 Dataset writeText、createVersion/listVersions；保存入口继续由后端数据空间设计服务生成文件。
-- `src/lowcode/data-space/lowcode-data-space-runtime.ts`
+- `src/platform-adapters/data-space/lowcode-data-space-runtime.ts`
   - D3 通过新的 Dataset Plan contract 装配，不从 pagedata 生成 `ScenarioViewConfig`。
-- `src/lowcode/data-space/lowcode-data-space-assembler.ts`
+- `src/platform-adapters/data-space/lowcode-data-space-assembler.ts`
   - D3 输入改为 spark-data RuntimeDataSetPlan；普通场景继续消费 ScenarioViewConfig。
   - Plan 中模型名称、modelId 与正式 backend metadata 逐项比对后绑定 query/save owner。
 - `src/views/features/application/smart-bid/**`

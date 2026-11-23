@@ -5,12 +5,12 @@
  */
 import {parseRuntimeDataSetPlanFile as parseRuntimeDataSetPlan, type DataView} from '@spark-appworks/spark-data'
 import {
-  LOWCODE_BLUEPRINT_FILE_NAMES as fileNames,
-  encodeLowcodeBlueprintFileVersions,
-  lowcodeBlueprintFileVersionKey,
-  parseLowcodeBlueprintFileVersions,
-  type LowcodeBlueprintFileName,
-} from '@spark-appworks/spark-lowcode-api'
+  PAGE_TOOL_PUBLICATION_FILE_NAMES as fileNames,
+  encodePageToolPublicationVersions,
+  pageToolPublicationVersionKey,
+  parsePageToolPublicationVersions,
+  type PageToolPublicationFileName,
+} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 
 type Progress = 'pending' | 'confirmed'
@@ -20,7 +20,7 @@ export type PageToolPublicationIntent = {
   call: string
   digest: string
   baseline: string
-  snapshots: Partial<Record<LowcodeBlueprintFileName, Snapshot>>
+  snapshots: Partial<Record<PageToolPublicationFileName, Snapshot>>
   scenarioSnapshots: Record<string, ScenarioSnapshot>
   pointer: {value: string; state: Progress} | null
 }
@@ -268,14 +268,14 @@ function decode(raw: string): PageToolPublicationIntent {
     if (typeof pointerValue !== 'string' || !validState(state)) {
       throw Error('发布指针恢复定位无效')
     }
-    const parsed = parseLowcodeBlueprintFileVersions(pointerValue)
+    const parsed = parsePageToolPublicationVersions(pointerValue)
     const required = parsed.manifest === null
       ? fileNames.filter(file => file !== MANIFEST_FILE)
       : fileNames
     if (!required.every(file => snapshots[file]?.state === 'confirmed')
-      || encodeLowcodeBlueprintFileVersions(parsed) !== pointerValue) throw Error('发布指针恢复定位无效')
+      || encodePageToolPublicationVersions(parsed) !== pointerValue) throw Error('发布指针恢复定位无效')
     for (const file of required) {
-      if (snapshots[file]?.version !== parsed[lowcodeBlueprintFileVersionKey(file)]) throw Error('发布指针恢复定位无效')
+      if (snapshots[file]?.version !== parsed[pageToolPublicationVersionKey(file)]) throw Error('发布指针恢复定位无效')
     }
     pointer = {value: pointerValue, state}
   }
@@ -317,7 +317,7 @@ export class PageToolPublication {
   }
 
   /** 核对原版本或追加并记录新版本；后续工作区只沿原文件 DataView 读取。 */
-  async snapshot(input: Readonly<{intent: PageToolPublicationIntent; fileView: DataView; fileName: LowcodeBlueprintFileName; text: string;
+  async snapshot(input: Readonly<{intent: PageToolPublicationIntent; fileView: DataView; fileName: PageToolPublicationFileName; text: string;
     assertTarget(): void; onAttempt(name: string): void}>): Promise<number> {
     const {intent, fileView, fileName, text, assertTarget} = input
     let snapshot = intent.snapshots[fileName]

@@ -125,7 +125,7 @@ import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type C
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { PAGE_RUNTIME_SERVICES, PAGE_SERVICE, buildPageService } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
@@ -141,7 +141,7 @@ import {
   lowcodeApi,
   lowcodeRequestHeaders,
   readLowcodePrincipal,
-} from '@/lowcode/lowcode-runtime'
+} from '@/platform-adapters/lowcode-runtime'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 import {
   registerShellNavRootListener,
@@ -162,7 +162,7 @@ import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
 import { APPLICATION_CATALOG_PROJECT_ID, PLATFORM_PATH_PREFIX, buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
-import { lowcodePlatformNavigation } from '@/lowcode/system-navigation'
+import { lowcodePlatformNavigation } from '@/platform-adapters/system-navigation'
 import { getPublicPaths } from '@/registries/vue-page-registry'
 
 const {

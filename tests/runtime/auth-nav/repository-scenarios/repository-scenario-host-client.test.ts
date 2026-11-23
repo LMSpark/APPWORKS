@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
-import {readRepositoryScenarioFromHost, writeRepositoryScenarioToHost} from '@/lowcode/resources/repository/scenarios/host-client'
+import {readRepositoryScenarioFromHost, writeRepositoryScenarioToHost} from '@/platform-adapters/resources/repository/scenarios/host-client'
 
 const resource = resolveSystemScenarioResource('8D1AB14DD8277F3E7017CD38F77B09FD')!
 

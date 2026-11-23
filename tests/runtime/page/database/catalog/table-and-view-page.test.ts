@@ -9,8 +9,8 @@ import {FieldCheckbox, FieldSelect, RendererFilterExpression, RendererForm, regi
 import {buildDataViewKey, DataView, DataViewFilter, DataViewFilterCodec, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import TableAndViewPage from '@/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue'
 import TableRelationDialog from '@/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue'
-import {DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_FIELD_MODEL} from '@/lowcode/resources/database/catalog/table-view'
-import {DATABASE_CATALOG_DB_MODEL} from '@/lowcode/resources/database/catalog/table-view'
+import {DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_FIELD_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
+import {DATABASE_CATALOG_DB_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -21,15 +21,15 @@ import {
   DATABASE_CATALOG_RELATION_MODEL,
   DATABASE_CATALOG_RELATION_TABLE_VIEW,
   DATABASE_CATALOG_TABLE_MODEL,
-} from '@/lowcode/resources/database/catalog/table-view'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+} from '@/platform-adapters/resources/database/catalog/table-view'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import type {HttpResponse, RequestConfig} from '@spark-appworks/spark-utils'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
-import {LowcodeDatabaseTableView} from '@/lowcode/resources/database/catalog/table-view'
+import {LowcodeDatabaseTableView} from '@/platform-adapters/resources/database/catalog/table-view'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseTableViewHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))

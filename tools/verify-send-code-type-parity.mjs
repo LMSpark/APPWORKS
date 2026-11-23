@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 断言 backend-api-contracts 与 spark-lowcode-api 的 SendCodeType / SendCodeScene 字面量同形，
+ * 断言 backend-api-contracts 是 SendCodeType / SendCodeScene 唯一正式合同，
  * 禁止再出现 LowcodeVerificationChannel 等第二正式名。
  */
 import fs from 'node:fs'
@@ -10,8 +10,8 @@ import ts from 'typescript'
 import { isCliEntrypoint, printViolations, relativePath } from './verifier-common.mjs'
 
 const LEDGER_REL = 'backend-api-contracts/common.ts'
-const RUNTIME_REL = 'packages/spark-lowcode-api/src/contracts/lowcode-send-code.ts'
-const BANNED_REL = 'packages/spark-lowcode-api/src'
+const RUNTIME_REL = LEDGER_REL
+const BANNED_REL = 'src/platform-adapters/api'
 const BANNED_ALIAS = 'LowcodeVerificationChannel'
 
 const EXPECTED = {

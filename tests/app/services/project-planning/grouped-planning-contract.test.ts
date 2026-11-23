@@ -5,7 +5,7 @@ import { createAgentWorkflowDefinitionFromDesign } from '@/services/workflow-des
 import { evaluateProjectPlanningToolGate, resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
-import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
+import { decodeProjectBlueprintRows } from '@spark-appworks/spark-project-model'
 
 describe('projectPlanning formal node input', () => {
   it('submits independent creates and existing leaf name/memo updates through one owner command', async () => {
@@ -256,7 +256,7 @@ describe('projectPlanning formal node input', () => {
       projectId, hasTreeProjection: true, dirty: false, treeProjection: () => readback,
       hasOutput: () => true,
       addChildNode: vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
-        const record = normalizeLowcodeProjectBlueprintRecords([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
+        const record = decodeProjectBlueprintRows([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
         readback = { ...readback, children: [...readback.children, {
           nodeId: record.nodeId, parentNodeId: record.parentNodeId, projectId: record.projectId, kind: record.kind,
           capability: record.capability, ...(record.navigation === undefined ? {} : { navigation: record.navigation }),
@@ -294,7 +294,7 @@ describe('projectPlanning formal node input', () => {
     editor.project.markBlueprintClean('root')
     let current = editor.project.blueprintTree
     const addChildNode = vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
-      const record = normalizeLowcodeProjectBlueprintRecords([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
+      const record = decodeProjectBlueprintRows([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
       current = { ...current, children: [...current.children, {
         nodeId: record.nodeId, parentNodeId: record.parentNodeId, projectId: record.projectId, kind: record.kind,
         capability: record.capability, ...(record.navigation === undefined ? {} : { navigation: record.navigation }),

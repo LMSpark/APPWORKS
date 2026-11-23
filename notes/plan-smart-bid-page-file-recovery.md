@@ -23,7 +23,7 @@
 - `packages/spark-data/src/query/file-resource-adapter.ts`：保存原 update 捕获，核验并在显式动作下执行同目标同正文补偿。
 - `packages/spark-data/src/data-view.ts`：暴露正式 `retrySourceWriteAttempt` DataView API。
 - `src/services/project/page-tool-file-dataview.ts`：PageTool working file 声明可补偿能力；快照/manifest 不声明。
-- `packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts`：保留 unknown 502；明确 AjaxResult 拒绝不再被 outer catch 错标 unknown。
+- `src/platform-adapters/api/design/lowcode-design-file-upload.ts`：保留 unknown 502；明确 AjaxResult 拒绝不再被 outer catch 错标 unknown。
 - `src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts`、`ui/page-design/DevFileEditor.vue`：展示“核验原提交”与单独的“同内容补偿重试”，不合并为一个隐藏写操作。
 - 对应 spark-data、spark-lowcode-api 测试。
 - `notes/data-space-retirement-ledger.md`、`notes/ai-code-metrics.md`：记录 Page06 恢复及测试结果。

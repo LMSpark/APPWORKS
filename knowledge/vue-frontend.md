@@ -85,7 +85,7 @@
 
 ### AjaxResult 台账与运行同形
 
-- **场景**：改 `backend-api-contracts` 或 `spark-lowcode-api` 的响应外壳
+- **场景**：改 `backend-api-contracts` 的响应外壳
 - **规则**：两侧正式名均为 `AjaxResult`（已删 `LowcodeAjaxResult`），`Code` 必填；改任一处后跑 `pnpm run verify:ajax-result-parity`
 - **违反后果**：可选 Code 与运行解包假设冲突 → 假成功或误抛
 - **发现来源**：2026-08 SSOT G8
@@ -100,7 +100,7 @@
 ### WireFilterOperator / OrderType 与 spark-data 分层
 
 - **场景**：DataView 过滤/排序投影到 GetData wire
-- **规则**：公开过滤树与排序类型来自 `@spark-appworks/spark-data`；wire 正式名 `WireFilterOperator` / `OrderType` / `GroupFunType` 在台账与 `spark-lowcode-api/contracts/lowcode-wire-query.ts` 同形（`verify:wire-query-parity`）。转换在 API 包的 `platform/data-space/runtime/protocol/data-space-filter.ts`，宿主assembler不维护第二mapper。`AggregateType` 仍属spark-data，不与GroupFunType硬合并或同名。
+- **规则**：公开过滤树与排序类型来自 `@spark-appworks/spark-data`；wire 正式名 `WireFilterOperator` / `OrderType` / `GroupFunType` 只在 `backend-api-contracts` 定义（`verify:wire-query-parity`）。SPARK Data 的正式 owner 负责转换，宿主 assembler 不维护第二 mapper。`AggregateType` 仍属 spark-data，不与 GroupFunType 硬合并或同名。
 - **违反后果**：同名冲突、错误 wire Operator、排序 direction 内联联合再分叉
 - **发现来源**：2026-08 SSOT wire-query 收口
 
@@ -151,10 +151,10 @@
 - **违反后果**：跨包同名碰撞；误伤 DataView API
 - **发现来源**：2026-08 SSOT TreeNode 收口
 
-### lowcode 蓝图只保留后端记录
+### 蓝图记录与运行授权分离
 
 - **场景**：读 `Base_NavigationInfo` / GetNavigationMenus
-- **规则**：lowcode-api 只暴露 `LowcodeProjectBlueprintRecord` + `LowcodeProjectBlueprintApi.readRecords` / `readNavigationAuthorization`。公共正式名用 `Lowcode*` 前缀：`LowcodeNavigationTargetKind` / `LowcodeNavigationAuthorization*` / `LowcodeProjectBlueprintDocument*`。禁止 `ProjectBlueprintApi`、`RuntimeNavigationTargetKind`、`RuntimeNavigationAuthorization*`、聚合 class。根 `src/lowcode/lowcode-runtime.ts` 用 `assembleLowcodeRuntimeNavigation` 直接装配壳 `RuntimeNavigation`
+- **规则**：`spark-project-model` 提供 `ProjectBlueprintRecord` 及其字段映射；宿主 `src/platform-adapters` 持有导航授权服务适配。`assembleLowcodeRuntimeNavigation` 求候选节点与授权树的交集，装配壳 `RuntimeNavigation`；平台适配器不复制蓝图领域定义。
 - **违反后果**：平台 wire 与项目模型/壳导航双真源；`RuntimeNavigation*` 命名误导为壳合同
 - **发现来源**：2026-08 plan-project-blueprint-aggregate-ssot + Lowcode* 命名收口
 
@@ -204,10 +204,10 @@
 
 ### 收窄 `Object.entries(Partial<Record>)` 用类型守卫，不要断言也不要 `!== undefined` 过滤
 
-- **场景**：把 `Object.entries(patch)` 的键收窄到字面量联合（如 `LowcodeProjectBlueprintMutableField`）
+- **场景**：把 `Object.entries(patch)` 的键收窄到字面量联合（如 `ProjectBlueprintMutableField`）
 - **规则**：写 `field is X` 类型守卫，并把通过校验的条目收集进带类型的数组。`as Array<[…]>` 会被 `verify:ai-codegen` 拒绝；对值做 `!== undefined` 过滤会被 `@typescript-eslint/no-unnecessary-condition` 拒绝（该类型下 `Object.entries` 的值类型不含 `undefined`）。
 - **违反后果**：`verify:ai-codegen` 或 `lint` 失败。
-- **发现来源**：2026-10-05 修复 `LowcodeProjectBlueprintApi.updateNodeFields`
+- **发现来源**：2026-10-05 修复蓝图记录的 `updateNodeFields`
 
 ### 页面脚本 / 计算列沙箱不是安全边界
 

@@ -1,11 +1,11 @@
 import {describe, expect, it} from 'vitest'
-import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {createAgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {
   AGENT_WORKFLOW_DESIGN_TABLE,
   AGENT_WORKFLOW_LINE_TABLE,
   AGENT_WORKFLOW_NODE_TABLE,
   AGENT_WORKFLOW_VARIABLE_TABLE,
-} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection'
+} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection'
 import {agentWorkflowOwnerInput} from './agent-workflow-design-fixture'
 
 const design = {

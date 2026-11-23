@@ -19,7 +19,7 @@ import {PageTool} from '@spark-appworks/spark-project-model'
 import {RendererSection, SparkPageRenderer, consumeRequiredPageService, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
-import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
+import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/platform-adapters/resources/system/workflow/manage'
 
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'

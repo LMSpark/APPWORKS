@@ -50,9 +50,9 @@ AI用途：分类编辑器内的引用表选择，完整绑定及目标身份由
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, FieldSelect, FieldText, RendererButton, RendererDialog, RendererForm, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
 import {applyCodeBusinessTable, applyCodeClassReference, projectCodeReferenceSelection, projectCodeStoredSelection,
-  readCodeStoredReference, restoreCodeStoredReference, type CodeStoredReference} from '@/lowcode/resources/structured-config/data-code/reference-ops'
+  readCodeStoredReference, restoreCodeStoredReference, type CodeStoredReference} from '@/platform-adapters/resources/structured-config/data-code/reference-ops'
 const props = defineProps<{dataViewKey: string; recordId: string | number; targetKind: 'class' | 'business'; validateTarget: () => void}>()
 const emit = defineEmits<{close: []; applied: []}>()
 const {sparkConsume} = useSparkComponent({type: 'code-reference-table-dialog'}), runtime = sparkConsume(PAGE_RUNTIME)

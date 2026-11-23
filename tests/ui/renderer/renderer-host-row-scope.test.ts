@@ -7,8 +7,8 @@ import type { DataRow } from '@spark-appworks/spark-data'
 import RendererHostScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererHostScope.vue'
 import { useFieldPermission } from '../../../packages/spark-component/src/components/fields/context/useFieldPermission'
 import type { SparkNode } from '@spark-appworks/spark-data'
-import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
 
 describe('RendererHostScope DATA_ROW reactivity', () => {
   it('keeps cached DATA_ROW consumers in sync when row prop changes', async () => {

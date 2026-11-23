@@ -7,8 +7,8 @@ import {DataSet, resolveDataViewMember, type SparkNode} from '@spark-appworks/sp
 import {Logger} from '@spark-appworks/spark-utils'
 import {createRendererTableZeroCode} from '../../../../packages/spark-component/src/components/containers/data-views/RendererTable/zero-code'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 import {useDataViewState} from '../../../../packages/spark-component/src/components/containers/data-views/view-runtime-state'
 
 const originalStubs = config.global.stubs

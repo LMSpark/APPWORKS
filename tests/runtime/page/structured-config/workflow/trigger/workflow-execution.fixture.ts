@@ -1,11 +1,12 @@
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import { LowcodeApiError } from '@/platform-adapters/api'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
-import {prepareWorkflowExecutionInput} from '@/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
+import {createWorkflowLayoutExecutor} from '@/platform-adapters/resources/structured-config/workflow-definition/layout/layout-resource'
+import {prepareWorkflowExecutionInput} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
 export class ExecutionHttp extends ApiBackend{
  readonly executions:RequestConfig[]=[]

@@ -3668,3 +3668,13 @@
 - **知识沉淀**：项目树、正式/过程边界已收敛到 README；未新增一次性知识条目。
 - **30 天存活**：待 2026-12-19 核查，重点为 tests/support/fixtures 引用、notes 只保留两份台账、workflow 过程工具未回生。
 - **人工干预**：用户明确批准全仓、激进收敛；保留唯一活动台账与度量，不删除正式合同/历史功能。
+
+### 2026-11-23 SPARK Data 语义整合与独立 lowcode 包删除
+
+- **复杂度**：复杂；跨 160 个旧源文件、300+ 消费者、四个目标域、构建/生成/测试配置与生成物迁移。
+- **总耗时**：跨压缩会话未持续计量，不推算；采用两个高价模型分别完成 realtime 与 blueprint 独立域迁移，主控完成 SPARK Data owner 与宿主边界归并。
+- **返工次数**：2 次；补齐 ValueFun 空值/可选解析及 nested array guard，1 次根测试环境从 jsdom 切换到 migrated host 的 node 环境。
+- **审查轮次**：2 次高价域交接审计 + 1 次全仓 SSOT、生成物与构建复核。
+- **验证**：spark-data 1441/1441；formal owner 807/807；platform adapters 703/703；合并迁移专项 1513/1513；root typecheck、lint、`verify:rules`、ClassModel、consumer ledger、package/frontend build、docs、page-thin 与 diff-check 通过。
+- **30 天存活**：待 2026-12-23 回查；重点核 `packages/spark-lowcode-api` 与 `src/lowcode` 未回生、DataTable/DataView owner 未出现 host 并行实现、backend wire 仍为唯一事实源。
+- **人工干预**：用户要求一次性归并、禁止兼容层，并明确将旧 `src/lowcode` 改名为 `src/platform-adapters`；未修改/启动/部署 Java，未写正式业务数据。

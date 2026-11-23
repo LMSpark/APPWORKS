@@ -23,7 +23,7 @@ AI 在阶段 1（深度研读）时，除了读源码，还应根据任务涉及
 | `packages/spark-data/` | `page-design.md` |
 | `packages/spark-utils/` | `monorepo-dependencies.md` |
 | `src/`（应用壳） | `vue-frontend.md`、`monorepo-dependencies.md` |
-| `packages/spark-lowcode-api/`、`src/lowcode/` | `vue-frontend.md`、`monorepo-dependencies.md` |
+| `src/platform-adapters/` | `vue-frontend.md`、`monorepo-dependencies.md` |
 | 跨多个包 | `monorepo-dependencies.md` + 上述对应的文件 |
 
 ## 何时写

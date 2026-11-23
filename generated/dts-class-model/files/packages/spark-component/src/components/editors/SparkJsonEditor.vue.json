@@ -22,8 +22,8 @@
       "title": "SparkJsonEditorMode",
       "enum": [
         "text",
-        "table",
-        "tree"
+        "tree",
+        "table"
       ]
     },
     "Props": {
@@ -53,8 +53,8 @@
         "mode": {
           "enum": [
             "text",
-            "table",
-            "tree"
+            "tree",
+            "table"
           ]
         },
         "indentation": {

@@ -4,7 +4,7 @@
  * 边界：不传行数据或权限副本，操作归元数据DataView。
  * AI用途：在页面稳定位置挂载，使字段消失后仍可核验。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 
 /** 当前字段删除的调用范围。 */
 export type DataSpaceFieldRemovalProps = {

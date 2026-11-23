@@ -222,12 +222,6 @@
       "type": "object",
       "title": "DataSetCommitSnapshotOptions",
       "properties": {
-        "label": {
-          "type": "string"
-        },
-        "summary": {
-          "type": "string"
-        },
         "timestamp": {
           "type": "number"
         },
@@ -252,6 +246,12 @@
         },
         "maxEntries": {
           "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
         },
         "sourceData": {
           "type": "object",

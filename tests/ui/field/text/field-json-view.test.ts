@@ -5,8 +5,8 @@ import ElementPlus from 'element-plus'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldJson, PAGE_RUNTIME, JsonTreeEditor, useSparkComponent} from '@spark-appworks/spark-component'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose())})

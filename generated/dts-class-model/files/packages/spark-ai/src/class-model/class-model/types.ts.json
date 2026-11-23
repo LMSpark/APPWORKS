@@ -129,11 +129,11 @@
         "declarationKind": {
           "enum": [
             "function",
+            "enum",
+            "component",
             "class",
             "interface",
             "typeAlias",
-            "enum",
-            "component",
             "const"
           ]
         }
@@ -250,10 +250,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DtsTypeDeclarationKind",
       "enum": [
+        "enum",
         "class",
         "interface",
-        "typeAlias",
-        "enum"
+        "typeAlias"
       ]
     },
     "DtsTypeDeclarationBase": {
@@ -552,11 +552,11 @@
             "declarationKind": {
               "enum": [
                 "function",
+                "enum",
+                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "enum",
-                "component",
                 "const"
               ]
             }
@@ -690,11 +690,11 @@
             "declarationKind": {
               "enum": [
                 "function",
+                "enum",
+                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "enum",
-                "component",
                 "const"
               ]
             }
@@ -828,11 +828,11 @@
             "declarationKind": {
               "enum": [
                 "function",
+                "enum",
+                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "enum",
-                "component",
                 "const"
               ]
             }
@@ -966,11 +966,11 @@
             "declarationKind": {
               "enum": [
                 "function",
+                "enum",
+                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "enum",
-                "component",
                 "const"
               ]
             }

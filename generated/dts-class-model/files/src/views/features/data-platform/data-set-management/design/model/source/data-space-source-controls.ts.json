@@ -22,7 +22,7 @@
           "type": "object",
           "properties": {
             "status": {
-              "$ref": "../../../../../../../lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
+              "$ref": "../../../../../../../platform-adapters/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
             },
             "pending": {
               "enum": [
@@ -355,7 +355,7 @@
           "properties": {
             "type": {
               "type": "object",
-              "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType"
+              "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType"
             },
             "id": {
               "type": "string"
@@ -465,7 +465,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.199Z",
+  "generatedAt": "2026-11-23T08:02:15.292Z",
   "models": {
     "SourceState": {
       "name": "SourceState",
@@ -648,7 +648,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        type: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType;\n        id: string;\n        name: string;\n        description: string;\n        dbid: string;\n        databaseName: string;\n        providerId: string;\n        routeSpec?: unknown;\n        outputPath?: string;\n    }"
+                    "name": "{\n        type: import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType;\n        id: string;\n        name: string;\n        description: string;\n        dbid: string;\n        databaseName: string;\n        providerId: string;\n        routeSpec?: unknown;\n        outputPath?: string;\n    }"
                   }
                 ]
               }

@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {configureLogicFixture} from './logic-view.fixture'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
@@ -11,7 +11,7 @@ import {ElSelect} from 'element-plus'
 import {defineComponent, h} from 'vue'
 import LogicViewList from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
-import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
@@ -24,7 +24,7 @@ const models = buildFormalModels({
   Base_UserInfo: ['ID', 'rowid', 'UserName'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
 })
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({readText:()=>{throw Error('Unexpected tool file read')},writeText:()=>{throw Error('Unexpected tool file write')}}),
   lowcodeApi: {design:{},readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},

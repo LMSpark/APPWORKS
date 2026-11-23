@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 断言 backend-api-contracts 与 spark-lowcode-api 的 OrderType / WireFilterOperator / GroupFunType 字面量同形，
+ * 断言 backend-api-contracts 是 OrderType / WireFilterOperator / GroupFunType 唯一正式合同，
  * 并禁止台账再使用与 spark-data 冲突的正式名 FilterOperator。
  */
 import fs from 'node:fs'
@@ -10,7 +10,7 @@ import ts from 'typescript'
 import { isCliEntrypoint, printViolations, relativePath } from './verifier-common.mjs'
 
 const LEDGER_REL = 'backend-api-contracts/common.ts'
-const RUNTIME_REL = 'packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts'
+const RUNTIME_REL = LEDGER_REL
 const BANNED_LEDGER_ALIAS = 'FilterOperator'
 
 const EXPECTED = {

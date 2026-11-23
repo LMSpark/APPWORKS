@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import type {DataSpaceDesignApi} from '@/platform-adapters/api'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DimensionSourceBindingEditor} from '@/lowcode/resources/structured-config/dimension-source/binding-editor'
+import {DimensionSourceBindingEditor} from '@/platform-adapters/resources/structured-config/dimension-source/binding-editor'
 import {createDimensionSourceRuntime} from './dimension.fixture'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModels']>>[number]

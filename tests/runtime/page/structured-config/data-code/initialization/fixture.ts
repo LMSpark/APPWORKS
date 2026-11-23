@@ -1,6 +1,6 @@
 import {afterEach} from 'vitest'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {codeService,designText,DESIGN} from '../data-code.fixture'
 
 

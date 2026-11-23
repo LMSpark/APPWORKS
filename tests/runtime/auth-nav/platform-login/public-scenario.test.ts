@@ -1,11 +1,11 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {PlatformAuthResource} from '@spark-appworks/spark-lowcode-api'
+import { PlatformAuthResource } from '@/platform-adapters/api'
 import {getPublicScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
-import {loadLowcodePublicScenario} from '@/lowcode/data-space/lowcode-public-scenario'
-import {createPlatformAuthBindings} from '@/lowcode/resources/system/platform-auth/runtime-bindings'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {loadLowcodePublicScenario} from '@/platform-adapters/data-space/lowcode-public-scenario'
+import {createPlatformAuthBindings} from '@/platform-adapters/resources/system/platform-auth/runtime-bindings'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 
 const resource = getPublicScenarioResource('platformLogin')
 const text = readFileSync(resource.path, 'utf8')

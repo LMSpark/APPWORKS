@@ -46,9 +46,9 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet,DataView} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,FieldText} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
-import {openWorkflowQuerySourceEdit,type WorkflowModelSourceEdit} from '@/lowcode/resources/structured-config/workflow-definition/source/query-source-edit'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
+import {openWorkflowQuerySourceEdit,type WorkflowModelSourceEdit} from '@/platform-adapters/resources/structured-config/workflow-definition/source/query-source-edit'
 import DataSpaceModelSource from '@/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;revision:number;operation?:boolean;disabled?:boolean;onSaved?:(id:string)=>void|Promise<void>}>()

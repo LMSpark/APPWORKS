@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../../data-space-page.fixture'
-import {LowcodeDataSpaceFieldMigration} from '@/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration'
-import type {PageDataSpaceModelSource} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {LowcodeDataSpaceFieldMigration} from '@/platform-adapters/data-space/model-source/migration/lowcode-data-space-field-migration'
+import type {PageDataSpaceModelSource} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})

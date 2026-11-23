@@ -7,18 +7,18 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import {DataSet,type DataView,type QueryParams,type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {Spark,FieldText,FieldSelect,RendererButton,RendererTable,RendererFilter,RendererToolbar,RendererForm,RendererDialog} from '@spark-appworks/spark-component'
 import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 const {executeQuery,loadScenario,loadApps,readRequestScope,openDesign}=vi.hoisted(()=>({executeQuery:vi.fn(),loadScenario:vi.fn(),loadApps:vi.fn(),openDesign:vi.fn(),
   readRequestScope:vi.fn(()=>({token:'scope-a',headers:{'X-AppId':'app-a'}}))}))
 // 应用选项来自租户应用目录（独立 DataSet，无 X-AppId 范围），与目录跨应用列表同范围。
-vi.mock('@/lowcode/lowcode-application-catalog',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),loadLowcodeApplicationCatalog:loadApps}))
-vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{readRequestScope,dataSpace:{runtime:{executeQuery,save:vi.fn()}}}}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:loadScenario}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-design',()=>({openLowcodeDataSpaceDesignSession:openDesign}))
+vi.mock('@/platform-adapters/lowcode-application-catalog',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),loadLowcodeApplicationCatalog:loadApps}))
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({lowcodeApi:{readRequestScope,dataSpace:{runtime:{executeQuery,save:vi.fn()}}}}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:loadScenario}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-design',()=>({openLowcodeDataSpaceDesignSession:openDesign}))
 // 列表页单独挂载、无系统页实例；只替换未保存来源登记，设计会话仍经 openDesign 观察目标 ID。
 vi.mock('@spark-appworks/spark-app',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),useSystemPageDirtySource:()=>undefined}))
-import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
+import {LowcodeDataSpaceCatalog} from '@/platform-adapters/data-space/lowcode-data-space-catalog'
 import CatalogPage from '@/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'
 import {withTestPageService} from '../../../support/helpers/page-service-host'
 const disposals:Array<()=>void>=[],originalStubs=config.global.stubs

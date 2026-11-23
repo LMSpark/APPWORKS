@@ -30,8 +30,8 @@ import {computed,onBeforeUnmount,ref,shallowRef,watch,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {RendererButton,RendererDialog,RendererTable,FieldText} from '@spark-appworks/spark-component'
-import {WorkflowMergeSourceOptions} from '@/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {WorkflowMergeSourceOptions} from '@/platform-adapters/resources/structured-config/workflow-definition/fields/merge-inputs'
+import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;parentPath:JsonPath|null;eligible:boolean;disabled:boolean}>()
 const emit=defineEmits<{pendingChange:[value:boolean];changed:[path:JsonPath|null]}>()
 const options=shallowRef<WorkflowMergeSourceOptions>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0),sessionRevision=ref(0),mode=ref<'add'|'remove'>('add')

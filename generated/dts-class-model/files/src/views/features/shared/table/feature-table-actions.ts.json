@@ -34,8 +34,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FeatureTableAction",
       "enum": [
-        "cancel",
         "save",
+        "cancel",
         "add",
         "remove"
       ]

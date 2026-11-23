@@ -1,12 +1,13 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
-import {LowcodeDataSpaceViewMetadata} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-metadata'
+import {LowcodeDataSpaceAssembler} from '../../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceViewDesign} from '../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceViewMetadata} from '../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-metadata'
 
 import {createConfirmedMetadataFixture, withDefinitionResources} from '../view-design/definition-resource.fixture'
 

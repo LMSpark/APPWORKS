@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/save-guard",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/save-guard.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/save-guard",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/save-guard 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpaceMutationOperation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceMutationOperation",
+      "enum": [
+        "新增",
+        "保存",
+        "更新",
+        "删除"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-23T07:04:38.514Z",
+  "models": {
+    "DataSpaceMutationOperation": {
+      "name": "DataSpaceMutationOperation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'新增' | '保存' | '更新' | '删除'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'新增'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'保存'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'更新'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'删除'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

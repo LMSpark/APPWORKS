@@ -1,0 +1,117 @@
+/**
+ * 平台适配公共入口。
+ * 聚合宿主会话、目录、设计资产、数据空间设计与权限适配；数据查询和保存只由 SPARK Data 提供。
+ */
+export { LowcodeApi } from './lowcode-api.js'
+export type { LowcodeApiOptions } from './lowcode-api.js'
+export { LowcodeApiError } from './core/lowcode-api-error.js'
+export { LowcodeCatalogApi } from './catalog/lowcode-catalog-api.js'
+export type {
+  LowcodeDatabase,
+  LowcodeDatabaseCatalog,
+  LowcodeDatabaseField,
+  LowcodeDatabaseResource,
+  LowcodeDatabaseResourceSelector,
+  LowcodeCatalogServerRecord,
+  LowcodeDatabaseTable,
+  LowcodeDatabaseView,
+  LowcodeCatalogSourceError,
+} from './catalog/lowcode-catalog-api.js'
+export { LowcodeDesignApi } from './design/lowcode-design-api.js'
+export { LowcodeDesignFileUpload } from './design/lowcode-design-file-upload.js'
+export {ExcelTemplateUploadResource,type PreparedExcelTemplateUpload,type ExcelTemplateUploadResourceInput} from './platform/resources/semi-structured/excel-import/template-upload-resource.js'
+export {RichTextImageUploadResource,type RichTextImageUploadResourceInput} from './platform/resources/rich-text/rich-text-image-upload-resource.js'
+export type {
+  LowcodeFileDirectory,
+  LowcodeFileEntry,
+  LowcodeFileLocator,
+  LowcodeFileVersionSummary,
+} from './design/lowcode-design-api.js'
+export type {
+  LowcodeDesignFileUploadCommand,
+  LowcodeDesignFileUploadResult,
+  LowcodeBinaryFileUploadCommand,
+  LowcodeBinaryFileUploadReceipt,
+} from './design/lowcode-design-file-upload.js'
+export { DataSpaceApi } from './platform/data-space/data-space-api.js'
+export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'
+export {DataSpaceModelNotFoundError} from './platform/data-space/design/data-space-model-not-found-error.js'
+export type {
+  LowcodeModelRelationRecord,
+  DataSpaceResourceType,
+  DataSpaceDatabaseResourceType,
+} from './platform/data-space/data-space.js'
+export { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
+export { PermissionApi } from './platform/permission/permission-api.js'
+export { PermissionDesignApi } from './platform/permission/design/permission-design-api.js'
+export type {
+  PermissionDataObjectPolicy,
+  PermissionDesignSnapshot,
+  PermissionFeatureTag,
+  PermissionGrantOrganizationScope,
+  PermissionObjectGrant,
+} from './platform/permission/design/permission-design-api.js'
+export type {
+  PermissionDesignMutationCommand,
+  PermissionDesignMutationInput,
+} from './platform/permission/design/permission-design-mutation.js'
+export { PermissionRuntimeApi } from './platform/permission/runtime/permission-runtime-api.js'
+export type { PermissionRuntimeSnapshot } from './platform/permission/runtime/permission-runtime-api.js'
+export { PERMISSION_DESIGN_FORM_KEY } from './platform/permission/permission-wire.js'
+export { LowcodeApplicationStore } from './platform/lowcode-application-store.js'
+export { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from './platform/lowcode-application.js'
+export { LowcodeSessionStore } from './platform/lowcode-session-store.js'
+export type {
+  LowcodeEnterprise,
+  LowcodeIdentity,
+  LowcodeLoginCredentials,
+  LowcodeEnterpriseRegistration,
+  LowcodeRegistrationResult,
+  LowcodeSession,
+  LowcodeApplicationSelectionReceipt,
+  LowcodePlatformApiOptions,
+  LowcodeUserRegistration,
+  LowcodeVerificationRequest,
+  LowcodeVerificationScene,
+} from './platform/lowcode-platform-api.js'
+export type { SendCodeType, SendCodeScene } from '../../../backend-api-contracts/common'
+export {ApplicationDictionaryResource, AuthenticatedDictionaryResource, type ApplicationDictionaryResourceOptions} from './platform/resources/structured-config/dictionary/application-resource.js'
+export { DictionarySchema } from './platform/resources/structured-config/dictionary/schema.js'
+export { DictionaryWorkspace } from './platform/resources/structured-config/dictionary/workspace.js'
+export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'
+export { LogicViewDesignClient } from './platform/resources/structured-config/logic-view/design-client.js'
+export { CodeInitializationClient } from './platform/resources/structured-config/data-code/initialization-client.js'
+export { CodeExampleClient, type CodeExampleInput, type CodeExampleNode } from './platform/resources/structured-config/data-code/example-client.js'
+export {BusinessCodeAssignmentResource,type PreparedBusinessCodeAssignment,type BusinessCodeAssignmentResourceInput} from './platform/resources/structured-config/data-code/assignment-resource.js'
+export { createCodeInitializationView } from './platform/resources/structured-config/data-code/initialization-resource.js'
+export type { CodeInitializationTarget } from './platform/resources/structured-config/data-code/initialization-projection.js'
+export type { LogicViewDesignPayload } from './platform/resources/structured-config/logic-view/design-client.js'
+export type { OrderType, WireFilterOperator, GroupFunType } from '../../../backend-api-contracts/common'
+export type { LowcodeApplication } from './platform/lowcode-application.js'
+export type { LowcodeEnterpriseCatalogItem } from './platform/lowcode-enterprise.js'
+export type {
+  LowcodeApplicationContext,
+  LowcodeApplicationStoreOptions,
+} from './platform/lowcode-application-store.js'
+export type {
+  LowcodeSessionStorage,
+  LowcodeSessionStoreOptions,
+} from './platform/lowcode-session-store.js'
+export {WorkflowExecutionResource} from './platform/resources/structured-config/workflow/workflow-execution-resource'
+export {CachePageReadAdapter} from './platform/resources/system/cache-page-read-adapter'
+export {DataRecoveryPageReadAdapter} from './platform/resources/system/data-recovery-page-read-adapter'
+export {CacheDeleteCommandResource} from './platform/resources/system/cache-delete-command-resource'
+export {EnterpriseInitializationResource} from './platform/resources/system/enterprise-initialization-resource'
+export {RegisteredInterfaceCallResource} from './platform/resources/integration/registered-interface-call-resource'
+export {PlatformAuthResource} from './platform/resources/auth/platform-auth-resource'
+export type {WorkflowExecutionGraph} from './platform/resources/structured-config/workflow/workflow-execution-resource'
+export {PdfInspectionApi} from './platform/resources/semi-structured/pdf-inspect/task-api'
+export type {PdfInspectionFileInput,PdfInspectionInitInput,PdfInspectionInitReceipt,PdfInspectionJob,PdfInspectionLimits,PdfInspectionHistory} from './platform/resources/semi-structured/pdf-inspect/task-api'
+export {PdfInspectionInitResource} from './platform/resources/semi-structured/pdf-inspect/init-resource'
+export type {PdfInspectionInitResourceInput} from './platform/resources/semi-structured/pdf-inspect/init-resource'
+export {PdfInspectionUploadResource} from './platform/resources/semi-structured/pdf-inspect/upload-resource'
+export type {PdfInspectionUploadResourceInput} from './platform/resources/semi-structured/pdf-inspect/upload-resource'
+export {pdfInspectionReadonlyBinding} from './platform/resources/semi-structured/pdf-inspect/readonly-resources'
+export type {PdfInspectionReadonlyKind} from './platform/resources/semi-structured/pdf-inspect/readonly-resources'
+export {PdfInspectionRecoveryJournal} from './platform/resources/semi-structured/pdf-inspect/recovery-journal'
+export type {PdfInspectionRecoveryOwner,PdfInspectionRecoveryPointer,PdfInspectionRecoveryStorage} from './platform/resources/semi-structured/pdf-inspect/recovery-journal'

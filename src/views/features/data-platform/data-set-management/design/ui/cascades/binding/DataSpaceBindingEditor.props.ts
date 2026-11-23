@@ -4,7 +4,7 @@
  * 边界：正式定义由原会话持有，组件仅投影候选及编辑值。
  * AI用途：复用模型、视图、字段的配置级联。
  */
-import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
 import type {DataView} from '@spark-appworks/spark-data'
 
 /** 当前元数据空间中的端点编辑上下文。 */

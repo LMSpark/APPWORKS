@@ -10,8 +10,8 @@ import {
 import { mountFieldInContext } from '../../support/helpers/mount-field-in-context'
 import { requireHtmlInput, requireHtmlTextArea, requireTextControl } from '../../support/helpers/runtime-guards'
 import { SparkData } from '@spark-appworks/spark-data'
-import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
 
 function createPageService(overrides?: Partial<PageServiceCapability>): PageServiceCapability {
   return {

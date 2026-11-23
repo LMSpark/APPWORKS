@@ -140,7 +140,17 @@ function wireFilter(value: unknown, path: string): RuntimePlanFilter | undefined
   const field = identity(value['field'], `${path}.field`)
   const operator = typeof value['operator'] === 'string' ? wireOperators[value['operator']] : undefined
   if (!operator) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}.operator: 不支持 ${String(value['operator'])}`)
-  return {Field: field, Operator: operator, ...(Object.hasOwn(value, 'value') ? {Value: value['value'] as DataViewFilterJsonValue} : {})}
+  return {Field: field, Operator: operator, ...(Object.hasOwn(value, 'value')
+    ? {Value: filterJsonValue(value['value'], `${path}.value`)} : {})}
+}
+
+function filterJsonValue(value: unknown, path: string): DataViewFilterJsonValue {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return value
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (Array.isArray(value)) return value.map((item, index) => filterJsonValue(item, `${path}[${index}]`))
+  if (isRecord(value)) return Object.fromEntries(Object.entries(value)
+    .map(([key, item]) => [key, filterJsonValue(item, `${path}.${key}`)]))
+  throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}: 过滤值不是合法 JSON`)
 }
 
 function relationFromConfig(input: RuntimePlanRecord, index: number, modelsByTable: ReadonlyMap<string, RuntimeDataSetPlanModel>): RuntimeDataSetPlanRelation {
@@ -160,8 +170,7 @@ function relationFromConfig(input: RuntimePlanRecord, index: number, modelsByTab
   }
 }
 
-function formalRelation(input: RuntimePlanRecord, index: number, modelsByTable: ReadonlyMap<string, RuntimeDataSetPlanModel>,
-  modelsById: ReadonlyMap<string, RuntimeDataSetPlanModel>): RuntimeDataSetPlanRelation {
+function formalRelation(input: RuntimePlanRecord, index: number, modelsById: ReadonlyMap<string, RuntimeDataSetPlanModel>): RuntimeDataSetPlanRelation {
   const childId = identity(input['childModId'], `relations[${index}].childModId`)
   const parentId = identity(input['parentModId'], `relations[${index}].parentModId`)
   const child = modelsById.get(childId), parent = modelsById.get(parentId)
@@ -178,7 +187,13 @@ function stableViewRecordId(tableName: string, viewId: string): string {
   return `${tableName}::${viewId}`
 }
 
-function stableViewFieldRecordId(tableName: string, viewId: string, field: RuntimeDataSetPlanModelField, index: number): string {
+function stableViewFieldRecordId(input: Readonly<{
+  tableName: string
+  viewId: string
+  field: RuntimeDataSetPlanModelField
+  index: number
+}>): string {
+  const {tableName, viewId, field, index} = input
   return `${tableName}::${viewId}::${index}::${field.name}`
 }
 
@@ -268,7 +283,7 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       for (const {item, matched, index} of projections) {
         viewFields.push({
           id: text(item['fieldId']) && item['fieldId'] !== matched.id
-            ? text(item['fieldId']) : stableViewFieldRecordId(tableName, viewId, matched, index),
+            ? text(item['fieldId']) : stableViewFieldRecordId({tableName, viewId, field: matched, index}),
           dataViewId: recordId, dataModelId: modelId,
           name: matched.name, description: text(item['label']) || matched.description,
           fieldType: text(item['type']) || matched.fieldType, isOutput: Object.hasOwn(item, 'output') ? flag(item['output']) : matched.isOutput,
@@ -304,7 +319,7 @@ export function buildRuntimeDataSetPlan(input: BuildRuntimeDataSetPlanInput): Ru
       if (!isRecord(item)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.resourceRelations[${index}]: 无效`)
       return relationFromConfig(item, index, modelsByTable)
     })
-    : input.relations.map((item, index) => formalRelation(item, index, modelsByTable, modelsById))
+    : input.relations.map((item, index) => formalRelation(item, index, modelsById))
   const {views, viewFields} = planViewsAndFields(input, modelsById, modelFields)
   const body = {
     schemaVersion: RUNTIME_DATA_SET_PLAN_SCHEMA_VERSION, kind: RUNTIME_DATA_SET_PLAN_KIND, scenarioId,

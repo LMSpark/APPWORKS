@@ -8,8 +8,8 @@ import {createContentReviewScriptHost} from '@/views/features/application/smart-
 import {compareApprovedFileAnswer,readRegisteredFileAnswer,verifyOriginalFormFileAnswer} from '@/views/features/application/smart-bid/authoring/model/review/content-file-answer-reader'
 import {mapOriginalForm} from '@/services/smart-bid/content/references/response/original-form-mapping'
 import script from '@/views/features/application/smart-bid/authoring/page12/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reopens exactly the fixed production output and independently verifies its bytes',async()=>{
  const selection={projectId:'P',producedFileId:'FILE',productionRequestRef:'REQUEST'}

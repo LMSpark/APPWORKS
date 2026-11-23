@@ -5,8 +5,8 @@
  * AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 composables/useNotifications。
  */
 import { computed, onBeforeUnmount, reactive, ref } from 'vue'
-import type { LowcodeNotificationMessage } from '@spark-appworks/spark-lowcode-api'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import type { LowcodeNotificationMessage } from '@spark-appworks/spark-ai/agent'
+import { lowcodeRealtime } from '@/platform-adapters/lowcode-runtime'
 import { onNotificationEvent, onPageConfigChange } from '@/services/sse-events'
 import type { FileChangeEvent } from '@/services/sse-events'
 
@@ -125,7 +125,7 @@ async function loadOfflineMessages(): Promise<void> {
   const revision = connectionRevision
   offlineStatus.value = 'loading'
   try {
-    const messages = await lowcodeApi.realtime.fetchOfflineMessages()
+    const messages = await lowcodeRealtime.fetchOfflineMessages()
     if (revision !== connectionRevision) return
     const fresh = messages.filter(message => !hasRemote(message.messageId))
     for (const message of [...fresh].reverse()) pushNotification(createServerNotificationItem(message, 'offline'))
@@ -144,7 +144,7 @@ async function markItemsRead(items: readonly NotificationItem[]): Promise<void> 
   const confirmable = pending.filter(item => item.messageLogId !== undefined)
   if (confirmable.length === 0) return
   try {
-    await lowcodeApi.realtime.confirmMessages(confirmable.map(item => item.messageLogId ?? ''))
+    await lowcodeRealtime.confirmMessages(confirmable.map(item => item.messageLogId ?? ''))
     syncError.value = null
   } catch (error) {
     for (const item of confirmable) item.read = false

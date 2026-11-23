@@ -20,21 +20,6 @@
       "title": "AiAgentAppSseEventName",
       "anyOf": [
         {
-          "const": "page-config"
-        },
-        {
-          "const": "data-batch-job"
-        },
-        {
-          "const": "data-change"
-        },
-        {
-          "const": "notification"
-        },
-        {
-          "const": "llm-frame"
-        },
-        {
           "type": "object",
           "properties": {
             "toString": {
@@ -232,7 +217,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@304379": {
+            "__@iterator@305020": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -287,9 +272,24 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@304379"
+            "__@iterator@305020"
           ],
           "additionalProperties": false
+        },
+        {
+          "const": "page-config"
+        },
+        {
+          "const": "data-batch-job"
+        },
+        {
+          "const": "data-change"
+        },
+        {
+          "const": "notification"
+        },
+        {
+          "const": "llm-frame"
         }
       ]
     },

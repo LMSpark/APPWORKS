@@ -4,8 +4,8 @@ import {contentSubmissionScenarioViews} from '@/views/features/application/smart
 import {readRegisteredChannelReceiptPairing} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-channel-receipt-pairing-reader'
 import {createContentSubmissionScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-submission-script-host'
 import script from '@/views/features/application/smart-bid/authoring/page14/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('pairs only readable receipt evidence with one exact original operation',async()=>{
  const scope={projectId:'P',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL'}

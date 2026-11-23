@@ -1,13 +1,13 @@
 import {describe,expect,it,vi} from 'vitest'
-import {LowcodeDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { LowcodeDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
 import {DataSet} from '@spark-appworks/spark-data'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 import {compensatePageToolFiles,createPageToolFiles,deletePageToolFiles,listPageToolFileNames,type PageFileOperationScope} from '../../../src/services/project/page-tool-file-operations'
-import type {createPageToolFilesIo} from '../../../src/lowcode/lowcode-runtime'
+import type {createPageToolFilesIo} from '../../../src/platform-adapters/lowcode-runtime'
 
 const storage=vi.hoisted(()=>({io:undefined as unknown}))
-vi.mock('@/lowcode/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/lowcode/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
+vi.mock('@/platform-adapters/lowcode-runtime',async importOriginal=>({...await importOriginal<typeof import('@/platform-adapters/lowcode-runtime')>(),createPageToolFilesIo:()=>storage.io}))
 
 function timeoutAfterAccept():Error{const error=new Error('timeout after accept');error.name='RequestError';Object.assign(error,{config:{url:'/test'}});return error}
 function createScope(files:Map<string,string>,remove:(appId:string,pageId:string,fileName:string)=>Promise<void>):PageFileOperationScope{

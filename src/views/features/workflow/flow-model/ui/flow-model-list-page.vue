@@ -42,7 +42,7 @@ import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
 
 const {DisplayAlert, FieldSelect, FieldText, FieldTextarea, RendererButton, RendererDialog, RendererForm, RendererSection, RendererTable,
   consumeRequiredPageService, useSparkComponent} = SparkComponent
-import {FLOW_DESIGN_SCENARIO_ID, WorkflowFlowModelManager} from '@/lowcode/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, WorkflowFlowModelManager} from '@/platform-adapters/resources/system/workflow/manage'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const FlowDesignPage = defineAsyncComponent(() => import('../design/ui/flow-design-page.vue'))

@@ -35,9 +35,9 @@ import {
   consumeRequiredPageService,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
-import type {FlowWorkbenchTab} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
-import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/lowcode/resources/system/workflow/manage'
-import {readFlowWorkbenchRowRoute} from '@/lowcode/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
+import type {FlowWorkbenchTab} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
+import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/platform-adapters/resources/system/workflow/manage'
+import {readFlowWorkbenchRowRoute} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
 import {useFlowWorkbenchTodo} from '../model/use-flow-workbench-todo'
 
 import rule from './tool/rule.json?raw'

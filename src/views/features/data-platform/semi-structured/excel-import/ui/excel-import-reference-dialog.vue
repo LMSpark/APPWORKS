@@ -9,9 +9,9 @@ AI用途：为Excel映射设置引用时复用本次PageRuntime的命名视图�
 import {computed,onBeforeUnmount,onMounted,ref,shallowRef} from 'vue'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
-import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
-import {ExcelDictionaryReferenceFields,type ExcelFieldReference} from '@/lowcode/resources/semi-structured/excel-import/field-reference'
+import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
+import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
+import {ExcelDictionaryReferenceFields,type ExcelFieldReference} from '@/platform-adapters/resources/semi-structured/excel-import/field-reference'
 const props=defineProps<{dataViewKey:string;reference:ExcelFieldReference;busy:boolean}>(),emit=defineEmits<{close:[]}>()
 const {sparkConsume}=useSparkComponent({type:'excel-import-reference-dialog'}),runtime=sparkConsume(PAGE_RUNTIME)
 type Kind='Table'|'View'|'Dict'

@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it} from 'vitest'
-import {createExcelTransformConfig} from '@/lowcode/resources/semi-structured/excel-import/transform/definition'
+import {createExcelTransformConfig} from '@/platform-adapters/resources/semi-structured/excel-import/transform/definition'
 import {excelDesignRuntime} from '../excel-import-design.fixture'
 const sessions:Awaited<ReturnType<typeof excelDesignRuntime>>[]=[]
 afterEach(()=>sessions.splice(0).forEach(f=>f.runtime.dispose()))

@@ -4,8 +4,8 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {readRegisteredBidSecurity} from '@/views/features/application/smart-bid/response/model/bid-security-reader'
 import {createBidResponseScriptHost} from '@/views/features/application/smart-bid/response/ui/entry/response-script-host'
 import script from '@/views/features/application/smart-bid/response/page10/script.js?raw'
-import {DataSpaceQueryTable} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 it('reads the specified security requirement before requesting finance receipts',async()=>{
  const row={id:'SEC',scopeRef:'LOT',requirementVersion:'R1',liablePartyRef:'BIDDER',clauseRef:'CLAUSE',

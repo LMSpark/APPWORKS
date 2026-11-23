@@ -5,7 +5,7 @@ import {
   buildFlowRunDetailRoute,
   buildFlowRunPageRoute,
   readFlowRuntimeRouteQuery,
-} from '@/lowcode/resources/system/workflow/manage'
+} from '@/platform-adapters/resources/system/workflow/manage'
 
 describe('readFlowRuntimeRouteQuery', () => {
   it('preserves the explicit pending step identity in the run route', () => {

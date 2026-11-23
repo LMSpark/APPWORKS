@@ -1,9 +1,9 @@
 import {afterEach,expect,it,vi} from 'vitest'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import type {DataSet,DataView,DataRow} from '@spark-appworks/spark-data'
 import {HttpClientBase,type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 class NoNetwork extends HttpClientBase{protected override async executeRequest(_request:RequestConfig):Promise<never>{throw Error('Unexpected network')}}

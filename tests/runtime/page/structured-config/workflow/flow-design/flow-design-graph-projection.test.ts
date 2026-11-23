@@ -1,6 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 import type {DataView} from '@spark-appworks/spark-data'
-import {buildFlowDesignGraphLayout, parseFlowDesignGraphJson} from '@/lowcode/resources/system/workflow/manage'
+import {buildFlowDesignGraphLayout, parseFlowDesignGraphJson} from '@/platform-adapters/resources/system/workflow/manage'
 
 function mockView(rows: DataView['rows']): DataView {
   return {getColumn:(name:string)=>rows.some(row=>Object.hasOwn(row,name))?{name}:undefined,fieldAccess:()=>({read:'visible'}),destroyed: false, rows, refresh: vi.fn(), queryContext: {}} as unknown as DataView

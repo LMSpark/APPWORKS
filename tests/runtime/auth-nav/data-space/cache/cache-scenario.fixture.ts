@@ -1,4 +1,4 @@
-import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import type {DataSpaceDesignApi} from '@/platform-adapters/api'
 
 /** 实服只读已核的正式身份/输出投影；HTTP结果仍为测试夹具，不冒称实服响应。 */
 export function cacheScenarioModels():Awaited<ReturnType<DataSpaceDesignApi['readModel']>>[]{

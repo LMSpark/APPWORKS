@@ -1,5 +1,5 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest'
-import {invalidateRuntimeFile,readRuntimeFile} from '@/lowcode/runtime-file-cache'
+import {invalidateRuntimeFile,readRuntimeFile} from '@/platform-adapters/runtime-file-cache'
 
 const locator={appType:'designfile',customPath:'APP-A/page',fileName:'rule.json'} as const
 

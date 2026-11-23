@@ -1,0 +1,129 @@
+/**
+ * @module @/platform-adapters/api:platform/data-space/runtime/query/data-space-query-resource
+ * 职责：拥有查询分页与结果上下文生命周期。
+ * 边界：全部原始页核对通过才发布上下文，旧代次或 scope 不得继续使用。
+ * AI用途：执行模型查询并保留原查询强引用基线。
+ */
+import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import type {
+  DataSpaceQueryIdentity,
+  DataSpaceQueryOptions,
+  DataSpaceQueryProjection,
+  DataSpaceRequestScope,
+} from '../formal-table-contract'
+import { collectDataSpaceQueryPages } from './pagination'
+import { DataSpaceQueryContext } from './query-context'
+import { DataSpaceQueryNested } from './query-nested'
+import { DataSpaceQueryTable } from './query-table'
+import { DataSpaceRequest } from './request'
+import { DataSpaceRequestConfig } from './request-config'
+
+/** 查询请求的 HTTP 与 scope 来源，执行域包含资源失效代次。 */
+type DataSpaceQueryResourceOptions = Readonly<{
+  http: HttpClientBase
+  readScope: () => DataSpaceRequestScope
+}>
+/** 结果投影仅由正式绑定提供，与请求配置同属本次执行捕获。 */
+type DataSpaceQueryExecution = Readonly<{
+  /** 原查询端点和超时策略，不携带结果授权。 */
+  config: DataSpaceRequestConfig
+  /** 正式模型图提供的只读输出及本次生命周期守卫。 */
+  projection: DataSpaceQueryProjection
+}>
+
+/** 拥有模型查询的分页收集与结果上下文生命周期；全部页通过后才发布上下文。 */
+export class DataSpaceQueryResource {
+  readonly #request: DataSpaceRequest
+  readonly #readScope: () => DataSpaceRequestScope
+  #generation = 0
+  #disposed = false
+
+  /** 建立本资源的请求 owner，查询与上下文读取使用同一 scope 来源。 */
+  public constructor(options: DataSpaceQueryResourceOptions) {
+    this.#readScope = options.readScope
+    this.#request = new DataSpaceRequest(options)
+  }
+
+  public invalidate(): void {
+    this.#generation += 1
+    this.#request.invalidate()
+  }
+
+  public dispose(): void {
+    this.#disposed = true
+    this.#generation += 1
+    this.#request.dispose()
+  }
+
+  /** 按正式场景模型查询；执行参数可携带模型图投影，所有分页和最终上下文沿用其守卫。 */
+  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
+    execution: DataSpaceRequestConfig | DataSpaceQueryExecution = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
+    const {config, projection} = execution instanceof DataSpaceRequestConfig ? {config: execution, projection: undefined} : execution
+    const scope = this.contextScope()
+    const assertCurrent = () => {
+      projection?.assertCurrent()
+      if (this.#disposed || this.contextScope() !== scope) {
+        throw new Error('SPARK_EXECUTION_SCOPE_STALE: 模型查询所属执行域已失效')
+      }
+    }
+    assertCurrent()
+    const table = new DataSpaceQueryTable(identity)
+    const { filter, ...values } = options
+    const captured: DataSpaceQueryOptions = { ...structuredClone(values), ...(filter === undefined ? {} : { filter }) }
+    // SelfRef is a complete collection, with an array or Items/Count envelope.
+    const selfRef = captured.tree !== undefined || captured.outputType === 'SelfRefData'
+    const unpaged = captured.pagination === 'none'
+    const allPages = !selfRef && captured.allPages === true
+    const maxRows = captured.maxRows ?? 50_000
+    if ((allPages || selfRef || unpaged) && (!Number.isSafeInteger(maxRows) || maxRows <= 0)) {
+      throw new TypeError('数据资源全量查询 maxRows 必须是正整数')
+    }
+    table.buildRequest(captured)
+    const pageSize = captured.page?.size ?? (allPages ? 500 : undefined)
+    const firstPageIndex = allPages ? 1 : captured.page?.index ?? 1
+    const queryPage = async (index: number) => {
+      assertCurrent()
+      const result = await this.#request.query({ table, config, options: {
+        ...captured, ...(pageSize === undefined ? {} : { page: { index, size: pageSize } }),
+      } }).finally(assertCurrent)
+      assertCurrent()
+      const snapshot = table.applyResult(result)
+      if (!selfRef && (pageSize !== undefined || allPages) && !snapshot.countReported) {
+        throw new Error(`数据资源分页缺少后端总数: ${table.identity.metaName}`)
+      }
+      if ((selfRef || unpaged) && snapshot.rows.length > maxRows) {
+        throw new Error(`数据资源${selfRef ? 'SelfRef' : '完整'}集合超过maxRows ${maxRows}: ${table.identity.metaName}`)
+      }
+      if ((selfRef || unpaged) && snapshot.countReported && snapshot.total !== snapshot.rows.length) {
+        throw new Error(`数据资源${selfRef ? 'SelfRef' : '完整'}集合不完整: ${table.identity.metaName}`)
+      }
+      return snapshot
+    }
+    const first = await queryPage(firstPageIndex)
+    let snapshot = first
+    if (allPages) {
+      const collection = await collectDataSpaceQueryPages(async ({ index }) => {
+        snapshot = index === firstPageIndex ? first : await queryPage(index)
+        assertCurrent()
+        return { rows: snapshot.rows, total: snapshot.total }
+      }, { pageSize: pageSize ?? 500, maxRows, assertCurrent })
+      snapshot = Object.freeze({ ...snapshot, rows: collection.rows, total: collection.total })
+    }
+    assertCurrent()
+    const readScope = () => {projection?.assertCurrent(); return this.contextScope()}
+    if (projection?.nested) return DataSpaceQueryNested.read({identity: table.identity, snapshot, scope, readScope,
+      mode: projection.nested.mode, node: projection.nested.root, maxRows})
+    return new DataSpaceQueryContext({ identity: table.identity, snapshot, scope,
+      ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : captured.outputType === 'Navigation'
+        ? {resultKind: 'navigation' as const} : captured.outputType === 'HierarchyData' ? {resultKind: 'hierarchy' as const} : {}),
+      ...(projection === undefined ? {} : {columns: projection.columns,
+        ...(projection.newRowFields === undefined ? {} : {newRowFields: projection.newRowFields})}),
+      readScope })
+  }
+
+  private contextScope(): string {
+    const token = this.#readScope().token
+    if (!token.trim()) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 请求层未提供有效 scope token')
+    return JSON.stringify([this.#generation, token])
+  }
+}

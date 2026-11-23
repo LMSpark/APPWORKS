@@ -38,7 +38,7 @@ import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeDataCode} from '@/platform-adapters/resources/structured-config/data-code/resource'
 
 type RFilterProps = SparkComponent.RFilterProps
 const {PAGE_RUNTIME, FieldSelect, RendererSection, RendererForm, RendererTable, RendererDialog, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent

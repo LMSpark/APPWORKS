@@ -1,7 +1,7 @@
 import {expect, it, vi} from 'vitest'
 import {DataSet, bindDataSetCommandSubmit, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {FlowRunCommandResource} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
-import {assertApprovalCommandAvailable, submitApprovalCommand, verifyApprovalCommand} from '@/lowcode/resources/system/workflow/manage/flow-run-page/command/submit'
+import {FlowRunCommandResource} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
+import {assertApprovalCommandAvailable, submitApprovalCommand, verifyApprovalCommand} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit'
 
 it.each([false, true])('preflights the original owner without staging or dispatching unknown=%s', async unknown => {
   const ds = DataSet.fromJson({scenarioId: 'approval', tables: {}})

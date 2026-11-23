@@ -8,7 +8,7 @@ import {DataViewFilter, DataViewFilterCodec, RequestState} from '@spark-appworks
 import DataSpaceQueryPreview from '@/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 import definitionConfig from '../../../../../../config/pages/data-platform/data-space-design/pagedata.json'
-import {LowcodeDataSpaceViewFields} from '../../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
+import {LowcodeDataSpaceViewFields} from '../../../../../../src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 const wrappers: ReturnType<typeof mount>[] = []

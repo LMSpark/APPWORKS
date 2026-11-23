@@ -1,13 +1,13 @@
 import {readFile} from 'node:fs/promises'
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {RequestState} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {codeModels, DESIGN} from './data-code.fixture'
-import {addCodeSegment, changeCodeSegmentType} from '@/lowcode/resources/structured-config/data-code/segment-ops'
-import {saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {addCodeSegment, changeCodeSegmentType} from '@/platform-adapters/resources/structured-config/data-code/segment-ops'
+import {saveDataCodeDesign} from '@/platform-adapters/resources/structured-config/data-code/design-ops'
 
 const SCENE = DESIGN
 const pages: PageRuntime[] = []

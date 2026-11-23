@@ -1,8 +1,9 @@
 import {describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@/platform-adapters/api'
 import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import {LowcodeDataSpaceAssembler} from '../../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 const model: FormalModel = {id: 'MODEL', name: 'Orders', metaName: 'Orders', sourceName: 'PhysicalOrders',

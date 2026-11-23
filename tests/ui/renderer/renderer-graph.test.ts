@@ -8,8 +8,8 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {GraphLayout, PAGE_RUNTIME, RendererGraph, registerAllRenderers, Spark, useSparkComponent, type RGraphProps} from '@spark-appworks/spark-component'
 import type {GraphHandle} from '../../../packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props'
 import type {BeforeRenderContext} from '../../../packages/spark-component/src/components/support/beforeRender'
-import {DataSpaceQueryContext} from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import {DataSpaceQueryTable} from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 
 const cleanup: Array<() => void> = []
 const LINE_COLUMNS = [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'},

@@ -6,8 +6,8 @@ import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, PAGE_RUNTIME, RendererForm, FieldJson, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
-import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 let wrapper: VueWrapper | undefined, runtime: PageRuntime | undefined
 const originalStubs = {...config.global.stubs}

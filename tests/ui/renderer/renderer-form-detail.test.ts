@@ -8,9 +8,9 @@ import RendererHostScope from '../../../packages/spark-component/src/components/
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
 import type { DataView, SparkNode } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
-import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceQueryTable } from '@spark-appworks/spark-data'
+import { DataSpaceQueryContext } from '@spark-appworks/spark-data'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import { getMountedComponentApi, mountWithPageDataSet } from '../../support/helpers/mount-with-page-dataset'
 import { requireRecord, requireString } from '../../support/helpers/runtime-guards'
 

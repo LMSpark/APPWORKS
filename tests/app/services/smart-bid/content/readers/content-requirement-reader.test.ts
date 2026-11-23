@@ -1,8 +1,8 @@
 import {expect,it,vi} from 'vitest'
 import {DataSet,parseDataViewKey} from '@spark-appworks/spark-data'
 import {readContentRequirement,readEffectiveRequirementVersions} from '@/views/features/application/smart-bid/authoring/model/content-requirement-reader'
-import {DataSpaceQueryTable} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import {DataSpaceQueryContext} from '../../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
 async function fixture(options:{count?:number|null;wrong?:string;hidden?:string}={}){
  const record={id:'REQ',projectId:'P',lineageId:'L',version:'002',kind:'FORMAT',text:'原件文字',score:null,

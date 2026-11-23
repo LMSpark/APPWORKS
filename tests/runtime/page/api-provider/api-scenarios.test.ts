@@ -4,7 +4,7 @@ import {RequestState, type DataView} from '@spark-appworks/spark-data'
 import {createApiService, seed, NAV, CONFIG, API, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.current.state.http},
   lowcodeApi: {readRequestScope: (...args: unknown[]) => api.current.service.readRequestScope(...args),
     dataSpace: {get design() {return api.current.service}, get runtime() {return api.current.state.runtime}}},
@@ -12,7 +12,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     writeText: async () => {throw new Error('pages must not write scenario files')}}}),
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected design file upload')},
 }))
-const {loadLowcodeRuntimeScenario} = await import('@/lowcode/data-space/lowcode-data-space-runtime')
+const {loadLowcodeRuntimeScenario} = await import('@/platform-adapters/data-space/lowcode-data-space-runtime')
 
 api.current = createApiService()
 const runtimes: PageRuntime[] = []

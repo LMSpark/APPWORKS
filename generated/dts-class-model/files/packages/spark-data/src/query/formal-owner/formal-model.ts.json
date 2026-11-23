@@ -1,0 +1,375 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/formal-owner/formal-model",
+    "sourcePath": "packages/spark-data/src/query/formal-owner/formal-model.ts",
+    "sourceFile": "packages/spark-data/src/query/formal-owner/formal-model.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/formal-owner/formal-model",
+    "jsdoc": "@spark-appworks/spark-data 的 query/formal-owner/formal-model 模块。\n导出 DtsTypeDeclarationModel symbol: FormalModelField, DataSpaceSourceInputBinding, FormalModelDescriptor（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "FormalModelField",
+      "DataSpaceSourceInputBinding",
+      "FormalModelDescriptor"
+    ]
+  },
+  "$defs": {
+    "FormalModelField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModelField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "canonicalName": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "output": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "computed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "allowAIAdd": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "raw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "name",
+        "canonicalName",
+        "type",
+        "primaryKey",
+        "description",
+        "output",
+        "computed",
+        "order",
+        "orderType",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceSourceInputBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSourceInputBinding",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "valueFunction": {
+          "$ref": "../filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "FormalModelDescriptor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModelDescriptor",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FormalModelField"
+          }
+        },
+        "raw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T09:26:00.182Z",
+  "models": {
+    "FormalModelField": {
+      "name": "FormalModelField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    allowAIAdd?: boolean;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    allowAIAdd?: boolean;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canonicalName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "output",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "computed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAIAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSourceInputBinding": {
+      "name": "DataSpaceSourceInputBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    valueFunction?: DataViewFilterValueFunction;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    valueFunction?: DataViewFilterValueFunction;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FormalModelDescriptor": {
+      "name": "FormalModelDescriptor",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly FormalModelField[];\n    raw: Readonly<Record<string, unknown>>;\n    sourceInputBindings?: readonly DataSpaceSourceInputBinding[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly FormalModelField[];\n    raw: Readonly<Record<string, unknown>>;\n    sourceInputBindings?: readonly DataSpaceSourceInputBinding[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceInputBindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

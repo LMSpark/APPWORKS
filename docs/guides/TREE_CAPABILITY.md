@@ -70,7 +70,7 @@ dirty 阻止覆盖与配置刷新，stale 暂停编辑；清除或恢复需要�
 
 ## 蓝图树与业务树
 
-蓝图 CRUD 沿 LowcodeProjectBlueprintApi -> 共享 DataSpaceRuntimeApi query/save，私有原上下文持有凭据。source 是后端行的消费投影，不承担授权。蓝图字段映射、导航授权和业务树模型不是同一合同，不能把业务树的 API 统一写成导航路径。
+蓝图工作区通过正式 DataView/DataSet 读写；运行蓝图投影通过 `spark-project-model` 的 `createProjectBlueprintRecordReader` 复用宿主注入的 SPARK Data owner。私有原查询上下文持有凭据，`source` 是后端行的消费投影，不承担授权。蓝图字段映射、导航授权和业务树模型不是同一合同，不能把业务树的 API 统一写成导航路径。
 
 ## 验证
 

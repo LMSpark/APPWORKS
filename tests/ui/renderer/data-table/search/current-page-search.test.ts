@@ -6,7 +6,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {FieldText,RendererTable,Spark,PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {ApiBackend} from '../../../../runtime/page/api-provider/api-provider.fixture'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 const originalStubs=config.global.stubs,cleanups:(()=>void)[]=[]
 afterEach(()=>{cleanups.splice(0).reverse().forEach(cleanup=>cleanup());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
 async function fixture(nested=false,keyless=false){

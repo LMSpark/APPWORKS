@@ -5,7 +5,7 @@ import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldNumber, PAGE_RUNTIME, RendererForm, RendererSection, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
 import { DataMember, DataSet, RequestState, resolveDataViewMember } from '@spark-appworks/spark-data'
 import { PageRuntime, ProjectWorkspace, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import type { RequestConfig } from '@spark-appworks/spark-utils'
@@ -15,8 +15,8 @@ const mocks = vi.hoisted(() => ({
   readConfiguration: vi.fn(), gateways: vi.fn(), fileUpload: {uploadWorkingText: vi.fn()},
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', async () => {
-  const { DataSpaceRuntimeApi } = await import('@spark-appworks/spark-lowcode-api')
+vi.mock('@/platform-adapters/lowcode-runtime', async () => {
+  const { DataSpaceRuntimeApi } = await import('@spark-appworks/spark-data')
   const { HttpClientBase } = await import('@spark-appworks/spark-utils')
   class FixtureHttp extends HttpClientBase {
     protected override async executeRequest(config: RequestConfig) {
@@ -36,11 +36,11 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
   }, createLowcodeProjectGateways: mocks.gateways, lowcodeDesignFileUpload: mocks.fileUpload }
 })
 
-import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {LowcodeDataSpaceMetadata} from '@/lowcode/data-space/lowcode-data-space-metadata'
-import { LowcodeDataSpaceModelSourceReader } from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
-import { LowcodeDataSpaceViewDesign, type LowcodeDataSpaceDesignSession } from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
-import {LowcodeDataSpaceInputParameterReferences} from '@/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references'
+import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import {LowcodeDataSpaceMetadata} from '@/platform-adapters/data-space/lowcode-data-space-metadata'
+import { LowcodeDataSpaceModelSourceReader } from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
+import { LowcodeDataSpaceViewDesign, type LowcodeDataSpaceDesignSession } from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceInputParameterReferences} from '@/platform-adapters/data-space/input-parameters/lowcode-data-space-input-parameter-references'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 
 const tables = ['Base_DataSet', 'Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'] as const

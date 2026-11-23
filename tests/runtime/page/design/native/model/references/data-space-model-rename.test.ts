@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataView, resolveDataViewKey, type DataSet} from '@spark-appworks/spark-data'
-import {createModelRenameHandle, createModelRenameHost} from '../../../../../../../src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session'
+import {createModelRenameHandle, createModelRenameHost} from '../../../../../../../src/platform-adapters/data-space/model-source/rename/lowcode-data-space-model-rename-session'
 import {createTestProjectToolFileExecutor, dataSpacePageFixture} from '../../data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []

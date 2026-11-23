@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * 断言 backend-api-contracts 与 spark-lowcode-api 的 AjaxResult 字段同形，
- * 禁止再出现「台账可选 Code / 运行必填 Code」双合同。
+ * 断言 backend-api-contracts 是 AjaxResult 唯一正式合同，
+ * 禁止再出现第二套运行时 AjaxResult。
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -11,7 +11,8 @@ import ts from 'typescript'
 import { isCliEntrypoint, printViolations, relativePath } from './verifier-common.mjs'
 
 const LEDGER_REL = 'backend-api-contracts/common.ts'
-const RUNTIME_REL = 'packages/spark-lowcode-api/src/contracts/lowcode-ajax-result.ts'
+const RUNTIME_REL = LEDGER_REL
+const RETIRED_PACKAGE_REL = 'packages/spark-lowcode-api'
 const TYPE_NAME = 'AjaxResult'
 const REQUIRED_FIELDS = ['Code', 'Message', 'Result', 'Type', 'Extras', 'Time']
 
@@ -59,6 +60,9 @@ function main() {
   const violations = []
   const ledgerPath = path.join(root, LEDGER_REL)
   const runtimePath = path.join(root, RUNTIME_REL)
+  if (fs.existsSync(path.join(root, RETIRED_PACKAGE_REL))) {
+    violations.push({file: RETIRED_PACKAGE_REL, line: 0, message: '独立 spark-lowcode-api 包已退役，禁止回生'})
+  }
 
   for (const filePath of [ledgerPath, runtimePath]) {
     if (!fs.existsSync(filePath)) {

@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest'
-import {assertExcelTransformReferenceTransition} from '@/lowcode/resources/semi-structured/excel-import/transform/pipeline'
+import {assertExcelTransformReferenceTransition} from '@/platform-adapters/resources/semi-structured/excel-import/transform/pipeline'
 const rule=(id:string,type:string,sort:number,config:Record<string,unknown>={},source='',target='')=>({id,rule_type:type,sort_order:sort,enabled:1,on_error:'FAIL_ROW',source_field:source,target_field:target,condition_json:'',config_json:JSON.stringify({executionScope:'IMPORT',...config})})
 describe('Excel transform formal dependency transition',()=>{
  const producer=rule('P','DEFAULT',10,{value:0},'','generated')

@@ -25,9 +25,9 @@
       "title": "DatePickerType",
       "enum": [
         "date",
+        "datetime",
         "month",
         "week",
-        "datetime",
         "year",
         "dates",
         "datetimerange",
@@ -239,9 +239,9 @@
         "dateType": {
           "enum": [
             "date",
+            "datetime",
             "month",
             "week",
-            "datetime",
             "year",
             "dates",
             "datetimerange",

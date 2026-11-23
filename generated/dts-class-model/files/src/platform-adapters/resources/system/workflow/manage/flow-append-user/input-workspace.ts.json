@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace",
+    "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+    "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/system/workflow/manage/flow-append-user/input-workspace",
+    "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-append-user/input-workspace\n职责：同DataSet持有追加参数，按原配置和候选捕获不可变命令。\n边界：不复制可编辑人员数组；只释放已确定未派发的本次输入/候选视图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FlowAppendInputWorkspace"
+    ]
+  },
+  "$defs": {
+    "FlowAppendInputWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowAppendInputWorkspace",
+      "properties": {
+        "parameters": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "loading": {
+          "type": "boolean"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "candidateKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "stepView": {
+                  "type": "object",
+                  "title": "() => DataView | undefined"
+                },
+                "listView": {
+                  "type": "object",
+                  "title": "() => DataView | undefined"
+                },
+                "context": {
+                  "type": "object",
+                  "title": "() => Partial<FlowAppendUserContext>"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "userDirectory": {
+                  "type": "object",
+                  "title": "() => DataView"
+                }
+              },
+              "required": [
+                "dataSet",
+                "stepView",
+                "listView",
+                "context",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "assertInputCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.capture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.capture.return": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "input",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
+        },
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-20T20:59:32.791Z",
+  "models": {
+    "FlowAppendInputWorkspace": {
+      "name": "FlowAppendInputWorkspace",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: Readonly<{\n        dataSet: DataSet;\n        stepView: () => DataView | undefined;\n        listView: () => DataView | undefined;\n        context: () => Partial<FlowAppendUserContext>;\n        assertCurrent: () => void;\n        userDirectory?: () => DataView;\n    }>)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        dataSet: DataSet;\n        stepView: () => DataView | undefined;\n        listView: () => DataView | undefined;\n        context: () => Partial<FlowAppendUserContext>;\n        assertCurrent: () => void;\n        userDirectory?: () => DataView;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "parameters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "active",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loading",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidateKey",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "parameters": [
+                {
+                  "name": "assertInputCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "capture",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        input: Readonly<DataRow>;\n        assertCurrent: () => void;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "close",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

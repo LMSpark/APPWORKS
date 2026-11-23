@@ -20,7 +20,7 @@
       "title": "DataSpaceArrayHeadersProps",
       "properties": {
         "draft": {
-          "$ref": "../../../../../../../lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/LowcodeDataSpaceArrayDraft"
+          "$ref": "../../../../../../../platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/LowcodeDataSpaceArrayDraft"
         }
       },
       "required": [
@@ -32,7 +32,7 @@
           "type": "object",
           "properties": {
             "definition": {
-              "$ref": "../../../../../../../lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/ArrayDefinition"
+              "$ref": "../../../../../../../platform-adapters/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/ArrayDefinition"
             }
           },
           "additionalProperties": false
@@ -44,7 +44,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.219Z",
+  "generatedAt": "2026-11-23T08:02:15.281Z",
   "models": {
     "DataSpaceArrayHeadersProps": {
       "name": "DataSpaceArrayHeadersProps",

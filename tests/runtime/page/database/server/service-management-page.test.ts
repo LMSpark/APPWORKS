@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {registerAllRenderers, RendererFilter, RendererTable, Spark} from '@spark-appworks/spark-component'
@@ -10,12 +10,12 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import {provideTestPageService} from '../../../../support/helpers/page-service-host'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
-import {LowcodeDatabaseServer} from '@/lowcode/resources/database/server/resource'
-import {DATABASE_SERVER_REGISTER_COLUMNS, DATABASE_SERVER_TYPE_OPTIONS} from '@/lowcode/resources/database/server/catalog-metadata'
+import {LowcodeDatabaseServer} from '@/platform-adapters/resources/database/server/resource'
+import {DATABASE_SERVER_REGISTER_COLUMNS, DATABASE_SERVER_TYPE_OPTIONS} from '@/platform-adapters/resources/database/server/catalog-metadata'
 import {
   databaseServerCanCreate,
   requireDatabaseServerView,
-} from '@/lowcode/resources/database/server/view-ops'
+} from '@/platform-adapters/resources/database/server/view-ops'
 import {
   DATABASE_SERVER_SCENARIO_ID,
   DatabaseServerHttp,
@@ -24,7 +24,7 @@ import {
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: DatabaseServerHttp, runtime: DataSpaceRuntimeApi
-vi.mock('@/lowcode/lowcode-runtime', () => ({
+vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, application: {get: () => ({application: {id: 'APP'}})}, dataSpace: {design: service, get runtime() {return runtime}}},
 }))

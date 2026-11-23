@@ -5,21 +5,21 @@ import ElementPlus, {ElButton, ElInput, ElTable, ElTableColumn} from 'element-pl
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldCheckbox, PAGE_RUNTIME, RendererSection, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet, DataView, RequestState} from '@spark-appworks/spark-data'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import type {RouteLocationNormalizedLoaded} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
-import * as lowcodeDataSpaceDesign from '@/lowcode/data-space/lowcode-data-space-design'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import * as lowcodeDataSpaceDesign from '@/platform-adapters/data-space/lowcode-data-space-design'
+import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
   loadLowcodeRuntimeScenario: vi.fn(),
   readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}),
 }))
-vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
-  const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
+vi.mock('@/platform-adapters/lowcode-runtime', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/platform-adapters/lowcode-runtime')>()
   return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {
     readRequestScope: () => ({token: 'PAGE-TEST', headers: {'X-AppId': 'APP'}}),
   })}

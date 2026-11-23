@@ -1,0 +1,670 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-record",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-record.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-record",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-record\n职责：定义并校验蓝图四组消费记录、项目身份和父引用环。\n边界：不持有原查询权限或签名快照，不拥有项目编辑生命周期或导航授权投影。\nAI用途：用 nodeId/projectId/kind 与正式分组表达蓝图，避免混用工具、场景和菜单身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectBlueprintRecord"
+    ]
+  },
+  "$defs": {
+    "BlueprintIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintIdentity",
+      "properties": {
+        "kind": {
+          "enum": [
+            "module",
+            "page",
+            "embedded",
+            "service",
+            "content",
+            "unknown"
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "projectId",
+        "nodeId",
+        "parentNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintDataSpace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintDataSpace",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintModel"
+          }
+        }
+      },
+      "required": [
+        "scenarioId",
+        "models"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintModel",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "metaName"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintRecord",
+      "properties": {
+        "kind": {
+          "enum": [
+            "module",
+            "page",
+            "embedded",
+            "service",
+            "content",
+            "unknown"
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "capability": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "ownerId": {
+              "type": "string"
+            },
+            "deliveryStatus": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "navigation": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "order": {
+              "type": "number"
+            },
+            "placement": {
+              "enum": [
+                "parent",
+                "left",
+                "right",
+                "top",
+                "tabs",
+                "popup"
+              ]
+            },
+            "target": {
+              "type": "string"
+            },
+            "mobileTarget": {
+              "type": "string"
+            },
+            "openMode": {
+              "enum": [
+                "embedded",
+                "current",
+                "subsystem",
+                "new-window",
+                "modal"
+              ]
+            },
+            "displayMode": {
+              "type": "string"
+            },
+            "horizontalAlignment": {
+              "type": "string"
+            },
+            "publishInMenu": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "showChildren": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "beginGroup": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "title",
+            "order",
+            "publishInMenu",
+            "showChildren",
+            "beginGroup"
+          ],
+          "additionalProperties": false
+        },
+        "dataSpace": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "models": {
+              "type": "object",
+              "properties": {
+                "length": {
+                  "type": "number"
+                },
+                "toString": {
+                  "type": "object",
+                  "title": "(() => string) & (() => string)"
+                },
+                "toLocaleString": {
+                  "type": "object",
+                  "title": "{ (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; } & { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; }"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "{ (...items: ConcatArray<{ metaName: string; }>[]): { metaName: string; }[]; (...items: ({ metaName: string; } | ConcatArray<{ metaName: string; }>)[]): { metaName: string; }[]; } & { ...; }"
+                },
+                "join": {
+                  "type": "object",
+                  "title": "((separator?: string) => string) & ((separator?: string) => string)"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "((start?: number, end?: number) => { metaName: string; }[]) & ((start?: number, end?: number) => Readonly<{ metaName: string; }>[])"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "((searchElement: { metaName: string; }, fromIndex?: number) => number) & ((searchElement: Readonly<{ metaName: string; }>, fromIndex?: number) => number)"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "((searchElement: { metaName: string; }, fromIndex?: number) => number) & ((searchElement: Readonly<{ metaName: string; }>, fromIndex?: number) => number)"
+                },
+                "every": {
+                  "type": "object",
+                  "title": "{ <S extends { metaName: string; }>(predicate: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => value is S, thisArg?: any): this is readonly S[]; (predicate: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => unknown, thisArg?: any): boo..."
+                },
+                "some": {
+                  "type": "object",
+                  "title": "((predicate: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => unknown, thisArg?: any) => boolean) & ((predicate: (value: Readonly<{ metaName: string; }>, index: number, array: readonly Readonly<...>[]) => unknown, thisArg?: any) => boolean)"
+                },
+                "forEach": {
+                  "type": "object",
+                  "title": "((callbackfn: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => void, thisArg?: any) => void) & ((callbackfn: (value: Readonly<{ metaName: string; }>, index: number, array: readonly Readonly<...>[]) => void, thisArg?: any) => void)"
+                },
+                "map": {
+                  "type": "object",
+                  "title": "(<U>(callbackfn: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => U, thisArg?: any) => U[]) & (<U>(callbackfn: (value: Readonly<{ metaName: string; }>, index: number, array: readonly Readonly<...>[]) => U, thisArg?: any) => U[])"
+                },
+                "filter": {
+                  "type": "object",
+                  "title": "{ <S extends { metaName: string; }>(predicate: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => value is S, thisArg?: any): S[]; (predicate: (value: { metaName: string; }, index: number, array: readonly { metaName: string; }[]) => unknown, thisArg?: any): { metaName: string; ..."
+                },
+                "reduce": {
+                  "type": "object",
+                  "title": "{ (callbackfn: (previousValue: { metaName: string; }, currentValue: { metaName: string; }, currentIndex: number, array: readonly { metaName: string; }[]) => { metaName: string; }): { metaName: string; }; (callbackfn: (previousValue: { ...; }, currentValue: { ...; }, currentIndex: number, array: readonly { ...; }[]) ..."
+                },
+                "reduceRight": {
+                  "type": "object",
+                  "title": "{ (callbackfn: (previousValue: { metaName: string; }, currentValue: { metaName: string; }, currentIndex: number, array: readonly { metaName: string; }[]) => { metaName: string; }): { metaName: string; }; (callbackfn: (previousValue: { ...; }, currentValue: { ...; }, currentIndex: number, array: readonly { ...; }[]) ..."
+                },
+                "find": {
+                  "type": "object",
+                  "title": "{ <S extends { metaName: string; }>(predicate: (value: { metaName: string; }, index: number, obj: readonly { metaName: string; }[]) => value is S, thisArg?: any): S | undefined; (predicate: (value: { metaName: string; }, index: number, obj: readonly { metaName: string; }[]) => unknown, thisArg?: any): { metaName: st..."
+                },
+                "findIndex": {
+                  "type": "object",
+                  "title": "((predicate: (value: { metaName: string; }, index: number, obj: readonly { metaName: string; }[]) => unknown, thisArg?: any) => number) & ((predicate: (value: Readonly<{ metaName: string; }>, index: number, obj: readonly Readonly<...>[]) => unknown, thisArg?: any) => number)"
+                },
+                "entries": {
+                  "type": "object",
+                  "title": "(() => ArrayIterator<[number, { metaName: string; }]>) & (() => ArrayIterator<[number, Readonly<{ metaName: string; }>]>)"
+                },
+                "keys": {
+                  "type": "object",
+                  "title": "(() => ArrayIterator<number>) & (() => ArrayIterator<number>)"
+                },
+                "values": {
+                  "type": "object",
+                  "title": "(() => ArrayIterator<{ metaName: string; }>) & (() => ArrayIterator<Readonly<{ metaName: string; }>>)"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "((searchElement: { metaName: string; }, fromIndex?: number) => boolean) & ((searchElement: Readonly<{ metaName: string; }>, fromIndex?: number) => boolean)"
+                },
+                "flatMap": {
+                  "type": "object",
+                  "title": "(<U, This = undefined>(callback: (this: This, value: { metaName: string; }, index: number, array: { metaName: string; }[]) => U | readonly U[], thisArg?: This | undefined) => U[]) & (<U, This = undefined>(callback: (this: This, value: Readonly<...>, index: number, array: Readonly<...>[]) => U | readonly U[], thisArg..."
+                },
+                "flat": {
+                  "type": "object",
+                  "title": "(<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]) & (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[])"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "((index: number) => { metaName: string; } | undefined) & ((index: number) => Readonly<{ metaName: string; }> | undefined)"
+                },
+                "__@iterator@305020": {
+                  "type": "object",
+                  "title": "(() => ArrayIterator<{ metaName: string; }>) & (() => ArrayIterator<Readonly<{ metaName: string; }>>)"
+                },
+                "__@unscopables@305022": {
+                  "type": "object",
+                  "properties": {
+                    "length": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "toString": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "toLocaleString": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "concat": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "join": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "slice": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "indexOf": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "lastIndexOf": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "every": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "some": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "forEach": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "map": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "filter": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "reduce": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "reduceRight": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "find": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "findIndex": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "entries": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "keys": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "values": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "includes": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "flatMap": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "flat": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "at": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "__@iterator@305020": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    },
+                    "__@unscopables@305022": {
+                      "enum": [
+                        false,
+                        true
+                      ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "length",
+                "toString",
+                "toLocaleString",
+                "concat",
+                "join",
+                "slice",
+                "indexOf",
+                "lastIndexOf",
+                "every",
+                "some",
+                "forEach",
+                "map",
+                "filter",
+                "reduce",
+                "reduceRight",
+                "find",
+                "findIndex",
+                "entries",
+                "keys",
+                "values",
+                "includes",
+                "flatMap",
+                "flat",
+                "at",
+                "__@iterator@305020",
+                "__@unscopables@305022"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "scenarioId",
+            "models"
+          ],
+          "additionalProperties": false
+        },
+        "prototype": {
+          "type": "object",
+          "properties": {
+            "htmlDescription": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "kind",
+        "projectId",
+        "nodeId",
+        "parentNodeId",
+        "capability",
+        "source"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-23T07:55:02.362Z",
+  "models": {
+    "BlueprintIdentity": {
+      "name": "BlueprintIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<ProjectBlueprintTreeNodeData, 'nodeId' | 'parentNodeId' | 'projectId' | 'kind'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<ProjectBlueprintTreeNodeData, 'nodeId' | 'parentNodeId' | 'projectId' | 'kind'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintDataSpace": {
+      "name": "BlueprintDataSpace",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintModel": {
+      "name": "BlueprintModel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "BlueprintDataSpace['models'][number]",
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintRecord": {
+      "name": "ProjectBlueprintRecord",
+      "jsdoc": "无 children 的四组消费记录；source 只保留可读投影，不包含原查询签名或权限。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<BlueprintIdentity & {\n    capability: Readonly<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: Readonly<NonNullable<ProjectBlueprintTreeNodeData['navigation']>>;\n    dataSpace?: Readonly<BlueprintDataSpace & {\n        models: ReadonlyArray<Readonly<BlueprintModel>>;\n    }>;\n    prototype?: Readonly<NonNullable<ProjectBlueprintTreeNodeData['prototype']>>;\n    source: Readonly<ProjectBlueprintTreeNodeData['source']>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<BlueprintIdentity & {\n    capability: Readonly<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: Readonly<NonNullable<ProjectBlueprintTreeNodeData['navigation']>>;\n    dataSpace?: Readonly<BlueprintDataSpace & {\n        models: ReadonlyArray<Readonly<BlueprintModel>>;\n    }>;\n    prototype?: Readonly<NonNullable<ProjectBlueprintTreeNodeData['prototype']>>;\n    source: Readonly<ProjectBlueprintTreeNodeData['source']>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prototype",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

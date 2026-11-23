@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/project-blueprint-record-codec",
+    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-record-codec.ts",
+    "sourceFile": "packages/spark-project-model/src/io/project-blueprint-record-codec.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/project-blueprint-record-codec",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-record-codec\n职责：在 Base_NavigationInfo 消费行与 capability/navigation/dataSpace/prototype 四组之间映射。\n边界：conType 决定 kind，未知值保留诊断；不构造查询或授权，不从父节点推断模型。\nAI用途：核对正式节点与后端字段的读写对应，避免 source 成为权限或模型定义来源。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "BlueprintRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintRow",
+      "properties": {},
+      "additionalProperties": true
+    }
+  },
+  "generatedAt": "2026-11-23T07:47:56.852Z",
+  "models": {
+    "BlueprintRow": {
+      "name": "BlueprintRow",
+      "jsdoc": "将原 query context 的消费行归一化为蓝图记录，保留未知 kind 供领域层诊断。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

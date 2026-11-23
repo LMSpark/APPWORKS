@@ -50,7 +50,6 @@ spark-utils
   -> spark-project-model
   -> spark-component
   -> spark-app
-  -> spark-lowcode-api
 ```
 
 `vite-plugin-spark-catalog` 没有 build script，只作为工作区源码工具被消费。

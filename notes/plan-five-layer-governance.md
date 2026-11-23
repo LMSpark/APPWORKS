@@ -15,6 +15,26 @@
 
 最终权限对象始终是当前登录人的本次入口、行、字段、动作与提交结果。
 
+## 架构收敛前置：清退 spark-lowcode-api 独立项目
+
+五层治理实施统一通过 SPARK Data，不保留 `spark-lowcode-api` 作为并行业务数据 API。该收敛是总计划基础设施阶段，详见 [研读](research-spark-lowcode-api-retirement.md) 与 [执行计划](plan-spark-lowcode-api-retirement.md)。
+
+### 语义归属
+
+- SPARK Data：DataTable owner adapter、DataView query/save/runtime、权限基线与保存回执。
+- spark-project-model：蓝图领域、文件/版本与场景生命周期。
+- spark-ai：Agent turn/config/data-entry。
+- spark-utils：仅通用 HTTP、wire/error/event 原语。
+- src/lowcode：平台会话、应用目录、权限设计、上传及特定服务 adapter。
+- backend-api-contracts：wire、endpoint 与 parity 合同。
+
+### 总计划门槛
+
+- 五层治理新页面、入口与业务服务不得直接 import 已定为退役的 `LowcodeApi` 聚合门面。
+- 新查询/保存只经 PageRuntime → DataSet → DataTable → DataView。
+- 新宿主 adapter 只负责 scope、wire 和 owner 装配，不向页面暴露第二套 CRUD。
+- `spark-lowcode-api` 的既有能力按域迁移并验证后删除，不在治理页面中复制旧门面。
+
 ## 阶段与业务语义
 
 ### G0：部署初始委派
@@ -26,6 +46,8 @@
 - **下游**：平台管理工作清单。
 - **非目标**：不创建应用使用权、模块、默认应用、所有权、发布者或数据共享。
 
+同时完成退役阶段前置：冻结 `spark-lowcode-api` 公共面增长，生成完整 consumer/import 清单；不要求 G0 等待整个包删除。
+
 ### A：跨企业应用申请拒绝闭环
 
 - 企业 A 申请企业 B 已发布应用。
@@ -33,6 +55,8 @@
 - A 独立重开，按同一请求键读到 `REJECTED` 和拒绝原因。
 - `saveChanges().success === false` 不得提示成功。
 - 结果未知只核验原提交，不重复业务写入。
+
+此阶段可复用现有 lowcode 适配，但所有新增查询/保存须落到 DataTable/DataView owner；只修复返回 `success:false`、请求键回读和 adapter 绑定，不扩张旧 API。
 
 ### B：平台与企业正式入口
 
@@ -66,6 +90,13 @@
 - 维度归属明确后才迁移；引用不可判定时不删除、不重挂。
 - 复用蓝图、PageTool、ScenarioViewConfig、PageRuntime。
 - 页面级是应用设计子域，不新增第六类权限。
+
+### R：低代码包退役收口
+
+- 完成 wire/领域/host/AI 能力按语义迁移。
+- 更新 import、alias、workspace、lockfile、consumer ledger 与 ClassModel。
+- 删除 `packages/spark-lowcode-api/` 后做全仓回归。
+- 此阶段不改变五层业务语义，只消除独立聚合项目和并行入口。
 
 ## 影响范围与目录规划
 
@@ -161,6 +192,7 @@ tests/runtime/application/
 - 三个 modelId 不得被名称碰撞或测试夹具冒充成线上映射。
 - B 的条件提交必须由服务端保证同请求最多一个有效决定。
 - `C06D audit` 提交前必须验证 `PENDING/REQUEST/source_ent` 与当前人权限。
+- 本阶段新增能力必须通过 SPARK Data DataTable/DataView；不得新增 `LowcodeApi` 或页面直接平台 API 调用。
 
 ### B：入口与企业工作区
 
@@ -207,6 +239,25 @@ tests/runtime/application/
 - 精确关系键回读，不以删除/新增伪装原子转移。
 - 原/新受托方各自重开验证。
 - 不能通过页面修改 `EntId`、负责人、发布者、默认应用实现委派。
+
+### R：低代码包退役收口
+
+影响面按退役计划执行，不为五层页面另建迁移层：
+
+- `packages/spark-data/src/**`
+- `packages/spark-project-model/src/**`
+- `packages/spark-ai/src/**`
+- `src/lowcode/**`
+- `backend-api-contracts/**`
+- `package.json`、`pnpm-lock.yaml`、TS/Vite/Vitest/ESLint 配置
+- `generated/dts-class-model/**`
+
+验收要求：
+
+- `SPARK Data` 是唯一业务 query/save owner。
+- 页面与组件无独立 lowcode 数据 API。
+- `spark-lowcode-api` 包名、alias、依赖与公开导入归零。
+- wire parity、consumer ledger、ClassModel 与全仓测试全部重建。
 
 ### E：跨应用数据共享
 
@@ -358,6 +409,8 @@ pnpm run test:run
 7. unknown 只能靠重复写入恢复。
 8. 共享、维度或同一关系出现第二写入口。
 9. 实施必须覆盖当前未提交的无关底座改动。
+10. 五层治理新增入口时直接依赖 `spark-lowcode-api` 公共聚合 API。
+11. 删除包前仍存在页面级/宿主级第二 query/save 实现。
 
 ## 风险项
 

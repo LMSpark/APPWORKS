@@ -1,8 +1,9 @@
 # lowcode-jdk17 后端 API 契约
 
 本目录根据 `E:\lowcode-jdk17` 的 Controller、请求 DTO、枚举和 Jackson
-字段定义整理，为本仓 `packages/spark-lowcode-api` 等消费者提供 TypeScript
+字段定义整理，为 SPARK Data owner adapter、宿主 `src/lowcode` 及剩余迁移消费者提供 TypeScript
 出入参参考。源码合同不证明当前部署已支持该能力或授权本次调用；实际查询、提交与结果仍须分别验证。
+`backend-api-contracts` 是 wire 与 endpoint 事实源，不是可运行客户端，也不承载业务权限或 query/save owner。
 
 ## 文件
 

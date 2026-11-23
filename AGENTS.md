@@ -34,7 +34,7 @@
 | 数据空间 | `scenarioId -> DataSet -> DataTable(columns/views/resource/model/api/crudConfig) -> DataView`；接口与模型级执行契约归 DataTable | [数据链路主合同](docs/architecture/DATAFLOW_ARCHITECTURE.md)、`packages/spark-data/src/data-table.ts`、`src/lowcode/data-space/` |
 | 页面交付 | `PageTool` 三文件、共享场景文件、一次调用生命周期 | [页面配置架构](docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)、`SparkPageRenderer` |
 | 标准组件 | `dataViewKey/dataMember/dataField` 的运行绑定与权限消费 | `packages/spark-component/`、ClassModel |
-| 服务适配 | lowcode 仅提供 wire 合同、scope、正式 owner adapter 与回执协议；必须由 SPARK Data DataTable/DataView 作为唯一业务后端入口装配和调用 | `packages/spark-lowcode-api/`、`backend-api-contracts/` |
+| 服务适配 | wire 合同归 `backend-api-contracts`；平台会话与特定服务 adapter 归 `src/lowcode`；数据 owner adapter 必须进入 SPARK Data DataTable/DataView，`spark-lowcode-api` 仅为待退役迁移层 | [退役研读](notes/research-spark-lowcode-api-retirement.md)、[退役计划](notes/plan-spark-lowcode-api-retirement.md) |
 | AI/工具链 | ClassModel、Workflow 与宿主 binding；不替代业务真源 | `packages/spark-ai/`、[AI Workflow 合同](packages/spark-ai/docs/business-factory-workflow-zh-cn.md) |
 
 跨层约束：
@@ -56,7 +56,7 @@
 
 AppWorks 是**纯前端**。浏览器通过同源 `/api` 访问外部 SPARK；开发代理必须配置 `LOWCODE_GATEWAY_URL`，生产代理由部署侧负责。仓内不保存平台密钥或数据库副本，不接入、修改、编译、启动或部署参考 Java 服务来补合同。
 
-- `spark-utils` 提供公共原语及共享字面量；`spark-json-document` 是 JSON 值与 Schema 的真源；`spark-data` 拥有数据空间、视图及其编辑状态。`spark-project-model` 拥有蓝图、工具、场景配置与调用生命周期；`spark-lowcode-api` 拥有前端服务客户端与 wire 合同。后两包互不依赖，在宿主 `src/lowcode/` 装配；`backend-api-contracts/` 是合同台账，不是客户端。
+- `spark-utils` 提供公共原语及共享字面量；`spark-json-document` 是 JSON 值与 Schema 的真源；`spark-data` 拥有数据空间、视图、owner adapter 及其编辑状态。`spark-project-model` 拥有蓝图、工具、场景配置与调用生命周期；`spark-ai` 拥有 Agent/Workflow。`spark-lowcode-api` 当前仍为过渡适配层，不能继续扩大公共面；平台会话与特定服务归宿主 `src/lowcode/`，wire 合同归 `backend-api-contracts/`。
 - `spark-component` 拥有标准组件、能力树、渲染与绑定；`spark-app` 拥有应用壳、`RuntimeNavigation` 和动态路由；`spark-ai` 是通用 Agent/Workflow/ClassModel 内核，业务绑定留在宿主。`vite-plugin-spark-catalog` 是构建工具。依赖不得成环或向上；宿主不重写渲染器、模板编译器或沙箱。`spark-utils`、`spark-data`、`spark-project-model` 不导入 Vue、Router、Element Plus、VueUse 或 Pinia；组件运行时不依赖 `spark-ai`。
 - **蓝图不是菜单。** 动态业务导航是正式蓝图候选节点与当前用户后端授权节点按 ID 的交集；隐藏的设计节点仍属于蓝图。系统菜单由[页面登记](config/navigation/vue-pages.json)投影，不能授予权限。`/apps/{projectId}/{pagePath}` 由 `src/services/application-scope.ts` 解析；租户来自认证会话，不写入 URL。`/platform` 的 `homepage` 表示无应用的目录执行域，不是同名业务应用；不为目录请求补造 `X-AppId`。
 - **身份不能互换。** 登录人、租户、应用 `projectId/applicationId`、蓝图节点 `nodeId`、工具 `pageId`、场景 `scenarioId`、正式模型 `modelId/modelName`、场景内部 table key、`viewId`、调用 `instanceId`、原查询正式行键各有归属。URL 只寻址；标题、来源名、同名模型、`_pk` 或猜出的 `id/rowid` 不能充当正式身份。
@@ -68,7 +68,7 @@ AppWorks 是**纯前端**。浏览器通过同源 `/api` 访问外部 SPARK；�
 
 - 数据空间是前后端交换中心：向上承接页面输入输出，向下连接数据库、文件、字典、逻辑视图、外部 API 与命令，旁接功能标签及授权配置。一个空间对应 `DataSet`，一个模型对应含 `columns`、多个命名 `DataView`、资源/模型身份、`api`、`crudConfig` 与模型级保存约束的 `DataTable`。空间、模型、字段的正式数据库记录与场景 `pagedata.json` 共同装配实例；`toJson()` 不是保存合同。不得复制模型定义、业务行、权限凭据或草稿形成第二真源。
 - **所有业务读写都走 SPARK data API，设计器和文件也不例外。** 后端接口、资源身份、模型绑定、CRUD 策略与模型级约束在 `DataTable` 配置；`DataView` 只声明查询范围、筛选、排序、分页、选择、编辑模式和本次结果。装配器按 DataTable 契约为各视图绑定 query/save/file/command owner，共享需要复用的模型级 CrudService。页面不直调 HTTP、文件 owner 或另设接口、暂存、权限、保存通道。只提交已捕获的变更；未加载不等于删除，普通保存不扫描全空间依赖。命令特有的引用检查仅限该命令。已有旁路登记为差距，切换后删除，不双写。
-- **SPARK Data 是唯一业务后端交互入口。** `spark-lowcode-api` 只提供 wire 合同、请求 scope、DataSpace owner adapter 与回执解析，不为页面/脚本开放并行查询或保存 API；低代码装配必须通过 DataTable 级 adapter 进入 SPARK Data。宿主、组件和业务页只消费同一 PageRuntime/DataSet/DataTable/DataView。
+- **SPARK Data 是唯一业务后端交互入口。** 低代码只提供请求 scope 与 owner adapter，将正式服务合同装配进 DataTable；业务查询与保存必须经 DataView。页面、脚本、平台门面不得开放并行 API；`spark-lowcode-api` 公共聚合面按退役计划拆迁。
 - `resourceRelations` 用完整过滤表达式描述稳定模型关系；`viewCascades` 显式描述查询或字段值级联，二者不互推。级联使用原生字段值或选中主键数组；当前行只是取值指针。旧响应不得覆盖新输入，不默认选首项；保留既有 `DataView.value` 序列化合同。本行计算可在前端；跨行、跨模型聚合由后端按实际过滤与权限执行，不以当前分页或拉全量到浏览器代算。
 - **前端无角色；权限最终落到当前登录人。** 只消费此人、此租户/应用执行域、此次正式查询的入口和表／行／字段／动作结果。不能按 `admin`、用户名、企业名或简称、`IsSys`、负责人、成员身份、默认应用、菜单或按钮放行。保留“数据空间默认权限＋功能标签＋授权机制”；维护授权配置的权限与配置产生的运行权限分开，前端不重算、不从视图绑定推导授权记录。
 - 字段读取、隐藏／脱敏与写入独立，`R` 是必填而非可读；模型新增、行删除、树父行新增子项各有许可，批量逐目标核对。组件通过 DataView 获取字段与动作状态；原行凭据留在原查询 owner，不复制、不解码。业务条件只能收窄权限。提交前重核执行域、行键、实际修改字段和动作；换人、切域、实例释放或查询失效后不沿用旧权限。最终写入由服务端强校验。

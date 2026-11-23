@@ -45,7 +45,7 @@ description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 ty
 | ClassModel / 模型 class 字段或 JSDoc | 先 `pnpm run generate:class-model-surface`，再 `pnpm run verify:class-model` | `pnpm run verify:class-model:full` |
 | 页面设计 / 页面配置 | `pnpm run verify:page-design`、`pnpm run verify:pages-config` | 相关 focused 测试 |
 | 项目规划 / 导航 / 项目模型 | `pnpm run verify:project-planning`、`pnpm run verify:model-convergence` | `pnpm run verify:project-blueprint-ssot` |
-| `spark-lowcode-api` / 契约 | 包级 test | `pnpm run verify:lowcode-contracts`、`pnpm run verify:ajax-result-parity`、`pnpm run verify:wire-query-parity`、`pnpm run verify:send-code-parity` |
+| lowcode 适配迁移 / 服务契约 | SPARK Data + 目标 owner 包/宿主的 focused test | `pnpm run verify:lowcode-contracts`、`pnpm run verify:ajax-result-parity`、`pnpm run verify:wire-query-parity`、`pnpm run verify:send-code-parity`；额外检查旧 `spark-lowcode-api` import 不新增 |
 | 新增/移动文件、命名、接口 | `pnpm run verify:ai-codegen`、`pnpm run verify:arch` | `pnpm run verify:rules` |
 | 仅文档 | `pnpm run verify:docs` | 人工预览 |
 | 跨包 / 架构 | focused 测试 + `pnpm run typecheck` | `pnpm run verify`（typecheck + lint + verify:rules），必要时 `pnpm run verify:dist` |

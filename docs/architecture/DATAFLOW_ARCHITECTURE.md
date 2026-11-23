@@ -203,7 +203,7 @@ modelName@viewId
 两者有不同边界：
 
 - 通用本地 DataTable 可使用 API/CRUD endpoint 配置。
-- 正式低代码场景必须使用 `DataSpaceRuntimeApi`、正式 modelBinding 和当前 query context。
+- 正式低代码场景必须由宿主装配正式 modelBinding、当前 scope 与 SPARK Data owner adapter；adapter 绑定到 DataTable 后由 DataView 执行。`spark-lowcode-api` 中现有 `DataSpaceRuntimeApi` 是迁移兼容层，目标执行合同归 SPARK Data。
 - 平台默认 URL、scope、权限和后端请求格式不能由页面自行拼接。
 - `FormalTableRequestConfig` 只解析正式表请求快照，不授予来源身份或权限。
 

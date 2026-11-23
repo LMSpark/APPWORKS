@@ -36,7 +36,8 @@ E/R/h/m 是后端返回的稀疏字段名单，各自只作用于命中的字段
 
 ```text
 LowcodeDataSpaceAssembler：正式模型 + ScenarioViewFile
-    → DataSpaceRuntimeApi.bindModelView(DataView, model)
+    → DataTable owner adapter 绑定
+    → 各 DataView 复用同模型 owner adapter，结果/权限/保存基线仍逐视图隔离
     → GetData：场景、模型、正式字段投影
     → DataSpaceQueryContext：数据、总数、权限与原行凭据
     → DataView：公开业务行与集中呈现入口
@@ -56,7 +57,7 @@ LowcodeDataSpaceAssembler：正式模型 + ScenarioViewFile
 
 ## 保存与后端强验证
 
-DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。一次提交先核同场景运行实例、原查询字段和记录身份，再按 owner 分组；每个批次由自己的 owner 核验、提交并接纳回执，同一记录不能从多个视图重复提交。不同来源不共享权限或事务，后组失败不撤销前组已确认结果。DataSpaceRuntimeApi 继续按执行域/场景/模型核验上下文归属，串行化同模型读写。请求为实际 `/api/DataOperation/BatchTableOperateRequestByCRUD`，场景身份通过 x-FormKey；不是旧 prepareMutation 准备命令。
+DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。一次提交先核同场景运行实例、原查询字段和记录身份，再按 owner 分组；每个批次由自己的 owner 核验、提交并接纳回执，同一记录不能从多个视图重复提交。不同来源不共享权限或事务，后组失败不撤销前组已确认结果。当前低代码 runtime adapter 按执行域/场景/模型核验上下文归属并串行化同模型读写；该执行合同将迁入 SPARK Data，宿主只注入 scope/wire。请求为实际 `/api/DataOperation/BatchTableOperateRequestByCRUD`，场景身份通过 x-FormKey；不是旧 prepareMutation 准备命令。
 
 更新与私有原行基线比较，仅封包真实差异；删除定位唯一原行。业务候选值不按前端 E/R 名单静默裁剪，正式模型负责字段身份与可提交输出校验，计算字段不能作为业务写入。调用方的系统字段及 `_pk` 被剥离，修改/删除回放对应原行 token，普通新增和树根新增使用原查询表级 token，树子新增回放唯一原父行 token。前端不解码 token 建立另一套授权。
 
@@ -70,8 +71,8 @@ DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。�
 
 | 内容 | 位置 |
 |---|---|
-| 双通道与行能力 | `packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts` |
-| 原查询与保存基线 | `packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts` |
+| 双通道与行能力 | 当前位于 `packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts`；目标归 SPARK Data owner 合同 |
+| 原查询与保存基线 | 当前位于 `packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts`；目标归 DataView owner 生命周期 |
 | 查询/保存 owner 与实际请求 | `data-space-runtime-api.ts`、`protocol/data-space-request.ts`（同 runtime 目录） |
 | DataView 查询、呈现与回执 | `packages/spark-data/src/data-view.ts` |
 | 模型装配 | `src/lowcode/data-space/lowcode-data-space-assembler.ts` |

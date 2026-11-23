@@ -42,7 +42,7 @@ flowchart BT
   utils["spark-utils"]
   json["spark-json-document"] --> utils
   data["spark-data"] --> utils
-  lowapi["spark-lowcode-api"] --> utils
+  contracts["backend-api-contracts<br/>wire / endpoint facts"]
   ai["spark-ai"] --> json
   ai --> utils
   pm["spark-project-model"] --> data
@@ -59,12 +59,13 @@ flowchart BT
   app --> utils
   host["根应用 src/"] --> app
   host --> comp
-  host --> lowapi
+  host --> data
+  host --> contracts
   host --> pm
   host --> ai
 ```
 
-- 依赖无环、无上行。`spark-lowcode-api` 与 `spark-project-model` 互不依赖，两者只在宿主 `src/lowcode/` 汇合。
+- 依赖无环、无上行。目标架构中 SPARK Data 是业务数据入口；平台／会话／特定服务 adapter 在宿主 `src/lowcode/`，wire/endpoint 事实在 `backend-api-contracts`。现有 `spark-lowcode-api` 仅作迁移兼容层，不能新增并行 query/save 门面。
 - `spark-component` 对 `spark-ai` 只有测试期依赖，运行时代码不引用它。
 - 开发与测试时，所有 `@spark-appworks/*` 通过 Vite/Vitest alias 直接指向 `packages/*/src`，不依赖各包 `dist/`。
 - `spark-ai` 只有三个公共入口：`.`、`./agent`、`./class-model`，不允许深路径引用。
@@ -73,11 +74,11 @@ flowchart BT
 |---|---|
 | `spark-utils` | 框架无关底座：`HttpClientBase`、`Logger`、Capability 原语，以及跨包共用的字面量 SSOT（蓝图节点 kind、权限展示三态、运行导航表面类型） |
 | `spark-json-document` | JSON 值与路径、JSON Schema（Draft 2020-12）、不可变树编辑；JSON Schema 类型的唯一来源 |
-| `spark-data` | 页面级数据引擎：`DataSet` → `DataTable` → `DataView`，关系与级联、树、聚合、计算列、权限快照、`SparkNodeTree` |
+| `spark-data` | 业务数据入口：`DataSet` → `DataTable` → `DataView`；DataTable 持资源/模型/api/crudConfig 与 owner adapter，DataView 持查询、权限与保存基线 |
 | `spark-project-model` | 项目蓝图、场景配置及页面调用生命周期；工具文件数据操作由 spark-data FileResource DataView/DataSet 承接，运行文件由 PageRuntimePool 按 publication proof 整组读取 |
 | `spark-component` | 组件注册表、能力上下文树、`SparkPageRenderer`、页面动作与绑定、权限判定 |
 | `spark-app` | 应用壳：启动、`DynamicRouter`、`RuntimeNavigation*` 合同、标签页、插件、主题 |
-| `spark-lowcode-api` | lowcode 前端 API 客户端与 wire 合同；`LowcodeApi` 聚合 blueprint / catalog / dataSpace / design / application / realtime / platform / permission / session |
+| `src/lowcode` | 平台、会话、目录及特定服务 adapter；将正式 scope/协议装配进 SPARK Data，不向页面另开业务数据 API |
 | `spark-ai` | 浏览器内 Agent 运行时、ClassModel 知识与工具、Agent Workflow 定义与激活 |
 
 ## 项目模型
@@ -143,7 +144,7 @@ flowchart BT
 运行查询 (dataSpace.runtime)      ─┘
 ```
 
-- 平台数据定义与运行装配：`spark-lowcode-api`读取设计与权限，宿主`LowcodeDataSpaceAssembler`装配`spark-data`的`DataSet`。前端过滤统一为`DataViewFilter`公开树；公开树与SPARK存储格式的转换由spark-data的`DataViewFilterCodec`负责，查询API与标准过滤编辑器复用，assembler不另设过滤mapper。
+- 平台数据定义与运行装配：宿主读取设计与权限，由 `LowcodeDataSpaceAssembler` 将正式服务 adapter 绑定到 DataTable；SPARK Data 的 DataSet/DataView 是唯一业务查询和保存入口。前端过滤统一为 `DataViewFilter`，转换由 `DataViewFilterCodec` 承接。
 - 权限事实由后端最终给出：原始返回行带 `lingma_sys_params` 与 `lingma_sys_key`，每次查询由私有 `DataSpaceQueryContext` 持有基线，公开业务行剥离这两个系统字段。前端经 DataView 消费读写通道及动作状态，不按角色名推导授权。细节见 [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)。
 - 写操作由原查询 owner 统一执行实际批量 CRUD 请求，回放私有凭据并核对后端回执；缺少有效 owner、执行域或正式字段身份时明确失败。
 
@@ -165,7 +166,7 @@ flowchart BT
 | 事实 | 唯一来源 | 门禁 |
 |---|---|---|
 | 蓝图节点 kind、权限展示三态、导航表面类型 | `spark-utils` | `verify:project-blueprint-ssot` |
-| `AjaxResult`、`SendCodeType/Scene`、`OrderType/WireFilterOperator/GroupFunType` | `backend-api-contracts/common.ts` 与 `spark-lowcode-api/src/contracts` 同形 | `verify:ajax-result-parity`、`verify:send-code-parity`、`verify:wire-query-parity` |
+| `AjaxResult`、`SendCodeType/Scene`、`OrderType/WireFilterOperator/GroupFunType` | `backend-api-contracts/common.ts` 作为 wire 真源；迁移期间与旧 lowcode 合同保持 parity | `verify:ajax-result-parity`、`verify:send-code-parity`、`verify:wire-query-parity` |
 | lowcode 端点与消费者台账 | `backend-api-contracts/*-ledger.json`，由 `tools/lowcode-contracts/generate-ledgers.mjs` 生成 | `verify:lowcode-contracts` |
 | JSON Schema 类型 | `spark-json-document` | 无专用脚本，靠包边界与评审 |
 | 前端 `DataViewFilterOperator` / `SortDirection` / `AggregateType` | `spark-data` | `verify:wire-query-parity`（禁止台账把前端过滤名当后端 wire 名） |

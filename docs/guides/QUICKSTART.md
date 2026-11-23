@@ -41,8 +41,9 @@ lowcode session
 ## 包级验证
 
 ```bash
-pnpm --filter @spark-appworks/spark-lowcode-api run typecheck
-pnpm --filter @spark-appworks/spark-lowcode-api run test:run
+pnpm --filter @spark-appworks/spark-data run typecheck
+pnpm --filter @spark-appworks/spark-data run test:run
+# spark-lowcode-api 正处于退役迁移；仅核对仍未迁出的指定域时才运行该包检查。
 pnpm --filter @spark-appworks/spark-project-model run typecheck
 pnpm --filter @spark-appworks/spark-project-model run test:run
 ```

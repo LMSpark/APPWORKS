@@ -2,6 +2,14 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-24 语义重复第五轮标准组件与 SPARK Data owner 收敛
+
+- **Dataset Plan 发布：**页面不再直读后端 Plan 文件；按发布节点创建一次性只读 FileResource DataView，成功、缺失、拒绝、stale 均在 finally 释放。并发节点共享同一 scenario 时各自持有 guard，旧 writer binding/临时 view 不串入下一发布。
+- **PDF 核验：**`PdfInspectionExecutionSession` 在命令 owner 内承接完整批次校验、上传/初始化/unknown save 与 journal cleanup；页面只保留 picker、clipboard、通知。冷恢复 guard 必须在 journal settle 前成立，过期响应不得清链接；取消失败的残批禁止提交。
+- **数据恢复：**`DataRecoverySession` 绑定原 `Base_TableData_Recovery` 及来源/父级 DataView，统一权限、confirm、exact captures、restore/undo、definite reject discard 与 unknown verify。明确拒绝清除 exact staged row，保留其他视图草稿；rule/script 仍由标准按钮/表格触发 host command。
+- **重复页面状态/死资源清理：**五个 workflow dialog 共享同一 request scope + DataSet/workflow/node guard；Page Design 删除未被任何标准组件绑定的 options DataView、事件监听和刷新队列，只保留命令输入 DataView。
+- **验证：**聚焦 265/265；根测试 774 文件 12,328 项、workspace 包测试 155 文件 2,454 项、typecheck、6 GB heap lint、`verify:rules`、ClassModel/consumer ledger 生成及生产 build 全部通过。包含双节点 Plan、read/rejection view cleanup、PDF 取消失败/重选/过期恢复、Data Recovery known/unknown submit、same-scope dialog stale 与 PageTool creation regression。
+
 ### 2026-11-24 语义重复第四轮窄控制流收敛
 
 - **PageTool 文件操作：**create、compensate、delete 共用 settle original attempt 与 refresh，但 helper 只返回 view；每个命令在当前 continuation 重新定位 exact page/file row，杜绝旧 row proof 跨 handoff 删除后到行。

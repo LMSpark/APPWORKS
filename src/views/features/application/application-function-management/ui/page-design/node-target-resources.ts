@@ -1,32 +1,20 @@
 /**
  * @module app:views/features/application/application-function-management/ui/page-design/node-target-resources
- * 职责：在当前 蓝图 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。
- * 边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。
+ * 职责：在当前蓝图运行 DataSet 中装配新工具命令输入视图。
+ * 边界：导航候选直接绑定原蓝图 DataView；命令输入不属于正式蓝图保存目标。
  */
 import {
   buildDataViewKey,
-  dataSetCommandQueryResultFromLocalRows,
   ensureDataSetStaticInputTable,
   type DataSet,
-  type DataRow,
   type DataView,
 } from '@spark-appworks/spark-data'
-import {getVuePageOptions} from '@/registries/vue-page-registry'
-import {
-  resolvePageNodePageId,
-  type PageRuntime,
-  type ProjectBlueprintTreeNodeData,
-} from '@spark-appworks/spark-project-model'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {computed, onScopeDispose, ref, shallowRef, watch} from 'vue'
 import type {DevState} from '../blueprint-state/useDevState'
 
-export type NodeTargetOptionRow = Readonly<DataRow & {
-  value: string
-  label: string
-}>
-
-export type NodeTargetTreeOwner = Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'treeProjection' | 'canRead' | 'value'>
+export type NodeTargetTreeOwner = Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'canRead' | 'value'>
 
 export type NodeTargetResourceScope = Readonly<{
   dataSet: DataSet
@@ -38,11 +26,8 @@ export type NodeTargetResourceScope = Readonly<{
 
 export type NodeTargetResources = Readonly<{
   scope: NodeTargetResourceScope
-  optionsView: DataView
-  optionsViewKey: string
   commandInputView?: DataView
   commandInputViewKey?: string
-  refreshOptions: () => Promise<void>
   dispose: () => void
 }>
 
@@ -51,26 +36,6 @@ type CreateNodeTargetResourcesInput = Readonly<{
   createTool: boolean
   assertCurrent: () => void
 }>
-
-function readTargetOptions(owner: NodeTargetTreeOwner): NodeTargetOptionRow[] {
-  if (!owner.hasTreeProjection) throw new Error('DEV_SYSTEM_TARGET_TREE_UNLOADED: 蓝图 DataView 树尚未加载')
-  const tree = owner.treeProjection()
-  const options = new Map<string, NodeTargetOptionRow>()
-  for (const page of getVuePageOptions()) {
-    const value = page.path
-    options.set(value, {value, label: `页面 · ${page.title}`})
-  }
-  const visit = (node: ProjectBlueprintTreeNodeData): void => {
-    const pageId = resolvePageNodePageId(node)
-    if (pageId) {
-      const value = `cfg:${pageId}`
-        if (!options.has(value)) options.set(value, {value, label: `工具 · ${node.navigation?.title ?? node.capability.name}`})
-    }
-    node.children?.forEach(visit)
-  }
-  visit(tree)
-  return [...options.values()]
-}
 
 function uniqueTableName(dataSet: DataSet, prefix: string): string {
   for (let attempt = 0; attempt < 4; attempt++) {
@@ -81,8 +46,8 @@ function uniqueTableName(dataSet: DataSet, prefix: string): string {
 }
 
 /**
- * Create scoped DataViews for the target selector and optional create-tool input.
- * The target table is a local derived resource, not a catalog or a copy of file storage.
+ * Create the scoped create-tool input view. Navigation targets bind directly to the
+ * standard Blueprint DataView; no unused options projection is created.
  */
 export function createNodeTargetResources(input: CreateNodeTargetResourcesInput): NodeTargetResources {
   const {dataSet, runtime} = input.scope
@@ -95,18 +60,7 @@ export function createNodeTargetResources(input: CreateNodeTargetResourcesInput)
   }
 
   let disposed = false
-  let lastOptionsSignature: string | undefined
-  let pendingRefresh: {signature: string; promise: Promise<void>} | undefined
-  const clearPendingRefresh = (promise: Promise<void>) => {
-    if (pendingRefresh?.promise === promise) pendingRefresh = undefined
-  }
-  const assertCurrent = () => {
-    input.assertCurrent()
-    if (disposed || dataSet.destroyed || runtime.destroyed || !runtime.isLoaded
-      || runtime.getDataSet(scenarioId) !== dataSet) {
-      throw new Error('DEV_SYSTEM_TARGET_RESOURCE_STALE: 导航目标资源已切换')
-    }
-  }
+  input.assertCurrent()
   const created: Array<{tableName: string; table: NonNullable<ReturnType<DataSet['getTable']>>; view: DataView}> = []
   const addStaticView = (tableName: string, columns: Array<{name: string; primary?: boolean}>): DataView => {
     ensureDataSetStaticInputTable(dataSet, tableName, columns)
@@ -117,26 +71,8 @@ export function createNodeTargetResources(input: CreateNodeTargetResourcesInput)
     return view
   }
 
-  const optionsTableName = uniqueTableName(dataSet, 'BlueprintNodeTargetOptions')
-  let optionsView: DataView | undefined
   let commandInputView: DataView | undefined
   try {
-    optionsView = addStaticView(optionsTableName, [
-      {name: 'value', primary: true},
-      {name: 'label'},
-    ])
-    const optionsTable = dataSet.getTable(optionsTableName)
-    if (!optionsTable) throw new Error('DEV_SYSTEM_TARGET_OPTIONS_TABLE: 候选表不存在')
-    const optionsResourceId = `blueprint-node-target-options:${input.scope.projectId}:${input.scope.nodeId}:${crypto.randomUUID()}`
-    optionsTable.resourceId = optionsResourceId
-    optionsView.bindQueryExecutor({
-      localAggregates: false,
-      executeQuery: async view => {
-        assertCurrent()
-        return dataSetCommandQueryResultFromLocalRows(view, readTargetOptions(input.scope.owner), assertCurrent)
-      },
-    }, {resource: {resourceType: 'static-data', resourceId: optionsResourceId}})
-
     if (input.createTool) {
       const inputTableName = uniqueTableName(dataSet, 'BlueprintCreateToolInput')
       commandInputView = addStaticView(inputTableName, [
@@ -151,8 +87,6 @@ export function createNodeTargetResources(input: CreateNodeTargetResourcesInput)
       commandInputView.setCurrentRowById(row.inputId)
     }
 
-    const optionsViewKey = buildDataViewKey(optionsView.tableName, optionsView.viewId, scenarioId)
-    if (runtime.resolveView(optionsViewKey) !== optionsView) throw new Error('DEV_SYSTEM_TARGET_OPTIONS_RUNTIME: 候选视图未注册到当前运行时')
     const commandInputViewKey = commandInputView
       ? buildDataViewKey(commandInputView.tableName, commandInputView.viewId, scenarioId)
       : undefined
@@ -161,27 +95,7 @@ export function createNodeTargetResources(input: CreateNodeTargetResourcesInput)
     }
     const resource: NodeTargetResources = {
       scope: input.scope,
-      optionsView,
-      optionsViewKey,
       ...(commandInputView && commandInputViewKey ? {commandInputView, commandInputViewKey} : {}),
-      refreshOptions: async () => {
-        assertCurrent()
-        const signature = JSON.stringify(readTargetOptions(input.scope.owner))
-        if (signature === lastOptionsSignature) return
-        if (pendingRefresh) {
-          await pendingRefresh.promise
-          assertCurrent()
-          if (signature === lastOptionsSignature) return
-        }
-        const promise = (async () => {
-          await optionsView?.refresh()
-          assertCurrent()
-          if (optionsView?.loadingError) throw optionsView.loadingError
-          lastOptionsSignature = signature
-        })()
-        pendingRefresh = {signature, promise}
-        try {await promise} finally {clearPendingRefresh(promise)}
-      },
       dispose: () => {
         if (disposed) return
         disposed = true
@@ -221,8 +135,6 @@ export function useNodeTargetResources(state: DevState) {
     return typeof value === 'string' ? value : ''
   })
   let generation = 0
-  let refreshQueued = false
-  let removeSourceListeners = () => {}
 
   const isCurrent = (target: NodeTargetResources): boolean => {
     const {scope} = target
@@ -242,8 +154,6 @@ export function useNodeTargetResources(state: DevState) {
 
   const release = () => {
     generation++
-    removeSourceListeners()
-    removeSourceListeners = () => {}
     const target = resources.value
     resources.value = undefined
     target?.dispose()
@@ -259,7 +169,7 @@ export function useNodeTargetResources(state: DevState) {
     () => Boolean(state.selectedNode.value?.navigation),
   ], ([owner, runtime, projectId, nodeId, kind, hasNavigation]) => {
     release()
-    if (!hasNavigation || !owner || !runtime?.isLoaded || runtime.destroyed || !nodeId || !kind
+    if (!hasNavigation || !owner || !runtime?.isLoaded || runtime.destroyed || !nodeId || (kind !== 'page' && kind !== 'content')
       || owner.projectId !== projectId || owner.nodeId !== nodeId || !owner.hasTreeProjection
       || typeof owner.dataSet.scenarioId !== 'string' || runtime.getDataSet(owner.dataSet.scenarioId) !== owner.dataSet) return
     const ownerScenarioId = owner.dataSet.scenarioId
@@ -278,48 +188,19 @@ export function useNodeTargetResources(state: DevState) {
     try {
       created = createNodeTargetResources({
         scope: {dataSet: owner.dataSet, runtime, owner, projectId, nodeId},
-        createTool: kind === 'page' || kind === 'content',
+        createTool:true,
         assertCurrent,
       })
       resources.value = created
-      const sourceEvents = ['rowsChanged', 'editingChanged', 'editingDiscarded', 'mutatingChanged'] as const
-      for (const event of sourceEvents) owner.view.events.on(event, refreshOptions)
-      removeSourceListeners = () => {for (const event of sourceEvents) owner.view.events.off(event, refreshOptions)}
-      void created.refreshOptions().catch(error => {
-        if (created && isCurrent(created)) state.addStatus(`导航目标候选加载失败: ${String(error)}`, 'error')
-      })
     } catch (error) {
       state.addStatus(`导航目标资源装配失败: ${String(error)}`, 'error')
     }
   }, {immediate: true, flush: 'sync'})
 
-  function refreshOptions(): void {
-    if (refreshQueued) return
-    refreshQueued = true
-    void Promise.resolve().then(() => {
-      refreshQueued = false
-      const target = resources.value
-      if (!target || !isCurrent(target)) return
-      void target.refreshOptions().catch(error => {
-        if (resources.value === target) state.addStatus(`导航目标候选刷新失败: ${String(error)}`, 'error')
-      })
-    })
-  }
-  watch([
-    () => state.projectRevision.value,
-    () => state.externalDataViewRevision.value,
-  ], refreshOptions, {flush: 'post'})
-
   onScopeDispose(release)
 
   function notifyInputChanged(target: NodeTargetResources): void {
     if (isCurrent(target)) inputRevision.value++
-  }
-  function changeTarget(target: NodeTargetResources, value: unknown): void {
-    if (isCurrent(target)) state.handlePathChange(typeof value === 'string' ? value : '')
-  }
-  function changeNavigation(target: NodeTargetResources): void {
-    if (isCurrent(target)) state.markBlueprintDirty()
   }
   async function createTool(target: NodeTargetResources): Promise<boolean> {
     if (!isCurrent(target)) return false
@@ -342,8 +223,6 @@ export function useNodeTargetResources(state: DevState) {
     inputValue,
     isCurrent,
     notifyInputChanged,
-    changeTarget,
-    changeNavigation,
     createTool,
   }
 }

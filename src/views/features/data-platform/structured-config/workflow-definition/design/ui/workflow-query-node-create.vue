@@ -52,7 +52,7 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,RendererTable,FieldSelect,FieldText} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {captureWorkflowDialogScope} from './workflow-dialog-scope'
 import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 import {LowcodeDataSpaceSourceCatalog} from '@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
@@ -81,11 +81,10 @@ async function act(action:()=>Promise<void>):Promise<void>{
 async function open():Promise<void>{
  if(props.disabled||!props.eligible||!unbound.value||visible.value)return
  await act(async()=>{
-  const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope()
-  const assertCurrent=()=>{
-   const current=lowcodeApi.readRequestScope()
-   if(!active||props.dataSet!==ds||props.workflowId!==workflowId||props.nodeId!==nodeId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('原节点绑定身份已失效')
-  }
+  const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId
+  const assertCurrent=captureWorkflowDialogScope({dataSet:ds,workflowId,nodeId,
+   getDataSet:()=>props.dataSet,getWorkflowId:()=>props.workflowId,getNodeId:()=>props.nodeId,
+   isActive:()=>active,message:'原节点绑定身份已失效'})
   owner.value=await openWorkflowNodeModelBinding({dataSet:ds,workflowId,nodeId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
   controls.value=new DataSpaceSourceControls(ds,event=>{
    if(event.kind==='name'&&typeof event.value==='string'){

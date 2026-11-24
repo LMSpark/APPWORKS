@@ -46,7 +46,7 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet,DataView} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,FieldText} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {captureWorkflowDialogScope} from './workflow-dialog-scope'
 import {LowcodeDataSpaceModelSourceReader} from '@/platform-adapters/data-space/model-source/lowcode-data-space-model-source-reader'
 import {openWorkflowQuerySourceEdit,type WorkflowModelSourceEdit} from '@/platform-adapters/resources/structured-config/workflow-definition/source/query-source-edit'
 import DataSpaceModelSource from '@/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue'
@@ -69,8 +69,10 @@ async function act(action:()=>Promise<void>):Promise<void>{if(busy.value)return;
 async function open():Promise<void>{
  if(props.disabled||!props.eligible||visible.value)return
  await act(async()=>{
-  const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope()
-  const assertCurrent=()=>{const current=lowcodeApi.readRequestScope();if(!active||props.dataSet!==ds||props.workflowId!==workflowId||props.nodeId!==nodeId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('工作流来源编辑身份已失效')}
+  const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId
+  const assertCurrent=captureWorkflowDialogScope({dataSet:ds,workflowId,nodeId,
+   getDataSet:()=>props.dataSet,getWorkflowId:()=>props.workflowId,getNodeId:()=>props.nodeId,
+   isActive:()=>active,message:'工作流来源编辑身份已失效'})
   owner.value=await openWorkflowQuerySourceEdit({dataSet:ds,workflowId,nodeId,operation:props.operation===true,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
   try{registration=new DataSpaceSourceControls(ds,()=>{tick.value++});names.value=registration.registration;names.value.replaceRows([{id:'registration',name:''}]);names.value.setCurrentRowById('registration');visible.value=true}
   catch(cause){owner.value.cancel();owner.value=undefined;registration?.dispose();registration=undefined;throw cause}

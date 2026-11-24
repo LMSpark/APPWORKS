@@ -31,7 +31,7 @@ import type {DataSet} from '@spark-appworks/spark-data'
 import type {JsonPath} from '@spark-appworks/spark-json-document'
 import {RendererButton,RendererDialog,RendererTable,FieldText} from '@spark-appworks/spark-component'
 import {WorkflowMergeSourceOptions} from '@/platform-adapters/resources/structured-config/workflow-definition/fields/merge-inputs'
-import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {captureWorkflowDialogScope} from './workflow-dialog-scope'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;parentPath:JsonPath|null;eligible:boolean;disabled:boolean}>()
 const emit=defineEmits<{pendingChange:[value:boolean];changed:[path:JsonPath|null]}>()
 const options=shallowRef<WorkflowMergeSourceOptions>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0),sessionRevision=ref(0),mode=ref<'add'|'remove'>('add')
@@ -49,13 +49,12 @@ function open(action:'add'|'remove'):void{
  if(props.disabled||!props.eligible||busy.value||visible.value||action==='remove'&&props.parentPath===null)return
  error.value='';mode.value=action;sessionRevision.value++
  try{
-  const dataSet=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope(),path=JSON.stringify(props.parentPath)
+  const dataSet=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,path=JSON.stringify(props.parentPath)
   capturedPath=props.parentPath===null?null:[...props.parentPath]
-  assertCurrent=()=>{
-   const current=lowcodeApi.readRequestScope()
-   if(!active||!visible.value||props.dataSet!==dataSet||props.workflowId!==workflowId||props.nodeId!==nodeId||!props.eligible||JSON.stringify(props.parentPath)!==path
-    ||scope.token!==current.token||scope.headers['X-AppId']!==current.headers['X-AppId'])throw Error('合并来源会话身份已变化')
-  }
+  assertCurrent=captureWorkflowDialogScope({dataSet,workflowId,nodeId,
+   getDataSet:()=>props.dataSet,getWorkflowId:()=>props.workflowId,getNodeId:()=>props.nodeId,
+   isActive:()=>active,isOpen:()=>visible.value,isEligible:()=>props.eligible,
+   assertExtra:()=>{if(JSON.stringify(props.parentPath)!==path)throw Error('合并来源会话身份已变化')},message:'合并来源会话身份已变化'})
   options.value=new WorkflowMergeSourceOptions({dataSet,workflowId,nodeId});const state=options.value.refresh();if(state.error)throw Error(state.error)
   visible.value=true
  }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);close()}

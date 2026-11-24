@@ -34,7 +34,7 @@ import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,RendererTable,FieldText} from '@spark-appworks/spark-component'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
 import {stageWorkflowCopyTarget} from '@/platform-adapters/resources/structured-config/workflow-definition/source/copy-target'
-import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {captureWorkflowDialogScope} from './workflow-dialog-scope'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;disabled:boolean}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const controls=shallowRef<DataSpaceSourceControls>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)
@@ -48,11 +48,10 @@ function open():void{
  if(props.disabled||!props.eligible||busy.value||visible.value)return
  error.value=''
  try{
-  const dataSet=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope()
-  assertCurrent=()=>{
-   const current=lowcodeApi.readRequestScope()
-   if(!active||!visible.value||props.dataSet!==dataSet||props.workflowId!==workflowId||props.nodeId!==nodeId||!props.eligible||scope.token!==current.token||scope.headers['X-AppId']!==current.headers['X-AppId'])throw Error('迁移目标选择身份已变化')
-  }
+  const dataSet=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId
+  assertCurrent=captureWorkflowDialogScope({dataSet,workflowId,nodeId,
+   getDataSet:()=>props.dataSet,getWorkflowId:()=>props.workflowId,getNodeId:()=>props.nodeId,
+   isActive:()=>active,isOpen:()=>visible.value,isEligible:()=>props.eligible,message:'迁移目标选择身份已变化'})
   controls.value=new DataSpaceSourceControls(dataSet,changed);visible.value=true;controls.value.setOpen(true)
  }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);close()}
 }

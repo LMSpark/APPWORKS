@@ -11,16 +11,16 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, reactive, ref, shallowReactive, shallowRef, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/platform-adapters/resources/semi-structured/pdf-inspect/resource'
 import {PDF_INSPECTION_HISTORY_TABLE} from '@/platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings'
 import {readPdfExecutionRule} from '@/platform-adapters/resources/semi-structured/pdf-inspect/execution-rule'
-import {cancelPdfInspectionFile, PDF_INSPECTION_UPLOAD_TABLE, stagePdfInspectionFile} from '@/platform-adapters/resources/semi-structured/pdf-inspect/upload-command'
-import {PDF_INSPECTION_INIT_TABLE, pendingPdfInspectionRequests, settleRecoveredPdfInspection, settlePdfInspectionTask, stagePdfInspectionTask} from '@/platform-adapters/resources/semi-structured/pdf-inspect/init-command'
+import {PDF_INSPECTION_UPLOAD_TABLE} from '@/platform-adapters/resources/semi-structured/pdf-inspect/upload-command'
+import {PDF_INSPECTION_INIT_TABLE, PDF_INSPECTION_RECOVERY_TABLE, PdfInspectionExecutionSession, PdfInspectionRecoveryProofError, pendingPdfInspectionRequests, recoverPdfInspectionTask} from '@/platform-adapters/resources/semi-structured/pdf-inspect/init-command'
 import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, parseApplicationPathScope, resolveExecutionProjectId} from '@/services/application-scope'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -84,7 +84,7 @@ const historyKey = computed(() => buildDataViewKey(PDF_INSPECTION_HISTORY_TABLE,
 const limitsKey = computed(() => buildDataViewKey('PdfInspectionLimits', 'default', scenarioId.value))
 const uploadKey = computed(() => buildDataViewKey(PDF_INSPECTION_UPLOAD_TABLE, 'default', scenarioId.value))
 const resultKey = computed(() => buildDataViewKey('PdfInspectionResult', 'default', scenarioId.value))
-const recoveryKey = computed(() => buildDataViewKey('PdfInspectionRecovery', 'default', scenarioId.value))
+const recoveryKey = computed(() => buildDataViewKey(PDF_INSPECTION_RECOVERY_TABLE, 'default', scenarioId.value))
 const pendingRequests = ref<string[]>([])
 const recoveryRequest = computed(() => route.query['pdfInspectionRequestId'])
 const historyAvailable = ref(false), historyOpen = ref(false), historyLoading = ref(false), historyError = ref('')
@@ -93,20 +93,10 @@ const recovering = ref(false)
 let resultGeneration = 0
 const executionAvailable = ref(false), preparationOpen = ref(false), preparing = ref(false)
 const preparationReady = ref(false), preparationError = ref('')
-type InspectionExecution = {
-  ruleId: string
-  dataSet: DataSet
-  assertReady: () => void
-  limits: Readonly<{maxFiles: number; maxFileBytes: number; maxTotalFileBytes: number}>
-  uploadIds: string[]
-  requestId?: string
-  dispatched: boolean
-  accepted: boolean
-  submitLabel: string
-}
-const execution = shallowRef<InspectionExecution>(), executionBusy = ref(false), executionMessage = ref('')
+const execution = shallowRef<PdfInspectionExecutionSession>(), executionBusy = ref(false), executionMessage = ref(''),executionRevision=ref(0)
 function pendingExecution(): boolean {
-  return executionBusy.value || (execution.value?.uploadIds.length ?? 0) > 0
+  void executionRevision.value
+  return executionBusy.value || execution.value?.pending === true
 }
 async function selectInspectionFiles(): Promise<void> {
   const run = execution.value
@@ -116,14 +106,12 @@ async function selectInspectionFiles(): Promise<void> {
     const selectedFiles = await pageService.browseFiles({title: '选择待核验 PDF 或 ZIP', accept: '.pdf,.zip', multiple: true})
     run.assertReady()
     if (!selectedFiles.length) return
-    const files = selectedFiles.map(item => item.file), {maxFiles, maxFileBytes, maxTotalFileBytes} = run.limits
-    if (files.length > maxFiles || files.some(file => !/\.(pdf|zip)$/iu.test(file.name) || file.size < 1 || file.size > maxFileBytes) ||
-      files.reduce((total, file) => total + file.size, 0) > maxTotalFileBytes) throw Error('所选文件不符合当前服务限制')
-    for (const file of files) run.uploadIds.push(await stagePdfInspectionFile(run.dataSet, file, run.assertReady))
+    const files=selectedFiles.map(item=>item.file)
+    await run.stageAll(files)
   } catch (cause) {
     if (execution.value === run) {
       preparationError.value = cause instanceof Error ? cause.message : String(cause)
-      try {discardInspectionFiles(run)}
+      try {run.cancel()}
       catch {preparationError.value = '文件未完整暂存，请取消所选文件后再试'}
     }
   } finally {if (execution.value === run) executionBusy.value = false}
@@ -131,16 +119,8 @@ async function selectInspectionFiles(): Promise<void> {
 function cancelInspectionFiles(): void {
   const run = execution.value
   if (!run || run.dispatched || executionBusy.value) return
-  try {discardInspectionFiles(run); preparationError.value = ''}
+  try {run.cancel(); preparationError.value = ''}
   catch (cause) {preparationError.value = cause instanceof Error ? cause.message : String(cause)}
-}
-function discardInspectionFiles(run: InspectionExecution): void {
-  while (run.uploadIds.length) {
-    const id = run.uploadIds[run.uploadIds.length - 1]
-    if (id === undefined) break
-    cancelPdfInspectionFile(run.dataSet, id)
-    run.uploadIds.pop()
-  }
 }
 function resolveInspectionRecoveryUrl(requestId: string): string {
   return router.resolve({path: route.path, query: {
@@ -158,32 +138,12 @@ async function submitInspection(): Promise<void> {
   if (!run || executionBusy.value || !run.uploadIds.length) return
   executionBusy.value = true; preparationError.value = ''
   try {
-    const upload = run.dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)
-    if (!upload) throw Error('原上传命令未绑定')
-    run.dispatched = true
-    const uploadIds = run.uploadIds.filter(id => upload.dirtyTracking.isPendingCreate(id))
-    if (uploadIds.length) {
-      const saved = await run.dataSet.saveChanges({views: [{tableName: PDF_INSPECTION_UPLOAD_TABLE, viewId: 'default', ids: uploadIds}]})
-      if (!saved.success) throw Error(saved.message ?? '原文件上传尚未核定')
-    }
-    run.requestId ??= await stagePdfInspectionTask(run.dataSet, {configId: run.ruleId, uploadIds: run.uploadIds,
-      assertRule: run.assertReady, resolveRecoveryUrl: resolveInspectionRecoveryUrl})
-    if (!run.accepted) {
-      const saved = await run.dataSet.saveChanges({views: [{tableName: PDF_INSPECTION_INIT_TABLE, viewId: 'default', ids: [run.requestId]}]})
-      if (!saved.success) throw Error(saved.message ?? '原请求尚未核定')
-      run.accepted = true
-    }
-    settlePdfInspectionTask(run.dataSet, run.requestId)
-    executionMessage.value = `任务已接纳，原请求编号 ${run.requestId}`
+    const requestId=await run.submit()
+    executionMessage.value = `任务已接纳，原请求编号 ${requestId}`
     executionBusy.value = false
     execution.value = undefined
   } catch (cause) {
     if (execution.value === run) {
-      const upload = run.dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)
-      if (!run.requestId && upload && !upload.hasUnconfirmedSave && run.uploadIds.every(id => upload.dirtyTracking.isPendingCreate(id))) {
-        run.dispatched = false
-      }
-      run.submitLabel = run.accepted ? '重试清理恢复定位' : run.dispatched ? '继续核验原操作' : '开始核验'
       preparationError.value = cause instanceof Error ? cause.message : String(cause)
     }
   } finally {if (execution.value === run) executionBusy.value = false}
@@ -215,9 +175,10 @@ async function prepareInspection(): Promise<void> {
       await upload.refresh(); await init.refresh()
       assertRule(); assertLimits()
       if (upload.loadingError || init.loadingError) throw Error('核验命令尚未就绪')
-      execution.value = shallowReactive({ruleId, dataSet, limits: {maxFiles, maxFileBytes, maxTotalFileBytes},
-        assertReady: () => {assertRule(); assertLimits()}, uploadIds: reactive<string[]>([]),
-        dispatched: false, accepted: false, submitLabel: '开始核验'})
+      execution.value=new PdfInspectionExecutionSession({
+        dataSet,limits:{maxFiles,maxFileBytes,maxTotalFileBytes},configId:ruleId,
+        assertReady:()=>{assertRule();assertLimits()},resolveRecoveryUrl:resolveInspectionRecoveryUrl,
+        onChange:()=>{executionRevision.value++}})
     }
     preparationReady.value = true
   } catch (cause) {
@@ -263,37 +224,28 @@ async function readHistoryResult(row: DataRow): Promise<void> {
 async function recoverOriginal(): Promise<void> {
   const own = ++resultGeneration, requestId = recoveryRequest.value
   recovering.value = true; resultOpen.value = true; resultReady.value = false; resultLoading.value = false; resultError.value = ''
-  if (typeof requestId !== 'string' || !/^[-A-Za-z0-9_]{1,128}$/u.test(requestId)) {
-    resultError.value = '恢复链接缺少唯一有效的原请求编号'
-    return
-  }
-  const recovery = session.runtime?.resolveView(recoveryKey.value)
-  if (!recovery) {
-    resultError.value = '当前场景缺少原请求恢复视图'
+  const dataSet = session.runtime?.getDataSet(scenarioId.value)
+  if (!dataSet) {
+    resultError.value = '原请求结果尚未核定，可重新核验同一请求'
     return
   }
   resultLoading.value = true
   try {
-    recovery.queryContext = {requestId}
-    await recovery.refresh()
+    const recovered=await recoverPdfInspectionTask({dataSet,requestId,resolveUrl:resolveInspectionRecoveryUrl,
+      assertCurrent:()=>{if(!active||own!==resultGeneration||recoveryRequest.value!==requestId)throw new Error('PDF 恢复目标已变化')}})
     if (!active || own !== resultGeneration) return
-    const original = recovery.rows[0], jobId = original?.['inspectJobId']
-    if (recovery.loadingError || recovery.rows.length !== 1 || original?.['requestId'] !== requestId || typeof jobId !== 'string') {
-      throw Error('原请求结果尚未核定，可重新核验同一请求')
-    }
-    recovery.captureReadRow(original, ['requestId', 'inspectJobId'])()
-    recovery.setCurrentRowById(jobId)
     resultReady.value = true
-    if (pendingRequests.value.includes(requestId)) {
-      try {
-        settleRecoveredPdfInspection(recovery, requestId, resolveInspectionRecoveryUrl)
-        pendingRequests.value = pendingRequests.value.filter(id => id !== requestId)
-      } catch {
-        resultError.value = '已读取原任务，恢复定位尚未清理，可重新核验原请求。'
-      }
+    if (recovered.journal.state === 'failed') {
+      resultError.value = '已读取原任务，恢复定位尚未清理，可重新核验原请求。'
+    } else {
+      pendingRequests.value = pendingRequests.value.filter(id => id !== recovered.requestId)
     }
-  } catch {
-    if (active && own === resultGeneration) resultError.value = '原请求结果尚未核定，可重新核验同一请求'
+  } catch (cause) {
+    if (active && own === resultGeneration) {
+      resultError.value = cause instanceof PdfInspectionRecoveryProofError && cause.reason === 'invalid-request'
+        ? '恢复链接缺少唯一有效的原请求编号'
+        : '原请求结果尚未核定，可重新核验同一请求'
+    }
   } finally {
     if (active && own === resultGeneration) resultLoading.value = false
   }
@@ -336,10 +288,10 @@ function makeCatalogHost(runtime:PageRuntime){
       actions:()=>({catalogScope:catalogScope.value,loading:loading.value,adding:adding.value||creationId.value!==undefined,selected:!!selected.value,
         executionAvailable:executionAvailable.value,preparing:preparing.value,pending:pendingExecution(),
         historyAvailable:historyAvailable.value,historyLoading:historyLoading.value,resultLoading:resultLoading.value,requests:pendingRequests.value}),
-      preparation:()=>({open:preparationOpen.value,loading:preparing.value,ready:preparationReady.value,
+      preparation:()=>{void executionRevision.value;return {open:preparationOpen.value,loading:preparing.value,ready:preparationReady.value,
         error:preparationError.value,message:executionMessage.value,limitsKey:limitsKey.value,uploadKey:uploadKey.value,
         running:!!execution.value,busy:executionBusy.value,hasFiles:!!execution.value?.uploadIds.length,
-        dispatched:execution.value?.dispatched===true,hasRequest:!!execution.value?.requestId,submitLabel:execution.value?.submitLabel}),
+       dispatched:execution.value?.dispatched===true,hasRequest:!!execution.value?.requestId,submitLabel:execution.value?.submitLabel}},
       history:()=>({open:ready.value&&historyOpen.value,error:historyError.value,key:historyKey.value}),
       result:()=>({open:resultOpen.value,recovering:recovering.value,loading:resultLoading.value,ready:resultReady.value,
         error:resultError.value,key:recovering.value?recoveryKey.value:resultKey.value}),

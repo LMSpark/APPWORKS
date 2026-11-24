@@ -28,6 +28,11 @@ export type PublishRuntimeDataSetPlanInput = Readonly<{
   scenarioConfig: Readonly<Record<string, unknown>>
   assertCurrent: () => void
 }>
+type RuntimeDataSetPlanFileInput=Readonly<{
+  scenarioId:string
+  dataSet:DataSet
+  assertCurrent:()=>void
+}>
 
 function rows(view: DataView | undefined, label: string): ReadonlyArray<Readonly<Record<string, unknown>>> {
   if (view?.requestState !== RequestState.Loaded || view.rows.length !== view.total) {
@@ -36,7 +41,7 @@ function rows(view: DataView | undefined, label: string): ReadonlyArray<Readonly
   return view.rows
 }
 
-function transport(input: PublishRuntimeDataSetPlanInput): FileResourceTransport {
+function transport(input: RuntimeDataSetPlanFileInput): FileResourceTransport {
   const fileName = `${input.scenarioId}.dataset.json`
   const locator = {appType: 'designfile', customPath: CUSTOM_PATH, fileName} as const
   return {
@@ -103,31 +108,56 @@ function planText(input: PublishRuntimeDataSetPlanInput): string {
   return text
 }
 
+function getPlanFileView(input:RuntimeDataSetPlanFileInput,options:Readonly<{readOnly?:boolean;viewId?:string}>={}):DataView{
+  const dataSet=ensurePlanFileTable(input.dataSet),fileName=`${input.scenarioId}.dataset.json`
+  return getOrCreateFileResourceView({
+    dataSet,
+    tableName:RUNTIME_DATA_SET_PLAN_FILE_TABLE,
+    viewId:options.viewId??`dataset-${input.scenarioId}`,
+    resourceId:RESOURCE_ID,
+    contentField:'text',
+    columns:dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.columns??[],
+    queryContext:{scenarioId:input.scenarioId,fileName},
+    target:current=>{
+      const scenarioId=current.queryContext['scenarioId'],currentFileName=current.queryContext['fileName']
+      if(scenarioId!==input.scenarioId||currentFileName!==fileName)throw new Error('RUNTIME_DATA_SET_PLAN_SCOPE: Plan 文件目标已变化')
+      return {key:JSON.stringify([scenarioId,fileName]),fields:{scenarioId,fileName}}
+    },
+    transport:transport(input),
+    ...(options.readOnly?{canWrite:()=>false,canCreate:()=>false,canDelete:()=>false}:{}),
+    assertCurrent:input.assertCurrent,
+  })
+}
+
+/** 只通过同一 FileResource DataView 读取独立 Plan；缺失由视图 null 状态表示，不自行拼请求。 */
+export async function readRuntimeDataSetPlan(input:RuntimeDataSetPlanFileInput):Promise<string|null>{
+  input.assertCurrent()
+  const view=getPlanFileView(input,{readOnly:true,viewId:`dataset-read-${input.scenarioId}-${crypto.randomUUID()}`})
+  try{
+    if(view.hasUnconfirmedSave)throw new Error('RUNTIME_DATA_SET_PLAN_READ: 原 Plan 提交仍待核验')
+    const result=await view.requestRefresh()
+    input.assertCurrent()
+    if(!result.success)throw result.error??new Error(result.message??'Runtime Dataset Plan 读取失败')
+    const row=view.currentRow
+    if(!row)return null
+    if(row['scenarioId']!==input.scenarioId||row['fileName']!==`${input.scenarioId}.dataset.json`||typeof row['text']!=='string'){
+      throw new Error('RUNTIME_DATA_SET_PLAN_READ: Plan 文件 DataView 行身份或正文无效')
+    }
+    view.captureReadRow(row,['scenarioId','fileName','text'])()
+    return row['text']
+  }finally{
+    const table=view.dataTable
+    if(!view.destroyed&&table?.getView(view.viewId)===view)table.destroyView(view.viewId)
+  }
+}
+
 /** 由一份 FileResource DataView 承接 Plan 替换；保存器内置写后精确文本回读。 */
 export async function publishRuntimeDataSetPlan(input: PublishRuntimeDataSetPlanInput): Promise<void> {
   input.assertCurrent()
   let text = planText(input)
-  const dataSet = ensurePlanFileTable(input.metadataDataSet)
+  const dataSet=input.metadataDataSet
   try {
-    const fileName = `${input.scenarioId}.dataset.json`
-    const view = getOrCreateFileResourceView({
-      dataSet,
-      tableName: RUNTIME_DATA_SET_PLAN_FILE_TABLE,
-      viewId: `dataset-${input.scenarioId}`,
-      resourceId: RESOURCE_ID,
-      contentField: 'text',
-      columns: dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.columns ?? [],
-      queryContext: {scenarioId: input.scenarioId, fileName},
-      target: current => {
-        const scenarioId = current.queryContext['scenarioId'], currentFileName = current.queryContext['fileName']
-        if (scenarioId !== input.scenarioId || currentFileName !== fileName) {
-          throw new Error('RUNTIME_DATA_SET_PLAN_SCOPE: Plan 文件目标已变化')
-        }
-        return {key: JSON.stringify([scenarioId, fileName]), fields: {scenarioId, fileName}}
-      },
-      transport: transport(input),
-      assertCurrent: input.assertCurrent,
-    })
+    const view=getPlanFileView({scenarioId:input.scenarioId,dataSet,assertCurrent:input.assertCurrent})
     if (view.hasUnconfirmedSave) {
       const verified = await view.verifySourceWriteAttempt()
       if (verified.state !== 'confirmed') throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原提交仍未确认，须显式重开或核验')

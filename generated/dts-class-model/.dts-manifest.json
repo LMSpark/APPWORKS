@@ -4129,7 +4129,7 @@
     "src/platform-adapters/data-space/runtime-data-set-plan-file.ts": {
       "sourceFile": "src/platform-adapters/data-space/runtime-data-set-plan-file.ts",
       "shardFile": "files/src/platform-adapters/data-space/runtime-data-set-plan-file.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:11:19.201Z"
+      "sourceModifiedAt": "2026-11-24T09:05:40.259Z"
     },
     "src/platform-adapters/data-space/view-design/lowcode-data-space-cascade-metadata.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-cascade-metadata.ts",
@@ -4549,7 +4549,7 @@
     "src/platform-adapters/resources/semi-structured/pdf-inspect/init-command.ts": {
       "sourceFile": "src/platform-adapters/resources/semi-structured/pdf-inspect/init-command.ts",
       "shardFile": "files/src/platform-adapters/resources/semi-structured/pdf-inspect/init-command.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:44.209Z"
+      "sourceModifiedAt": "2026-11-24T08:52:51.462Z"
     },
     "src/platform-adapters/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/platform-adapters/resources/semi-structured/pdf-inspect/resource.ts",
@@ -6134,7 +6134,7 @@
     "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.042Z"
+      "sourceModifiedAt": "2026-11-24T09:05:51.844Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
@@ -6144,7 +6144,7 @@
     "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/use-page-design.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:18:29.742Z"
+      "sourceModifiedAt": "2026-11-24T07:45:45.047Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",
@@ -7109,7 +7109,7 @@
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.251Z"
+      "sourceModifiedAt": "2026-11-24T08:45:10.319Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",
@@ -7249,12 +7249,17 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.227Z"
+      "sourceModifiedAt": "2026-11-24T07:50:49.326Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
       "sourceModifiedAt": "2026-11-23T08:02:15.227Z"
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope.ts": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope.ts",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope.ts.json",
+      "sourceModifiedAt": "2026-11-24T07:50:49.284Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
@@ -7264,12 +7269,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.230Z"
+      "sourceModifiedAt": "2026-11-24T07:50:49.335Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.231Z"
+      "sourceModifiedAt": "2026-11-24T07:50:49.316Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
@@ -7279,12 +7284,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.232Z"
+      "sourceModifiedAt": "2026-11-24T07:51:18.081Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.233Z"
+      "sourceModifiedAt": "2026-11-24T07:50:49.305Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
@@ -7459,7 +7464,12 @@
     "src/views/features/system/data-recovery/ui/data-recovery-page.vue": {
       "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
       "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-page.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.336Z"
+      "sourceModifiedAt": "2026-11-24T08:04:02.929Z"
+    },
+    "src/views/features/system/data-recovery/ui/data-recovery-session.ts": {
+      "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-session.ts",
+      "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-session.ts.json",
+      "sourceModifiedAt": "2026-11-24T09:06:47.236Z"
     },
     "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue": {
       "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",

@@ -25,7 +25,8 @@ import {
   type PageToolPublicationScenarioSource,
 } from '@/services/project/page-tool-publication'
 import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
-import { lowcodeApi, readLowcodeRuntimeDatasetPlan } from '@/platform-adapters/lowcode-runtime'
+import { lowcodeApi } from '@/platform-adapters/lowcode-runtime'
+import {readRuntimeDataSetPlan} from '@/platform-adapters/data-space/runtime-data-set-plan-file'
 import type { DevState } from '../blueprint-state/useDevState'
 import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
@@ -427,7 +428,7 @@ export function usePageDesign(state: DevState) {
       tool.hydrateFileText('rule.json', ruleText)
       const callDefinition = resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
       const datasetSources = await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
-        const text = await readLowcodeRuntimeDatasetPlan(projectId, scenarioId)
+        const text=await readRuntimeDataSetPlan({scenarioId,dataSet:current.dataSet,assertCurrent:()=>assertTarget()})
         assertTarget()
         if (text === null) return null
         const plan = parseRuntimeDataSetPlanFile(text, scenarioId)

@@ -7,40 +7,15 @@
     "sourceFile": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
     "packageName": "app",
     "modulePath": "views/features/application/application-function-management/ui/page-design/node-target-resources",
-    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/node-target-resources\n职责：在当前 蓝图 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。\n边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/page-design/node-target-resources\n职责：在当前蓝图运行 DataSet 中装配新工具命令输入视图。\n边界：导航候选直接绑定原蓝图 DataView；命令输入不属于正式蓝图保存目标。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "NodeTargetOptionRow",
       "NodeTargetTreeOwner",
       "NodeTargetResourceScope",
       "NodeTargetResources"
     ]
   },
   "$defs": {
-    "NodeTargetOptionRow": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "NodeTargetOptionRow",
-      "properties": {
-        "lingma_sys_params": {
-          "$ref": "../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
-        },
-        "lingma_sys_key": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "value",
-        "label"
-      ],
-      "additionalProperties": true
-    },
     "NodeTargetTreeOwner": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -66,10 +41,6 @@
             true
           ]
         },
-        "treeProjection": {
-          "type": "object",
-          "title": "() => ProjectBlueprintTreeData"
-        },
         "canRead": {
           "type": "object",
           "title": "(field: string) => boolean"
@@ -81,7 +52,6 @@
         "value",
         "dataSet",
         "hasTreeProjection",
-        "treeProjection",
         "canRead"
       ],
       "additionalProperties": false
@@ -125,12 +95,6 @@
         "scope": {
           "$ref": "#/$defs/NodeTargetResourceScope"
         },
-        "optionsView": {
-          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "optionsViewKey": {
-          "type": "string"
-        },
         "commandInputView": {
           "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
@@ -140,15 +104,6 @@
       },
       "additionalProperties": false,
       "$defs": {
-        "method.refreshOptions.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.refreshOptions.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.dispose.params": {
           "type": "object",
           "properties": {},
@@ -183,47 +138,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.042Z",
+  "generatedAt": "2026-11-24T09:05:51.844Z",
   "models": {
-    "NodeTargetOptionRow": {
-      "name": "NodeTargetOptionRow",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<DataRow & {\n    value: string;\n    label: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<DataRow & {\n    value: string;\n    label: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "value",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "label",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "NodeTargetTreeOwner": {
       "name": "NodeTargetTreeOwner",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'treeProjection' | 'canRead' | 'value'>",
+        "declarationTypeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'canRead' | 'value'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'treeProjection' | 'canRead' | 'value'>",
+            "typeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'canRead' | 'value'>",
             "targetName": "Pick"
           }
         ],
@@ -251,11 +177,6 @@
             },
             {
               "name": "hasTreeProjection",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "treeProjection",
               "readable": true,
               "writable": true
             },
@@ -317,11 +238,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    optionsView: DataView;\n    optionsViewKey: string;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    refreshOptions: () => Promise<void>;\n    dispose: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    dispose: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    optionsView: DataView;\n    optionsViewKey: string;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    refreshOptions: () => Promise<void>;\n    dispose: () => void;\n}>",
+            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    dispose: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -329,16 +250,6 @@
           "attributes": [
             {
               "name": "scope",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "optionsView",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "optionsViewKey",
               "readable": true,
               "writable": false
             },
@@ -354,20 +265,6 @@
             }
           ],
           "methods": [
-            {
-              "name": "refreshOptions",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
             {
               "name": "dispose",
               "parameters": [],

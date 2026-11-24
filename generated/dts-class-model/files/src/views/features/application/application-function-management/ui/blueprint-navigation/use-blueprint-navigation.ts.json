@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@309087": {
+            "__@RefSymbol@309252": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@309087"
+            "__@RefSymbol@309252"
           ],
           "additionalProperties": false
         },
@@ -41,13 +41,13 @@
             "value": {
               "type": "number"
             },
-            "__@RefSymbol@309087": {
+            "__@RefSymbol@309252": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@309087"
+            "__@RefSymbol@309252"
           ],
           "additionalProperties": false
         }

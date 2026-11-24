@@ -50,8 +50,43 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
 
 import {resolve} from 'node:path'
 import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import {readRuntimeDataSetPlan,RUNTIME_DATA_SET_PLAN_FILE_TABLE} from '@/platform-adapters/data-space/runtime-data-set-plan-file'
 
 const scope = (token: string, appId: string) => ({ token, headers: { 'X-AppId': appId } })
+
+describe('Runtime Dataset Plan FileResource read',()=>{
+  it('reads the plan through its scoped SPARK Data file view',async()=>{
+    mocks.readRequestScope.mockReturnValue(scope('plan-read','APP'))
+    mocks.readTextFile.mockResolvedValue('{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}')
+    const dataSet=DataSet.fromJson({scenarioId:'CATALOG',tables:{}})
+    try{
+      await expect(readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',assertCurrent:()=>{}}))
+        .resolves.toBe('{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}')
+      expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.resourceType).toBe('file')
+      expect(mocks.readTextFile).toHaveBeenCalledWith(expect.objectContaining({fileName:'PLAN.dataset.json'}))
+      expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.viewList.some(view=>view.viewId.startsWith('dataset-read-'))).toBe(false)
+      const firstNode=readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',assertCurrent:()=>{}})
+      const secondNode=readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',assertCurrent:()=>{}})
+      await expect(Promise.all([firstNode,secondNode])).resolves.toEqual([
+        '{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}',
+        '{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}',
+      ])
+      expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.viewList.map(view=>view.viewId)).toEqual(['default'])
+      mocks.readTextFile.mockRejectedValueOnce(new Error('plan read failed'))
+      await expect(readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',assertCurrent:()=>{}})).rejects.toThrow('plan read failed')
+      expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.viewList.map(view=>view.viewId)).toEqual(['default'])
+      let release:((value:string)=>void)|undefined,ownerNode='node-c'
+      mocks.readTextFile.mockImplementationOnce(()=>new Promise<string>(resolve=>{release=resolve}))
+      const stale=readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',
+        assertCurrent:()=>{if(ownerNode!=='node-c')throw new Error('node publication stale')}})
+      await vi.waitFor(()=>expect(release).toBeDefined())
+      ownerNode='node-d'
+      release?.('{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}')
+      await expect(stale).rejects.toThrow('node publication stale')
+      expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.viewList.map(view=>view.viewId)).toEqual(['default'])
+    }finally{dataSet.destroy()}
+  })
+})
 
 function relationFixture(field = 'missing', childModelId = 'CHILD') {
   const models = ['PARENT', 'CHILD'].map(id => ({id, name: id, metaName: id, sourceName: `physical_${id}`,

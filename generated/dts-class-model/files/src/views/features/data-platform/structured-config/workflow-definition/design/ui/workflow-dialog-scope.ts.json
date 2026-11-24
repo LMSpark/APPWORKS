@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope",
+    "jsdoc": "app 的 views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "WorkflowDialogScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDialogScopeInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getDataSet.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getDataSet.return": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "method.getWorkflowId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getWorkflowId.return": {
+          "type": "string"
+        },
+        "method.getNodeId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getNodeId.return": {
+          "type": "string"
+        },
+        "method.isActive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isActive.return": {
+          "type": "boolean"
+        },
+        "method.isOpen.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isOpen.return": {
+          "type": "boolean"
+        },
+        "method.isEligible.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isEligible.return": {
+          "type": "boolean"
+        },
+        "method.assertExtra.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertExtra.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-24T07:50:49.284Z",
+  "models": {
+    "WorkflowDialogScopeInput": {
+      "name": "WorkflowDialogScopeInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    getDataSet: () => DataSet;\n    getWorkflowId: () => string;\n    getNodeId: () => string;\n    isActive: () => boolean;\n    isOpen?: () => boolean;\n    isEligible?: () => boolean;\n    assertExtra?: () => void;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    getDataSet: () => DataSet;\n    getWorkflowId: () => string;\n    getNodeId: () => string;\n    isActive: () => boolean;\n    isOpen?: () => boolean;\n    isEligible?: () => boolean;\n    assertExtra?: () => void;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getDataSet",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "getWorkflowId",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "getNodeId",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "isActive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isOpen",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isEligible",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "assertExtra",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

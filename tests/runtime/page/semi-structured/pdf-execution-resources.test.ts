@@ -1,14 +1,14 @@
 import {expect,it,vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
-import { LowcodeDesignFileUpload } from '@/platform-adapters/api'
+import { LowcodeDesignFileUpload, PdfInspectionRecoveryJournal } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey,resolveDataViewKey} from '@spark-appworks/spark-data'
 import {HttpClientBase,isRecord,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {createPdfInspectionProjectionBindings,PDF_INSPECTION_HISTORY_TABLE,PDF_INSPECTION_SCENARIO_ID} from '@/platform-adapters/resources/semi-structured/pdf-inspect/runtime-bindings'
 import {capturePdfInspectionUpload,createPdfInspectionUploadBindings,PDF_INSPECTION_UPLOAD_TABLE,stagePdfInspectionFile} from '@/platform-adapters/resources/semi-structured/pdf-inspect/upload-command'
-import {createPdfInspectionInitBindings,PDF_INSPECTION_INIT_TABLE,settlePdfInspectionTask,stagePdfInspectionTask} from '@/platform-adapters/resources/semi-structured/pdf-inspect/init-command'
+import {createPdfInspectionInitBindings,PDF_INSPECTION_INIT_TABLE,PdfInspectionExecutionSession,recoverPdfInspectionTask,settlePdfInspectionTask,stagePdfInspectionTask} from '@/platform-adapters/resources/semi-structured/pdf-inspect/init-command'
 
 class HistoryHttp extends HttpClientBase{
  calls:RequestConfig[]=[]
@@ -80,6 +80,70 @@ it('records the original request before dispatch and recovers it without replayi
  }finally{upload.mockRestore();verify.mockRestore();dataSet.destroy()}
 })
 
+it('owns cold recovery proof before separately settling an original request journal',async()=>{
+ const requestId='REQ',recoveryUrl=`/pdf?pdfInspectionRequestId=${requestId}`
+ window.localStorage.clear()
+ const journal=new PdfInspectionRecoveryJournal({storage:window.localStorage,
+  owner:{enterpriseId:'PDF-TEST',enterpriseShortName:'PDF-TEST',actorId:'USER',applicationId:'APP',scenarioId:PDF_INSPECTION_SCENARIO_ID},
+  resolveUrl:()=>recoveryUrl})
+ journal.begin(requestId)
+ let available=false
+ const http=new class extends HttpClientBase{
+  calls:RequestConfig[]=[]
+  protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
+   this.calls.push(config)
+   expect(config.url).toBe('/api/File/inspect/recover')
+   expect(config.data).toEqual({requestId})
+   if(!available)return{data:{Code:404,Message:'missing'},status:404,statusText:'Not Found',headers:{}}
+   return{data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[]}},status:200,statusText:'OK',headers:{}}
+  }
+ }()
+ const dataSet=assemble(undefined,http)
+ try{
+  await expect(recoverPdfInspectionTask({dataSet,requestId,resolveUrl:()=>recoveryUrl,assertCurrent:()=>{}})).rejects.toMatchObject({reason:'unavailable'})
+  expect(journal.pending()).toHaveLength(1)
+  available=true
+  const remove=vi.spyOn(Storage.prototype,'removeItem').mockImplementationOnce(()=>{throw Error('cleanup unavailable')})
+  const failedCleanup=await recoverPdfInspectionTask({dataSet,requestId,resolveUrl:()=>recoveryUrl,assertCurrent:()=>{}})
+  expect(failedCleanup).toMatchObject({requestId,inspectJobId:'JOB',journal:{state:'failed'}})
+  expect(dataSet.getView('PdfInspectionRecovery')?.rows).toMatchObject([{requestId,inspectJobId:'JOB'}])
+  expect(journal.pending()).toHaveLength(1)
+  remove.mockRestore()
+  const recovered=await recoverPdfInspectionTask({dataSet,requestId,resolveUrl:()=>recoveryUrl,assertCurrent:()=>{}})
+  expect(recovered.journal).toEqual({state:'settled'})
+  expect(journal.pending()).toEqual([])
+  expect(http.calls.map(call=>call.url)).toEqual([
+   '/api/File/inspect/recover','/api/File/inspect/recover','/api/File/inspect/recover',
+  ])
+ }finally{window.localStorage.clear();dataSet.destroy()}
+})
+
+it('does not settle a superseded PDF recovery response',async()=>{
+ const requestId='STALE-REQ',recoveryUrl=`/pdf?pdfInspectionRequestId=${requestId}`
+ window.localStorage.clear()
+ const journal=new PdfInspectionRecoveryJournal({storage:window.localStorage,
+  owner:{enterpriseId:'PDF-TEST',enterpriseShortName:'PDF-TEST',actorId:'USER',applicationId:'APP',scenarioId:PDF_INSPECTION_SCENARIO_ID},
+  resolveUrl:()=>recoveryUrl})
+ journal.begin(requestId)
+ let release:((value:HttpResponse<unknown>)=>void)|undefined,current=true
+ const http=new class extends HttpClientBase{
+  protected override async executeRequest():Promise<HttpResponse<unknown>>{
+   return new Promise(resolve=>{release=resolve})
+  }
+ }()
+ const dataSet=assemble(undefined,http)
+ try{
+  const recovering=recoverPdfInspectionTask({dataSet,requestId,resolveUrl:()=>recoveryUrl,
+   assertCurrent:()=>{if(!current)throw new Error('page target stale')}})
+  await vi.waitFor(()=>expect(release).toBeDefined())
+  current=false
+  release?.({data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[]}},
+   status:200,statusText:'OK',headers:{}})
+  await expect(recovering).rejects.toThrow('page target stale')
+  expect(journal.pending()).toHaveLength(1)
+ }finally{window.localStorage.clear();dataSet.destroy()}
+})
+
 it('stages an original File through the configured PDF command and saves that row only',async()=>{
  const dataSet=assemble(PDF_INSPECTION_UPLOAD_TABLE,new HistoryHttp())
  const file=new File(['%PDF-fixture'],'original.pdf')
@@ -105,6 +169,35 @@ it('stages an original File through the configured PDF command and saves that ro
   await view.refresh()
   expect(proof.assertCurrent).toThrow()
  }finally{upload.mockRestore();verify.mockRestore();dataSet.destroy()}
+})
+
+it('rejects an invalid PDF execution batch before staging upload rows',async()=>{
+ const dataSet=assemble(PDF_INSPECTION_UPLOAD_TABLE,new HistoryHttp())
+ const session=new PdfInspectionExecutionSession({dataSet,configId:'RULE',
+  limits:{maxFiles:1,maxFileBytes:5,maxTotalFileBytes:5},assertReady:()=>{},resolveRecoveryUrl:id=>`/pdf?${id}`})
+ try{
+  const view=dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)!
+  await view.refresh()
+  await expect(session.stageAll([new File(['123'],'one.pdf'),new File(['456'],'two.pdf')])).rejects.toThrow('服务限制')
+  expect(view.rows).toEqual([])
+ }finally{dataSet.destroy()}
+})
+
+it('blocks dispatch of the remaining batch when cancellation fails partway',async()=>{
+ const dataSet=assemble(PDF_INSPECTION_UPLOAD_TABLE,new HistoryHttp())
+ const session=new PdfInspectionExecutionSession({dataSet,configId:'RULE',
+  limits:{maxFiles:2,maxFileBytes:5,maxTotalFileBytes:10},assertReady:()=>{},resolveRecoveryUrl:id=>`/pdf?${id}`})
+ try{
+  const view=dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)!
+  await view.refresh()
+  await session.stageAll([new File(['1'],'one.pdf'),new File(['2'],'two.pdf')])
+  const discard=view.discardPendingChanges.bind(view)
+  vi.spyOn(view,'discardPendingChanges').mockImplementationOnce(ids=>discard(ids)).mockImplementationOnce(()=>{throw new Error('cancel failed')})
+  expect(()=>session.cancel()).toThrow('cancel failed')
+  expect(session.uploadIds).toHaveLength(1)
+  await expect(session.submit()).rejects.toThrow('原文件命令未就绪')
+  expect(session.dispatched).toBe(false)
+ }finally{dataSet.destroy()}
 })
 
 it('loads PDF history through the formal scenario assembler and the exported readonly binding',async()=>{

@@ -9,7 +9,7 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldText,FieldSelect,FieldJson,FieldNumber,FieldCheckbox,FieldValueFunction,FilterValueFunctionDialog,FilterExpressionEditor,SparkJsonEditor,RendererButton,RendererDialog,RendererTable,RendererGraph,RendererTabs,RendererTabPane,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
-import {DataViewFilter,DataViewFilterCodec,getSparkNodeChildren,type DataSet} from '@spark-appworks/spark-data'
+import {DataSet,DataViewFilter,DataViewFilterCodec,getSparkNodeChildren} from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import { LowcodeApiError } from '@/platform-adapters/api'
 import {WorkflowExecutionContext} from '@/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context'
@@ -21,18 +21,19 @@ import WorkflowExecutionPanel from '@/views/features/data-platform/structured-co
 import WorkflowDesignNodePanel from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue'
 import WorkflowDesignEdgePanel from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue'
 import WorkflowSourceEdit from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue'
+import {captureWorkflowDialogScope} from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-dialog-scope'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 import {workflowExecutionFixture} from './trigger/workflow-execution.fixture'
-const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false}))
+const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false,scopeToken:'scope'}))
 vi.mock('@spark-appworks/spark-app',async()=>{
   const {NativePageRuntimeSession}=await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
   return {NativePageRuntimeSession,useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}
 })
-vi.mock('@/platform-adapters/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{text:string})=>{state.uploads.push(input.text);state.layoutText=input.text;if(state.loseLayoutReceipt){state.loseLayoutReceipt=false;throw new Error("layout response lost")}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===WORKFLOW_DESIGN?workflowDesignText:null}}),lowcodeApi:{design:{readTextFile:async()=>{if(state.denyLayout)throw new LowcodeApiError(403,'布局读取被拒绝');if(state.layoutText===null)throw new LowcodeApiError(404,'missing');return state.layoutText}},readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'工作流设计'}),readModelBatch:async()=>workflowDesignModels(),readRelations:async()=>[]}}}}))
+vi.mock('@/platform-adapters/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{text:string})=>{state.uploads.push(input.text);state.layoutText=input.text;if(state.loseLayoutReceipt){state.loseLayoutReceipt=false;throw new Error("layout response lost")}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===WORKFLOW_DESIGN?workflowDesignText:null}}),lowcodeApi:{design:{readTextFile:async()=>{if(state.denyLayout)throw new LowcodeApiError(403,'布局读取被拒绝');if(state.layoutText===null)throw new LowcodeApiError(404,'missing');return state.layoutText}},readRequestScope:()=>({token:state.scopeToken,headers:{'X-AppId':'APP'}}),dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'工作流设计'}),readModelBatch:async()=>workflowDesignModels(),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
- state.dirty=[];state.layoutText=null;state.uploads=[];state.denyLayout=false;state.loseLayoutReceipt=false;state.http=new ApiBackend();state.http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'当前流程'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'查询订单',position_type:1,node_type:'query',node_config:'M1',dataOperateModId:''},{rowid:'N2',workflow_id:'W2',name:'其他节点'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N1',name:'原连线'}],Base_DataModel:[{rowid:'M1',dataSetId:'W1',Name:'订单模型',MetaName:'Orders'},{rowid:'M2',dataSetId:'W1',Name:'目标模型',MetaName:'Targets'},{rowid:'M3',dataSetId:'W2',Name:'其他流程模型'}],Base_DataModel_Field:[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'code',description:'原字段说明'},{rowid:'F2',dataSetId:'W1',dataModelId:'M2',Name:'target'}],Base_DataModel_Relation:[{rowid:'R1',dataSetId:'W1',parentModId:'M1',childModId:'M2',description:'模型关系'}]}
+ state.dirty=[];state.layoutText=null;state.uploads=[];state.denyLayout=false;state.loseLayoutReceipt=false;state.scopeToken='scope';state.http=new ApiBackend();state.http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'当前流程'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'查询订单',position_type:1,node_type:'query',node_config:'M1',dataOperateModId:''},{rowid:'N2',workflow_id:'W2',name:'其他节点'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N1',name:'原连线'}],Base_DataModel:[{rowid:'M1',dataSetId:'W1',Name:'订单模型',MetaName:'Orders'},{rowid:'M2',dataSetId:'W1',Name:'目标模型',MetaName:'Targets'},{rowid:'M3',dataSetId:'W2',Name:'其他流程模型'}],Base_DataModel_Field:[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'code',description:'原字段说明'},{rowid:'F2',dataSetId:'W1',dataModelId:'M2',Name:'target'}],Base_DataModel_Relation:[{rowid:'R1',dataSetId:'W1',parentModId:'M1',childModId:'M2',description:'模型关系'}]}
  state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,key);config.global.stubs={...stubs,RendererGraph:true,JsonTreeEditor:true}
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
@@ -62,6 +63,15 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('fences a same-target dialog after the request scope changes',async()=>{
+  const dataSet=DataSet.fromJson({scenarioId:'WORKFLOW',tables:{Rows:{columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+  const assertCurrent=captureWorkflowDialogScope({dataSet,workflowId:'W1',nodeId:'N1',
+   getDataSet:()=>dataSet,getWorkflowId:()=> 'W1',getNodeId:()=> 'N1',isActive:()=>true,message:'identity stale'})
+  expect(assertCurrent).not.toThrow()
+  state.scopeToken='other'
+  expect(assertCurrent).toThrow('identity stale')
+  dataSet.destroy()
+ })
  it('hosts the workflow design runtime through the shared native session',()=>{
   const source=readFileSync(resolve(process.cwd(),'src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'),'utf8')
   expect(source).toContain('new NativePageRuntimeSession')

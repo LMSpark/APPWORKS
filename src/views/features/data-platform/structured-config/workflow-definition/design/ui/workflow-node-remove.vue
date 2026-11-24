@@ -28,7 +28,7 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watchEffect} from 'vue'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog} from '@spark-appworks/spark-component'
-import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {captureWorkflowDialogScope} from './workflow-dialog-scope'
 import {openWorkflowNodeRemoval,type WorkflowNodeRemoval} from '@/platform-adapters/resources/structured-config/workflow-definition/node-removal'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;dataViewKey:string;eligible:boolean;operation?:boolean;copy?:boolean;merge?:boolean;disabled?:boolean;onRemoved:()=>Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
@@ -38,8 +38,11 @@ const state=computed(()=>{revision.value;return owner.value?.getState()})
 watchEffect(()=>{revision.value;emit('pendingChange',busy.value||!!owner.value)})
 async function act(action:()=>Promise<void>):Promise<void>{if(busy.value)return;busy.value=true;error.value='';try{await action()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false;revision.value++}}
 async function open():Promise<void>{if(props.disabled||!props.eligible||owner.value)return;await act(async()=>{
- const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope()
- owner.value=await openWorkflowNodeRemoval({dataSet:ds,workflowId,nodeId,assertCurrent(){const current=lowcodeApi.readRequestScope();if(!active||props.dataSet!==ds||props.workflowId!==workflowId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('节点删除身份已失效')}})
+ const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId
+ const assertCurrent=captureWorkflowDialogScope({dataSet:ds,workflowId,nodeId,
+  getDataSet:()=>props.dataSet,getWorkflowId:()=>props.workflowId,getNodeId:()=>props.nodeId,
+  isActive:()=>active,message:'节点删除身份已失效'})
+ owner.value=await openWorkflowNodeRemoval({dataSet:ds,workflowId,nodeId,assertCurrent})
 })}
 async function stage():Promise<void>{await act(async()=>{if(!owner.value)throw Error('删除预览已失效');await owner.value.stage()})}
 async function finish():Promise<void>{await act(async()=>{await props.onRemoved();owner.value=undefined})}

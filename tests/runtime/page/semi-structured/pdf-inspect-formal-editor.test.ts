@@ -194,6 +194,8 @@ describe('formal PDF rule editor', () => {
       await f.click('选择 PDF 或 ZIP')
       expect(upload).not.toHaveBeenCalled()
       expect(backend.initCalls).toHaveLength(0)
+      await f.click('取消所选文件')
+      await f.click('选择 PDF 或 ZIP')
       const readsBeforeRefresh = backend.reads.length
       expect(f.wrapper.findAll('button').find(button => button.text() === '刷新')?.element.disabled).toBe(true)
       await f.click('刷新')

@@ -41,9 +41,32 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "RuntimeDataSetPlanFileInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDataSetPlanFileInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-23T19:11:19.201Z",
+  "generatedAt": "2026-11-24T09:05:40.259Z",
   "models": {
     "PublishRuntimeDataSetPlanInput": {
       "name": "PublishRuntimeDataSetPlanInput",
@@ -72,6 +95,45 @@
             },
             {
               "name": "scenarioConfig",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeDataSetPlanFileInput": {
+      "name": "RuntimeDataSetPlanFileInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    dataSet: DataSet;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    dataSet: DataSet;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
               "readable": true,
               "writable": false
             }

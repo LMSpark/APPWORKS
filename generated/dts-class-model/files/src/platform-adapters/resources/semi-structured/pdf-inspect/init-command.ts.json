@@ -9,9 +9,166 @@
     "modulePath": "platform-adapters/resources/semi-structured/pdf-inspect/init-command",
     "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/init-command\n职责：在同一 DataSet 核实上传回执并暂存原任务命令。\n边界：由原命令适配记录恢复定位、区分首次派发与未知回查，页面只按原行保存。\nAI用途：以正式配置和已确认文件发起核验，保留原请求身份。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "symbols": [
+      "PdfInspectionExecutionInput",
+      "PdfInspectionExecutionSession",
+      "PdfInspectionRecoveryResult",
+      "PdfInspectionRecoveryProofError"
+    ]
   },
   "$defs": {
+    "PdfInspectionExecutionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionExecutionInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "configId": {
+          "type": "string"
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "maxFiles": {
+              "type": "number"
+            },
+            "maxFileBytes": {
+              "type": "number"
+            },
+            "maxTotalFileBytes": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "maxFiles",
+            "maxFileBytes",
+            "maxTotalFileBytes"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertReady.return": true,
+        "method.resolveRecoveryUrl.params": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveRecoveryUrl.return": {
+          "type": "string"
+        },
+        "method.onChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onChange.return": true
+      }
+    },
+    "PdfInspectionExecutionSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionExecutionSession",
+      "properties": {
+        "uploadIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "dispatched": {
+          "type": "boolean"
+        },
+        "accepted": {
+          "type": "boolean"
+        },
+        "submitLabel": {
+          "type": "string"
+        },
+        "busy": {
+          "type": "boolean"
+        },
+        "cancellationPending": {
+          "type": "boolean"
+        },
+        "limits": true,
+        "pending": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dispatched",
+        "accepted",
+        "submitLabel",
+        "busy",
+        "cancellationPending"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PdfInspectionExecutionInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertReady.return": true,
+        "method.stageAll.params": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stageAll.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.submit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.submit.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    },
     "InitInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -49,6 +206,86 @@
         }
       }
     },
+    "PdfInspectionRecoveryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryResult",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "inspectJobId": {
+          "type": "string"
+        },
+        "journal": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "settled",
+                    "not-pending"
+                  ]
+                }
+              },
+              "required": [
+                "state"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "failed"
+                },
+                "error": true
+              },
+              "required": [
+                "state",
+                "error"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "requestId",
+        "inspectJobId",
+        "journal"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectionRecoveryProofError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectionRecoveryProofError",
+      "properties": {
+        "reason": {
+          "enum": [
+            "invalid-request",
+            "unavailable"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "enum": [
+                "invalid-request",
+                "unavailable"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
     "Options": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -83,10 +320,226 @@
           "$ref": "../../../api/platform/resources/semi-structured/pdf-inspect/recovery-journal.ts.json#/$defs/PdfInspectionRecoveryStorage"
         }
       }
+    },
+    "RecoverPdfInspectionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RecoverPdfInspectionInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "requestId": true,
+        "resolveUrl": {
+          "type": "object",
+          "title": "(requestId: string) => string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-23T08:03:44.209Z",
+  "generatedAt": "2026-11-24T08:52:51.462Z",
   "models": {
+    "PdfInspectionExecutionInput": {
+      "name": "PdfInspectionExecutionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    configId: string;\n    assertReady: () => void;\n    limits: Readonly<{\n        maxFiles: number;\n        maxFileBytes: number;\n        maxTotalFileBytes: number;\n    }>;\n    resolveRecoveryUrl: (requestId: string) => string;\n    onChange?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    configId: string;\n    assertReady: () => void;\n    limits: Readonly<{\n        maxFiles: number;\n        maxFileBytes: number;\n        maxTotalFileBytes: number;\n    }>;\n    resolveRecoveryUrl: (requestId: string) => string;\n    onChange?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "limits",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertReady",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resolveRecoveryUrl",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "onChange",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionExecutionSession": {
+      "name": "PdfInspectionExecutionSession",
+      "jsdoc": "One SPARK Data command session for the UI-selected files and task init row.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: PdfInspectionExecutionInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "PdfInspectionExecutionInput",
+                "sourcePath": "src/platform-adapters/resources/semi-structured/pdf-inspect/init-command.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "uploadIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dispatched",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "accepted",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "submitLabel",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "busy",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cancellationPending",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "limits",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertReady",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stageAll",
+              "parameters": [
+                {
+                  "name": "files",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly File[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "submit",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "InitInput": {
       "name": "InitInput",
       "jsdoc": "正式请求只能使用同一实例的原配置和已核对的上传编号。",
@@ -142,6 +595,84 @@
         }
       }
     },
+    "PdfInspectionRecoveryResult": {
+      "name": "PdfInspectionRecoveryResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestId: string;\n    inspectJobId: string;\n    journal: Readonly<{\n        state: 'settled' | 'not-pending';\n    }> | Readonly<{\n        state: 'failed';\n        error: unknown;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestId: string;\n    inspectJobId: string;\n    journal: Readonly<{\n        state: 'settled' | 'not-pending';\n    }> | Readonly<{\n        state: 'failed';\n        error: unknown;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inspectJobId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectionRecoveryProofError": {
+      "name": "PdfInspectionRecoveryProofError",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(reason: 'invalid-request' | 'unavailable')",
+          "parameters": [
+            {
+              "name": "reason",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "invalid-request"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "unavailable"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "reason",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "Options": {
       "name": "Options",
       "jsdoc": "正式场景和当前认证域提供初始化及恢复存储。",
@@ -190,6 +721,50 @@
               "type": {
                 "type": "reference",
                 "name": "PdfInspectionRecoveryStorage"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RecoverPdfInspectionInput": {
+      "name": "RecoverPdfInspectionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    requestId: unknown;\n    resolveUrl: InitInput['resolveRecoveryUrl'];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    requestId: unknown;\n    resolveUrl: InitInput['resolveRecoveryUrl'];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolveUrl",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]

@@ -8,10 +8,10 @@
     {"type":"r-button","props":{"label":"核验原保存结果","onClick":"verifyRecoverySave","onBeforeRender":"bindRecoveryVerification"}},
     {"type":"r-tabs","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@_Base_TblList@default","onBeforeRender":"bindRecoveryTabs","on":{"update:modelValue":"selectRecoveryTab"}},"children":[
       {"type":"r-tab-pane","props":{"name":"deleted","label":"待恢复数据","index":0},"children":[
-        {"id":"recovery-deleted-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取软删除的数据@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"恢复","onClick":"restoreRecoveryRow","buttonType":"primary","link":true,"onBeforeRender":"bindRecoverySelection"}}]}}}
+        {"id":"recovery-deleted-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取软删除的数据@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"恢复","onClick":"restoreRecoveryRow","buttonType":"primary","link":true,"onBeforeRender":"bindRestoreRecovery"}}]}}}
       ]},
       {"type":"r-tab-pane","props":{"name":"recovered","label":"已恢复数据","index":1},"children":[
-        {"id":"recovery-records-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_TableData_Recovery@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"撤销恢复","onClick":"undoRecoveryRow","buttonType":"warning","link":true,"onBeforeRender":"bindRecoverySelection"}}]}},"children":[
+        {"id":"recovery-records-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_TableData_Recovery@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"撤销恢复","onClick":"undoRecoveryRow","buttonType":"warning","link":true,"onBeforeRender":"bindUndoRecovery"}}]}},"children":[
           {"type":"r-text","props":{"field":"sys_id","label":"应用系统ID","readonly":true,"minWidth":140,"showOverflowTooltip":true}},
           {"type":"r-text","props":{"field":"db_id","label":"数据库ID","readonly":true,"minWidth":140,"showOverflowTooltip":true}},
           {"type":"r-text","props":{"field":"data_id","label":"表数据ID","readonly":true,"minWidth":140,"showOverflowTooltip":true}},

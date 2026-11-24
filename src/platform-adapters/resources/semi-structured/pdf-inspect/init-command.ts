@@ -10,16 +10,109 @@ import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {LowcodeDataSpaceAssemblerInput} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
-import {capturePdfInspectionUpload} from './upload-command'
+import {cancelPdfInspectionFile,capturePdfInspectionUpload,PDF_INSPECTION_UPLOAD_TABLE,stagePdfInspectionFile} from './upload-command'
 import {PDF_INSPECTION_SCENARIO_ID} from './runtime-bindings'
 
 export const PDF_INSPECTION_INIT_TABLE = 'PdfInspectionInit'
+export type PdfInspectionExecutionInput=Readonly<{
+  dataSet:DataSet
+  configId:string
+  assertReady:()=>void
+  limits:Readonly<{maxFiles:number;maxFileBytes:number;maxTotalFileBytes:number}>
+  resolveRecoveryUrl:(requestId:string)=>string
+  onChange?:()=>void
+}>
+
+/** One SPARK Data command session for the UI-selected files and task init row. */
+export class PdfInspectionExecutionSession{
+  readonly uploadIds:string[]=[]
+  requestId?:string
+  dispatched=false
+  accepted=false
+  submitLabel='开始核验'
+  busy=false
+  cancellationPending=false
+  constructor(private readonly input:PdfInspectionExecutionInput){}
+  get limits():PdfInspectionExecutionInput['limits']{return this.input.limits}
+  assertReady():void{this.input.assertReady()}
+  get pending():boolean{return this.busy||this.uploadIds.length>0}
+  async stageAll(files:readonly File[]):Promise<void>{
+    this.assertReady()
+    if(this.busy||this.cancellationPending||this.uploadIds.length>0)throw new Error('PDF_INSPECTION_EXECUTION: 原批次仍待处理')
+    const {maxFiles,maxFileBytes,maxTotalFileBytes}=this.input.limits
+    if(files.length>maxFiles||files.some(file=>!/\.(pdf|zip)$/iu.test(file.name)||file.size<1||file.size>maxFileBytes)
+      ||files.reduce((total,file)=>total+file.size,0)>maxTotalFileBytes){
+      throw new Error('所选文件不符合当前服务限制')
+    }
+    for(const file of files){
+      this.uploadIds.push(await stagePdfInspectionFile(this.input.dataSet,file,this.input.assertReady))
+      this.input.onChange?.()
+    }
+  }
+  cancel():void{
+    if(this.dispatched||this.busy)return
+    this.cancellationPending=true
+    while(this.uploadIds.length){
+      const id=this.uploadIds[this.uploadIds.length-1]
+      if(id===undefined)break
+      cancelPdfInspectionFile(this.input.dataSet,id)
+      this.uploadIds.pop()
+    }
+    this.cancellationPending=false
+    this.input.onChange?.()
+  }
+  async submit():Promise<string>{
+    if(this.busy||this.cancellationPending||!this.uploadIds.length)throw new Error('PDF_INSPECTION_EXECUTION: 原文件命令未就绪')
+    this.busy=true;this.dispatched=true;this.input.onChange?.()
+    try{
+      const upload=this.input.dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)
+      if(!upload)throw new Error('原上传命令未绑定')
+      const uploadIds=this.uploadIds.filter(id=>upload.dirtyTracking.isPendingCreate(id))
+      if(uploadIds.length){
+        const saved=await this.input.dataSet.saveChanges({views:[{tableName:PDF_INSPECTION_UPLOAD_TABLE,viewId:'default',ids:uploadIds}]})
+        if(!saved.success)throw saved.error??new Error(saved.message??'原文件上传尚未核定')
+      }
+      this.requestId??=await stagePdfInspectionTask(this.input.dataSet,{configId:this.input.configId,uploadIds:this.uploadIds,
+        assertRule:this.input.assertReady,resolveRecoveryUrl:this.input.resolveRecoveryUrl})
+      this.input.onChange?.()
+      if(!this.accepted){
+        const saved=await this.input.dataSet.saveChanges({views:[{tableName:PDF_INSPECTION_INIT_TABLE,viewId:'default',ids:[this.requestId]}]})
+        if(!saved.success)throw saved.error??new Error(saved.message??'原请求尚未核定')
+        this.accepted=true;this.input.onChange?.()
+      }
+      settlePdfInspectionTask(this.input.dataSet,this.requestId)
+      return this.requestId
+    }catch(error){
+      const upload=this.input.dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)
+      if(!this.requestId&&upload&&!upload.hasUnconfirmedSave&&this.uploadIds.every(id=>upload.dirtyTracking.isPendingCreate(id)))this.dispatched=false
+      this.submitLabel=this.accepted?'重试清理恢复定位':this.dispatched?'继续核验原操作':'开始核验'
+      throw error
+    }finally{this.busy=false;this.input.onChange?.()}
+  }
+}
+export const PDF_INSPECTION_RECOVERY_TABLE = 'PdfInspectionRecovery'
 
 /** 正式请求只能使用同一实例的原配置和已核对的上传编号。 */
 type InitInput = Readonly<{configId: string; uploadIds: readonly string[]; assertRule: () => void;
   resolveRecoveryUrl: (requestId: string) => string}>
 /** 初始化适配与当前命令视图，只暂存一次原输入许可。 */
 type Binding = {view: DataView; resource: PdfInspectionInitResource; openJournal: (resolveUrl: InitInput['resolveRecoveryUrl']) => PdfInspectionRecoveryJournal; pending?: InitInput; activeId?: string; staging: boolean}
+export type PdfInspectionRecoveryResult = Readonly<{
+  requestId: string
+  inspectJobId: string
+  journal: Readonly<{state: 'settled' | 'not-pending'}> | Readonly<{state: 'failed'; error: unknown}>
+}>
+export class PdfInspectionRecoveryProofError extends Error {
+  constructor(readonly reason: 'invalid-request' | 'unavailable') {
+    super(`PDF_RECOVERY_PROOF: ${reason}`)
+  }
+}
+type RecoveryProof = Readonly<{
+  binding: Binding
+  requestId: string
+  inspectJobId: string
+  assertCurrent: () => void
+}>
 /** 正式场景和当前认证域提供初始化及恢复存储。 */
 type Options = ConstructorParameters<typeof PdfInspectionApi>[0] & Readonly<{
   config: ScenarioViewConfig; assertCurrent: () => void; readOwner: () => PdfInspectionRecoveryOwner;
@@ -115,16 +208,73 @@ export function pendingPdfInspectionRequests(dataSet: DataSet, resolveUrl: InitI
   return bindings.get(dataSet)?.openJournal(resolveUrl).pending().map(pointer => pointer.requestId) ?? []
 }
 
-/** 冷重开后按原恢复视图的正式回读清理对应定位，保留其他待核请求。 */
-export function settleRecoveredPdfInspection(view: DataView, requestId: string, resolveUrl: InitInput['resolveRecoveryUrl']): void {
-  const dataSet = view.dataSet
-  const binding = dataSet && bindings.get(dataSet)
-  const row = view.rows[0]
-  if (!binding || dataSet.getView('PdfInspectionRecovery') !== view || view.loadingError ||
-    view.queryContext['requestId'] !== requestId || view.rows.length !== 1 || row?.['requestId'] !== requestId ||
-    typeof row['inspectJobId'] !== 'string' || !row['inspectJobId']) throw Error('PDF_RECOVERY_IDENTITY')
-  view.captureReadRow(row, ['requestId', 'inspectJobId'])()
-  const journal = binding.openJournal(resolveUrl)
-  const pointer = journal.pending().find(item => item.requestId === requestId)
-  if (pointer) journal.settle(pointer)
+function asRequestId(value: unknown): string {
+  if (typeof value !== 'string' || !/^[-A-Za-z0-9_]{1,128}$/u.test(value)) {
+    throw new PdfInspectionRecoveryProofError('invalid-request')
+  }
+  return value
+}
+
+type RecoverPdfInspectionInput=Readonly<{
+  dataSet:DataSet
+  requestId:unknown
+  resolveUrl:InitInput['resolveRecoveryUrl']
+  assertCurrent:()=>void
+}>
+
+async function provePdfInspectionRecovery(input:RecoverPdfInspectionInput):Promise<RecoveryProof> {
+  const {dataSet,value}= {dataSet:input.dataSet,value:input.requestId}
+  const requestId = asRequestId(value)
+  try {
+    input.assertCurrent()
+    const binding = bindings.get(dataSet), view = dataSet.getView(PDF_INSPECTION_RECOVERY_TABLE, 'default')
+    if (!binding || dataSet.destroyed || binding.view.destroyed || binding.view.dataSet !== dataSet ||
+      !view || view.destroyed || view.dataSet !== dataSet) {
+      throw new PdfInspectionRecoveryProofError('unavailable')
+    }
+    view.queryContext = {requestId}
+    await view.refresh()
+    input.assertCurrent()
+    const row = view.rows[0], inspectJobId = row?.['inspectJobId']
+    if (view.loadingError || view.rows.length !== 1 || row?.['requestId'] !== requestId || typeof inspectJobId !== 'string' ||
+      !/^[-A-Za-z0-9_]{1,128}$/u.test(inspectJobId) || view.queryContext['requestId'] !== requestId) {
+      throw new PdfInspectionRecoveryProofError('unavailable')
+    }
+    const assertCurrent = view.captureReadRow(row, ['requestId', 'inspectJobId'])
+    assertCurrent()
+    view.setCurrentRowById(inspectJobId)
+    return {binding, requestId, inspectJobId, assertCurrent}
+  } catch (cause) {
+    if (cause instanceof PdfInspectionRecoveryProofError) throw cause
+    input.assertCurrent()
+    throw new PdfInspectionRecoveryProofError('unavailable')
+  }
+}
+
+function settleRecoveredPdfInspection(proof:RecoveryProof,resolveUrl:InitInput['resolveRecoveryUrl'],assertCurrent:()=>void):PdfInspectionRecoveryResult['journal']{
+  try {
+    assertCurrent()
+    proof.assertCurrent()
+    const journal = proof.binding.openJournal(resolveUrl)
+    const pointer = journal.pending().find(item => item.requestId === proof.requestId)
+    if (!pointer) return {state: 'not-pending'}
+    journal.settle(pointer)
+    return {state: 'settled'}
+  } catch (error) {
+    return {state: 'failed', error}
+  }
+}
+
+/** 冷重开时只回读原恢复视图；证明成功后独立结算定位，失败只阻断本次清理。 */
+export async function recoverPdfInspectionTask(
+  input:RecoverPdfInspectionInput,
+): Promise<PdfInspectionRecoveryResult> {
+  input.assertCurrent()
+  const proof=await provePdfInspectionRecovery(input)
+  input.assertCurrent()
+  return {
+    requestId: proof.requestId,
+    inspectJobId: proof.inspectJobId,
+    journal:settleRecoveredPdfInspection(proof,input.resolveUrl,input.assertCurrent),
+  }
 }

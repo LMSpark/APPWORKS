@@ -67,13 +67,12 @@
         :relation-key="relationKey" :relation-list-fields="DATABASE_CATALOG_RELATION_LIST_FIELDS"
         :relation-toolbar="relationToolbar" :relation-error="relationListError"
         :on-workflow-row-click="chooseTableWorkflow" :workflow-key="workflowKey" :workflow-list-fields="workflowListFields" :workflow-toolbar="workflowToolbar"
-        :workflow-error="workflowListError" :workflow-query="workflowQuery"
+        :workflow-filter="workflowFilter" :workflow-error="workflowListError"
         :preview-key="previewKey" :preview-children="previewChildren" :preview-error="previewFailure"
         :toolbar="tableDesignFieldToolbar" :save-disabled="designSaveDisabled"
         :busy="busy || !!workflowDesignId" :error="fieldListError" :on-relation-row-click="chooseRelation" @close="closeTableDesign"
         @save="saveDesignFields"
-        @open-preview="() => { void act(() => refreshTablePreview()) }" @open-workflow="refreshTableWorkflows"
-        @apply-workflow-filter="applyTableWorkflowFilter" @update:workflow-query="applyWorkflowQueryUpdate" />
+        @open-preview="() => { void act(() => refreshTablePreview()) }" @open-workflow="refreshTableWorkflows" />
       <TableRelationDialog v-if="relationSession"
         :data-view-key="relationKey" :peer-data-view-key="relationPeerKey" :peer-field="relationPeerField"
         :session="relationSession" :current-table-label="selectedTableLabel"
@@ -85,8 +84,8 @@
         @switch-role="switchRelationRole"
         @cancel="cancelRelationDialog" @save="saveRelationDialog" />
       <CopyTableDialog v-if="copyTableOpen"
-        :source-label="selectedTableLabel" :busy="busy" :action-error="actionError"
-        @cancel="copyTableOpen = false" @save="saveCopyTable" />
+        :data-view-key="copyInputKey" :busy="busy" :action-error="actionError"
+        @cancel="cancelCopyTable" @save="saveCopyTable" />
       <ViewDesignDialog v-if="viewDesignOpen"
         title="视图设计" :object-label="selectedViewLabel" :object-meta-key="viewKey"
         :design-form-children="DATABASE_CATALOG_VIEW_DESIGN_FORM_FIELDS"
@@ -113,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, reactive, ref, shallowRef, toRaw, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
@@ -148,6 +147,7 @@ import {
   DATABASE_CATALOG_WORKFLOW_TABLE_VIEW,
   DATABASE_CATALOG_APP_SYSTEM_MODEL,
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_CATALOG_COPY_INPUT_VIEW,
   DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_VIEW_REGISTER_TABLE,
   LowcodeDatabaseTableView,
@@ -220,7 +220,11 @@ import {
   databaseCatalogCanDeleteRow,
   databaseCatalogDeleteRow,
 } from '@/platform-adapters/resources/database/catalog/object-view-ops'
-import {databaseCatalogCopyTable} from '@/platform-adapters/resources/database/catalog/table/copy-view-ops'
+import {
+  databaseCatalogBeginTableCopy,
+  databaseCatalogCancelTableCopy,
+  databaseCatalogCopyTable,
+} from '@/platform-adapters/resources/database/catalog/table/copy-view-ops'
 import {
   DATABASE_TABLE_PREVIEW_RESULT_TABLE,
   DATABASE_VIEW_PREVIEW_RESULT_TABLE,
@@ -232,13 +236,13 @@ import {
   databaseCatalogViewPreviewRefresh,
 } from '@/platform-adapters/resources/database/catalog/table/preview-view-ops'
 import {
+  DATABASE_CATALOG_WORKFLOW_FILTER_FIELDS,
   buildDatabaseCatalogWorkflowListFields,
   databaseCatalogHasWorkflowStatusDictionary,
 } from '@/platform-adapters/resources/database/catalog/workflow/metadata'
 import {
   databaseCatalogHasWorkflowCatalog,
   databaseCatalogWorkflowRefreshForTable,
-  type DatabaseCatalogWorkflowQuery,
 } from '@/platform-adapters/resources/database/catalog/workflow/view-ops'
 
 type RFilterProps = SparkComponent.RFilterProps
@@ -285,7 +289,6 @@ const workflowView = shallowRef<SparkData.DataView>()
 const fieldViewView = shallowRef<SparkData.DataView>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0), objectTab = ref<string | number>('tables')
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref(''), unregisteredTableHint = ref('')
-const workflowQuery = reactive<{name?: string; workflowKey?: string; description?: string; status?: string}>({})
 let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0, selectionGeneration = 0
 
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
@@ -509,9 +512,22 @@ const workflowListFields = computed(() => {
   return buildDatabaseCatalogWorkflowListFields(ds)
 })
 const workflowListError = computed(() => {revision.value; return workflowView.value?.loadingError?.message ?? ''})
+const workflowFilter = computed<RFilterProps>(() => ({
+  autoQuery: false,
+  firstPageOnSearch: true,
+  queryOnReset: true,
+  showExpressionEditor: false,
+  showDataViewMeta: false,
+  children: DATABASE_CATALOG_WORKFLOW_FILTER_FIELDS,
+}))
 const unregisteredTableNamesKey = computed(() => SparkData.buildDataViewKey(DATABASE_UNREGISTERED_TABLE_NAMES_TABLE, 'default', catalogScenarioId.value))
 const unregisteredViewNamesKey = computed(() => SparkData.buildDataViewKey(DATABASE_UNREGISTERED_VIEW_NAMES_TABLE, 'default', catalogScenarioId.value))
 const commandInputKey = computed(() => SparkData.buildDataViewKey(DATABASE_CATALOG_COMMAND_INPUT_TABLE, 'default', catalogScenarioId.value))
+const copyInputKey = computed(() => SparkData.buildDataViewKey(
+  DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_CATALOG_COPY_INPUT_VIEW,
+  catalogScenarioId.value,
+))
 const objectRegisterProgressKey = computed(() => SparkData.buildDataViewKey(
   objectRegisterType.value === 'table' ? DATABASE_TABLE_REGISTER_TABLE : DATABASE_VIEW_REGISTER_TABLE,
   'default', catalogScenarioId.value,
@@ -635,7 +651,7 @@ const tableToolbar = computed<RToolbarProps>(() => {
     {type: 'r-button', props: {
       label: '复制',
       disabled: busy.value || !selectedTableLabel.value || copyTableOpen.value,
-      onClick: () => { copyTableOpen.value = true; tableDesignOpen.value = false; viewDesignOpen.value = false },
+      onClick: () => { void openCopyTable() },
     }},
     {type: 'r-button', props: {
       label: '删除',
@@ -876,23 +892,37 @@ async function discardPendingObjectRegister(): Promise<void> {
   }, '已取消未提交注册项')
 }
 
-async function saveCopyTable(payload: Readonly<{tblname: string; tbldesc: string}>): Promise<void> {
+async function openCopyTable(): Promise<void> {
   await act(async () => {
     const ds = dataSet.value
     const db = dbView.value
     const tables = tableView.value
     if (!ds || !db || !tables) return
     const sourceId = tables.getSelectedValues()[0]
-    if (typeof sourceId !== 'string') throw new Error('请先选择要复制的表')
     const dbId = databaseCatalogDbSelectedId(db)
-    const newId = await databaseCatalogCopyTable(ds, {
-      sourceTableId: sourceId,
-      dbId,
-      newTableName: payload.tblname,
-      newTableDesc: payload.tbldesc,
-    })
+    if (typeof sourceId !== 'string') throw new Error('请先选择要复制的表')
+    await databaseCatalogBeginTableCopy(ds, {sourceTableId: sourceId, dbId})
+    tableDesignOpen.value = false
+    viewDesignOpen.value = false
+    copyTableOpen.value = true
+  })
+}
+
+async function cancelCopyTable(): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    if (ds) databaseCatalogCancelTableCopy(ds)
     copyTableOpen.value = false
-    await refreshChildren()
+  })
+}
+
+async function saveCopyTable(): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    const tables = tableView.value
+    if (!ds || !tables) return
+    const newId = await databaseCatalogCopyTable(ds)
+    copyTableOpen.value = false
     const created = tables.rows.find(row => tables.getPkKey(row) === newId)
     if (created) tables.setSelectedRows([created])
   }, '表已复制')
@@ -907,6 +937,10 @@ async function beginTableRegister(): Promise<void> {
     tableDesignOpen.value = false
     viewDesignOpen.value = false
     objectRegisterOpen.value = false
+    if (dataSet.value) {
+      try { databaseCatalogCancelTableCopy(dataSet.value) }
+      catch (cause) { actionError.value = cause instanceof Error ? cause.message : String(cause) }
+    }
     copyTableOpen.value = false
     tableEdit.value = await databaseCatalogTableBeginCreate(tables, db)
   })
@@ -970,22 +1004,7 @@ async function refreshTableWorkflows(): Promise<void> {
   const tableId = tables.getSelectedValues()[0]
   if (typeof tableId !== 'string') throw new Error('请先选择物理表')
   workflows.clearSelectedRows()
-  await databaseCatalogWorkflowRefreshForTable(workflows, tableId, {...workflowQuery})
-}
-
-function applyWorkflowQueryUpdate(next: DatabaseCatalogWorkflowQuery): void {
-  Object.assign(workflowQuery, next)
-}
-
-function resetWorkflowQuery(): void {
-  workflowQuery.name = ''
-  workflowQuery.workflowKey = ''
-  workflowQuery.description = ''
-  workflowQuery.status = ''
-}
-
-async function applyTableWorkflowFilter(): Promise<void> {
-  await act(() => refreshTableWorkflows())
+  await databaseCatalogWorkflowRefreshForTable(workflows, tableId)
 }
 
 async function refreshViewPreview(): Promise<void> {
@@ -1077,7 +1096,7 @@ async function deleteSelectedRelation(): Promise<void> {
 function closeTableDesign(): void {
   if (workflowDesignId.value) return
   if (relationSession.value) return
-  resetWorkflowQuery()
+  if (workflowView.value) workflowView.value.filterExpression = undefined
   tableDesignOpen.value = false
 }
 

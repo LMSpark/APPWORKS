@@ -2,6 +2,14 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-24 业务页最终 owner 归并与精确 save journal
+
+- **唯一 owner：**数据库目录复制/筛选、报表多记录、维度规则、蓝图 AI 候选与结果、Agent Workflow 节点输入及关联页面 caller 均改为标准组件 + SPARK Data；页面不再保留业务 rows、待保存输入、权限、receipt 或 unknown 的第二真源。
+- **精确批次：**`DataSet.prepareSaveJournal` / `prepareSaveJournalPhases` 在预检和派发前绑定 batch、视图、原生 ID、selector、phase 与配置；相同选择器在准备后出现的新 dirty row 不进入原批，异步预检期间禁止 cancel/abandon，分阶段完成判断也只检查原捕获 ID。
+- **恢复边界：**unknown 验证只解析当前 journal 视图、原 ID 与原 failure 对应的 capture，不接管同 DataSet 其他保存；明确 not-applied 可丢原捕获，原捕获已结算后的晚编辑释放为独立草稿。未知 abandon 只在原来源 attempt 已释放后允许，不宣称服务端回滚。
+- **六域闭环：**表复制同步正式字段 metadata，proof view 绕开目录过滤并逐 rowid 回读；report 创建/修改按 dialog batch 取消或继续；维度整规则删除精确 settle/abandon；AI 共享子节点恢复同时保留“已确认候选 proof”，允许原预览完成并开放下一候选；WorkflowDesigns 仅从 scoped static input DataView 读取。
+- **验证：**六域及 journal 聚焦 194/194；根测试 774 文件 12,358 项、workspace 包测试 155 文件 2,457 项；typecheck、全仓 lint（6 GB heap）、ClassModel/lowcode contract 生成、`verify:rules` 与生产 build 全部通过；未修改、启动或部署 Java，未创建额外 worktree。
+
 ### 2026-11-24 语义重复第五轮标准组件与 SPARK Data owner 收敛
 
 - **Dataset Plan 发布：**页面不再直读后端 Plan 文件；按发布节点创建一次性只读 FileResource DataView，成功、缺失、拒绝、stale 均在 finally 释放。并发节点共享同一 scenario 时各自持有 guard，旧 writer binding/临时 view 不串入下一发布。

@@ -111,6 +111,9 @@
         },
         "message": {
           "type": "string"
+        },
+        "batchId": {
+          "type": "string"
         }
       },
       "required": [
@@ -123,7 +126,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.277Z",
+  "generatedAt": "2026-11-24T12:58:35.310Z",
   "models": {
     "Id": {
       "name": "Id",
@@ -217,7 +220,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: Id;\n    dataSet: DataSet;\n    targets: readonly Target[];\n    phase: 'continue' | 'pending' | 'verify' | 'settle' | 'reload' | 'broken' | 'done';\n    failure?: Error | undefined;\n    message: string;\n}",
+        "declarationTypeText": "{\n    id: Id;\n    dataSet: DataSet;\n    targets: readonly Target[];\n    phase: 'continue' | 'pending' | 'verify' | 'settle' | 'reload' | 'broken' | 'done';\n    failure?: Error | undefined;\n    message: string;\n    batchId?: string;\n}",
         "members": {
           "attributes": [
             {
@@ -249,6 +252,11 @@
               "name": "message",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "batchId",
+              "readable": true,
+              "writable": false
             }
           ]
         }

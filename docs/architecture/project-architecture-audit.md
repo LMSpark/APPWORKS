@@ -1,6 +1,6 @@
 # 项目架构与数据链路审计
 
-> 源码核对日期：2026-11-21。本文只记录能从当前源码、测试和正式合同核对的架构事实。旧台账中的历史缺口只有在当前源码仍可复现时才视为现状。
+> 源码核对日期：2026-11-24。本文只记录能从当前源码、测试和正式合同核对的架构事实。旧台账中的历史缺口只有在当前源码仍可复现时才视为现状。
 
 ## 1. 结论
 
@@ -260,21 +260,23 @@ flowchart LR
 
 `DataSet.saveChanges()`：
 
-1. 解析本次目标视图。
-2. 做查询/字段/引用预检。
-3. 应用编辑覆盖到 dirty tracking。
-4. 由 `DataView.saveQueryViews` 按 owner 执行。
-5. 接纳逐视图回执，更新正式基线。
+1. 可先由 `prepareSaveJournal()` 同步预留 batch，并固定目标视图、原生 ID、selector、配置和原捕获结果。
+2. 解析本次目标视图；显式 prepared batch 在派发时只使用准备时捕获的 ID，准备后出现的新 dirty row 不并入原批。
+3. 做查询/字段/引用预检；异步预检和派发仍在执行时，owner 不允许 cancel/abandon。
+4. 应用编辑覆盖到 dirty tracking，并在真正派发前绑定 pending signature。
+5. 由 `DataView.saveQueryViews` 按 owner 执行。
+6. 接纳逐视图回执，更新正式基线；原捕获已结算后到达的晚编辑作为独立草稿保留。
 
 ### 7.2 分阶段保存
 
-`saveChangesInPhases()` 只提供**顺序与停止语义**，不提供跨来源事务。前阶段完成后才进入下一阶段；任一阶段失败或 dirty/unknown 未解除时停止。
+`saveChangesInPhases()` 只提供**顺序与停止语义**，不提供跨来源事务。前阶段完成后才进入下一阶段；任一阶段失败或原捕获 dirty/unknown 未解除时停止。`prepareSaveJournalPhases()` 可先固定各阶段计划，phase dirty 判断与实际派发共用同一原 ID 范围；批次替换、显式 abandon 或 settle 必须同时重置 phase cursor。
 
 ### 7.3 unknown 结果
 
 数据库 owner 无权威原请求终态时，`DataSpaceRuntimeApi.save` 会将原 batch 标记为 unconfirmed 并抛出不可重放错误。后续调用：
 
 - 只允许沿原 owner 核验原捕获；
+- DataSet journal 只验证当前 batch 记录的视图、原生 ID、原 failure 对应的 capture，不接管同 DataSet 其他保存；
 - 不自动重发；
 - 不把“当前查询查不到”推断为未生效；
 - 原捕获之外的新编辑不混入恢复；
@@ -284,7 +286,8 @@ flowchart LR
 
 - 未应用编辑覆盖：`discardEditingRows`
 - 已暂存脏行：`discardPendingChanges`
-- unknown 提交：只核验原 owner；明确放弃核验不等于撤销服务端写入
+- unknown 提交：只核验原 owner；明确 abandon 前必须先释放原来源 capture，且不等于撤销服务端写入
+- 已结算 not-applied：可仅释放 exact original draft；晚编辑使 draft signature 变化时，保留为下一独立保存
 - 刷新：存在编辑、pending 或 unknown 时拒绝覆盖当前状态
 
 ## 8. 当前已纠正的历史缺口

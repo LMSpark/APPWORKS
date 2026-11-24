@@ -55,7 +55,8 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
       </section>
       <section v-if="design">
         <h3>节点</h3>
-        <RendererButton label="新增节点" :disabled="busy || !canAddNode(activeGraph)" @click="openNodeCreate" />
+        <RendererButton label="新增节点" :data-view-key="viewKey(graphViews(activeGraph).nodes)" perm-action="create"
+          :disabled="busy || !canAddNode(activeGraph)" @click="openNodeCreate" />
         <RendererButton label="节点属性" :disabled="busy || selected?.kind !== 'node'" @click="openDrawer('node')" />
         <RendererButton label="打开子图" :disabled="busy || !selectedChildPath" @click="openChild(selectedChildPath)" />
         <RendererButton label="删除节点" button-type="danger" :disabled="busy || selected?.kind !== 'node'" @click="removeNode" />
@@ -124,17 +125,22 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
     <WorkflowDeleteDialog v-if="deletionId !== undefined && deletionView" :key="deletionId" :data-view-key="viewKey(deletionView)"
       :record-id="deletionId" @finish="finishDeletion" />
 
-    <RendererDialog v-if="design && nodeCreateOpen" v-model="nodeCreateOpen" title="新增节点" :width="520">
-      <RendererForm :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
-        <FieldText :model-value="String(graphViews(activeGraph).nodes.queryContext['graphPath'] ?? '')" label="目标图" readonly />
-        <FieldSelect v-model="nodeCreate.nodeKind" label="节点类型" :options="[...nodeKindOptions]" @update:model-value="resetNodeCreateDefaults" />
-        <FieldText v-model="nodeCreate.id" label="节点 ID" />
-        <FieldText v-model="nodeCreate.title" label="标题" />
-        <FieldTextarea v-model="nodeCreate.desc" label="描述" :autosize="{minRows: 2, maxRows: 4}" />
+    <RendererDialog v-if="design && nodeCreateOpen && nodeCreateKey" :model-value="true" title="新增节点" :width="520"
+      :close-disabled="busy" @update:model-value="changeNodeCreateOpen">
+      <RendererForm :data-view-key="nodeCreateKey" context-data-member="currentRow" :grid-columns="1" :auto-columns="false"
+        :show-data-view-meta="false" :form-props="{labelPosition: 'top'}">
+        <FieldText :data-view-key="nodeCreateKey" field="graphPath" label="目标图" readonly />
+        <FieldSelect :data-view-key="nodeCreateKey" field="nodeKind" label="节点类型"
+          :options="[...nodeKindOptions]" @update:model-value="resetNodeCreateDefaults" />
+        <FieldText :data-view-key="nodeCreateKey" field="id" label="节点 ID" />
+        <FieldText :data-view-key="nodeCreateKey" field="title" label="标题" />
+        <FieldTextarea :data-view-key="nodeCreateKey" field="desc" label="描述"
+          :autosize="{minRows: 2, maxRows: 4}" />
       </RendererForm>
       <template #footer>
-        <RendererButton label="取消" @click="nodeCreateOpen = false" />
-        <RendererButton label="创建节点" button-type="primary" @click="createNode" />
+        <RendererButton label="取消" :disabled="busy" @click="cancelNodeCreate" />
+        <RendererButton label="创建节点" button-type="primary" :data-view-key="nodeCreateTargetKey" perm-action="create"
+          :disabled="busy || !nodeCreateTargetKey" @click="createNode" />
       </template>
     </RendererDialog>
 
@@ -153,7 +159,7 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
-import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, ensureDataSetStaticInputTable, RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {AgentWorkflowDocumentNotFoundError, createAgentWorkflowFileDataViewOwner,
@@ -186,6 +192,8 @@ const nodeKindOptions = [
   {value: 'start', label: 'Start'},
   {value: 'output', label: 'Output'},
 ] as const
+const NODE_CREATE_TABLE = 'AgentWorkflowNodeCreateInput'
+const NODE_CREATE_ROW = 'node-create'
 const LEFT_COLLAPSED_KEY = 'spark.workflow-design.left-collapsed'
 const SPLIT_KEY_PREFIX = 'spark.workflow-design.graph-split.'
 const json = (field: string, label: string): SparkNode => ({type: 'r-json', props: {field, label, mode: 'text', valueFormat: 'native', height: 160}})
@@ -233,7 +241,6 @@ const savingDefinition = ref(false)
 const drawerOpen = ref(false)
 const drawerTarget = ref<'workflow' | 'node' | 'line'>('workflow')
 const nodeCreateOpen = ref(false)
-const nodeCreate = ref<{nodeKind: WorkflowDesignNodeCreateKind; id: string; title: string; desc: string}>({nodeKind: 'node', id: '', title: '', desc: ''})
 const definitionOpen = ref(false)
 const leftCollapsed = ref(localStorage.getItem(LEFT_COLLAPSED_KEY) === '1')
 const splitRatio = ref(55)
@@ -263,13 +270,43 @@ const busy = computed(() => {revision.value; return acting.value || saving.value
 const definitionPending = computed(() => {revision.value; const view = owner.value?.definitionView; return view ? pendingIn(view) : false})
 const directoryKey = computed(() => owner.value ? viewKey(owner.value.directoryView) : '')
 const definitionKey = computed(() => owner.value ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.value.dataSet.scenarioId) : '')
+const nodeCreateView = computed(() => {
+  revision.value
+  return owner.value?.dataSet.getView(NODE_CREATE_TABLE, 'default')
+})
+const nodeCreateKey = computed(() => nodeCreateView.value ? viewKey(nodeCreateView.value) : '')
+const nodeCreateRow = computed(() => {
+  revision.value
+  const view = nodeCreateView.value, row = view?.rows.find(item => view.getPkKey(item) === NODE_CREATE_ROW)
+  return row ? view?.getEditingRow(NODE_CREATE_ROW) ?? row : undefined
+})
+const nodeCreateTargetKey = computed(() => {
+  const key = nodeCreateRow.value?.['nodeViewKey']
+  return typeof key === 'string' ? key : ''
+})
+const nodeCreatePending = computed(() => {
+  revision.value
+  const view = nodeCreateView.value
+  return Boolean(view && pendingIn(view))
+})
 const drawerTitle = computed(() => drawerTarget.value === 'workflow' ? '流程属性' : drawerTarget.value === 'node' ? '节点属性' : '连线属性')
 useSystemPageDirtySource({get isDirty() {revision.value; return hasPending.value || definitionPending.value
+  || nodeCreatePending.value
   || Boolean(creationView.value && pendingIn(creationView.value)) || Boolean(deletionView.value && pendingIn(deletionView.value))
   || Boolean(publicationView.value && pendingIn(publicationView.value))}})
 
 function viewKey(view: DataView): string {return buildDataViewKey(view.tableName, view.viewId, view.dataSet?.scenarioId ?? '')}
 function currentRow(view: DataView): DataRow | null {revision.value; return view.currentRow}
+function ensureNodeCreateInput(dataSet: DataSet): DataView {
+  ensureDataSetStaticInputTable(dataSet, NODE_CREATE_TABLE, [
+    {name: 'inputId', primary: true}, {name: 'workflowId'}, {name: 'graphRole'}, {name: 'graphPath'}, {name: 'nodeViewKey'},
+    {name: 'nodeKind'}, {name: 'id'}, {name: 'title'}, {name: 'desc'},
+  ])
+  const view = dataSet.getView(NODE_CREATE_TABLE, 'default')
+  if (!view) throw new Error('新增节点输入视图未装配')
+  view.commitMode = 'staged'
+  return view
+}
 function graphViews(role: GraphRole): {nodes: DataView; lines: DataView} {
   const views = design.value
   if (!views) throw new Error('工作流设计视图尚未就绪')
@@ -376,27 +413,70 @@ async function addListRow(view: DataView, keyField: string, label: string): Prom
 }
 
 function openNodeCreate(): void {
-  nodeCreate.value = {nodeKind: 'node', id: '', title: '', desc: ''}
-  resetNodeCreateDefaults()
+  const target = owner.value, views = design.value, input = nodeCreateView.value
+  if (!target || !views || !input || !workflowId.value || busy.value) return
+  const nodes = graphViews(activeGraph.value).nodes, graphPath = nodes.queryContext['graphPath']
+  if (typeof graphPath !== 'string' || nodes.addActionState() !== 'enabled') return
+  input.discardEditingRows()
+  input.replaceRows([{inputId: NODE_CREATE_ROW, workflowId: workflowId.value, graphRole: activeGraph.value, graphPath,
+    nodeViewKey: viewKey(nodes), nodeKind: 'node', id: 'node.model', title: 'Business Node', desc: ''}])
+  input.setCurrentRowById(NODE_CREATE_ROW)
   nodeCreateOpen.value = true
 }
 
-function resetNodeCreateDefaults(): void {
-  const kind = nodeCreate.value.nodeKind
-  nodeCreate.value.id = kind === 'node' ? 'node.model' : kind
-  nodeCreate.value.title = kind === 'node' ? 'Business Node' : kind === 'start' ? 'Start' : 'Output'
+function resetNodeCreateDefaults(value: unknown): void {
+  const input = nodeCreateView.value
+  if (!input || (value !== 'node' && value !== 'start' && value !== 'output')) return
+  input.updateEditingValue(NODE_CREATE_ROW, 'nodeKind', value)
+  input.updateEditingValue(NODE_CREATE_ROW, 'id', value === 'node' ? 'node.model' : value)
+  input.updateEditingValue(NODE_CREATE_ROW, 'title', value === 'node' ? 'Business Node' : value === 'start' ? 'Start' : 'Output')
 }
 
 async function createNode(): Promise<void> {
-  const {nodes} = graphViews(activeGraph.value), rows = shownRows(nodes)
-  const id = nodeCreate.value.id.trim()
+  const targetOwner = owner.value, input = nodeCreateRow.value
+  if (!targetOwner || !input || input['workflowId'] !== workflowId.value || input['graphRole'] !== 'main' && input['graphRole'] !== 'child') return
+  const graph: GraphRole = input['graphRole'], {nodes} = graphViews(graph), rows = shownRows(nodes)
+  const capturedPath = input['graphPath'], capturedKey = input['nodeViewKey']
+  if (typeof capturedPath !== 'string' || typeof capturedKey !== 'string' || capturedPath !== nodes.queryContext['graphPath']
+    || capturedKey !== viewKey(nodes) || targetOwner.runtime.resolveView(capturedKey) !== nodes) {
+    pageService.showMessage('新增节点目标已变化，请重新打开对话框', 'error')
+    return
+  }
+  const id = typeof input['id'] === 'string' ? input['id'].trim() : ''
   if (!id || rows.some(row => row['id'] === id)) {pageService.showMessage(`节点 ID 为空或已存在: ${id}`, 'error'); return}
+  if (nodes.addActionState() !== 'enabled') {pageService.showMessage('当前图不允许新增节点', 'error'); return}
+  const nodeKind = input['nodeKind']
+  if (nodeKind !== 'node' && nodeKind !== 'start' && nodeKind !== 'output') {
+    pageService.showMessage('节点类型无效', 'error')
+    return
+  }
+  acting.value = true
   try {
-    const row = await nodes.addRow(workflowNodeRow({...nodeCreate.value, id, index: rows.length}))
+    const row = await nodes.addRow(workflowNodeRow({nodeKind: nodeKind satisfies WorkflowDesignNodeCreateKind, id,
+      title: typeof input['title'] === 'string' ? input['title'] : '',
+      desc: typeof input['desc'] === 'string' ? input['desc'] : '', index: rows.length}))
     const key = nodes.getPkKey(row)
-    if (key !== undefined) selected.value = {graph: activeGraph.value, kind: 'node', id: key}
-    nodeCreateOpen.value = false
+    if (key !== undefined) selected.value = {graph, kind: 'node', id: key}
+    activeGraph.value = graph
+    cancelNodeCreate()
   } catch (error) {pageService.showMessage(`新增节点失败: ${message(error)}`, 'error')}
+  finally {acting.value = false}
+}
+
+function cancelNodeCreate(): void {
+  const input = nodeCreateView.value
+  if (busy.value && !acting.value) return
+  if (input && !input.destroyed) {
+    input.discardEditingRows()
+    input.replaceRows([])
+    input.setCurrentRow(null)
+  }
+  nodeCreateOpen.value = false
+  revision.value++
+}
+
+function changeNodeCreateOpen(open: boolean): void {
+  if (!open) cancelNodeCreate()
 }
 
 async function removeRows(view: DataView, keys: ReadonlyArray<string | number>): Promise<void> {
@@ -470,6 +550,7 @@ function toggleLeft(): void {
 }
 
 function editableViews(): DataView[] {return [...designViews.value, ...(owner.value ? [owner.value.definitionView] : []),
+  ...(nodeCreateView.value ? [nodeCreateView.value] : []),
   ...(creationView.value ? [creationView.value] : []), ...(deletionView.value ? [deletionView.value] : []),
   ...(publicationView.value ? [publicationView.value] : [])]}
 
@@ -500,7 +581,13 @@ async function confirmDiscard(): Promise<boolean> {
     pageService.showMessage('原工作流已变化或保存结果尚未确认，请先处理原提交', 'error')
     return false
   }
-  for (const view of pendingViews) view.discardPendingChanges()
+  for (const view of pendingViews) {
+    if (view === nodeCreateView.value) {
+      view.discardEditingRows()
+      view.replaceRows([])
+      view.setCurrentRow(null)
+    } else view.discardPendingChanges()
+  }
   creationId.value = undefined
   return true
 }
@@ -843,6 +930,7 @@ onMounted(async () => {
   try {
     const created = await createAgentWorkflowFileDataViewOwner()
     if (!active) {created.dispose(); return}
+    ensureNodeCreateInput(created.dataSet)
     sparkProvide(PAGE_RUNTIME, created.runtime)
     owner.value = created
     const changed = () => {revision.value++}

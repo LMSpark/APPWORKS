@@ -10,7 +10,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {FieldText, sanitizeRichTextHtml} from '@spark-appworks/spark-component'
 import {BLUEPRINT_AI_REJECTED} from '@/views/features/application/application-function-management/ui/application-function-page-contract'
-import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import {BlueprintWorkspaceDataView, type BlueprintModuleCreateCandidate} from '@/services/project/blueprint-workspace-dataview'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import * as BlueprintDocument from '@/platform-adapters/resources/application/project-blueprint-document'
@@ -199,7 +199,11 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
         if (!row) throw new Error('test save target missing')
         Object.assign(row, patch)
       }
-      for (const row of added) rows.push({...row})
+      for (const row of added) {
+        const existing=rows.find(candidate=>candidate['rowid']===row['rowid'])
+        if(existing)Object.assign(existing,row)
+        else rows.push({...row})
+      }
       for (const row of deleted) {
         const index = rows.findIndex(candidate => candidate['rowid'] === row['rowid'])
         if (index >= 0) rows.splice(index, 1)
@@ -329,6 +333,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     loadBlueprintChildrenFromDataView: vi.fn(async (nodeId: string) => {await owner.loadChildren(nodeId); revision.value++}),
     locateBlueprintNodeFromDataView: vi.fn(async (nodeId: string) => owner.locateNode(nodeId)),
     addBlueprintModuleNode: vi.fn(async (_parent: string | null, _fields?: Readonly<Record<string, string>>) => 'NODE-2'),
+    saveBlueprintModuleCandidate: vi.fn(async (candidate: BlueprintModuleCreateCandidate) => String(await owner.saveModuleCandidate(candidate))),
     removeNodeByIdAndWait: vi.fn(async () => true),
     statusMessages: ref<Array<{text: string}>>([]),
     selectNodeById: vi.fn(async (nodeId: string) => {await owner.load(nodeId); selectedNode.value = {nodeId}}),
@@ -688,45 +693,143 @@ describe('application function page AI and prototype', () => {
     expect(page.ai.treeAiPreview.value).toBeUndefined()
     aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows: [aiDraft('PageA')]}))
     await page.ai.generateTreeAi()
-    expect(page.ai.treeAiPreview.value?.rows).toHaveLength(1)
+    expect(page.error.value).toBe('')
+    expect(page.ai.treeAiCandidateRows.value).toHaveLength(1)
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)?.rows).toHaveLength(1)
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiResultViewKey.value)?.rows).toHaveLength(1)
     expect(aiRunner.run.mock.calls[0]?.[0]).toContain('写入位置：Root')
     page.ai.cancelAi()
     expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)?.rows).toHaveLength(0)
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiResultViewKey.value)?.rows).toHaveLength(0)
     expect(state.addBlueprintModuleNode).not.toHaveBeenCalled()
+    await flushPromises()
   })
 
   it('writes confirmed tree drafts under the selected parent and resumes after a partial failure', async () => {
+    fixtureState.createChild = 'enabled'
     const ctx = await setup({nodeId: 'NODE-1'})
-    const {page, state} = ctx
+    const {page, state, rows} = ctx
     page.ai.openTreeAi()
     await flushPromises()
     typeInput(ctx, 'requirement', 'two pages')
     aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows: [aiDraft('PageA'), aiDraft('ModB', 'module')]}))
     await page.ai.generateTreeAi()
-    state.addBlueprintModuleNode.mockResolvedValueOnce('NEW-A').mockRejectedValueOnce(new Error('denied'))
+    const candidateIds=page.ai.treeAiCandidateRows.value.map(row=>String(row['candidateId']))
+    const saveCandidate=state.saveBlueprintModuleCandidate
+    const original=saveCandidate.getMockImplementation()
+    if(!original)throw new Error('candidate saver missing')
+    saveCandidate.mockImplementationOnce(original).mockRejectedValueOnce(new Error('denied'))
     await page.ai.confirmTreeAi()
     expect(page.error.value).toContain('1/2')
     expect(page.ai.treeAiCreated.value).toBe(1)
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiResultViewKey.value)?.rows.map(row=>row['status']))
+      .toEqual(['已写入', '失败'])
+    expect(rows.some(row=>row['name']==='PageA')).toBe(true)
+    expect(rows.some(row=>row['name']==='ModB')).toBe(false)
     await page.ai.confirmTreeAi()
-    expect(state.addBlueprintModuleNode.mock.calls).toEqual([
-      ['NODE-1', {FunName: 'Title PageA', name: 'PageA', memo: 'About PageA', status: 'plan', conType: 'Navitem'}],
-      ['NODE-1', {FunName: 'Title ModB', name: 'ModB', memo: 'About ModB', status: 'plan', conType: 'Model'}],
-      ['NODE-1', {FunName: 'Title ModB', name: 'ModB', memo: 'About ModB', status: 'plan', conType: 'Model'}],
-    ])
+    expect(saveCandidate.mock.calls.map(([candidate])=>candidate.candidateId)).toEqual([candidateIds[0],candidateIds[1],candidateIds[1]])
+    expect(rows.filter(row=>row['name']==='ModB')).toHaveLength(1)
     expect(page.ai.treeAiPreview.value).toBeUndefined()
     expect(page.notice.value).toContain('2')
     expect(page.expandedKeys.value).toContain('NODE-1')
+    await flushPromises()
+  })
+
+  it('submits the exact candidate DataView tree row as the node payload', async () => {
+    fixtureState.createChild='enabled'
+    const ctx=await setup({nodeId:'NODE-1'})
+    const {page,state,rows}=ctx
+    page.ai.openTreeAi()
+    await flushPromises()
+    typeInput(ctx,'requirement','exact row')
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows:[aiDraft('Original')]}))
+    await page.ai.generateTreeAi()
+    const candidate=page.ai.treeAiCandidateRows.value[0]!
+    const candidateId=String(candidate['candidateId'])
+    const candidateView=state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)!
+    expect(candidateView.updateRowById(candidateId,{navigationTitle:'From DataView',capabilityName:'FromView',description:'Exact candidate payload'})).toBe(true)
+    await page.ai.confirmTreeAi()
+    expect(rows.filter(row=>row['rowid']===candidateId)).toHaveLength(1)
+    expect(rows.find(row=>row['rowid']===candidateId)).toMatchObject({FunName:'From DataView',name:'FromView',memo:'Exact candidate payload'})
+    expect(state.saveBlueprintModuleCandidate.mock.calls[0]?.[0]).toMatchObject({candidateId,
+      fields:{FunName:'From DataView',name:'FromView',memo:'Exact candidate payload'}})
+  })
+
+  it('retries a lost AI candidate acknowledgement with the original identity and no duplicate', async () => {
+    fixtureState.createChild='enabled'
+    const ctx=await setup({nodeId:'NODE-1'})
+    const {page,state,view,rows,save}=ctx
+    page.ai.openTreeAi()
+    await flushPromises()
+    typeInput(ctx,'requirement','one page')
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows:[aiDraft('AckLost')]}))
+    await page.ai.generateTreeAi()
+    const candidateId=String(page.ai.treeAiCandidateRows.value[0]?.['candidateId']??'')
+    expect(candidateId).not.toBe('')
+    const originalSave=save.getMockImplementation()
+    if(!originalSave)throw new Error('fixture save missing')
+    let unknown=false
+    const unconfirmed=vi.spyOn(view,'hasUnconfirmedSave','get').mockImplementation(()=>unknown)
+    save.mockImplementationOnce(async command=>{
+      await originalSave(command)
+      unknown=true
+      throw Object.assign(new Error('ack lost'),{name:'RequestError'})
+    })
+
+    await page.ai.confirmTreeAi()
+    expect(page.ai.treeAiPreview.value).toBeDefined()
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiResultViewKey.value)?.rows[0]?.['status']).toBe('结果未知')
+    expect(rows.filter(row=>row['rowid']===candidateId)).toHaveLength(1)
+
+    const candidates=state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)!
+    expect(candidates.updateRowById(candidateId,{capabilityName:'Tampered'})).toBe(true)
+    await page.ai.confirmTreeAi()
+    expect(page.error.value).toContain('原提交身份或字段不一致')
+    expect(rows.filter(row=>row['rowid']===candidateId)).toHaveLength(1)
+    expect(candidates.updateRowById(candidateId,{capabilityName:'AckLost'})).toBe(true)
+
+    unknown=false
+    await page.ai.confirmTreeAi()
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(state.saveBlueprintModuleCandidate.mock.calls.map(([candidate])=>candidate.candidateId)).toEqual([candidateId,candidateId,candidateId])
+    expect(rows.filter(row=>row['rowid']===candidateId)).toHaveLength(1)
+    expect(rows.find(row=>row['rowid']===candidateId)?.['name']).toBe('AckLost')
+    unconfirmed.mockRestore()
+    await flushPromises()
+  })
+
+  it('clears AI candidates and progress on scope change without writing another node', async () => {
+    fixtureState.createChild='enabled'
+    const ctx=await setup({nodeId:'NODE-1'})
+    const {page,state}=ctx
+    page.ai.openTreeAi()
+    await flushPromises()
+    typeInput(ctx,'requirement','scope page')
+    aiRunner.run.mockResolvedValueOnce(JSON.stringify({rows:[aiDraft('Scoped')]}))
+    await page.ai.generateTreeAi()
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)?.rows).toHaveLength(1)
+    page.onNodeClick({rowid:'NODE-2'})
+    await flushPromises()
+    expect(page.selectedNodeId.value).toBe('NODE-2')
+    expect(page.ai.treeAiPreview.value).toBeUndefined()
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)?.rows).toHaveLength(0)
+    expect(state.blueprintPageRuntime.value.resolveView(page.ai.aiResultViewKey.value)?.rows).toHaveLength(0)
+    expect(state.saveBlueprintModuleCandidate).not.toHaveBeenCalled()
+    await flushPromises()
   })
 
   it('backfills a confirmed form draft into the editing overlay without saving', async () => {
-    const {page, view, save} = await setup({nodeId: 'NODE-1'})
+    const {page, state, view, save} = await setup({nodeId: 'NODE-1'})
     aiRunner.run.mockResolvedValueOnce(JSON.stringify(aiDraft('Filled', 'module')))
     await page.ai.generateFormAi()
-    expect(page.ai.formAiPreviewItems.value.map(item => item.value)).toContain('Filled')
+    expect(page.ai.formAiPreviewItems.value.map(item => item['value'])).toContain('Filled')
     expect(view.getEditingRow('NODE-1')?.['name']).toBe('Root')
+    const candidate=state.blueprintPageRuntime.value.resolveView(page.ai.aiCandidateViewKey.value)!
+    expect(candidate.updateRowById('FORM:NODE-1:capabilityName',{value:'FilledFromView'})).toBe(true)
     page.ai.confirmFormAi()
     expect(page.error.value).toBe('')
-    expect(view.getEditingRow('NODE-1')).toMatchObject({name: 'Filled', FunName: 'Title Filled', conType: 'Model', status: 'plan'})
+    expect(view.getEditingRow('NODE-1')).toMatchObject({name: 'FilledFromView', FunName: 'Title Filled', conType: 'Model', status: 'plan'})
     expect(save).not.toHaveBeenCalled()
     expect(page.notice.value).toBe('AI内容已回填到表单')
   })

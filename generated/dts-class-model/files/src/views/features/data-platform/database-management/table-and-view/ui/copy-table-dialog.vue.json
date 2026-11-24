@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog",
-    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog\n职责：复制物理表对话框；提交新表名/描述，由页面调用 spark-data 复制编排。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog\n职责：复制表对话框；输入完全绑定目录命令 DataView，不在组件维护第二份草稿。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-20T20:59:33.234Z",
+  "generatedAt": "2026-11-24T10:10:45.612Z",
   "models": {}
 }

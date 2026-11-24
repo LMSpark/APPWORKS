@@ -11,6 +11,7 @@ export type DimensionRuleDeletion = {
   phase: 'continue' | 'pending' | 'verify' | 'settle' | 'reload' | 'broken' | 'done'
   failure?: Error | undefined
   message: string
+  batchId?:string
 }
 
 function assertCurrent(state: DimensionRuleDeletion): void {
@@ -109,6 +110,9 @@ export async function submitRuleDeletion(state: DimensionRuleDeletion): Promise<
   const phases = [...(children.length ? [{views: selectors(children)}] : []), {views: selectors([rule])}]
   state.phase = 'pending'
   try {
+    const prepared = state.dataSet.prepareSaveJournalPhases(phases)
+    if (!prepared.batchId) throw new Error('规则删除没有有效保存批次')
+    state.batchId=prepared.batchId
     const response = await state.dataSet.saveChangesInPhases(phases)
     assertCurrent(state)
     if (!response.success) throw new Error('规则删除未全部确认')
@@ -158,6 +162,7 @@ export async function settleRuleDeletion(state: DimensionRuleDeletion): Promise<
   assertOwned(state)
   if (pending(state).length) throw new Error('原删除结果未确认，不能直接丢弃')
   for (const target of state.targets) target.view.discardPendingChanges(target.ids)
+  if(state.batchId)state.dataSet.abandonPreparedSaveJournal(state.batchId)
   try {await reload(state, false)}
   catch (cause) {state.phase = 'settle'; state.message = `本地删除已放弃，但回读失败：${describe(cause)}`}
 }
@@ -175,6 +180,7 @@ export async function abandonRuleDeletion(state: DimensionRuleDeletion): Promise
       if (!target.view.abandonUnconfirmedSave()) throw new Error('原来源不支持放弃核验')
       abandoned = true
     }
+    if(state.batchId)state.dataSet.abandonPreparedSaveJournal(state.batchId)
     state.failure = undefined
     state.phase = 'settle'
     await settleRuleDeletion(state)

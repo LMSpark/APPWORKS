@@ -316,7 +316,7 @@ export function useApplicationFunctionPage() {
     isLive,
     applicationLabel: () => applicationLabel.value,
     createRunner: context => draftRunnerFor(context.owner.dataSet),
-    createNode: (parentNodeId, fields) => state.addBlueprintModuleNode(parentNodeId, fields),
+    createNode: candidate => state.saveBlueprintModuleCandidate(candidate),
     expand: nodeId => { if (!expandedKeys.value.includes(nodeId)) expandedKeys.value = [...expandedKeys.value, nodeId] },
     notifyChanged: () => state.notifyExternalDataViewChanged(),
     readInput,

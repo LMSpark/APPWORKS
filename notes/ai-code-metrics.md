@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-24 业务页最终 owner 归并与精确 save journal
+
+- **复杂度**：复杂；跨 DataSet journal、数据库目录复制、报表创建/模型绑定、维度删除、蓝图 AI 子节点恢复与 Workflow 节点输入。
+- **验证**：聚焦 194 项、根测试 774 文件 12,358 项、workspace 包测试 155 文件 2,457 项通过；typecheck、全仓 lint（6 GB heap）、ClassModel/contract 生成、`verify:rules` 与生产 build 通过。
+- **返工**：两轮高阶只读审查共修复 prepared selector 晚编辑、预检期 cancel、跨视图验证、phase cursor、report rejection/late edit、copy metadata/batch cleanup、AI shared recovery 7 类阻断。
+- **30 天存活**：待 2026-12-24 回查；重点核 prepared batch 不吸收后续 dirty row、phase completion 使用原 IDs、report 晚编辑可独立保存、AI 已确认 candidate proof 不锁死下一候选。
+- **人工干预**：用户要求持续迭代直至全仓统一为标准组件 + SPARK Data；仅主仓操作，未修改/启动/部署 Java，未创建额外 worktree。
+
 ### 2026-11-24 语义重复第五轮标准组件与 SPARK Data owner 收敛
 
 - **复杂度**：复杂；跨 Dataset Plan FileResource、PDF command/recovery、数据恢复 owner、workflow dialog scope 与 Page Design 资源生命周期。

@@ -5,11 +5,17 @@ import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/te
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
-import {FieldCheckbox, FieldSelect, RendererFilterExpression, RendererForm, registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
+import {FieldCheckbox, FieldSelect, RendererFilter, RendererFilterExpression, RendererForm, registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataView, DataViewFilter, DataViewFilterCodec, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import TableAndViewPage from '@/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue'
 import TableRelationDialog from '@/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue'
-import {DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_FIELD_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
+import {
+  DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_CATALOG_COPY_INPUT_VIEW,
+  DATABASE_CATALOG_FIELD_MODEL,
+  DATABASE_CATALOG_WORKFLOW_MODEL,
+  DATABASE_CATALOG_WORKFLOW_TABLE_VIEW,
+} from '@/platform-adapters/resources/database/catalog/table-view'
 import {DATABASE_CATALOG_DB_MODEL} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
@@ -717,6 +723,29 @@ describe('table-and-view-page', () => {
     await flushPromises()
     await flushPromises()
     expect(wrapper.text()).toContain('工作流编码')
+    const workflowFilter = wrapper.findAllComponents(RendererFilter).find(item =>
+      item.props('dataViewKey') === buildDataViewKey(
+        DATABASE_CATALOG_WORKFLOW_MODEL,
+        DATABASE_CATALOG_WORKFLOW_TABLE_VIEW,
+        DATABASE_TABLE_VIEW_SCENARIO_ID,
+      ))
+    expect(workflowFilter).toBeTruthy()
+    const filterApi = workflowFilter!.vm as unknown as {
+      filterModel: Record<string, unknown>
+      search: () => Promise<void>
+    }
+    filterApi.filterModel['name'] = '订单'
+    filterApi.filterModel['status'] = '1'
+    await filterApi.search()
+    await flushPromises()
+    const workflowRequest = http.requests.filter(request => request.url === '/api/DataOperation/GetData'
+      && JSON.stringify(request.data).includes(DATABASE_CATALOG_WORKFLOW_MODEL)).at(-1)
+    const requestBody = workflowRequest?.data as {Table?: Array<{Filter?: string}>}
+    const workflowFilterPayload = JSON.stringify(requestBody.Table?.[0]?.Filter)
+    expect(workflowFilterPayload).toContain('\"Field\":\"tblid\",\"Operator\":\"equal\"')
+    expect(workflowFilterPayload).toContain('\"Type\":\"GetConstValue\",\"Value\":\"T1\"')
+    expect(workflowFilterPayload).toContain('\"Field\":\"name\",\"Operator\":\"contains\"')
+    expect(workflowFilterPayload).toContain('\"Field\":\"status\",\"Operator\":\"equal\"')
     expect(wrapper.text()).toMatch(/设计/)
     expect(wrapper.text()).toContain('保存')
     expect(wrapper.text()).toContain('取消')
@@ -2451,7 +2480,15 @@ describe('table-and-view-page', () => {
     await flushPromises()
     const body = new DOMWrapper(document.body)
     expect(body.text()).toContain('复制表')
-    expect(body.text()).toContain('源表：Orders')
+    expect(body.text()).toContain('源表')
+    expect(body.text()).toContain('Orders')
+    const copyForm = wrapper.findAllComponents(RendererForm).find(item =>
+      item.props('dataViewKey') === buildDataViewKey(
+        DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+        DATABASE_CATALOG_COPY_INPUT_VIEW,
+        DATABASE_TABLE_VIEW_SCENARIO_ID,
+      ))
+    expect(copyForm).toBeTruthy()
     const nameInput = body.find('input[placeholder="请输入新表名"]')
     await nameInput.setValue('OrdersCopy')
     const descInput = body.find('textarea[placeholder="请输入描述"]')

@@ -2,7 +2,9 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
+import type {RouteLocationNormalizedLoaded} from 'vue-router'
 import {FieldJson, FieldText, PAGE_SERVICE, RendererGraph, RendererTable, Spark, registerAllRenderers, useSparkComponent, type GraphSelection, type PageServiceCapability} from '@spark-appworks/spark-component'
+import {SystemPageIdentityPool} from '../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type {AgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
@@ -17,6 +19,7 @@ const mocks = vi.hoisted(() => ({
   readError: (_path: string): Error | undefined => undefined,
   owner: (): AgentWorkflowFileDataViewOwner | undefined => undefined,
   readback: (text: string) => text,
+  dirty: (): boolean => false,
   leave: (): boolean | Promise<boolean> => true,
   message: {success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn()},
   messageBox: {confirm: vi.fn(async () => 'confirm'), prompt: vi.fn()},
@@ -28,8 +31,10 @@ vi.mock('element-plus', async importOriginal => ({
   ElMessageBox: mocks.messageBox,
 }))
 
-vi.mock('vue-router', () => ({onBeforeRouteLeave: (guard: typeof mocks.leave) => {mocks.leave = guard}}))
-vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOriginal<Record<string, unknown>>(), useSystemPageDirtySource: () => undefined}))
+vi.mock('vue-router', async importOriginal => ({
+  ...await importOriginal<typeof import('vue-router')>(),
+  onBeforeRouteLeave: (guard: typeof mocks.leave) => {mocks.leave = guard},
+}))
 
 vi.mock('@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
   const actual = await importOriginal<typeof import('@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner')>()
@@ -81,6 +86,7 @@ beforeEach(() => {
   mocks.readError = () => undefined
   mocks.messageBox.confirm.mockResolvedValue('confirm')
   mocks.readback = text => text
+  mocks.dirty = () => false
   mocks.files.set('design.json', JSON.stringify(design, null, 2))
   mocks.files.set('definition.json', JSON.stringify({kind: 'old'}))
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -122,7 +128,13 @@ async function mountPage() {
       return () => h(WorkflowDesigns)
     },
   })
-  const wrapper = mount(Host, {global: {plugins: [Spark.createPlugin(), ElementPlus], stubs: {RendererDrawer: DrawerStub, RendererDialog: DialogStub, ElDrawer: DrawerStub, ElDialog: DialogStub}}})
+  const route = {
+    fullPath: '/workflow-designs', hash: '', matched: [], meta: {}, name: undefined, params: {}, path: '/workflow-designs', query: {}, redirectedFrom: undefined,
+  } as RouteLocationNormalizedLoaded
+  const instance = new SystemPageIdentityPool().get(route, {scope: 'application', path: route.path, nodeId: 'workflow-designs',
+    title: '工作流设计', pageId: 'workflow-designs', explicitQuery: {}, component: Host})
+  mocks.dirty = () => instance.isDirty
+  const wrapper = mount(instance.view, {global: {plugins: [Spark.createPlugin(), ElementPlus], stubs: {RendererDrawer: DrawerStub, RendererDialog: DialogStub, ElDrawer: DrawerStub, ElDialog: DialogStub}}})
   mounted.push(wrapper)
   for (let i = 0; i < 5; i++) await flushPromises()
   return wrapper
@@ -422,6 +434,83 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     await flushPromises()
     await button(wrapper, '保存').trigger('click'); await flushPromises()
     expect(saved().workflow.graph.nodes[1].data.loop.subGraph.nodes[0].position).toEqual({x: 40, y: 40})
+  })
+
+  it('stages node input against the captured main or child graph while the active graph switches', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await select(wrapper, 'node', 'workflow.graph#loop')
+    await button(wrapper, '打开子图').trigger('click'); await flushPromises()
+
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'id', 'child-added'); await typeField(wrapper, 'title', '子图新增')
+    expect(owner.dataSet.getView('AgentWorkflowNodeCreateInput')?.getEditingRow('node-create')?.['graphPath']).toBe('workflow.graph.loop.loop.subGraph')
+    await select(wrapper, 'node', 'workflow.graph#start', 0)
+    await button(wrapper, '创建节点').trigger('click'); await flushPromises()
+    expect(owner.design.childNodes.rows.some(row => row['id'] === 'child-added')).toBe(true)
+    expect(owner.design.nodes.rows.some(row => row['id'] === 'child-added')).toBe(false)
+
+    await select(wrapper, 'node', 'workflow.graph#start', 0)
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'id', 'main-added'); await typeField(wrapper, 'title', '主图新增')
+    await select(wrapper, 'node', 'workflow.graph.loop.loop.subGraph#inner', 1)
+    await button(wrapper, '创建节点').trigger('click'); await flushPromises()
+    expect(owner.design.nodes.rows.some(row => row['id'] === 'main-added')).toBe(true)
+    expect(owner.design.childNodes.rows.some(row => row['id'] === 'main-added')).toBe(false)
+
+    await button(wrapper, '保存').trigger('click'); await flushPromises()
+    expect(saved().workflow.graph.nodes.some((node: {id: string}) => node.id === 'main-added')).toBe(true)
+    expect(saved().workflow.graph.nodes[1].data.loop.subGraph.nodes.some((node: {id: string}) => node.id === 'child-added')).toBe(true)
+  })
+
+  it('keeps captured node input open when its id already exists in the target graph', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'id', 'start')
+    await button(wrapper, '创建节点').trigger('click'); await flushPromises()
+    expect(owner.design.nodes.rows).toHaveLength(3)
+    expect(owner.dataSet.getView('AgentWorkflowNodeCreateInput')?.currentRow?.['inputId']).toBe('node-create')
+    expect(mocks.message.error).toHaveBeenCalledWith('节点 ID 为空或已存在: start')
+  })
+
+  it('rechecks add permission before staging the captured node row', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    const nodes = owner.design.nodes
+    vi.spyOn(nodes, 'addActionState').mockReturnValue('disabled')
+    const create = button(wrapper, '创建节点')
+    await create.trigger('click'); await flushPromises()
+    expect(nodes.rows).toHaveLength(3)
+    expect(nodes.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(mocks.message.error).toHaveBeenCalledWith('当前图不允许新增节点')
+  })
+
+  it('cancels node input without staging a graph row', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'id', 'cancelled-node')
+    const input = owner.dataSet.getView('AgentWorkflowNodeCreateInput')
+    expect(input?.hasEditingChanges()).toBe(true)
+    await button(wrapper, '取消').trigger('click'); await flushPromises()
+    expect(owner.design.nodes.rows).toHaveLength(3)
+    expect(owner.design.nodes.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(input?.rows).toEqual([])
+    expect(input?.hasEditingChanges()).toBe(false)
+    expect(uploads()).toEqual([])
+  })
+
+  it('registers node-create input as clean, dirty, then clean after cancel', async () => {
+    const wrapper = await mountPage()
+    expect(mocks.dirty()).toBe(false)
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    expect(mocks.dirty()).toBe(false)
+    await typeField(wrapper, 'id', 'dirty-node')
+    expect(mocks.dirty()).toBe(true)
+    await button(wrapper, '取消').trigger('click'); await flushPromises()
+    expect(mocks.dirty()).toBe(false)
   })
 
   it('publishes the definition derived from the saved design into the existing definition.json', async () => {

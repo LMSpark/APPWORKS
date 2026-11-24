@@ -34,6 +34,7 @@ export const DATABASE_CATALOG_WORKFLOW_MODEL = 'Base_WorkflowDefinition'
 export const DATABASE_CATALOG_WORKFLOW_TABLE_VIEW = 'forTable'
 export const DATABASE_CATALOG_WORKFLOW_STATUS_DICT_MODEL = 'workflowStatus'
 export const DATABASE_CATALOG_APP_SYSTEM_MODEL = 'Base_AppSystemList'
+export const DATABASE_CATALOG_COPY_INPUT_VIEW = 'copyTable'
 
 const CATALOG_TEXT_VALUE_DICT_MODELS = new Set<string>([
   DATABASE_CATALOG_ENCRYPTION_DICT_MODEL,
@@ -68,6 +69,7 @@ export const DATABASE_CATALOG_VIEW_MODEL = '_Base_ViewList'
 export const DATABASE_CATALOG_FIELD_MODEL = 'Base_TblField'
 export const DATABASE_CATALOG_FIELD_TABLE_VIEW = 'tableFields'
 export const DATABASE_CATALOG_FIELD_VIEW_VIEW = 'viewFields'
+export const DATABASE_CATALOG_FIELD_COPY_VIEW = 'copyTableFields'
 
 export const DATABASE_CATALOG_SCENARIO_META_NAMES = [
   DATABASE_CATALOG_DB_MODEL,
@@ -163,6 +165,16 @@ export class LowcodeDatabaseTableView {
         autoLoad: false,
         filterBindings: [{targetField: 'tblid'}],
       },
+      ...(byName.has(DATABASE_CATALOG_WORKFLOW_MODEL) ? [{
+        kind: 'query',
+        cascadeId: 'table-workflows',
+        parentTable: DATABASE_CATALOG_TABLE_MODEL,
+        parentViewId: 'default',
+        childTable: DATABASE_CATALOG_WORKFLOW_MODEL,
+        childViewId: DATABASE_CATALOG_WORKFLOW_TABLE_VIEW,
+        autoLoad: false,
+        filterBindings: [{sourceField: 'rowid', targetField: 'tblid', operator: 'eq'}],
+      }] : []),
     ]
     const outputFields = DataSpaceDesignApi.resolveOutputFields(fieldModel)
     const outputFieldNames = new Set(outputFields.map(field => field.canonicalName))

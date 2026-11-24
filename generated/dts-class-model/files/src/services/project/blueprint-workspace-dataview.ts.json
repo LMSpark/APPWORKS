@@ -13,6 +13,7 @@
       "BlueprintNodeFormData",
       "BlueprintChildNodeCreate",
       "BlueprintChildNodeCreateAtParent",
+      "BlueprintModuleCreateCandidate",
       "BlueprintDataSpaceImpact",
       "BlueprintNodeDataBatchItem",
       "BlueprintLeafMoveBatchCommand",
@@ -150,6 +151,35 @@
         "nodeId",
         "fields",
         "parentNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintModuleCreateCandidate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintModuleCreateCandidate",
+      "properties": {
+        "candidateId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "candidateId",
+        "parentNodeId",
+        "fields"
       ],
       "additionalProperties": false
     },
@@ -560,6 +590,9 @@
           "properties": {
             "fields": {
               "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            },
+            "explicitNodeId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -579,6 +612,27 @@
         },
         "method.hasOutput.return": {
           "type": "boolean"
+        },
+        "method.createModuleCandidateId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.createModuleCandidateId.return": {
+          "type": "string"
+        },
+        "method.saveModuleCandidate.params": {
+          "type": "object",
+          "properties": {
+            "proof": {
+              "$ref": "#/$defs/BlueprintModuleCreateCandidate"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveModuleCandidate.return": {
+          "type": "object",
+          "title": "Promise<string>"
         },
         "method.addChildNodes.params": {
           "type": "object",
@@ -693,6 +747,9 @@
             },
             "fields": {
               "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            },
+            "explicitNodeId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -927,7 +984,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T05:40:39.425Z",
+  "generatedAt": "2026-11-24T15:43:40.826Z",
   "models": {
     "SelectedNodeSaveProgress": {
       "name": "SelectedNodeSaveProgress",
@@ -1077,6 +1134,40 @@
           "attributes": [
             {
               "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintModuleCreateCandidate": {
+      "name": "BlueprintModuleCreateCandidate",
+      "jsdoc": "Stable module identity and wire payload read from one exact candidate DataView row at dispatch.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidateId: string;\n    parentNodeId: string | null;\n    fields: Readonly<Record<string, string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidateId: string;\n    parentNodeId: string | null;\n    fields: Readonly<Record<string, string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidateId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
               "readable": true,
               "writable": false
             }
@@ -1734,6 +1825,16 @@
                   "flags": {
                     "isOptional": true
                   }
+                },
+                {
+                  "name": "explicitNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -1770,6 +1871,39 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "createModuleCandidateId",
+              "jsdoc": "Allocate a stable formal node identity before rendering one page candidate DataView row.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "saveModuleCandidate",
+              "jsdoc": "Submit the exact candidate row proof, retaining only its dispatched identity and wire payload for unknown recovery.",
+              "parameters": [
+                {
+                  "name": "proof",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintModuleCreateCandidate",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
               }
             },
             {
@@ -2060,6 +2194,16 @@
                         ]
                       }
                     ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "explicitNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
                   },
                   "flags": {
                     "isOptional": true

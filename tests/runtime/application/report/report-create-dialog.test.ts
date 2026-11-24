@@ -356,6 +356,7 @@ describe('报表新增的双记录提交', () => {
 
   it.each([true, false])('已确认一条时保留回执，用户显式继续提交另一条（汇总成功=%s）', async success => {
     const f = await open()
+    vi.spyOn(f.dataSet,'prepareSaveJournal').mockImplementation(()=>f.dataSet.saveJournal)
     const save = f.dataSet.saveChanges.bind(f.dataSet)
     vi.spyOn(f.dataSet, 'saveChanges').mockImplementationOnce(async () => {
       const partial = await save({views: [{tableName: f.info.tableName, viewId: f.info.viewId, ids: ['I']}]})

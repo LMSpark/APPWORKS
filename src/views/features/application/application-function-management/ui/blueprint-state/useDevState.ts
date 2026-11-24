@@ -45,7 +45,7 @@ import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {createPageFileResourceView, pageFileResourceViewId} from '@/services/project/page-tool-file-dataview'
-import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView, type BlueprintModuleCreateCandidate, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {createPageToolFiles,compensatePageToolFiles,deletePageToolFiles,listPageToolFileNames} from '@/services/project/page-tool-file-operations'
 
 const PAGE_FILE_TABLE='ProjectToolFile'
@@ -1928,6 +1928,17 @@ export function useDevState() {
     return String(id)
   }
 
+  /** 续办页面候选视图对应的稳定蓝图候选；所有身份与 unknown 捕获仍由原 owner 管理。 */
+  async function saveBlueprintModuleCandidate(candidate:BlueprintModuleCreateCandidate):Promise<string>{
+    const session=await loadBlueprintWorkspaceDataView()
+    const id=await session.saveModuleCandidate(candidate)
+    refreshBlueprintTreeProjection()
+    externalDataViewRevision.value++
+    await syncRuntimeNavigationIfDefaultProject()
+    addStatus('已通过 Base_NavigationInfo DataView 保存新模块','success')
+    return id
+  }
+
   async function addChildNodeById(parentNodeId:string):Promise<void>{
     const owner=await loadBlueprintWorkspaceDataView()
     if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
@@ -2163,6 +2174,7 @@ export function useDevState() {
     addChildNode,
     addChildNodeById,
     addBlueprintModuleNode,
+    saveBlueprintModuleCandidate,
     listReferenceProjects,
     listReferenceProjectPages,
     removeNodeFromTree,

@@ -223,15 +223,12 @@
     </RendererDialog>
 
     <RendererDialog v-if="treeAiPreview" :model-value="true" title="确认写入 AI 蓝图节点" width="760px" @update:model-value="cancelAi">
-      <DisplayAlert :description="`将在“${treeAiPreview.parentLabel}”下新增 ${treeAiPreview.rows.length} 个节点；已写入 ${treeAiCreated} 个。取消不会写入剩余节点。`" alert-type="info" />
-      <table class="application-function-page__preview-table">
-        <thead><tr><th>导航标题</th><th>能力名称</th><th>节点类型</th><th>交付状态</th><th>能力简述</th></tr></thead>
-        <tbody>
-          <tr v-for="item in treeAiPreview.rows" :key="item.capabilityName">
-            <td>{{ item.navigationTitle }}</td><td>{{ item.capabilityName }}</td><td>{{ item.kind }}</td><td>{{ item.deliveryStatus }}</td><td>{{ item.description }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <DisplayAlert :description="`将在“${treeAiPreview.parentLabel}”下新增 ${treeAiCandidateRows.length} 个节点；已写入 ${treeAiCreated} 个。取消不会写入剩余节点。`" alert-type="info" />
+      <RendererTable v-if="aiCandidateViewKey" :data-view-key="aiCandidateViewKey" :children="[...treeCandidateColumns]"
+        :auto-columns="false" :show-data-view-meta="false" :show-pagination="false" max-height="360px" />
+      <h3>写入进度</h3>
+      <RendererTable v-if="aiResultViewKey" :data-view-key="aiResultViewKey" :children="[...resultColumns]"
+        :auto-columns="false" :show-data-view-meta="false" :show-pagination="false" max-height="220px" />
       <template #footer>
         <RendererButton label="取消" :disabled="treeAiConfirming" @click="cancelAi" />
         <RendererButton label="确认写入" button-type="primary" :loading="treeAiConfirming" @click="confirmTreeAi" />
@@ -239,11 +236,8 @@
     </RendererDialog>
 
     <RendererDialog v-if="formAiPreview" :model-value="true" title="确认 AI 回填" width="560px" @update:model-value="cancelAi">
-      <dl class="application-function-page__preview-list">
-        <template v-for="item in formAiPreviewItems" :key="item.field">
-          <dt>{{ item.label }}</dt><dd>{{ item.value }}</dd>
-        </template>
-      </dl>
+      <RendererTable v-if="aiCandidateViewKey" :data-view-key="aiCandidateViewKey" :children="[...formCandidateColumns]"
+        :auto-columns="false" :show-data-view-meta="false" :show-pagination="false" max-height="360px" />
       <template #footer>
         <RendererButton label="取消" @click="cancelAi" />
         <RendererButton label="回填到表单" button-type="primary" @click="confirmFormAi" />
@@ -383,7 +377,8 @@ const {
 const {canOpen: canOpenDimensionSource, disabledReason: dimensionSourceReason, open: dimensionSourceOpen, openEditor: openDimensionSource} = dimensionSource
 
 const {
-  treeAiOpen, treeAiRequirement, treeAiPreview, treeAiCreated, treeAiConfirming, formAiPreview, formAiPreviewItems, aiGenerating,
+  treeAiOpen, treeAiRequirement, treeAiPreview, treeAiCandidateRows, treeAiCreated, treeAiConfirming, formAiPreview, aiGenerating,
+  aiCandidateViewKey, aiResultViewKey, treeCandidateColumns, formCandidateColumns, resultColumns,
   openTreeAi, generateTreeAi, confirmTreeAi, generateFormAi, confirmFormAi, cancelAi,
 } = ai
 const {

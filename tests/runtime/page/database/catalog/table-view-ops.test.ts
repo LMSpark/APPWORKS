@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
+import {DataSpaceModelNotFoundError} from '@/platform-adapters/api'
 import {LowcodeDatabaseTableView} from '@/platform-adapters/resources/database/catalog/table-view'
 import {attachTableRegisterCommandView} from '@/platform-adapters/resources/database/dataset-extensions'
 import {
@@ -15,6 +16,7 @@ import {
   databaseCatalogQueryUnregisteredViewNames,
   databaseCatalogSyncTableMetadata,
 } from '@/platform-adapters/resources/database/catalog/table/sync-view-ops'
+import {requireDatabaseCatalogFieldView} from '@/platform-adapters/resources/database/catalog/table/field-view-ops'
 import {requireDatabaseTableRegisterView} from '@/platform-adapters/resources/database/catalog/table/register-view-ops'
 import {
   databaseCatalogRegisterTables,
@@ -28,13 +30,20 @@ import {
   databaseCatalogCanDeleteRow,
   databaseCatalogDeleteRow,
 } from '@/platform-adapters/resources/database/catalog/object-view-ops'
-import {databaseCatalogCopyTable} from '@/platform-adapters/resources/database/catalog/table/copy-view-ops'
+import {
+  databaseCatalogBeginTableCopy,
+  databaseCatalogCancelTableCopy,
+  databaseCatalogCopyTable,
+  databaseCatalogVerifyTableCopy,
+} from '@/platform-adapters/resources/database/catalog/table/copy-view-ops'
 import {
   DATABASE_CATALOG_FIELD_MODEL,
+  DATABASE_CATALOG_FIELD_COPY_VIEW,
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_CATALOG_COPY_INPUT_VIEW,
   DATABASE_VIEW_REGISTER_TABLE,
   DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_TABLE_SYNC_META_TABLE,
@@ -43,6 +52,7 @@ import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
   bootstrapDatabaseTableViewRuntime,
+  databaseTableViewModels,
 } from './table-view.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
@@ -61,7 +71,50 @@ beforeEach(() => {
 
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
+async function prepareTableCopy(dataSet: DataSet, name: string): Promise<Readonly<{
+  input: ReturnType<DataSet['getView']>
+  tableView: ReturnType<typeof requireDatabaseCatalogTableView>
+  fieldView: ReturnType<typeof requireDatabaseCatalogFieldView>
+}>> {
+  const dbView = requireDatabaseCatalogDbViewForTable(dataSet)
+  const tableView = requireDatabaseCatalogTableView(dataSet)
+  dbView.setSelectedRows([dbView.rows[0]!])
+  await tableView.refresh()
+  if (tableView.loadingError) throw tableView.loadingError
+  const source = tableView.rows.find(row => row['tblname'] === 'Orders')!
+  const sourceId = tableView.getPkKey(source) as string
+  tableView.setCurrentRow(source)
+  tableView.setSelectedRows([source])
+  const fieldView = requireDatabaseCatalogFieldView(dataSet, DATABASE_CATALOG_FIELD_TABLE_VIEW)
+  await fieldView.refresh()
+  if (fieldView.loadingError) throw fieldView.loadingError
+  await databaseCatalogBeginTableCopy(dataSet, {sourceTableId: sourceId, dbId: 'DB1'})
+  const input = dataSet.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_COPY_INPUT_VIEW)
+  if (!input?.rows[0]) throw new Error('复制输入缺失')
+  const commandId = input.getPkKey(input.rows[0])
+  if (typeof commandId !== 'string') throw new Error('复制输入身份无效')
+  input.updateEditingValue(commandId, 'copyTableName', name)
+  input.updateEditingValue(commandId, 'copyTableDesc', '复制回归')
+  return {input, tableView, fieldView}
+}
+
 describe('database/catalog/table/view-ops', () => {
+  it('does not register the workflow cascade when the optional workflow model is absent', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if (metaName === 'Base_WorkflowDefinition') {
+        return Promise.reject(new DataSpaceModelNotFoundError(DATABASE_TABLE_VIEW_SCENARIO_ID, metaName))
+      }
+      const found = (databaseTableViewModels as Record<string, Awaited<ReturnType<typeof service.readModel>>>)[metaName]
+      if (!found) throw new Error(`unexpected model ${metaName}`)
+      return Promise.resolve(found)
+    })
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    expect(ds.getView('Base_WorkflowDefinition', 'forTable')).toBeUndefined()
+    expect(ds.viewCascades?.some(cascade => cascade.kind !== 'field'
+      && cascade.childTable === 'Base_WorkflowDefinition' && cascade.childViewId === 'forTable')).toBe(false)
+  })
+
   it('registers a table row through saveChanges on _Base_TblList', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
@@ -539,17 +592,22 @@ describe('database/catalog/table/view-ops', () => {
     expect(source).toBeTruthy()
     const sourceId = tableView.getPkKey(source!) as string
     const dbId = databaseCatalogDbSelectedId(dbView)
-    const newId = await databaseCatalogCopyTable(ds, {
-      sourceTableId: sourceId,
-      dbId,
-      newTableName: 'OrdersCopy',
-      newTableDesc: '复制订单',
-    })
+    tableView.setCurrentRow(source!)
+    tableView.setSelectedRows([source!])
+    const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fieldView.refresh()
+    if (fieldView.loadingError) throw fieldView.loadingError
+    await databaseCatalogBeginTableCopy(ds, {sourceTableId: sourceId, dbId})
+    const input = ds.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_COPY_INPUT_VIEW)!
+    const commandId = input.getPkKey(input.rows[0]!)
+    if (typeof commandId !== 'string') throw new Error('copy command identity invalid')
+    input.updateEditingValue(commandId, 'copyTableName', 'OrdersCopy')
+    input.updateEditingValue(commandId, 'copyTableDesc', '复制订单')
+    const newId = await databaseCatalogCopyTable(ds)
     expect(newId.length).toBeGreaterThan(0)
     const created = tableView.rows.find(row => tableView.getPkKey(row) === newId)
     expect(created).toBeTruthy()
     tableView.setSelectedRows([created!])
-    const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
     await fieldView.refresh()
     if (fieldView.loadingError) throw fieldView.loadingError
     expect(fieldView.rows.filter(row => row['tblid'] === newId).length).toBeGreaterThan(0)
@@ -568,15 +626,172 @@ describe('database/catalog/table/view-ops', () => {
     expect(source).toBeTruthy()
     const sourceId = tableView.getPkKey(source!) as string
     const dbId = databaseCatalogDbSelectedId(dbView)
+    tableView.setCurrentRow(source!)
+    tableView.setSelectedRows([source!])
     const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fieldView.refresh()
+    if (fieldView.loadingError) throw fieldView.loadingError
+    await databaseCatalogBeginTableCopy(ds, {sourceTableId: sourceId, dbId})
+    const input = ds.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_COPY_INPUT_VIEW)!
+    const commandId = input.getPkKey(input.rows[0]!)
+    if (typeof commandId !== 'string') throw new Error('copy command identity invalid')
+    input.updateEditingValue(commandId, 'copyTableName', 'DeniedCopy')
+    input.updateEditingValue(commandId, 'copyTableDesc', '权限拒绝')
 
-    await expect(databaseCatalogCopyTable(ds, {
-      sourceTableId: sourceId, dbId, newTableName: 'DeniedCopy', newTableDesc: '权限拒绝',
-    })).rejects.toThrow('当前正式查询不允许新增字段 tblid')
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow('当前正式查询不允许新增字段 tblid')
 
     expect([...tableView.dirtyTracking.pendingCreateIds]).toEqual([])
     expect([...fieldView.dirtyTracking.pendingCreateIds]).toEqual([])
     expect(http.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
+  it('captures the opened source and submits only exact staged copy ids', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbViewForTable(ds)
+    const tableView = requireDatabaseCatalogTableView(ds)
+    dbView.setSelectedRows([dbView.rows[0]!])
+    await tableView.refresh()
+    if (tableView.loadingError) throw tableView.loadingError
+    const source = tableView.rows.find(row => row['tblname'] === 'Orders')!
+    const peer = tableView.rows.find(row => row['tblname'] === 'LineItems')!
+    const sourceId = tableView.getPkKey(source) as string
+    tableView.setCurrentRow(source)
+    tableView.setSelectedRows([source])
+    const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fieldView.refresh()
+    if (fieldView.loadingError) throw fieldView.loadingError
+    await databaseCatalogBeginTableCopy(ds, {sourceTableId: sourceId, dbId: 'DB1'})
+    tableView.setCurrentRow(peer)
+    tableView.setSelectedRows([peer])
+    tableView.updateEditingValue(sourceId, 'tbldesc', '不相关表头草稿')
+    const input = ds.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_COPY_INPUT_VIEW)!
+    const commandId = input.getPkKey(input.rows[0]!)
+    if (typeof commandId !== 'string') throw new Error('copy command identity invalid')
+    input.updateEditingValue(commandId, 'copyTableName', 'CapturedOrdersCopy')
+    input.updateEditingValue(commandId, 'copyTableDesc', '精确来源复制')
+
+    const copiedId = await databaseCatalogCopyTable(ds)
+
+    expect(tableView.hasEditingChanges(sourceId)).toBe(true)
+    const requests = http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    expect(requests).toHaveLength(1)
+    const payload = requests[0]!.data as Array<{
+      TableName?: string
+      CrudModel?: {Added?: Record<string, unknown>[]; Changed?: Record<string, unknown>[]}
+    }>
+    const tableBatch = payload.find(item => item.TableName === DATABASE_CATALOG_TABLE_MODEL)!
+    const fieldBatch = payload.find(item => item.TableName === DATABASE_CATALOG_FIELD_MODEL)!
+    expect(tableBatch.CrudModel?.Added?.map(row => row['rowid'])).toEqual([copiedId])
+    expect(tableBatch.CrudModel?.Changed ?? []).toEqual([])
+    expect(fieldBatch.CrudModel?.Added?.every(row => row['tblid'] === copiedId)).toBe(true)
+    expect(fieldBatch.CrudModel?.Changed ?? []).toEqual([])
+    const verified = await tableView.queryOptionRows({
+      fields: ['rowid', 'dbid', 'tblname', 'tbldesc'],
+      filter: {field: 'rowid', operator: 'eq', value: copiedId},
+    })
+    expect(verified).toMatchObject([{rowid: copiedId, dbid: 'DB1', tblname: 'CapturedOrdersCopy', tbldesc: '精确来源复制'}])
+  })
+
+  it('copies every exact source field beyond the first 20-row page', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    http.rows[DATABASE_CATALOG_FIELD_MODEL] = [
+      ...http.rows[DATABASE_CATALOG_FIELD_MODEL]!.filter(row => row['tblid'] !== 'T1'),
+      ...Array.from({length: 25}, (_, index) => ({
+        rowid: `F-ALL-${index}`, tblid: 'T1', tblname: 'Orders', enname: `Field${index}`,
+        cnname: `字段${index}`, DataTypeName: '字符串型', DataType: 'NVARCHAR',
+        DataLen: '50', IsNill: 1, IsPKey: index === 0 ? 1 : 0, IsUQ: 0,
+        IsSys: 0, isGrowth: index === 0 ? 1 : 0, DefaultValue: null, AsName: `Alias${index}`,
+        encryption_rule: `ENC-${index}`, DesenID: `MASK-${index}`, Memo: `字段说明${index}`, ordIdx: index + 1,
+      })),
+    ]
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    await prepareTableCopy(ds, 'AllFieldsCopy')
+
+    await expect(databaseCatalogCopyTable(ds)).resolves.toEqual(expect.any(String))
+    const write = http.requests.find(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = write?.data as Array<{TableName?: string; CrudModel?: {Added?: Record<string, unknown>[]}}>
+    const added = payload.find(item => item.TableName === DATABASE_CATALOG_FIELD_MODEL)?.CrudModel?.Added
+    expect(added).toHaveLength(25)
+    expect(added?.[0]).toMatchObject({isGrowth:'1',AsName:'Alias0',encryption_rule:'ENC-0',DesenID:'MASK-0'})
+  })
+
+  it('revalidates the original complete field proof before staging a copy', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    await prepareTableCopy(ds, 'StaleSourceCopy')
+    const source = http.rows[DATABASE_CATALOG_FIELD_MODEL]!.find(row => row['tblid'] === 'T1')!
+    source['cnname'] = '服务端已修改'
+
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow('复制来源字段已变化')
+    expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(0)
+  })
+
+  it('revalidates optional editable field metadata before staging a copy', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const {tableView}=await prepareTableCopy(ds,'OptionalMetadataCopy')
+    const source=tableView.getSelectedValues()[0]
+    expect(source).toBeDefined()
+    const field=http.rows[DATABASE_CATALOG_FIELD_MODEL]!.find(row=>row['tblid']==='T1')!
+    field['DesenID']='CHANGED-AFTER-CAPTURE'
+
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow('复制来源字段已变化')
+    expect(http.requests.filter(request=>request.url==='/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(0)
+  })
+
+  it('recovers a lost table-copy ACK through original table and field captures', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    http.copySaveLostAck = true
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const {tableView} = await prepareTableCopy(ds, 'RecoveredCopy')
+    const stageView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_COPY_VIEW)!
+
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow('复制保存回执中断')
+    expect(tableView.hasUnconfirmedSave).toBe(true)
+    expect(stageView.hasUnconfirmedSave).toBe(true)
+    expect(() => databaseCatalogCancelTableCopy(ds)).toThrow('不能清除')
+    const writes = http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD').length
+
+    await expect(databaseCatalogVerifyTableCopy(ds)).resolves.toEqual(expect.any(String))
+    expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(writes)
+    expect(tableView.hasUnconfirmedSave).toBe(false)
+    expect(stageView.hasUnconfirmedSave).toBe(false)
+  })
+
+  it('verifies only the original accepted copy after its readback fails', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    http.copyFailReadbackAfterSaveModel = DATABASE_CATALOG_TABLE_MODEL
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    await prepareTableCopy(ds, 'ReadbackCopy')
+
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow('复制回读连接中断')
+    const writes = http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD').length
+    expect(() => databaseCatalogCancelTableCopy(ds)).toThrow('尚未读回完成')
+
+    await expect(databaseCatalogVerifyTableCopy(ds)).resolves.toEqual(expect.any(String))
+    expect(http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(writes)
+  })
+
+  it.each([
+    {header: 'HEADER-WRONG', fields: '', expected: '表 owner 返回的 rowid'},
+    {header: '', fields: 'FIELD-WRONG', expected: '字段 owner 返回'},
+  ])('rejects copy readback with a wrong explicit rowid $expected', async ({header, fields, expected}) => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
+    http.copyWrongHeaderRowId = header
+    http.copyWrongFieldRowId = fields
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    await prepareTableCopy(ds, 'WrongIdCopy')
+
+    await expect(databaseCatalogCopyTable(ds)).rejects.toThrow(expected)
+    expect(() => databaseCatalogCancelTableCopy(ds)).toThrow('尚未读回完成')
   })
 
   it('deletes a table row through saveChanges on _Base_TblList', async () => {

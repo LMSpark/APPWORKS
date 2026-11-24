@@ -5,7 +5,6 @@
       <p v-if="hint" role="alert">{{ hint }}</p>
       <p v-if="!current" role="alert">原规则编辑身份已变化，不能处理本窗修改。</p>
       <p v-else-if="foreignUnknown" role="alert">存在其他操作的待核验提交，本窗不能接管。</p>
-      <p v-else-if="interrupted" role="alert">核验状态已部分改变，请保留本窗并按原记录身份核对。</p>
       <p>规则引用既有事件合同。停用草稿也须至少配置一条结果；启用前须核实正式来源锚点。</p>
       <FeatureRecordFields :data-view-key="ruleKey" :record-id="ruleId" :row="editing(rule, ruleId)"
         :specs="ruleFields" :locked="locked" :columns="2" />
@@ -31,17 +30,16 @@
     </div>
     <template #footer>
       <RendererButton :label="accepted ? '返回并核对' : '取消'" :disabled="!canClose" @click="cancel" />
-      <RendererButton v-if="ownUnknown && !interrupted" label="放弃核验并返回" :disabled="busy || !current" @click="abandon" />
-      <RendererButton v-if="reconcile && !unknown" label="放弃未保存修改并回读" :disabled="busy || !current" @click="reconcileChanges" />
-      <RendererButton v-else :label="saveLabel" button-type="primary"
-        :disabled="busy || !current || foreignUnknown || interrupted || recoveryEnded" @click="submit" />
+      <RendererButton v-if="reconcile" label="放弃未保存修改并回读" :disabled="busy || !current" @click="reconcileChanges" />
+      <RendererButton v-if="!reconcile || preflightRetry" :label="saveLabel" button-type="primary"
+        :disabled="busy || !current || foreignUnknown || blockedRecovery" @click="submit" />
     </template>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {DataSetSavePreflightError, DataViewSaveNotAppliedError, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {DataSetSavePreflightError, DataViewFilter, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererDialog, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import FeatureRecordFields from '@/views/features/shared/record/feature-record-fields.vue'
 import {missingFeatureField, type FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
@@ -49,7 +47,7 @@ import {RESULT_SPECS, conditionSpecs, enabled, ruleSpecs, text, validateResult} 
 
 type Id = string | number
 type ExpectedRow = Readonly<{id: Id; action: 'added' | 'changed' | 'deleted'; values: Readonly<Record<string, unknown>>
-  snapshot?: Readonly<Record<string, unknown>>}>
+  identity: Readonly<Record<string, unknown>>}>
 type SaveGroup = Readonly<{view: DataView; ids: readonly Id[]; rows: readonly ExpectedRow[]}>
 type RuleEditorProps = Readonly<{ruleKey: string; conditionKey: string; resultKey: string; eventKey: string; bindingKey: string
   ruleId: Id; created: boolean}>
@@ -78,8 +76,8 @@ const contexts = views.map(item => JSON.stringify(item.queryContext))
 const owned = new Map<DataView, Set<Id>>([[rule, new Set([props.ruleId])], [condition, new Set()], [result, new Set()]])
 const binding = {...props}
 const ruleFields = ruleSpecs(props.eventKey), conditionFields = conditionSpecs(props.resultKey)
-const busy = ref(false), hint = ref(''), revision = ref(0), interrupted = ref(false), accepted = ref(false), reconcile = ref(false)
-const failure = shallowRef<Error>(), captured = shallowRef<readonly SaveGroup[]>()
+const busy = ref(false), hint = ref(''), revision = ref(0), accepted = ref(false)
+const proof = shallowRef<readonly SaveGroup[]>(), originalBatchId = shallowRef<string>()
 let active = true
 
 for (const child of [condition, result]) {
@@ -102,17 +100,33 @@ function isCurrent(): boolean {
 }
 const current = computed(() => {void revision.value; return isCurrent()})
 const unknown = computed(() => {void revision.value; return editedViews.some(item => item.hasUnconfirmedSave)})
-const ownUnknown = computed(() => unknown.value && failure.value !== undefined && captured.value !== undefined
-  && editedViews.filter(item => item.hasUnconfirmedSave).every(item =>
-    captured.value?.some(group => group.view === item && item.hasUnconfirmedSaveFor(group.ids, failure.value))))
+const saveJournal = computed(() => {void revision.value; return dataSet.saveJournal})
+function sameIds(left: readonly Id[], right: readonly Id[]): boolean {
+  return left.length === right.length && left.every((id, index) => right[index] === id)
+}
+const ownsOriginalJournal = computed(() => {
+  const journal = saveJournal.value, groups = proof.value
+  if (!groups || !originalBatchId.value || journal.batchId !== originalBatchId.value || journal.views.length !== groups.length) return false
+  return groups.every(group => journal.views.some(record => record.tableName === group.view.tableName
+    && record.viewId === group.view.viewId && sameIds(record.ids, group.ids)))
+})
+const ownUnknown = computed(() => ownsOriginalJournal.value
+  && saveJournal.value.currentRecoverableAction === 'verify-original-receipt'
+  && editedViews.filter(item => item.hasUnconfirmedSave).every(item => saveJournal.value.views.some(record =>
+    record.tableName === item.tableName && record.viewId === item.viewId)))
 const foreignUnknown = computed(() => unknown.value && !ownUnknown.value)
-const recoveryEnded = computed(() => failure.value !== undefined && !unknown.value)
-const locked = computed(() => busy.value || !current.value || unknown.value || interrupted.value || accepted.value
-  || reconcile.value || captured.value !== undefined)
-const canClose = computed(() => !busy.value && current.value && !unknown.value && !interrupted.value
-  && !recoveryEnded.value && !reconcile.value)
-const saveLabel = computed(() => ownUnknown.value ? '核验原保存结果' : accepted.value ? '重试回读' :
-  captured.value ? '重新保存原修改' : '保存规则')
+const preflightRetry = computed(() => ownsOriginalJournal.value
+  && saveJournal.value.currentRecoverableAction === 'discard-not-applied'
+  && saveJournal.value.originalError instanceof DataSetSavePreflightError)
+const reconcile = computed(() => !unknown.value && ownsOriginalJournal.value
+  && saveJournal.value.currentRecoverableAction === 'discard-not-applied')
+const blockedRecovery = computed(() => ownsOriginalJournal.value && !accepted.value
+  && ['retain-draft', 'continue-phase'].includes(saveJournal.value.currentRecoverableAction))
+const locked = computed(() => busy.value || !current.value || unknown.value || accepted.value || proof.value !== undefined)
+const canClose = computed(() => !busy.value && current.value && !unknown.value && !reconcile.value
+  && (!ownsOriginalJournal.value || accepted.value || saveJournal.value.completed))
+const saveLabel = computed(() => ownUnknown.value ? '核验原保存结果' : preflightRetry.value ? '重试原保存' : accepted.value ? '重试回读' :
+  '保存规则')
 
 function ids(target: DataView): Id[] {
   void revision.value
@@ -295,14 +309,15 @@ function capture(): readonly SaveGroup[] {
     if (!candidates.length) return []
     const specs = target === rule ? ruleFields : target === condition ? conditionFields : RESULT_SPECS
     const rows = candidates.map(id => {
-      if (target.dirtyTracking.pendingDeleteIds.has(id)) return {id, action: 'deleted' as const, values: {}}
-      const row = target.getEditingRow(id)
+      const deleted = target.dirtyTracking.pendingDeleteIds.has(id)
+      const row = deleted ? target.dirtyTracking.getPendingDeleteSnapshot(id) : target.getEditingRow(id)
       if (!row) throw new Error('待保存规则行已不存在')
       const added = target.dirtyTracking.isPendingCreate(id)
       const names = added ? [...specs.map(spec => spec.field), 'rule_id', 'account_set_id'] : Object.keys(target.getEditingPatch(id) ?? {})
       const values = Object.fromEntries([...new Set(names)].flatMap(name => row[name] === undefined ? [] : [[name, row[name]]]))
-      const snapshot = Object.fromEntries(target.columns.map(column => [column.name, row[column.name]]))
-      return {id, action: added ? 'added' as const : 'changed' as const, values, snapshot}
+      const identity = Object.fromEntries(target.effectivePkFields.map(field => [field, row[field]]))
+      return {id, action: deleted ? 'deleted' as const : added ? 'added' as const : 'changed' as const,
+        values: deleted ? {} : values, identity}
     })
     return [{view: target, ids: candidates, rows}]
   })
@@ -310,36 +325,84 @@ function capture(): readonly SaveGroup[] {
 function selectors(groups: readonly SaveGroup[]) {
   return groups.map(group => ({tableName: group.view.tableName, viewId: group.view.viewId, ids: [...group.ids]}))
 }
+function bindOriginalJournal(groups: readonly SaveGroup[]): void {
+  if (proof.value === undefined) return
+  const journal = dataSet.prepareSaveJournal({views: selectors(groups)})
+  if (journal.batchId === null) throw new Error('规则保存缺少原 DataSet 批次身份')
+  if (originalBatchId.value !== undefined && originalBatchId.value !== journal.batchId) {
+    throw new Error('原 DataSet 保存批次已变化，不能重新派发')
+  }
+  if (journal.views.length !== groups.length || !groups.every(group => journal.views.some(record =>
+    record.tableName === group.view.tableName && record.viewId === group.view.viewId && sameIds(record.ids, group.ids)))) {
+    throw new Error('原 DataSet 保存目标已变化，不能重新派发')
+  }
+  originalBatchId.value = journal.batchId
+}
 function matchesCaptured(groups: readonly SaveGroup[]): boolean {
-  const noOtherChanges = editedViews.every(target => [...(owned.get(target) ?? [])].every(id =>
-    groups.some(group => group.view === target && group.ids.includes(id))
-      || !target.hasEditingChanges(id) && !target.dirtyTracking.hasPendingChanges(id)))
-  return noOtherChanges && groups.every(group => group.rows.every(expected => {
-    const target = group.view, id = expected.id, row = target.getEditingRow(id)
-    if (target.hasEditingChanges(id)) return false
-    if (expected.action === 'deleted') return target.dirtyTracking.pendingDeleteIds.has(id)
-    if (!row || !target.dirtyTracking.hasPendingChanges(id)
-      || (expected.action === 'added') !== target.dirtyTracking.isPendingCreate(id)) return false
-    return expected.snapshot !== undefined && Object.entries(expected.snapshot).every(([field, value]) => Object.is(row[field], value))
-  }))
+  let current: readonly SaveGroup[]
+  try {current = capture()} catch {return false}
+  const changedIds = (target: DataView) => new Set<Id>([
+    ...target.dirtyTracking.pendingCreateIds,
+    ...target.dirtyTracking.dirtyRowIds,
+    ...target.dirtyTracking.pendingDeleteIds,
+    ...target.editingRows.map(row => target.getPkKey(row)).filter((id): id is Id => id !== undefined
+      && target.hasEditingChanges(id)),
+  ])
+  return editedViews.every(target => {
+    const ids = changedIds(target), expected = groups.find(group => group.view === target)?.ids ?? []
+    return ids.size === expected.length && expected.every(id => ids.has(id))
+  }) && groups.every(group => {
+    const found = current.find(item => item.view === group.view)
+    return found !== undefined && JSON.stringify(found.ids) === JSON.stringify(group.ids)
+      && JSON.stringify(found.rows) === JSON.stringify(group.rows)
+  })
+}
+function identityFilterValue(expected: ExpectedRow, field: string): string | number {
+  const value = expected.identity[field]
+  if (typeof value !== 'string' && typeof value !== 'number') {
+    throw new Error(`规则记录身份字段 ${field} 缺少有效值`)
+  }
+  return value
 }
 async function readback(groups: readonly SaveGroup[]): Promise<void> {
-  for (const target of editedViews) {
+  const rows = new Map<DataView, readonly DataRow[]>()
+  for (const group of groups) {
+    const target = group.view
     if (target.hasPendingSavedRowPermissions) await target.refreshSavedRowPermissions()
     if (!isCurrent()) throw new Error('规则编辑身份已变化')
-    await target.refresh()
-    if (target.loadingError) throw target.loadingError
+    const fields = [...new Set([
+      ...target.effectivePkFields,
+      ...group.rows.flatMap(expected => Object.keys(expected.values)),
+    ])]
+    const primaryKeyFields = target.effectivePkFields
+    if (primaryKeyFields.length === 0) throw new Error('规则回读缺少正式记录身份字段')
+    const filter = primaryKeyFields.length === 1
+      ? DataViewFilter.condition({field: primaryKeyFields[0]!, operator: 'in',
+        value: group.rows.map(expected => identityFilterValue(expected, primaryKeyFields[0]!))}).toJSON()
+      : {logic: 'or' as const, filters: group.rows.map(expected => ({
+        logic: 'and' as const,
+        filters: primaryKeyFields.map(field => DataViewFilter.condition({
+          field, operator: 'eq', value: identityFilterValue(expected, field),
+        }).toJSON()),
+      }))}
+    try {
+      rows.set(target, await target.queryOptionRows({fields, filter}))
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause)
+      const inaccessible = message.match(/DATA_VIEW_OPTIONS_FIELD: 字段缺失或不可读 (.+)$/)?.[1]
+      if (inaccessible) throw new Error(`字段 ${inaccessible} 无法读取，不能核验保存结果`)
+      throw cause
+    }
     if (!isCurrent()) throw new Error('规则编辑身份已变化')
   }
   for (const group of groups) for (const expected of group.rows) {
-    const row = group.view.rows.find(item => group.view.getPkKey(item) === expected.id)
+    const row = rows.get(group.view)?.find(item => group.view.getPkKey(item) === expected.id)
     if (expected.action === 'deleted') {
       if (row) throw new Error(`已删除记录 ${String(expected.id)} 仍存在`)
       continue
     }
     if (!row) throw new Error(`已保存记录 ${String(expected.id)} 未回读`)
     for (const [field, value] of Object.entries(expected.values)) {
-      if (group.view.fieldAccess(row, field).read !== 'visible') throw new Error(`字段 ${field} 无法读取，不能核验保存结果`)
       if (!Object.is(row[field], value)) throw new Error(`记录 ${String(expected.id)} 的 ${field} 回读不一致`)
     }
   }
@@ -367,102 +430,80 @@ async function confirmDiscard(message: string): Promise<boolean> {
     throw cause
   }
 }
-async function abandon(): Promise<void> {
-  if (busy.value || !isCurrent() || !ownUnknown.value || !captured.value || !failure.value) return
-  const original = failure.value, groups = captured.value
-  busy.value = true
-  let abandoned = false
-  try {
-    if (!await confirmDiscard('本次规则保存可能已部分或全部生效。放弃核验不会撤销服务端记录，将丢弃本窗本地修改并回读正式结果。')) return
-    const pending = groups.filter(group => group.view.hasUnconfirmedSave)
-    if (!isCurrent() || failure.value !== original || !pending.length
-      || pending.some(group => !group.view.hasUnconfirmedSaveFor(group.ids, original))) throw new Error('原提交身份已变化，不能放弃核验')
-    if (!matchesCaptured(groups)) throw new Error('原记录还有其他待处理修改，不能自动丢弃')
-    for (const group of pending) {
-      if (!group.view.abandonUnconfirmedSave()) throw new Error('原来源不支持放弃核验')
-      abandoned = true
-    }
-    failure.value = undefined
-    reconcile.value = true
-    discardOwned()
-    await refreshAfterDiscard()
-  } catch (cause) {
-    if (abandoned) interrupted.value = true
-    hint.value = cause instanceof Error ? cause.message : String(cause)
-  } finally {if (active) {busy.value = false; changed()}}
-}
 async function refreshAfterDiscard(): Promise<void> {
   for (const target of editedViews) {
     await target.refresh()
     if (target.loadingError) throw target.loadingError
     if (!isCurrent()) throw new Error('规则编辑身份已变化')
   }
-  reconcile.value = false
   emit('close', `已放弃未保存的本地修改；请核对实际结果：${identities()}`)
 }
 async function reconcileChanges(): Promise<void> {
-  if (busy.value || !isCurrent() || unknown.value || !reconcile.value) return
+  if (busy.value || !isCurrent() || !reconcile.value) return
   busy.value = true
   try {
-    if (!await confirmDiscard('部分修改可能已生效。只放弃尚未确认的本地修改并回读，不撤销已提交的记录。')) return
-    discardOwned()
+    if (!await confirmDiscard('原提交已确认未应用。只丢弃仍与原捕获一致的本地修改并回读，不撤销其他已提交记录。')) return
+    if (!ownsOriginalJournal.value || saveJournal.value.currentRecoverableAction !== 'discard-not-applied') {
+      throw new Error('原 DataSet 保存批次已变化，不能丢弃当前修改')
+    }
+    dataSet.discardSaveJournalNotApplied()
     await refreshAfterDiscard()
   } catch (cause) {hint.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active) {busy.value = false; changed()}}
 }
+async function verifyOriginalReceipt(groups: readonly SaveGroup[]): Promise<void> {
+  if (!ownsOriginalJournal.value || !ownUnknown.value) throw new Error('没有本次 DataSet 保存批次可核验')
+  const journal = await dataSet.verifySaveJournal()
+  changed()
+  if (!isCurrent()) return
+  if (journal.batchId !== originalBatchId.value) throw new Error('原 DataSet 保存批次已变化，不能接管')
+  if (journal.currentRecoverableAction === 'verify-original-receipt' || journal.views.some(item => item.state === 'unknown')) {
+    throw journal.originalError ?? new Error('原保存结果仍未确认')
+  }
+  if (!journal.completed) return
+  accepted.value = true
+  await readback(groups)
+  emit('close', '规则已保存并回读确认')
+}
 async function submit(): Promise<void> {
-  if (busy.value || !isCurrent() || foreignUnknown.value || interrupted.value || recoveryEnded.value) return
+  if (busy.value || !isCurrent() || foreignUnknown.value || blockedRecovery.value) return
   busy.value = true; hint.value = ''
-  const recovering = ownUnknown.value
   try {
     if (accepted.value) {
-      if (!captured.value) throw new Error('缺少原保存范围')
-      await readback(captured.value)
+      if (!proof.value) throw new Error('缺少原规则保存证明')
+      await readback(proof.value)
       emit('close', '规则已保存并回读确认')
       return
     }
-    if (!captured.value) {
-      await validate()
-      if (!isCurrent()) throw new Error('规则编辑身份已变化')
-      captured.value = capture()
-      if (!captured.value.length) {emit('close'); return}
-    } else if (!recovering) {
-      if (!matchesCaptured(captured.value)) {
-        reconcile.value = true
-        throw new Error('原修改已变化，不能重新提交')
-      }
-      await validate()
-      if (!isCurrent()) throw new Error('规则编辑身份已变化')
-      if (!matchesCaptured(captured.value)) {
-        reconcile.value = true
-        throw new Error('规则依赖变化，不能重新提交原修改')
-      }
+    if (ownUnknown.value) {
+      if (!proof.value) throw new Error('缺少原规则保存证明')
+      await verifyOriginalReceipt(proof.value)
+      return
     }
-    const groups = captured.value
+    if (!proof.value) {
+      await validate()
+      if (!isCurrent()) throw new Error('规则编辑身份已变化')
+      proof.value = capture()
+      if (!proof.value.length) {emit('close'); return}
+    } else if (!isCurrent()) {
+      throw new Error('规则编辑身份已变化')
+    }
+    const groups = proof.value
+    if (!matchesCaptured(groups)) throw new Error('原规则保存目标或修改已变化，不能重新派发')
+    bindOriginalJournal(groups)
     const response = await dataSet.saveChanges({views: selectors(groups)})
+    changed()
     if (!isCurrent()) return
-    if (!response.data) throw new Error(response.error?.message ?? response.message ?? '规则保存缺少回执')
-    const complete = groups.every(group => {
-      const receipt = response.data?.viewResults.find(item => item.tableName === group.view.tableName && item.viewId === group.view.viewId)
-      return receipt !== undefined && receipt.failedCount === 0 && receipt.failedEditingRows === 0
-        && receipt.createdCount === group.rows.filter(row => row.action === 'added').length
-        && receipt.savedCount === group.rows.filter(row => row.action === 'changed').length
-        && receipt.deletedCount === group.rows.filter(row => row.action === 'deleted').length
-    })
-    if (!response.success || !complete) {
-      reconcile.value = true
+    if (!ownsOriginalJournal.value) throw new Error('原 DataSet 保存批次已变化，不能核对当前规则')
+    if (!response.success || !saveJournal.value.completed) {
       throw new Error(response.error?.message ?? response.message ?? '规则保存未全部确认')
     }
-    failure.value = undefined
     accepted.value = true
     await readback(groups)
     emit('close', '规则已保存并回读确认')
   } catch (cause) {
     if (!active) return
-    if (cause instanceof Error && captured.value?.some(group => group.view.hasUnconfirmedSaveFor(group.ids, cause))) failure.value = cause
-    else if (recovering && cause instanceof DataViewSaveNotAppliedError && !unknown.value) failure.value = undefined
-    else if (cause instanceof DataSetSavePreflightError) captured.value = undefined
-    else if (captured.value && !accepted.value && !unknown.value && !reconcile.value) reconcile.value = true
+    changed()
     hint.value = cause instanceof Error ? cause.message : String(cause)
     if (unknown.value) hint.value += ownUnknown.value ? '；请核验原保存结果' : '；存在其他待核验提交'
     else if (accepted.value) hint.value = `保存已确认，但回读失败：${hint.value}；不要重新提交`

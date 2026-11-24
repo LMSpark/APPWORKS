@@ -73,14 +73,6 @@ async function open(existing = false, anchorMetadata = true) {
   return {...f, wrapper, button, click, addResult, addCondition, closed, boundId}
 }
 
-async function confirm(label: string): Promise<void> {
-  const button = Array.from(document.querySelectorAll<HTMLButtonElement>('.el-message-box__btns button')).reverse()
-    .find(item => item.textContent?.trim() === label)
-  if (!button) throw new Error(`确认框按钮不存在: ${label}`)
-  button.click()
-  await flushPromises()
-}
-
 function anchor(changes: Record<string, unknown> = {}) {
   return {id: 'B1', binding_code: 'anchor', source_application_id: 'APP', source_node_id: 'NODE',
     source_kind: 'data-model', source_model_id: 'MODEL', source_model_meta_name: 'Expense', source_contract_id: null,
@@ -209,6 +201,43 @@ describe('维度规则整组编辑', () => {
     expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1', account_set_id: 'SET-A'}])
     expect(f.http.records['Bil_Dimension_Rule_Result']).toMatchObject([{rowid: resultId, rule_id: 'R1', account_set_id: 'SET-A'}])
     expect(f.http.records['Bil_Dimension_Rule_Condition']).toMatchObject([{rowid: conditionId, result_id: resultId, account_set_id: 'SET-A'}])
+  })
+
+  it('预检失败保留原 DataSet journal，可在目标不变时重试', async () => {
+    const f = await open()
+    const resultId = await f.addResult()
+    vi.spyOn(f.rule, 'prepareQuerySave').mockImplementationOnce(() => {throw new Error('临时预检失败')})
+    await f.click('保存规则')
+    expect(document.body.textContent).toContain('临时预检失败')
+    const journal = f.dataSet.saveJournal
+    expect(journal.currentRecoverableAction).toBe('discard-not-applied')
+    expect(journal.views).toContainEqual(expect.objectContaining({
+      tableName: f.rule.tableName, viewId: f.rule.viewId, ids: ['R1'],
+    }))
+    expect(f.button('重试原保存').props('disabled')).toBe(false)
+    expect(f.result.dirtyTracking.isPendingCreate(resultId)).toBe(true)
+    expect(f.http.saves).toHaveLength(0)
+    await f.click('重试原保存')
+    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith('规则已保存并回读确认'))
+    expect(f.dataSet.saveJournal.batchId).toBe(journal.batchId)
+    expect(f.http.saves).toHaveLength(2)
+  })
+
+  it('预检失败后目标 ID 变化时拒绝重派发原 journal', async () => {
+    const f = await open()
+    const resultId = await f.addResult()
+    vi.spyOn(f.rule, 'prepareQuerySave').mockImplementationOnce(() => {throw new Error('预检中断')})
+    await f.click('保存规则')
+    const batchId = f.dataSet.saveJournal.batchId
+    f.result.discardPendingChanges([resultId])
+    await f.result.addRowWithIdentity({field: 'rowid', value: 'OTHER-RESULT'}, {rule_id: 'R1', account_set_id: 'GLOBAL',
+      sort_no: 1, dim_category: 'finance', dim_code_type: 'CONST', dim_code: 'other', value_type: 'FIELD',
+      value_expr: 'item.other', amount_type: 'NONE', required_flag: true})
+    await f.click('重试原保存')
+    expect(document.body.textContent).toContain('原规则保存目标或修改已变化')
+    expect(f.dataSet.saveJournal.batchId).toBe(batchId)
+    expect(f.result.dirtyTracking.isPendingCreate('OTHER-RESULT')).toBe(true)
+    expect(f.http.saves).toHaveLength(0)
   })
 
   it('条件的结果选项区分相同编码并跟随未保存的结果编辑', async () => {
@@ -430,7 +459,7 @@ describe('维度规则整组编辑', () => {
     expect(f.http.saves).toHaveLength(0)
   })
 
-  it('部分生效时保留未知捕获，明确放弃后回读实际结果', async () => {
+  it('部分生效时保留原批次未知，不提供重放或放弃', async () => {
     const f = await open()
     await f.addResult()
     f.http.failAfterWrite = true
@@ -442,26 +471,77 @@ describe('维度规则整组编辑', () => {
     expect(f.result.hasUnconfirmedSave).toBe(true)
     expect(f.rule.hasUnconfirmedSave).toBe(true)
     expect(f.http.saves).toHaveLength(2)
-    await f.click('放弃核验并返回')
-    await confirm('继续')
-    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith(expect.stringContaining('已放弃未保存的本地修改；请核对实际结果：规则 R1')))
-    expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(1)
-    expect(f.http.records['Bil_Dimension_Rule_Result']).toHaveLength(0)
+    expect(f.dataSet.saveJournal).toMatchObject({currentRecoverableAction: 'verify-original-receipt'})
+    expect(f.button('取消').props('disabled')).toBe(true)
+    expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '放弃核验并返回')).toBe(false)
+    await f.click('核验原保存结果')
+    expect(f.rule.hasUnconfirmedSave).toBe(true)
+    expect(f.result.hasUnconfirmedSave).toBe(true)
+    expect(f.closed).not.toHaveBeenCalled()
     expect(f.http.saves).toHaveLength(2)
   })
 
-  it('原提交后出现其他编辑时不放弃捕获', async () => {
+  it('原提交后出现其他编辑时只核验原捕获并保留后续草稿', async () => {
     const f = await open()
     await f.addResult()
     f.http.failAfterWrite = true
     await f.click('保存规则')
     await vi.waitFor(() => expect(f.rule.hasUnconfirmedSave).toBe(true))
     f.rule.updateEditingValue('R1', 'rule_name', '后来修改')
-    await f.click('放弃核验并返回')
-    await confirm('继续')
-    expect(document.body.textContent).toContain('还有其他待处理修改')
-    expect(f.rule.hasUnconfirmedSave).toBe(true)
-    expect(f.closed).not.toHaveBeenCalled()
+    await f.click('核验原保存结果')
+    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith('规则已保存并回读确认'))
+    expect(f.rule.getEditingRow('R1')?.['rule_name']).toBe('后来修改')
+    expect(f.http.records['Bil_Dimension_Rule']).toMatchObject([{rowid: 'R1', rule_name: '新规则'}])
+    expect(f.rule.hasUnconfirmedSave).toBe(false)
+    expect(f.http.saves).toHaveLength(2)
+  })
+
+  it('不接管其他入口的相同 DataSet 未知捕获', async () => {
+    const f = await open()
+    const resultId = await f.addResult()
+    f.rule.updateEditingValue('R1', 'rule_name', '外部入口修改')
+    f.http.failAfterWrite = true
+    await expect(f.dataSet.saveChanges({views: [{tableName: f.rule.tableName, viewId: f.rule.viewId, ids: ['R1']}]})).rejects.toThrow()
+    await flushPromises()
+    expect(document.body.textContent).toContain('其他操作的待核验提交')
+    expect(f.button('保存规则').props('disabled')).toBe(true)
+    expect(f.button('取消').props('disabled')).toBe(true)
+    expect(f.wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '核验原保存结果')).toBe(false)
+    await f.click('保存规则')
+    expect(f.result.dirtyTracking.isPendingCreate(resultId)).toBe(true)
+    expect(f.http.saves).toHaveLength(1)
+  })
+
+  it('权限收窄导致回读不可证实时保留原回执且只重试回读', async () => {
+    const f = await open()
+    await f.addResult()
+    f.http.beforeSave = async () => {f.http.hiddenFields['Bil_Dimension_Rule_Result'] = ['dim_code']}
+    await f.click('保存规则')
+    await vi.waitFor(() => expect(document.body.textContent).toContain('字段 dim_code 无法读取，不能核验保存结果'))
+    expect(f.dataSet.saveJournal).toMatchObject({completed: true, currentRecoverableAction: 'none'})
+    expect(f.rule.hasUnconfirmedSave).toBe(false)
+    expect(f.result.hasUnconfirmedSave).toBe(false)
+    expect(f.http.saves).toHaveLength(2)
+    f.http.hiddenFields['Bil_Dimension_Rule_Result'] = []
+    await f.click('重试回读')
+    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith('规则已保存并回读确认'))
+    expect(f.http.saves).toHaveLength(2)
+  })
+
+  it('只回读原目标 ID，忽略同范围其他行的隐藏字段', async () => {
+    const f = await open()
+    const resultId = await f.addResult()
+    f.http.records['Bil_Dimension_Rule_Result']!.push({
+      rowid: 'UNRELATED-RESULT', rule_id: 'R1', account_set_id: 'GLOBAL', sort_no: 2,
+      dim_category: 'finance', dim_code_type: 'CONST', dim_code: 'hidden-other', value_type: 'FIELD',
+      value_expr: 'item.other', amount_type: 'NONE', required_flag: true,
+    })
+    f.http.hiddenFieldsById['Bil_Dimension_Rule_Result'] = {'UNRELATED-RESULT': ['dim_code']}
+    await f.click('保存规则')
+    await vi.waitFor(() => expect(f.closed).toHaveBeenCalledWith('规则已保存并回读确认'))
+    const resultRead = f.http.reads.filter(read => read.table === 'Bil_Dimension_Rule_Result').at(-1)
+    expect(JSON.stringify(resultRead?.data)).toContain(String(resultId))
+    expect(f.http.saves).toHaveLength(2)
   })
 
   it('提交后回读失败时只重试回读，不重发', async () => {

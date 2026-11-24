@@ -918,6 +918,10 @@
           "type": "object",
           "title": "(parentNodeId: string | null, fields?: Readonly<Record<string, unknown>>) => Promise<string>"
         },
+        "saveBlueprintModuleCandidate": {
+          "type": "object",
+          "title": "(candidate: BlueprintModuleCreateCandidate) => Promise<string>"
+        },
         "listReferenceProjects": {
           "type": "object",
           "title": "() => Promise<ProjectBlueprintDomain.ProjectSummary[]>"
@@ -1057,6 +1061,7 @@
         "addChildNode",
         "addChildNodeById",
         "addBlueprintModuleNode",
+        "saveBlueprintModuleCandidate",
         "listReferenceProjects",
         "listReferenceProjectPages",
         "removeNodeFromTree",
@@ -1072,7 +1077,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-24T05:14:27.481Z",
+  "generatedAt": "2026-11-24T11:11:29.642Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",
@@ -1800,6 +1805,11 @@
             },
             {
               "name": "addBlueprintModuleNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveBlueprintModuleCandidate",
               "readable": true,
               "writable": true
             },

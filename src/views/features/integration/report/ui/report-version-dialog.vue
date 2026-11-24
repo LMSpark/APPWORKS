@@ -134,14 +134,16 @@ const remove = (row: DataRow) => guarded(async () => {
   assertSettled()
   const versions = view(versionKey), id = captureVersion(versions, row, ['State'])
   if (isOn(row['State'])) throw new Error('启用中的版本不能删除，请先启动其他版本')
+  let dispatched = false
   try {
     await versions.removeRow(id)
+    dispatched = true
     await commitReportChanges({label: '删除版本', targets: [{view: versions, ids: [id]}]})
+  } catch (cause) {
+    if (!dispatched && versions.dirtyTracking.hasPendingChanges(id)) versions.discardPendingChanges([id])
+    throw cause
   } finally {
-    if (!versions.hasUnconfirmedSave) {
-      if (versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges([id])
-      await loadVersions()
-    }
+    if (dispatched && !versions.hasUnconfirmedSave) await loadVersions()
   }
   message.value = '删除成功'
 })
@@ -153,21 +155,28 @@ const activate = (row: DataRow) => guarded(async () => {
   for (const version of versions.rows) captureVersion(versions, version, ['State'])
   const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''
   const ids = [id]
+  let dispatched = false
   try {
     for (const other of versions.rows) {
       const otherId = versions.getPkKey(other)
-      if (otherId !== undefined && otherId !== id && isOn(other['State'])) { versions.updateEditingValue(otherId, 'State', '0'); ids.push(otherId) }
+      if (otherId !== undefined && otherId !== id && isOn(other['State'])) {
+        ids.push(otherId)
+        versions.updateEditingValue(otherId, 'State', '0')
+      }
     }
     versions.updateEditingValue(id, 'State', '1')
     info.updateEditingValue(props.infoId, 'version_id', String(id))
     info.updateEditingValue(props.infoId, 'version_dataid', textOf(row, 'DataFormID'))
+    dispatched = true
     await commitReportChanges({label: '启动版本', targets: [{view: versions, ids}, {view: info, ids: [props.infoId]}]})
-  } finally {
-    if (![versions, info].some(item => item.hasUnconfirmedSave)) {
+  } catch (cause) {
+    if (!dispatched) {
       if (versions.hasEditingChanges() || versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges(ids)
       if (info.hasEditingChanges(props.infoId) || info.dirtyTracking.hasPendingChanges(props.infoId)) info.discardPendingChanges([props.infoId])
-      await loadVersions()
     }
+    throw cause
+  } finally {
+    if (dispatched && ![versions, info].some(item => item.hasUnconfirmedSave)) await loadVersions()
   }
   message.value = label ? `已启动版本 ${label}` : '已启动版本'
 })

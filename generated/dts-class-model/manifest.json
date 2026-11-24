@@ -14387,11 +14387,9 @@
         "sourceFile": "src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts",
         "packageName": "app",
         "modulePath": "platform-adapters/resources/database/catalog/table/copy-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/catalog/table/copy-view-ops\n职责：复制物理表（_Base_TblList + Base_TblField 同一次 saveChanges，对齐参考 copyTable）。",
+        "jsdoc": "@module app:platform-adapters/resources/database/catalog/table/copy-view-ops\n职责：捕获完整表/字段来源，经原 DataView owner 暂存精确副本；unknown 只核原批次，最终读回核对显式主键。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogCopyTableInput"
-        ]
+        "symbols": []
       }
     },
     "src/platform-adapters/resources/database/catalog/table/field-metadata.ts": {
@@ -14521,11 +14519,9 @@
         "sourceFile": "src/platform-adapters/resources/database/catalog/workflow/view-ops.ts",
         "packageName": "app",
         "modulePath": "platform-adapters/resources/database/catalog/workflow/view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/catalog/workflow/view-ops\n职责：Base_WorkflowDefinition 按 tblid 及可选条件查询（模型 query）。",
+        "jsdoc": "@module app:platform-adapters/resources/database/catalog/workflow/view-ops\n职责：Base_WorkflowDefinition 按表级查询级联查询；用户条件只由标准 DataView filter 追加。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogWorkflowQuery"
-        ]
+        "symbols": []
       }
     },
     "src/platform-adapters/resources/database/dataset-extensions.ts": {
@@ -17385,6 +17381,7 @@
           "BlueprintNodeFormData",
           "BlueprintChildNodeCreate",
           "BlueprintChildNodeCreateAtParent",
+          "BlueprintModuleCreateCandidate",
           "BlueprintDataSpaceImpact",
           "BlueprintNodeDataBatchItem",
           "BlueprintLeafMoveBatchCommand",
@@ -20013,7 +20010,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/use-application-function-ai",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-ai\n职责：项目蓝图页的两条 AI 流程：选中位置的下一级节点策划（生成→严格校验→预览→确认后逐个经 owner 新增）与当前节点表单回填（生成→校验→预览→确认后写入 DataView 编辑覆盖，不保存）。\n边界：草稿经同 DataSet 的 AiTurnDraftRunner 取得；写入只走 useDevState/owner 的 DataView 入口。取消、切换节点或上下文时作废进行中的请求与预览，迟到结果丢弃，不写任何数据。\nAI用途：修改蓝图 AI 交互时，以本 composable 的代次与上下文校验为唯一防串数据入口。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/use-application-function-ai\n职责：项目蓝图页的 AI 生成/预览/确认流程；候选、表单预览与逐项结果仅存于当前 owner DataSet 的命名 DataView。\n边界：AI 草稿只经严格协议校验；写入候选身份、保存回执与 unknown 续办由 BlueprintWorkspaceDataView 拥有。\n取消、节点或上下文切换会作废迟到结果；unknown 后只能沿原候选身份核验，不能重新生成节点。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ApplicationFunctionAiInput"
@@ -22354,7 +22351,7 @@
         "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog",
-        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog\n职责：复制物理表对话框；提交新表名/描述，由页面调用 spark-data 复制编排。",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog\n职责：复制表对话框；输入完全绑定目录命令 DataView，不在组件维护第二份草稿。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22408,7 +22405,7 @@
         "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-design-dialog",
-        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-design-dialog\n职责：表设计对话框；表头/字段/关系均绑定同一 catalog DataSet。",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-design-dialog\n职责：表设计对话框；表头/字段/关系及数据流均绑定同一 catalog DataSet 和标准组件。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -25336,6 +25333,10 @@
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
     },
+    "BlueprintModuleCreateCandidate": {
+      "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
+      "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
+    },
     "BlueprintNavHostInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts.json"
@@ -26296,10 +26297,6 @@
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
       "file": "files/packages/spark-component/src/components/containers/support/interactionControl.ts.json"
     },
-    "DatabaseCatalogCopyTableInput": {
-      "sourcePath": "src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts",
-      "file": "files/src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts.json"
-    },
     "DatabaseCatalogDbEditingUi": {
       "sourcePath": "src/platform-adapters/resources/database/catalog/db-view-ops.ts",
       "file": "files/src/platform-adapters/resources/database/catalog/db-view-ops.ts.json"
@@ -26359,10 +26356,6 @@
     "DatabaseCatalogViewPreviewParams": {
       "sourcePath": "src/platform-adapters/resources/database/catalog/table/preview-view-ops.ts",
       "file": "files/src/platform-adapters/resources/database/catalog/table/preview-view-ops.ts.json"
-    },
-    "DatabaseCatalogWorkflowQuery": {
-      "sourcePath": "src/platform-adapters/resources/database/catalog/workflow/view-ops.ts",
-      "file": "files/src/platform-adapters/resources/database/catalog/workflow/view-ops.ts.json"
     },
     "DatabaseServerEditingUi": {
       "sourcePath": "src/platform-adapters/resources/database/server/view-ops.ts",

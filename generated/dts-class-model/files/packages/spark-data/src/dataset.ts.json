@@ -783,6 +783,75 @@
         "method.resolveOptionView.return": {
           "$ref": "data-view.ts.json#/$defs/DataView"
         },
+        "method.prepareSaveJournal.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "types.ts.json#/$defs/DataSetSaveChangesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSaveJournal.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "method.prepareSaveJournalPhases.params": {
+          "type": "object",
+          "properties": {
+            "phases": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataSetSaveChangesOptions"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSaveJournalPhases.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "method.cancelPreparedSaveJournal.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "types.ts.json#/$defs/DataSetSaveChangesOptions"
+            },
+            "batchId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cancelPreparedSaveJournal.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "method.abandonPreparedSaveJournal.params": {
+          "type": "object",
+          "properties": {
+            "batchId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.abandonPreparedSaveJournal.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
+        "method.releaseSettledSaveJournal.params": {
+          "type": "object",
+          "properties": {
+            "batchId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseSettledSaveJournal.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
         "method.verifySaveJournal.params": {
           "type": "object",
           "properties": {},
@@ -949,7 +1018,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-22T18:36:54.366Z",
+  "generatedAt": "2026-11-24T15:44:37.379Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2188,6 +2257,122 @@
                   "name": "DataView",
                   "sourcePath": "packages/spark-data/src/data-view.ts"
                 }
+              }
+            },
+            {
+              "name": "prepareSaveJournal",
+              "jsdoc": "Resolve the exact journal that the following saveChanges call must consume.\nThis is synchronous so a caller can bind its batch identity before preflight or dispatch begins.",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveChangesOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "prepareSaveJournalPhases",
+              "parameters": [
+                {
+                  "name": "phases",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSetSaveChangesOptions[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "cancelPreparedSaveJournal",
+              "jsdoc": "Cancel an explicitly prepared, never-dispatched save journal without touching view drafts.",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveChangesOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "batchId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "abandonPreparedSaveJournal",
+              "jsdoc": "Explicitly abandon an unresolved journal after the owner has abandoned its source attempts.",
+              "parameters": [
+                {
+                  "name": "batchId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "releaseSettledSaveJournal",
+              "jsdoc": "Release a fully settled journal while preserving edits made after its original capture.",
+              "parameters": [
+                {
+                  "name": "batchId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {

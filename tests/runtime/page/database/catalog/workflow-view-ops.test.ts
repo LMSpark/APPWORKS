@@ -3,6 +3,10 @@ import {DataSet} from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {LowcodeDatabaseTableView} from '@/platform-adapters/resources/database/catalog/table-view'
 import {
+  requireDatabaseCatalogDbViewForTable,
+  requireDatabaseCatalogTableView,
+} from '@/platform-adapters/resources/database/catalog/table/view-ops'
+import {
   databaseCatalogHasWorkflowCatalog,
   databaseCatalogWorkflowRefreshForTable,
   requireDatabaseCatalogWorkflowView,
@@ -35,9 +39,24 @@ describe('database/catalog/workflow/view-ops', () => {
     sets.push(ds)
     expect(databaseCatalogHasWorkflowCatalog(ds)).toBe(true)
     const workflowView = requireDatabaseCatalogWorkflowView(ds)
+    const tableView = requireDatabaseCatalogTableView(ds)
+    const dbView = requireDatabaseCatalogDbViewForTable(ds)
+    dbView.setSelectedRows([dbView.rows[0]!])
+    await tableView.refresh()
+    if (tableView.loadingError) throw tableView.loadingError
+    const source = tableView.rows.find(row => row['rowid'] === 'T1')!
+    tableView.setCurrentRow(source)
+    tableView.setSelectedRows([source])
     await databaseCatalogWorkflowRefreshForTable(workflowView, 'T1')
     expect(workflowView.rows.map(row => row['rowid'])).toEqual(['W1'])
-    await databaseCatalogWorkflowRefreshForTable(workflowView, 'T1', {name: '订单'})
+    await workflowView.executeFilter({field: 'name', operator: 'contains', value: '订单'})
     expect(workflowView.rows.map(row => row['name'])).toEqual(['订单流'])
+    const request = http.requests.filter(item => item.url === '/api/DataOperation/GetData'
+      && JSON.stringify(item.data).includes('Base_WorkflowDefinition')).at(-1)
+    const body = request?.data as {Table?: Array<{Filter?: string}>}
+    const filter = JSON.stringify(body.Table?.[0]?.Filter)
+    expect(filter).toContain('tblid')
+    expect(filter).toContain('equal')
+    expect(filter).toContain('contains')
   })
 })

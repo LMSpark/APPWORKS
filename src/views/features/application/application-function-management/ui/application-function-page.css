@@ -111,27 +111,6 @@
   color: var(--el-color-primary);
 }
 
-.application-function-page__preview-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.application-function-page__preview-table th,
-.application-function-page__preview-table td {
-  padding: 0.375rem 0.5rem;
-  border: 1px solid var(--el-border-color-lighter);
-  text-align: left;
-  vertical-align: top;
-}
-
-.application-function-page__preview-list dt {
-  font-weight: 600;
-}
-
-.application-function-page__preview-list dd {
-  margin: 0 0 0.5rem;
-  white-space: pre-wrap;
-}
 
 .application-function-page__prototype-preview {
   max-height: 70vh;

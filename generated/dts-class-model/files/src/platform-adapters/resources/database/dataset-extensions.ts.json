@@ -203,6 +203,8 @@
         "_saveJournal": true,
         "_saveJournalPhaseIndex": true,
         "_saveJournalBatchSequence": true,
+        "_saveJournalPreparedExact": true,
+        "_saveChangesInFlight": true,
         "_fieldCascadeListeners": true,
         "_resourceChildRelationIdx": true,
         "_resourceParentRelationIdx": true,
@@ -438,6 +440,31 @@
         "saveJournalPendingSignature": true,
         "beginSaveJournal": true,
         "currentJournalViews": true,
+        "bindSaveJournalDispatchSignatures": true,
+        "prepareSaveJournal": {
+          "type": "object",
+          "title": "(options?: SparkData.DataSetSaveChangesOptions) => SparkData.DataSetSaveJournal"
+        },
+        "prepareSaveJournalPhases": {
+          "type": "object",
+          "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => SparkData.DataSetSaveJournal"
+        },
+        "saveJournalOptionSignature": true,
+        "saveJournalMatches": true,
+        "saveJournalPhaseMatches": true,
+        "bindPreparedSaveOptions": true,
+        "cancelPreparedSaveJournal": {
+          "type": "object",
+          "title": "(options?: SparkData.DataSetSaveChangesOptions, batchId?: string | null) => SparkData.DataSetSaveJournal"
+        },
+        "abandonPreparedSaveJournal": {
+          "type": "object",
+          "title": "(batchId: string) => SparkData.DataSetSaveJournal"
+        },
+        "releaseSettledSaveJournal": {
+          "type": "object",
+          "title": "(batchId: string) => SparkData.DataSetSaveJournal"
+        },
         "settleSaveJournal": true,
         "refreshSaveJournalCompletion": true,
         "saveJournal": {
@@ -518,6 +545,8 @@
         "_saveJournal",
         "_saveJournalPhaseIndex",
         "_saveJournalBatchSequence",
+        "_saveJournalPreparedExact",
+        "_saveChangesInFlight",
         "_fieldCascadeListeners",
         "_resourceChildRelationIdx",
         "_resourceParentRelationIdx",
@@ -585,6 +614,16 @@
         "saveJournalPendingSignature",
         "beginSaveJournal",
         "currentJournalViews",
+        "bindSaveJournalDispatchSignatures",
+        "prepareSaveJournal",
+        "prepareSaveJournalPhases",
+        "saveJournalOptionSignature",
+        "saveJournalMatches",
+        "saveJournalPhaseMatches",
+        "bindPreparedSaveOptions",
+        "cancelPreparedSaveJournal",
+        "abandonPreparedSaveJournal",
+        "releaseSettledSaveJournal",
         "settleSaveJournal",
         "refreshSaveJournalCompletion",
         "saveJournal",
@@ -905,7 +944,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.649Z",
+  "generatedAt": "2026-11-24T10:10:45.280Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",
@@ -1174,6 +1213,16 @@
             },
             {
               "name": "_saveJournalBatchSequence",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_saveJournalPreparedExact",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_saveChangesInFlight",
               "readable": true,
               "writable": true
             },
@@ -1509,6 +1558,56 @@
             },
             {
               "name": "currentJournalViews",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "bindSaveJournalDispatchSignatures",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepareSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepareSaveJournalPhases",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveJournalOptionSignature",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveJournalMatches",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveJournalPhaseMatches",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "bindPreparedSaveOptions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cancelPreparedSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "abandonPreparedSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "releaseSettledSaveJournal",
               "readable": true,
               "writable": true
             },

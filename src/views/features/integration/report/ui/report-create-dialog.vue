@@ -28,6 +28,7 @@ const {sparkConsume} = useSparkComponent({type: 'report-create-dialog'})
 const pageService = consumeRequiredPageService(sparkConsume, 'report-create-dialog')
 
 const busy = ref(false), abandonInterrupted = ref(false), hint = ref(''), revision = ref(0), failure = shallowRef<Error>()
+let preparedBatchId:string|null=null
 const confirmed = shallowRef<ReadonlySet<DataView>>(new Set())
 const runtime = sparkConsume(PAGE_RUNTIME)
 
@@ -56,18 +57,22 @@ const ownUnknown = computed(() => unknown.value && failure.value !== undefined
   && targets.filter(target => target.view.hasUnconfirmedSave).every(target => target.view.hasUnconfirmedSaveFor([target.id], failure.value)))
 const foreignUnknown = computed(() => unknown.value && !ownUnknown.value)
 const recoveryEnded = computed(() => failure.value !== undefined && !unknown.value)
+const rejected = computed(() => {void revision.value; return preparedBatchId!==null
+  &&dataSet.saveJournal.batchId===preparedBatchId
+  && dataSet.saveJournal.currentRecoverableAction==='discard-not-applied'})
 const missingReceipt = computed(() => {void revision.value; return targets.some(target =>
   !confirmed.value.has(target.view) && !target.view.hasUnconfirmedSave && !target.view.dirtyTracking.isPendingCreate(target.id))})
 const permissionsPending = computed(() => {void revision.value; return targets.some(target =>
   confirmed.value.has(target.view) && target.view.hasPendingSavedRowPermissions)})
-const canCancel = computed(() => current.value && !busy.value && !abandonInterrupted.value && !unknown.value && !recoveryEnded.value
+const canCancel = computed(() => current.value && !busy.value && !abandonInterrupted.value && !unknown.value
+  && (!recoveryEnded.value||rejected.value)
   && !missingReceipt.value && confirmed.value.size === 0)
 const locked = computed(() => busy.value || abandonInterrupted.value || unknown.value || recoveryEnded.value || missingReceipt.value
   || confirmed.value.size > 0 || !current.value)
 const blocked = computed(() => !current.value ? '原报表编辑身份已变化，不能处理当前草稿。'
   : abandonInterrupted.value ? '放弃核验未完整执行，本窗不能再次提交或丢弃。'
   : foreignUnknown.value ? '存在其他操作的待核验提交，请由原操作处理；本窗保留草稿。'
-  : recoveryEnded.value ? '原提交捕获已结束，本窗不能重新提交或丢弃，请先核对正式结果。'
+  : recoveryEnded.value&&!rejected.value ? '原提交捕获已结束，本窗不能重新提交或丢弃，请先核对正式结果。'
   : missingReceipt.value ? '部分记录缺少本窗确认回执，请先核对正式结果，不能重发或丢弃。' : '')
 const saveLabel = computed(() => ownUnknown.value ? '核验原保存结果' : permissionsPending.value ? '回读已保存权限'
   : confirmed.value.size > 0 ? '保存剩余记录' : '确定')
@@ -112,6 +117,13 @@ onBeforeUnmount(() => {active = false; stop()})
 function cancel(): void {
   if (!isCurrent() || !canCancel.value) return
   try {
+    if(preparedBatchId!==null){
+      if(rejected.value)dataSet.discardSaveJournalNotApplied()
+      else dataSet.cancelPreparedSaveJournal(
+        {views:targets.map(target=>({tableName:target.view.tableName,viewId:target.view.viewId,ids:[target.id]}))},
+        preparedBatchId,
+      )
+    }
     report.discardPendingChanges([binding.reportId])
     info.discardPendingChanges([binding.infoId])
     emit('close')
@@ -147,6 +159,7 @@ async function abandon(): Promise<void> {
     for (const target of [...targets].reverse()) {
       if (target.view.dirtyTracking.isPendingCreate(target.id)) target.view.discardPendingChanges([target.id])
     }
+    if(preparedBatchId!==null)dataSet.abandonPreparedSaveJournal(preparedBatchId)
     failure.value = undefined
     emit('close', 'abandoned')
   } catch (cause) {
@@ -196,8 +209,10 @@ async function submit(): Promise<void> {
       const invalid = syncAppName({info, apps, id: binding.infoId, row})
       if (invalid) {hint.value = invalid; return}
     }
-    const result = await dataSet.saveChanges({views: targets.map(target =>
-      ({tableName: target.view.tableName, viewId: target.view.viewId, ids: [target.id]}))})
+    const selection={views:targets.map(target=>
+      ({tableName:target.view.tableName,viewId:target.view.viewId,ids:[target.id]}))}
+    preparedBatchId=dataSet.prepareSaveJournal(selection).batchId
+    const result=await dataSet.saveChanges(selection)
     if (!isCurrent()) return
     if (!result.data) throw new Error(result.error?.message ?? result.message ?? '新增结果缺少回执')
     const next = new Set(confirmed.value)

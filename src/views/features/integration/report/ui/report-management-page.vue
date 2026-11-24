@@ -112,7 +112,10 @@ const verify = () => guarded(async () => {
   try {
     pageService.showMessage(await verifyReportSaves(views), 'success')
   } finally {
-    if (!views.some(item => item.hasUnconfirmedSave)) await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])
+    if (!views.some(item => item.hasUnconfirmedSave || item.hasEditingChanges()
+      || item.dirtyTracking.hasPendingChanges())) {
+      await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])
+    }
   }
 })
 
@@ -173,7 +176,8 @@ function idOf(target: DataView, row: DataRow): string | number {
 }
 function open(kind: Dialog['kind'], row: DataRow): void {
   try {
-    assertSettled()
+    const reason=reportPendingReason(reportViews(),kind==='model')
+    if(reason)throw new Error(reason)
     if (kind === 'model' && !textOf(row, 'version_id')) throw new Error('该报表没有启用版本，请先在历史版本中启动一个版本')
     dialog.value = {kind, infoId: idOf(view(viewKey.value), row), epoch: ++epoch}
   } catch (cause) { message.value = failure(cause) }
@@ -232,15 +236,21 @@ const remove = (row: DataRow) => guarded(async () => {
     if (textOf(version, 'RptID') !== String(id)) throw new Error('版本与当前报表不一致')
     return idOf(versions, version)
   })
+  let dispatched = false
   try {
     for (const versionId of versionIds) await versions.removeRow(versionId)
     assertReport()
     await info.removeRow(id)
+    dispatched = true
     await commitReportChanges({label: '删除报表', targets: [{view: versions, ids: versionIds}, {view: info, ids: [id]}]})
-  } finally {
-    if (![info, versions].some(item => item.hasUnconfirmedSave)) {
+  } catch (cause) {
+    if (!dispatched) {
       if (info.dirtyTracking.hasPendingChanges()) info.discardPendingChanges([id])
       if (versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges(versionIds)
+    }
+    throw cause
+  } finally {
+    if (dispatched && ![info, versions].some(item => item.hasUnconfirmedSave)) {
       await Promise.all([info.refresh(), view(reportKey).refresh()])
     }
   }

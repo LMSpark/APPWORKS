@@ -4,11 +4,12 @@ import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
-import {getSparkNodeChildren} from '@spark-appworks/spark-data'
+import {DataSet, getSparkNodeChildren, type DataSetSaveJournal, type DataSetSaveRecoverableAction, type DataView} from '@spark-appworks/spark-data'
 import {FieldText, FieldTextarea, RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
+import {commitReportChanges, verifyReportSaves} from '@/views/features/integration/report/ui/report-save'
 import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 import script from '@/views/features/integration/report/ui/tool/script.js?raw'
 import style from '@/views/features/integration/report/ui/tool/style.css?raw'
@@ -87,6 +88,37 @@ async function open() {
   return {...f, router, dynamic, instance, wrapper, click}
 }
 
+function recoveryFixture() {
+  const dataSet = DataSet.fromJson({scenarioId: 'report-recovery', tables: {
+    ReportInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {commitMode: 'staged'}}},
+    ReportVersion: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {commitMode: 'staged'}}},
+  }})
+  const info = dataSet.getView('ReportInfo'), version = dataSet.getView('ReportVersion')
+  if (!info || !version) throw new Error('报表恢复测试视图缺失')
+  return {dataSet, info, version}
+}
+
+function journal(
+  entries: ReadonlyArray<Readonly<{view: DataView; state: 'applied' | 'not-applied' | 'unknown'}>>,
+  action: DataSetSaveRecoverableAction,
+  completed = false,
+): DataSetSaveJournal {
+  const views = entries.map(entry => ({
+    tableName: entry.view.tableName, viewId: entry.view.viewId, ids: ['original-id'],
+    resourceType: undefined, owner: 'database' as const, completed: entry.state === 'applied',
+    state: entry.state, originalError: entry.state === 'unknown' ? new Error('receipt unavailable') : undefined,
+  }))
+  const phaseState = completed ? 'completed' as const : views.some(item => item.state === 'unknown') ? 'unknown' as const
+    : views.some(item => item.state === 'not-applied') ? 'not-applied' as const : 'pending' as const
+  return {
+    batchId: 'original-report-batch', completed, completedPhases: completed ? 1 : 0,
+    originalError: views.find(item => item.originalError)?.originalError,
+    currentRecoverableAction: action, retainedDraft: false,
+    phases: [{index: 0, completed, state: phaseState, views}],
+    views,
+  }
+}
+
 describe('报表系统页的新增生命周期', () => {
   it('初始化第二条记录后发生错误时，撤销两条本地新增', async () => {
     const f = await open()
@@ -111,6 +143,26 @@ describe('报表系统页的新增生命周期', () => {
     await f.router.push('/clean')
     expect(f.router.currentRoute.value.path).toBe('/clean')
     expect(f.http.saves).toHaveLength(0)
+  })
+
+  it('明确拒绝的新增可以按原批次取消并开始下一份报表', async () => {
+    const f=await open()
+    await f.click('新增')
+    const row=f.info.rows[0]
+    if(!row)throw new Error('缺少本地报表')
+    const id=f.info.getPkKey(row)
+    if(id===undefined)throw new Error('缺少本地报表身份')
+    f.info.updateEditingValue(id,'RptName','拒绝后取消')
+    f.info.updateEditingValue(id,'modid','APP')
+    f.http.rejectNextSave=true
+    await f.click('确定')
+    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton)
+      .find(button=>button.props('label')==='取消')?.props('disabled')).toBe(false))
+    await f.click('取消')
+    await vi.waitFor(()=>expect(f.instance.isDirty).toBe(false))
+    await f.click('新增')
+    expect(f.info.rows).toHaveLength(1)
+    expect(f.info.hasUnconfirmedSave).toBe(false)
   })
 
   it.each([false, true])('新增只在收到双记录回执后释放系统页（回执中断=%s）', async lost => {
@@ -272,7 +324,7 @@ describe('报表多记录修改的失败收敛', () => {
     f.http.rejectNextSave = true
     await rowAction(f, '删除', infoRow(f))
     await confirmBox(true)
-    await vi.waitFor(() => expect(document.body.textContent).toContain('已撤销本地修改'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain('已撤销原捕获中明确未生效的本地修改'))
     expect(f.instance.isDirty).toBe(false)
     expect(f.info.rows).toHaveLength(1)
     expect(f.http.records['Base_Report']).toHaveLength(2)
@@ -411,7 +463,7 @@ describe('报表多记录修改的失败收敛', () => {
     } finally {restricted.mockRestore()}
     f.http.rejectNextSave = true
     await rowAction(f, '启动', second(), 1)
-    await vi.waitFor(() => expect(dialog().textContent).toContain('已撤销本地修改'))
+    await vi.waitFor(() => expect(dialog().textContent).toContain('已撤销原捕获中明确未生效的本地修改'))
     expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(f.info.hasEditingChanges()).toBe(false)
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(false)
@@ -479,7 +531,7 @@ describe('报表多记录修改的失败收敛', () => {
     await flushPromises()
     f.http.rejectNextSave = true
     await f.click('确定')
-    await vi.waitFor(() => expect(document.body.textContent).toContain('已撤销本地修改'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain('已撤销原捕获中明确未生效的本地修改'))
     expect(f.info.hasEditingChanges()).toBe(false)
     expect(f.report.hasEditingChanges()).toBe(false)
     expect(f.info.dirtyTracking.hasPendingChanges()).toBe(false)
@@ -509,5 +561,100 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.http.saves).toHaveLength(saves)
     expect(persisted.info.rows).toMatchObject([{rowid: 'R1', version_dataid: 'D2'}])
     expect(persisted.versions.rows.find(row => row['rowid'] === 'V1')?.['DataFormID']).toBe('D2')
+  })
+
+  it('模型对话框派发后核验清除未知时保留同一行后续编辑', async () => {
+    const f = await open()
+    await seed(f)
+    await rowAction(f, '模型', infoRow(f))
+    const picker = f.runtime.resolveView(`${scenario}@Base_DataSet@picker`)
+    if (!picker) throw new Error('缺少模型候选视图')
+    await vi.waitFor(() => expect(picker.rows).toHaveLength(2))
+    const choose = f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick') as
+      ((row: Record<string, unknown>) => void) | undefined
+    const target = picker.rows.find(row => row['rowid'] === 'D2')
+    if (!choose || !target) throw new Error('模型选择入口缺失')
+    choose(target)
+    await flushPromises()
+    let entered = false, release: (() => void) | undefined
+    const gate = new Promise<void>(resolve => {release = resolve})
+    f.http.beforeSave = async () => {entered = true; await gate}
+    const saveChanges = f.dataSet.saveChanges.bind(f.dataSet)
+    vi.spyOn(f.dataSet, 'saveChanges').mockImplementation(async options => {
+      try {
+        return await saveChanges(options)
+      } catch (cause) {
+        if (f.info.hasUnconfirmedSave || f.report.hasUnconfirmedSave) await f.dataSet.verifySaveJournal()
+        throw cause
+      }
+    })
+    f.http.failAfterWrite = true
+    try {
+      await f.click('确定')
+      await vi.waitFor(() => expect(entered).toBe(true))
+      f.info.updateEditingValue('R1', 'RptDesc', '保存后补充的说明')
+      release?.()
+      await vi.waitFor(() => expect(document.body.textContent).toContain('绑定模型失败'))
+      expect(f.info.hasUnconfirmedSave).toBe(false)
+      expect(f.report.hasUnconfirmedSave).toBe(false)
+      expect(f.info.getEditingPatch('R1')).toMatchObject({RptDesc: '保存后补充的说明'})
+      expect(f.http.saves).toHaveLength(2)
+      const persisted = await readPersistedReport(scenario, f.http)
+      expect(persisted.info.rows).toMatchObject([{rowid: 'R1', version_dataid: 'D2', RptDesc: ''}])
+      expect(persisted.versions.rows.find(row => row['rowid'] === 'V1')?.['DataFormID']).toBe('D2')
+    } finally {release?.()}
+  })
+})
+
+describe('报表保存只沿原SPARK Data日志恢复', () => {
+  it('明确未生效且原草稿已变化时只交给日志保护，保留后续编辑', async () => {
+    const f = recoveryFixture()
+    const original = journal([{view: f.info, state: 'not-applied'}, {view: f.version, state: 'not-applied'}], 'discard-not-applied')
+    vi.spyOn(f.dataSet, 'saveJournal', 'get').mockReturnValue(original)
+    vi.spyOn(f.dataSet, 'saveChanges').mockRejectedValue(new Error('source rejected'))
+    const discardJournal = vi.spyOn(f.dataSet, 'discardSaveJournalNotApplied').mockImplementation(() => {
+      throw new Error('DATA_SET_SAVE_JOURNAL_CHANGED')
+    })
+    const discardView = vi.spyOn(f.info, 'discardPendingChanges')
+    try {
+      await expect(commitReportChanges({label: '删除报表', targets: [
+        {view: f.info, ids: ['report-id']}, {view: f.version, ids: ['version-id']},
+      ]})).rejects.toThrow('原未生效草稿已保留')
+      expect(discardJournal).toHaveBeenCalledOnce()
+      expect(discardView).not.toHaveBeenCalled()
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('部分回执核验后只丢弃日志确认未生效的原捕获且不重发保存', async () => {
+    const f = recoveryFixture()
+    const original = journal([{view: f.info, state: 'unknown'}, {view: f.version, state: 'unknown'}], 'verify-original-receipt')
+    const partial = journal([{view: f.info, state: 'applied'}, {view: f.version, state: 'not-applied'}], 'discard-not-applied')
+    const completed = journal([{view: f.info, state: 'applied'}, {view: f.version, state: 'not-applied'}], 'none', true)
+    vi.spyOn(f.info, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
+    vi.spyOn(f.version, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
+    vi.spyOn(f.dataSet, 'saveJournal', 'get').mockReturnValue(original)
+    vi.spyOn(f.dataSet, 'verifySaveJournal').mockResolvedValue(partial)
+    const discard = vi.spyOn(f.dataSet, 'discardSaveJournalNotApplied').mockReturnValue(completed)
+    const replay = vi.spyOn(f.dataSet, 'saveChanges').mockRejectedValue(new Error('禁止重发保存'))
+    try {
+      await expect(verifyReportSaves([f.info, f.version])).resolves.toContain('部分已确认生效')
+      expect(discard).toHaveBeenCalledOnce()
+      expect(replay).not.toHaveBeenCalled()
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('结果仍未知时保留原捕获与提示，不丢弃或重放', async () => {
+    const f = recoveryFixture()
+    const original = journal([{view: f.info, state: 'unknown'}], 'verify-original-receipt')
+    vi.spyOn(f.info, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
+    vi.spyOn(f.dataSet, 'saveJournal', 'get').mockReturnValue(original)
+    vi.spyOn(f.dataSet, 'verifySaveJournal').mockResolvedValue(original)
+    const discard = vi.spyOn(f.dataSet, 'discardSaveJournalNotApplied')
+    const replay = vi.spyOn(f.dataSet, 'saveChanges').mockRejectedValue(new Error('禁止重发保存'))
+    try {
+      await expect(verifyReportSaves([f.info])).rejects.toThrow('勿重复操作')
+      expect(discard).not.toHaveBeenCalled()
+      expect(replay).not.toHaveBeenCalled()
+    } finally {f.dataSet.destroy()}
   })
 })

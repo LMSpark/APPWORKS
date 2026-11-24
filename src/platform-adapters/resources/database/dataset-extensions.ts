@@ -25,6 +25,8 @@ function scalar(value: unknown): string {
 
 const catalogInputColumns = [
   {name: 'commandId', primary: true}, {name: 'serverId'}, {name: 'dbId'}, {name: 'addDefaultFields'}, {name: 'batchId'},
+  {name: 'copySourceTableId'}, {name: 'copySourceDbId'}, {name: 'copySourceLabel'},
+  {name: 'copyTableId'}, {name: 'copyTableName'}, {name: 'copyTableDesc'},
 ] as const
 
 type CatalogInputIdentity = Readonly<{name: string; table: SparkData.DataTable; view: SparkData.DataView}>

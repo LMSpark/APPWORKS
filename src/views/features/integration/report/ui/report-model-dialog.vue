@@ -86,8 +86,9 @@ async function submit(): Promise<void> {
   busy.value = true; message.value = ''
   const info = view(props.infoKey), report = view(props.reportKey)
   let versionId = ''
+  let dispatched = false
   try {
-    const reason = reportPendingReason([info, report])
+    const reason = reportPendingReason([info, report], true)
     if (reason) throw new Error(reason)
     try { originalVersion.assertCurrent() }
     catch (cause) { ready.value = false; selectedId.value = ''; selectedName.value = ''; throw new Error(`${failure(cause)}；请关闭后重新打开模型选择`) }
@@ -96,11 +97,12 @@ async function submit(): Promise<void> {
     versionId = originalVersion.id
     info.updateEditingValue(props.infoId, 'version_dataid', selectedId.value)
     report.updateEditingValue(versionId, 'DataFormID', selectedId.value)
+    dispatched = true
     await commitReportChanges({label: '绑定模型', targets: [{view: info, ids: [props.infoId]}, {view: report, ids: [versionId]}]})
     emit('close')
   } catch (cause) {
     message.value = failure(cause)
-    if (versionId && ![info, report].some(item => item.hasUnconfirmedSave)) {
+    if (!dispatched && versionId) {
       try {
         if (info.hasEditingChanges(props.infoId) || info.dirtyTracking.hasPendingChanges(props.infoId)) info.discardPendingChanges([props.infoId])
         if (report.hasEditingChanges(versionId) || report.dirtyTracking.hasPendingChanges(versionId)) report.discardPendingChanges([versionId])

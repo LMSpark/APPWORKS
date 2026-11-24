@@ -13,6 +13,13 @@ export const DATABASE_CATALOG_WORKFLOW_LIST_FIELDS: SparkNode[] = [
   {type: 'r-text', props: {field: 'version', label: '版本号', width: 96}},
 ]
 
+export const DATABASE_CATALOG_WORKFLOW_FILTER_FIELDS: SparkNode[] = [
+  {type: 'r-text', props: {field: 'name', label: '名称', placeholder: '名称', filterOperator: 'contains'}},
+  {type: 'r-text', props: {field: 'workflow_key', label: '工作流编码', placeholder: '工作流编码', filterOperator: 'contains'}},
+  {type: 'r-text', props: {field: 'description', label: '描述', placeholder: '描述', filterOperator: 'contains'}},
+  {type: 'r-text', props: {field: 'status', label: '状态', placeholder: '状态', filterOperator: 'eq'}},
+]
+
 export function databaseCatalogHasWorkflowStatusDictionary(dataSet: DataSet): boolean {
   return Boolean(dataSet.getView(DATABASE_CATALOG_WORKFLOW_STATUS_DICT_MODEL, 'default'))
 }

@@ -116,6 +116,11 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   databasePrimaryKey = 'rowid'
   databaseCreatedId: string | undefined
   allowDeleteByModel = new Set<string>()
+  copySaveLostAck = false
+  copyFailReadbackModel = ''
+  copyFailReadbackAfterSaveModel = ''
+  copyWrongHeaderRowId = ''
+  copyWrongFieldRowId = ''
   unregisteredByServer: Record<string, string[]> = {}
   unregisteredDbBody: unknown = undefined
   unregisteredByDb: Record<string, string[]> = {}
@@ -275,11 +280,15 @@ export class DatabaseTableViewHttp extends HttpClientBase {
             physical.push(accepted)
             if (tableName === DATABASE_CATALOG_TABLE_MODEL || (Object.hasOwn(row, 'tblname') && !Object.hasOwn(row, 'enname'))) {
               this.rows[DATABASE_CATALOG_TABLE_MODEL]!.push({
-                rowid: 'T-NEW', dbid: 'DB1', tblname: '', tbldesc: '', schemaName: 'dbo', status: 1, createuser: 'admin', createtime: '2026-01-01', ...row,
+                rowid: 'T-NEW', dbid: 'DB1', tblname: '', tbldesc: '', schemaName: 'dbo', status: 1, createuser: 'admin', createtime: '2026-01-01',
+                ...row, ...(this.copyWrongHeaderRowId ? {rowid: this.copyWrongHeaderRowId} : {}),
               })
             } else if (tableName === DATABASE_CATALOG_FIELD_MODEL || Object.hasOwn(row, 'enname')) {
               fieldSeq += 1
-              this.rows[DATABASE_CATALOG_FIELD_MODEL]!.push({rowid: `F-NEW-${fieldSeq}`, tblid: 'T1', ordIdx: 99, ...row})
+              this.rows[DATABASE_CATALOG_FIELD_MODEL]!.push({
+                rowid: `F-NEW-${fieldSeq}`, tblid: 'T1', ordIdx: 99, ...row,
+                ...(this.copyWrongFieldRowId ? {rowid: `${this.copyWrongFieldRowId}-${fieldSeq}`} : {}),
+              })
             } else if (tableName === DATABASE_CATALOG_RELATION_MODEL) {
               this.rows[DATABASE_CATALOG_RELATION_MODEL]!.push({
                 rowid: `RL-NEW-${this.rows[DATABASE_CATALOG_RELATION_MODEL]!.length + 1}`,
@@ -317,6 +326,17 @@ export class DatabaseTableViewHttp extends HttpClientBase {
             }
           }
         }
+      }
+      if (this.copySaveLostAck) {
+        this.copySaveLostAck = false
+        const error = new Error('复制保存回执中断')
+        error.name = 'RequestError'
+        Object.assign(error, {status: 503})
+        throw error
+      }
+      if (this.copyFailReadbackAfterSaveModel) {
+        this.copyFailReadbackModel = this.copyFailReadbackAfterSaveModel
+        this.copyFailReadbackAfterSaveModel = ''
       }
       return {data: {Code: 200, Result: {
         ...(addedBuckets.length ? {maplistadd: addedBuckets} : {}),
@@ -358,6 +378,15 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       return {data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: slice, Count: previewRows.length}}}, status: 200, statusText: 'OK', headers: {}}
     }
     const tableName = String(table['Name'] ?? '')
+    const copyReadbackFilter = tableName !== DATABASE_CATALOG_TABLE_MODEL
+      || JSON.stringify(table['Filter']).includes('"Field":"tblname"')
+    if (this.copyFailReadbackModel === tableName && copyReadbackFilter) {
+      this.copyFailReadbackModel = ''
+      const error = new Error('复制回读连接中断')
+      error.name = 'RequestError'
+      Object.assign(error, {status: 503})
+      throw error
+    }
     if (this.failNextVerifyRead && tableName === DATABASE_CATALOG_TABLE_MODEL) {
       this.failNextVerifyRead = false
       const error = new Error('精确登记核验连接中断')
@@ -393,6 +422,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     const hiddenFields = new Set(this.hiddenFieldsByModel[tableName] ?? [])
     return {data: {Code: 200, Result: {primaryKeyField: tableName === DATABASE_CATALOG_DB_MODEL ? this.databasePrimaryKey : model?.primaryKey ?? 'rowid', allowAdd, lingma_sys_key: 'table-key',
       data: {Items: pageRows.map(row => ({
+        ...Object.fromEntries(fieldNames.map(field => [field, row[field] ?? null])),
         ...row,
         lingma_sys_key: 'row-key',
         lingma_sys_params: {r: fieldNames.filter(field => !hiddenFields.has(field)), e: fieldNames.filter(field => !deniedFields.has(field) && !hiddenFields.has(field)), h: [...hiddenFields], m: [], d: tableName === DATABASE_CATALOG_TABLE_MODEL

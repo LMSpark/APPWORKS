@@ -1357,13 +1357,13 @@
     {
       "expression": "/api/Db/registerServer",
       "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "sourceLine": 322,
+      "sourceLine": 324,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Db/testConnection",
       "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "sourceLine": 833,
+      "sourceLine": 835,
       "scope": "app-composition"
     },
     {

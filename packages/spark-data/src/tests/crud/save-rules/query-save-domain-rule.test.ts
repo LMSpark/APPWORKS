@@ -70,6 +70,62 @@ describe('DataTable instance query save rule',()=>{
     expect(f.stored[0]?.['layout']).toBe('ok')
    }finally{f.ds.destroy()}
   })
+  it('preserves an edit made after dispatch when the save is definitively rejected',async()=>{
+   const f=await fixture()
+   try{
+    await f.view.editRowById('1',{layout:'submitted'})
+    let release:(()=>void)|undefined
+    const started=new Promise<void>(resolve=>{f.owner.save.mockImplementationOnce(async _command=>{
+      resolve()
+      await new Promise<void>(done=>{release=done})
+      throw new Error('definite source rejection')
+    })})
+    const saving=f.ds.saveChanges()
+    await started
+    f.view.updateEditingValue('1','name','late draft')
+    release?.()
+    await expect(saving).rejects.toThrow('definite source rejection')
+    expect(f.ds.saveJournal.currentRecoverableAction).toBe('discard-not-applied')
+    expect(()=>f.ds.discardSaveJournalNotApplied()).toThrow('DATA_SET_SAVE_JOURNAL_CHANGED')
+    expect(f.view.getEditingRow('1')?.['layout']).toBe('submitted')
+    expect(f.view.getEditingRow('1')?.['name']).toBe('late draft')
+   }finally{f.ds.destroy()}
+  })
+  it('binds a prepared all-view save to only its original row scope',async()=>{
+    const f=await fixture()
+    try{
+      await f.view.editRowById('1',{layout:'captured'})
+      const prepared=f.ds.prepareSaveJournal()
+      expect(prepared.views.map(view=>view.ids)).toEqual([['1']])
+      await f.view.editRowById('2',{layout:'later row'})
+      expect((await f.ds.saveChanges()).success).toBe(true)
+      expect(f.stored[0]?.['layout']).toBe('captured')
+      expect(f.stored[1]?.['layout']).toBe('ok')
+      expect(f.view.getEditingRow('2')?.['layout']).toBe('later row')
+    }finally{f.ds.destroy()}
+  })
+  it('does not allow a prepared batch to be cancelled during asynchronous preflight',async()=>{
+    const f=await fixture()
+    try{
+      await f.view.editRowById('1',{layout:'captured'})
+      let release=()=>{}
+      const gate=new Promise<void>(resolve=>{release=resolve})
+      let entered=false
+      f.view.dataTable!.setQuerySaveRule({groups:[{fields:['layout'],validate:()=>undefined,
+        references:{fields:['layout'],triggerFields:['layout'],validate:async()=>{
+          entered=true
+          await gate
+          return undefined
+        }}}]})
+      const prepared=f.ds.prepareSaveJournal()
+      const saving=f.ds.saveChanges()
+      await vi.waitFor(()=>expect(entered).toBe(true))
+      expect(()=>f.ds.cancelPreparedSaveJournal({},prepared.batchId)).toThrow('DATA_SET_SAVE_JOURNAL_ACTIVE')
+      release()
+      await expect(saving).resolves.toMatchObject({success:true})
+      expect(f.stored[0]?.['layout']).toBe('captured')
+    }finally{f.ds.destroy()}
+  })
  it('continues the immutable phase plan and reports phase completion',async()=>{
   const f=await fixture()
   try{

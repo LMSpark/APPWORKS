@@ -119,6 +119,9 @@ describe('维度规则删除回执', () => {
     expect(f.rule.rows).toHaveLength(1)
     expect(f.condition.rows).toHaveLength(0)
     expect(f.result.rows).toHaveLength(0)
+    f.rule.updateEditingValue('R1','rule_name','下一次编辑')
+    await expect(f.dataSet.saveChanges({views:[{tableName:f.rule.tableName,viewId:f.rule.viewId,ids:['R1']}]}))
+      .resolves.toMatchObject({success:true})
   })
 
   it('子项批次部分生效时保留未知捕获，明确放弃后回读', async () => {

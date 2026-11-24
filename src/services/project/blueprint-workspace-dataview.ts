@@ -51,6 +51,13 @@ export type BlueprintChildNodeCreateAtParent=BlueprintChildNodeCreate&Readonly<{
   parentNodeId:string
 }>
 
+/** Stable module identity and wire payload read from one exact candidate DataView row at dispatch. */
+export type BlueprintModuleCreateCandidate=Readonly<{
+  candidateId:string
+  parentNodeId:string|null
+  fields:Readonly<Record<string,string>>
+}>
+
 /** One blueprint node bound to a data space, with its full title path from the root. */
 export type BlueprintDataSpaceImpact=Readonly<{
   /** Stable blueprint node identity (Base_NavigationInfo.rowid). */
@@ -121,6 +128,12 @@ function sameWireValue(left:unknown,right:unknown):boolean{
   return String(left??'')===String(right??'')
 }
 
+function sameModuleCandidate(left:BlueprintModuleCreateCandidate,right:BlueprintModuleCreateCandidate):boolean{
+  return left.candidateId===right.candidateId&&left.parentNodeId===right.parentNodeId
+    &&Object.keys(left.fields).length===Object.keys(right.fields).length
+    &&Object.entries(left.fields).every(([field,value])=>right.fields[field]===value)
+}
+
 /** 一个已查询目标的 DataView 编辑入口；正式元数据和查询权限均由原 DataSpace owner 提供。 */
 export class BlueprintWorkspaceDataView {
   readonly view: DataView
@@ -145,6 +158,8 @@ export class BlueprintWorkspaceDataView {
   #pendingChildBatch:PendingChildCreateBatch|undefined
   #batchStageBlocked=false
   #childReceiptState: 'pending'|'unknown'|'accepted'|undefined
+  #dispatchedModuleCandidate:BlueprintModuleCreateCandidate|undefined
+  #confirmedModuleCandidates = new Map<string,BlueprintModuleCreateCandidate>()
   #queryOutputFields: ReadonlySet<string>
 
   public constructor(
@@ -768,8 +783,9 @@ export class BlueprintWorkspaceDataView {
   }
 
   /** Create an unmounted root module through the current formal Base_NavigationInfo query owner; returns its formal row id. */
-  public async addRootModule(fields?: Readonly<Record<string, unknown>>): Promise<string|number> {
+  public async addRootModule(fields?: Readonly<Record<string, unknown>>, explicitNodeId?: string): Promise<string|number> {
     this.assertWritable()
+    if(explicitNodeId!==undefined)this.validateExplicitCandidateId(explicitNodeId)
     const overrides = Object.entries(fields ?? {})
     const unsupported = overrides.find(([field]) => !BLUEPRINT_MODULE_OVERRIDE_FIELDS.has(field))
     if (unsupported) throw new Error(`蓝图新增模块不允许覆盖字段 ${unsupported[0]}`)
@@ -778,6 +794,7 @@ export class BlueprintWorkspaceDataView {
     if (this.hasUnconfirmedSave) {
       if (this.#unconfirmedRootId === undefined) throw new Error('蓝图 DataView 存在其他未确认保存')
       const id=this.#unconfirmedRootId
+      if(explicitNodeId!==undefined&&String(id)!==explicitNodeId)throw new Error('蓝图根模块原始候选身份与本次请求不一致')
       await this.saveIds([id])
       await this.refreshView()
       this.synchronizeCurrentRow()
@@ -786,6 +803,7 @@ export class BlueprintWorkspaceDataView {
     }
     if (this.#unconfirmedRootId !== undefined) {
       const id=this.#unconfirmedRootId
+      if(explicitNodeId!==undefined&&String(id)!==explicitNodeId)throw new Error('蓝图根模块原始候选身份与本次请求不一致')
       const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
       if (!row || !this.view.dirtyTracking.hasPendingChanges(id)) throw new Error('蓝图根模块已核验但当前没有可安全重试的原新增草稿')
       for (const field of Object.keys(this.#unconfirmedPatches.get(id)??{})) if (this.view.fieldAccess(row,field).write !== 'allowed') {
@@ -811,7 +829,9 @@ export class BlueprintWorkspaceDataView {
       const access = this.view.newRowFieldAccess(field)
       if (access.read !== 'visible' || access.write !== 'allowed') throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
     }
-    const created = await this.view.addRow(input)
+    const created = explicitNodeId===undefined
+      ? await this.view.addRow(input)
+      : await this.view.addRowWithIdentity({field:'rowid',value:explicitNodeId},input)
     if ('success' in created) throw new Error('蓝图 DataView 未准备出正式新增行')
     const row = created
     const id = this.view.getPkKey(row)
@@ -852,6 +872,45 @@ export class BlueprintWorkspaceDataView {
 
   public get hasPendingRootCreate(): boolean {return this.#unconfirmedRootId!==undefined}
   public get hasPendingChildCreate():boolean{return this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined}
+
+  /** Allocate a stable formal node identity before rendering one page candidate DataView row. */
+  public createModuleCandidateId():string{
+    this.assertWritable()
+    return this.nextModuleCandidateId()
+  }
+
+  /** Submit the exact candidate row proof, retaining only its dispatched identity and wire payload for unknown recovery. */
+  public async saveModuleCandidate(proof:BlueprintModuleCreateCandidate):Promise<string>{
+    const candidate=this.captureModuleCandidate(proof)
+    const confirmed=this.#confirmedModuleCandidates.get(candidate.candidateId)
+    if(confirmed&&sameModuleCandidate(confirmed,candidate)
+      &&this.view.rows.some(row=>String(row['rowid']??'')===candidate.candidateId&&row['SysId']===this.#projectId)){
+      this.#confirmedModuleCandidates.delete(candidate.candidateId)
+      return candidate.candidateId
+    }
+    const dispatched=this.#dispatchedModuleCandidate
+    if(dispatched&&sameModuleCandidate(dispatched,candidate)
+      &&!this.hasPendingBlueprintCommand
+      &&this.view.rows.some(row=>String(row['rowid']??'')===candidate.candidateId&&row['SysId']===this.#projectId)){
+      this.#dispatchedModuleCandidate=undefined
+      return candidate.candidateId
+    }
+    if(dispatched&&!sameModuleCandidate(dispatched,candidate))throw new Error('蓝图 AI 候选 DataView 行与原提交身份或字段不一致')
+    if(!dispatched&&this.hasPendingBlueprintCommand)throw new Error('蓝图 DataView 仍有其他待核验操作，不能暂存 AI 候选')
+    this.#dispatchedModuleCandidate??=candidate
+    try{
+      const id=candidate.parentNodeId===null
+        ?await this.addRootModule(candidate.fields,candidate.candidateId)
+        :await this.addModuleNode(candidate.parentNodeId,candidate.fields,candidate.candidateId)
+      if(String(id)!==candidate.candidateId)throw new Error('蓝图 AI 候选回执身份与稳定候选不一致')
+      this.#confirmedModuleCandidates.delete(candidate.candidateId)
+      this.#dispatchedModuleCandidate=undefined
+      return String(id)
+    }catch(error){
+      if(!this.hasPendingBlueprintCommand)this.#dispatchedModuleCandidate=undefined
+      throw error
+    }
+  }
 
   /** Preflight and submit several stable leaf IDs under one existing parent in one DataSet batch. */
   public async addChildNodes(parentNodeId:string,children:readonly BlueprintChildNodeCreate[]):Promise<ReadonlyArray<string|number>>{
@@ -1212,6 +1271,7 @@ export class BlueprintWorkspaceDataView {
       this.synchronizeCurrentRow()
       const row=this.view.rows.find(item=>this.view.getPkKey(item)===id&&item['SysId']===this.#projectId&&item['prowid']===parentNodeId)
       if(!row||Object.entries(patch).some(([field,value])=>!sameWireValue(row[field],value)))throw new Error('蓝图子节点未知回执核验回读不一致')
+      this.settleDispatchedModuleCandidate(id)
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined;return id
     }
     const expected=this.preflightChildNode(parentNodeId,input)
@@ -1242,6 +1302,13 @@ export class BlueprintWorkspaceDataView {
     return id
   }
 
+  private settleDispatchedModuleCandidate(id:string|number):void{
+    const candidate=this.#dispatchedModuleCandidate
+    if(candidate?.candidateId!==String(id))return
+    this.#confirmedModuleCandidates.set(candidate.candidateId,candidate)
+    this.#dispatchedModuleCandidate=undefined
+  }
+
   private async clearPendingChildCreate(id:string|number):Promise<void>{
     if(this.view.rows.some(row=>this.view.getPkKey(row)===id&&this.view.dirtyTracking.hasPendingChanges(id)))await this.view.removeRow(id)
     this.#unconfirmedIds=this.#unconfirmedIds.filter(item=>item!==id)
@@ -1254,13 +1321,14 @@ export class BlueprintWorkspaceDataView {
    * 存在子节点未知回执时只核验原新增，不创建第二条（此时忽略 fields）。
    * fields 只允许覆盖内容字段（名称/能力名/描述/阶段/类型），父级、排序与身份字段仍由 owner 决定。
    */
-  public async addModuleNode(parentNodeId:string,fields?:Readonly<Record<string,unknown>>):Promise<string|number>{
+  public async addModuleNode(parentNodeId:string,fields?:Readonly<Record<string,unknown>>,explicitNodeId?:string):Promise<string|number>{
     const parentId=parentNodeId.trim()
     if(!parentId||isBlueprintRootParent(parentId))throw new Error('蓝图 DataView 新增模块父节点身份无效')
+    if(explicitNodeId!==undefined)this.validateExplicitCandidateId(explicitNodeId)
     const overrides=Object.entries(fields??{})
     const unsupported=overrides.find(([field])=>!BLUEPRINT_MODULE_OVERRIDE_FIELDS.has(field))
     if(unsupported)throw new Error(`蓝图新增模块不允许覆盖字段 ${unsupported[0]}`)
-    if(this.hasPendingChildCreate)return this.addChildNode(parentId,{})
+    if(this.hasPendingChildCreate)return this.addChildNode(parentId,{},explicitNodeId)
     await this.loadChildren(parentId)
     const orders=this.view.rows.filter(row=>String(row['prowid']??'').trim()===parentId).map(row=>Number(row['FunOrderValue']??0)).filter(Number.isFinite)
     const order=orders.length?Math.max(...orders)+1:0
@@ -1269,7 +1337,33 @@ export class BlueprintWorkspaceDataView {
       NavigationImageWxz:'FolderOpened',NavigationUrl:'',MobileUrl:'',ChildItemLocation:'Left',
       HorizontalAlignment:'',IsShowAtNav:this.orderValue(0,'IsShowAtNav'),IsShowChildItem:this.orderValue(1,'IsShowChildItem'),...(this.hasOutput('BeginGroup')?{BeginGroup:this.orderValue(0,'BeginGroup')}:{}),conid:'',htmlDesc:'',
       ...Object.fromEntries(overrides),
-    })
+    },explicitNodeId)
+  }
+
+  private validateExplicitCandidateId(candidateId:string):void{
+    if(!candidateId.trim()||candidateId!==candidateId.trim())throw new Error('蓝图 AI 候选身份无效')
+  }
+
+  private captureModuleCandidate(proof:BlueprintModuleCreateCandidate):BlueprintModuleCreateCandidate{
+    const candidateId=proof.candidateId
+    this.validateExplicitCandidateId(candidateId)
+    const parent=proof.parentNodeId
+    if(parent!==null&&(!parent.trim()||parent!==parent.trim()||isBlueprintRootParent(parent)))throw new Error('蓝图 AI 候选父节点身份无效')
+    const fields=proof.fields
+    const keys=Object.keys(fields).sort()
+    const expected=[...BLUEPRINT_MODULE_OVERRIDE_FIELDS].sort()
+    if(keys.length!==expected.length||keys.some((field,index)=>field!==expected[index]||typeof fields[field]!=='string')){
+      throw new Error('蓝图 AI 候选字段与页面 DataView 行合同不一致')
+    }
+    return Object.freeze({candidateId,parentNodeId:parent,fields:Object.freeze({...fields})})
+  }
+
+  private nextModuleCandidateId():string{
+    let candidateId=''
+    do{candidateId=crypto.randomUUID().replaceAll('-','').toUpperCase()}
+    while(this.view.rows.some(row=>String(row['rowid']??'')===candidateId)
+      ||candidateId===this.#dispatchedModuleCandidate?.candidateId)
+    return candidateId
   }
 
   /** Read the selected editable node as a permission-filtered compatibility projection. */
@@ -1554,7 +1648,8 @@ export class BlueprintWorkspaceDataView {
       if(!parentId||row['rowid']!==id||row['SysId']!==this.#projectId||row['prowid']!==parentId)throw new Error('蓝图 DataView 子节点待核验目标或父身份不匹配')
       const parent=this.view.rows.find(candidate=>candidate['rowid']===parentId&&candidate['SysId']===this.#projectId)
       if(!parent||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 子节点待核验父节点不可识别')
-      await this.addChildNode(parentId,{})
+      const recovered=await this.addChildNode(parentId,{})
+      this.settleDispatchedModuleCandidate(recovered)
       return
     }
     await this.saveIds()

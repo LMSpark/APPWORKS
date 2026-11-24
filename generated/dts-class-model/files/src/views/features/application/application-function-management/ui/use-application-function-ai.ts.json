@@ -25,13 +25,13 @@
             "value": {
               "type": "string"
             },
-            "__@RefSymbol@309851": {
+            "__@RefSymbol@309855": {
               "const": true
             }
           },
           "required": [
             "value",
-            "__@RefSymbol@309851"
+            "__@RefSymbol@309855"
           ],
           "additionalProperties": false
         },
@@ -153,7 +153,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T11:20:33.568Z",
+  "generatedAt": "2026-11-24T15:48:16.627Z",
   "models": {
     "ApplicationFunctionAiInput": {
       "name": "ApplicationFunctionAiInput",

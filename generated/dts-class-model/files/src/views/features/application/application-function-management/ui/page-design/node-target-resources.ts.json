@@ -127,18 +127,14 @@
           ]
         }
       },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true
-      }
+      "required": [
+        "scope",
+        "createTool"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-24T09:05:51.844Z",
+  "generatedAt": "2026-11-24T17:39:29.076Z",
   "models": {
     "NodeTargetTreeOwner": {
       "name": "NodeTargetTreeOwner",
@@ -282,11 +278,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -301,16 +297,6 @@
               "name": "createTool",
               "readable": true,
               "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "assertCurrent",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
             }
           ]
         }

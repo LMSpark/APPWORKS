@@ -81,8 +81,12 @@ describe('Runtime Dataset Plan FileResource read',()=>{
         assertCurrent:()=>{if(ownerNode!=='node-c')throw new Error('node publication stale')}})
       await vi.waitFor(()=>expect(release).toBeDefined())
       ownerNode='node-d'
+      const current=readRuntimeDataSetPlan({dataSet,scenarioId:'PLAN',
+        assertCurrent:()=>{if(ownerNode!=='node-d')throw new Error('other publication stale')}})
       release?.('{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}')
-      await expect(stale).rejects.toThrow('node publication stale')
+      const settled=await Promise.allSettled([stale,current])
+      expect(settled[0]).toMatchObject({status:'rejected',reason:expect.objectContaining({message:'node publication stale'})})
+      expect(settled[1]).toEqual({status:'fulfilled',value:'{"kind":"spark.runtimeDataSetPlan","scenarioId":"PLAN"}'})
       expect(dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.viewList.map(view=>view.viewId)).toEqual(['default'])
     }finally{dataSet.destroy()}
   })

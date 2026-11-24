@@ -34,7 +34,6 @@ export type NodeTargetResources = Readonly<{
 type CreateNodeTargetResourcesInput = Readonly<{
   scope: NodeTargetResourceScope
   createTool: boolean
-  assertCurrent: () => void
 }>
 
 function uniqueTableName(dataSet: DataSet, prefix: string): string {
@@ -60,7 +59,6 @@ export function createNodeTargetResources(input: CreateNodeTargetResourcesInput)
   }
 
   let disposed = false
-  input.assertCurrent()
   const created: Array<{tableName: string; table: NonNullable<ReturnType<DataSet['getTable']>>; view: DataView}> = []
   const addStaticView = (tableName: string, columns: Array<{name: string; primary?: boolean}>): DataView => {
     ensureDataSetStaticInputTable(dataSet, tableName, columns)
@@ -134,8 +132,6 @@ export function useNodeTargetResources(state: DevState) {
     const value = view.getEditingRow(id)?.['newToolId'] ?? row['newToolId']
     return typeof value === 'string' ? value : ''
   })
-  let generation = 0
-
   const isCurrent = (target: NodeTargetResources): boolean => {
     const {scope} = target
     try {
@@ -153,7 +149,6 @@ export function useNodeTargetResources(state: DevState) {
   }
 
   const release = () => {
-    generation++
     const target = resources.value
     resources.value = undefined
     target?.dispose()
@@ -172,24 +167,10 @@ export function useNodeTargetResources(state: DevState) {
     if (!hasNavigation || !owner || !runtime?.isLoaded || runtime.destroyed || !nodeId || (kind !== 'page' && kind !== 'content')
       || owner.projectId !== projectId || owner.nodeId !== nodeId || !owner.hasTreeProjection
       || typeof owner.dataSet.scenarioId !== 'string' || runtime.getDataSet(owner.dataSet.scenarioId) !== owner.dataSet) return
-    const ownerScenarioId = owner.dataSet.scenarioId
-    const currentGeneration = generation
-    let created: NodeTargetResources | undefined
-    const assertCurrent = () => {
-      if (!created || currentGeneration !== generation || resources.value !== created
-        || owner !== state.blueprintWorkspaceDataView.value || runtime !== state.blueprintPageRuntime.value
-        || projectId !== state.projectId || nodeId !== state.selectedNode.value?.nodeId
-        || owner.nodeId !== nodeId || !owner.canRead('rowid') || owner.value('rowid') !== nodeId
-        || runtime.destroyed || !runtime.isLoaded
-        || runtime.getDataSet(ownerScenarioId) !== owner.dataSet) {
-        throw new Error('DEV_SYSTEM_TARGET_RESOURCE_STALE: 项目、节点或运行时已切换')
-      }
-    }
     try {
-      created = createNodeTargetResources({
+      const created = createNodeTargetResources({
         scope: {dataSet: owner.dataSet, runtime, owner, projectId, nodeId},
         createTool:true,
-        assertCurrent,
       })
       resources.value = created
     } catch (error) {

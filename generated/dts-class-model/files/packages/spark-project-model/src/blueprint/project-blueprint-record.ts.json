@@ -305,11 +305,11 @@
                   "type": "object",
                   "title": "((index: number) => { metaName: string; } | undefined) & ((index: number) => Readonly<{ metaName: string; }> | undefined)"
                 },
-                "__@iterator@306084": {
+                "__@iterator@306088": {
                   "type": "object",
                   "title": "(() => ArrayIterator<{ metaName: string; }>) & (() => ArrayIterator<Readonly<{ metaName: string; }>>)"
                 },
-                "__@unscopables@306086": {
+                "__@unscopables@306090": {
                   "type": "object",
                   "properties": {
                     "length": {
@@ -456,13 +456,13 @@
                         true
                       ]
                     },
-                    "__@iterator@306084": {
+                    "__@iterator@306088": {
                       "enum": [
                         false,
                         true
                       ]
                     },
-                    "__@unscopables@306086": {
+                    "__@unscopables@306090": {
                       "enum": [
                         false,
                         true
@@ -497,8 +497,8 @@
                 "flatMap",
                 "flat",
                 "at",
-                "__@iterator@306084",
-                "__@unscopables@306086"
+                "__@iterator@306088",
+                "__@unscopables@306090"
               ],
               "additionalProperties": false
             }

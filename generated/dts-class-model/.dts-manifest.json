@@ -4234,7 +4234,7 @@
     "src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts": {
       "sourceFile": "src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts",
       "shardFile": "files/src/platform-adapters/resources/database/catalog/table/copy-view-ops.ts.json",
-      "sourceModifiedAt": "2026-11-24T15:30:47.637Z"
+      "sourceModifiedAt": "2026-11-24T15:48:16.617Z"
     },
     "src/platform-adapters/resources/database/catalog/table/field-metadata.ts": {
       "sourceFile": "src/platform-adapters/resources/database/catalog/table/field-metadata.ts",
@@ -6134,7 +6134,7 @@
     "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/node-target-resources.ts.json",
-      "sourceModifiedAt": "2026-11-24T09:05:51.844Z"
+      "sourceModifiedAt": "2026-11-24T17:39:29.076Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/page-design-pane.vue",
@@ -6154,7 +6154,7 @@
     "src/views/features/application/application-function-management/ui/use-application-function-ai.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-ai.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/use-application-function-ai.ts.json",
-      "sourceModifiedAt": "2026-11-24T11:20:33.568Z"
+      "sourceModifiedAt": "2026-11-24T15:48:16.627Z"
     },
     "src/views/features/application/application-function-management/ui/use-application-function-data-space.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/use-application-function-data-space.ts",

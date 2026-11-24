@@ -31,7 +31,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-24T15:30:47.637Z",
+  "generatedAt": "2026-11-24T15:48:16.617Z",
   "models": {
     "CopyBeginInput": {
       "name": "CopyBeginInput",

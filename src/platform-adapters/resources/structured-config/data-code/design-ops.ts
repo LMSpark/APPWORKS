@@ -22,6 +22,26 @@ export function isFixedCodeNode(dataSet: DataSet, row: Readonly<DataRow>): boole
 }
 
 const sequenceFields = {Name: '名称', Incre: '增量', StartNo: '开始段', EndNo: '结束段', Format: '起始值-最大值'}
+type CodeNodeRulePatch = Readonly<{view:DataView;row:DataRow;id:string|number;rule:Readonly<Record<string,string>>;parameterName:string}>
+
+function applyCodeNodeRule(input:CodeNodeRulePatch):void{
+  const {view,row,id,rule,parameterName}=input
+  for(const field of ['CodeNodeDesignJson','ParameterName']){
+    const access=view.fieldAccess(row,field)
+    if(access.read!=='visible'||access.write!=='allowed')throw new Error('当前编码段规则不可读写')
+  }
+  const raw=editableRow(view,row)['CodeNodeDesignJson']
+  let original:unknown={}
+  try{if(raw!==undefined&&raw!==null&&raw!=='')original=typeof raw==='string'?JSON.parse(raw):null}
+  catch{throw new Error('编码节点规则JSON无效，请先纠正')}
+  if(original===null||typeof original!=='object'||Array.isArray(original))throw new Error('编码节点规则必须是JSON对象')
+  const checkpoint=view.createEditingCheckpoint(id,['CodeNodeDesignJson','ParameterName'])
+  try{
+    view.updateEditingValue(id,'CodeNodeDesignJson',JSON.stringify({...original,...rule}))
+    view.updateEditingValue(id,'ParameterName',parameterName)
+    checkpoint.release()
+  }catch(cause){checkpoint.restore();checkpoint.release();throw cause}
+}
 
 /**
  * 仅提交分类目录本次变更，未知结果由原DataView核验，不夹带主设计或节点。
@@ -68,21 +88,7 @@ export function selectCodeClass(dataSet: DataSet, nodeId: string | number, class
   }
   const name = read('Name'), mapping = {BusFilterField: read('BusFilterField'), RefTableId: read('TableRowid'), RefTableName: read('TableName'),
     RefTableValueField: read('TextFieldName'), RefTableFilterField: read('ValueFieldName')}
-  for (const field of ['CodeNodeDesignJson', 'ParameterName']) {
-    const access = nodes.fieldAccess(row, field)
-    if (access.read !== 'visible' || access.write !== 'allowed') throw new Error('当前编码段规则不可读写')
-  }
-  const raw = editableRow(nodes, row)['CodeNodeDesignJson']
-  let original: unknown = {}
-  try {if (raw !== undefined && raw !== null && raw !== '') original = typeof raw === 'string' ? JSON.parse(raw) : null}
-  catch {throw new Error('编码节点规则JSON无效，请先纠正')}
-  if (original === null || typeof original !== 'object' || Array.isArray(original)) throw new Error('编码节点规则必须是JSON对象')
-  const checkpoint = nodes.createEditingCheckpoint(nodeId, ['CodeNodeDesignJson', 'ParameterName'])
-  try {
-    nodes.updateEditingValue(nodeId, 'CodeNodeDesignJson', JSON.stringify({...original, ...mapping}))
-    nodes.updateEditingValue(nodeId, 'ParameterName', name)
-    checkpoint.release()
-  } catch (cause) {checkpoint.restore(); checkpoint.release(); throw cause}
+  applyCodeNodeRule({view:nodes,row,id:nodeId,rule:mapping,parameterName:name})
 }
 
 function sequenceValues(view: DataView, row: DataRow): Record<keyof typeof sequenceFields, string> {
@@ -121,21 +127,9 @@ export function selectCodingSequence(dataSet: DataSet, nodeId: string | number, 
   const selected = sequences.rows.find(item => sequences.getPkKey(item) === sequenceId)
   if (!selected) throw new Error('请选择已保存的顺序号规则')
   const values = sequenceValues(sequences, selected)
-  for (const field of ['CodeNodeDesignJson', 'ParameterName']) {
-    const access = nodes.fieldAccess(row, field)
-    if (access.read !== 'visible' || access.write !== 'allowed') throw new Error('当前编码段规则不可读写')
-  }
-  const raw = editableRow(nodes, row)['CodeNodeDesignJson']
-  let original: unknown = {}
-  try {if (raw !== undefined && raw !== null && raw !== '') original = typeof raw === 'string' ? JSON.parse(raw) : null}
-  catch {throw new Error('编码节点规则JSON无效，请先纠正')}
-  if (original === null || typeof original !== 'object' || Array.isArray(original)) throw new Error('编码节点规则必须是JSON对象')
-  const checkpoint = nodes.createEditingCheckpoint(nodeId, ['CodeNodeDesignJson', 'ParameterName'])
-  try {
-    nodes.updateEditingValue(nodeId, 'CodeNodeDesignJson', JSON.stringify({...original, Format: values.Format, StartNo: values.StartNo, EndNo: values.EndNo, Incre: values.Incre}))
-    nodes.updateEditingValue(nodeId, 'ParameterName', `${values.Name}(开始段:${values.StartNo},结束段:${values.EndNo})`)
-    checkpoint.release()
-  } catch (cause) {checkpoint.restore(); checkpoint.release(); throw cause}
+  applyCodeNodeRule({view:nodes,row,id:nodeId,
+    rule:{Format:values.Format,StartNo:values.StartNo,EndNo:values.EndNo,Incre:values.Incre},
+    parameterName:`${values.Name}(开始段:${values.StartNo},结束段:${values.EndNo})`})
 }
 
 /**

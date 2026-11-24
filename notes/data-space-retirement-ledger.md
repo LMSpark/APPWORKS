@@ -2,6 +2,13 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-24 语义重复第二轮控制流收敛
+
+- **收敛范围：**FileResource create/update 共用写入派发、unknown capture、pending verification 与原回执；蓝图叶子删除共用正式 readback/finalize；workflow copy/add/edit/delete 共用模型/字段 proof view 装载与 cleanup；编码分类/顺序号选择共用节点 JSON + 参数名 checkpoint 更新。
+- **保留边界：**create 仍要求目标缺席，update 仍核 exact baseline；delete 不进入 write helper；workflow copy/operation 的节点模型、字段用途、过滤和物理来源规则分开；分类/顺序号目录保存、目录身份及 UI 选择仍由原调用方负责。
+- **恢复与 stale 防线：**FileResource 在 receipt 接纳前复核捕获 binding，same-target rebind 后只留下原 confirmed pending，不向新 binding 交付旧成功；workflow 单次 proof load 只从该次捕获的 model/field 视图派生并拒绝 load 内替换，跨轮验证仍由原 `WorkflowExecutionPass` 按正式值 signature 判定，不额外承诺 DataView 实例身份；蓝图完整回读仍含目标时不清 pending、不启动文件清理；编码 checkpoint 失败恢复原草稿而非清空。
+- **验证：**定向 FileResource 66/66、蓝图/workflow/data-code 243/243；根测试 774 文件 12,306 项、workspace 包测试 155 文件 2,452 项、root typecheck、lint、`verify:rules`、ClassModel/consumer ledger 生成及生产 build 全部通过。`N__` 与同值替换边界分别以 microtask rebind、source replacement 反例核验。
+
 ### 2026-11-23 同义重复逻辑按语义单点收敛
 
 - **本轮 SSOT：**`appendRevokeDisabled` 展示列删除后，workflow 撤回资格统一由 `canRevokeFlowAppendRecord` 判断；标准 action 的 permission 与 execution 共同使用 `resolveActionTargetRows`；Runtime Plan filter 的静态过滤树与 dependency conditions 由 `convertFilterNode` 单遍递归产出。

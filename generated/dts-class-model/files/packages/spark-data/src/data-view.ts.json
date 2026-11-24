@@ -1162,15 +1162,15 @@
           "$ref": "#/$defs/DataViewQueryResult"
         }
       },
-      "required": [
-        "metaName",
-        "added",
-        "changed",
-        "deleted",
-        "changedFields",
-        "context"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertAcceptance.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertAcceptance.return": true
+      }
     },
     "DataViewQuerySaveTarget": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3440,7 +3440,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T19:05:21.117Z",
+  "generatedAt": "2026-11-24T02:31:11.000Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4957,11 +4957,11 @@
       "jsdoc": "模型保存回执；真实接受行、逐行更新字段和新上下文用于接纳结果并保留在途新编辑。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n}>",
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n}>",
+            "typeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -4996,6 +4996,17 @@
               "name": "context",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertAcceptance",
+              "jsdoc": "回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

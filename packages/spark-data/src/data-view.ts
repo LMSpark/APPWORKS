@@ -359,6 +359,8 @@ type DataViewQuerySaveReceipt = Readonly<{
   deleted: readonly DataViewQueryRow[]
   changedFields: ReadonlyArray<readonly string[]>
   context: DataViewQueryResult
+  /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */
+  assertAcceptance?(): void
 }>
 type DataViewQuerySaveRow = Readonly<{ id: string | number; row: DataRow }>
 /** 保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。 */
@@ -4397,6 +4399,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   private validateQuerySaveReceipt(command: DataViewQuerySaveAcceptance): void {
     const { identity, context, added, changed, deleted, receipt } = command
+    receipt.assertAcceptance?.()
     receipt.context.assertIdentity(identity)
     if (receipt.added.length !== added.length || receipt.changed.length !== changed.length
       || receipt.deleted.length !== deleted.length || !Array.isArray(receipt.changedFields)
@@ -4442,6 +4445,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   private acceptQuerySaveReceipt(command: DataViewQuerySaveAcceptance): CrudResult<SaveChangesData> {
     const { context, added, changed, deleted, receipt } = command
+    receipt.assertAcceptance?.()
     this.#queryResult = receipt.context
     this._rebuildColumnMap()
     receipt.changed.forEach((accepted, index) => {

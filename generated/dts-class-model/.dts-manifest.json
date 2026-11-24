@@ -2759,7 +2759,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:05:21.117Z"
+      "sourceModifiedAt": "2026-11-24T02:31:11.000Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2844,7 +2844,7 @@
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-11-21T18:51:47.349Z"
+      "sourceModifiedAt": "2026-11-24T02:31:11.006Z"
     },
     "packages/spark-data/src/query/file-resource/directory.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource/directory.ts",
@@ -2914,7 +2914,7 @@
     "packages/spark-data/src/query/formal-owner/query-context.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/query-context.ts",
       "shardFile": "files/packages/spark-data/src/query/formal-owner/query-context.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:05:21.126Z"
+      "sourceModifiedAt": "2026-11-23T19:26:04.944Z"
     },
     "packages/spark-data/src/query/formal-owner/query-graph.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/query-graph.ts",
@@ -4589,7 +4589,7 @@
     "src/platform-adapters/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/data-code/design-ops.ts",
       "shardFile": "files/src/platform-adapters/resources/structured-config/data-code/design-ops.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.710Z"
+      "sourceModifiedAt": "2026-11-24T02:01:47.874Z"
     },
     "src/platform-adapters/resources/structured-config/data-code/example-plan.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/data-code/example-plan.ts",
@@ -4749,7 +4749,7 @@
     "src/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context.ts",
       "shardFile": "files/src/platform-adapters/resources/structured-config/workflow-definition/execution/execution-context.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:44.130Z"
+      "sourceModifiedAt": "2026-11-24T02:27:09.857Z"
     },
     "src/platform-adapters/resources/structured-config/workflow-definition/execution/execution-contract.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/execution/execution-contract.ts",
@@ -5234,7 +5234,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:43.831Z"
+      "sourceModifiedAt": "2026-11-24T02:01:47.866Z"
     },
     "src/services/project/enterprise-landing.ts": {
       "sourceFile": "src/services/project/enterprise-landing.ts",

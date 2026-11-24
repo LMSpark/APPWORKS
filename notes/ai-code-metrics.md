@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-24 语义重复第二轮控制流收敛
+
+- **复杂度**：复杂；跨 FileResource save/recovery、蓝图双阶段删除、workflow execution proof lifecycle 与 data-code 原子草稿更新。
+- **验证**：FileResource 66/66，蓝图/workflow/data-code 243/243；根测试 774 文件 12,306 项、workspace 包测试 155 文件 2,452 项；typecheck、lint、`verify:rules`、ClassModel/consumer ledger 生成与生产 build 通过。
+- **返工**：高阶复审发现 2 个阻断风险并修正：同 target rebind 必须阻断旧回执交付，workflow 单次 proof load 必须只消费该次捕获的 source views；同时补齐 state 捕获、逐个 clone cleanup、stale-complete 蓝图回读及原草稿恢复测试。最终复审确认跨轮次仍是正式值 signature 合同，不把同值替换实例误写成身份不变。
+- **30 天存活**：待 2026-12-24 回查；重点确认 FileResource binding stale 时 pending 不交付、workflow proof view 全部销毁、蓝图 readback 未确认时不删文件、data-code rollback 保留旧草稿。
+- **人工干预**：用户要求继续深度语义合并并提交推送；未修改、启动或部署 Java，未创建额外 worktree，未绕过 SPARK data owner。
+
 ### 2026-11-23 同义重复逻辑语义收敛
 
 - **复杂度**：复杂；横跨 workflow 展示/命令、标准 action、Runtime Plan、formal owner、SPARK data recovery、文件 IO 与页面历史恢复。

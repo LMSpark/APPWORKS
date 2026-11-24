@@ -1858,6 +1858,56 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('挂载蓝图保存成功但删除回读失败时只复核原保存，不重发或提前清理文件',async()=>{
+    const mounted=node('MOUNTED-READBACK','回读失败挂载页','cfg:readback-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('readback-page/rule.json','{}')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const refresh=owner.view.refresh.bind(owner.view)
+      vi.spyOn(owner.view,'refresh').mockImplementationOnce(refresh)
+        .mockRejectedValueOnce(new Error('delete readback unavailable')).mockImplementation(refresh)
+      state.removeNodeById(mounted.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect([...pageFiles.files.keys()]).toContain('readback-page/rule.json')
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('readback-page/'))).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('挂载蓝图删除回读完整但仍含目标时保留原保存并阻止文件清理',async()=>{
+    const mounted=node('MOUNTED-STALE-READBACK','未消失挂载页','cfg:stale-readback-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('stale-readback-page/rule.json','{}')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const staleRows=owner.view.rows.map(row=>({...row})),refresh=owner.view.refresh.bind(owner.view)
+      vi.spyOn(owner.view,'refresh').mockImplementationOnce(refresh)
+        .mockImplementationOnce(async()=>{owner.view.replaceRows(staleRows)}).mockImplementation(refresh)
+      state.removeNodeById(mounted.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect([...pageFiles.files.keys()]).toContain('stale-readback-page/rule.json')
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('stale-readback-page/'))).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
   it('挂载蓝图删除回执未知后 核验待定提交 核验原节点并接续目录文件删除',async()=>{
     const mounted=node('MOUNTED-UNKNOWN','未知回执挂载页','cfg:unknown-page','APP-A')
     const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)

@@ -556,6 +556,49 @@ describe('DataView file resource adapter',()=>{
     }finally{f.dataSet.destroy()}
   })
 
+  it('does not deliver an old receipt when the same target rebinds during write projection',async()=>{
+    const f=fixture()
+    const target=(view:typeof f.view)=>({key:JSON.stringify([view.queryContext['pageId'],view.queryContext['fileName']]),
+      fields:{pageId:view.queryContext['pageId'],fileName:view.queryContext['fileName']}})
+    bindFileResourceAdapter(f.view,{resourceId:'page-files',contentField:'text',revisionField:'revision',target,
+      transport:{...f.transport,onWriteConfirmed:()=>{f.bind(f.view)}}})
+    try{
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'accepted before rebind'})
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('FILE_RESOURCE_BINDING_STALE')
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.rows[0]).toMatchObject({text:'accepted before rebind'})
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not hand an old recovery receipt to DataView after a same-target microtask rebind',async()=>{
+    const f=fixture()
+    const target=(view:typeof f.view)=>({key:JSON.stringify([view.queryContext['pageId'],view.queryContext['fileName']]),
+      fields:{pageId:view.queryContext['pageId'],fileName:view.queryContext['fileName']}})
+    try{
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'accepted across handoff'})
+      f.write.mockImplementationOnce(async({text})=>{f.current.text=text;throw new Error('timeout')})
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('timeout')
+      bindFileResourceAdapter(f.view,{resourceId:'page-files',contentField:'text',revisionField:'revision',target,
+        transport:{...f.transport,onWriteConfirmed:()=>{queueMicrotask(()=>queueMicrotask(()=>f.bind(f.view)))}}})
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('FILE_RESOURCE_BINDING_STALE')
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('keeps a directory query bound to its original resource target on rebind',()=>{
     const f=fixture(),view=f.dataSet.getTable('Files')!.getOrCreateView('directory-PAGE')
     const options={resourceId:'page-files',target:()=>({key:'APP/PAGE',fields:{appId:'APP',pageId:'PAGE'}}),list:async()=>['rule.json']}
@@ -629,6 +672,34 @@ describe('DataView file resource adapter',()=>{
       expect(f.write).toHaveBeenCalledOnce()
       expect(f.view.rows).toEqual([expect.objectContaining({text:'created once',revision:'v2'})])
     } finally {f.dataSet.destroy()}
+  })
+
+  it('keeps an accepted creation pending when receipt readback fails and verifies it without creating twice',async()=>{
+    const f=fixture()
+    try{
+      f.current.text=null;f.current.revision=null
+      await f.view.refresh()
+      const created=await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'created-with-readback-error'}) as Record<string,unknown>
+      const id=f.view.getPkKey(created)!
+      const originalRead=f.read.getMockImplementation()!
+      let failReceiptRead=true
+      f.read.mockImplementation(async()=>{
+        if(failReceiptRead&&f.current.text==='created-with-readback-error'){
+          failReceiptRead=false
+          const error=new Error('creation receipt read unavailable') as Error & {response:{status:number}}
+          error.response={status:503}
+          throw error
+        }
+        return originalRead()
+      })
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('creation receipt read unavailable')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(f.view.rows[0]).toMatchObject({text:'created-with-readback-error'})
+    }finally{f.dataSet.destroy()}
   })
 
   it('deletes a file through its bound DataView and confirms the empty source readback',async()=>{

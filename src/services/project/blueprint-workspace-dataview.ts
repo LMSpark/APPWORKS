@@ -511,6 +511,22 @@ export class BlueprintWorkspaceDataView {
     return this.projectedRecords()
   }
 
+  private async confirmLeafDelete(input:Readonly<{
+    targetId:string
+    selectedNodeId:string
+    stillPresentMessage:string
+  }>):Promise<ProjectBlueprintTreeData>{
+    const rows=await this.readTreeRows(++this.#revision,input.selectedNodeId)
+    this.#treeQueryLoaded=true
+    if(rows.some(row=>row['rowid']===input.targetId&&row['SysId']===this.#projectId))throw new Error(input.stillPresentMessage)
+    this.#unconfirmedDeleteId=undefined
+    this.#unconfirmedDeleteParentId=undefined
+    this.#lazyParents?.delete(input.targetId)
+    if(this.#nodeId===input.targetId)this.#nodeId=''
+    this.synchronizeCurrentRow()
+    return this.treeProjection()
+  }
+
   /** Delete one ordinary leaf through the current project tree DataView and confirm it by readback. */
   public async removeLeafNode(nodeId:string,expectedProjectId:string,expectedParentNodeId:string):Promise<ProjectBlueprintTreeData>{
     this.assertWritable()
@@ -525,16 +541,7 @@ export class BlueprintWorkspaceDataView {
         const recovered=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
         if(!recovered.success)throw recovered.error??new Error(recovered.message??'蓝图 DataView 删除保存仍未确认')
       }
-      const revision=++this.#revision,selectedNodeId=this.#nodeId
-      const rows=await this.readTreeRows(revision,selectedNodeId)
-      this.#treeQueryLoaded=true
-      if(rows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除结果回读后目标仍存在')
-      this.#unconfirmedDeleteId=undefined
-      this.#unconfirmedDeleteParentId=undefined
-      this.#lazyParents?.delete(targetId)
-      if(this.#nodeId===targetId)this.#nodeId=''
-      this.synchronizeCurrentRow()
-      return this.treeProjection()
+      return this.confirmLeafDelete({targetId,selectedNodeId:this.#nodeId,stillPresentMessage:'蓝图 DataView 删除结果回读后目标仍存在'})
     }
     if(this.hasUnconfirmedSave)throw new Error('蓝图 DataView 存在其他未确认保存')
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
@@ -563,16 +570,7 @@ export class BlueprintWorkspaceDataView {
     const saved=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
     if(!saved.success)throw saved.error??new Error(saved.message??'蓝图 DataView 删除保存失败')
 
-    const readbackRevision=++this.#revision
-    const confirmedRows=await this.readTreeRows(readbackRevision,selectedNodeId)
-    this.#treeQueryLoaded=true
-    if(confirmedRows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除保存后目标仍存在')
-    this.#unconfirmedDeleteId=undefined
-    this.#unconfirmedDeleteParentId=undefined
-    this.#lazyParents?.delete(targetId)
-    if(this.#nodeId===targetId)this.#nodeId=''
-    this.synchronizeCurrentRow()
-    return this.treeProjection()
+    return this.confirmLeafDelete({targetId,selectedNodeId,stillPresentMessage:'蓝图 DataView 删除保存后目标仍存在'})
   }
 
   /** Temporarily widens this same DataView to project rows and stages a permission-checked move. */

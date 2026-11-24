@@ -204,7 +204,10 @@ describe('workflow query model creation in the original DataSet',()=>{
   const context=new WorkflowExecutionContext(ds,'W1',()=>{})
   if(change==='valid')await expect(context.validateNode('COPY')).resolves.toBeUndefined()
   else await expect(context.validateNode('COPY')).rejects.toThrow()
-  expect(http.saves).toEqual([]);context.dispose()
+  expect(http.saves).toEqual([])
+  expect(ds.getTable('Base_DataModel')!.viewList.filter(view=>view.viewId.startsWith('copyExecute'))).toHaveLength(0)
+  expect(ds.getTable('Base_DataModel_Field')!.viewList.filter(view=>view.viewId.startsWith('copyExecute'))).toHaveLength(0)
+  context.dispose()
  })
  it('stages a verified copy target in its original node edit and cancels without a backend write',async()=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
@@ -877,7 +880,27 @@ it.each(['add','edit','delete'] as const)('validates saved %s targets and explic
  http.records['Base_DataModel']![0]!['requestType']='query'
  await expect(context.validateNode('N1')).rejects.toThrow('requestType')
  expect(http.saves).toHaveLength(0)
- expect(ds.getTable('Base_DataModel')!.viewList.filter(view=>view.viewId.startsWith('operationExecute'))).toHaveLength(0)
+ for(const tableName of ['Base_DataModel','Base_DataModel_Field'])
+  expect(ds.getTable(tableName)!.viewList.filter(view=>view.viewId.startsWith('operationExecute'))).toHaveLength(0)
+})
+
+it('rejects a workflow proof when the captured field source is replaced during physical-table validation',async()=>{
+ const {ds,http}=await fixture(),context=new WorkflowExecutionContext(ds,'W1',()=>{}),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'add',dataOperateModId:'M1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:'add',Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'name',FieldType:'varchar',ValueFun:JSON.stringify({Type:'GetConstValue',Value:'owned'})}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ const readTarget=LowcodeDataSpaceModelSourceReader.readTableTarget,fieldTable=ds.getTable('Base_DataModel_Field')!
+ vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementationOnce(async(...args)=>{
+  const result=await readTarget(...args)
+  fieldTable.destroyView('modelInputFields')
+  fieldTable.getOrCreateView('modelInputFields')
+  return result
+ })
+ await expect(context.validateNode('N1')).rejects.toThrow('执行来源视图已在验证期间更换')
+ expect(http.saves).toHaveLength(0)
+ expect(fieldTable.viewList.filter(view=>view.viewId.startsWith('operationExecute'))).toHaveLength(0)
+ context.dispose()
 })
 
 it.each(['edit','delete'] as const)('refuses %s without a complete primary key mapping and validates saved filters',async operation=>{

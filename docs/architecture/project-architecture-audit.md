@@ -428,17 +428,26 @@ Phase A  服务终态与四文件读取合同
 
 源码复核后的结论是：相似代码不等于重复链路。能合并的对象必须满足相同身份、相同 owner、相同接纳语义和相同恢复语义；只要 proof 来源或业务终态不同，就应保留独立领域实现。
 
-### 13.1 高价值收敛候选
+### 13.1 已关闭的同义重复链
 
-| 优先级 | 重复点 | 收敛边界 | 不可合并内容 |
-|---|---|---|---|
-| P1 | SmartBid 已发布页面重复校验 application/node/page/tool/scenario/query 身份 | 提取统一 published identity parser 与 runtime binding；页面传入允许的 scope policy | 页面业务对象、命令集合与允许参数 |
-| P1 | page action 与 operation dispatch 重复构造 operation command envelope | 统一 operationId、registrationId、runtimeInstanceId、requestKey、取消与 stale 校验 | claim、派发资格、原试次与 DataView 内部接纳语义 |
-| P1 | command 只读查询在 DataViewLocalQuery 外重复行/字段可读接纳 | 结果行、字段可见性和 identity proof 收敛到 DataView 层 | command transport、submit/verify 与只写动作拒绝 |
-| P2 | lowcode catalog 与 enterprise 分别解析 Items/Result 包裹 | 提取低代码响应包裹解析器，允许 caller 声明可接受键 | 领域行规范化、错误严格度和输出字段 |
-| P2 | SmartBid 页面按标题选择 host | 提取声明式 page/host registry；身份与路由仍由 PageRuntime proof 校验 | 业务 host 的数据来源、验证器和结果语义 |
+| 批次 | 收敛事实 | 继续保留的领域边界 |
+|---|---|---|
+| 2026-11-23 | workflow 撤回资格、action 目标行、Runtime Plan filter、formal owner binding、save recovery evidence、scoped runtime read、file mutation unknown、snapshot filename codec 已各自收敛到单一实现 | working file / repository scenario / publication receipt 仍分别拥有 owner、proof 与 unknown 恢复 |
+| 2026-11-24 | FileResource 的 create/update 派发、pending verification 与 readback 共享；蓝图叶子删除共享确认 readback/finalize；workflow copy/operation 共享模型与字段 proof view 装载；编码分类/顺序号共享节点规则原子更新 | create 的缺席前提、update 的 exact baseline、delete、workflow 节点规则及目录身份仍由各自入口校验 |
 
-### 13.2 相似但不能合并的链路
+完成判定不是“代码文本变少”，而是共享对象确实拥有同一 identity、owner、receipt 与 failure recovery。FileResource 回执必须在捕获 binding 仍存活时交付；workflow proof 的一次 load 必须继续从该次捕获的正式来源视图派生，后续命令轮次仍按原 `WorkflowExecutionPass` 的正式值 signature 校验，不把同值 DataView 实例身份伪装成持久业务身份；编码节点选择只合并草稿 checkpoint，不合并目录保存。
+
+### 13.2 当前审计结论
+
+本轮深度复核未发现可安全合并的第五条链路。后续审计继续按下面条件准入：
+
+1. 调用同一 owner，不只是同一 transport 或相同组件；
+2. proof 由同一正式查询、文件或 receipt 产生；
+3. unknown/not-applied/readback-failure 的恢复动作完全相同；
+4. 有生产调用方和独立测试证明当前语义，合并后仍保留 stale-scope 与 cleanup 证据；
+5. 任一条件不成立时只记录为 false positive，不为了复用抽象化业务终态。
+
+### 13.3 相似但不能合并的链路
 
 | 链路 | 必须保留分开处理的原因 |
 |---|---|
@@ -448,13 +457,16 @@ Phase A  服务终态与四文件读取合同
 | PDF recovery journal | 它是持久化指针/租约记录，不是 DataView command receipt |
 | SmartBid guide/verification readers | 原指南、当前指南、候选验证和原实发结果的身份、权限与用途不同 |
 | SSE/ClassModel 基础设施 | 已经是 spark-ai/src 应用公共设施；不要因某业务 route 再复制一套 tool loop 或 subscriber registry |
+| 数据库表与视图注册 | 表注册要求 catalog/ack 与字段完成 proof；view 注册不能借用表注册结果 |
+| runtime navigation 与 editor tree | 授权导航和编辑器记录的 owner、权限过滤与投影用途不同 |
+| FileSource verify 与 equivalent-write retry | 前者只读核验；后者是用户显式补偿写，同 target/baseline/text 后才允许 |
 
-### 13.3 收敛顺序
+### 13.4 收敛顺序
 
-1. 先提取 published identity 与 runtime binding。
-2. 再提取 command envelope/cancellation/stale 校验。
-3. 再收敛只读 query result 的行与字段接纳。
-4. 最后抽低代码响应 envelope；每个 caller 显式声明严格度。
+1. 先从控制路径确认 identity、owner、permission 与 proof 相同。
+2. 再定位 shared state、receipt 与 unknown recovery 的唯一 owner。
+3. 按 caller policy 保留缺席/冲突/权限差异，抽取共同控制流。
+4. 用 late-binding、stale-scope、readback failure、partial apply 与 cleanup 反例验证。
 5. 不合并领域 recovery，也不把 owner/receipt 从 DataView 内部重新拉到页面。
 
 ## 14. 当前结论

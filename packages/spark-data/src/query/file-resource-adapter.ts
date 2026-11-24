@@ -312,9 +312,14 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
     if(snapshot===null||baseline===null)return false
     return snapshot.text===baseline.text&&snapshot.revision===baseline.revision
   }
-  const receiptResult=(origin:FileResourceQueryContext,rows:readonly DataRow[],baseline:FileResourceSnapshot|null)=>{
-    const selected=DataViewLocalQuery.select({rows,fields:origin.output,primaryKeys:[origin.primaryKey],params:{page:1,allPages:true,treeMode:'flat'}})
-    return result(origin.view,{...selected,primaryKey:origin.primaryKey,baseline},origin.target)
+  const receiptResult=(input:Readonly<{
+    origin:FileResourceQueryContext
+    rows:readonly DataRow[]
+    baseline:FileResourceSnapshot|null
+  }>)=>{
+    const {origin}=input
+    const selected=DataViewLocalQuery.select({rows:input.rows,fields:origin.output,primaryKeys:[origin.primaryKey],params:{page:1,allPages:true,treeMode:'flat'}})
+    return result(origin.view,{...selected,primaryKey:origin.primaryKey,baseline:input.baseline},origin.target)
   }
   const source:DataViewSourceAdapter={
     views:view=>{const currentTarget=targetFor(view);return view.dataTable?.viewList.filter(candidate=>{
@@ -425,6 +430,38 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         confirmWriteProjection(view,attempt,bound)
         return confirmed
       }
+      const dispatchWrite=async(input:Readonly<{view:DataView;target:FileResourceTarget;baseline:FileResourceSnapshot|null;text:string;mismatch:string}>):Promise<FileResourceSnapshot>=>{
+        const {target,text,baseline}=input,state=stateFor(input.view)
+        try{await transport.write({target,text,baseline})}
+        catch(error){
+          if(transport.isUnknown(error))state.pending.set(target.key,
+            {target,operation:'write',baseline,text,state:'unknown',message:errorMessage(error),projectionNotified:false})
+          throw error
+        }
+        return readBackWrite(input)
+      }
+      const recoverWrite=async(input:Readonly<{
+        view:DataView
+        target:FileResourceTarget
+        prior:PendingWrite
+        text:string
+        baselineUnchanged:(snapshot:FileResourceSnapshot|null)=>boolean
+        unresolved:string
+        conflict:string
+      }>):Promise<FileResourceSnapshot>=>{
+        const {view,target,prior,text}=input
+        const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
+        const state=stateFor(view)
+        if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
+        if(remote!==null&&isFileResourceReadbackConfirmed(prior.text,remote)){
+          confirmWriteProjection(view,prior,bound)
+          if(prior.text!==text)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
+          return remote
+        }
+        if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件已确认，但来源随后变化')
+        if(input.baselineUnchanged(remote))throw new Error(input.unresolved)
+        throw new Error(input.conflict)
+      }
       for(const change of command.changes){
         const context=contexts.get(change.context),original=context?.rows[0]
         const added=change.changes.added??[],changed=change.changes.changed??[],deleted=change.changes.deleted??[]
@@ -449,29 +486,23 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             ||Object.entries(target.fields).some(([field,value])=>context.output.has(field)&&!Object.is(submitted[field],value)))throw new Error('FILE_RESOURCE_SCOPE: 文件新增身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前新增操作不一致')
-            const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
-            if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
-            if(remote!==null&&isFileResourceReadbackConfirmed(prior.text,remote)){
-              confirmWriteProjection(view,prior,bound)
-              if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
-              confirmedSnapshot=remote
-            }
-            else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原新增已确认，但来源随后变化')
-            else if(remote===null)throw new Error('FILE_RESOURCE_UNRESOLVED: 尚未读到原新增文件，不能证明原请求未应用')
-            else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致')
+            confirmedSnapshot=await recoverWrite({view,target,prior,text:writeText,
+              baselineUnchanged:remote=>remote===null,
+              unresolved:'FILE_RESOURCE_UNRESOLVED: 尚未读到原新增文件，不能证明原请求未应用',
+              conflict:'FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致'})
           }else{
             const baseline=await transport.read(target);assertCurrent(view,target,bound)
             if(baseline!==null)throw new Error('FILE_RESOURCE_CONFLICT: 新增目标文件已存在')
-            try{await transport.write({target,text:writeText,baseline:null})}
-            catch(error){if(transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline:null,text:writeText,state:'unknown',message:errorMessage(error),projectionNotified:false});throw error}
-            confirmedSnapshot=await readBackWrite({view,target,baseline:null,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件新增回读不一致'})
+            confirmedSnapshot=await dispatchWrite({view,target,baseline:null,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件新增回读不一致'})
           }
           const saved=confirmedSnapshot
+          assertCurrent(view,target,bound)
           if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
-          receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],context:receiptResult(context,[accepted],saved)})
+          receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],
+            context:receiptResult({origin:context,rows:[accepted],baseline:saved}),assertAcceptance:()=>assertCurrent(view,target,bound)})
           continue
         }
         if(changed.length){
@@ -480,31 +511,25 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(!submitted||!original||submitted[view.primaryKey]!==original[view.primaryKey]||typeof writeText!=='string')throw new Error('FILE_RESOURCE_SCOPE: 文件更新行身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前更新操作不一致')
-            const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
-            if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
-            if(remote!==null&&isFileResourceReadbackConfirmed(prior.text,remote)){
-              confirmWriteProjection(view,prior,bound)
-              if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
-              confirmedSnapshot=remote
-            }
-            else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原更新已确认，但来源随后变化')
-            else if(sameBaseline(remote,prior.baseline))throw new Error('FILE_RESOURCE_UNRESOLVED: 当前仍是写前基线，不能证明原请求未应用')
-            else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致')
+            confirmedSnapshot=await recoverWrite({view,target,prior,text:writeText,
+              baselineUnchanged:remote=>sameBaseline(remote,prior.baseline),
+              unresolved:'FILE_RESOURCE_UNRESOLVED: 当前仍是写前基线，不能证明原请求未应用',
+              conflict:'FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致'})
           }else{
             const baseline=await transport.read(target);assertCurrent(view,target,bound)
             if(!sameBaseline(baseline,context.baseline))throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView查询基线')
-            try{await transport.write({target,text:writeText,baseline})}
-            catch(error){if(transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline,text:writeText,state:'unknown',message:errorMessage(error),projectionNotified:false});throw error}
-            confirmedSnapshot=await readBackWrite({view,target,baseline,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件保存回读不一致'})
+            confirmedSnapshot=await dispatchWrite({view,target,baseline,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件保存回读不一致'})
           }
           const saved=confirmedSnapshot
+          assertCurrent(view,target,bound)
           if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
             changedFields:[[options.contentField,...(options.revisionField?[options.revisionField]:[]),...Object.keys(snapshotFields)]
-              .filter(field=>context.output.has(field))],context:receiptResult(context,[accepted],saved)})
+              .filter(field=>context.output.has(field))],context:receiptResult({origin:context,rows:[accepted],baseline:saved}),
+            assertAcceptance:()=>assertCurrent(view,target,bound)})
           continue
         }
         const submitted=deleted[0]
@@ -531,7 +556,8 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           assertBinding(bound)
         }
         state.owners.set(target.key,{view,context:change.context})
-        receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],context:receiptResult(context,[],null)})
+        receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],
+          context:receiptResult({origin:context,rows:[],baseline:null}),assertAcceptance:()=>assertCurrent(view,target,bound)})
         }finally{state.saving.delete(target.key);if(!state.pending.has(target.key))state.owners.delete(target.key)}
       }
       return receipts

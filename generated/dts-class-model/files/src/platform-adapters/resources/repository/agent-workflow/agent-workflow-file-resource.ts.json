@@ -242,6 +242,10 @@
         "context": {
           "type": "object",
           "title": "DataViewQueryResult"
+        },
+        "assertAcceptance": {
+          "type": "object",
+          "title": "() => void"
         }
       },
       "required": [
@@ -860,6 +864,11 @@
               "name": "context",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "assertAcceptance",
+              "readable": true,
+              "writable": false
             }
           ]
         }

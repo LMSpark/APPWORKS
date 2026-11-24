@@ -79,6 +79,40 @@ describe('sequence directory and node selection', () => {
     expect(f.dialog.emitted('close')).toHaveLength(1)
   })
 
+  it('retains invalid existing JSON rather than replacing it with a selected sequence', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.sequences.requestState).toBe(RequestState.Loaded))
+    f.sequences.setCurrentRowById('S1')
+    f.nodes.updateEditingValue('N1', 'CodeNodeDesignJson', '{invalid')
+    await flushPromises()
+    await f.click('确定')
+    expect(f.wrapper.text()).toContain('JSON无效')
+    expect(f.nodes.getEditingRow('N1')?.['CodeNodeDesignJson']).toBe('{invalid')
+    expect(f.nodes.getEditingRow('N1')?.['ParameterName']).toBe('原参数')
+    expect(f.service.http.saves).toEqual([])
+  })
+
+  it('restores both original node patches if applying the sequence parameter fails', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.sequences.requestState).toBe(RequestState.Loaded))
+    f.sequences.setCurrentRowById('S1')
+    f.nodes.updateEditingValue('N1', 'CodeNodeDesignJson', '{"keep":"draft"}')
+    f.nodes.updateEditingValue('N1', 'ParameterName', '草稿参数')
+    const originalWrite = f.nodes.updateEditingValue.bind(f.nodes)
+    vi.spyOn(f.nodes, 'updateEditingValue').mockImplementation((id, field, value) => {
+      const result = originalWrite(id, field, value)
+      if (field === 'ParameterName') throw new Error('顺序号写回中断')
+      return result
+    })
+    await flushPromises()
+    await f.click('确定')
+    expect(f.wrapper.text()).toContain('顺序号写回中断')
+    expect(f.nodes.getEditingRow('N1')?.['CodeNodeDesignJson']).toBe('{"keep":"draft"}')
+    expect(f.nodes.getEditingRow('N1')?.['ParameterName']).toBe('草稿参数')
+    expect(f.nodes.hasEditingChanges('N1')).toBe(true)
+    expect(f.service.http.saves).toEqual([])
+  })
+
   it('saves directory edits through the bound fields without submitting main or node edits', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.wrapper.findAll('tbody tr')).toHaveLength(1))

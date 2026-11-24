@@ -2,6 +2,11 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-25 过程档案二次清理
+
+- 删除已被后续源码与本台账取代的 SmartBid 后端发布 `plan/research`、旧代码态研读和 Page06 恢复计划。原文件中的发布批次、late-route 修复、权限阻断及在线断点已分别记录于本台账；不再保留会继续声明 `implementing/blocked` 的平行活动方案。
+- 保留当前仍有效的五层治理草案与研读、SmartBid 当前产品合同文档、唯一台账和度量。清理退役目录留下的空 `runtime/project-blueprint/realtime` 目录，不删除依赖、环境覆盖或本地工作区配置。
+
 ### 2026-11-24 业务页最终 owner 归并与精确 save journal
 
 - **唯一 owner：**数据库目录复制/筛选、报表多记录、维度规则、蓝图 AI 候选与结果、Agent Workflow 节点输入及关联页面 caller 均改为标准组件 + SPARK Data；页面不再保留业务 rows、待保存输入、权限、receipt 或 unknown 的第二真源。

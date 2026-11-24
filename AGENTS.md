@@ -28,13 +28,13 @@
 
 | 体系层 | 唯一责任与真源 | 任务进入点 |
 |---|---|---|
-| 平台治理 | 平台应用管理委派、租户生命周期、跨企业应用使用授权；权限最终到当前登录人 | [治理方案](notes/plan-five-layer-governance.md)、[治理研读](notes/research-five-layer-governance.md) |
+| 平台治理 | 平台应用管理委派、租户生命周期、跨企业应用使用授权；权限最终到当前登录人 | [治理实施事实](notes/data-space-retirement-ledger.md)、[架构审计](docs/architecture/project-architecture-audit.md) |
 | 企业管理 | 当前企业内部应用、配置、维度、共享；受托应用仍是独立执行域 | `config/navigation/vue-pages.json`、`src/platform-adapters/system-navigation.ts`、正式查询 DataView |
 | 应用设计 | `ProjectBlueprint`、节点、导航、数据空间与工具引用 | `packages/spark-project-model/`、`src/services/project/` |
 | 数据空间 | `scenarioId -> DataSet -> DataTable(columns/views/resource/model/api/crudConfig) -> DataView`；接口与模型级执行契约归 DataTable | [数据链路主合同](docs/architecture/DATAFLOW_ARCHITECTURE.md)、`packages/spark-data/src/data-table.ts`、`src/platform-adapters/data-space/` |
 | 页面交付 | `PageTool` 三文件、共享场景文件、一次调用生命周期 | [页面配置架构](docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)、`SparkPageRenderer` |
 | 标准组件 | `dataViewKey/dataMember/dataField` 的运行绑定与权限消费 | `packages/spark-component/`、ClassModel |
-| 服务适配 | wire 合同归 `backend-api-contracts`；平台会话与特定服务 adapter 归 `src/platform-adapters`；数据 owner adapter 只进入 SPARK Data DataTable/DataView | [退役研读](notes/research-spark-lowcode-api-retirement.md)、[唯一实施台账](notes/data-space-retirement-ledger.md) |
+| 服务适配 | wire 合同归 `backend-api-contracts`；平台会话与特定服务 adapter 归 `src/platform-adapters`；数据 owner adapter 只进入 SPARK Data DataTable/DataView | [唯一实施台账](notes/data-space-retirement-ledger.md) |
 | AI/工具链 | ClassModel、Workflow 与宿主 binding；不替代业务真源 | `packages/spark-ai/`、[AI Workflow 合同](packages/spark-ai/docs/business-factory-workflow-zh-cn.md) |
 
 跨层约束：
@@ -92,7 +92,7 @@ AppWorks 是**纯前端**。浏览器通过同源 `/api` 访问外部 SPARK；�
 4. **应用设计**：以目标应用的正式身份、项目蓝图、功能、数据空间及其引用组织设计。设计入口和发布者身份不授予业务数据权；不把应用私有资源、整场景或设计权限升格到企业或平台。
 5. **页面交付**：页面是应用设计的子域，复用 `PageTool`、`ScenarioViewConfig` 与 `PageRuntime`。导航决定入口、发布证明决定可装载版本、本次查询决定数据能力；三者缺一不能用另一个替代。
 
-**现状与范围**：系统菜单当前由本地登记投影，平台菜单可随有效登录启用，这不是已经实现了个人平台管理授权。申请、我的申请、审核三个场景绑定不同正式模型；共享内存表的夹具不能证明线上键映射或双租户并发。以[治理研读](notes/research-five-layer-governance.md)定位证据，以[治理方案](notes/plan-five-layer-governance.md)核对前置条件与审批状态。旧任务的“暂缓新增数据权限接入”不是全仓禁令；既有守卫始终保留，新治理工作只按明确批准的范围开展。草案既不授权开工，也不证明部署委派已完成。
+**现状与范围**：系统菜单当前由本地登记投影，平台菜单可随有效登录启用，这不是已经实现了个人平台管理授权。申请、我的申请、审核三个场景绑定不同正式模型；共享内存表的夹具不能证明线上键映射或双租户并发。以[唯一实施台账](notes/data-space-retirement-ledger.md)和[架构审计](docs/architecture/project-architecture-audit.md)核对前置条件、已实现事实与审批状态。旧任务的“暂缓新增数据权限接入”不是全仓禁令；既有守卫始终保留，新治理工作只按明确批准的范围开展；历史过程档案不构成授权，也不证明部署委派已完成。
 
 ## 8. 修改工作流
 

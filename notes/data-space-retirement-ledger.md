@@ -2,6 +2,11 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-25 process notes 全清
+
+- 删除最后三份过程性 `plan/research`：五层治理草案/研读与 spark-lowcode-api 退役研读。其可复用产品边界已迁入本台账、[架构审计](../docs/architecture/project-architecture-audit.md)，运行真源继续由源码、正式合同与 `AGENTS.md` 维护。
+- `notes/` 只保留唯一实施台账与 AI 度量；历史过程不再作为活动计划入口，`AGENTS.md` 与包说明不再链接已删除过程文件。
+
 ### 2026-11-25 兼容 API 与重复测试清理
 
 - 删除 source-input 的已退役静态兼容对象，所有生产组件与测试改用正式 `sourceInput*` 函数；删除仅供旧测试的 flow-workbench literal-user 过滤 helper 及 barrel export。同步清除无任何消费者的 `page-design-leave-request-smoke` 四文件探针夹具。

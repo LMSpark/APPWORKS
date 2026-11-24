@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {
   buildFlowWorkbenchTabFilterExpression,
-  buildFlowWorkbenchTabFilterFields,
   flowWorkbenchMetaName,
   flowWorkbenchTabBinding,
 } from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
@@ -15,11 +14,6 @@ describe('flow-workbench filters', () => {
     })
     expect(flowWorkbenchTabBinding('processed').viewId).toBe('workbenchProcessed')
     expect(flowWorkbenchMetaName('started')).toBe('WFOBJ_FLOW')
-  })
-
-  it('builds pending filter fields for literal user id', () => {
-    const fields = buildFlowWorkbenchTabFilterFields('pending', 'U-1')
-    expect(fields).toEqual([{field: 'UserID', operator: 'eq', value: 'U-1'}])
   })
 
   it('builds processed filter expression with SendUserId and OR groups', () => {
@@ -37,7 +31,4 @@ describe('flow-workbench filters', () => {
     expect(buildFlowWorkbenchTabFilterExpression('started')).toMatchObject({field: 'createuser', operator: 'eq'})
   })
 
-  it('returns null without user id for legacy helper', () => {
-    expect(buildFlowWorkbenchTabFilterFields('pending', '')).toBeNull()
-  })
 })

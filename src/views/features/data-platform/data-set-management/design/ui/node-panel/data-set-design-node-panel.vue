@@ -79,7 +79,7 @@ AI用途：模型节点的配置编辑、取消、保存回读与未知结果核
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {FieldText, FieldValueFunction, FieldSelect, FieldCheckbox, RendererSection, RendererTable, RendererForm, RendererButton} from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, RequestState, type DataRow} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceSourceInputEdit} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {sourceInputPrepareReloadBatch} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 
 const props = defineProps<DataSpaceModelEditorProps>()
@@ -247,7 +247,7 @@ async function run(action: 'save' | 'verify'): Promise<void> {
       const inputs = sourceOwners()
       if (owner.value.hasRecoveryCapture()) await owner.value.reload(true)
       else await owner.value.prepareReload(owner.value.getState().pending)()
-      const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, inputs.some(item => item.getState().pending))
+      const reloadInputs = sourceInputPrepareReloadBatch(inputs, inputs.some(item => item.getState().pending))
       await reloadInputs()
     }
     if (active) message.value = action === 'save' ? '模型配置已保存并回读；重新打开可重建目标定义' : '已读取当前模型配置；未重复提交'

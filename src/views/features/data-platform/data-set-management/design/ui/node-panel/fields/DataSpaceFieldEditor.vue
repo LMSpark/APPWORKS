@@ -116,7 +116,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import type {DataSpaceFieldEditorProps} from './DataSpaceFieldEditor.props'
-import {LowcodeDataSpaceSourceInputEdit} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {sourceInputPrepareReloadBatch} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
 import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/platform-adapters/data-space/model-source/field/lowcode-data-space-field-edit-session'
 import {verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
 
@@ -371,7 +371,7 @@ async function run(action: 'save' | 'verify'): Promise<void> {
         ? workspaceModel.value.prepareReload(recoveredWorkspace || workspaceModel.value.getState().pending) : undefined
       const reloadFields = fields.length && (!removals.length || fields.some(item => item.getState().pending || item.getState().status !== 'idle'))
         ? fieldEditPrepareReloadBatch(fields, recoveredWorkspace || fields.some(item => item.getState().pending)) : undefined
-      const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, recoveredWorkspace || inputs.some(item => item.getState().pending))
+      const reloadInputs = sourceInputPrepareReloadBatch(inputs, recoveredWorkspace || inputs.some(item => item.getState().pending))
       await reloadModel?.()
       await reloadFields?.()
       await reloadInputs()

@@ -53,7 +53,6 @@ export {
 } from './flow-run-detail/flow-run-detail-graph-projection'
 export {
   buildFlowWorkbenchTabFilterExpression,
-  buildFlowWorkbenchTabFilterFields,
   flowWorkbenchMetaName,
   flowWorkbenchTabBinding,
   flowWorkbenchTabViewId,

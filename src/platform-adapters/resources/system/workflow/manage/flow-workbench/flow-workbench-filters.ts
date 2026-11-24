@@ -78,15 +78,3 @@ export function buildFlowWorkbenchTabFilterExpression(tab: FlowWorkbenchTab): Fl
     orEq('StepState', ['0', '1', '9']),
   ])
 }
-
-/** @deprecated 供旧单测；新逻辑以 buildFlowWorkbenchTabFilterExpression 为准。参考仓 pending → Waiting.UserID。 */
-export function buildFlowWorkbenchTabFilterFields(
-  tab: FlowWorkbenchTab,
-  userId: string,
-): readonly FlowWorkbenchFilterLeaf[] | null {
-  const id = typeof userId === 'string' ? userId.trim() : ''
-  if (!id) return null
-  if (tab === 'pending') return [eq('UserID', id)]
-  if (tab === 'started') return [eq('createuser', id)]
-  return null
-}

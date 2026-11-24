@@ -9,7 +9,7 @@ import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/
 import {fieldEditPrepareReloadBatch, fieldEditSaveBatch} from '@/platform-adapters/data-space/model-source/field/lowcode-data-space-field-edit-session'
 import {LowcodeDataSpaceFieldRemoveReferences} from '@/platform-adapters/data-space/model-source/removal/lowcode-data-space-field-remove-references'
 import {LowcodeDataSpaceModelDependencies} from '@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-dependencies'
-import {LowcodeDataSpaceSourceInputEdit} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {sourceInputPrepareReloadBatch} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
 import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
@@ -267,7 +267,7 @@ describe('computed field removal', () => {
         expect(await verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, capture!)).toBe('already-confirmed')
         const reloadModel = model.prepareReload(true)
         const reloadFields = fieldEditPrepareReloadBatch(owners, true)
-        const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, true)
+        const reloadInputs = sourceInputPrepareReloadBatch(inputs, true)
         await reloadModel()
         await reloadFields()
         await reloadInputs()

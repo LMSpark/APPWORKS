@@ -334,12 +334,3 @@ export function createSourceInputHandle(host: SourceInputHost): SourceInputHandl
   hostByHandle.set(handle, host)
   return handle
 }
-
-/** @deprecated 兼容旧类名静态调用；新代码用 sourceInput* 模块函数。 */
-export const LowcodeDataSpaceSourceInputEdit = {
-  readParameters: sourceInputReadParameters,
-  validateValue: sourceInputValidateValue,
-  prepareSave: sourceInputPrepareSave,
-  reloadBatch: sourceInputReloadBatch,
-  prepareReloadBatch: sourceInputPrepareReloadBatch,
-}

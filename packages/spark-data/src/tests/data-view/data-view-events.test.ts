@@ -296,21 +296,6 @@ describe('DataView 独立事件监听（currentRowChanged / selectedRowsChanged 
 })
 
 describe('DataView 独立事件 events.on / events.off（事件订阅）', () => {
-  it('events.off 取消监听', () => {
-    const ds = createTestDataSet()
-    const cb = vi.fn()
-
-    const deptView = ds.getView('Departments')!
-    deptView.events.on('currentRowChanged', cb)
-    deptView.selection.setCurrentRow(deptView.rows[0]!)
-    const countBeforeOff = cb.mock.calls.length
-    expect(countBeforeOff).toBeGreaterThan(0)
-
-    deptView.events.off('currentRowChanged', cb)
-    deptView.selection.setCurrentRow(deptView.rows[1]!)
-    expect(cb).toHaveBeenCalledTimes(countBeforeOff)
-  })
-
   it('setCurrentRow 自动触发 currentRowChanged，不自动同步 selectedRows', () => {
     const ds = createTestDataSet()
     const currentRowCb = vi.fn()

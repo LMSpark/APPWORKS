@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
-import {LowcodeDataSpaceSourceInputEdit} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {sourceInputReloadBatch} from '@/platform-adapters/data-space/model-source/source/lowcode-data-space-source-input-session'
 import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/platform-adapters/data-space/model-source/data-space-definition-save'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -204,7 +204,7 @@ describe('source input sibling views and scoped readback', () => {
     f.loseNextResponse()
     await expect(model.save([], inputs)).rejects.toThrow()
     expect(inputs[0]!.getState().status).toBe('unknown')
-    await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
+    await sourceInputReloadBatch(inputs, true)
     expect(inputs[0]!.getState().status).toBe('idle')
     expect(view.getEditingRow('I1')?.['ValueFun']).toBe(reference)
     expect(directory.getEditingRow('OTHER')?.['ValueFun']).toBe(constant)

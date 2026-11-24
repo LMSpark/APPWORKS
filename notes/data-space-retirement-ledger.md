@@ -2,6 +2,12 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-25 兼容 API 与重复测试清理
+
+- 删除 source-input 的已退役静态兼容对象，所有生产组件与测试改用正式 `sourceInput*` 函数；删除仅供旧测试的 flow-workbench literal-user 过滤 helper 及 barrel export。
+- 删除整份弱化版 tab-runtime 复制测试、完全重复的 `events.off` 用例、被导航套件覆盖的旧 application-scope 文件及仅验证已删除 helper 的兼容用例；额外断言并入更完整测试。
+- ClassModel 与 consumer ledger 已由正式生成器刷新；typecheck、定向 lint、137 项相邻回归、`verify:rules` 与全仓 lint 通过。
+
 ### 2026-11-25 过程档案二次清理
 
 - 删除已被后续源码与本台账取代的 SmartBid 后端发布 `plan/research`、旧代码态研读和 Page06 恢复计划。原文件中的发布批次、late-route 修复、权限阻断及在线断点已分别记录于本台账；不再保留会继续声明 `implementing/blocked` 的平行活动方案。

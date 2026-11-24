@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-25 兼容 API 与重复测试清理
+
+- **复杂度**：中等；跨 source-input/flow-workbench 公共 API、4 个生产/测试调用面、ClassModel 与 consumer ledger。
+- **验证**：受影响回归 137/137；typecheck、定向及全仓 lint、`verify:rules` 通过。
+- **返工**：全仓先扫 `@deprecated`/同名测试；仅删除无生产消费者的 helper、同义整文件测试与完全重复断言，未删跨域同名行为。
+- **30 天存活**：待 2026-12-25 回查；确认兼容 alias、旧 tab-runtime/app-scope 测试未回流。
+- **人工干预**：用户要求迭代至清除全部可证实冗余；保留当前治理计划与正式合同，未触碰依赖、环境覆盖或本地工作区配置。
+
 ### 2026-11-24 业务页最终 owner 归并与精确 save journal
 
 - **复杂度**：复杂；跨 DataSet journal、数据库目录复制、报表创建/模型绑定、维度删除、蓝图 AI 子节点恢复与 Workflow 节点输入。

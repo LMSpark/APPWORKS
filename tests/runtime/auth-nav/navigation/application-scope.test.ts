@@ -16,6 +16,7 @@ describe('application path helpers', () => {
     expect(buildApplicationRootPath(scope)).toBe('/apps/homepage')
     expect(buildApplicationPath(scope, 'app-list')).toBe('/apps/homepage/app-list')
     expect(buildApplicationPath(scope, '/dev')).toBe('/apps/homepage/dev')
+    expect(buildApplicationPath(scope, ' /dev ')).toBe('/apps/homepage/dev')
     expect(buildApplicationPath(scope, '/apps/APP-1/dashboard')).toBe('/apps/APP-1/dashboard')
     expect(buildApplicationPath(scope, '')).toBe('/apps/homepage/')
   })

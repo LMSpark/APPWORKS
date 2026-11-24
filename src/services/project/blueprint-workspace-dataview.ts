@@ -1366,7 +1366,7 @@ export class BlueprintWorkspaceDataView {
     return candidateId
   }
 
-  /** Read the selected editable node as a permission-filtered compatibility projection. */
+  /** Read the selected editable node as a permission-filtered formal node projection. */
   public nodeData(): BlueprintNodeFormData {
     const row=this.currentRow(),key=this.requireRowKey(row),overlay=this.view.getEditingRow(key)??row
     const visible:Record<string,unknown>={}

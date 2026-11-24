@@ -73,12 +73,9 @@ describe('model field workspace loading', () => {
     expect(f.fileWrites).toHaveLength(0)
   })
 
-  it('reloads explicit field identities and model switches into the same named view', async () => {
-    const {f, wrapper, fields, sourceFields} = await workspace()
-    sourceFields.splice(sourceFields.findIndex(row => row.rowid === 'F3'), 1)
-    await wrapper.setProps({fieldIds: ['PK', 'F1']}); await flushPromises()
-    expect(fields.rows.map(row => row['rowid'])).toEqual(['PK', 'F1'])
-    await wrapper.setProps({modelId: 'M2', fieldIds: ['OTHER']}); await flushPromises()
+  it('reloads model switches into the same named view', async () => {
+    const {f, wrapper, fields} = await workspace()
+    await wrapper.setProps({modelId: 'M2'}); await flushPromises()
     expect(fields.queryContext).toMatchObject({dataSpaceId: 'A', modelId: 'M2'})
     expect(fields.rows.map(row => row['rowid'])).toEqual(['OTHER'])
     expect(wrapper.getComponent({name: 'DataSpaceFieldEditor'}).props('fieldIds')).toEqual(['OTHER'])

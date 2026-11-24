@@ -4199,7 +4199,7 @@
     "src/platform-adapters/resources/database/catalog/object-design-metadata.ts": {
       "sourceFile": "src/platform-adapters/resources/database/catalog/object-design-metadata.ts",
       "shardFile": "files/src/platform-adapters/resources/database/catalog/object-design-metadata.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.633Z"
+      "sourceModifiedAt": "2026-11-24T19:14:19.632Z"
     },
     "src/platform-adapters/resources/database/catalog/object-view-ops.ts": {
       "sourceFile": "src/platform-adapters/resources/database/catalog/object-view-ops.ts",
@@ -5239,7 +5239,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-11-24T15:43:40.826Z"
+      "sourceModifiedAt": "2026-11-24T19:11:45.320Z"
     },
     "src/services/project/enterprise-landing.ts": {
       "sourceFile": "src/services/project/enterprise-landing.ts",
@@ -6944,12 +6944,12 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.285Z"
+      "sourceModifiedAt": "2026-11-24T18:58:13.429Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.222Z"
+      "sourceModifiedAt": "2026-11-24T18:58:13.437Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts",
@@ -7564,7 +7564,7 @@
     "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue",
       "shardFile": "files/src/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.368Z"
+      "sourceModifiedAt": "2026-11-24T19:07:54.796Z"
     },
     "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts": {
       "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/use-flow-run-page.ts",

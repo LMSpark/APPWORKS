@@ -294,7 +294,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306076": {
+                "__@iterator@306065": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 },
@@ -361,7 +361,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306076",
+                "__@iterator@306065",
                 "toLocaleString"
               ],
               "additionalProperties": false

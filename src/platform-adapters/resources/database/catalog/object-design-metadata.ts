@@ -52,6 +52,3 @@ export const DATABASE_CATALOG_VIEW_DESIGN_FORM_FIELDS: SparkNode[] = [
   {type: 'r-checkbox', props: {field: 'IsVisible', label: '可见(自动脱敏)', colSpan: 12, trueValue: 1, falseValue: 0}},
   {type: 'r-textarea', props: {field: 'sql', label: '视图sql', colSpan: 12, rows: 15}},
 ]
-
-/** 兼容旧引用；与 FORM_FIELDS 相同。 */
-export const DATABASE_CATALOG_VIEW_DESIGN_HEADER_FIELDS: SparkNode[] = DATABASE_CATALOG_VIEW_DESIGN_FORM_FIELDS

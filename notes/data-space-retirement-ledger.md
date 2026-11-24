@@ -9,7 +9,7 @@
 
 ### 2026-11-25 兼容 API 与重复测试清理
 
-- 删除 source-input 的已退役静态兼容对象，所有生产组件与测试改用正式 `sourceInput*` 函数；删除仅供旧测试的 flow-workbench literal-user 过滤 helper 及 barrel export。同步清除无任何消费者的 `page-design-leave-request-smoke` 四文件探针夹具。
+- 删除 source-input 的已退役静态兼容对象，所有生产组件与测试改用正式 `sourceInput*` 函数；删除仅供旧测试的 flow-workbench literal-user 过滤 helper 及 barrel export；字段工作区移除只服务旧调用方的 `DataSpaceModelFields.fieldIds`；数据库视图字段删除无引用 `HEADER_FIELDS` alias；业务路由只消费 Vue Router 正式 `components.default`。同步清除无任何消费者的 `page-design-leave-request-smoke` 四文件探针夹具。
 - 删除整份弱化版 tab-runtime 复制测试、完全重复的 `events.off` 用例、被导航套件覆盖的旧 application-scope 文件及仅验证已删除 helper 的兼容用例；额外断言并入更完整测试。
 - ClassModel 与 consumer ledger 已由正式生成器刷新；typecheck、定向 lint、137 项相邻回归、`verify:rules` 与全仓 lint 通过。
 

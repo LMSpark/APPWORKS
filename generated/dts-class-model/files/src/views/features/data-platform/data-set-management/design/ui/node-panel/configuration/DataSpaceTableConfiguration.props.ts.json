@@ -26,12 +26,6 @@
         "modelId": {
           "type": "string"
         },
-        "fieldIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "revision": {
           "type": "number"
         },

@@ -66,11 +66,7 @@ watch(() => [props.route, props.cacheKey, props.tabKey] as const, async ([route]
     const loaded = await loadRouteLocation(route)
     if (version !== loadVersion) return
     const matched = loaded.matched.at(-1)
-    let record = matched?.components?.['default']
-    if (!record && matched && isRecord(matched)) {
-      const legacy = matched['component']
-      if (legacy) record = legacy
-    }
+    const record = matched?.components?.['default']
     if (!record) {
       renderError.value = '业务页面组件解析失败'
       return

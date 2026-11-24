@@ -25,12 +25,6 @@
         "modelId": {
           "type": "string"
         },
-        "fieldIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "revision": {
           "type": "number"
         },
@@ -61,7 +55,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.285Z",
+  "generatedAt": "2026-11-24T18:58:13.429Z",
   "models": {
     "DataSpaceModelFieldsProps": {
       "name": "DataSpaceModelFieldsProps",
@@ -71,7 +65,7 @@
         "name": "DataSpaceModelFields"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前设计会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 当前目标空间内的正式模型ID。 */\n    modelId: string;\n    /** 已废弃：字段身份由 modelFields 视图行派生，保留可选项仅兼容旧调用方。 */\n    fieldIds?: readonly string[] | undefined;\n    /** 当前会话修订，用于刷新字段操作状态。 */\n    revision: number;\n    /** 其他定义操作对本工作区的交互限制。 */\n    disabled?: boolean;\n    /** 使用模型窗口顶部保存；字段属性与当前模型记录的修改同批提交。 */\n    workspaceActions?: boolean;\n    /** 只收紧创建 owner 的外部操作范围；与字段工作区 disabled 分开，避免创建弹窗自锁。 */\n    createDisabled?: boolean;\n}",
+        "declarationTypeText": "{\n    /** 当前设计会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 当前目标空间内的正式模型ID。 */\n    modelId: string;\n    /** 当前会话修订，用于刷新字段操作状态。 */\n    revision: number;\n    /** 其他定义操作对本工作区的交互限制。 */\n    disabled?: boolean;\n    /** 使用模型窗口顶部保存；字段属性与当前模型记录的修改同批提交。 */\n    workspaceActions?: boolean;\n    /** 只收紧创建 owner 的外部操作范围；与字段工作区 disabled 分开，避免创建弹窗自锁。 */\n    createDisabled?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -85,12 +79,6 @@
               "jsdoc": "当前目标空间内的正式模型ID。",
               "readable": true,
               "writable": true
-            },
-            {
-              "name": "fieldIds",
-              "jsdoc": "已废弃：字段身份由 modelFields 视图行派生，保留可选项仅兼容旧调用方。",
-              "readable": true,
-              "writable": false
             },
             {
               "name": "revision",

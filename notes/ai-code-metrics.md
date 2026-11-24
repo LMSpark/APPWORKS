@@ -2,7 +2,7 @@
 
 ### 2026-11-25 兼容 API 与重复测试清理
 
-- **复杂度**：中等；跨 source-input/flow-workbench 公共 API、4 个生产/测试调用面、ClassModel 与 consumer ledger。
+- **复杂度**：中等；跨 source-input/flow-workbench/模型字段工作区/路由与目录 metadata 公共 API、多个生产/测试调用面、ClassModel 与 consumer ledger。
 - **验证**：受影响回归 137/137；typecheck、定向及全仓 lint、`verify:rules` 通过。
 - **返工**：全仓先扫 `@deprecated`/同名测试/探针命名；仅删除无生产消费者的 helper、同义整文件测试、完全重复断言及无引用 smoke 夹具，未删跨域同名行为或正式 build-debug 诊断链。
 - **30 天存活**：待 2026-12-25 回查；确认兼容 alias、旧 tab-runtime/app-scope 测试未回流。

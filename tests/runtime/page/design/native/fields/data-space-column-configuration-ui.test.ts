@@ -31,7 +31,7 @@ async function fixture(extra: Parameters<typeof dataSpacePageFixture>[0] = {}, i
     const changed = () => {revision.value++}
     const off = session.metadataDataSet.onAnyViewChange({rowsChanged: changed, editingChanged: changed, editingFieldChanged: changed, editingDiscarded: changed})
     onBeforeUnmount(off)
-    return () => h(DataSpaceModelFields, {session, modelId: 'M1', fieldIds: ['F1'], revision: revision.value, onChanged: changed})
+    return () => h(DataSpaceModelFields, {session, modelId: 'M1', revision: revision.value, onChanged: changed})
   }})
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})],
     components: {'el-table': ElTable, 'el-table-column': ElTableColumn}, stubs: {'el-table': ElTable, 'el-table-column': ElTableColumn}}})

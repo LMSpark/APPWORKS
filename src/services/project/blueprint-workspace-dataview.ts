@@ -106,6 +106,7 @@ type PendingChildCreateBatch=Readonly<{
   updates:ReadonlyArray<Readonly<{nodeId:string;parentNodeId:string;patch:Readonly<Record<string,unknown>>}>>
   ids:ReadonlyArray<string|number>
   expected:ReadonlyMap<string|number,Readonly<Record<string,unknown>>>
+  outgoing:ReadonlyMap<string|number,Readonly<Record<string,unknown>>>
   state:'unknown'|'accepted'|'not-applied'|'blocked'
   submitted:boolean
 }>
@@ -919,7 +920,7 @@ export class BlueprintWorkspaceDataView {
       }catch(cause){rollbackError=cause}
       if(rollbackError!==undefined){
         this.#pendingChildBatch=Object.freeze({children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),updates:Object.freeze([]),
-          ids:Object.freeze(ids),expected,state:'blocked',submitted:false})
+          ids:Object.freeze(ids),expected,outgoing:new Map(),state:'blocked',submitted:false})
         throw new Error(`蓝图批量新增暂存失败且草稿回滚未确认；原命令已锁定：${String(rollbackError)}`)
       }
       throw error
@@ -928,16 +929,8 @@ export class BlueprintWorkspaceDataView {
     this.#pendingChildBatch=Object.freeze({
       children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
       updates:Object.freeze([]),
-      ids:Object.freeze(ids),expected,state:'unknown',submitted:true})
-    try{
-      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...ids]}]})
-      this.assertBatchSaveCounts(result,ids.length)
-      this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:'accepted'})
-    }catch(error){
-      if(error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED'))this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:'not-applied'})
-      else if(!this.view.hasUnconfirmedSave)this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:'blocked'})
-      throw error
-    }
+      ids:Object.freeze(ids),expected,outgoing:this.capturePendingChildBatchOutgoing(ids),state:'unknown',submitted:true})
+    await this.dispatchPendingChildBatch(this.#pendingChildBatch)
     await this.verifyPendingChildBatch()
     return ids
   }
@@ -981,7 +974,8 @@ export class BlueprintWorkspaceDataView {
     const ids=[...children.map(child=>child.nodeId),...prepared.map(item=>item.key)]
     const pendingChildren=children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))
     const pendingUpdates=prepared.map(item=>Object.freeze({nodeId:item.nodeId,parentNodeId:String(this.view.rows.find(row=>this.view.getPkKey(row)===item.key)?.['prowid']??''),patch:Object.freeze({...item.patch})}))
-    const pending:PendingChildCreateBatch=Object.freeze({children:Object.freeze(pendingChildren),updates:Object.freeze(pendingUpdates),ids:Object.freeze(ids),expected:createExpected,state:'blocked',submitted:false})
+    const pending:PendingChildCreateBatch=Object.freeze({children:Object.freeze(pendingChildren),updates:Object.freeze(pendingUpdates),ids:Object.freeze(ids),
+      expected:createExpected,outgoing:new Map(),state:'blocked',submitted:false})
     const singlePrepared=prepared.at(0)
     const created:string[]=[]
     try{
@@ -1013,15 +1007,8 @@ export class BlueprintWorkspaceDataView {
       if(rollbackErrors.length)throw new Error(`蓝图混合暂存失败且清理未确认；原 IDs/patch 已锁定：${rollbackErrors.join('；')}`)
       throw error
     }
-    this.#pendingChildBatch=Object.freeze({...pending,state:'unknown',submitted:true})
-    try{
-      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...ids]}]})
-      this.assertBatchSaveCounts(result,children.length,prepared.length)
-      this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:'accepted'})
-    }catch(error){
-      this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:this.view.hasUnconfirmedSave?'unknown':'blocked',submitted:true})
-      throw error
-    }
+    this.#pendingChildBatch=Object.freeze({...pending,outgoing:this.capturePendingChildBatchOutgoing(ids),state:'unknown',submitted:true})
+    await this.dispatchPendingChildBatch(this.#pendingChildBatch)
     await this.verifyPendingChildBatch()
     return children.map(child=>child.nodeId)
   }
@@ -1041,21 +1028,43 @@ export class BlueprintWorkspaceDataView {
     }
   }
 
+  private capturePendingChildBatchOutgoing(ids:ReadonlyArray<string|number>):ReadonlyMap<string|number,Readonly<Record<string,unknown>>>{
+    const fields=this.view.columns.filter(column=>!column.isComputed&&!column.computeExpression).map(column=>column.name)
+    return new Map(ids.map(id=>{
+      const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
+      if(!row)throw new Error(`蓝图 DataView 批次派发行缺失：${String(id)}`)
+      const effective=this.view.getEditingRow(id)??row
+      return [id,Object.freeze(Object.fromEntries(fields.filter(field=>Object.hasOwn(effective,field))
+        .map(field=>[field,structuredClone(effective[field])])))]
+    }))
+  }
+
+  private async dispatchPendingChildBatch(pending:PendingChildCreateBatch):Promise<void>{
+    const captured=this.#pendingChildBatch
+    if(captured!==pending)throw new Error('蓝图 DataView 原批次在派发前已变化')
+    try{
+      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...pending.ids]}]})
+      this.assertBatchSaveCounts(result,pending.children.length,pending.updates.length)
+      if(this.#pendingChildBatch!==pending)throw new Error('蓝图 DataView 原批次回执身份已变化')
+      this.#pendingChildBatch=Object.freeze({...pending,state:'accepted'})
+    }catch(error){
+      if(this.#pendingChildBatch===pending){
+        const state=error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED')?'not-applied'
+          :error instanceof Error&&error.message.startsWith('蓝图 DataView 批次回执计数不完整')?'blocked'
+            :this.view.hasUnconfirmedSave?'unknown':'blocked'
+        this.#pendingChildBatch=Object.freeze({...pending,state})
+      }
+      throw error
+    }
+  }
+
   private async verifyPendingChildBatch():Promise<void>{
     const pending=this.#pendingChildBatch
     if(!pending)throw new Error('蓝图 DataView 批量新增原命令缺失')
     if(pending.state==='not-applied'){
       this.assertPendingChildBatchReadyForRetry(pending)
       this.#pendingChildBatch=Object.freeze({...pending,state:'unknown'})
-      try{
-        const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...pending.ids]}]})
-        this.assertBatchSaveCounts(result,pending.children.length,pending.updates.length)
-        this.#pendingChildBatch=Object.freeze({...pending,state:'accepted'})
-      }catch(error){
-        if(error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED'))this.#pendingChildBatch=Object.freeze({...pending,state:'not-applied'})
-        else this.#pendingChildBatch=Object.freeze({...pending,state:this.view.hasUnconfirmedSave?'unknown':'blocked'})
-        throw error
-      }
+      await this.dispatchPendingChildBatch(this.#pendingChildBatch)
       return this.verifyPendingChildBatch()
     }
     if(pending.state==='blocked'){
@@ -1077,15 +1086,7 @@ export class BlueprintWorkspaceDataView {
     }
     if(pending.state==='unknown'){
       if(!this.view.hasUnconfirmedSave)throw new Error('蓝图 DataView 批量新增未知回执已失去原查询捕获；拒绝重放')
-      try{
-        const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...pending.ids]}]})
-        this.assertBatchSaveCounts(result,pending.children.length,pending.updates.length)
-        this.#pendingChildBatch=Object.freeze({...pending,state:'accepted'})
-      }catch(error){
-        if(error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED'))this.#pendingChildBatch=Object.freeze({...pending,state:'not-applied'})
-        else this.#pendingChildBatch=Object.freeze({...pending,state:error instanceof Error&&error.message.startsWith('蓝图 DataView 批次回执计数不完整')?'blocked':'unknown'})
-        throw error
-      }
+      await this.dispatchPendingChildBatch(pending)
     }
     const revision=this.#revision,selectedNodeId=this.#nodeId
     await this.queryProjectRows(revision,selectedNodeId)
@@ -1132,12 +1133,20 @@ export class BlueprintWorkspaceDataView {
       const update=pending.updates.find(item=>item.nodeId===String(id))
       const parent=command===undefined?undefined:parents.get(command.parentNodeId)
       const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
+      const effective=row===undefined?undefined:this.view.getEditingRow(id)??row
+      const patch=this.view.getEditingPatch(id)
       const expected=pending.expected.get(id)
+      const originalOutgoing=pending.outgoing.get(id)
+      const outgoing=this.capturePendingChildBatchOutgoing([id]).get(id)
       if(!row)throw new Error(`蓝图 DataView 原批次重试的稳定ID不存在：${String(id)}`)
       if(command&&!parent)throw new Error(`蓝图 DataView 原批次新增父节点缺失：${String(id)}`)
       if((!command&&!update)||(command&&!parent)||!expected||!this.view.dirtyTracking.hasPendingChanges(id)
         ||(update&&row['prowid']!==update.parentNodeId)
-        ||Object.entries(expected).some(([field,value])=>!Object.hasOwn(row,field)||!sameWireValue(row[field],value))){
+        ||!effective||!originalOutgoing||!outgoing
+        ||Object.entries(patch??{}).some(([field,value])=>!Object.hasOwn(expected,field)||!sameWireValue(expected[field],value))
+        ||Object.entries(expected).some(([field,value])=>!Object.hasOwn(effective,field)||!sameWireValue(effective[field],value))
+        ||Object.keys(originalOutgoing).length!==Object.keys(outgoing).length
+        ||Object.entries(originalOutgoing).some(([field,value])=>!Object.hasOwn(outgoing,field)||!sameWireValue(outgoing[field],value))){
         throw new Error(`蓝图 DataView 原批次重试的稳定ID或字段快照已变化：${String(id)}`)
       }
       const validation=this.view.validator?.validateColumns(row,new Set(Object.keys(expected)))

@@ -154,10 +154,10 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import { LowcodeApiError } from '@/platform-adapters/api'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {AgentWorkflowDocumentNotFoundError, createAgentWorkflowFileDataViewOwner,
+  type AgentWorkflowDesignViews,type AgentWorkflowDocumentProof,type AgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
 import WorkflowDeleteDialog from './workflow-designs/workflow-delete-dialog.vue'
 import {AGENT_WORKFLOW_CREATE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
@@ -657,38 +657,36 @@ async function copyJson(): Promise<void> {
   } catch (error) {pageService.showMessage(`复制失败: ${message(error)}`, 'error')}
 }
 
-async function loadDefinitionRow(): Promise<{view: DataView; id: string | number}> {
+async function loadDefinitionRow():Promise<{owner:AgentWorkflowFileDataViewOwner;workflowId:string;proof:AgentWorkflowDocumentProof}> {
   const current = owner.value
   if (!current) throw new Error('工作流文件空间尚未就绪')
+  const targetId=workflowId.value
   const view = current.definitionView
-  if (!pendingIn(view)) {
-    try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
-      throw new Error(`definition.json 不存在或不可读；本页面不创建文件（${message(error)}）`)
+  try {
+    const proof=await current.loadDocument(targetId,'definition.json',{reload:!pendingIn(view)})
+    if(!view.hasUnconfirmedSave&&view.fieldAccess(proof.row,'content').write!=='allowed'){
+      throw new Error('definition.json 原工作流行不可读写')
     }
+    return {owner:current,workflowId:targetId,proof}
+  } catch(error){
+    throw new Error(`definition.json 不存在或不可读；本页面不创建文件（${message(error)}）`)
   }
-  const row = view.currentRow, id = row ? view.getPkKey(row) : undefined
-  if (!row || id === undefined || row['workflowId'] !== workflowId.value || row['fileName'] !== 'definition.json'
-    || typeof row['content'] !== 'string' || view.fieldAccess(row, 'content').read !== 'visible'
-    || !view.hasUnconfirmedSave && view.fieldAccess(row, 'content').write !== 'allowed') {
-    throw new Error('definition.json 原工作流行不可读写或仍有其他目标的待处理修改')
-  }
-  return {view, id}
 }
 
-async function loadDefinitionRowForPublish(): Promise<{view: DataView; id: string | number} | null> {
+async function loadDefinitionRowForPublish(): Promise<{owner:AgentWorkflowFileDataViewOwner;workflowId:string;proof:AgentWorkflowDocumentProof}|null> {
   const current = owner.value
   if (!current) throw new Error('工作流文件空间尚未就绪')
-  const view = current.definitionView
-  if (pendingIn(view)) throw new Error('definition.json 有未保存或待核验的修改')
-  try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
-    if (error instanceof LowcodeApiError && error.code === 404) return null
+  const targetId=workflowId.value
+  const view=current.definitionView
+  if(pendingIn(view))throw new Error('definition.json 有未保存或待核验的修改')
+  try {
+    const proof=await current.loadDocument(targetId,'definition.json')
+    if(view.fieldAccess(proof.row,'content').write!=='allowed')throw new Error('definition.json 原工作流行不可写')
+    return {owner:current,workflowId:targetId,proof}
+  } catch (error) {
+    if(error instanceof AgentWorkflowDocumentNotFoundError)return null
     throw new Error(`读取 definition.json 失败，拒绝首发或覆盖（${message(error)}）`)
   }
-  const row = view.currentRow, id = row ? view.getPkKey(row) : undefined
-  if (!row || id === undefined || row['workflowId'] !== workflowId.value || row['fileName'] !== 'definition.json'
-    || typeof row['content'] !== 'string' || view.fieldAccess(row, 'content').read !== 'visible'
-    || view.fieldAccess(row, 'content').write !== 'allowed') throw new Error('definition.json 原工作流行不可读写')
-  return {view, id}
 }
 
 async function savePublicationCommand(view: DataView, id: string | number): Promise<DataRow> {
@@ -734,7 +732,12 @@ async function publishFirstDefinition(input: PublishFirstDefinitionInput): Promi
 }
 
 async function openDefinition(): Promise<void> {
-  try {await loadDefinitionRow(); definitionOpen.value = true} catch (error) {pageService.showMessage(`打开 Definition 失败: ${message(error)}`, 'error')}
+  try{
+    const loaded=await loadDefinitionRow()
+    if(!active||owner.value!==loaded.owner||workflowId.value!==loaded.workflowId)throw new Error('Definition 目标已变化')
+    loaded.proof.assertRow()
+    definitionOpen.value=true
+  }catch(error){pageService.showMessage(`打开 Definition 失败: ${message(error)}`, 'error')}
 }
 
 async function saveDefinitionView(view: DataView, id: string | number): Promise<void> {
@@ -799,12 +802,11 @@ async function publish(): Promise<void> {
     if (owner.value !== current || workflowId.value !== targetId || publicationUnconfirmed.value || hasPending.value) {
       throw new Error('发布目标已变化、设计稿有未保存修改或首次发布待核验')
     }
-    const assertRow = existing
-      ? existing.view.captureReadRow(existing.view.currentRow!, ['workflowId', 'fileName', 'content'])
-      : undefined
+    if(existing&&(existing.owner!==current||existing.workflowId!==targetId))throw new Error('Definition 原查询目标已变化')
+    const assertRow=existing?.proof.assertRow
     const source = await current.readDocument(targetId, 'design.json')
     if (owner.value !== current || workflowId.value !== targetId || publicationUnconfirmed.value
-      || hasPending.value || existing && pendingIn(existing.view)) {
+      || hasPending.value || existing && pendingIn(existing.proof.view)) {
       throw new Error('发布目标、设计稿或 Definition 在读取期间已变化')
     }
     assertRow?.()
@@ -818,7 +820,7 @@ async function publish(): Promise<void> {
       pageService.showMessage('definition.json 已首次发布', 'success')
       return
     }
-    const {view, id} = existing
+    const {view,id}=existing.proof
     view.updateEditingValue(id, 'content', definitionContent)
     await saveDefinitionView(view, id)
     pageService.showMessage('definition.json 已发布', 'success')

@@ -42,13 +42,6 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     return state.readPageToolFileDataViewText(pageId,activeFile.value)
   })
 
-  async function ensureLoaded(options?: { forceReload?: boolean }) {
-    const pageId=state.activePageId.value
-    if (!pageId) return
-    if (!alignActivePage()) return
-    await state.loadPageToolFileDataView({pageId,fileName:activeFile.value,forceReload:options?.forceReload===true})
-  }
-
   function isFileDirty(name: PageToolFileName): boolean {
     void state.projectRevision.value
     return fileState(name)?.dirty ?? false
@@ -62,18 +55,16 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
 
     state.pageIoBusy.value = true
     try {
-      const view=await state.loadPageToolFileDataView({pageId,fileName})
-      if(view.hasUnconfirmedSave){
-        const recovered=await view.verifySourceWriteAttempt()
+      const recovered=await state.savePageToolFile({pageId,fileName,reportUnconfirmed:true})
+      if(recovered?.state==='unknown'||recovered?.state==='idle'){
         retryableUnconfirmed.value=recovered.retryable===true
         if(recovered.state==='unknown'){
           state.addStatus(retryableUnconfirmed.value
             ? `${fileName} 原提交仍无法确认，但远端仍是写前基线；可使用单独的同内容补偿重试`
             : `${fileName} 原提交仍无法确认：${recovered.message ?? '远端状态不是原正文'}`, 'warning')
-          return
-        }
+        }else state.addStatus(`${fileName} 原提交状态已清空，未提交新正文`, 'warning')
+        return
       }
-      await state.savePageToolFile({pageId,fileName})
       retryableUnconfirmed.value=false
       state.addStatus(`页面 ${pageId}/${fileName} 本轮提交已确认${isFileDirty(fileName) ? '，仍有新修改待保存' : ''}`, 'success')
     } catch (e) {
@@ -102,11 +93,6 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     }finally{state.pageIoBusy.value=false}
   }
 
-  async function refresh() {
-    try {await ensureLoaded({ forceReload: true })}
-    catch (cause) {state.addStatus(`文件重载未完成：${String(cause)}`, 'error'); throw cause}
-  }
-
   watch([()=>state.activePageId.value,activeFile,isUnconfirmed],([pageId,fileName,unconfirmed],previous)=>{
     if(pageId===previous[0]&&fileName===previous[1]&&unconfirmed)return
     retryableUnconfirmed.value=false
@@ -118,10 +104,8 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     isUnconfirmed,
     retryableUnconfirmed,
     text,
-    ensureLoaded,
     isFileDirty,
     save,
     retryUnconfirmed,
-    refresh,
   }
 }

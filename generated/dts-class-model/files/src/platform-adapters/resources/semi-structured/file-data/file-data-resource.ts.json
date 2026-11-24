@@ -274,6 +274,24 @@
             }
           }
         },
+        "deferredAddedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "deferredChangedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
         "context": {
           "type": "object",
           "title": "DataViewQueryResult"
@@ -700,6 +718,16 @@
               "name": "changedFields",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "deferredAddedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deferredChangedFields",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "context",

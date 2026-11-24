@@ -6,6 +6,7 @@ import {FieldJson, FieldText, PAGE_SERVICE, RendererGraph, RendererTable, Spark,
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type {AgentWorkflowFileDataViewOwner} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
+import {LowcodeApiError} from '@/platform-adapters/api'
 
 const mocks = vi.hoisted(() => ({
   files: new Map<string, string>(),
@@ -444,6 +445,16 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('拒绝首发或覆盖'))
   })
 
+  it('does not interpret a directory 404 as missing definition eligibility',async()=>{
+    mocks.files.delete('definition.json')
+    const wrapper=await mountPage()
+    mocks.directoryError=()=>new LowcodeApiError(404,'directory unavailable')
+    await button(wrapper,'发布 Definition').trigger('click');await flushPromises()
+    expect(mocks.creations()).toBe(0)
+    expect(uploads()).toEqual([])
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('拒绝首发或覆盖'))
+  })
+
   it('creates definition.json on the first publish when the saved design is valid', async () => {
     mocks.files.delete('definition.json')
     usePublishableDesign()
@@ -583,6 +594,26 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     release?.(); await flushPromises()
     expect(uploads()).toEqual([])
     expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"late"}')
+  })
+
+  it('does not open Definition proof after the active workflow changes',async()=>{
+    mocks.files.set('beta/design.json',JSON.stringify({...design,id:'beta',workflow:{...design.workflow,id:'beta'}},null,2))
+    mocks.files.set('beta/definition.json','{"kind":"beta"}')
+    const wrapper=await mountPage(),owner=mocks.owner()
+    if(!owner)throw new Error('missing owner')
+    const original=owner.loadDocument
+    let release:(()=>void)|undefined
+    vi.spyOn(owner,'loadDocument').mockImplementationOnce(async(...args)=>{
+      const proof=await original(...args)
+      return new Promise(resolve=>{release=()=>resolve(proof)})
+    })
+    await button(wrapper,'Definition').trigger('click')
+    await vi.waitFor(()=>expect(release).toBeDefined())
+    wrapper.findComponent(RendererTable).props('onRowClick')?.({workflowId:'beta'},undefined,undefined,{cancel:false})
+    await flushPromises()
+    release?.();await flushPromises()
+    expect(wrapper.findComponent(FieldJson).exists()).toBe(false)
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('目标已变化'))
   })
 
   it('does not first-publish a captured design after a newer local edit arrives', async () => {

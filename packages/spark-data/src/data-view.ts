@@ -358,6 +358,10 @@ type DataViewQuerySaveReceipt = Readonly<{
   changed: readonly DataViewQueryRow[]
   deleted: readonly DataViewQueryRow[]
   changedFields: ReadonlyArray<readonly string[]>
+  /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */
+  deferredAddedFields?: ReadonlyArray<readonly string[]>
+  /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */
+  deferredChangedFields?: ReadonlyArray<readonly string[]>
   context: DataViewQueryResult
   /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */
   assertAcceptance?(): void
@@ -4404,6 +4408,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (receipt.added.length !== added.length || receipt.changed.length !== changed.length
       || receipt.deleted.length !== deleted.length || !Array.isArray(receipt.changedFields)
       || receipt.changedFields.length !== changed.length
+      || receipt.deferredAddedFields!==undefined&&(receipt.deferredAddedFields.length!==added.length
+        ||receipt.deferredAddedFields.some(fields=>!Array.isArray(fields)))
+      || receipt.deferredChangedFields!==undefined&&(receipt.deferredChangedFields.length!==changed.length
+        ||receipt.deferredChangedFields.some(fields=>!Array.isArray(fields)))
       || Array.from(receipt.changedFields).some(fields => !Array.isArray(fields)
         || Array.from(fields).some(field => typeof field !== 'string'))) {
       throw new Error('DATA_VIEW_SAVE_RECEIPT: 动作回执不完整')
@@ -4440,8 +4448,22 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       if (submitted !== undefined && this.#explicitNewRowIds.has(submitted.id) && acceptedId !== submitted.id) {
         throw new Error('DATA_VIEW_SAVE_RECEIPT_IDENTITY: 显式正式身份不能被保存回执改写')
       }
+      for(const field of receipt.deferredAddedFields?.[index]??[]){
+        if(typeof field!=='string'||field.startsWith('_')||!submitted||!this.getColumn(field)||!Object.hasOwn(accepted,field)){
+          throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增延迟字段无效')
+        }
+      }
     }
-  }
+    receipt.deferredChangedFields?.forEach((fields,index)=>{
+      const accepted=receipt.changed[index],submitted=changed[index]
+      const changedFields=new Set(receipt.changedFields[index])
+      for(const field of fields){
+        if(typeof field!=='string'||field.startsWith('_')||!this.getColumn(field)||!changedFields.has(field)||!submitted||!accepted){
+          throw new Error('DATA_VIEW_SAVE_RECEIPT: 更新延迟字段无效')
+        }
+      }
+    })
+    }
 
   private acceptQuerySaveReceipt(command: DataViewQuerySaveAcceptance): CrudResult<SaveChangesData> {
     const { context, added, changed, deleted, receipt } = command
@@ -4453,13 +4475,19 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 更新身份不属于提交行')
       const current = this.getRowById(submitted.id)
       if (current === null) return
+      const deferredFields=receipt.deferredChangedFields?.[index]??[]
+      const effective=this.getEditingRow(submitted.id)??current
+      const deferred=deferredFields.flatMap(field=>!this.sameQuerySaveValue(effective[field],accepted[field])
+        ?[{field,value:structuredClone(effective[field])}]:[])
       const patch: DataRow = {}
       for (const field of receipt.changedFields[index] ?? []) {
         if (field === '_pk' || this.computedColumnNames.has(field) || this.effectivePkFields.includes(field)) continue
-        if (this.sameQuerySaveValue(current[field], submitted.row[field])) patch[field] = accepted[field]
+        if(deferredFields.includes(field)||this.sameQuerySaveValue(current[field],submitted.row[field]))patch[field]=accepted[field]
       }
       this.updateRowById(submitted.id, structuredClone(patch))
       this.rebaseQuerySaveDirty(submitted.id, accepted)
+      if(deferred.length)this._editingOriginalRows.set(submitted.id,dataRowFromRecord(structuredClone(accepted)))
+      for(const item of deferred)this.updateEditingValue(submitted.id,item.field,item.value)
     })
     receipt.deleted.forEach(accepted => {
       const submitted = deleted.find(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, accepted))
@@ -4473,6 +4501,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       const submitted = added[index]
       if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增行未对应提交')
       const current = this.getRowById(submitted.id)
+      const deferredFields=receipt.deferredAddedFields?.[index]??[]
+      const effective=current===null?submitted.row:this.getEditingRow(submitted.id)??current
+      const deferred=deferredFields.flatMap(field=>!this.sameQuerySaveValue(effective[field],accepted[field])
+        ?[{field,value:structuredClone(effective[field])}]:[])
       const row = dataRowFromRecord(structuredClone(accepted))
       this._applyComputedColumns([row])
       const nextId = this.getPkKey(row)
@@ -4505,6 +4537,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         this._editingOriginalRows.set(nextId, structuredClone(accepted))
       }
       this.rebaseQuerySaveDirty(nextId, accepted)
+      if(deferred.length)this._editingOriginalRows.set(nextId,dataRowFromRecord(structuredClone(accepted)))
+      for(const item of deferred)this.updateEditingValue(nextId,item.field,item.value)
     })
     this.total = receipt.context.total
     this.emitRowsChanged()

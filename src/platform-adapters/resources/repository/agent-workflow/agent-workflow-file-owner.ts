@@ -10,6 +10,7 @@ import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
+import {LowcodeApiError} from '@/platform-adapters/api'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {
   AGENT_WORKFLOW_DATA_SPACE_NAME,
@@ -23,7 +24,17 @@ import {AGENT_WORKFLOW_CAPABILITY_TABLE, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORK
 
 /** 当前请求作用域（令牌与应用头）。 */
 type RequestScope = ReturnType<typeof lowcodeApi.readRequestScope>
-
+export type AgentWorkflowDocumentProof=Readonly<{
+  readonly view:DataView
+  readonly row:Readonly<DataRow>
+  readonly id:string|number
+  readonly assertRow:()=>void
+}>
+export class AgentWorkflowDocumentNotFoundError extends LowcodeApiError {
+  constructor(public readonly workflowId:string,public readonly fileName:'design.json'|'definition.json'){
+    super(404,`AGENT_WORKFLOW_FILE_NOT_FOUND: ${workflowId}/${fileName}`)
+  }
+}
 /** Agent 工作流文件空间的运行实例及其命名视图、加载命令。 */
 export type AgentWorkflowFileDataViewOwner = Readonly<{
   /** 文件空间的 PageRuntime。 */
@@ -47,7 +58,7 @@ export type AgentWorkflowFileDataViewOwner = Readonly<{
   /** 重新查询工作流目录。 */
   refreshDirectory(): Promise<void>
   /** 让对应文件行视图查询指定工作流的文件。 */
-  loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>
+  loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json', options?:Readonly<{reload?:boolean}>):Promise<AgentWorkflowDocumentProof>
   /** 查询目录并返回工作流及其修改时间。 */
   listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{workflowId: string; timestamp: string}>>>
   /** 查询目录并返回工作流 ID。 */
@@ -147,9 +158,13 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
         throw result.error ?? directoryView.loadingError ?? new Error(result.message ?? '工作流目录查询失败')
       }
     }
-    const listWorkflowEntries = async () => {
+    const refreshDirectoryRows = async ():Promise<readonly DataRow[]>=>{
       await refreshDirectory()
-      return directoryView.rows.map(row => {
+      return directoryView.rows
+    }
+    const listWorkflowEntries = async () => {
+      const rows=await refreshDirectoryRows()
+      return rows.map(row => {
         if (directoryView.fieldAccess(row, 'workflowId').read !== 'visible' || typeof row['workflowId'] !== 'string') {
           throw new Error('AGENT_WORKFLOW_FILE_DIRECTORY: 工作流身份不可读')
         }
@@ -174,32 +189,65 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       const failed = results.find(result => !result.success)
       if (failed) throw failed.error ?? new Error(failed.message ?? 'Agent 工作流设计查询失败')
     }
-    const loadDocumentRow = async (workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<Readonly<{row: Readonly<DataRow>; assertRow: () => void}>> => {
+    const directoryIds = async ():Promise<readonly string[]>=>{
+      const rows=await refreshDirectoryRows()
+      return rows.flatMap(row=>directoryView.fieldAccess(row,'workflowId').read==='visible'&&typeof row['workflowId']==='string'
+        ?[row['workflowId']]:[])
+    }
+    const loadDocumentRow = async (workflowId:string,fileName:'design.json'|'definition.json',reload=true):Promise<AgentWorkflowDocumentProof>=>{
       assertCurrent()
-      const ids = await thisDirectoryIds(directoryView, assertCurrent)
+      const selected=fileName==='design.json'?designView:definitionView
+      if(!reload){
+        const row=selected.currentRow
+        if(!row)throw new Error(`工作流文件原行已失效: ${workflowId}/${fileName}`)
+        const id=selected.getPkKey(row)
+        if(id===undefined||row['workflowId']!==workflowId||row['fileName']!==fileName
+          ||selected.fieldAccess(row,'content').read!=='visible'||typeof row['content']!=='string'){
+          throw new Error(`工作流文件原行已失效: ${workflowId}/${fileName}`)
+        }
+        const assertRow=()=>{
+          assertCurrent()
+          if(selected.currentRow!==row||!selected.rows.includes(row)||selected.getPkKey(row)!==id
+            ||row['workflowId']!==workflowId||row['fileName']!==fileName
+            ||selected.fieldAccess(row,'content').read!=='visible'||typeof row['content']!=='string'){
+            throw new Error('AGENT_WORKFLOW_FILE_READ: 原文件查询或行已失效')
+          }
+        }
+        assertCurrent();assertRow()
+        return {view:selected,row,id,assertRow}
+      }
+      const ids=await directoryIds()
       if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
-      const selected = fileName === 'design.json' ? designView : definitionView
       selected.queryContext = {...selected.queryContext, workflowId}
-      const result = await selected.requestRefresh()
+      let result:Awaited<ReturnType<DataView['requestRefresh']>>
+      try{result=await selected.requestRefresh()}
+      catch(error){
+        if(error instanceof LowcodeApiError&&error.code===404)throw new AgentWorkflowDocumentNotFoundError(workflowId,fileName)
+        throw error
+      }
       assertCurrent()
       const row = selected.rows.find(item => item['workflowId'] === workflowId && item['fileName'] === fileName)
       if (!result.success || selected.queryContext['workflowId'] !== workflowId || selected.rows.length !== 1 || !row
         || selected.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
-        throw result.error ?? selected.loadingError ?? new Error(result.message ?? `工作流文件不可读: ${workflowId}/${fileName}`)
+        const error=result.error??selected.loadingError??new Error(result.message??`工作流文件不可读: ${workflowId}/${fileName}`)
+        if(error instanceof LowcodeApiError&&error.code===404)throw new AgentWorkflowDocumentNotFoundError(workflowId,fileName)
+        throw error
       }
-      const assertRow = selected.captureReadRow(row, ['workflowId', 'fileName', 'content'])
+      const id=selected.getPkKey(row)
+      if(id===undefined)throw new Error(`AGENT_WORKFLOW_FILE_READ: 工作流文件缺少正式身份: ${workflowId}/${fileName}`)
+      const assertRow=selected.captureReadRow(row,['workflowId','fileName','content'])
       selected.setCurrentRow(row)
       assertCurrent(); assertRow()
       if (selected.queryContext['workflowId'] !== workflowId || !selected.rows.includes(row)
         || selected.fieldAccess(row, 'content').read !== 'visible') throw new Error('AGENT_WORKFLOW_FILE_READ: 原文件查询或行已失效')
-      return {row, assertRow}
+      return {view:selected,row,id,assertRow}
     }
     return {
       runtime, catalogView, dataSet, directoryView, designView, definitionView,
       get design() {return designViews()},
       loadDesign: async workflowId => {
         const design = designViews()
-        const ids = await thisDirectoryIds(directoryView, assertCurrent)
+        const ids = await directoryIds()
         if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
         await loadDesignViews([design.workflow, design.nodes, design.lines, design.variables, design.capabilities], {workflowId})
         await loadDesignViews([design.childNodes, design.childLines], {workflowId, graphPath: ''})
@@ -209,7 +257,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
         await loadDesignViews([design.childNodes, design.childLines], {graphPath})
       },
       refreshDirectory,
-      loadDocument: async (workflowId, fileName) => {await loadDocumentRow(workflowId, fileName)},
+      loadDocument:async(workflowId,fileName,options)=>loadDocumentRow(workflowId,fileName,options?.reload!==false),
       listWorkflowEntries,
       listWorkflowIds: async () => (await listWorkflowEntries()).map(row => row.workflowId),
       readDocument: async (workflowId, fileName) => {
@@ -267,15 +315,4 @@ function designTables(dataSet: DataSet): AgentWorkflowDesignViews | Error {
     variables: view(AGENT_WORKFLOW_VARIABLE_TABLE, 'design'),
     capabilities: view(AGENT_WORKFLOW_CAPABILITY_TABLE, 'design'),
   }
-}
-
-async function thisDirectoryIds(view: DataView, assertCurrent: () => void): Promise<readonly string[]> {
-  assertCurrent()
-  const result = await view.requestRefresh()
-  assertCurrent()
-  if (!result.success || view.requestState !== RequestState.Loaded || view.loadingError) {
-    throw result.error ?? view.loadingError ?? new Error(result.message ?? '工作流目录查询失败')
-  }
-  return view.rows.flatMap(row => view.fieldAccess(row, 'workflowId').read === 'visible' && typeof row['workflowId'] === 'string'
-    ? [row['workflowId']] : [])
 }

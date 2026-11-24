@@ -419,8 +419,11 @@ describe('Agent Workflow file owner lifecycle', () => {
       }, catalogScenarioId: 'CATALOG'})
     try {
       expect(calls).toEqual(['CATALOG', 'CATALOG', 'SPACE-1'])
+      const refresh=vi.spyOn(owner.directoryView,'requestRefresh')
       expect(await owner.listWorkflowIds()).toEqual(['agent-workflow-alpha'])
+      expect(refresh).toHaveBeenCalledTimes(1)
       expect(await owner.readDocument('agent-workflow-alpha', 'definition.json')).toBe('{"workflow":{}}')
+      expect(refresh).toHaveBeenCalledTimes(2)
       expect(owner.definitionView.fieldAccess(owner.definitionView.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
       expect('documentView' in owner).toBe(false)
       owner.definitionView.autoCurrentFirst = false

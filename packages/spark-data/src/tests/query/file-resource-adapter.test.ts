@@ -821,6 +821,44 @@ describe('DataView file resource adapter',()=>{
     }finally{f.dataSet.destroy()}
   })
 
+  it.each(['create','update'] as const)('preserves a later %s edit while the accepted receipt readback is delayed',async operation=>{
+    const f=fixture()
+    try{
+      if(operation==='create'){f.current.text=null;f.current.revision=null}
+      await f.view.refresh()
+      const row=operation==='create'
+        ?await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'accepted'})
+        :f.view.rows[0]!
+      const id=f.view.getPkKey(row)!
+      if(operation==='update')await f.view.editRowById(id,{text:'accepted'})
+      const originalRead=f.read.getMockImplementation()!
+      let release:()=>void=()=>undefined,entered=()=>{}
+      const enteredReadback=new Promise<void>(resolve=>{entered=resolve})
+      const gate=new Promise<void>(resolve=>{release=resolve})
+      let delayed=false
+      f.read.mockImplementation(async()=>{
+        const snapshot=await originalRead()
+        if(!delayed&&snapshot?.text==='accepted'){delayed=true;entered();await gate}
+        return snapshot
+      })
+      const saving=f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default',ids:[id]}]})
+      await enteredReadback
+      await f.view.editRowById(id,{text:'later edit'})
+      await f.view.editRowById(id,{text:'newest edit'})
+      release()
+      expect((await saving).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.current.text).toBe('accepted')
+      expect(f.view.getEditingRow(id)?.['text']).toBe('newest edit')
+      expect(f.view.hasEditingChanges(id)||f.view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+      await f.view.editRowById(id,{text:'later edit'})
+      expect(f.view.getEditingRow(id)?.['text']).toBe('later edit')
+      expect((await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default',ids:[id]}]})).success).toBe(true)
+      expect(f.write).toHaveBeenCalledTimes(2)
+      expect(f.current.text).toBe('later edit')
+    }finally{f.dataSet.destroy()}
+  })
+
   it('serializes same-target writes from two query clones in one DataSet',async()=>{
     const f=fixture();let finish:(()=>void)|undefined
     const waiting=new Promise<void>(resolve=>{finish=resolve})
@@ -894,14 +932,12 @@ describe('DataView file resource adapter',()=>{
       f.bind(reopened);await reopened.refresh()
       const reopenedId=reopened.getPkKey(reopened.rows[0]!)!
       await reopened.editRowById(reopenedId,{text:'later edit'})
-      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'reopened',ids:[reopenedId]}]}))
-        .rejects.toThrow('FILE_RESOURCE_UNKNOWN_DELIVERY')
-      expect(reopened.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'reopened',ids:[reopenedId]}]})).success).toBe(true)
+      expect(reopened.hasUnconfirmedSave).toBe(false)
       expect(f.write).toHaveBeenCalledOnce()
       expect(f.current.text).toBe('accepted')
-      await expect(reopened.verifySourceWriteAttempt()).resolves.toEqual({state:'confirmed',text:'accepted',message:null})
-      reopened.acknowledgeSourceWriteAttempt()
-      expect(reopened.hasUnconfirmedSave).toBe(false)
+      expect(reopened.getEditingRow(reopenedId)?.['text']).toBe('later edit')
+      expect(reopened.hasEditingChanges(reopenedId)).toBe(true)
       expect((await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'reopened',ids:[reopenedId]}]})).success).toBe(true)
       expect(f.write).toHaveBeenCalledTimes(2)
       expect(f.current.text).toBe('later edit')

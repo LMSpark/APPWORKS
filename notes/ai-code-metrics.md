@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-24 语义重复第三轮 owner 收敛
+
+- **复杂度**：复杂；跨 PageTool 文件编辑器、DataView deferred receipt、Agent workflow 目录/文件 owner、Definition 发布以及蓝图批次恢复。
+- **验证**：FileResource 68/68，工作文件/Agent workflow/Definition/蓝图 166/166；根测试 774 文件 12,311 项、workspace 包测试 155 文件 2,454 项；typecheck、lint（6 GB heap）、`verify:rules`、生成器与生产 build 通过。
+- **返工**：高阶复审三轮修正 7 项控制路径：Definition active target/404 provenance、reload error recovery、蓝图完整 outgoing 比对、receipt 最新 overlay、deferred overlay baseline、目录 refresh 单次接纳、编辑器单次 verify。
+- **30 天存活**：待 2026-12-24 回查；重点确认 receipt 接纳后重设 editing baseline、目录 404 不首发、Definition proof 不跨目标、蓝图 retry 不发送原捕获外字段、reload 未确认态仍可核验。
+- **人工干预**：用户要求提交推送后继续推进；标准组件 + SPARK Data 保持唯一业务 owner，未修改/启动/部署 Java，未创建额外 worktree。
+
 ### 2026-11-24 语义重复第二轮控制流收敛
 
 - **复杂度**：复杂；跨 FileResource save/recovery、蓝图双阶段删除、workflow execution proof lifecycle 与 data-code 原子草稿更新。

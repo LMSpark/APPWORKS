@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { defineComponent, effectScope, h, nextTick, watchEffect } from 'vue'
+import { defineComponent, effectScope, h, nextTick, ref, watchEffect } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkComponent } from '@spark-appworks/spark-component'
@@ -25,6 +25,7 @@ import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shel
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 import {readPageDesignRunContext} from '@/services/page-design/page-design-gates'
+import {useDevFileEditor} from '@/views/features/application/application-function-management/ui/page-design/useDevFileEditor'
 import applicationPageData from '../../../config/pages/application/project-blueprint/pagedata.json'
 
 const httpFns = vi.hoisted(() => ({
@@ -1093,6 +1094,22 @@ describe('DevState 页面文件闭环', () => {
       expect(owner.hasPendingChildCreate).toBe(true)
       const firstIds=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])
       const firstPatches=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added
+      const originalChildPermission=owner.view.createChildActionState.bind(owner.view)
+      const permission=vi.spyOn(owner.view,'createChildActionState').mockReturnValue('disabled')
+      await expect(owner.save()).rejects.toThrow('当次新增权限')
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      permission.mockImplementation(originalChildPermission)
+      const staged=owner.view.rows.find(row=>row['rowid']==='ABSENT-A')!
+      owner.view.updateRowById('ABSENT-A',{memo:'late native edit'})
+      await expect(owner.save()).rejects.toThrow('字段快照已变化')
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      const restored=owner.view.rows.find(row=>row['rowid']==='ABSENT-A')!
+      if(Object.hasOwn(staged,'memo'))restored['memo']=staged['memo']
+      else delete restored['memo']
+      owner.view.updateEditingValue('ABSENT-A','name','late draft')
+      await expect(owner.save()).rejects.toThrow('字段快照已变化')
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      owner.view.updateEditingValue('ABSENT-A','name','ABSENT-A')
       await expect(owner.save()).resolves.toBeUndefined()
       expect(fixture.save.mock.calls.at(-1)?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])).toEqual(firstIds)
       expect(fixture.save.mock.calls.at(-1)?.[0].changes[0]?.changes.added).toEqual(firstPatches)
@@ -2317,15 +2334,24 @@ describe('DevState 页面文件闭环', () => {
       expect(view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id)).toBe(true)
       expect(state.project.openPageDesign('demo').isFileDirty('script.js')).toBe(true)
       const adapterRuns=pageDesignAiRun.run.mock.calls.length
-
-      await state.saveAll()
+      await view.editRowById(id,{text:'AI next draft'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'AI next draft'})
+      const verify=vi.spyOn(view,'verifySourceWriteAttempt')
+      const editor=useDevFileEditor(state,ref('script.js'))
+      await editor.save()
 
       expect(pageDesignAiRun.run).toHaveBeenCalledTimes(adapterRuns)
+      expect(verify).toHaveBeenCalledOnce()
       expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js')).toHaveLength(1)
       expect(view.hasUnconfirmedSave).toBe(false)
+      expect(view.getEditingRow(id)?.['text']).toBe('AI next draft')
+      expect(pageFiles.files.get('demo/script.js')).toBe('AI script')
+      expect(state.project.openPageDesign('demo').getFileText('script.js')).toBe('AI next draft')
+      await state.saveAll()
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js')).toHaveLength(2)
       expect(view.hasEditingChanges(id)).toBe(false)
       expect(state.project.openPageDesign('demo').isFileDirty('script.js')).toBe(false)
-      expect(state.project.openPageDesign('demo').getFileText('script.js')).toBe('AI script')
+      expect(pageFiles.files.get('demo/script.js')).toBe('AI next draft')
     }finally{scope.stop()}
   })
 

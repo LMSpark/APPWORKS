@@ -1158,6 +1158,24 @@
             }
           }
         },
+        "deferredAddedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "deferredChangedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
         "context": {
           "$ref": "#/$defs/DataViewQueryResult"
         }
@@ -3440,7 +3458,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T02:31:11.000Z",
+  "generatedAt": "2026-11-24T05:35:40.948Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4957,11 +4975,11 @@
       "jsdoc": "模型保存回执；真实接受行、逐行更新字段和新上下文用于接纳结果并保留在途新编辑。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */\n    deferredAddedFields?: ReadonlyArray<readonly string[]>;\n    /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */\n    deferredChangedFields?: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
+            "typeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */\n    deferredAddedFields?: ReadonlyArray<readonly string[]>;\n    /** 原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。 */\n    deferredChangedFields?: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n    /** 回执接纳前复核来源自身的请求 generation；不改变接纳后长期 context 的 live binding。 */\n    assertAcceptance?(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -4989,6 +5007,18 @@
             },
             {
               "name": "changedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deferredAddedFields",
+              "jsdoc": "原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deferredChangedFields",
+              "jsdoc": "原回执已确认时，本次提交中须保留为后续编辑而不覆盖的新值字段。",
               "readable": true,
               "writable": false
             },

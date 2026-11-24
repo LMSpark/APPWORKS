@@ -34,7 +34,7 @@ import {
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import type {DataView, DataSet} from '@spark-appworks/spark-data'
+import type {DataView, DataSet, DataViewSourceWriteAttemptStatus} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
@@ -462,8 +462,8 @@ export function useDevState() {
     }
     return sourceText
   }
-  async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean}):Promise<void>{
-    const {pageId,fileName,submittedText,requireActive=true}=input
+  async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean;reportUnconfirmed?:boolean}):Promise<DataViewSourceWriteAttemptStatus|undefined>{
+    const {pageId,fileName,submittedText,requireActive=true,reportUnconfirmed=false}=input
     const workspace=currentEditor.value,scope=currentScopeKey()
     await loadBlueprintWorkspaceDataView()
     const page=workspace.project.findPageTool(pageId)
@@ -472,12 +472,13 @@ export function useDevState() {
     const view=await loadPageToolFileDataView({pageId,fileName});assertCurrent()
     const row=view.currentRow,id=row&&view.getPkKey(row)
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName||typeof row['text']!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: 查询没有返回目标文件行')
-    let confirmedAttemptText:string|undefined
     if(view.hasUnconfirmedSave){const recovered=await view.verifySourceWriteAttempt();assertCurrent()
-      if(recovered.state==='unknown'||recovered.state==='idle')throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原文件提交仍无法核验')
+      if(recovered.state==='unknown'||recovered.state==='idle'){
+        if(reportUnconfirmed)return recovered
+        throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原文件提交仍无法核验')
+      }
       if(recovered.state==='confirmed'){
         if(typeof recovered.text!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 已确认的原文件提交缺少原文本')
-        confirmedAttemptText=recovered.text
       }
       else view.acknowledgeSourceWriteAttempt()}
     const current=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']===fileName),currentId=current&&view.getPkKey(current)
@@ -485,12 +486,12 @@ export function useDevState() {
     const edited=view.getEditingRow(currentId)??current
     const text=submittedText??edited['text']
     if(typeof text!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: DataView目标文件文本无效')
-    if(confirmedAttemptText!==undefined&&text!==confirmedAttemptText)throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN_DELIVERY: 原文件提交已确认，当前DataView包含后续修改；保留草稿并先交付原回执')
     if(edited['text']!==text){if(view.dirtyTracking.hasPendingChanges(currentId))throw new Error('PAGE_TOOL_FILE_SAVE_DRAFT: DataView草稿与提交文本不一致');await view.editRowById(currentId,{text})}
-    if(confirmedAttemptText===undefined&&!view.hasUnconfirmedSave&&!view.hasEditingChanges(currentId)&&!view.dirtyTracking.hasPendingChanges(currentId))return
+    if(!view.hasUnconfirmedSave&&!view.hasEditingChanges(currentId)&&!view.dirtyTracking.hasPendingChanges(currentId))return
     assertCurrent()
     const receipt=await view.dataSet?.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:[currentId]}]})
     assertCurrent();if(!receipt?.success)throw receipt?.error??new Error(receipt?.message??'文件 DataView 保存未确认')
+    return undefined
   }
   async function loadPageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;discardPending?:boolean;forceReload?:boolean}):Promise<DataView>{
     const workspace=currentEditor.value,scope=currentScopeKey()
@@ -1481,7 +1482,7 @@ export function useDevState() {
         pageId,
         editor:workspace,
         assertCurrent:assertAiTarget,
-        savePageFile:(targetPageId,name,text)=>{assertAiTarget();if(targetPageId!==pageId)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI 编辑不能改写其他页面');return savePageToolFile({pageId:targetPageId,fileName:name,submittedText:text})},
+        savePageFile:async(targetPageId,name,text)=>{assertAiTarget();if(targetPageId!==pageId)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI 编辑不能改写其他页面');await savePageToolFile({pageId:targetPageId,fileName:name,submittedText:text})},
         adapter: pageDesignAiAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,

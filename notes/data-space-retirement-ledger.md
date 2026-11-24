@@ -2,6 +2,14 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-24 语义重复第三轮 owner 收敛
+
+- **SPARK data 文件链：**页面工具文件按钮只通过 `useDevState` 的 DataView save/loader；删除编辑器内重复 verify、重复 discard 与二次 reload。原 unknown 回执交付时可由 receipt 的 deferred field 将确认正文作为新 baseline，并保留在回读期间到达的最新 overlay；后续保存只提交保留草稿。
+- **Agent workflow 文件 owner：**目录 membership 与 entry projection 共用一次 `requestRefresh` 接纳；`loadDocument` 返回正式 DataView 行 proof，Definition open/publish 复用同一行捕获。只把精确 `definition.json` 读取的 404 标成首次发布资格，目录 404 不得误当文件缺失；目标切换后旧 proof 不得打开或发布。
+- **蓝图批次：**首发、unknown recovery 与 proven not-applied retry 共用一个纯 create/update DataView dispatch helper；发送前复核当前权限、完整 outgoing row、原 IDs/patch 及 parent，blocked/partial readback 仍单独保留。
+- **标准组件边界：**页面只展示状态和触发 owner 命令；不在 Vue 自建查询、保存、权限或 unknown 旁路。Reload 拒绝未确认提交时继续显示 Verify/补偿入口及错误。
+- **验证：**定向 FileResource 68/68、工作文件/Workflow/蓝图 166/166；根测试 774 文件 12,311 项、workspace 包测试 155 文件 2,454 项、typecheck、6 GB heap lint、`verify:rules`、ClassModel/consumer ledger 生成及生产 build 全部通过。默认 4 GB lint 堆耗尽后仅提高 Node heap，无业务超时或代码门禁调整。
+
 ### 2026-11-24 语义重复第二轮控制流收敛
 
 - **收敛范围：**FileResource create/update 共用写入派发、unknown capture、pending verification 与原回执；蓝图叶子删除共用正式 readback/finalize；workflow copy/add/edit/delete 共用模型/字段 proof view 装载与 cleanup；编码分类/顺序号选择共用节点 JSON + 参数名 checkpoint 更新。

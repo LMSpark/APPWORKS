@@ -10,6 +10,8 @@
     "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet，核对文件表与 design.json 五张投影表的声明并暴露命名视图。\n执行器由场景装配按文件资源注册表绑定，本 owner 不另绑。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "AgentWorkflowDocumentProof",
+      "AgentWorkflowDocumentNotFoundError",
       "AgentWorkflowFileDataViewOwner",
       "AgentWorkflowDesignViews"
     ]
@@ -36,6 +38,81 @@
         "headers"
       ],
       "additionalProperties": false
+    },
+    "AgentWorkflowDocumentProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDocumentProof",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "row": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertRow.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertRow.return": true
+      }
+    },
+    "AgentWorkflowDocumentNotFoundError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDocumentNotFoundError",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "fileName": {
+          "enum": [
+            "design.json",
+            "definition.json"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "design.json",
+                "definition.json"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
     },
     "AgentWorkflowFileDataViewOwner": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -113,13 +190,22 @@
                 "design.json",
                 "definition.json"
               ]
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "reload": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
         },
         "method.loadDocument.return": {
           "type": "object",
-          "title": "Promise<void>"
+          "title": "Promise<AgentWorkflowDocumentProof>"
         },
         "method.listWorkflowEntries.params": {
           "type": "object",
@@ -255,7 +341,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.474Z",
+  "generatedAt": "2026-11-24T06:19:11.656Z",
   "models": {
     "RequestScope": {
       "name": "RequestScope",
@@ -286,16 +372,116 @@
         }
       }
     },
+    "AgentWorkflowDocumentProof": {
+      "name": "AgentWorkflowDocumentProof",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readonly view: DataView;\n    readonly row: Readonly<DataRow>;\n    readonly id: string | number;\n    readonly assertRow: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readonly view: DataView;\n    readonly row: Readonly<DataRow>;\n    readonly id: string | number;\n    readonly assertRow: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertRow",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowDocumentNotFoundError": {
+      "name": "AgentWorkflowDocumentNotFoundError",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(workflowId: string, fileName: 'design.json' | 'definition.json')",
+          "parameters": [
+            {
+              "name": "workflowId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "fileName",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "design.json"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "definition.json"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "LowcodeApiError",
+            "targetName": "LowcodeApiError"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "AgentWorkflowFileDataViewOwner": {
       "name": "AgentWorkflowFileDataViewOwner",
       "jsdoc": "Agent 工作流文件空间的运行实例及其命名视图、加载命令。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json', options?: Readonly<{\n        reload?: boolean;\n    }>): Promise<AgentWorkflowDocumentProof>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+            "typeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json', options?: Readonly<{\n        reload?: boolean;\n    }>): Promise<AgentWorkflowDocumentProof>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -432,6 +618,22 @@
                       }
                     ]
                   }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        reload?: boolean;\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -439,8 +641,9 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "intrinsic",
-                    "name": "void"
+                    "type": "reference",
+                    "name": "AgentWorkflowDocumentProof",
+                    "sourcePath": "src/platform-adapters/resources/repository/agent-workflow/agent-workflow-file-owner.ts"
                   }
                 ]
               }

@@ -11,8 +11,8 @@ import DevFileEditor from '@/views/features/application/application-function-man
 vi.mock('@/services/project-model-artifacts', () => ({createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({})}))
 vi.mock('@/views/features/application/application-function-management/ui/page-design/useDevFileEditor', async () => {
   const {computed, ref} = await import('vue')
-  return {useDevFileEditor: () => ({
-    isDirty: ref(false), isUnconfirmed: ref(false), retryableUnconfirmed: ref(false), isReady: ref(true),
+  return {useDevFileEditor: (state: DevState & {testUnconfirmed?:ReturnType<typeof ref<boolean>>;testRetryable?:ReturnType<typeof ref<boolean>>}) => ({
+    isDirty: ref(false), isUnconfirmed: state.testUnconfirmed??ref(false), retryableUnconfirmed: state.testRetryable??ref(false), isReady: ref(true),
     text: computed(() => 'file text'), isFileDirty: () => false,
     save: vi.fn().mockResolvedValue(undefined), refresh: vi.fn().mockResolvedValue(undefined),
   })}
@@ -184,7 +184,8 @@ describe('DevFileEditor runtime DataView binding', () => {
 
       await retry!.trigger('click')
       await flushPromises()
-      expect(state.loadPageToolFileDataView).toHaveBeenNthCalledWith(2, {pageId: 'page-A', fileName: 'script.js', discardPending: true})
+      expect(state.loadPageToolFileDataView).toHaveBeenCalledTimes(2)
+      expect(state.loadPageToolFileDataView).toHaveBeenNthCalledWith(2, {pageId: 'page-A', fileName: 'script.js', discardPending: true, forceReload: true})
       expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey')).toBe(first.key)
       expect(fieldContexts.some(({source,row}) => source === first.view && (row as DataRow | null)?.['id'] === 'file-A')).toBe(true)
     } finally {wrapper.unmount()}
@@ -237,5 +238,34 @@ describe('DevFileEditor runtime DataView binding', () => {
       expect(fieldContexts.every(({source})=>source!==first.view)).toBe(true)
       expect(wrapper.findComponent({name:'RendererTabs'}).props('dataViewKey')).toBe(first.key)
     } finally {wrapper.unmount()}
+  })
+
+  it('keeps Verify and compensation controls visible when reload is refused for an unknown save', async () => {
+    const first=await createRuntime('accepted text')
+    const testUnconfirmed=ref(true),testRetryable=ref(true)
+    const page={pageId:'page-A'}
+    const state={
+      activePageId:ref('page-A'),projectId:'app-A',pageIoBusy:ref(false),selectedNode:ref({nodeId:'node-A',navigation:{target:'page-A'}}),
+      pageFileNames:['rule.json','script.js','style.css'],project:{getActivePage:()=>page,setActivePage:vi.fn()},
+      blueprintPageRuntime:shallowRef<PageRuntime>(first.runtime),blueprintWorkspaceDataView:shallowRef<{dataSet:DataSet}>({dataSet:first.dataSet}),
+      getPageToolFileDataView:vi.fn(()=>first.view),
+      loadPageToolFileDataView:vi.fn()
+        .mockResolvedValueOnce(first.view)
+        .mockRejectedValueOnce(new Error('FILE_RESOURCE_UNRESOLVED: 原提交仍待核验')),
+      restorePageToolVersion:vi.fn(),addStatus:vi.fn(),testUnconfirmed,testRetryable,
+    } as unknown as DevState&{testUnconfirmed:ReturnType<typeof ref<boolean>>;testRetryable:ReturnType<typeof ref<boolean>>}
+    const wrapper=mount(DevFileEditor,{props:{state,activeFile:'script.js',showTabs:true},global:{
+      plugins:[ElementPlus],directives:{loading:()=>{}},stubs:{FieldCodeEditor:true,DisplayIcon:true},
+    }})
+    try{
+      await flushPromises()
+      await wrapper.findAllComponents({name:'RendererButton'}).find(button=>button.props('label')==='重新加载')!.trigger('click')
+      await flushPromises()
+      const labels=wrapper.findAllComponents({name:'RendererButton'}).map(button=>button.props('label'))
+      expect(labels).toContain('核验原提交')
+      expect(labels).toContain('同内容补偿重试')
+      expect(wrapper.text()).toContain('原提交仍待核验')
+      expect(state.addStatus).not.toHaveBeenCalled()
+    }finally{wrapper.unmount()}
   })
 })

@@ -434,6 +434,7 @@ Phase A  服务终态与四文件读取合同
 |---|---|---|
 | 2026-11-23 | workflow 撤回资格、action 目标行、Runtime Plan filter、formal owner binding、save recovery evidence、scoped runtime read、file mutation unknown、snapshot filename codec 已各自收敛到单一实现 | working file / repository scenario / publication receipt 仍分别拥有 owner、proof 与 unknown 恢复 |
 | 2026-11-24 | FileResource 的 create/update 派发、pending verification 与 readback 共享；蓝图叶子删除共享确认 readback/finalize；workflow copy/operation 共享模型与字段 proof view 装载；编码分类/顺序号共享节点规则原子更新 | create 的缺席前提、update 的 exact baseline、delete、workflow 节点规则及目录身份仍由各自入口校验 |
+| 2026-11-24 第三轮 | 工作文件 save/verify 与 reload/discard 只调用同一 DataView owner；Agent workflow 目录 refresh、文件行 proof 与 Definition open/publish 统一到文件 owner；蓝图纯创建批次首发/重试共享授权派发与 receipt transition；DataView receipt 支持保留原提交后到达的编辑 overlay | first-publish 只接纳精确 definition 文件 404；history/compensation 仍独立；蓝图混合更新/blocked/partial 及 workflow 值 signature 不并入公共 helper |
 
 完成判定不是“代码文本变少”，而是共享对象确实拥有同一 identity、owner、receipt 与 failure recovery。FileResource 回执必须在捕获 binding 仍存活时交付；workflow proof 的一次 load 必须继续从该次捕获的正式来源视图派生，后续命令轮次仍按原 `WorkflowExecutionPass` 的正式值 signature 校验，不把同值 DataView 实例身份伪装成持久业务身份；编码节点选择只合并草稿 checkpoint，不合并目录保存。
 

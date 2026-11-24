@@ -444,18 +444,16 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         view:DataView
         target:FileResourceTarget
         prior:PendingWrite
-        text:string
         baselineUnchanged:(snapshot:FileResourceSnapshot|null)=>boolean
         unresolved:string
         conflict:string
       }>):Promise<FileResourceSnapshot>=>{
-        const {view,target,prior,text}=input
+        const {view,target,prior}=input
         const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
         const state=stateFor(view)
         if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
         if(remote!==null&&isFileResourceReadbackConfirmed(prior.text,remote)){
           confirmWriteProjection(view,prior,bound)
-          if(prior.text!==text)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
           return remote
         }
         if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件已确认，但来源随后变化')
@@ -486,7 +484,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             ||Object.entries(target.fields).some(([field,value])=>context.output.has(field)&&!Object.is(submitted[field],value)))throw new Error('FILE_RESOURCE_SCOPE: 文件新增身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前新增操作不一致')
-            confirmedSnapshot=await recoverWrite({view,target,prior,text:writeText,
+            confirmedSnapshot=await recoverWrite({view,target,prior,
               baselineUnchanged:remote=>remote===null,
               unresolved:'FILE_RESOURCE_UNRESOLVED: 尚未读到原新增文件，不能证明原请求未应用',
               conflict:'FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致'})
@@ -497,11 +495,14 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           }
           const saved=confirmedSnapshot
           assertCurrent(view,target,bound)
-          if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
+          const receiptText=prior?.operation==='write'?prior.text:writeText
+          if(saved.text!==receiptText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,[options.contentField]:receiptText,
+            ...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],
+            deferredAddedFields:[[...(prior?.operation==='write'?[options.contentField]:[])]],
             context:receiptResult({origin:context,rows:[accepted],baseline:saved}),assertAcceptance:()=>assertCurrent(view,target,bound)})
           continue
         }
@@ -511,7 +512,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(!submitted||!original||submitted[view.primaryKey]!==original[view.primaryKey]||typeof writeText!=='string')throw new Error('FILE_RESOURCE_SCOPE: 文件更新行身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前更新操作不一致')
-            confirmedSnapshot=await recoverWrite({view,target,prior,text:writeText,
+            confirmedSnapshot=await recoverWrite({view,target,prior,
               baselineUnchanged:remote=>sameBaseline(remote,prior.baseline),
               unresolved:'FILE_RESOURCE_UNRESOLVED: 当前仍是写前基线，不能证明原请求未应用',
               conflict:'FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致'})
@@ -522,13 +523,17 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           }
           const saved=confirmedSnapshot
           assertCurrent(view,target,bound)
-          if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
+          const receiptText=prior?.operation==='write'?prior.text:writeText
+          if(saved.text!==receiptText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,[options.contentField]:receiptText,
+            ...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
             changedFields:[[options.contentField,...(options.revisionField?[options.revisionField]:[]),...Object.keys(snapshotFields)]
-              .filter(field=>context.output.has(field))],context:receiptResult({origin:context,rows:[accepted],baseline:saved}),
+              .filter(field=>context.output.has(field))],
+            deferredChangedFields:[[...(prior?.operation==='write'?[options.contentField]:[])]],
+            context:receiptResult({origin:context,rows:[accepted],baseline:saved}),
             assertAcceptance:()=>assertCurrent(view,target,bound)})
           continue
         }

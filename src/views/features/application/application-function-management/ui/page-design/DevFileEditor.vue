@@ -36,6 +36,7 @@ AI用途：需要理解页面设计如何编辑工具文件时，用本模块定
 
       <div class="editor-body" v-loading="!fileEditor.isReady.value || fileDataViewLoading">
         <div class="editor-area">
+          <SparkComponent.DisplayAlert v-if="fileDataViewReady && fileViewErrorMessage" title="文件 DataView 加载失败" :description="fileViewErrorMessage" alert-type="error" />
           <SparkComponent.RendererForm
             v-if="fileDataViewReady && fileViewKey && resolvedActiveFile === 'rule.json'"
             :data-view-key="fileViewKey"
@@ -249,20 +250,14 @@ async function refreshFile() {
   const fileName=resolvedActiveFile.value
   const revision=fileViewRevision
   const isCurrentTarget=()=>revision===fileViewRevision&&props.state.activePageId.value===pageId&&resolvedActiveFile.value===fileName
-  if(pageId&&fileDataView.value){
-    const view=fileDataView.value,row=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']===fileName),id=row&&view.getPkKey(row)
-    if(view.hasUnconfirmedSave){fileViewError.value='原文件提交仍待核验，暂不能取消';return}
-    if(id!==undefined&&(view.dirtyTracking.hasPendingChanges(id)||view.hasEditingChanges(id)))view.discardPendingChanges([id])
-  }
   let expectedView:DataView|undefined
   try{
   if(!pageId||!isCurrentTarget())return
     expectedView=props.state.getPageToolFileDataView(pageId,fileName)
     if(!resolveCurrentFileViewKey(expectedView))throw new Error('文件 DataView 不属于当前 PAGE_RUNTIME')
-    fileDataView.value=expectedView;fileDataViewReady.value=false;fileViewError.value='';fileDataViewLoading.value=true
-    await fileEditor.refresh()
+    fileDataView.value=expectedView;fileViewError.value='';fileDataViewLoading.value=true
+    const refreshedView=await props.state.loadPageToolFileDataView({pageId,fileName,discardPending:true,forceReload:true})
     if(!isCurrentTarget())return
-    const refreshedView=await props.state.loadPageToolFileDataView({pageId,fileName,discardPending:true})
     if(refreshedView!==expectedView)throw new Error('文件 DataView loader 替换了当前正式视图')
     if(isCurrentTarget()){
       const row=expectedView.currentRow

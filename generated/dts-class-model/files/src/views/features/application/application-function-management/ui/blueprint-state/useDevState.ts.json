@@ -794,7 +794,7 @@
         },
         "savePageToolFile": {
           "type": "object",
-          "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
+          "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; submittedText?: string; requireActive?: boolean; reportUnconfirmed?: boolean; }) => Promise<DataViewSourceWriteAttemptStatus | undefined>"
         },
         "getPageToolFileDataView": {
           "type": "object",
@@ -1072,7 +1072,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T19:18:29.733Z",
+  "generatedAt": "2026-11-24T05:14:27.481Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

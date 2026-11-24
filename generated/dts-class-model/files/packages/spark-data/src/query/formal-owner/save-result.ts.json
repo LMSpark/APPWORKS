@@ -127,7 +127,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T09:15:58.253Z",
+  "generatedAt": "2026-11-24T06:57:41.775Z",
   "models": {
     "DataSpaceSavePlan": {
       "name": "DataSpaceSavePlan",

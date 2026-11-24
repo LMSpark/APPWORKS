@@ -10,17 +10,13 @@ import type { DataSpaceQueryContext } from './query-context'
 import { DataSpaceQueryTable } from './query-table'
 import { DataSpaceRequestConfig } from './request-config'
 import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from './save-guard'
-import { assertDataSpaceSaveSuccess, readDataSpaceSaveReceipt } from './save-result'
+import { readDataSpaceSaveReceipt } from './save-result'
+import {DataSpaceApiError} from './request-error'
+
+export {DataSpaceApiError} from './request-error'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
-
-export class DataSpaceApiError extends Error {
-  public constructor(public readonly code: number, message: string) {
-    super(message)
-    this.name = 'DataSpaceApiError'
-  }
 }
 
 /**
@@ -69,11 +65,11 @@ function decodeEnvelope(input: unknown, operation: '查询' | '保存' = '查询
     try { decoded = JSON.parse(decoded) } catch { break }
   }
   if (isRecord(decoded)) {
-    assertEnvelopeCode(decoded, operation)
+    if(operation==='查询')assertEnvelopeCode(decoded, operation)
     // GetData wraps the resource's own AjaxResult in Result.data; its failure code must not read as empty data.
     const result = decoded['Result'] ?? decoded['result']
     const nested = isRecord(result) ? result['data'] : undefined
-    if (isRecord(nested)) assertEnvelopeCode(nested, operation)
+    if(operation==='查询'&&isRecord(nested))assertEnvelopeCode(nested, operation)
   }
   return decoded
 }
@@ -190,7 +186,6 @@ export class DataSpaceRequest {
     } catch (cause) {throw new DataSpaceSaveUnconfirmedError('保存请求已发出但未取得可确认的响应', cause)}
     try {
       const decoded = decodeEnvelope(response, '保存')
-      assertDataSpaceSaveSuccess(decoded)
       const receipts = readDataSpaceSaveReceipt(decoded, groups)
       const accepted = prepared.map((target, index) => {
         const receipt = receipts[index]

@@ -23875,15 +23875,15 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "DataSpaceApiError",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSpaceApiError 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 12,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationKind": "class"
+      "kind": "module",
+      "className": "@spark-appworks/spark-data:query/formal-owner/request-error",
+      "moduleName": "@spark-appworks/spark-data:query/formal-owner/request-error",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/request-error 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/request-error.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/request-error.ts"
     },
     {
       "kind": "attribute",
@@ -23891,10 +23891,10 @@
       "memberName": "code",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSpaceApiError.code 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 13,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/request-error.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
+      "declarationLine": 3,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
       "declarationKind": "class"
     },
     {
@@ -23903,10 +23903,10 @@
       "memberName": "constructor",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSpaceApiError.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 14,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/request-error.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
+      "declarationLine": 4,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
       "declarationKind": "class"
     },
     {
@@ -23917,7 +23917,7 @@
       "chainBreak": "DataSpaceSaveUnconfirmedError.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 21,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "class"
     },
@@ -23929,7 +23929,7 @@
       "chainBreak": "DataSpaceRequestOptions.http 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 25,
+      "declarationLine": 22,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -23941,7 +23941,7 @@
       "chainBreak": "DataSpaceRequestOptions.readScope 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 26,
+      "declarationLine": 23,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "typeAlias"
     },
@@ -23953,7 +23953,7 @@
       "chainBreak": "DataSpaceRequestQueryCommand.table 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 30,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -23965,7 +23965,7 @@
       "chainBreak": "DataSpaceRequestQueryCommand.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 31,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -23977,7 +23977,7 @@
       "chainBreak": "DataSpaceRequestQueryCommand.config 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 32,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -23989,7 +23989,7 @@
       "chainBreak": "DataSpaceRequestQueryCommand.signal 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 33,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24001,7 +24001,7 @@
       "chainBreak": "DataSpaceRequestSaveChange.identity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 37,
+      "declarationLine": 34,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24013,7 +24013,7 @@
       "chainBreak": "DataSpaceRequestSaveChange.context 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 38,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24025,7 +24025,7 @@
       "chainBreak": "DataSpaceRequestSaveChange.changes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 39,
+      "declarationLine": 36,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24037,7 +24037,7 @@
       "chainBreak": "DataSpaceRequestSaveChange.recovery 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 40,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24049,7 +24049,7 @@
       "chainBreak": "DataSpaceRequestSaveCommand.changes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 44,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24061,7 +24061,7 @@
       "chainBreak": "DataSpaceRequestSaveCommand.config 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 45,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24073,7 +24073,7 @@
       "chainBreak": "DataSpaceRequestSaveCommand.signal 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 46,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "interface"
     },
@@ -24085,7 +24085,7 @@
       "chainBreak": "DataSpaceRequest.invalidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 55,
+      "declarationLine": 52,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "class"
     },
@@ -24097,7 +24097,7 @@
       "chainBreak": "DataSpaceRequest.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 56,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "class"
     },
@@ -24109,7 +24109,7 @@
       "chainBreak": "DataSpaceRequest.query 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/query/formal-owner/request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/query/formal-owner/request.ts",
-      "declarationLine": 57,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "declarationKind": "class"
     },
@@ -27847,9 +27847,9 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@305321",
+      "memberName": "__@iterator@305320",
       "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@305321 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "TreeModel.__@iterator@305320 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
       "declarationLine": 50,

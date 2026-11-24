@@ -98,12 +98,7 @@ export class WorkflowFlowModelManager {
       const value = normalizeText(row[field])
       if (row[field] !== value) this.#view.updateEditingValue(key, field, value)
     }
-    const dataSet = this.#view.dataSet
-    if (!dataSet) throw new Error('流程模型 DataSet 已失效')
-    const result = await dataSet.saveChanges({views:[{tableName:this.#view.tableName,viewId:this.#view.viewId}]})
-    this.#assertCurrent()
-    if (!result.success) throw result.error ?? new Error(result.message ?? '保存流程模型失败')
-    await this.refresh()
+    await this.#saveAndRefresh()
   }
 
   async removeRow(row: DataRow): Promise<void> {
@@ -112,6 +107,10 @@ export class WorkflowFlowModelManager {
     const id = this.#view.getPkKey(row)
     if (id === undefined) throw new Error('流程模型缺少 rowid')
     await this.#view.removeRow(id)
+    await this.#saveAndRefresh()
+  }
+
+  async #saveAndRefresh(): Promise<void> {
     const dataSet = this.#view.dataSet
     if (!dataSet) throw new Error('流程模型 DataSet 已失效')
     const result = await dataSet.saveChanges({views:[{tableName:this.#view.tableName,viewId:this.#view.viewId}]})

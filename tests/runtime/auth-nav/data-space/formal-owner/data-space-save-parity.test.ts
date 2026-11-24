@@ -288,6 +288,22 @@ describe('SPARK same-scenario save request', () => {
     expect(http.calls).toHaveLength(1)
   })
 
+  it('keeps an outer non-zero save rejection definitive when a data object is present',async()=>{
+    const {http,request,change}=fixture()
+    http.response={Code:403,Message:'服务端禁止保存',data:{}}
+    await expect(request.save({changes:[change()]})).rejects.toMatchObject({
+      name:'DataSpaceApiError',code:403,message:'服务端禁止保存',
+    })
+    expect(http.calls).toHaveLength(1)
+  })
+
+  it('keeps a warning paired with a success code on the original readback path',async()=>{
+    const {http,request,change}=fixture()
+    http.response={Code:200,Type:'warn',Message:'写入结果需要核验'}
+    await expect(request.save({changes:[change()]})).rejects.toBeInstanceOf(DataSpaceSaveUnconfirmedError)
+    expect(http.calls).toHaveLength(1)
+  })
+
   it('rejects a query baseline invalidated while the save is in flight', async () => {
     const { http, request, change } = fixture()
     const first = change()

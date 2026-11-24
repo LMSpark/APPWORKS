@@ -52,6 +52,7 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
       expect(ruleView?.hasUnconfirmedSave).toBe(false)
       expect(upload).toHaveBeenCalledTimes(3)
       expect(files.size).toBe(3)
+      expect((io.read as ReturnType<typeof vi.fn>).mock.calls.filter(call=>call[2]==='rule.json')).toHaveLength(4)
     }finally{scope.dataSet.destroy()}
   })
 
@@ -68,6 +69,24 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
       expect(files.size).toBe(0)
       expect(scope.dataSet.getTable('PageToolFilesCommand')).toBeUndefined()
       expect(scope.dataSet.getTable('PageToolFilesDirectory')).toBeUndefined()
+    }finally{scope.dataSet.destroy()}
+  })
+
+  it('re-resolves the exact row before compensating a handed-off default file',async()=>{
+    const files=new Map<string,string>(),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
+    const scope=createScope(files,remove)
+    try{
+      await createPageToolFiles(scope)
+      const view=scope.dataSet.getTable('ProjectToolFile')!.viewList.find(item=>item.viewId==='page-PAGE-rule.json')!
+      const refresh=view.refresh.bind(view),row=view.rows[0]!,id=view.getPkKey(row)!
+      vi.spyOn(view,'refresh').mockImplementationOnce(async()=>{
+        const result=await refresh()
+        queueMicrotask(()=>queueMicrotask(()=>{view.updateRowById(id,{text:'late user edit'})}))
+        return result
+      })
+      await compensatePageToolFiles(scope)
+      expect(remove.mock.calls.map(([,pageId,name])=>`${pageId}/${name}`)).not.toContain('PAGE/rule.json')
+      expect(view.rows[0]?.['text']).toBe('late user edit')
     }finally{scope.dataSet.destroy()}
   })
 

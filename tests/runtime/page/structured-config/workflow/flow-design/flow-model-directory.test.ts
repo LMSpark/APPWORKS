@@ -68,6 +68,36 @@ describe('workflow directory native creation and original records', () => {
     expect(http.saves).toEqual([])
   })
 
+  it('deletes an allowed row through the same view-wide save and refresh tail',async()=>{
+    const {view,manager,http}=await directory()
+    const refresh=vi.spyOn(view,'refresh')
+    await manager.removeRow(view.rows[0]!)
+    expect(http.saves).toHaveLength(1)
+    expect(http.saves[0]!.deleted).toEqual([expect.objectContaining({rowid:'OLD'})])
+    expect(view.rows).toEqual([])
+    expect(refresh).toHaveBeenCalledOnce()
+  })
+
+  it('keeps a lost delete receipt on the original view for readback without restaging',async()=>{
+    const {view,manager,http}=await directory()
+    const refresh=vi.spyOn(view,'refresh')
+    http.failAfterWrite=true
+    await expect(manager.removeRow(view.rows[0]!)).rejects.toThrow()
+    expect(http.saves).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(refresh).not.toHaveBeenCalled()
+    const readsBeforeRecovery=http.reads.length
+    expect((await view.dataSet!.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})).success).toBe(true)
+    const recoveryRead=http.reads.slice(readsBeforeRecovery).find(read=>read.table==='WFM_FLOW_MODLE')
+    expect(recoveryRead?.data).toMatchObject({Table:[{Name:'WFM_FLOW_MODLE',
+      Filter:{Type:'cond',Field:'rowid',Operator:'in',Value:null,ValueFun:{Type:'GetConstValue',Value:['OLD']}}}]})
+    expect(refresh).not.toHaveBeenCalled()
+    expect(http.saves).toHaveLength(1)
+    await manager.refresh()
+    expect(refresh).toHaveBeenCalledOnce()
+    expect(view.rows).toEqual([])
+  })
+
   it('requires an authenticated creator and rejects a blank title without dispatching a write', async () => {
     const {manager, view, http} = await directory()
     auth.userId = ''

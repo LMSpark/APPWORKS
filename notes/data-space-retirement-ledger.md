@@ -2,6 +2,13 @@
 
 > 历史证据曾使用 `notes/evidence/`、过程计划与临时研究路径；当前仓库只保留仍适用的源码合同和唯一台账，已删除或未入库的证据仅以历史路径标记，不作为可点击的现行依赖。
 
+### 2026-11-24 语义重复第四轮窄控制流收敛
+
+- **PageTool 文件操作：**create、compensate、delete 共用 settle original attempt 与 refresh，但 helper 只返回 view；每个命令在当前 continuation 重新定位 exact page/file row，杜绝旧 row proof 跨 handoff 删除后到行。
+- **Formal save response：**`decodeEnvelope` 对保存只做解析；`readDataSpaceSaveReceipt` 单点校验 outer/nested response、diagnostics、typed 非零 rejection；`Code=200` 的 warning/Success=false 仍走未确认 readback，不被误当明确未应用。
+- **Workflow 模型目录：**saveCurrent 与 removeRow 共用 DataView save + confirmed refresh；权限、标题校验、删除 staging 仍在各自入口；lost receipt 在原 view 上按 exact `rowid IN ['OLD']` readback，不 refresh 或重新 stage。
+- **验证：**定向 163/163；根测试 774 文件 12,316 项、workspace 包测试 155 文件 2,454 项、typecheck、6 GB heap lint、`verify:rules`、ClassModel/consumer ledger 生成与生产 build 全部通过。新增 stale-row handoff、typed outer rejection、success warning、allowed/lost delete 与 exact-key recovery 反例。
+
 ### 2026-11-24 语义重复第三轮 owner 收敛
 
 - **SPARK data 文件链：**页面工具文件按钮只通过 `useDevState` 的 DataView save/loader；删除编辑器内重复 verify、重复 discard 与二次 reload。原 unknown 回执交付时可由 receipt 的 deferred field 将确认正文作为新 baseline，并保留在回读期间到达的最新 overlay；后续保存只提交保留草稿。

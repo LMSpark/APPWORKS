@@ -69,6 +69,16 @@ async function settleFileView(input:PageFileOperationScope,view:DataView):Promis
 function rowFor(view:DataView,pageId:string,fileName:string){
   return view.rows.find(row=>row['pageId']===pageId&&row['fileName']===fileName)
 }
+async function loadSettledFileView(input:PageFileOperationScope,fileName:string):Promise<DataView>{
+  assertPageTarget(input)
+  const view=fileView(input,fileName)
+  await settleFileView(input,view)
+  view.queryContext={...view.queryContext,pageId:input.pageId,fileName,versionId:''}
+  await view.refresh()
+  assertPageTarget(input)
+  if(view.loadingError)throw view.loadingError
+  return view
+}
 
 /** Create the three standard files through their formal FileResource DataViews. */
 export async function createPageToolFiles(input:PageFileOperationScope,options:Readonly<{resume?:boolean}>={}):Promise<void>{
@@ -77,11 +87,8 @@ export async function createPageToolFiles(input:PageFileOperationScope,options:R
   if(!options.resume&&FILES.some(name=>names.includes(name)))throw new Error('FILE_EXISTS: 目标目录已有工具文件')
   for(const fileName of FILES){
     assertPageTarget(input)
-    const view=fileView(input,fileName)
-    await settleFileView(input,view)
-    view.queryContext={...view.queryContext,pageId:input.pageId,fileName,versionId:''}
-    await view.refresh();assertPageTarget(input)
-    if(view.loadingError)throw view.loadingError
+    const view=await loadSettledFileView(input,fileName)
+    assertPageTarget(input)
     const existing=rowFor(view,input.pageId,fileName)
     if(existing){
       if(options.resume&&existing['text']===texts[fileName])continue
@@ -101,11 +108,8 @@ export async function compensatePageToolFiles(input:PageFileOperationScope):Prom
   const texts=defaults(input.pageId)
   for(const fileName of FILES){
     assertPageTarget(input)
-    const view=fileView(input,fileName)
-    await settleFileView(input,view)
-    view.queryContext={...view.queryContext,pageId:input.pageId,fileName,versionId:''}
-    await view.refresh();assertPageTarget(input)
-    if(view.loadingError)throw view.loadingError
+    const view=await loadSettledFileView(input,fileName)
+    assertPageTarget(input)
     const row=rowFor(view,input.pageId,fileName)
     if(row?.['text']!==texts[fileName])continue
     const id=view.getPkKey(row)
@@ -126,11 +130,8 @@ export async function deletePageToolFiles(input:PageFileOperationScope):Promise<
   const names=await listDirectory(input)
   for(const fileName of names){
     assertPageTarget(input)
-    const view=fileView(input,fileName)
-    await settleFileView(input,view)
-    view.queryContext={...view.queryContext,pageId:input.pageId,fileName,versionId:''}
-    await view.refresh();assertPageTarget(input)
-    if(view.loadingError)throw view.loadingError
+    const view=await loadSettledFileView(input,fileName)
+    assertPageTarget(input)
     const row=rowFor(view,input.pageId,fileName)
     if(!row)continue
     const id=view.getPkKey(row)

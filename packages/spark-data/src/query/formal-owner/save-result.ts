@@ -1,3 +1,5 @@
+import {DataSpaceApiError} from './request-error'
+
 export type DataSpaceSavePlan = ReadonlyArray<Readonly<{
   TableName: string
   CrudModel: Readonly<{Added: ReadonlyArray<Record<string, unknown>>; Changed: ReadonlyArray<Record<string, unknown>>; Deleted: ReadonlyArray<Record<string, unknown>>}>
@@ -131,16 +133,22 @@ export function assertDataSpaceSaveSuccess(response: unknown, options: FormalSav
   const result = record(root['Result'] ?? root['result'] ?? root)
   const resultData = record(result['data'] ?? result['Data'])
   const fallback = options.fallback === '' ? '保存失败' : options.fallback ?? '保存失败'
-  const candidates = [root['Message'], root['message'], root['msg'], root['error'],
+  const candidates = [outer['Message'], outer['message'], outer['msg'], outer['error'],
+    root['Message'], root['message'], root['msg'], root['error'],
     result['Message'], result['message'], result['msg'], resultData['Message'], resultData['message']]
   const message = candidates.map(value => text(value)).find(value => value) ?? fallback
-  assertFieldDiagnostics(root)
-  for (const item of [root, result, resultData]) {
+  for (const item of [outer, root, result, resultData]) {
     const code = item['Code'] ?? item['code'] ?? item['Status'] ?? item['status']
-    const type = text(item['Type'] ?? item['type']).toLowerCase()
-    const success = item['Success'] ?? item['success']
-    if ((code !== undefined && !['0', '200', 'success'].includes(String(code).toLowerCase()))
-      || (type && !['success', 'ok'].includes(type)) || success === false) throw new Error(message)
+    if(code !== undefined && !['0', '200', 'success'].includes(String(code).toLowerCase())){
+      const numericCode=Number(code)
+      throw new DataSpaceApiError(Number.isFinite(numericCode)?numericCode:0,message)
+    }
+  }
+  assertFieldDiagnostics(root)
+  for(const item of [outer,root,result,resultData]){
+    const type=text(item['Type']??item['type']).toLowerCase()
+    const success=item['Success']??item['success']
+    if(type&&!['success','ok'].includes(type)||success===false)throw new Error(message)
   }
   if (options.treatErrorMessageAsFailure !== false && message !== fallback
     && /(异常|错误|失败|incorrect|error|exception)/i.test(message)) throw new Error(message)

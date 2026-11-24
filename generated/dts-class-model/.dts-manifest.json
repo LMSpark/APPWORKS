@@ -2951,10 +2951,15 @@
       "shardFile": "files/packages/spark-data/src/query/formal-owner/request-config.ts.json",
       "sourceModifiedAt": "2026-11-23T08:03:44.644Z"
     },
+    "packages/spark-data/src/query/formal-owner/request-error.ts": {
+      "sourceFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
+      "shardFile": "files/packages/spark-data/src/query/formal-owner/request-error.ts.json",
+      "sourceModifiedAt": "2026-11-24T06:47:15.524Z"
+    },
     "packages/spark-data/src/query/formal-owner/request.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/request.ts",
       "shardFile": "files/packages/spark-data/src/query/formal-owner/request.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:15:58.253Z"
+      "sourceModifiedAt": "2026-11-24T06:47:15.532Z"
     },
     "packages/spark-data/src/query/formal-owner/row-permission.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
@@ -2979,7 +2984,7 @@
     "packages/spark-data/src/query/formal-owner/save-result.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
       "shardFile": "files/packages/spark-data/src/query/formal-owner/save-result.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:15:58.253Z"
+      "sourceModifiedAt": "2026-11-24T06:57:41.775Z"
     },
     "packages/spark-data/src/query/formal-owner/source-input.ts": {
       "sourceFile": "packages/spark-data/src/query/formal-owner/source-input.ts",
@@ -5009,7 +5014,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-model-manager.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-model-manager.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-model-manager.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.418Z"
+      "sourceModifiedAt": "2026-11-24T06:30:54.529Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-detail/flow-run-detail-graph-projection.ts",
@@ -5264,7 +5269,7 @@
     "src/services/project/page-tool-file-operations.ts": {
       "sourceFile": "src/services/project/page-tool-file-operations.ts",
       "shardFile": "files/src/services/project/page-tool-file-operations.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.878Z"
+      "sourceModifiedAt": "2026-11-24T06:39:54.258Z"
     },
     "src/services/project/page-tool-publication.ts": {
       "sourceFile": "src/services/project/page-tool-publication.ts",

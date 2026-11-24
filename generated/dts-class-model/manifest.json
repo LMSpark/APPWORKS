@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1521,
+  "scannedFileCount": 1522,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -10275,6 +10275,21 @@
         ]
       }
     },
+    "packages/spark-data/src/query/formal-owner/request-error.ts": {
+      "file": "files/packages/spark-data/src/query/formal-owner/request-error.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/formal-owner/request-error",
+        "sourcePath": "packages/spark-data/src/query/formal-owner/request-error.ts",
+        "sourceFile": "packages/spark-data/src/query/formal-owner/request-error.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/formal-owner/request-error",
+        "jsdoc": "已由正式 SPARK 响应明确拒绝的请求；调用方不得将其转成 unknown save。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DataSpaceApiError"
+        ]
+      }
+    },
     "packages/spark-data/src/query/formal-owner/request.ts": {
       "file": "files/packages/spark-data/src/query/formal-owner/request.ts.json",
       "module": {
@@ -10286,7 +10301,6 @@
         "jsdoc": "@module @/platform-adapters/api:platform/data-space/runtime/protocol/data-space-request\n职责：执行原始 SPARK 查询与同场景批量保存。\n边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。\nAI用途：使用原封包和上下文组装统一 CRUD 请求。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "DataSpaceApiError",
           "DataSpaceSaveUnconfirmedError",
           "DataSpaceRequest"
         ]
@@ -26582,8 +26596,8 @@
       "file": "files/src/platform-adapters/api/platform/data-space/data-space-api.ts.json"
     },
     "DataSpaceApiError": {
-      "sourcePath": "packages/spark-data/src/query/formal-owner/request.ts",
-      "file": "files/packages/spark-data/src/query/formal-owner/request.ts.json"
+      "sourcePath": "packages/spark-data/src/query/formal-owner/request-error.ts",
+      "file": "files/packages/spark-data/src/query/formal-owner/request-error.ts.json"
     },
     "DataSpaceArrayHeadersProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props.ts",

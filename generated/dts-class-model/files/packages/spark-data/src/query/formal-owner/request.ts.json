@@ -10,37 +10,11 @@
     "jsdoc": "@module @/platform-adapters/api:platform/data-space/runtime/protocol/data-space-request\n职责：执行原始 SPARK 查询与同场景批量保存。\n边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。\nAI用途：使用原封包和上下文组装统一 CRUD 请求。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataSpaceApiError",
       "DataSpaceSaveUnconfirmedError",
       "DataSpaceRequest"
     ]
   },
   "$defs": {
-    "DataSpaceApiError": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataSpaceApiError",
-      "properties": {
-        "code": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "constructor.params": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "number"
-            },
-            "message": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
     "DataSpaceSaveUnconfirmedError": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -300,50 +274,8 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T09:15:58.253Z",
+  "generatedAt": "2026-11-24T06:47:15.532Z",
   "models": {
-    "DataSpaceApiError": {
-      "name": "DataSpaceApiError",
-      "jsdoc": "",
-      "declarationKind": "class",
-      "classDecl": {
-        "constructorMeta": {
-          "signatureText": "constructor(code: number, message: string)",
-          "parameters": [
-            {
-              "name": "code",
-              "type": {
-                "type": "intrinsic",
-                "name": "number"
-              }
-            },
-            {
-              "name": "message",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            }
-          ]
-        },
-        "declarationRelations": [
-          {
-            "kind": "extends",
-            "typeText": "Error",
-            "targetName": "Error"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "code",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "DataSpaceSaveUnconfirmedError": {
       "name": "DataSpaceSaveUnconfirmedError",
       "jsdoc": "保存请求已发出但结果无法确认：传输异常、响应后执行域失效或回执与提交不一致。\n服务端明确拒绝不属于此类；调用方不得重放写入，只能按主键回读核验。",

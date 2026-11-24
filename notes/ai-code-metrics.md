@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-24 语义重复第四轮窄控制流收敛
+
+- **复杂度**：中等偏上；跨 PageTool 三文件操作、formal save response classification 与 workflow 目录 save/delete tail。
+- **验证**：PageTool/formal/workflow 定向 163/163；根测试 774 文件 12,316 项、workspace 包测试 155 文件 2,454 项；typecheck、6 GB heap lint、`verify:rules`、生成器与生产 build 通过。
+- **返工**：高阶复审三轮修正 stale row handoff、save response typed rejection/diagnostic 顺序、success warning unknown 分类，以及 workflow exact-key readback/refresh ordering。
+- **30 天存活**：待 2026-12-24 回查；确认 PageTool helper 不返回旧 row、非零码仍 typed、Code=200 warning 不允许重发、目录失回执只 exact-key 核验。
+- **人工干预**：用户要求循环推进；标准组件 + SPARK Data 仍唯一业务 owner，未修改 Java，未创建额外 worktree。
+
 ### 2026-11-24 语义重复第三轮 owner 收敛
 
 - **复杂度**：复杂；跨 PageTool 文件编辑器、DataView deferred receipt、Agent workflow 目录/文件 owner、Definition 发布以及蓝图批次恢复。

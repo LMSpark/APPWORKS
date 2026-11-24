@@ -17,7 +17,7 @@
 
 ## 架构收敛前置：清退 spark-lowcode-api 独立项目
 
-五层治理实施统一通过 SPARK Data，不保留 `spark-lowcode-api` 作为并行业务数据 API。该收敛是总计划基础设施阶段，详见 [研读](research-spark-lowcode-api-retirement.md) 与 [执行计划](plan-spark-lowcode-api-retirement.md)。
+五层治理实施统一通过 SPARK Data，不保留 `spark-lowcode-api` 作为并行业务数据 API。该收敛是总计划基础设施阶段，详见 [研读](research-spark-lowcode-api-retirement.md) 与 [唯一实施台账](data-space-retirement-ledger.md)。
 
 ### 语义归属
 

@@ -34,7 +34,7 @@
 | 数据空间 | `scenarioId -> DataSet -> DataTable(columns/views/resource/model/api/crudConfig) -> DataView`；接口与模型级执行契约归 DataTable | [数据链路主合同](docs/architecture/DATAFLOW_ARCHITECTURE.md)、`packages/spark-data/src/data-table.ts`、`src/platform-adapters/data-space/` |
 | 页面交付 | `PageTool` 三文件、共享场景文件、一次调用生命周期 | [页面配置架构](docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)、`SparkPageRenderer` |
 | 标准组件 | `dataViewKey/dataMember/dataField` 的运行绑定与权限消费 | `packages/spark-component/`、ClassModel |
-| 服务适配 | wire 合同归 `backend-api-contracts`；平台会话与特定服务 adapter 归 `src/platform-adapters`；数据 owner adapter 只进入 SPARK Data DataTable/DataView | [退役研读](notes/research-spark-lowcode-api-retirement.md)、[退役计划](notes/plan-spark-lowcode-api-retirement.md) |
+| 服务适配 | wire 合同归 `backend-api-contracts`；平台会话与特定服务 adapter 归 `src/platform-adapters`；数据 owner adapter 只进入 SPARK Data DataTable/DataView | [退役研读](notes/research-spark-lowcode-api-retirement.md)、[唯一实施台账](notes/data-space-retirement-ledger.md) |
 | AI/工具链 | ClassModel、Workflow 与宿主 binding；不替代业务真源 | `packages/spark-ai/`、[AI Workflow 合同](packages/spark-ai/docs/business-factory-workflow-zh-cn.md) |
 
 跨层约束：

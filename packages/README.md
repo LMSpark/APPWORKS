@@ -49,4 +49,4 @@ pnpm run test:foundation:run
 - 运行时逻辑优先放进现有包，避免在根 `src/` 再长出平行基础设施。
 - 构建期工具与运行时包分开维护，不把构建脚本塞进运行时源码目录。
 - `backend-api-contracts/` 在仓库根目录：lowcode wire 与端点合同台账，不是可运行客户端。
-- 独立适配包的语义退役记录见 `../notes/research-spark-lowcode-api-retirement.md` 与 `../notes/plan-spark-lowcode-api-retirement.md`。
+- 独立适配包的语义退役记录见 `../notes/research-spark-lowcode-api-retirement.md` 与唯一实施台账 `../notes/data-space-retirement-ledger.md`。

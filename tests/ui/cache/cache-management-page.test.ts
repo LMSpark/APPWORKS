@@ -94,14 +94,20 @@ it('confirms the original staged command through the shared record helper exactl
  const f=await fixture(),table=f.wrapper.findAllComponents(RendererTable)[1]!
  await activateDelete(table.props('actions'),f.list.rows[0]);await flushPromises()
  await f.wrapper.findAll('button').find(button=>button.text()==='确定删除')!.trigger('click');await flushPromises()
- expect(f.submit).toHaveBeenCalledTimes(1);expect(f.commands.hasUnconfirmedSave).toBe(false)
- expect(f.wrapper.text()).not.toContain('确定删除以下缓存键吗？')
+ await vi.waitFor(() => {
+  expect(f.submit).toHaveBeenCalledTimes(1)
+  expect(f.commands.hasUnconfirmedSave).toBe(false)
+  expect(f.wrapper.text()).not.toContain('确定删除以下缓存键吗？')
+ })
 })
 it('keeps a lost receipt in the original dialog and verifies without a second dispatch',async()=>{
  const f=await fixture();f.submit.mockRejectedValueOnce(Error('UNKNOWN'))
  await activateDelete(f.wrapper.findAllComponents(RendererTable)[1]!.props('actions'),f.list.rows[0]);await flushPromises()
  await f.wrapper.findAll('button').find(button=>button.text()==='确定删除')!.trigger('click');await flushPromises()
- expect(f.submit).toHaveBeenCalledTimes(1);expect(f.commands.hasUnconfirmedSave).toBe(true)
+ await vi.waitFor(() => {
+  expect(f.submit).toHaveBeenCalledTimes(1)
+  expect(f.commands.hasUnconfirmedSave).toBe(true)
+ })
  const destroy=vi.spyOn(f.ds,'destroy')
  route.path='/apps/OTHER/features/system/cache-management/ui/cache-management-page';await flushPromises()
  expect(destroy).not.toHaveBeenCalled();expect(mocks.load).toHaveBeenCalledTimes(1)

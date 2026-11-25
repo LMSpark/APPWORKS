@@ -272,7 +272,18 @@ describe('runtime data set plan', () => {
 })
 
 describe('selection cascades in a reopened Dataset Plan',()=>{
-  it('protects named text cascades from silent equality in saved Plan v1', () => {
+  it.each([
+    {
+      kind: 'text operator',
+      bindings: {filterBindings: [{sourceField: 'name', targetField: 'displayName', operator: 'contains'}]},
+      expected: 'filterBindings[0].operator: Child@default.displayName 不支持 contains',
+    },
+    {
+      kind: 'query input',
+      bindings: {filterBindings: [], inputBindings: [{sourceField: 'id', target: 'queryContext.parentId'}]},
+      expected: 'inputBindings: Child@default 不支持查询输入级联',
+    },
+  ])('rejects a $kind cascade that Plan v1 cannot express', ({bindings, expected}) => {
     const build = () => buildRuntimeDataSetPlanText({
       scenarioId: 'SPACE',
       space: {rowid: 'SPACE', Name: 'Space'},
@@ -291,12 +302,12 @@ describe('selection cascades in a reopened Dataset Plan',()=>{
         viewCascades: [{
           parentTable: 'Parent', parentViewId: 'picked',
           childTable: 'Child', childViewId: 'default',
-          filterBindings: [{sourceField: 'name', targetField: 'displayName', operator: 'contains'}],
+          ...bindings,
         }],
       },
     })
 
-    expect(build).toThrow('RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[0].filterBindings[0].operator: Child@default.displayName 不支持 contains')
+    expect(build).toThrow(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[0].${expected}`)
   })
 
   it.each(['implicit-selection','explicit-in','implicit-field'] as const)('sends the original condition for %s',async variant=>{
@@ -321,6 +332,7 @@ describe('selection cascades in a reopened Dataset Plan',()=>{
       },viewCascades:[{
         parentTable:'Parent',parentViewId:'picked',childTable:'Child',childViewId:'default',
         filterBindings:[{targetField:'parentId',...sourceField,...explicit}],
+        inputBindings: [],
       }]},
     })
     const dataSet=DataSet.fromRuntimeDataSetPlan(text)

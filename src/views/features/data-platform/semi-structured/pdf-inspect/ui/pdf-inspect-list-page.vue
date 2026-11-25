@@ -3,7 +3,7 @@
 -->
 <template>
   <SparkPageRenderer v-if="ready && catalogRuntime && catalogHost" :page-runtime="catalogRuntime"
-    :route-snapshot="routeSnapshot" :host="catalogHost" />
+    :route-snapshot="routeSnapshot" :host="catalogHost" :auto-load="false" :after-load="startCatalogQuery" />
   <RendererSection v-else title="PDF 识别规则" :bordered="false"
     :status="loading ? '正在读取规则目录…' : ''" :error="error" />
   <FeatureRecordDialog v-if="creationId !== undefined" ref="creationDialog" headless :data-view-key="creationKey" :record-id="creationId"
@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/platform-adapters/resources/semi-structured/pdf-inspect/resource'
@@ -323,6 +323,14 @@ function makeCatalogHost(runtime:PageRuntime){
   }}
 }
 function choose(row: DataRow): void {if (!pendingExecution()) view.value?.setSelectedRows([row])}
+/** 目录有独立的正式查询范围，脚本连接只负责页面交互。 */
+function startCatalogQuery(): void {
+  const runtime = catalogRuntime.value, source = view.value
+  if (!active || !runtime || !session.isCurrent(runtime) || !source?.autoLoad || source.requestState !== RequestState.Idle) return
+  void source.requestData().catch((cause: unknown) => {
+    if (active && session.isCurrent(runtime) && view.value === source) error.value = cause instanceof Error ? cause.message : String(cause)
+  })
+}
 async function refreshCatalog(): Promise<void> {
   if (loading.value || preparing.value || pendingExecution() || !view.value) return
   try {await view.value.refresh()}

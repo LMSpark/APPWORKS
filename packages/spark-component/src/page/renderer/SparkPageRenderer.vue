@@ -15,6 +15,7 @@ AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新
     </slot>
   </div>
   <div v-else>
+    <p v-if="initializationFailed" role="alert">页面初始化失败，部分功能暂不可用。</p>
     <!-- 动态注入页面样式（自动添加作用域） -->
     <component :is="'style'" v-if="scopedCss">{{ scopedCss }}</component>
 
@@ -76,6 +77,7 @@ const pageService = buildPageService(router, {messageService:props.messageServic
 sparkProvide(PAGE_SERVICE,pageService)
 sparkProvide(PAGE_PERMISSION_MODE,'masked')
 const currentInstanceId = ref('')
+const initializationFailed = ref(false)
 const children = shallowRef<SparkNode[]>([])
 const pageContainer = ref<HTMLElement|null>(null)
 const {scopedCss,setScopedCss} = useCssScope({enableScope:props.enableCssScope})
@@ -205,6 +207,7 @@ async function loadConfig():Promise<void> {
  if(activeRuntime!==runtime)release()
  else {controller?.abort();for(const unsubscribe of releaseViewSubscriptions.splice(0))unsubscribe();componentRegistry.clearRenders()}
  activeRuntime=runtime;controller=new AbortController()
+ initializationFailed.value=false
  const signal=controller.signal
  const alive=()=>token===revision && !signal.aborted && !runtime.destroyed && toRaw(props.pageRuntime)===runtime
  currentInstanceId.value=runtime.instanceId
@@ -314,7 +317,11 @@ async function loadConfig():Promise<void> {
  if(!alive() || error.value)return
  await nextTick()
  if(!alive())return
- try {await functions['__init__']?.()}catch(errorLike){if(alive())report('init',runtime,errorLike)}
+ try {await functions['__init__']?.()}
+ catch(errorLike) {
+  if(alive()){initializationFailed.value=true;report('init',runtime,errorLike);invalidate()}
+  return
+ }
  if(!alive())return
  for(const id of runtime.call.scenarioIds){const ds=runtime.getDataSet(id);if(props.autoLoad)ds?.triggerAutoLoad();ds?.initAutoSelection()}
  invalidate()

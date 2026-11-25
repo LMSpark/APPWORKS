@@ -6,7 +6,7 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ElementPlus from 'element-plus'
 import { DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererPageHeader, Spark, SparkComponentRenderer, SparkPageRenderer, registerAllRenderers, useSparkComponent, useSparkConsume, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
-import { DataSet, RequestState, SparkData, type SparkNode } from '@spark-appworks/spark-data'
+import { DataSet, RequestState, SparkData, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type SparkNode } from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
   compileRule,
@@ -451,6 +451,57 @@ describe('SparkPageRenderer root props aggregation', () => {
       pageId: 'test-page',
       message: expect.stringContaining('ASYNC_INIT_FAIL'),
     }))
+  })
+
+  it.each([false, true])('starts automatic queries only with confirmed initialization (confirmed=%s)', async confirmed => {
+    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({render: () => h('div')})}]})
+    await router.push('/')
+    const dataSet = DataSet.fromJson({scenarioId: 'init', tables: {}})
+    const resource = {resourceType: 'service-query', resourceId: 'init-fixture'}
+    const view = ensureDataSetResourceView({dataSet, tableName: 'Items', resource, columns: [{name: 'id', primary: true}]})
+    view.configure({autoLoad: true, queryContext: {target: 'configured-default'}})
+    const inputs: unknown[] = []
+    bindDataSetReadonlyCommandQuery(view, {resource, guard: () => {}, loadRows: async source => {
+      const target = source.queryContext['target']
+      inputs.push(target)
+      return [{id: target}]
+    }})
+    const tool = new PageTool({pageId: 'init-readiness'})
+    tool.hydrateFileText('rule.json', '[]')
+    tool.hydrateFileText('script.js', `async function __init__() {
+      const accepted = await $page.showConfirm('initialize')
+      if (!accepted) throw new Error('INIT_INPUT_FAILED')
+      $page.resolveView('init@Items@default').queryContext = {target: 'confirmed-target'}
+    }`)
+    tool.markLoaded()
+    const pageRuntime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds: ['init'], loadScenario: async () => dataSet})))
+    let finish: ((result: boolean) => void) | undefined
+    const onRuntimeError = vi.fn(), afterLoad = vi.fn()
+    const wrapper = mount(SparkPageRenderer, {props: {routeSnapshot, pageRuntime, afterLoad, onRuntimeError, confirmService: {
+      confirm: () => new Promise((resolve, reject) => {finish = accepted => {
+        if (accepted) resolve(true)
+        else reject(Error('INIT_INPUT_FAILED'))
+      }}), alert: async () => undefined,
+    }}, global: {plugins: [Spark.createPlugin(), router]}})
+    try {
+      await vi.waitFor(() => expect(finish).toBeTypeOf('function'))
+      expect(afterLoad).toHaveBeenCalledOnce()
+      expect(inputs).toEqual([])
+      finish?.(confirmed)
+      await flushPromises()
+      expect(inputs).toEqual(confirmed ? ['confirmed-target'] : [])
+      if (confirmed) {
+        expect(onRuntimeError).not.toHaveBeenCalled()
+        expect(view.rows).toMatchObject([{id: 'confirmed-target'}])
+      } else {
+        expect(onRuntimeError).toHaveBeenCalledWith(expect.objectContaining({phase: 'init', message: expect.stringContaining('INIT_INPUT_FAILED')}))
+        expect(wrapper.get('[role="alert"]').text()).toContain('初始化失败')
+        await wrapper.setProps({pageRuntime: createPageRuntime(createPageContentConfig('另一页面'))})
+        await flushPromises()
+        expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+        expect(inputs).toEqual([])
+      }
+    } finally {wrapper.unmount()}
   })
 
   it('reports page script event handler errors through runtime diagnostics', async () => {

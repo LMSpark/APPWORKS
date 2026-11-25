@@ -2624,7 +2624,7 @@
     "packages/spark-component/src/page/renderer/SparkPageRenderer.vue": {
       "sourceFile": "packages/spark-component/src/page/renderer/SparkPageRenderer.vue",
       "shardFile": "files/packages/spark-component/src/page/renderer/SparkPageRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.954Z"
+      "sourceModifiedAt": "2026-11-25T23:41:38.566Z"
     },
     "packages/spark-component/src/page/renderer/useCssScope.ts": {
       "sourceFile": "packages/spark-component/src/page/renderer/useCssScope.ts",
@@ -7109,7 +7109,7 @@
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-24T08:45:10.319Z"
+      "sourceModifiedAt": "2026-11-25T23:41:38.566Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",

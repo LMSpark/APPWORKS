@@ -6179,7 +6179,7 @@
     "src/views/features/application/application-manager/model/application-manager-model.ts": {
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "shardFile": "files/src/views/features/application/application-manager/model/application-manager-model.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.330Z"
+      "sourceModifiedAt": "2026-11-25T20:23:03.069Z"
     },
     "src/views/features/application/application-manager/ui/application-database-dialog.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
@@ -6189,7 +6189,7 @@
     "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
       "shardFile": "files/src/views/features/application/application-manager/ui/application-manager-form-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.052Z"
+      "sourceModifiedAt": "2026-11-25T20:01:47.027Z"
     },
     "src/views/features/application/application-manager/ui/application-manager-page.vue": {
       "sourceFile": "src/views/features/application/application-manager/ui/application-manager-page.vue",

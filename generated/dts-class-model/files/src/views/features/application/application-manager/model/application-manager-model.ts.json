@@ -83,6 +83,9 @@
         "hasUnconfirmedSave": {
           "type": "boolean"
         },
+        "needsAddressReadback": {
+          "type": "boolean"
+        },
         "defaultDatabase": {
           "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
         },
@@ -162,7 +165,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.330Z",
+  "generatedAt": "2026-11-25T20:23:03.069Z",
   "models": {
     "ApplicationManagerSaveOutcome": {
       "name": "ApplicationManagerSaveOutcome",
@@ -252,6 +255,12 @@
             {
               "name": "hasUnconfirmedSave",
               "jsdoc": "当前弹窗原提交仍有待核回执，关闭会丢失本次办理入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "needsAddressReadback",
+              "jsdoc": "已接纳原写回执，独立读取仍待核。再次核验只读当前正式应用键。",
               "readable": true,
               "writable": false
             },

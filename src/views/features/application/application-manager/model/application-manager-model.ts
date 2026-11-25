@@ -133,6 +133,7 @@ export class ApplicationManagerRecord {
   private relationId: string | number | undefined
   private rootAdded = false
   private mainConfirmed = false
+  private confirmedAddress: {value: string; readyForReadback: boolean} | undefined
 
   private constructor(state: ApplicationManagerRecordState) {
     this.dataSet = state.dataSet
@@ -152,6 +153,9 @@ export class ApplicationManagerRecord {
 
   /** 当前弹窗原提交仍有待核回执，关闭会丢失本次办理入口。 */
   get hasUnconfirmedSave(): boolean { return this.saveViews.some(view => view.hasUnconfirmedSave) }
+
+  /** 已接纳原写回执，独立读取仍待核。再次核验只读当前正式应用键。 */
+  get needsAddressReadback(): boolean { return this.confirmedAddress?.readyForReadback === true }
 
   static async openCreate(dataSet: DataSet, appType: string): Promise<ApplicationManagerRecord> {
     const main = requireView(dataSet, MAIN, 'form'), relation = requireView(dataSet, RELATION)
@@ -247,7 +251,35 @@ export class ApplicationManagerRecord {
     this.rootAdded = true
   }
 
+  private async verifyConfirmedAddress(): Promise<ApplicationManagerSaveOutcome> {
+    const confirmation = this.confirmedAddress
+    if (confirmation) confirmation.readyForReadback = true
+    const expected = confirmation?.value
+    let verification: DataView | undefined
+    try {
+      const main = this.main
+      if (expected === undefined || !main.dataTable) throw new Error('缺少原运行地址提交证明')
+      verification = main.createQueryView(`applicationAddress_${crypto.randomUUID()}`)
+      verification.queryConfig = {...verification.queryConfig, cacheType: 'none', fields: ['rowid', 'WebUrl']}
+      await loadFor(verification, this.appId)
+      const row = verification.rows[0]
+      if (verification.total !== 1 || verification.rows.length !== 1 || !row
+        || String(verification.getPkKey(row)) !== this.appId || verification.fieldAccess(row, 'WebUrl').read !== 'visible') {
+        throw new Error('原应用地址未返回唯一可读结果')
+      }
+      if (row['WebUrl'] !== expected) throw new Error('当前地址与原提交不一致')
+      this.confirmedAddress = undefined
+      const remaining = this.saveViews.some(view => view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+      return {success: !remaining, mainSaved: true, message: remaining ? '运行地址已确认，仍有未提交修改' : '保存成功'}
+    } catch (cause) {
+      return {success: false, mainSaved: true, message: `应用已保存，站点运行地址回读未确认：${failure(cause)}`}
+    } finally {
+      if (verification) verification.dataTable?.destroyView(verification.viewId)
+    }
+  }
+
   async save(): Promise<ApplicationManagerSaveOutcome> {
+    if (this.needsAddressReadback) return this.verifyConfirmedAddress()
     const pending = this.saveViews.filter(view => view.hasUnconfirmedSave)
     if (pending.length) {
       try {
@@ -255,6 +287,7 @@ export class ApplicationManagerRecord {
         if (!result.success || this.hasUnconfirmedSave) throw new Error(result.message ?? '原提交仍待核验')
         if (this.created && pending.includes(this.main)) this.mainConfirmed = true
         const remaining = this.saveViews.some(view => view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+        if (!remaining && this.confirmedAddress) return this.verifyConfirmedAddress()
         return {success: !remaining, mainSaved: this.created ? this.mainConfirmed : !remaining,
           message: remaining ? '原提交已确认，仍有未提交的修改，可继续保存' : '原提交已确认'}
       } catch (cause) {
@@ -269,9 +302,22 @@ export class ApplicationManagerRecord {
     const mainTarget = {tableName: main.tableName, viewId: main.viewId, ids: [this.appId]}
     try {
       if (!this.created) {
+        const expectedAddress = main.getEditingPatch(this.appId)?.['WebUrl']
         const result = await this.dataSet.saveChangesInPhases([{views: [mainTarget, ...ownerTarget]}])
-        return {success: result.success, mainSaved: result.success,
-          message: result.success ? '保存成功' : `保存未确认：${result.results.at(-1)?.error?.message ?? '请刷新核验'}`}
+        if (typeof expectedAddress === 'string') {
+          const receipt = result.results[0]?.data?.viewResults.find(item => item.tableName === main.tableName && item.viewId === main.viewId)
+          if (receipt?.savedCount === 1 && receipt.failedCount === 0 && receipt.failedEditingRows === 0) {
+            this.confirmedAddress = {value: expectedAddress, readyForReadback: false}
+          } else if (result.success && this.confirmedAddress === undefined) {
+            return {success: false, mainSaved: false, message: '运行地址没有原应用保存回执'}
+          }
+        }
+        if (result.success && this.confirmedAddress) return this.verifyConfirmedAddress()
+        if (result.success) return {success: true, mainSaved: true, message: '保存成功'}
+        const failureDetail = result.results.at(-1)?.error?.message ?? result.results.at(-1)?.message ?? '请刷新核验'
+        const mainSaved = this.confirmedAddress !== undefined
+        const message = mainSaved ? '应用已保存，负责人修改未确认' : '保存未确认'
+        return {success: false, mainSaved, message: `${message}：${failureDetail}`}
       }
       if (!this.mainConfirmed) main.updateEditingValue(this.appId, 'CreateTime', formatNow())
       await this.stageNavigationRoot()

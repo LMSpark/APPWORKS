@@ -292,6 +292,107 @@ describe('application manager restored with standard components and formal DataV
     expect(bodyText()).not.toContain('编辑应用系统')
   })
 
+
+  it.each(['normal','current-value-changed','current-value-unreadable','query-rejected','scope-replaced'] as const)
+  ('verifies the original app URL once and does not post again for %s',async mode=>{
+    const {wrapper,view}=await open()
+    rowButtonFor(wrapper,'needle description','编辑').click()
+    await settle()
+    const form=view('Base_AppSystemList','form')
+    form.updateEditingValue('APP-1','WebUrl','/new-runtime-route')
+    const portal=[...document.body.querySelectorAll('.el-form-item')].find(item=>item.textContent?.includes('租户门户'))
+    portal?.querySelector<HTMLElement>('.el-switch')?.click()
+    await settle()
+    let diverged=false
+    http.beforeDefinitionRead=async table=>{
+      if(table!=='Base_AppSystemList'||diverged||http.saves.length===0)return
+      diverged=true
+      if(mode==='current-value-changed'){
+        const row=http.records[table]?.find(row=>row['rowid']==='APP-1')
+        if(!row)throw Error('Expected source application')
+        row['WebUrl']='/changed-after-write'
+      }
+      if(mode==='current-value-unreadable')http.hiddenFieldsById={[table]:{'APP-1':['WebUrl']}}
+      if(mode==='query-rejected')http.failNextTable=table
+      if(mode==='scope-replaced')api.service.readRequestScope.mockReturnValue({token:'replacement',headers:{'X-AppId':'APP'}})
+    }
+    const readsBefore=http.reads.length
+    await click('保存')
+    expect(http.saves.filter(save=>save.table==='Base_AppSystemList')).toMatchObject([
+      {added:[],changed:[{rowid:'APP-1',WebUrl:'/new-runtime-route'}],deleted:[]},
+    ])
+    const exactReads=()=>http.reads.slice(readsBefore).filter(call=>call.table==='Base_AppSystemList'
+      &&JSON.stringify(call.data).includes('"Name":"appId","Value":"APP-1"'))
+    if(mode==='normal'){
+      expect(exactReads()).toHaveLength(1)
+      expect(pageUi.showMessage).toHaveBeenCalledWith('保存成功','success')
+      expect(defaultApp.save).toHaveBeenCalledExactlyOnceWith('APP-1')
+      expect(bodyText()).not.toContain('编辑应用系统')
+      return
+    }
+    expect(pageUi.showMessage).not.toHaveBeenCalledWith('保存成功','success')
+    expect(defaultApp.save).not.toHaveBeenCalled()
+    expect(bodyText()).toMatch(/应用已保存，站点运行地址回读未确认/u)
+    expect(exactReads()).toHaveLength(1)
+    expect(button('核验运行地址')).toBeDefined()
+    if(mode==='scope-replaced'){
+      await click('核验运行地址')
+      expect(exactReads()).toHaveLength(1)
+      expect(http.saves).toHaveLength(1)
+      expect(defaultApp.save).not.toHaveBeenCalled()
+      expect(bodyText()).toContain('站点运行地址回读未确认')
+      return
+    }
+    http.hiddenFieldsById={}
+    const row=http.records['Base_AppSystemList']?.find(row=>row['rowid']==='APP-1')
+    if(!row)throw Error('Expected original app for current readback')
+    row['WebUrl']='/new-runtime-route'
+    await click('核验运行地址')
+    expect(exactReads()).toHaveLength(2)
+    expect(http.saves).toHaveLength(1)
+    expect(defaultApp.save).toHaveBeenCalledExactlyOnceWith('APP-1')
+    expect(bodyText()).not.toContain('编辑应用系统')
+  })
+
+  it('retains the original address while the same edit retries a companion', async () => {
+    const {wrapper, view} = await open()
+    rowButtonFor(wrapper, 'needle description', '编辑').click()
+    await settle()
+    const main = view('Base_AppSystemList', 'form')
+    const owner = view('Base_MainBody_RoleUser')
+    main.updateEditingValue('APP-1', 'WebUrl', '/new-runtime-route')
+    owner.updateEditingValue('OWNER-1', 'UserIdField', 'USER-2')
+    const portal = [...document.body.querySelectorAll('.el-form-item')].find(item => item.textContent?.includes('租户门户'))
+    portal?.querySelector<HTMLElement>('.el-switch')?.click()
+    await settle()
+    vi.spyOn(owner, 'applyEditingRows').mockResolvedValueOnce({
+      success: false,
+      data: {appliedCount: 0, failedCount: 1, failedIds: ['OWNER-1'], failedErrors: {'OWNER-1': 'fixture editing denied'}},
+    })
+    const readsBefore = http.reads.length
+    const exactReads = () => http.reads.slice(readsBefore).filter(call => call.table === 'Base_AppSystemList'
+      && JSON.stringify(call.data).includes('"Name":"appId","Value":"APP-1"'))
+    await click('保存')
+    expect(http.saves.map(item => item.table)).toEqual(['Base_AppSystemList'])
+    expect(exactReads()).toHaveLength(0)
+    expect(defaultApp.save).not.toHaveBeenCalled()
+    expect(bodyText()).toContain('编辑应用系统')
+    const row = http.records['Base_AppSystemList']?.find(item => item['rowid'] === 'APP-1')
+    if (!row) throw new Error('Expected source application')
+    row['WebUrl'] = '/changed-after-write'
+    await click('保存')
+    expect(http.saves.map(item => item.table)).toEqual(['Base_AppSystemList', 'Base_MainBody_RoleUser'])
+
+    expect(exactReads()).toHaveLength(1)
+    expect(defaultApp.save).not.toHaveBeenCalled()
+    expect(bodyText()).toMatch(/应用已保存，站点运行地址回读未确认/u)
+    row['WebUrl'] = '/new-runtime-route'
+    await click('核验运行地址')
+    expect(exactReads()).toHaveLength(2)
+    expect(http.saves.map(item => item.table)).toEqual(['Base_AppSystemList', 'Base_MainBody_RoleUser'])
+    expect(defaultApp.save).toHaveBeenCalledExactlyOnceWith('APP-1')
+    expect(pageUi.showMessage).toHaveBeenCalledWith('保存成功', 'success')
+  })
   it('maps the tenant portal switch to the enterprise default application after the record is saved', async () => {
     const {wrapper} = await open()
     rowButtonFor(wrapper, 'needle description', '编辑').click(); await settle()

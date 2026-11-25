@@ -93636,7 +93636,7 @@
       "chainBreak": "ApplicationManagerRecord.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93648,7 +93648,7 @@
       "chainBreak": "ApplicationManagerRecord.main 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93660,7 +93660,7 @@
       "chainBreak": "ApplicationManagerRecord.relation 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 41,
+      "declarationLine": 42,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93672,7 +93672,7 @@
       "chainBreak": "ApplicationManagerRecord.owner 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 42,
+      "declarationLine": 43,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93684,7 +93684,7 @@
       "chainBreak": "ApplicationManagerRecord.root 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 43,
+      "declarationLine": 44,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93696,7 +93696,7 @@
       "chainBreak": "ApplicationManagerRecord.openCreate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 47,
+      "declarationLine": 50,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93708,7 +93708,7 @@
       "chainBreak": "ApplicationManagerRecord.openEdit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 48,
+      "declarationLine": 51,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93720,7 +93720,7 @@
       "chainBreak": "ApplicationManagerRecord.databaseSummary 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 51,
+      "declarationLine": 54,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },
@@ -93732,7 +93732,7 @@
       "chainBreak": "ApplicationManagerRecord.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/application-manager/model/application-manager-model.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
-      "declarationLine": 57,
+      "declarationLine": 61,
       "sourceFile": "src/views/features/application/application-manager/model/application-manager-model.ts",
       "declarationKind": "class"
     },

@@ -12,7 +12,7 @@
       :show-data-view-meta="false" :grid-gap="16" :form-props="{labelPosition: 'top'}" />
     <template #footer>
       <RendererButton label="取消" :disabled="busy || pendingSave" @click="cancel" />
-      <RendererButton :label="pendingSave ? '核验原提交' : '保存'" button-type="primary" :disabled="busy" @click="submit" />
+      <RendererButton :label="pendingSave ? '核验原提交' : addressReadback ? '核验运行地址' : '保存'" button-type="primary" :disabled="busy" @click="submit" />
     </template>
   </RendererDialog>
   <ApplicationDatabaseDialog v-if="choosing" @close="choosing = false" @choose="chooseDatabase" />
@@ -36,6 +36,7 @@ const statusKey = buildDataViewKey('应用系统状态', 'default', APPLICATION_
 const userKey = buildDataViewKey('Base_UserInfo', 'default', PERSON_SCENARIO)
 const busy = ref(false), choosing = ref(false), message = ref(''), revision = ref(0)
 const pendingSave = computed(() => { void revision.value; return props.record.hasUnconfirmedSave })
+const addressReadback = computed(() => { void revision.value; return props.record.needsAddressReadback })
 const portalInitial = !props.record.created && props.portal?.applicationId === props.record.appId
 const portalChecked = ref(portalInitial)
 const portalEditable = !props.record.created && Boolean(props.portal?.writable)

@@ -248,8 +248,12 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
           const dependKey = `${text(rawCascade['cascadeId']) || `cascade-${cascadeIndex}`}-${bindingIndex}`
           const sourceField = text(dependencyBinding['sourceField'])
           const targetField = identity(dependencyBinding['targetField'], `viewCascades[${cascadeIndex}].filterBindings[${bindingIndex}].targetField`)
-          const configuredOperator = text(dependencyBinding['operator'])
-          const source = configuredOperator === 'in' || (configuredOperator === '' && sourceField === '') ? 'In' : 'Equal'
+          const configuredOperator = dependencyBinding['operator']
+          if (configuredOperator !== undefined && configuredOperator !== 'eq' && configuredOperator !== 'in') {
+            const path = `viewCascades[${cascadeIndex}].filterBindings[${bindingIndex}].operator`
+            throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}: ${tableName}@${viewId}.${targetField} 不支持 ${String(configuredOperator)}（场景 ${input.scenarioId}）`)
+          }
+          const source = configuredOperator === 'in' || (configuredOperator === undefined && sourceField === '') ? 'In' : 'Equal'
           cascadeDependencies.push({
             dependKey, sourceDataViewId: parentViewRecordId,
             sourceModelId: identity(parentBinding['modelId'], `viewCascades[${cascadeIndex}].sourceModelId`),

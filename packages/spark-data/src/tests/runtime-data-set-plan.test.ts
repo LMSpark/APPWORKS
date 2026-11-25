@@ -272,6 +272,33 @@ describe('runtime data set plan', () => {
 })
 
 describe('selection cascades in a reopened Dataset Plan',()=>{
+  it('protects named text cascades from silent equality in saved Plan v1', () => {
+    const build = () => buildRuntimeDataSetPlanText({
+      scenarioId: 'SPACE',
+      space: {rowid: 'SPACE', Name: 'Space'},
+      models: [
+        {rowid: 'M_PARENT', Name: 'Parent', MetaName: 'source_parent', Type: '数据库表'},
+        {rowid: 'M_CHILD', Name: 'Child', MetaName: 'source_child', Type: '数据库表'},
+      ],
+      fields: [],
+      relations: [],
+      scenarioConfig: {
+        scenarioId: 'SPACE',
+        tables: {
+          Parent: {modelBinding: {modelId: 'M_PARENT', modelName: 'Parent'}, views: {picked: {}}},
+          Child: {modelBinding: {modelId: 'M_CHILD', modelName: 'Child'}, views: {default: {}}},
+        },
+        viewCascades: [{
+          parentTable: 'Parent', parentViewId: 'picked',
+          childTable: 'Child', childViewId: 'default',
+          filterBindings: [{sourceField: 'name', targetField: 'displayName', operator: 'contains'}],
+        }],
+      },
+    })
+
+    expect(build).toThrow('RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[0].filterBindings[0].operator: Child@default.displayName 不支持 contains')
+  })
+
   it.each(['implicit-selection','explicit-in','implicit-field'] as const)('sends the original condition for %s',async variant=>{
     const sourceField=variant==='implicit-field'?{sourceField:'id'}:{}
     const explicit=variant==='explicit-in'?{operator:'in' as const}:{}

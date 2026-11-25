@@ -270,3 +270,69 @@ describe('runtime data set plan', () => {
     } finally {dataSet.destroy()}
   })
 })
+
+describe('selection cascades in a reopened Dataset Plan',()=>{
+  it.each(['implicit-selection','explicit-in','implicit-field'] as const)('sends the original condition for %s',async variant=>{
+    const sourceField=variant==='implicit-field'?{sourceField:'id'}:{}
+    const explicit=variant==='explicit-in'?{operator:'in' as const}:{}
+    const text=buildRuntimeDataSetPlanText({
+      scenarioId:'SPACE',
+      space:{rowid:'SPACE',Name:'Space'},
+      models:[
+        {rowid:'M_PARENT',Name:'Parent',MetaName:'source_parent',Type:'数据库表'},
+        {rowid:'M_CHILD',Name:'Child',MetaName:'source_child',Type:'数据库表'},
+      ],
+      fields:[
+        {rowid:'P_KEY',dataModelId:'M_PARENT',type:'dataModel',Name:'id',FieldType:'varchar',IsOutput:1,IsPKey:1},
+        {rowid:'C_KEY',dataModelId:'M_CHILD',type:'dataModel',Name:'id',FieldType:'varchar',IsOutput:1,IsPKey:1},
+        {rowid:'C_PARENT',dataModelId:'M_CHILD',type:'dataModel',Name:'parentId',FieldType:'varchar',IsOutput:1,IsPKey:0},
+      ],
+      relations:[],
+      scenarioConfig:{scenarioId:'SPACE',tables:{
+        Parent:{modelBinding:{modelId:'M_PARENT',modelName:'Parent'},views:{picked:{}}},
+        Child:{modelBinding:{modelId:'M_CHILD',modelName:'Child'},views:{default:{}}},
+      },viewCascades:[{
+        parentTable:'Parent',parentViewId:'picked',childTable:'Child',childViewId:'default',
+        filterBindings:[{targetField:'parentId',...sourceField,...explicit}],
+      }]},
+    })
+    const dataSet=DataSet.fromRuntimeDataSetPlan(text)
+    try{
+      const parent=dataSet.getView('Parent','picked'),child=dataSet.getView('Child','default')
+      if(!parent||!child)throw new Error('Expected both formal views')
+      const readAccess={
+        assertIdentity:()=>undefined,rowKey:(row:Readonly<Record<string,unknown>>)=>row['id'],
+        fieldAccess:()=>({read:'visible' as const,write:'denied' as const,required:false,
+          component:'readonly' as const,writeMode:'readonly' as const}),
+        readFieldAccess:()=> 'visible' as const,
+        addActionState:()=> 'hidden' as const,editActionState:()=> 'hidden' as const,deleteActionState:()=> 'hidden' as const,
+        createChildActionState:()=> 'hidden' as const,viewActionState:()=> 'hidden' as const,
+      }
+      const sent:unknown[]=[]
+      parent.bindQueryExecutor({executeQuery:async()=>({...readAccess,rows:[{id:'A'},{id:'B'},{id:'C'}],total:3})})
+      child.bindQueryExecutor({executeQuery:async(_view,params)=>{
+        sent.push(params.filter)
+        return {...readAccess,rows:[{id:'child',parentId:'A'}],total:1}
+      }})
+      await parent.refresh()
+      expect(parent.rows.map(row=>row['id'])).toEqual(['A','B','C'])
+      const [first,second]=parent.rows
+      if(!first||!second)throw new Error('Expected originally queried selection')
+      parent.setCurrentRow(first)
+      parent.setSelectedRows([first,second])
+      await child.refresh()
+      const expected=variant==='implicit-field'
+        ?{field:'parentId',operator:'eq',value:'A'}
+        :{field:'parentId',operator:'in',value:['A','B']}
+      expect(sent.at(-1)).toEqual(expected)
+      expect(child.rows[0]?.['id']).toBe('child')
+      if(variant!=='implicit-field'){
+        const dispatched=sent.length
+        parent.setSelectedRows([])
+        await child.refresh()
+        expect(sent).toHaveLength(dispatched)
+        expect(child.rows).toEqual([])
+      }
+    }finally{dataSet.destroy()}
+  })
+})

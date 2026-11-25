@@ -248,7 +248,8 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
           const dependKey = `${text(rawCascade['cascadeId']) || `cascade-${cascadeIndex}`}-${bindingIndex}`
           const sourceField = text(dependencyBinding['sourceField'])
           const targetField = identity(dependencyBinding['targetField'], `viewCascades[${cascadeIndex}].filterBindings[${bindingIndex}].targetField`)
-          const source = text(dependencyBinding['operator']) === 'in' ? 'In' : 'Equal'
+          const configuredOperator = text(dependencyBinding['operator'])
+          const source = configuredOperator === 'in' || (configuredOperator === '' && sourceField === '') ? 'In' : 'Equal'
           cascadeDependencies.push({
             dependKey, sourceDataViewId: parentViewRecordId,
             sourceModelId: identity(parentBinding['modelId'], `viewCascades[${cascadeIndex}].sourceModelId`),

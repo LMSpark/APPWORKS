@@ -258,6 +258,40 @@ describe('application manager restored with standard components and formal DataV
     expect(bodyText()).not.toContain('编辑应用系统')
   })
 
+
+  it('renames an application without validating or rewriting its unchanged stored external URL', async () => {
+    const original = http.records['Base_AppSystemList']?.[0]
+    if (!original) throw Error('Expected a stored application')
+    original['WebUrl'] = 'https://apps.example.test/page?q=1#section'
+    const {wrapper, view} = await open()
+    rowButtonFor(wrapper, 'needle description', '编辑').click()
+    await settle()
+    const form = view('Base_AppSystemList', 'form')
+    form.updateEditingValue('APP-1', 'AppName', 'renamed')
+    await click('保存')
+    expect(http.saves.find(save => save.table === 'Base_AppSystemList')?.changed).toEqual([
+      expect.objectContaining({rowid: 'APP-1', AppName: 'renamed'}),
+    ])
+    expect(http.saves.find(save => save.table === 'Base_AppSystemList')?.changed[0]).not.toHaveProperty('WebUrl')
+    expect(http.records['Base_AppSystemList']?.find(row => row['rowid'] === 'APP-1')?.['WebUrl']).toBe('https://apps.example.test/page?q=1#section')
+    expect(bodyText()).not.toContain('编辑应用系统')
+  })
+
+  it('still validates a newly entered URL before the original application form can save', async () => {
+    const {wrapper, view} = await open()
+    rowButtonFor(wrapper, 'needle description', '编辑').click()
+    await settle()
+    const form = view('Base_AppSystemList', 'form')
+    form.updateEditingValue('APP-1', 'WebUrl', 'https://apps.example.test/other')
+    await click('保存')
+    expect(bodyText()).toContain('站点运行地址必须是')
+    expect(http.saves).toHaveLength(0)
+    form.updateEditingValue('APP-1', 'WebUrl', '')
+    await click('保存')
+    expect(http.saves.find(save => save.table === 'Base_AppSystemList')?.changed[0]).toMatchObject({rowid: 'APP-1', WebUrl: ''})
+    expect(bodyText()).not.toContain('编辑应用系统')
+  })
+
   it('maps the tenant portal switch to the enterprise default application after the record is saved', async () => {
     const {wrapper} = await open()
     rowButtonFor(wrapper, 'needle description', '编辑').click(); await settle()

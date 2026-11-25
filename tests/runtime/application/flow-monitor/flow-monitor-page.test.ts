@@ -15,10 +15,14 @@ import {ApiBackend} from '../../page/api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../page/structured-config/catalog/structured-config-catalog.fixture'
 
 it.each([
-  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false},
-  {label: '办理', buildRoute: buildFlowRunPageRoute, hidden: false},
-  {label: '办理', buildRoute: buildFlowRunPageRoute, hidden: true},
-])('checks original process identities for $label (hidden definition: $hidden)', async ({label, buildRoute, hidden}) => {
+  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false, lookup:'visible'},
+  {label: '办理', buildRoute: buildFlowRunPageRoute, hidden: false, lookup:'visible'},
+  {label: '办理', buildRoute: buildFlowRunPageRoute, hidden: true, lookup:'visible'},
+  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false, lookup:'hidden-creator'},
+  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false, lookup:'no-creator'},
+  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false, lookup:'late-creator'},
+  {label: '运行详情', buildRoute: buildFlowRunDetailRoute, hidden: false, lookup:'retry'},
+])('checks original process identities for $label (hidden definition: $hidden, creator: $lookup)', async ({label, buildRoute, hidden, lookup}) => {
   const scene = 'E328FBBF518141973C575D612CD75151'
   const path = '/apps/APP/monitor'
   const source = readFileSync('config/pages/system/flow-monitor/pagedata.json', 'utf8')
@@ -31,7 +35,26 @@ it.each([
   const http = new ApiBackend()
   http.primaryKeys['Base_UserInfo'] = 'rowid'
   if (hidden) http.hiddenFields['View_FlowObjList'] = ['WFMID']
-  http.records = {View_FlowObjList: [{rowid: 'WF1', WFMID: 'DEF1', TITLE: '第一条'}, {rowid: 'WF2', WFMID: 'DEF2', TITLE: '第二条'}]}
+  http.records = {
+    View_FlowObjList: [
+      {rowid: 'WF1', WFMID: 'DEF1', TITLE: '第一条', CrtUserID: lookup==='no-creator'?'':'CREATOR-ON-PAGE'},
+      {rowid: 'WF2', WFMID: 'DEF2', TITLE: '第二条', CrtUserID: lookup==='no-creator'?'':'CREATOR-ON-PAGE'},
+    ],
+    Base_UserInfo: [
+      {rowid:'UNRELATED-USER',UserName:'其他人员'},
+      {rowid:'CREATOR-ON-PAGE',UserName:'本页创建人'},
+      {rowid:'NEXT-CREATOR',UserName:'新查询创建人'},
+    ],
+  }
+  if(lookup==='hidden-creator')http.hiddenFields['View_FlowObjList']=['CrtUserID']
+  let releaseOlder: (()=>void)|undefined
+  let firstLookup=true
+  http.beforeDefinitionRead=async table=>{
+    if(table!=='Base_UserInfo'||!firstLookup)return
+    firstLookup=false
+    if(lookup==='retry')throw new Error('创建人读取失败')
+    if(lookup==='late-creator')await new Promise<void>(resolve=>{releaseOlder=resolve})
+  }
   const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
   const ds = new LowcodeDataSpaceAssembler(api, http).assemble({config: new ScenarioViewConfig(scene, source),
     space: {dataSpaceId: scene, name: 'Flow monitor'}, models, relations: []}).dataSet
@@ -51,6 +74,35 @@ it.each([
   try {
     const buttons = () => wrapper.findAll('button').filter(button => button.text() === label)
     await vi.waitFor(() => expect(buttons(), wrapper.text()).toHaveLength(2))
+
+    if(lookup==='hidden-creator'||lookup==='no-creator'){
+      expect(http.reads.filter(read=>read.table==='Base_UserInfo')).toHaveLength(0)
+      expect(wrapper.text()).not.toContain('本页创建人')
+    }else if(lookup==='late-creator'){
+      await vi.waitFor(()=>expect(releaseOlder).toBeDefined())
+      const records=http.records['View_FlowObjList']
+      if(!records)throw new Error('Missing process fixture')
+      http.records['View_FlowObjList']=records.map(row=>({...row,CrtUserID:'NEXT-CREATOR'}))
+      await ds.getView('View_FlowObjList')?.refresh()
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('新查询创建人'))
+      releaseOlder?.()
+      await flushPromises()
+      expect(wrapper.text()).not.toContain('本页创建人')
+      expect(ds.getView('Base_UserInfo')?.rows.map(row=>row['rowid'])).toEqual(['NEXT-CREATOR'])
+    }else{
+      if(lookup==='retry'){
+        await vi.waitFor(()=>expect(wrapper.text()).toContain('创建人读取失败'))
+        expect(wrapper.text()).not.toContain('本页创建人')
+        await ds.getView('View_FlowObjList')?.refresh()
+      }
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('本页创建人'))
+      const creatorReads=http.reads.filter(read=>read.table==='Base_UserInfo')
+      expect(creatorReads).toHaveLength(lookup==='retry'?2:1)
+      const request=JSON.stringify(creatorReads.at(-1)?.data)
+      expect(request).toContain('CREATOR-ON-PAGE')
+      expect(request).not.toContain('UNRELATED-USER')
+      expect(ds.getView('Base_UserInfo')?.rows.map(row=>row['rowid'])).toEqual(['CREATOR-ON-PAGE'])
+    }
     const navigate = vi.spyOn(router, 'push')
     await buttons()[1]!.trigger('click')
     await flushPromises()
@@ -63,6 +115,7 @@ it.each([
     }
     expect(http.saves).toHaveLength(0)
   } finally {
+    releaseOlder?.()
     wrapper.unmount()
     config.global.stubs = originalStubs
     loader.mockRestore()

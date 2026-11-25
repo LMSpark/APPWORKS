@@ -219,8 +219,9 @@ export class ApplicationManagerRecord {
     if (this.ownerId === undefined || !readText(this.owner.getEditingRow(this.ownerId), 'UserIdField')) return '请选择负责人'
     if (!readText(row, 'AppType')) return '请选择应用系统状态'
     if (this.created && !readText(this.defaultDatabase, 'conid')) return '请选择默认数据库'
+    const original = this.created ? undefined : main.rows.find(item => String(main.getPkKey(item)) === this.appId)
     const raw = readText(row, 'WebUrl')
-    if (raw || this.created) {
+    if (this.created || (raw && !Object.is(row?.['WebUrl'], original?.['WebUrl']))) {
       const normalized = normalizeApplicationWebPath(raw)
       if (normalized !== raw) main.updateEditingValue(this.appId, 'WebUrl', normalized)
     }

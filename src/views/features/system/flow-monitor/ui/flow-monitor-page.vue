@@ -6,15 +6,15 @@ AI用途：迁移系统运维流程监控时，核对状态字典、创建人映
 -->
 <template>
   <RendererSection :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取流程列表…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
+    :status="loading ? '正在读取流程列表…' : ''" :error="error || creatorError" :retryable="!loading && (!ready || !!creatorError)" @retry="loadCurrentRoute">
     <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {isDataRow,type DataRow} from '@spark-appworks/spark-data'
+import {DataViewFilter, isDataRow, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {RendererSection, SparkPageRenderer, consumeRequiredPageService, useSparkComponent} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
@@ -39,7 +39,7 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
     tool.markLoaded()
     return tool
   },
-  optionModels: ['Dict_state', 'Base_UserInfo'],
+  optionModels: ['Dict_state'],
 })
 const router = useRouter()
 const route = useRoute()
@@ -73,6 +73,43 @@ function textValue(row: DataRow, field: string): string {
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
 }
 const runtime = computed(() => ready.value ? session.runtime : undefined)
+
+const creatorError = ref('')
+watch(runtime, (current, _old, onCleanup) => {
+  creatorError.value = ''
+  if (!current) return
+  const list = current.resolveView(viewKey.value)
+  const creators = current.resolveView(`${scenarioId}@Base_UserInfo@default`)
+  if (!list || !creators) {
+    creatorError.value = '流程监控缺少正式的创建人视图'
+    return
+  }
+  let revision = 0
+  const reloadCreators = (state: RequestState): void => {
+    const request = ++revision
+    const isCurrent = () => request === revision && session.isCurrent(current)
+    if (!isCurrent()) return
+    creatorError.value = ''
+    creators.resetState()
+    if (state !== RequestState.Loaded) return
+    const ids = [...new Set(list.rows.flatMap(row =>
+      list.fieldAccess(row, 'CrtUserID').read === 'visible' ? [textValue(row, 'CrtUserID')] : [],
+    ).filter(Boolean))]
+    if (ids.length === 0) return
+    creators.filterExpression = DataViewFilter.condition({field: 'rowid', operator: 'in', value: ids}).toJSON()
+    void creators.refresh().then(() => {
+      if (!isCurrent()) return
+      if (creators.loadingError) throw creators.loadingError
+      if (creators.total !== creators.rows.length) throw new Error('创建人查询未返回完整结果')
+    }).catch(cause => {
+      if (isCurrent()) creatorError.value = cause instanceof Error ? cause.message : String(cause)
+    })
+  }
+  list.events.on('requestStateChanged', reloadCreators)
+  onCleanup(() => { revision++; list.events.off('requestStateChanged', reloadCreators) })
+  reloadCreators(list.requestState)
+})
+
 const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
   return {path, fullPath, name: name ?? null, params, query, hash}

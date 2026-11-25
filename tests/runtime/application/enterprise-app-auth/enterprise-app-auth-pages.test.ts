@@ -155,6 +155,31 @@ describe('我的申请', () => {
     expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'A2')?.['review_comment']).toBe('不合适')
   })
 
+
+  it('does not confirm an authorization update when the original DataSet rejects the editing row', async () => {
+    const {runtime} = await open(MyPage, MY)
+    const view = runtime().resolveView(`${MY}@enterprise_app_auth@default`)
+    if (!view) throw Error('Expected the original request view')
+    vi.spyOn(view, 'applyEditingRows').mockResolvedValueOnce({success: false, data: {
+      appliedCount: 0, failedCount: 1, failedIds: ['A1'], failedErrors: {A1: '当前申请未应用修改'},
+    }})
+    await click('取消申请')
+    expect(http.saves).toHaveLength(0)
+    expect(view.hasEditingChanges('A1')).toBe(false)
+    expect(document.body.textContent).toContain('当前申请未应用修改')
+    expect(document.body.textContent).not.toContain('已取消申请')
+    expect(view.rows.find(row => row['id'] === 'A1')?.['auth_status']).toBe('PENDING')
+  })
+
+  it('does not confirm a single-record authorization save with no acknowledged mutation', async () => {
+    const {runtime} = await open(MyPage, MY)
+    const view = runtime().resolveView(`${MY}@enterprise_app_auth@default`)
+    if (!view) throw Error('Expected the original request view')
+    const {commitAppAuthRecord} = await import('@/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model')
+    await expect(commitAppAuthRecord(view, 'A1')).rejects.toThrow('原记录没有已确认的保存回执')
+    expect(http.saves).toHaveLength(0)
+  })
+
   it('本行 auth_status 不可写时不提供取消与重新申请', async () => {
     http.readonlyFields = {enterprise_app_auth: ['auth_status']}
     await open(MyPage, MY)

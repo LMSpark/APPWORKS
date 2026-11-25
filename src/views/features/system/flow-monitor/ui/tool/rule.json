@@ -3,7 +3,7 @@
     {"type":"r-text","props":{"field":"AppDesc","label":"应用名称","readonly":true,"minWidth":160,"showOverflowTooltip":true}},
     {"type":"r-text","props":{"field":"TITLE","label":"流程标题","readonly":true,"minWidth":240,"showOverflowTooltip":true}},
     {"type":"r-text","props":{"field":"handleInfo","label":"办理信息","readonly":true,"minWidth":200,"sortable":false,"showOverflowTooltip":true}},
-    {"type":"r-select","props":{"field":"CrtUserID","label":"创建人","readonly":true,"minWidth":120,"sortable":false,"optionDataViewKey":"E328FBBF518141973C575D612CD75151@Base_UserInfo@default"}},
+    {"type":"r-select","props":{"field":"CrtUserID","label":"创建人","readonly":true,"unmatchedText":"—","minWidth":120,"sortable":false,"optionDataViewKey":"E328FBBF518141973C575D612CD75151@Base_UserInfo@default"}},
     {"type":"r-text","props":{"field":"CrtTime","label":"创建时间","readonly":true,"minWidth":160,"onBeforeRender":"bindMonitorTime"}}
   ]}
 ]

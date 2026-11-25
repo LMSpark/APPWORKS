@@ -283,6 +283,11 @@ describe('selection cascades in a reopened Dataset Plan',()=>{
       bindings: {filterBindings: [], inputBindings: [{sourceField: 'id', target: 'queryContext.parentId'}]},
       expected: 'inputBindings: Child@default 不支持查询输入级联',
     },
+    {
+      kind: 'manual query trigger',
+      bindings: {autoLoad: false, filterBindings: [{sourceField: 'id', targetField: 'parentId', operator: 'eq'}]},
+      expected: 'autoLoad: Child@default 不支持手动查询级联',
+    },
   ])('rejects a $kind cascade that Plan v1 cannot express', ({bindings, expected}) => {
     const build = () => buildRuntimeDataSetPlanText({
       scenarioId: 'SPACE',

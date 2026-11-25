@@ -240,6 +240,9 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
         if (inputBindings !== undefined && (!Array.isArray(inputBindings) || inputBindings.length > 0)) {
           throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}].inputBindings: ${tableName}@${viewId} 不支持查询输入级联（场景 ${input.scenarioId}）`)
         }
+        if (rawCascade['autoLoad'] === false) {
+          throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}].autoLoad: ${tableName}@${viewId} 不支持手动查询级联（场景 ${input.scenarioId}）`)
+        }
         const bindings = rawCascade['filterBindings']
         if (!Array.isArray(bindings)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: filterBindings 无效`)
         const parentViewRecordId = viewIdentity.get(JSON.stringify([rawCascade['parentTable'], rawCascade['parentViewId']]))

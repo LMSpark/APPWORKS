@@ -68,7 +68,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-25T21:02:46.427Z",
+  "generatedAt": "2026-11-25T21:20:05.586Z",
   "models": {
     "RuntimePlanRecord": {
       "name": "RuntimePlanRecord",

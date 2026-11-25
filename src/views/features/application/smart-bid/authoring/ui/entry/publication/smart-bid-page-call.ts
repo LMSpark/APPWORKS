@@ -4,6 +4,7 @@
  * 边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {ClassModelRuntime,createDtsBundleClassModelKnowledgeProvider} from '@spark-appworks/spark-ai/class-model'
 import {getDtsClassModelManifestUrl} from '@/services/class-model-artifacts/artifact-urls'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -107,6 +108,10 @@ function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
     const result=await submit({operationId:command.operationId,requestKey:command.requestKey,
      prompt:command.prompt,inputs:command.inputs},signal)
     session.assertCurrent()
+    if(!isRecord(result)||result['state']!=='ACTION_APPLIED'||result['dispatched']!==true||!isRecord(result['actionReceipt'])){
+     const interrupted=isRecord(result)&&result['state']==='SSE_UNKNOWN'
+     throw Error(interrupted?'工具回传中断，原业务结果待核验':'当前没有原业务回执，请核验原请求')
+    }
     return Object.freeze({operationId:command.operationId,requestKey:command.requestKey,outcome:result,
      assertCurrent:session.assertCurrent})
    }})

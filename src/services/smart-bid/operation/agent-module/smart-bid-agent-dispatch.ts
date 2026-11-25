@@ -53,13 +53,16 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
  const current=()=>{assertCurrent();if(runtime.destroyed||!runtime.isLoaded||!runtime.call.scenarioIds.includes(scenarioId))
    throw Error('SMART_BID_AGENT_RUNTIME_STALE')}
  const executeOwner=createSmartBidRuntimeActionExecutor({runtime,scenarioId,assertCurrent:current})
- let active:Readonly<{command:SmartBidOperationCommand}> & {receipt?:JsonValue}|undefined
+ let active:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}|undefined
  const execute=async(command:SmartBidOperationCommand):Promise<JsonValue>=>{
    const dispatch=active
    if(dispatch&&(['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey'] as const)
      .some(field=>dispatch.command[field]!==command[field]))throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
-   const receipt=await executeOwner(command)
-   if(dispatch)dispatch.receipt=receipt
+   if(dispatch&&canonicalSnapshotValue(command)!==dispatch.commandText)throw Error('SMART_BID_AGENT_DISPATCH_INPUT_CHANGED')
+   if(!dispatch)return executeOwner(command)
+   dispatch.execution??=executeOwner(command)
+   const receipt=await dispatch.execution
+   dispatch.receipt=receipt
    return receipt
  }
  const operationModule=new SmartBidOperationModule(execute)
@@ -100,43 +103,41 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
  })
  return Object.freeze({
    classModel,rootKind:'SmartBidOperationModule',operationModule,assertCurrent:current,
-   async dispatch(command,signal){
+   async dispatch(inputCommand,signal){
      current()
      signal.throwIfAborted()
-     if(command.registrationId!==registrationId||command.businessInstanceId!==projectId
-       ||command.runtimeInstanceId!==runtime.call.instanceId)throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
+     if(inputCommand.registrationId!==registrationId||inputCommand.businessInstanceId!==projectId
+       ||inputCommand.runtimeInstanceId!==runtime.call.instanceId)throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
      if(active)throw Error('SMART_BID_AGENT_DISPATCH_BUSY')
+     const commandText=canonicalSnapshotValue(inputCommand)
+     const command=structuredClone(inputCommand)
      const now=new Date().toISOString(),turnId=crypto.randomUUID()
-     const inputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(command.inputs))
      accepted=undefined
-     const dispatch:Readonly<{command:SmartBidOperationCommand}> & {receipt?:JsonValue}={command}
+     const dispatch:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}={command,commandText}
      active=dispatch
      try{
+       const inputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(command.inputs))
+       current()
+       signal.throwIfAborted()
+       let transportError:string|undefined
        try {
          await host.run(registrationId,command,{turn:{
            turnId,seq:1,baseRevision:-1,queuedAt:now,startedAt:now,maxParallelTurns:1,
          },signal})
        } catch (error) {
-         const acknowledged=acceptedFor(turnId)
-         if(acknowledged===undefined)throw error
-         return Object.freeze({
-           operationId:command.operationId,requestKey:command.requestKey,parameters:command,inputDigest,
-           outcome:Object.freeze({
-             sessionId:acknowledged.sessionId,turnId:acknowledged.turnId,transport:'SSE' as const,
-             state:'SSE_UNKNOWN' as const,dispatched:false,
-             error:error instanceof Error?error.message:String(error),
-           }),
-         })
+         if(acceptedFor(turnId)===undefined)throw error
+         transportError=error instanceof Error?error.message:String(error)
        }
-       current()
-       const ack=requireAccepted(turnId)
        const receipt=dispatch.receipt
+       if(transportError===undefined||receipt!==undefined)current()
+       const ack=requireAccepted(turnId)
+       const action=receipt===undefined
+         ? {state:transportError===undefined?'NO_ACTION_RECEIPT' as const:'SSE_UNKNOWN' as const,dispatched:false}
+         : {state:'ACTION_APPLIED' as const,dispatched:true,actionReceipt:receipt}
        return Object.freeze({
          operationId:command.operationId,requestKey:command.requestKey,parameters:command,inputDigest,
-         outcome:Object.freeze(receipt===undefined
-           ? {sessionId:ack.sessionId,turnId:ack.turnId,transport:'SSE' as const,state:'NO_ACTION_RECEIPT' as const,dispatched:false}
-           : {sessionId:ack.sessionId,turnId:ack.turnId,transport:'SSE' as const,state:'ACTION_APPLIED' as const,
-             dispatched:true,actionReceipt:receipt}),
+         outcome:Object.freeze({sessionId:ack.sessionId,turnId:ack.turnId,transport:'SSE' as const,...action,
+           ...(transportError===undefined?{}:{error:transportError})}),
        })
      }finally{
        if(active===dispatch)active=undefined

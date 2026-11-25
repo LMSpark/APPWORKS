@@ -13,38 +13,47 @@ type MockView = {
   loadingError: Error | null
   refresh: ReturnType<typeof vi.fn>
   rows: Array<Record<string, unknown>>
+  total: number
+  countReported: boolean
+  captureReadRow: ReturnType<typeof vi.fn>
+  fieldAccess: ReturnType<typeof vi.fn>
 }
 
 function createView(rows: MockView['rows']): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows}
+  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined), rows,
+    total: rows.length, countReported: true, captureReadRow: vi.fn(() => () => {}), fieldAccess: vi.fn(() => ({read: 'visible'}))}
+}
+
+function fixture() {
+  const monitor = {
+    View_FlowObjList: createView([{rowid: 'WF-OTHER', TITLE: '另一流程', WFMID: 'FM-1', BusTblObjID: 'BUS-OTHER'}]),
+    WFOBJ_FLOW: createView([{rowid: 'WF-1', TITLE: '请假', WFMID: 'FM-1', BusTblObjID: 'BUS-9'}]),
+  }
+  const design = {
+    WFM_WORKFORM: createView([{FORMID: 'F1', FormName: '表单1', URL: '/demo/form', FlowID: 'FM-1'}]),
+  }
+  const workbench = {
+    WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
+    WFOBJ_FLOW_FORM: createView([]),
+    WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
+  }
+  const runtime = {
+    getDataSet: (id: string) => {
+      if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
+      if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
+      if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
+      return undefined
+    },
+  } as unknown as PageRuntime
+  return {runtime, monitor, design, workbench}
 }
 
 describe('prepareFlowRunPage', () => {
-  it('refreshes instance, forms, and step views then builds tabs', async () => {
-    const monitor = {
-      View_FlowObjList: createView([{rowid: 'WF-1', TITLE: '请假', WFMID: 'FM-1', BusTblObjID: 'BUS-9'}]),
-      WFOBJ_FLOW: createView([{rowid: 'WF-1', TITLE: '请假'}]),
-    }
-    const design = {
-      WFM_WORKFORM: createView([{FORMID: 'F1', FormName: '表单1', URL: '/demo/form', FlowID: 'FM-1'}]),
-    }
-    const workbench = {
-      WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
-      WFOBJ_FLOW_FORM: createView([]),
-      WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
-    }
-    const runtime = {
-      getDataSet: (id: string) => {
-        if (id === FLOW_MONITOR_SCENARIO_ID) return {getView: (name: string) => monitor[name as keyof typeof monitor]}
-        if (id === FLOW_DESIGN_SCENARIO_ID) return {getView: (name: string) => design[name as keyof typeof design]}
-        if (id === FLOW_WORKBENCH_SCENARIO_ID) return {getView: (name: string) => workbench[name as keyof typeof workbench]}
-        return undefined
-      },
-    } as unknown as PageRuntime
+  it('uses the exact formal object before loading forms and steps', async () => {
+    const {runtime, monitor, workbench} = fixture()
     const result = await prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1'})
-    expect(result.instanceTitle).toBe('请假')
-    expect(result.flowObjectId).toBe('WF-1')
-    expect(result.busRowId).toBe('BUS-9')
+    expect(result).toMatchObject({instanceTitle: '请假', flowObjectId: 'WF-1', busRowId: 'BUS-9'})
+    expect(monitor.View_FlowObjList.refresh).not.toHaveBeenCalled()
     expect(result.stepId).toBe('')
     expect(workbench.WFOBJ_FLOW.refresh).toHaveBeenCalledOnce()
     expect(result.formTabs).toHaveLength(1)
@@ -57,6 +66,37 @@ describe('prepareFlowRunPage', () => {
     await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'missing'})).rejects.toThrow(/步骤/)
     workbench.WFOBJ_FLOW_RELATIONLINE_STEP.rows.push({rowid: 'S1', WFOBJID: 'WF-1'})
     await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1', stepId: 'S1'})).rejects.toThrow(/步骤/)
+  })
+
+  it.each(['absent', 'multiple', 'unreported', 'other object', 'other model', 'hidden business key'])('rejects %s before loading companion views', async mode => {
+    const {runtime, monitor, design, workbench} = fixture()
+    const view = monitor.WFOBJ_FLOW
+    if (mode === 'absent') {view.rows = []; view.total = 0}
+    if (mode === 'multiple') view.total = 2
+    if (mode === 'unreported') view.countReported = false
+    if (mode === 'other object') view.rows[0]!['rowid'] = 'WF-OTHER'
+    if (mode === 'other model') view.rows[0]!['WFMID'] = 'FM-OTHER'
+    if (mode === 'hidden business key') view.captureReadRow.mockImplementation(() => {throw Error('原正式字段不可读')})
+    await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1'})).rejects.toThrow(/正式/)
+    expect(design.WFM_WORKFORM.refresh).not.toHaveBeenCalled()
+    expect(workbench.WFOBJ_FLOW_FORM.refresh).not.toHaveBeenCalled()
+    expect(workbench.WFOBJ_FLOW_RELATIONLINE_STEP.refresh).not.toHaveBeenCalled()
+  })
+
+  it('keeps a readable empty business identity and uses the object key for a hidden title', async () => {
+    const {runtime, monitor} = fixture()
+    const view = monitor.WFOBJ_FLOW
+    view.rows[0]!['BusTblObjID'] = null
+    view.fieldAccess.mockReturnValue({read:'denied'})
+    await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1'})).resolves.toMatchObject({instanceTitle: 'WF-1', busRowId: ''})
+  })
+
+  it('rechecks the original object after companion queries', async () => {
+    const {runtime, monitor, design} = fixture()
+    let current = true
+    monitor.WFOBJ_FLOW.captureReadRow.mockReturnValue(() => {if (!current) throw Error('原正式实例已失效')})
+    design.WFM_WORKFORM.refresh.mockImplementation(async () => {current = false})
+    await expect(prepareFlowRunPage({runtime, wfid: 'WF-1', flowid: 'FM-1'})).rejects.toThrow('原正式实例已失效')
   })
 
   it('rejects missing wfid', async () => {

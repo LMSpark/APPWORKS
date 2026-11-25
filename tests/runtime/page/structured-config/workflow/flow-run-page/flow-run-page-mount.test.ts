@@ -76,6 +76,8 @@ type MockView = {
   loadingError: Error | null
   refresh: ReturnType<typeof vi.fn>
   rows: Array<Record<string, unknown>>
+  total: number
+  captureReadRow: ReturnType<typeof vi.fn>
   events: {on: (event: string, handler: () => void) => void; off: (event: string, handler: () => void) => void}
 }
 
@@ -94,6 +96,8 @@ function createView(rows: MockView['rows']): MockView {
       }
     }),
     rows,
+    total: rows.length,
+    captureReadRow: vi.fn(() => () => {}),
     events: {
       on: (event, handler) => {
         const list = handlers.get(event) ?? []
@@ -110,8 +114,8 @@ function createView(rows: MockView['rows']): MockView {
 let designDataSet:DataSet
 function createRuntime(): PageRuntime {
   const monitor = {
-    View_FlowObjList: createView([{rowid: 'WF-1', TITLE: '实例', WFMID: 'FM-1', BusTblObjID: 'BUS-1'}]),
-    WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1', TITLE: '实例'}]),
+    View_FlowObjList: createView([{rowid: 'WF-OTHER', TITLE: '另一流程', WFMID: 'FM-1', BusTblObjID: 'BUS-OTHER'}]),
+    WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1', TITLE: '实例', BusTblObjID: 'BUS-1'}]),
     Dict_state: createView([]),
     Base_UserInfo: originalDirectoryView ?? createView([]),
   }
@@ -123,10 +127,10 @@ function createRuntime(): PageRuntime {
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
-  const instanceRows = monitor.View_FlowObjList.rows
+  const instanceRows = monitor.WFOBJ_FLOW.rows
   const actualWorkbench = originalOptionsView?.dataSet ?? DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
   vi.spyOn(actualWorkbench, 'getView').mockImplementation((name, id) => DataSet.prototype.getView.call(actualWorkbench, name, id) ?? workbench[name as keyof typeof workbench] as DataView | undefined)
-  Object.defineProperty(monitor.View_FlowObjList, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
+  Object.defineProperty(monitor.WFOBJ_FLOW, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
   return {
     instanceId: 'flow-run-page-mount',
     getDataSet: (id: string) => {

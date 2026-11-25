@@ -47,7 +47,7 @@ it.each([
     const view = ensureDataSetResourceView({dataSet, tableName, resource, columns})
     bindDataSetReadonlyCommandQuery(view, {resource, guard: () => {}, loadRows: async () => row ? [row] : []})
   }
-  bind(monitor, 'View_FlowObjList', instance)
+  bind(monitor, 'View_FlowObjList', name === 'runtime detail' ? instance : {...instance, rowid: 'WF-OTHER', TITLE: '另一流程', BusTblObjID: 'BUS-OTHER'})
   bind(monitor, 'WFOBJ_FLOW', instance)
   if (name !== 'runtime detail') bind(design, 'WFM_WORKFORM')
   bind(monitor, 'Dict_state')
@@ -107,11 +107,14 @@ it.each([
     }
     if (name === 'workflow run') {
       expect(wrapper.text()).toContain('流程实例摘要')
+      expect(wrapper.text()).not.toContain('另一流程')
       expect(wrapper.text()).toContain('步骤历史')
       expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`)
       return
     }
     const summary = wrapper.getComponent(RendererTable)
+    expect(wrapper.text()).toContain('流程实例摘要')
+    expect(wrapper.text()).not.toContain('另一流程')
     expect(summary.props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@WFOBJ_FLOW@default`)
     expect(summary.props('children')).toEqual(expect.arrayContaining([expect.objectContaining({props: expect.objectContaining({field: 'TITLE', label: '流程标题'})})]))
     expect(monitor.getView('WFOBJ_FLOW')?.rows[0]).toMatchObject(instance)

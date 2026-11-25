@@ -10,7 +10,6 @@ import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '../flow-runt
 import type {FlowAppendUserContext} from '../flow-append-user'
 
 const FLOW_OBJ_MODEL = 'WFOBJ_FLOW'
-const FLOW_LIST_MODEL = 'View_FlowObjList'
 const FORM_MODEL = 'WFM_WORKFORM'
 const OBJ_FORM_MODEL = 'WFOBJ_FLOW_FORM'
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
@@ -106,10 +105,24 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   if (!design) throw new Error('流程办理缺少设计场景伙伴')
   const workbench = command.runtime.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
   if (!workbench) throw new Error('流程办理缺少运行工作台场景伙伴')
-  const listView = requireView(monitor.getView(FLOW_LIST_MODEL, 'default'), FLOW_LIST_MODEL)
-  listView.queryContext = {...listView.queryContext, rowid: wfid}
   const flowView = requireView(monitor.getView(FLOW_OBJ_MODEL, 'default'), FLOW_OBJ_MODEL)
   flowView.queryContext = {...flowView.queryContext, rowid: wfid, wfid}
+  flowView.page = 1
+  await flowView.refresh()
+  command.assertCurrent?.()
+  if (flowView.loadingError) throw flowView.loadingError
+  const instance = flowView.rows[0]
+  if (!instance || flowView.rows.length !== 1 || flowView.total !== 1 || flowView.countReported === false || flowView.nextPageAvailable === true
+    || instance['rowid'] !== wfid || instance['WFMID'] !== flowid) {
+    throw new Error('流程办理缺少匹配的唯一正式实例')
+  }
+  const titleVisible = flowView.fieldAccess(instance, 'TITLE').read === 'visible'
+  const assertInstance = flowView.captureReadRow(instance, titleVisible ? ['rowid', 'WFMID', 'BusTblObjID', 'TITLE'] : ['rowid', 'WFMID', 'BusTblObjID'])
+  const businessKey = instance['BusTblObjID']
+  if (businessKey !== null && (typeof businessKey !== 'string' || businessKey !== businessKey.trim())) {
+    throw new Error('流程办理正式业务行键无效')
+  }
+  const title = titleVisible && typeof instance['TITLE'] === 'string' ? instance['TITLE'].trim() : ''
   const formView = requireView(design.getView(FORM_MODEL, 'default'), FORM_MODEL)
   formView.queryContext = {...formView.queryContext, FlowID: flowid, WFMID: flowid}
   const objectFormView = requireView(workbench.getView(OBJ_FORM_MODEL, 'default'), OBJ_FORM_MODEL)
@@ -119,24 +132,22 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   const commandInstanceView = requireView(workbench.getView(FLOW_OBJ_MODEL, 'default'), FLOW_OBJ_MODEL)
   commandInstanceView.queryContext = {...commandInstanceView.queryContext, rowid: wfid, wfid}
   command.assertCurrent?.()
-  await Promise.all([listView.refresh(), flowView.refresh(), formView.refresh(), objectFormView.refresh(), stepView.refresh(), commandInstanceView.refresh()])
+  await Promise.all([formView.refresh(), objectFormView.refresh(), stepView.refresh(), commandInstanceView.refresh()])
   command.assertCurrent?.()
-  const failed = [listView, flowView, formView, objectFormView, commandInstanceView].find(item => item.loadingError)
+  assertInstance()
+  const failed = [formView, objectFormView, commandInstanceView].find(item => item.loadingError)
   if (failed?.loadingError) throw failed.loadingError
   if (stepView.loadingError) throw stepView.loadingError
   const stepId = command.stepId?.trim() ?? ''
   if (stepId && stepView.rows.filter(isRecord).filter(row => String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === wfid).length !== 1) {
     throw new Error('指定办理步骤不在本次实例正式查询结果中')
   }
-  const instance = listView.rows.find(isRecord) ?? flowView.rows.find(isRecord)
-  const title = instance ? firstText(instance, ['TITLE', 'title', 'AppDesc']) : wfid
-  const busRowId = instance ? firstText(instance, ['BusTblObjID', 'busRowId', 'busrowid']) : ''
   const formTabs = buildFormTabs(formView.rows.filter(isRecord), objectFormView.rows.filter(isRecord), wfid)
   return {
     instanceTitle: title || wfid,
     flowObjectId: wfid,
     flowModelId: flowid,
-    busRowId,
+    busRowId: businessKey ?? '',
     stepId,
     formTabs,
     userDirectoryViewKey: buildDataViewKey('Base_UserInfo', 'default', FLOW_MONITOR_SCENARIO_ID),

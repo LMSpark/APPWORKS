@@ -5069,7 +5069,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.811Z"
+      "sourceModifiedAt": "2026-11-25T23:02:38.502Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts",

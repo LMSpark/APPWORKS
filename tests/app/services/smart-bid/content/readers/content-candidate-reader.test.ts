@@ -777,3 +777,43 @@ it('verifies three revision roots without invalidating another role baseline pro
   results.candidate.assertCurrent();results.basis?.assertCurrent()
  }finally{f.ds.destroy()}
 })
+
+it.each(['candidate-read','evidence-read'] as const)('keeps the original production input during %s',async waitFor=>{
+ const f=await fixture('populated',{computeRoot:true})
+ const selection:{candidateRevisionId:string;expectedHead:string|null}={candidateRevisionId:'C',expectedHead:null}
+ const request={projectId:'P',documentId:'D',revisionId:'C',baselineId:'B',requestKey:'ORIGINAL',
+  toolVersionRef:'TOOL',outputOptions:{format:'PDF',print:{copies:1}}}
+ const changed=()=>{
+  selection.candidateRevisionId='OTHER'
+  selection.expectedHead='NEW_HEAD'
+  request.revisionId='OTHER'
+  request.requestKey='REPLACEMENT'
+  request.toolVersionRef='OTHER_TOOL'
+  request.outputOptions.format='DOCX'
+  request.outputOptions.print.copies=2
+ }
+ const execute=f.query.getMockImplementation()
+ if(!execute)throw Error('Expected the original query executor')
+ let enter!:()=>void,release!:()=>void
+ const entered=new Promise<void>(resolve=>{enter=resolve})
+ const waiting=new Promise<void>(resolve=>{release=resolve})
+ const wait=async()=>{enter();await waiting}
+ if(waitFor==='candidate-read')f.query.mockImplementationOnce(async view=>{await wait();return execute(view)})
+ const readEvidence=vi.fn<Parameters<typeof prepareCandidateProduction>[2]>(async version=>{
+  if(waitFor==='evidence-read')await wait()
+  return {...version,templateVersionRef:'T1',ruleVersionRef:'RULE',factRefs:[],
+   formRequired:false,formVersionRef:null,requiredAttachmentRefs:[],attachmentRefs:[]}
+ })
+ try{
+  const pending=prepareCandidateProduction(f.host,{selection,request},readEvidence)
+  await entered
+  changed()
+  release()
+  const prepared=await pending
+  expect(readEvidence).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({documentId:'D',revisionId:'C',baselineId:'B'}))
+  expect(prepared.request).toMatchObject({documentId:'D',revisionId:'C',requestKey:'ORIGINAL',toolVersionRef:'TOOL',
+   outputOptions:{format:'PDF',print:{copies:1}},rootHash:expect.stringMatching(/^[a-f0-9]{64}$/u)})
+  expect(()=>prepared.assertCurrent()).not.toThrow()
+  expect(f.save).not.toHaveBeenCalled()
+ }finally{release();f.ds.destroy()}
+})

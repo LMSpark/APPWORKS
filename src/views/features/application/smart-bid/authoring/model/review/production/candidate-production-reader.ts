@@ -15,7 +15,8 @@ export async function prepareCandidateProduction(
  input:Readonly<{selection:Parameters<typeof readCandidateContent>[1];request:Omit<Production[0],'purpose'>}>,
  readEvidence:(version:Production[1])=>Promise<Production[2]>,
 ){
- const {selection,request}=input
+ const selection={...input.selection}
+ const request={...input.request,outputOptions:structuredClone(input.request.outputOptions)}
  if(request.projectId!==host.projectId||request.revisionId!==selection.candidateRevisionId)
   throw Error('BID_PRODUCTION_CANDIDATE_SCOPE')
  const candidate=await readCandidateContent(host,selection)
@@ -26,7 +27,7 @@ export async function prepareCandidateProduction(
  if(snapshot.index.baselineId!==request.baselineId||!isRecord(payload)||payload['type']!=='document')
   throw Error('BID_PRODUCTION_DOCUMENT_REQUIRED')
  const root=await candidate.verifyRootHash(CONTENT_ROOT_HASH_CONTRACT)
- const version=Object.freeze({projectId:host.projectId,documentId:request.documentId,revisionId:selection.candidateRevisionId,
+ const version=Object.freeze({projectId:request.projectId,documentId:request.documentId,revisionId:selection.candidateRevisionId,
   baselineId:snapshot.index.baselineId,state:'CANDIDATE' as const,rootHash:root.rootHash,assertCurrent:root.assertCurrent})
  const evidence=await readEvidence(version)
  return prepareProductionRequest({...request,purpose:'REVIEW'},version,evidence)

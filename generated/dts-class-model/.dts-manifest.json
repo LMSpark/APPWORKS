@@ -5419,7 +5419,7 @@
     "src/services/smart-bid/content/draft/content-draft-save-recovery.ts": {
       "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
       "shardFile": "files/src/services/smart-bid/content/draft/content-draft-save-recovery.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.899Z"
+      "sourceModifiedAt": "2026-11-25T22:11:37.838Z"
     },
     "src/services/smart-bid/content/draft/content-draft-save-request.ts": {
       "sourceFile": "src/services/smart-bid/content/draft/content-draft-save-request.ts",
@@ -6544,7 +6544,7 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.127Z"
+      "sourceModifiedAt": "2026-11-25T22:11:37.840Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",

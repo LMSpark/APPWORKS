@@ -176,36 +176,6 @@
         }
       ]
     },
-    "SaveComparison": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SaveComparison",
-      "properties": {
-        "savedVersion": {
-          "type": "string"
-        },
-        "receiptRef": {
-          "type": "string"
-        },
-        "currentState": {
-          "enum": [
-            "MATCHED",
-            "NEWER_EDITS"
-          ]
-        },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        }
-      },
-      "required": [
-        "savedVersion",
-        "receiptRef",
-        "currentState",
-        "assertCurrent"
-      ],
-      "additionalProperties": false
-    },
     "CandidatePreviewInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -385,7 +355,7 @@
         },
         "method.readOriginalSave.return": {
           "type": "object",
-          "title": "Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>"
+          "title": "Promise<OriginalSave & Readonly<{\n        comparison?: SavedContentDraftComparison;\n    }>>"
         },
         "method.readVolumePlanningObligations.params": {
           "type": "object",
@@ -481,7 +451,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.127Z",
+  "generatedAt": "2026-11-25T22:11:37.840Z",
   "models": {
     "Binding": {
       "name": "Binding",
@@ -585,45 +555,6 @@
         "members": {}
       }
     },
-    "SaveComparison": {
-      "name": "SaveComparison",
-      "jsdoc": "原回执与当前草稿在同一版本下的比较结果。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Awaited<ReturnType<typeof reconcileSavedContentDraft>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Awaited<ReturnType<typeof reconcileSavedContentDraft>>",
-            "targetName": "Awaited"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "savedVersion",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "receiptRef",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "currentState",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "assertCurrent",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
     "CandidatePreviewInput": {
       "name": "CandidatePreviewInput",
       "jsdoc": "",
@@ -709,11 +640,11 @@
       "jsdoc": "脚本句柄只有业务能力和选择代次，没有业务数据副本。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SavedContentDraftComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SaveComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n    select: () => void;\n    cancel: () => void;\n    setInputPending: (pending: boolean) => void;\n    canLeave: boolean;\n    canCancel: boolean;\n    canEditDraft: boolean;\n    actionProps: (label: string, path: JsonPath | null) => Readonly<{\n        disabled: boolean;\n        onClick: () => void;\n    }>;\n    editorProps: (path: JsonPath) => Readonly<Record<string, unknown>>;\n    readOriginalSave: (input: SaveReadInput) => Promise<OriginalSave & Readonly<{\n        comparison?: SavedContentDraftComparison;\n    }>>;\n    readVolumePlanningObligations: () => ReturnType<typeof readBaselineSubmissionObligations>;\n    readOriginalAdoption: (input: ContentAdoptionSelection) => ReturnType<typeof inspectRegisteredAdoption>;\n    readCurrentHead: () => Promise<Readonly<{\n        headRevisionId: string | null;\n        assertCurrent: () => void;\n    }>>;\n    readOriginalForm: (selection: Parameters<typeof readRegisteredOriginalForm>[1]) => ReturnType<typeof readRegisteredOriginalForm>;\n    compareOriginalForms: (selection: Parameters<typeof compareRegisteredOriginalForms>[1]) => ReturnType<typeof compareRegisteredOriginalForms>;\n    previewCandidate: (selection: ContentRevisionSelection, options: CandidatePreviewInput) => ReturnType<ContentCandidateBinding['previewScope']>;\n    captureCandidateDraft: () => ReturnType<ContentAuthoringCommands['captureCandidateDraft']>;\n    prepareDraftCandidate: (input: DraftCandidateInput) => ReturnType<typeof prepareRegisteredDraftCandidateRequest>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -876,7 +807,7 @@
                         "typeArguments": [
                           {
                             "type": "unknown",
-                            "name": "{\n        comparison?: SaveComparison;\n    }"
+                            "name": "{\n        comparison?: SavedContentDraftComparison;\n    }"
                           }
                         ]
                       }

@@ -15,6 +15,20 @@ type Receipt=Request&Readonly<{assertCurrent:()=>void}>&(
  Readonly<{state:'UNKNOWN'}>
 )
 
+/** 当前正式草稿与原保存回执的版本和内容核验结果。 */
+export type SavedContentDraftComparison=Readonly<{
+ /** 原保存回执确认的版本。 */
+ savedVersion:string
+ /** 当前查询可读并已核验的已保存版本。 */
+ currentVersion:string
+ /** 原保存回执的正式引用。 */
+ receiptRef:string
+ /** 同版同内容、版本差异及同版内容差异各有独立结论。 */
+ currentState:'MATCHED'|'VERSION_MISMATCH'|'CONTENT_MISMATCH'
+ /** 重新校验原回执、当前结果及捕获的版本和内容。 */
+ assertCurrent:()=>void
+}>
+
 /** 不依赖旧页面绑定；冷重开时用本次查询权读取原回执。 */
 export async function readOriginalContentDraftSave(input:Request,source:Readonly<{
  lookup:(request:Request)=>Promise<Receipt|undefined>;assertCurrent:()=>void
@@ -41,21 +55,25 @@ export async function readOriginalContentDraftSave(input:Request,source:Readonly
   draftVersion:receipt.draftVersion,receiptRef:receipt.receiptRef,contentDigest,assertCurrent})
 }
 
-/** 迟到回执只确认已发送的原快照，保留回执之后发生的编辑。 */
+/** 将原保存版本与当前正式读取的已保存草稿比较，版本与内容各自验证。 */
 export async function reconcileSavedContentDraft(
  saved:Extract<Awaited<ReturnType<typeof readOriginalContentDraftSave>>,{state:'SAVED'}>,
- current:Readonly<{projectId:string;draftId:string;authorId:string;draft:unknown;assertCurrent:()=>void}>){
+ current:Readonly<{projectId:string;draftId:string;authorId:string;draftVersion:string;draft:unknown;assertCurrent:()=>void}>):Promise<SavedContentDraftComparison>{
  const assertCurrent=()=>{saved.assertCurrent();current.assertCurrent()}
  assertCurrent()
  if(current.projectId!==saved.projectId||current.draftId!==saved.draftId||current.authorId!==saved.authorId)
   throw Error('CONTENT_DRAFT_SAVE_RECEIPT_SCOPE')
+ const currentVersion=current.draftVersion
+ if(!identity(currentVersion))throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
  const snapshot=canonicalSnapshotValue(current.draft)
+ const assertSnapshot=()=>{
+  assertCurrent()
+  if(current.draftVersion!==currentVersion||canonicalSnapshotValue(current.draft)!==snapshot)throw Error('CONTENT_DRAFT_SAVE_STALE')
+ }
  const contentDigest=await hashCanonicalSnapshotText(snapshot)
- assertCurrent()
- if(canonicalSnapshotValue(current.draft)!==snapshot)throw Error('CONTENT_DRAFT_SAVE_STALE')
- return Object.freeze({savedVersion:saved.draftVersion,receiptRef:saved.receiptRef,
-  currentState:contentDigest===saved.contentDigest?'MATCHED':'NEWER_EDITS',assertCurrent:()=>{
-   assertCurrent()
-   if(canonicalSnapshotValue(current.draft)!==snapshot)throw Error('CONTENT_DRAFT_SAVE_STALE')
-  }})
+ assertSnapshot()
+ const currentState=currentVersion!==saved.draftVersion ? 'VERSION_MISMATCH'
+  : contentDigest===saved.contentDigest ? 'MATCHED' : 'CONTENT_MISMATCH'
+ return Object.freeze({savedVersion:saved.draftVersion,currentVersion,receiptRef:saved.receiptRef,
+  currentState,assertCurrent:assertSnapshot})
 }

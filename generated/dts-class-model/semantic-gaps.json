@@ -101817,61 +101817,13 @@
     },
     {
       "kind": "attribute",
-      "className": "SaveComparison",
-      "memberName": "assertCurrent",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveComparison.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 24,
-      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "SaveComparison",
-      "memberName": "currentState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveComparison.currentState 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 24,
-      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "SaveComparison",
-      "memberName": "receiptRef",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveComparison.receiptRef 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 24,
-      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "SaveComparison",
-      "memberName": "savedVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "SaveComparison.savedVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 24,
-      "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
       "className": "CandidatePreviewInput",
       "memberName": "declaredAddedNodeIds",
       "reason": "missing-jsdoc",
       "chainBreak": "CandidatePreviewInput.declaredAddedNodeIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 25,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -101883,7 +101835,7 @@
       "chainBreak": "CandidatePreviewInput.originalFormTemplate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 25,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -101895,7 +101847,7 @@
       "chainBreak": "CandidatePreviewInput.volumeDestinations 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 25,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -101906,7 +101858,7 @@
       "chainBreak": "CandidatePreviewInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 25,
+      "declarationLine": 23,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -101917,7 +101869,7 @@
       "chainBreak": "DraftCandidateInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 26,
+      "declarationLine": 24,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -101929,7 +101881,7 @@
       "chainBreak": "DraftCandidateInput.requestKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 27,
+      "declarationLine": 25,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -101941,7 +101893,7 @@
       "chainBreak": "DraftCandidateInput.targetScope 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 28,
+      "declarationLine": 26,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -101953,7 +101905,7 @@
       "chainBreak": "DraftCandidateInput.firstBatchId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 29,
+      "declarationLine": 27,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -101965,7 +101917,7 @@
       "chainBreak": "DraftCandidateInput.targetScopeIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 30,
+      "declarationLine": 28,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -101977,7 +101929,7 @@
       "chainBreak": "DraftCandidateInput.declaredAddedNodeIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 31,
+      "declarationLine": 29,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -101988,7 +101940,7 @@
       "chainBreak": "PublishedContentAuthoringInvoke 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 33,
+      "declarationLine": 31,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102000,7 +101952,7 @@
       "chainBreak": "ContentAuthoringScriptSession.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 45,
+      "declarationLine": 43,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102012,7 +101964,7 @@
       "chainBreak": "ContentAuthoringScriptSession.select 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 46,
+      "declarationLine": 44,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102024,7 +101976,7 @@
       "chainBreak": "ContentAuthoringScriptSession.cancel 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 47,
+      "declarationLine": 45,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102036,7 +101988,7 @@
       "chainBreak": "ContentAuthoringScriptSession.setInputPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 48,
+      "declarationLine": 46,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102048,7 +102000,7 @@
       "chainBreak": "ContentAuthoringScriptSession.canLeave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 49,
+      "declarationLine": 47,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -102060,7 +102012,7 @@
       "chainBreak": "ContentAuthoringScriptSession.canCancel 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 50,
+      "declarationLine": 48,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -102072,7 +102024,7 @@
       "chainBreak": "ContentAuthoringScriptSession.canEditDraft 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 51,
+      "declarationLine": 49,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "interface"
     },
@@ -102084,7 +102036,7 @@
       "chainBreak": "ContentAuthoringScriptSession.actionProps 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 52,
+      "declarationLine": 50,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102096,7 +102048,7 @@
       "chainBreak": "ContentAuthoringScriptSession.editorProps 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 56,
+      "declarationLine": 54,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102108,7 +102060,7 @@
       "chainBreak": "ContentAuthoringScriptSession.readOriginalSave 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 57,
+      "declarationLine": 55,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102120,7 +102072,7 @@
       "chainBreak": "ContentAuthoringScriptSession.readVolumePlanningObligations 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 60,
+      "declarationLine": 58,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102132,7 +102084,7 @@
       "chainBreak": "ContentAuthoringScriptSession.readOriginalAdoption 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 61,
+      "declarationLine": 59,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102144,7 +102096,7 @@
       "chainBreak": "ContentAuthoringScriptSession.readCurrentHead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 62,
+      "declarationLine": 60,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102156,7 +102108,7 @@
       "chainBreak": "ContentAuthoringScriptSession.readOriginalForm 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 66,
+      "declarationLine": 64,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102168,7 +102120,7 @@
       "chainBreak": "ContentAuthoringScriptSession.compareOriginalForms 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 67,
+      "declarationLine": 65,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102180,7 +102132,7 @@
       "chainBreak": "ContentAuthoringScriptSession.previewCandidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 68,
+      "declarationLine": 66,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102192,7 +102144,7 @@
       "chainBreak": "ContentAuthoringScriptSession.captureCandidateDraft 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 69,
+      "declarationLine": 67,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },
@@ -102204,7 +102156,7 @@
       "chainBreak": "ContentAuthoringScriptSession.prepareDraftCandidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
-      "declarationLine": 70,
+      "declarationLine": 68,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "declarationKind": "typeAlias"
     },

@@ -18,15 +18,13 @@ import {readCandidateContent,type ContentCandidateBinding} from '../../model/con
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionSelection} from '../../model/content-revision-reader'
 import {prepareRegisteredDraftCandidateRequest,readDraftCandidateBasis} from '../../model/draft/content-draft-candidate-basis'
 import {readRegisteredOriginalContentDraftSave} from '../../model/content-draft-save-reader'
-import {reconcileSavedContentDraft} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
+import {reconcileSavedContentDraft,type SavedContentDraftComparison} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 import {decodeContentDraftPayload} from '@/services/smart-bid/content-draft-save-rule'
 type Binding=Pick<ContentAuthoringBinding,'runtime'|'dataViewKey'|'projectId'|'draftId'|'actorUserId'|'assertCurrent'|'setPending'>
 /** 定位原保存办理的请求和内容摘要。 */
 type SaveReadInput=Parameters<typeof readRegisteredOriginalContentDraftSave>[1]
 /** 从正式办理记录读取的原保存结果。 */
 type OriginalSave=Awaited<ReturnType<typeof readRegisteredOriginalContentDraftSave>>
-/** 原回执与当前草稿在同一版本下的比较结果。 */
-type SaveComparison=Awaited<ReturnType<typeof reconcileSavedContentDraft>>
 type CandidatePreviewInput=Parameters<ContentCandidateBinding['previewScope']>[0]
 type DraftCandidateInput=Readonly<{
  requestKey:string;targetScope?:unknown;firstBatchId?:string;targetScopeIndex?:number;declaredAddedNodeIds?:readonly string[]
@@ -122,7 +120,7 @@ export type ContentAuthoringScriptSession=Readonly<{
  canLeave:boolean;canCancel:boolean;canEditDraft:boolean
  actionProps:(label:string,path:JsonPath|null)=>Readonly<{disabled:boolean;onClick:()=>void}>
  editorProps:(path:JsonPath)=>Readonly<Record<string,unknown>>
- readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SaveComparison}>>
+ readOriginalSave:(input:SaveReadInput)=>Promise<OriginalSave&Readonly<{comparison?:SavedContentDraftComparison}>>
  readVolumePlanningObligations:()=>ReturnType<typeof readBaselineSubmissionObligations>
  readOriginalAdoption:(input:ContentAdoptionSelection)=>ReturnType<typeof inspectRegisteredAdoption>
  readCurrentHead:()=>Promise<Readonly<{headRevisionId:string|null;assertCurrent:()=>void}>>
@@ -298,21 +296,21 @@ export function createContentAuthoringScriptHost(binding:Binding,commands:Conten
      if(!view)return receipt
      const isLocal=()=>view.hasEditingChanges(draftId)||view.dirtyTracking.hasPendingChanges(draftId)
      const localChanges=isLocal()
-     const assertComparison=()=>{
-      assertCurrent()
-      if(runtime.resolveView(binding.dataViewKey)!==view||isLocal()!==localChanges)
-       throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
-     }
-     const draft=()=>{
-      assertComparison()
-      const row=view.rows.find(item=>view.getPkKey(item)===draftId)
-      if(commands.hasPendingInput||!row||view.fieldAccess(row,'draft').read!=='visible')
-       throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
-      return view.getEditingRow(draftId)?.['draft']
-     }
      try{
+      const row=view.rows.find(item=>view.getPkKey(item)===draftId)
+      if(!row)return receipt
+      const rowProof=view.captureReadRow(row,['draftVersion','draft']),resultProof=view.captureReadResult()
+      const draftVersion=row['draftVersion']
+      if(!identity(draftVersion))return receipt
+      const draft=decodeContentDraftPayload(row['draft'])
+      const assertComparison=()=>{
+       assertCurrent()
+       if(runtime.resolveView(binding.dataViewKey)!==view||isLocal()!==localChanges||commands.hasPendingInput)
+        throw Error('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
+       resultProof();rowProof()
+      }
       const comparison=await reconcileSavedContentDraft(receipt,{
-       projectId,draftId,authorId:actorUserId,get draft(){return draft()},assertCurrent:assertComparison,
+       projectId,draftId,authorId:actorUserId,draftVersion,draft,assertCurrent:assertComparison,
       })
       return Object.freeze({...receipt,comparison:Object.freeze({...comparison,localChanges})})
      }catch{

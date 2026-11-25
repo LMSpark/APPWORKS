@@ -28,12 +28,20 @@ it('seals the original content and distinguishes saves against different draft v
  const receipt=await recover(async request=>({...request,state:'SAVED',draftVersion:'V2',receiptRef:'SAVE',assertCurrent}))
  expect(receipt).toMatchObject({state:'SAVED',draftVersion:'V2',contentDigest:sealed.contentDigest})
  if(receipt.state!=='SAVED')throw Error('EXPECTED_DRAFT_RECEIPT')
- const edit={projectId:'P',draftId:'D',authorId:'U',draft:{nodes:[],responseChanges:[] as string[]},assertCurrent}
+ const edit={projectId:'P',draftId:'D',authorId:'U',draftVersion:'V2',draft:{nodes:[],responseChanges:[] as string[]},assertCurrent}
  const matched=await reconcileSavedContentDraft(receipt,edit)
- expect(matched.currentState).toBe('MATCHED')
+ expect(matched).toMatchObject({currentVersion:'V2',currentState:'MATCHED'})
+ edit.draftVersion='V3'
+ expect(()=>matched.assertCurrent()).toThrow('CONTENT_DRAFT_SAVE_STALE')
+ expect(await reconcileSavedContentDraft(receipt,edit)).toMatchObject({
+  savedVersion:'V2',currentVersion:'V3',currentState:'VERSION_MISMATCH',
+ })
+ await expect(reconcileSavedContentDraft(receipt,{...edit,draftVersion:''}))
+  .rejects.toThrow('CONTENT_DRAFT_SAVE_COMPARISON_UNAVAILABLE')
+ edit.draftVersion='V2'
  edit.draft.responseChanges.push('later change')
  expect(()=>matched.assertCurrent()).toThrow('CONTENT_DRAFT_SAVE_STALE')
- expect(await reconcileSavedContentDraft(receipt,edit)).toMatchObject({savedVersion:'V2',currentState:'NEWER_EDITS'})
+ expect(await reconcileSavedContentDraft(receipt,edit)).toMatchObject({savedVersion:'V2',currentState:'CONTENT_MISMATCH'})
  expect(edit.draft.responseChanges).toEqual(['later change'])
  await expect(recover(async request=>({...request,state:'SAVED',draftVersion:'V3',receiptRef:'LATER',
   requestKey:'OTHER',assertCurrent}))).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_SCOPE')

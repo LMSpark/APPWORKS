@@ -17937,7 +17937,9 @@
         "modulePath": "services/smart-bid/content/draft/content-draft-save-recovery",
         "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-recovery\n职责：按原请求、作者和内容摘要核验权威草稿保存回执。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": []
+        "symbols": [
+          "SavedContentDraftComparison"
+        ]
       }
     },
     "src/services/smart-bid/content/draft/content-draft-save-request.ts": {
@@ -31220,6 +31222,10 @@
     "SaveDataSetAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
+    },
+    "SavedContentDraftComparison": {
+      "sourcePath": "src/services/smart-bid/content/draft/content-draft-save-recovery.ts",
+      "file": "files/src/services/smart-bid/content/draft/content-draft-save-recovery.ts.json"
     },
     "SaveFlowDesignCommand": {
       "sourcePath": "src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-save.ts",

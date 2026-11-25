@@ -9,7 +9,9 @@
     "modulePath": "services/smart-bid/content/draft/content-draft-save-recovery",
     "jsdoc": "@module app:services/smart-bid/content/draft/content-draft-save-recovery\n职责：按原请求、作者和内容摘要核验权威草稿保存回执。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "symbols": [
+      "SavedContentDraftComparison"
+    ]
   },
   "$defs": {
     "Prepared": {
@@ -161,9 +163,41 @@
         "contentDigest",
         "authorId"
       ]
+    },
+    "SavedContentDraftComparison": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SavedContentDraftComparison",
+      "properties": {
+        "savedVersion": {
+          "type": "string"
+        },
+        "currentVersion": {
+          "type": "string"
+        },
+        "receiptRef": {
+          "type": "string"
+        },
+        "currentState": {
+          "enum": [
+            "MATCHED",
+            "VERSION_MISMATCH",
+            "CONTENT_MISMATCH"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.899Z",
+  "generatedAt": "2026-11-25T22:11:37.838Z",
   "models": {
     "Prepared": {
       "name": "Prepared",
@@ -291,6 +325,60 @@
           "methods": [
             {
               "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SavedContentDraftComparison": {
+      "name": "SavedContentDraftComparison",
+      "jsdoc": "当前正式草稿与原保存回执的版本和内容核验结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原保存回执确认的版本。 */\n    savedVersion: string;\n    /** 当前查询可读并已核验的已保存版本。 */\n    currentVersion: string;\n    /** 原保存回执的正式引用。 */\n    receiptRef: string;\n    /** 同版同内容、版本差异及同版内容差异各有独立结论。 */\n    currentState: 'MATCHED' | 'VERSION_MISMATCH' | 'CONTENT_MISMATCH';\n    /** 重新校验原回执、当前结果及捕获的版本和内容。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原保存回执确认的版本。 */\n    savedVersion: string;\n    /** 当前查询可读并已核验的已保存版本。 */\n    currentVersion: string;\n    /** 原保存回执的正式引用。 */\n    receiptRef: string;\n    /** 同版同内容、版本差异及同版内容差异各有独立结论。 */\n    currentState: 'MATCHED' | 'VERSION_MISMATCH' | 'CONTENT_MISMATCH';\n    /** 重新校验原回执、当前结果及捕获的版本和内容。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "savedVersion",
+              "jsdoc": "原保存回执确认的版本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentVersion",
+              "jsdoc": "当前查询可读并已核验的已保存版本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiptRef",
+              "jsdoc": "原保存回执的正式引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentState",
+              "jsdoc": "同版同内容、版本差异及同版内容差异各有独立结论。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "重新校验原回执、当前结果及捕获的版本和内容。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

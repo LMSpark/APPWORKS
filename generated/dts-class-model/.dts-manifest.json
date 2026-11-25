@@ -7494,7 +7494,7 @@
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.202Z"
+      "sourceModifiedAt": "2026-11-25T21:36:34.203Z"
     },
     "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",

@@ -79,18 +79,17 @@ const closeBlocked=computed(()=>{revision.value;if(saving.value||acting.value)re
 watch(closeBlocked,value=>emit('closeBlocked',value),{immediate:true})
 useSystemPageDirtySource({get isDirty(){return closeBlocked.value}})
 const draggableNodeKeys = computed(() => {
+  revision.value
   const runtime = sparkConsume(PAGE_RUNTIME)
   const key = prepared.value?.nodeViewKey
   if (!runtime || !key) return []
-  const rows = runtime.resolveView(key)?.rows ?? []
-  const keys: Array<string | number> = []
-  for (const row of rows) {
-    if (!row || typeof row !== 'object') continue
-    const id = row['rowid'] ?? row['ROWID']
-    if (typeof id === 'string' && id.trim()) keys.push(id)
-    else if (typeof id === 'number' && !Number.isNaN(id)) keys.push(id)
-  }
-  return keys
+  const view = runtime.resolveView(key)
+  if (!view || view.destroyed) return []
+  return view.rows.flatMap(row => {
+    if (view.fieldAccess(row, view.primaryKey).read !== 'visible') return []
+    const id = view.getPkKey(row)
+    return id === undefined ? [] : [id]
+  })
 })
 const nodeHighlightId = computed(() => graphSelection.value?.kind === 'node' ? graphSelection.value.id : null)
 const edgeHighlightId = computed(() => graphSelection.value?.kind === 'edge' ? graphSelection.value.id : null)

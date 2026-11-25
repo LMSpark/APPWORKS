@@ -50,7 +50,10 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
   return {
     ...actual,
-    RendererGraph: {name: 'RendererGraph', props: {disabled: Boolean}, template: '<div data-testid="flow-graph">流程图</div>'},
+    RendererGraph: {
+      name: 'RendererGraph', props: {disabled: Boolean, draggableKeys: Array, connectableKeys: Array},
+      template: '<div data-testid="flow-graph">流程图</div>',
+    },
   }
 })
 
@@ -206,9 +209,15 @@ describe('flow design page mount', () => {
     const add=wrapper.findAll('button').find(button=>button.text().includes('新增节点'))!
     await add.trigger('click');await flushPromises()
     expect(nodes.rows).toHaveLength(2);expect(currentPage.isDirty).toBe(true)
+    const graph = wrapper.getComponent({name: 'RendererGraph'})
+    const displayKeys = nodes.rows.map(row => nodes.getPkKey(row))
+    expect(graph.props('draggableKeys')).toEqual(displayKeys)
+    expect(graph.props('connectableKeys')).toEqual(displayKeys)
     const cancel=wrapper.findAll('button').find(button=>button.text().includes('取消修改'))!
     await cancel.trigger('click');await flushPromises()
     expect(nodes.rows.map(row=>row['rowid'])).toEqual(['N1']);expect(currentPage.isDirty).toBe(false)
+    expect(graph.props('draggableKeys')).toEqual(['N1'])
+    expect(graph.props('connectableKeys')).toEqual(['N1'])
   })
 
   it('retains the original dirty workspace when its parent supplies another target',async()=>{

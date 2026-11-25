@@ -1225,13 +1225,13 @@
     {
       "expression": "/api/File/inspect/limits",
       "sourceFile": "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/task-api.ts",
-      "sourceLine": 58,
+      "sourceLine": 59,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/inspect/{dynamic}",
       "sourceFile": "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/task-api.ts",
-      "sourceLine": 77,
+      "sourceLine": 81,
       "scope": "app-composition"
     },
     {

@@ -31,3 +31,41 @@ it('rejects a wrong service page instead of presenting it under the requested pa
  const {api,http}=fixture();http.result={page:1,pageSize:1,total:7,items:[]}
  await expect(api.history({page:2,pageSize:1})).rejects.toThrow('回执页不匹配')
 })
+
+const historyItem = {inspectJobId:'JOB',requestId:'REQ',configId:'RULE',status:'COMPLETED'}
+
+it.each([
+ {total:1, items:[historyItem]},
+ {total:65, items:[historyItem]},
+ {total:22, items:[historyItem,{...historyItem,inspectJobId:'OTHER'}]},
+])('rejects contradictory history evidence (total $total)',async ({total,items})=>{
+ const {api,http}=fixture()
+ http.result={page:2,pageSize:20,total,items}
+ await expect(api.history({page:2,pageSize:20})).rejects.toThrow('PDF_INSPECTION_PAGE')
+ expect(http.requests).toHaveLength(1)
+})
+
+it.each([{total:21,items:[historyItem]},{total:1,items:[]}])('accepts a consistent last or out-of-range history page (total $total)',async ({total,items})=>{
+ const {api,http}=fixture()
+ http.result={page:2,pageSize:20,total,items}
+ await expect(api.history({page:2,pageSize:20})).resolves.toMatchObject({total,items})
+})
+
+it.each([
+ {finished:1,files:[{fileId:'A'}]},
+ {finished:2,files:[{fileId:'A'}]},
+ {finished:2,files:[{fileId:'A'},{fileId:'A'}]},
+ {finished:2,files:[{fileId:'A'},{}]},
+])('rejects incomplete or ambiguous completion evidence (finished $finished)',async ({finished,files})=>{
+ const {api,http}=fixture()
+ http.result={protocolVersion:'2.0',inspectJobId:'JOB',requestId:'REQ',status:'COMPLETED',progress:{total:2,finished},files}
+ await expect(api.result('JOB')).rejects.toThrow('PDF_INSPECTION_RECEIPT')
+ await expect(api.recover('REQ')).rejects.toThrow('PDF_INSPECTION_RECEIPT')
+ expect(http.requests.map(request=>request.url.split('/').at(-1))).toEqual(['result','recover'])
+})
+
+it.each(['RUNNING','FAILED','CANCELLED'])('preserves consistent partial file evidence for %s',async status=>{
+ const {api,http}=fixture(), files=[{fileId:'zip_entry',sourceFileId:'ARCHIVE'}]
+ http.result={protocolVersion:'2.0',inspectJobId:'JOB',requestId:'REQ',status,progress:{total:2,finished:1},files}
+ await expect(api.result('JOB')).resolves.toMatchObject({status,files,progress:{total:2,finished:1}})
+})

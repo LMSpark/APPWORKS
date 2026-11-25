@@ -38,7 +38,7 @@ function assemble(table:string|undefined,http:HttpClientBase){
  return new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:PDF_INSPECTION_SCENARIO_ID,name:'PDF核验'},models:[],relations:[],projectionBindings,commandBindings}).dataSet
 }
 
-it('records the original request before dispatch and recovers it without replaying init',async()=>{
+it('keeps an incomplete recovery pending and settles the original request without replaying init',async()=>{
  const http=new class extends HttpClientBase{
   calls:RequestConfig[]=[]
   protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
@@ -48,10 +48,11 @@ it('records the original request before dispatch and recovers it without replayi
    if(config.url.endsWith('/init'))throw Error('reply lost')
    expect(config.url).toBe('/api/File/inspect/recover')
    expect(config.data).toEqual({requestId})
-   return{data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[]}},status:200,statusText:'OK',headers:{}}
+   const files=this.calls.length===2?[]:[{fileId:uploadId}]
+   return{data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files}},status:200,statusText:'OK',headers:{}}
   }
  }()
- let requestId=''
+ let requestId='',uploadId=''
  const upload=vi.spyOn(LowcodeDesignFileUpload.prototype,'uploadBinaryVersion').mockResolvedValue({
   templatePath:'/tenant/filedata/original.pdf',locator:{appType:'filedata',customPath:'',fileName:'original.pdf'},
  })
@@ -60,7 +61,7 @@ it('records the original request before dispatch and recovers it without replayi
  try{
   const uploadView=dataSet.getView(PDF_INSPECTION_UPLOAD_TABLE)!,initView=dataSet.getView(PDF_INSPECTION_INIT_TABLE)!
   await uploadView.refresh();await initView.refresh()
-  const uploadId=await stagePdfInspectionFile(dataSet,new File(['%PDF-fixture'],'original.pdf'),()=>{})
+  uploadId=await stagePdfInspectionFile(dataSet,new File(['%PDF-fixture'],'original.pdf'),()=>{})
   const input={configId:'RULE',uploadIds:[uploadId],assertRule:()=>{},resolveRecoveryUrl:(id:string)=>`/pdf?pdfInspectionRequestId=${id}`}
   await expect(stagePdfInspectionTask(dataSet,input)).rejects.toThrow('尚无确认回执')
   await dataSet.saveChanges({views:[{tableName:PDF_INSPECTION_UPLOAD_TABLE,viewId:'default',ids:[uploadId]}]})
@@ -71,9 +72,12 @@ it('records the original request before dispatch and recovers it without replayi
   expect(http.calls[0]?.data).toEqual({requestId,configId:'RULE',files:[{fileId:uploadId,appType:'filedata',filePath:'/tenant/filedata/original.pdf'}]})
   expect(initView.hasUnconfirmedSave).toBe(true)
   await expect(stagePdfInspectionTask(dataSet,input)).rejects.toThrow('原命令未就绪')
+  await expect(save()).rejects.toThrow('原请求仍未核定')
+  expect(initView.hasUnconfirmedSave).toBe(true)
+  expect(Object.values(window.localStorage)).toContain(JSON.stringify({version:1,requestId,recoveryUrl:`/pdf?pdfInspectionRequestId=${requestId}`}))
   await save()
   expect(initView.rows).toMatchObject([{requestId,inspectJobId:'JOB'}])
-  expect(http.calls.map(call=>call.url)).toEqual(['/api/File/inspect/init','/api/File/inspect/recover'])
+  expect(http.calls.map(call=>call.url.split('/').at(-1))).toEqual(['init','recover','recover'])
   expect(upload).toHaveBeenCalledTimes(1)
   settlePdfInspectionTask(dataSet,requestId)
   expect(Object.values(window.localStorage).some(value=>value.includes(requestId))).toBe(false)
@@ -95,7 +99,7 @@ it('owns cold recovery proof before separately settling an original request jour
    expect(config.url).toBe('/api/File/inspect/recover')
    expect(config.data).toEqual({requestId})
    if(!available)return{data:{Code:404,Message:'missing'},status:404,statusText:'Not Found',headers:{}}
-   return{data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[]}},status:200,statusText:'OK',headers:{}}
+   return{data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[{fileId:'FILE'}]}},status:200,statusText:'OK',headers:{}}
   }
  }()
  const dataSet=assemble(undefined,http)
@@ -137,7 +141,7 @@ it('does not settle a superseded PDF recovery response',async()=>{
    assertCurrent:()=>{if(!current)throw new Error('page target stale')}})
   await vi.waitFor(()=>expect(release).toBeDefined())
   current=false
-  release?.({data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[]}},
+  release?.({data:{Code:200,Result:{protocolVersion:'2.0',inspectJobId:'JOB',requestId,status:'COMPLETED',progress:{total:1,finished:1},files:[{fileId:'FILE'}]}},
    status:200,statusText:'OK',headers:{}})
   await expect(recovering).rejects.toThrow('page target stale')
   expect(journal.pending()).toHaveLength(1)

@@ -28,9 +28,10 @@ function job(value:unknown,expected:Readonly<{requestId?:string;inspectJobId?:st
  if(expected.requestId!==undefined&&expected.requestId!==requestId||expected.inspectJobId!==undefined&&expected.inspectJobId!==inspectJobId)throw Error('PDF_INSPECTION_ID: 原任务回执不匹配')
  const progress=result['progress'],files=result['files']
  if(!isRecord(progress)||!Array.isArray(files)||!files.every(isRecord))throw Error('PDF_INSPECTION_RECEIPT: 结果结构无效')
- const total=count(progress['total']),finished=count(progress['finished'])
- if(finished>total)throw Error('PDF_INSPECTION_RECEIPT: 进度无效')
- return{protocolVersion:'2.0',requestId,inspectJobId,status:text(result['status']),progress:{total,finished},files:structuredClone(files)}
+ const total=count(progress['total']),finished=count(progress['finished']),status=text(result['status'])
+ if(finished>total||files.length!==finished||status==='COMPLETED'&&finished!==total)throw Error('PDF_INSPECTION_RECEIPT: 文件明细与任务进度不一致')
+ if(new Set(files.map(file=>text(file['fileId']))).size!==files.length)throw Error('PDF_INSPECTION_RECEIPT: 文件明细身份重复')
+ return{protocolVersion:'2.0',requestId,inspectJobId,status,progress:{total,finished},files:structuredClone(files)}
 }
 
 /** 一个适配实例绑定原执行域；刷新认证或切应用后须由宿主重新装配。 */
@@ -65,8 +66,11 @@ export class PdfInspectionApi{
   const raw=await this.request('history',{page:input.page,pageSize:input.pageSize})
   if(!isRecord(raw)||raw['page']!==input.page||raw['pageSize']!==input.pageSize||!Array.isArray(raw['items'])||!raw['items'].every(isRecord))throw Error('PDF_INSPECTION_PAGE: 回执页不匹配')
   const total=count(raw['total']),items=raw['items']
-  if(items.length>input.pageSize||items.length>total||new Set(items.map(item=>id(item['inspectJobId']))).size!==items.length)throw Error('PDF_INSPECTION_PAGE: 历史数量或身份不符')
-  for(const item of items){id(item['requestId']);id(item['configId'])}
+  const expectedCount=Math.min(input.pageSize,Math.max(0,total-(input.page-1)*input.pageSize))
+  if(items.length!==expectedCount)throw Error('PDF_INSPECTION_PAGE: 历史总数与本页记录不一致，请重新核验')
+  const jobIds=new Set(items.map(item=>id(item['inspectJobId']))),requestIds=new Set(items.map(item=>id(item['requestId'])))
+  if(jobIds.size!==items.length||requestIds.size!==items.length)throw Error('PDF_INSPECTION_PAGE: 历史任务或请求身份重复')
+  for(const item of items)id(item['configId'])
   return{page:input.page,pageSize:input.pageSize,total,items:structuredClone(items)}
  }
  private assertCurrent():void{

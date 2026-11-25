@@ -3819,7 +3819,7 @@
     "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/task-api.ts": {
       "sourceFile": "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/task-api.ts",
       "shardFile": "files/src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/task-api.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:44.349Z"
+      "sourceModifiedAt": "2026-11-25T22:29:53.576Z"
     },
     "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/upload-resource.ts": {
       "sourceFile": "src/platform-adapters/api/platform/resources/semi-structured/pdf-inspect/upload-resource.ts",

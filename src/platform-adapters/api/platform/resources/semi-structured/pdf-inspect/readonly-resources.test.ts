@@ -6,7 +6,8 @@ import {PdfInspectionApi} from './task-api'
 import {pdfInspectionReadonlyBinding} from './readonly-resources'
 class Http extends HttpClientBase{
  calls=0
- protected async executeRequest(_config:RequestConfig):Promise<HttpResponse<unknown>>{this.calls++;return{data:{Code:200,Result:{page:2,pageSize:1,total:7,items:[{inspectJobId:'JOB',requestId:'REQ',configId:'RULE',status:'COMPLETED'}]}},status:200,statusText:'OK',headers:{}}}
+ total=7
+ protected async executeRequest(_config:RequestConfig):Promise<HttpResponse<unknown>>{this.calls++;return{data:{Code:200,Result:{page:2,pageSize:1,total:this.total,items:[{inspectJobId:'JOB',requestId:'REQ',configId:'RULE',status:'COMPLETED'}]}},status:200,statusText:'OK',headers:{}}}
 }
 function fixture(){
  const ds=DataSet.fromJson({scenarioId:'PDF',tables:{History:{resourceType:'logical-view',resourceId:'pdf-inspect:history',columns:['inspectJobId','requestId','configId','status'].map(name=>({name,type:'string',isPrimaryKey:name==='inspectJobId'})),views:{default:{autoLoad:false,commitMode:'staged'}}}}})
@@ -19,4 +20,22 @@ it('binds the exact server page and preserves its authoritative total',async()=>
 })
 it('rejects a history filter before HTTP instead of ignoring it',async()=>{
  const f=fixture();f.view.filterExpression={field:'status',operator:'eq',value:'COMPLETED'};await f.view.refresh();expect(f.view.loadingError).toBeDefined();expect(f.http.calls).toBe(0);f.ds.destroy()
+})
+
+it('keeps a contradictory page unverified and can refresh the same server page',async()=>{
+ const f=fixture()
+ try{
+  f.http.total=1
+  await f.view.refresh()
+  expect(f.view.loadingError?.message).toContain('历史总数与本页记录不一致')
+  expect(f.view.rows).toEqual([])
+  expect(f.http.calls).toBe(1)
+  f.http.total=7
+  await f.view.refresh()
+  expect(f.view.loadingError).toBeNull()
+  expect(f.view.rows).toMatchObject([{inspectJobId:'JOB',requestId:'REQ'}])
+  expect(f.view.page).toBe(2)
+  expect(f.view.total).toBe(7)
+  expect(f.http.calls).toBe(2)
+ }finally{f.ds.destroy()}
 })

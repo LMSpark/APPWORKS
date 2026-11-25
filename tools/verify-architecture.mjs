@@ -46,8 +46,10 @@ export function scanArchitectureRules(options = {}) {
   const exclude = createDefaultExcluder(root)
   const violations = []
 
-  checkSrcImplementationRules(root, exclude, violations)
-  checkWorkspacePackageImports(root, exclude, violations)
+  const packages = collectWorkspacePackages(root)
+  checkSrcImplementationRules(root, exclude, {violations, packages})
+  checkWorkspacePackageImports(root, exclude, {violations, packages})
+  checkWorkspaceDependencyGraph(packages, violations)
   checkSparkAiPublicSurface(root, violations)
   checkSparkAiBusinessMaterial(root, exclude, violations)
 
@@ -112,7 +114,7 @@ export function runArchitectureCli(argv = process.argv.slice(2)) {
   return 0
 }
 
-function checkSrcImplementationRules(root, exclude, violations) {
+function checkSrcImplementationRules(root, exclude, {violations, packages}) {
   const legacyFeaturesRoot = path.resolve(root, 'src/features')
   const files = collectSourceFiles({
     root,
@@ -135,6 +137,8 @@ function checkSrcImplementationRules(root, exclude, violations) {
         if (file.startsWith('src/views/') && ['element-plus', '@element-plus/icons-vue'].includes(packageNameFromSpecifier(ref.specifier))) {
           violations.push({file, line: lineFor(sourceFile, ref.node, lineOffset), message: 'Business pages must use SPARK standard components instead of importing Element Plus directly'})
         }
+        const boundary = workspaceBoundaryProblem({root, filePath, packages, specifier: ref.specifier})
+        if (boundary) violations.push({file, line: lineFor(sourceFile, ref.node, lineOffset), message: boundary})
         const targetPath = resolveSrcModuleTarget(root, filePath, ref.specifier)
         if (targetPath && isPathWithin(legacyFeaturesRoot, targetPath)) {
           violations.push({
@@ -152,7 +156,7 @@ function resolveSrcModuleTarget(root, importerPath, specifier) {
   if (specifier.startsWith('@/')) {
     return path.resolve(root, 'src', specifier.slice(2))
   }
-  if (specifier.startsWith('/src/')) {
+  if (specifier.startsWith('/src/') || specifier.startsWith('/packages/')) {
     return path.resolve(root, specifier.slice(1))
   }
   if (specifier.startsWith('.')) {
@@ -167,8 +171,7 @@ function isPathWithin(directory, targetPath) {
     || (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
 }
 
-function checkWorkspacePackageImports(root, exclude, violations) {
-  const packages = collectWorkspacePackages(root)
+function checkWorkspacePackageImports(root, exclude, {violations, packages}) {
 
   for (const pkg of packages) {
     if (!fs.existsSync(pkg.srcDir)) continue
@@ -183,6 +186,8 @@ function checkWorkspacePackageImports(root, exclude, violations) {
     for (const filePath of files) {
       forEachParsedSource(filePath, root, ({ file, sourceFile, lineOffset }) => {
         for (const ref of collectModuleReferences(sourceFile)) {
+          const boundary = workspaceBoundaryProblem({root, filePath, importer: pkg, packages, specifier: ref.specifier})
+          if (boundary) violations.push({file, line: lineFor(sourceFile, ref.node, lineOffset), message: boundary})
           checkWorkspacePackageImport(pkg, packages, allowedDeps, ref, file, sourceFile, lineOffset, violations)
           checkRelativeCrossPackageImport(root, pkg, filePath, ref, file, sourceFile, lineOffset, violations)
           checkFrameworkFreeImport(pkg, ref, file, sourceFile, lineOffset, violations)
@@ -211,10 +216,73 @@ function collectWorkspacePackages(root) {
         packageDir,
         packageName: packageJson.name,
         srcDir: path.join(packageDir, 'src'),
+        exports: packageJson.exports,
         allowedDeps: Object.keys(packageJson.dependencies ?? {}).filter((depName) => depName.startsWith('@spark-appworks/')),
+        runtimeDeps: Object.keys({...packageJson.dependencies, ...packageJson.optionalDependencies, ...packageJson.peerDependencies})
+          .filter((depName) => depName.startsWith('@spark-appworks/')),
       }
     })
     .filter((pkg) => pkg !== null)
+}
+
+function workspaceBoundaryProblem({root, filePath, importer, packages, specifier}) {
+  const resolved = resolveSrcModuleTarget(root, filePath, specifier)
+  if (resolved !== undefined) {
+    if (importer && isPathWithin(path.join(root, 'src'), resolved)) {
+      return 'workspace packages must not import host src implementation'
+    }
+    const target = packages.find(pkg => isPathWithin(pkg.packageDir, resolved))
+    if (target && target !== importer && (!importer || !specifier.startsWith('.'))) {
+      return 'workspace package implementation paths are forbidden; import the declared public entry'
+    }
+    return undefined
+  }
+
+  const target = packages.find(pkg => pkg.packageName === packageNameFromSpecifier(specifier))
+  if (!target) return undefined
+  const subpath = `.${specifier.slice(target.packageName.length)}`
+  const exports = target.exports
+  const declarations = Object.entries(exports ?? {})
+  if (subpath === '.' && (exports === undefined || exports === null || typeof exports === 'string' || Array.isArray(exports)
+    || declarations.length > 0 && declarations.every(([key]) => !key.startsWith('.')))) return undefined
+  const entries = declarations.filter(([key]) => key === '.' || key.startsWith('./'))
+  const exact = entries.find(([key]) => key === subpath)
+  const patterns = entries.filter(([key]) => {
+    const wildcard = key.indexOf('*')
+    if (wildcard < 0) return false
+    const prefix = key.slice(0, wildcard), suffix = key.slice(wildcard + 1)
+    return subpath.startsWith(prefix) && subpath.endsWith(suffix) && subpath.length > prefix.length + suffix.length
+  }).sort(([left], [right]) => right.indexOf('*') - left.indexOf('*') || right.length - left.length)
+  const match = exact ?? patterns[0]
+  return match && match[1] !== null && match[1] !== undefined ? undefined : `workspace package subpath is not exported: ${specifier}`
+}
+
+function checkWorkspaceDependencyGraph(packages, violations) {
+  const byName = new Map(packages.map(pkg => [pkg.packageName, pkg]))
+  const completed = new Set()
+  const stack = new Map()
+  function visit(pkg) {
+    if (completed.has(pkg.packageName)) return
+    stack.set(pkg.packageName, stack.size)
+    for (const name of pkg.runtimeDeps) {
+      const index = stack.get(name)
+      if (index !== undefined) {
+        const cycle = [...stack.keys()].slice(index).concat(name)
+        violations.push({file: `packages/${pkg.dirName}/package.json`, line: 1, message: `workspace runtime dependency cycle: ${cycle.join(' -> ')}`})
+        continue
+      }
+      const dependency = byName.get(name)
+      if (dependency) visit(dependency)
+    }
+    stack.delete(pkg.packageName)
+    completed.add(pkg.packageName)
+  }
+  for (const pkg of packages) {
+    if (pkg.packageName === '@spark-appworks/spark-component' && pkg.runtimeDeps.includes('@spark-appworks/spark-ai')) {
+      violations.push({file: `packages/${pkg.dirName}/package.json`, line: 1, message: 'spark-component must not have a runtime dependency on spark-ai'})
+    }
+    visit(pkg)
+  }
 }
 
 function checkWorkspacePackageImport(pkg, packages, allowedDeps, ref, file, sourceFile, lineOffset, violations) {

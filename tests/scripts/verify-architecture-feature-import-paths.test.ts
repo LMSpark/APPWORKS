@@ -11,7 +11,14 @@ const repoRoot = process.cwd()
 const tempRoots: string[] = []
 
 afterEach(() => {
-  for (const root of tempRoots.splice(0)) fs.rmSync(root, {recursive: true, force: true})
+  const temporaryParent = fs.realpathSync(os.tmpdir())
+  for (const root of tempRoots.splice(0)) {
+    const resolved = fs.realpathSync(root)
+    if (path.dirname(resolved) !== temporaryParent || !path.basename(resolved).startsWith('spark-arch-paths-')) {
+      throw new Error('architecture fixture directory is outside the temporary root')
+    }
+    fs.rmSync(resolved, {recursive: true, force: true})
+  }
 })
 
 describe('architecture feature import paths', () => {
@@ -151,3 +158,79 @@ function writeFile(root: string, relativeFile: string, content: string): void {
   fs.mkdirSync(path.dirname(file), {recursive: true})
   fs.writeFileSync(file, content)
 }
+
+describe('workspace dependency boundaries', () => {
+  const utilityPackage = '@spark-appworks/spark-utils'
+  const utilityExports = {'.': './dist/index.js', './public': './dist/public.js',
+    './parts/*': './dist/parts/*.js', './parts/private': null}
+
+  function setupConsumer(root: string, importer: string, specifier: string): void {
+    writeFile(root, 'src/app-only.ts', 'export const appOnly = true\n')
+    writeFile(root, 'packages/spark-utils/src/private.ts', 'export const privateValue = true\n')
+    writeFile(root, 'packages/spark-utils/package.json', JSON.stringify({name: utilityPackage, exports: utilityExports}))
+    writeFile(root, 'packages/spark-data/package.json', JSON.stringify({name: '@spark-appworks/spark-data',
+      exports: {import: './dist/index.js'}, dependencies: {[utilityPackage]: 'workspace:*'}}))
+    writeFile(root, importer, `import ${JSON.stringify(specifier)}\n`)
+  }
+
+  it.each([
+    ['src/read.ts', '../packages/spark-utils/src/private', 'package implementation paths'],
+    ['src/read.ts', '/packages/spark-utils/src/private', 'package implementation paths'],
+    ['packages/spark-data/src/read.ts', '@/app-only', 'must not import host src implementation'],
+    ['packages/spark-data/src/read.ts', '../../../src/app-only', 'must not import host src implementation'],
+    ['src/read.ts', '@spark-appworks/spark-utils/private', 'subpath is not exported'],
+    ['packages/spark-data/src/read.ts', '@spark-appworks/spark-utils/private', 'subpath is not exported'],
+    ['src/read.ts', '@spark-appworks/spark-utils/parts/private', 'subpath is not exported'],
+  ] as const)('reports %s importing %s through an invalid boundary', (importer, specifier, problem) => {
+    const root = createTempRoot()
+    setupConsumer(root, importer, specifier)
+    const result = runArchitectureCheck(root)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain(importer)
+    expect(result.stderr).toContain(problem)
+  })
+
+  it.each([
+    ['src/read.ts', '@spark-appworks/spark-utils'],
+    ['packages/spark-data/src/read.ts', '@spark-appworks/spark-utils/public'],
+    ['src/read.ts', '@spark-appworks/spark-utils/parts/details'],
+    ['src/read.ts', '@spark-appworks/spark-data'],
+    ['packages/spark-utils/src/read.ts', './private'],
+  ] as const)('allows %s to load declared module %s', (importer, specifier) => {
+    const root = createTempRoot()
+    setupConsumer(root, importer, specifier)
+    const result = runArchitectureCheck(root)
+    expect(result.status, result.stderr).toBe(0)
+  })
+
+  it.each(['dependencies', 'optionalDependencies', 'peerDependencies'] as const)('reports a runtime cycle through %s and permits a development-only edge', dependencyField => {
+    const root = createTempRoot()
+    const data = '@spark-appworks/spark-data'
+    const utilities = 'packages/spark-utils/package.json'
+    writeFile(root, 'packages/spark-data/package.json', JSON.stringify({name: data,
+      dependencies: {[utilityPackage]: 'workspace:*'}}))
+    writeFile(root, utilities, JSON.stringify({name: utilityPackage, [dependencyField]: {[data]: 'workspace:*'}}))
+    const cycle = runArchitectureCheck(root)
+    expect(cycle.status).toBe(1)
+    expect(cycle.stderr).toContain('workspace runtime dependency cycle')
+    expect(cycle.stderr).toContain(data)
+    expect(cycle.stderr).toContain(utilityPackage)
+    writeFile(root, utilities, JSON.stringify({name: utilityPackage, devDependencies: {[data]: 'workspace:*'}}))
+    expect(runArchitectureCheck(root).status).toBe(0)
+  })
+
+  it.each(['dependencies', 'optionalDependencies', 'peerDependencies'] as const)('rejects the component package runtime AI edge declared in %s', dependencyField => {
+    const root = createTempRoot()
+    const ai = '@spark-appworks/spark-ai'
+    const component = 'packages/spark-component/package.json'
+    const name = '@spark-appworks/spark-component'
+    writeFile(root, 'packages/spark-ai/package.json', JSON.stringify({name: ai,
+      exports: {'.': './dist/index.js', './agent': './dist/agent.js', './class-model': './dist/class-model.js'}}))
+    writeFile(root, component, JSON.stringify({name, [dependencyField]: {[ai]: 'workspace:*'}}))
+    const result = runArchitectureCheck(root)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('spark-component must not have a runtime dependency on spark-ai')
+    writeFile(root, component, JSON.stringify({name, devDependencies: {[ai]: 'workspace:*'}}))
+    expect(runArchitectureCheck(root).status).toBe(0)
+  })
+})

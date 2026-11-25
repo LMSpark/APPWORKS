@@ -7489,7 +7489,7 @@
     "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.345Z"
+      "sourceModifiedAt": "2026-11-25T20:45:02.254Z"
     },
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
@@ -7509,12 +7509,12 @@
     "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.352Z"
+      "sourceModifiedAt": "2026-11-25T20:45:02.254Z"
     },
     "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/use-flow-design-view-highlight.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.353Z"
+      "sourceModifiedAt": "2026-11-25T20:45:02.252Z"
     },
     "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",

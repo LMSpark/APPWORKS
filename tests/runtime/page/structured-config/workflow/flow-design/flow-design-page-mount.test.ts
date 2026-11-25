@@ -3,12 +3,12 @@ import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {createRouter,createMemoryHistory} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
-import {defineComponent, h, ref, isRef, type Ref} from 'vue'
+import {defineComponent, h, reactive, ref, isRef, type Ref} from 'vue'
 import {fixture} from './flow-design-data.fixture'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FLOW_DESIGN_SCENARIO_ID, saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
+import {FLOW_DESIGN_SCENARIO_ID, prepareFlowDesignViews, saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 vi.mock('@/platform-adapters/resources/system/workflow/manage', async importOriginal => ({
@@ -104,6 +104,62 @@ async function mountDesign(flowModelId: string | Ref<string> = 'FM-1'): Promise<
 }
 
 describe('flow design page mount', () => {
+  it('selects only rows issued by the active node and edge views', async () => {
+    const state = await fixture(false, false)
+    state.http.records['WFM_NODE_REALATION'] = [
+      {rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N1', TITLE: 'Edge'},
+    ]
+    const prepared = await prepareFlowDesignViews(state.runtime, 'FM-1')
+    const nodes = state.runtime.resolveView(prepared.nodeViewKey)
+    const edges = state.runtime.resolveView(prepared.edgeViewKey)
+    const node = nodes?.rows[0]
+    const edge = edges?.rows[0]
+    if (!nodes || !edges || !node || !edge) throw new Error('The original formal fixtures must return a node and edge')
+    const {default: NodePanel} = await vi.importActual<typeof import('@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue')>(
+      '@/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue')
+    const {default: EdgePanel} = await vi.importActual<typeof import('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue')>(
+      '@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue')
+    const nodeSelect = vi.fn(), edgeSelect = vi.fn()
+    const ActualPanels = defineComponent({
+      setup() {
+        const {sparkProvide} = useSparkComponent({type: 'flow-design-formal-panel-fixture'})
+        sparkProvide(PAGE_RUNTIME, state.runtime)
+        return () => h('div', [
+          h(NodePanel, {viewKey: prepared.nodeViewKey, onSelectGraphId: nodeSelect}),
+          h(EdgePanel, {viewKey: prepared.edgeViewKey, onSelectGraphId: edgeSelect}),
+        ])
+      },
+    })
+    const wrapper = mount(withTestPageService(ActualPanels), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    const [nodeTable, edgeTable] = wrapper.findAllComponents({name: 'RendererTable'})
+    if (!nodeTable || !edgeTable) throw new Error('Both standard tables must be mounted')
+    nodeTable.vm.$emit('row-click', reactive(node))
+    edgeTable.vm.$emit('current-change', edge)
+    await flushPromises()
+    expect(nodeSelect).toHaveBeenCalledExactlyOnceWith('N1')
+    expect(edgeSelect).toHaveBeenCalledExactlyOnceWith('E1')
+    nodeSelect.mockClear(); edgeSelect.mockClear()
+    nodeTable.vm.$emit('row-click', {...node})
+    edgeTable.vm.$emit('current-change', {...edge})
+    await flushPromises()
+
+    expect(nodeSelect).not.toHaveBeenCalled()
+    expect(edgeSelect).not.toHaveBeenCalled()
+    await nodes.refresh()
+    await edges.refresh()
+    nodeTable.vm.$emit('row-click', node)
+    edgeTable.vm.$emit('current-change', edge)
+    await flushPromises()
+    expect(nodeSelect).not.toHaveBeenCalled()
+    expect(edgeSelect).not.toHaveBeenCalled()
+    nodeTable.vm.$emit('row-click', nodes.rows[0])
+    edgeTable.vm.$emit('current-change', edges.rows[0])
+    await flushPromises()
+    expect(nodeSelect).toHaveBeenCalledExactlyOnceWith('N1')
+    expect(edgeSelect).toHaveBeenCalledExactlyOnceWith('E1')
+  })
+
   it.each(['unmount', 'switch'])('stops the original file read after %s while model queries are pending', async outcome => {
     let release: (() => void) | undefined
     queryGate = new Promise(resolve => {release = resolve})

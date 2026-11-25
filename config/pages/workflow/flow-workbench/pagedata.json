@@ -318,11 +318,24 @@
       "views": {
         "default": {
           "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "page": 1,
+          "pageSize": 1,
+          "queryContext": {
+            "rowid": ""
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "rowid"}
+          },
           "queryConfig": {
             "fields": [
               "rowid",
               "WFMID",
-              "TITLE"
+              "TITLE",
+              "BusTblObjID"
             ]
           }
         },

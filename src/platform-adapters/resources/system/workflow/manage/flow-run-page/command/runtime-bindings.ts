@@ -12,6 +12,7 @@ import {FLOW_WORKBENCH_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID} from '../../flow-r
 import {canRevokeFlowAppendRecord} from '../../flow-append-user/flow-append-user-records'
 import {captureAppendConfiguration, captureAppendSelection, readFlowAppendReceivers} from '../../flow-append-user/command-input'
 import {createFlowAppendUserClient} from '../../flow-append-user/flow-append-user-client'
+import {captureFlowWorkbenchInstance} from '../flow-run-page-runtime'
 
 type Input = Readonly<{config: ScenarioViewConfig; http: FlowRunPageClientOptions['http']; readScope: FlowRunPageClientOptions['readScope']; assertCurrent: () => void}>
 export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'commandBindings'> {
@@ -38,13 +39,12 @@ export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpa
         const steps = explicit && typeof key === 'string' ? resolveDataViewKey(key, ds) : ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP')
         const instances = ds?.getView('WFOBJ_FLOW')
         const targets = steps?.rows.filter(item => item['rowid'] === row['stepId'] && item['WFOBJID'] === row['flowObjectId']) ?? []
-        const objects = instances?.rows.filter(item => item['rowid'] === row['flowObjectId']) ?? []
-        const step = targets[0], object = objects[0]
-        if (!steps || !instances || targets.length !== 1 || objects.length !== 1 || !step || !object) throw Error('审批命令缺少唯一正式实例或步骤')
+        const step = targets[0]
+        if (!steps || targets.length !== 1 || !step) throw Error('审批命令缺少唯一正式步骤')
         const assertStep = steps.captureReadRow(step, explicit || row['action'] === 'append' ? ['rowid', 'WFOBJID', 'STATUS', 'StepState', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID'] : ['rowid', 'WFOBJID'])
         if (explicit && !canRevokeFlowAppendRecord({STATUS: step['STATUS'], StepState: step['StepState']})) throw Error('原追加步骤当前不可撤回')
-        if (row['action'] === 'submit' && (typeof row['flowId'] !== 'string' || !row['flowId'].trim() || row['flowId'] !== object['WFMID'])) throw Error('审批流程模型与正式实例不符')
-        const assertObject = instances.captureReadRow(object, ['rowid', 'WFMID'])
+        const assertObject = captureFlowWorkbenchInstance(instances, {objectId: row['flowObjectId'], ...(row['action'] === 'submit'
+          ? {modelId: String(row['flowId'] ?? ''), businessRowId: String(row['busRowid'] ?? '')} : {})})
         const appendConfig = row['action'] === 'append' ? captureAppendConfiguration(ds, row) : undefined
         if (appendConfig && appendConfig.nodeId !== step['ReceiveNodeModelId']) throw Error('追加配置不是原接收节点')
         return () => {

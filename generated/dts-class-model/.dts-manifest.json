@@ -5034,7 +5034,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/runtime-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.428Z"
+      "sourceModifiedAt": "2026-11-25T23:24:18.700Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/submit.ts",
@@ -5069,7 +5069,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-25T23:02:38.502Z"
+      "sourceModifiedAt": "2026-11-25T23:24:18.699Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/index.ts",
@@ -5104,7 +5104,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-run-page/query/runtime-bindings.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.432Z"
+      "sourceModifiedAt": "2026-11-25T23:24:18.699Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-runtime-client.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-runtime-client.ts",

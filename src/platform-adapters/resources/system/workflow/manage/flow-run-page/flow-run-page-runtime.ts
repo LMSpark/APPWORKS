@@ -38,6 +38,37 @@ function requireView(view: DataView | undefined, modelName: string): DataView {
   return view
 }
 
+/** 工作台选项和命令对同一正式实例需要核验的输入。 */
+type FlowWorkbenchInstanceTarget = Readonly<{
+  /** 取自原步骤所属的流程实例或待提交命令。 */
+  objectId: unknown
+  /** 选项和办理提交指定的流程模型键。 */
+  modelId?: string
+  /** 选项和办理提交使用的业务行键，空串代表正式无业务行。 */
+  businessRowId?: string
+}>
+
+/** 从工作台原查询捕获完整唯一的目标及可读字段，供选项接纳与命令派发重核。 */
+export function captureFlowWorkbenchInstance(view: DataView | undefined, target: FlowWorkbenchInstanceTarget): () => void {
+  const object = view?.rows[0]
+  if (!view || view.loadingError || view.rows.length !== 1 || view.total !== 1 || view.countReported === false
+    || view.nextPageAvailable === true || !object || typeof target.objectId !== 'string' || !target.objectId.trim()
+    || object['rowid'] !== target.objectId) {
+    throw Error('审批工作台缺少匹配的唯一正式实例')
+  }
+  const assertObject = view.captureReadRow(object, target.businessRowId === undefined
+    ? ['rowid', 'WFMID'] : ['rowid', 'WFMID', 'BusTblObjID'])
+  const modelId = object['WFMID']
+  if (typeof modelId !== 'string' || !modelId.trim() || (target.modelId !== undefined && modelId !== target.modelId)) {
+    throw Error('审批流程模型与正式实例不符')
+  }
+  if (target.businessRowId !== undefined) {
+    const businessRowId = object['BusTblObjID']
+    if ((businessRowId === null ? '' : businessRowId) !== target.businessRowId) throw Error('审批业务行与正式实例不符')
+  }
+  return assertObject
+}
+
 function firstText(row: Record<string, unknown>, keys: readonly string[]): string {
   for (const key of keys) {
     const text = String(row[key] ?? '').trim()
@@ -131,6 +162,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   stepView.queryContext = {...stepView.queryContext, WFOBJID: wfid}
   const commandInstanceView = requireView(workbench.getView(FLOW_OBJ_MODEL, 'default'), FLOW_OBJ_MODEL)
   commandInstanceView.queryContext = {...commandInstanceView.queryContext, rowid: wfid, wfid}
+  commandInstanceView.page = 1
   command.assertCurrent?.()
   await Promise.all([formView.refresh(), objectFormView.refresh(), stepView.refresh(), commandInstanceView.refresh()])
   command.assertCurrent?.()

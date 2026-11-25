@@ -68137,7 +68137,7 @@
       "chainBreak": "FlowRunFormRecord 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 3,
+      "declarationLine": 8,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -68149,7 +68149,7 @@
       "chainBreak": "FlowRunFormRecord.tabKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 4,
+      "declarationLine": 9,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68161,7 +68161,7 @@
       "chainBreak": "FlowRunFormRecord.label 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 5,
+      "declarationLine": 10,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68173,7 +68173,7 @@
       "chainBreak": "FlowRunFormRecord.sourcePath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 6,
+      "declarationLine": 11,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68185,7 +68185,7 @@
       "chainBreak": "FlowRunFormRecord.queryString 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 7,
+      "declarationLine": 12,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68197,7 +68197,7 @@
       "chainBreak": "FlowRunFormRecord.formKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 8,
+      "declarationLine": 13,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68208,7 +68208,7 @@
       "chainBreak": "FlowRunPreparedPage 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 10,
+      "declarationLine": 15,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -68220,7 +68220,7 @@
       "chainBreak": "FlowRunPreparedPage.instanceTitle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 11,
+      "declarationLine": 16,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68232,7 +68232,7 @@
       "chainBreak": "FlowRunPreparedPage.flowObjectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 12,
+      "declarationLine": 17,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68244,7 +68244,7 @@
       "chainBreak": "FlowRunPreparedPage.flowModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 13,
+      "declarationLine": 18,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68256,7 +68256,7 @@
       "chainBreak": "FlowRunPreparedPage.busRowId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 14,
+      "declarationLine": 19,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68268,7 +68268,7 @@
       "chainBreak": "FlowRunPreparedPage.stepId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 15,
+      "declarationLine": 20,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68280,7 +68280,7 @@
       "chainBreak": "FlowRunPreparedPage.formTabs 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 16,
+      "declarationLine": 21,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68292,7 +68292,7 @@
       "chainBreak": "FlowRunPreparedPage.userDirectoryViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 17,
+      "declarationLine": 22,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68304,7 +68304,7 @@
       "chainBreak": "FlowRunPreparedPage.stepHistoryViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 18,
+      "declarationLine": 23,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68315,7 +68315,7 @@
       "chainBreak": "PrepareFlowRunPageCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 20,
+      "declarationLine": 36,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -68327,7 +68327,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 21,
+      "declarationLine": 37,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68339,7 +68339,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.wfid 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 22,
+      "declarationLine": 38,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68351,7 +68351,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.flowid 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 23,
+      "declarationLine": 39,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68363,7 +68363,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.stepId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 24,
+      "declarationLine": 40,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68375,7 +68375,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 25,
+      "declarationLine": 41,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "typeAlias"
     },

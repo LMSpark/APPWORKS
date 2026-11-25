@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
     "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime\n职责：办理页装配：刷新实例、表单候选与步骤上下文。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FlowRunFormRecord",
       "FlowRunPreparedPage",
@@ -91,6 +91,24 @@
       ],
       "additionalProperties": false
     },
+    "FlowWorkbenchInstanceTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowWorkbenchInstanceTarget",
+      "properties": {
+        "objectId": true,
+        "modelId": {
+          "type": "string"
+        },
+        "businessRowId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "objectId"
+      ],
+      "additionalProperties": false
+    },
     "PrepareFlowRunPageCommand": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -120,7 +138,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-25T23:02:38.502Z",
+  "generatedAt": "2026-11-25T23:24:18.699Z",
   "models": {
     "FlowRunFormRecord": {
       "name": "FlowRunFormRecord",
@@ -218,6 +236,43 @@
             },
             {
               "name": "stepHistoryViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FlowWorkbenchInstanceTarget": {
+      "name": "FlowWorkbenchInstanceTarget",
+      "jsdoc": "工作台选项和命令对同一正式实例需要核验的输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 取自原步骤所属的流程实例或待提交命令。 */\n    objectId: unknown;\n    /** 选项和办理提交指定的流程模型键。 */\n    modelId?: string;\n    /** 选项和办理提交使用的业务行键，空串代表正式无业务行。 */\n    businessRowId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 取自原步骤所属的流程实例或待提交命令。 */\n    objectId: unknown;\n    /** 选项和办理提交指定的流程模型键。 */\n    modelId?: string;\n    /** 选项和办理提交使用的业务行键，空串代表正式无业务行。 */\n    businessRowId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "objectId",
+              "jsdoc": "取自原步骤所属的流程实例或待提交命令。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "选项和办理提交指定的流程模型键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessRowId",
+              "jsdoc": "选项和办理提交使用的业务行键，空串代表正式无业务行。",
               "readable": true,
               "writable": false
             }

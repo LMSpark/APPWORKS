@@ -13,6 +13,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {createFlowAppendDictionaryBindings} from '../../flow-append-user/dictionary-bindings'
 import {createFlowAppendOptionsBinding} from '../../flow-append-user/options-binding'
 import {createFlowAppendUserClient} from '../../flow-append-user/flow-append-user-client'
+import {captureFlowWorkbenchInstance} from '../flow-run-page-runtime'
 
 type Input = Readonly<{config: ScenarioViewConfig; http: FlowRunPageClientOptions['http']; readScope: FlowRunPageClientOptions['readScope']; assertCurrent: () => void}>
 export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'projectionBindings'> {
@@ -30,10 +31,9 @@ export function createApprovalOptionsBindings(input: Input): Pick<LowcodeDataSpa
       const steps = ds?.getView('WFOBJ_FLOW_RELATIONLINE_STEP'), objects = ds?.getView('WFOBJ_FLOW')
       const matches = steps?.rows.filter(row => row['rowid'] === params.stepId) ?? []
       const step = matches[0]
-      const instances = objects?.rows.filter(row => row['rowid'] === step?.['WFOBJID'] && row['WFMID'] === params.modelId) ?? []
-      const object = instances[0]
-      if (!steps || !objects || matches.length !== 1 || instances.length !== 1 || !step || !object) throw Error('审批选项缺少唯一正式目标')
-      const assertStep = steps.captureReadRow(step, ['rowid', 'WFOBJID']), assertObject = objects.captureReadRow(object, ['rowid', 'WFMID'])
+      if (!steps || matches.length !== 1 || !step) throw Error('审批选项缺少唯一正式步骤')
+      const assertStep = steps.captureReadRow(step, ['rowid', 'WFOBJID'])
+      const assertObject = captureFlowWorkbenchInstance(objects, {objectId: step['WFOBJID'], modelId: params.modelId ?? '', businessRowId: params.busRowId ?? ''})
       return () => {guard(); assertStep(); assertObject()}
     }})
   }, ApprovalCandidates: view => {

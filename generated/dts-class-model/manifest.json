@@ -16849,7 +16849,7 @@
         "packageName": "app",
         "modulePath": "platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime",
         "jsdoc": "@module app:lowcode/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime\n职责：办理页装配：刷新实例、表单候选与步骤上下文。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FlowRunFormRecord",
           "FlowRunPreparedPage",

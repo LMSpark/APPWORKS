@@ -297,3 +297,89 @@ it('rejects blank command identities on standard action pages',async()=>{
    new AbortController().signal)).rejects.toThrow('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
  }finally{runtime.dispose()}
 })
+
+it('does not give a different published tool the Page14 deadline host by title',()=>{
+ const pageId='another-deadline-tool',scenarioId='DEADLINE_SPACE'
+ expect(preparePublishedSmartBidPageCall({path:`/apps/${app}/fixture`,query:{projectId:'PROJECT',scenarioId,deadlineRef:'DEADLINE'},meta:{
+  title:'回执与截止核对',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
+ }})).toBeUndefined()
+})
+
+it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks the published Page14 original deadline for %s',async outcome=>{
+  const scenarioId='DEADLINE_SPACE',pageId='smart-bid-authoring-page14',projectId='PROJECT',deadlineRef='DEADLINE'
+  const time='2026-11-18T10:00:00+08:00'
+  const row={id:deadlineRef,projectId:outcome==='wrong-project'?'OTHER':projectId,lotId:'LOT',roundId:'ROUND',
+   stageId:'STAGE',subjectId:'ENT',channelId:'PORTAL',cutoffAt:time,
+   knownAt:outcome==='invalid-time'?'2026-11-18T10:00:00':time,obligationIds:['O']}
+  const named=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
+  const dataSet=DataSet.fromJson({scenarioId,tables:{SubmissionReconciliation:{
+   modelBinding:{modelId:'DEADLINE_MODEL',modelName:'SubmissionReconciliation'},
+   columns:Object.keys(row).map(name=>({name,type:name==='obligationIds'?'object':'string',isPrimaryKey:name==='id'})),
+   views:{default:{autoLoad:false},...named.SubmissionReconciliation},
+  }}})
+  const view=dataSet.getView('SubmissionReconciliation','originalDeadline')
+  if(!view)throw Error('Missing original deadline view')
+  if(outcome==='cached-view')view.queryConfig={...view.queryConfig,cacheType:'page'}
+  const table=new DataSpaceQueryTable({scenarioId,metaName:'SubmissionReconciliation'})
+  const read=vi.fn(async()=>new DataSpaceQueryContext({
+   identity:table.identity,scope:'fixture',readScope:()=> 'fixture',snapshot:table.applyResult({Result:{
+    primaryKeyField:'id',data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+   }}),
+  }))
+  const save=vi.fn(async()=>{throw Error('NO_DEADLINE_WRITE')})
+  view.bindQueryExecutor({save,executeQuery:read})
+  const tool=new PageTool({pageId})
+  const text=await readFile(resolve('src/views/features/application/smart-bid/authoring/page14/rule.json'),'utf8')
+  tool.hydrateFileText('rule.json',text)
+  tool.markLoaded()
+  const path=`/apps/${app}/fixture`,query={projectId,scenarioId,deadlineRef}
+  const entry=preparePublishedSmartBidPageCall({path,query,meta:{
+   title:'回执与截止核对',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
+  }})
+  if(!entry)throw Error('Missing published deadline host')
+  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
+   scenarioInputs:entry.scenarioInputs,loadScenario:async()=>dataSet})
+  try{
+   await runtime.load()
+   expect(text).toContain('"command":"content.submission.readDeadline"')
+   registerAllRenderers()
+   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:defineComponent({render:()=>h('div')})}]})
+   await router.push({path,query})
+   await router.isReady()
+   const previous={...config.global.stubs},stubs={...previous}
+   for(const name of ['SparkComponentRenderer','spark-component-renderer','el-button'])delete stubs[name]
+   config.global.stubs=stubs
+   const alert=vi.fn(async(_text:string,_title?:string)=>undefined),error=vi.fn(),onError=vi.fn()
+   const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,host:entry.createHost(runtime),
+    messageService:{success:vi.fn(),error,warning:vi.fn(),info:vi.fn()},confirmService:{alert,confirm:async()=>true},
+    routeSnapshot:{path,fullPath:router.currentRoute.value.fullPath,name:null,params:{},query,hash:''},onError},
+    global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+   try{
+    await flushPromises()
+    expect(onError).not.toHaveBeenCalled()
+    const button=wrapper.findAll('button').find(item=>item.text()==='核对截止有效组合')
+    if(!button)throw Error('The original deadline button is missing')
+    await button.trigger('click')
+    await vi.waitFor(()=>expect(alert.mock.calls.length+error.mock.calls.length).toBe(1))
+    if(outcome==='exact'){
+     expect(error).not.toHaveBeenCalled()
+     expect(alert).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('渠道回执与义务履行证据待核'),'截止有效组合')
+     expect(JSON.parse(alert.mock.calls[0]?.[0]??'null')).toMatchObject({
+      status:'UNKNOWN',deadlineRef,scope:{projectId,lotId:'LOT',subjectId:'ENT',channelId:'PORTAL'},roundId:'ROUND',
+      stageId:'STAGE',cutoffAt:time,knownAt:time,obligationIds:['O'],
+     })
+    }else{
+     expect(alert).not.toHaveBeenCalled()
+     const code={
+      'wrong-project':'SUBMISSION_DEADLINE_READ_SCOPE',
+      'invalid-time':'SUBMISSION_RECONCILIATION_TIME',
+      'cached-view':'SUBMISSION_DEADLINE_VIEW_REQUIRED',
+     }[outcome]
+     expect(error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(code))
+    }
+   }finally{wrapper.unmount();config.global.stubs=previous}
+   if(outcome!=='cached-view')expect(view.queryContext).toMatchObject({projectId,deadlineRef})
+   expect(read).toHaveBeenCalledTimes(outcome==='cached-view'?0:1)
+   expect(save).not.toHaveBeenCalled()
+  }finally{runtime.dispose()}
+})

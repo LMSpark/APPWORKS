@@ -6,11 +6,13 @@
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
+import {parseSubmissionReconciliationTime} from '@/services/smart-bid/content/review/submission-reconciliation'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
 
 const fields=['id','projectId','lotId','roundId','stageId','subjectId','channelId','cutoffAt','knownAt','obligationIds']
 const valid=(view:DataView)=>view.dataTable?.modelBinding?.modelName==='SubmissionReconciliation'&&
  view.commitMode==='staged'&&view.queryConfig.autoQuery===false&&
+ (view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
  hasContentScopeCondition(view,'projectId',{Type:'GetInputParam',ParamName:'projectId'})&&
  hasContentScopeCondition(view,'id',{Type:'GetInputParam',ParamName:'deadlineRef'})
 
@@ -39,6 +41,8 @@ export async function readRegisteredDeadlineRecord(host:ContentRevisionReadHost,
  if(row['id']!==deadlineRef||row['projectId']!==projectId||!identity(lotId)||!identity(roundId)||!identity(stageId)||
   !identity(subjectId)||!identity(channelId)||!identity(cutoffAt)||!identity(knownAt)||
   !Array.isArray(obligationIds)||!obligationIds.every(identity)||new Set(obligationIds).size!==obligationIds.length)throw Error(error)
+ parseSubmissionReconciliationTime(cutoffAt)
+ parseSubmissionReconciliationTime(knownAt)
  assertCurrent()
  return Object.freeze({deadlineRef,roundId,stageId,scope:Object.freeze({projectId,lotId,subjectId,channelId}),
   input:Object.freeze({cutoffAt,knownAt,obligationIds:Object.freeze([...obligationIds])}),assertCurrent})

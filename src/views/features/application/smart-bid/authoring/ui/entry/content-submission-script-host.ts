@@ -303,9 +303,12 @@ export function createContentSubmissionScriptHost<Runtime extends Pick<PageRunti
      throw Error('SUBMISSION_PAGE_OUTCOME_SCOPE')
     return readRegisteredTenderOutcome(host,{lotId,roundId,stageId,subjectId,knownAt})
    }
-   if(name==='content.submission.readDeadline'&&sources.readDeadline&&identity(input['deadlineRef'])){
+   if(name==='content.submission.readDeadline'&&identity(input['deadlineRef'])){
     assertCurrent()
     const record=await readRegisteredDeadlineRecord(host,input['deadlineRef'])
+    if(!sources.readDeadline)return Object.freeze({status:'UNKNOWN' as const,deadlineRef:record.deadlineRef,
+     scope:record.scope,roundId:record.roundId,stageId:record.stageId,...record.input,
+     reason:'已回读原截止记录，渠道回执与义务履行证据待核',assertCurrent:record.assertCurrent})
     const selected=await sources.readDeadline(record,signal)
     record.assertCurrent()
     const {scope:receiptScope}=selected.receipts

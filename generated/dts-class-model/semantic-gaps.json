@@ -102912,7 +102912,7 @@
       "chainBreak": "ConfigurationHost 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 1765,
+      "declarationLine": 1811,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -102923,7 +102923,7 @@
       "chainBreak": "ResponseHost 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 1950,
+      "declarationLine": 1996,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -102934,7 +102934,7 @@
       "chainBreak": "PublishedScopeBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2073,
+      "declarationLine": 2119,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -102946,7 +102946,7 @@
       "chainBreak": "PublishedScopeBinding.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2074,
+      "declarationLine": 2120,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "interface"
     },
@@ -102958,7 +102958,7 @@
       "chainBreak": "PublishedScopeBinding.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2075,
+      "declarationLine": 2121,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "interface"
     },
@@ -102970,7 +102970,7 @@
       "chainBreak": "PublishedScopeBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2076,
+      "declarationLine": 2122,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -102982,7 +102982,7 @@
       "chainBreak": "EnterpriseScope.assertCurrent 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2515,
+      "declarationLine": 2561,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -102994,7 +102994,7 @@
       "chainBreak": "EnterpriseScope.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2515,
+      "declarationLine": 2561,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -103005,7 +103005,7 @@
       "chainBreak": "EnterpriseScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2515,
+      "declarationLine": 2561,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -103016,7 +103016,7 @@
       "chainBreak": "EnterpriseBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2516,
+      "declarationLine": 2562,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },
@@ -103028,7 +103028,7 @@
       "chainBreak": "EnterpriseBinding.enterpriseId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2517,
+      "declarationLine": 2563,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "interface"
     },
@@ -103040,7 +103040,7 @@
       "chainBreak": "EnterpriseBinding.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
-      "declarationLine": 2518,
+      "declarationLine": 2564,
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-review-target.ts",
       "declarationKind": "typeAlias"
     },

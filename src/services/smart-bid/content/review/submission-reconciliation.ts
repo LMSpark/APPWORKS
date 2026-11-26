@@ -8,7 +8,8 @@ import {snapshotReferenceIdentity as identity} from '../references/snapshot-refe
 type Effect=Readonly<{
  eventRef:string;obligationId:string;attemptRef:string;effectiveAt:string;knownAt:string
 }> & (Readonly<{kind:'RECEIVED'}>|Readonly<{kind:'WITHDRAWN'}>|Readonly<{kind:'REPLACED';priorAttemptRef:string}>)
-function time(value:string):number{
+/** 截止、获知和生效时点必须带时区，避免按浏览器本地时间解释。 */
+export function parseSubmissionReconciliationTime(value:string):number{
  const result=Date.parse(value)
  if(!Number.isFinite(result)||!/(?:Z|[+-]\d{2}:\d{2})$/u.test(value))throw Error('SUBMISSION_RECONCILIATION_TIME')
  return result
@@ -23,7 +24,7 @@ function sameEffect(left:Effect,right:Effect):boolean{
 export function reconcileSubmissionDeadline(input:Readonly<{
  cutoffAt:string;knownAt:string;obligationIds:readonly string[];effects:readonly Effect[]
 }>){
- const cutoff=time(input.cutoffAt),known=time(input.knownAt)
+ const cutoff=parseSubmissionReconciliationTime(input.cutoffAt),known=parseSubmissionReconciliationTime(input.knownAt)
  const obligations=new Set(input.obligationIds)
  if(obligations.size!==input.obligationIds.length||!input.obligationIds.every(identity))throw Error('SUBMISSION_RECONCILIATION_SCOPE')
  const seen=new Set<string>(),byObligation=new Map<string,Array<{event:Effect;effective:number}>>()
@@ -31,8 +32,8 @@ export function reconcileSubmissionDeadline(input:Readonly<{
   const {eventRef,obligationId,attemptRef}=event,key=JSON.stringify([obligationId,eventRef])
   if(!obligations.has(obligationId)||!identity(eventRef)||!identity(attemptRef)||seen.has(key))throw Error('SUBMISSION_RECONCILIATION_SCOPE')
   seen.add(key)
-  const effective=time(event.effectiveAt)
-  if(effective>cutoff||time(event.knownAt)>known)continue
+  const effective=parseSubmissionReconciliationTime(event.effectiveAt)
+  if(effective>cutoff||parseSubmissionReconciliationTime(event.knownAt)>known)continue
   const list=byObligation.get(obligationId)??[]
   list.push({event,effective});byObligation.set(obligationId,list)
  }

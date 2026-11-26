@@ -79,4 +79,8 @@ it('shows the deadline batch separately from pending content and retains receipt
  }})
  const signal=new AbortController().signal,showAlert=vi.fn(async()=>{}),showMessage=vi.fn()
  await expect(page.invoke('content.submission.readDeadline',{deadlineRef:'OTHER'},signal)).rejects.toThrow('SUBMISSION_DEADLINE_READ_SCOPE')
+ await expect(page.invoke('content.submission.readDeadline',{deadlineRef:'DL'},signal)).resolves.toMatchObject({
+  scope,roundId:'R',cutoffAt:time,knownAt:time,
+  items:[{obligationId:'O',state:'EFFECTIVE_ATTEMPT',attemptRef:'A',contentState:'PENDING'}],
+ })
 })

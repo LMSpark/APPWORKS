@@ -48,7 +48,7 @@ export function preparePublishedContentSubmissionCall(route:ContentAuthoringRout
 
 type SubmissionSources=NonNullable<Parameters<typeof createContentSubmissionScriptHost>[2]>
 
-/** 页14必须提供截止对账的原始证据来源，供本次正式运行实例读取。 */
+/** 页14从本次运行实例回读原截止记录，正式证据齐备后才计算截止组合。 */
 export function preparePublishedContentDeadlineCall(route:ContentAuthoringRoute,entry:PublishedPageEntry,
  createSources:(runtime:PageRuntime,scope:Scope)=>SubmissionSources,
 ){

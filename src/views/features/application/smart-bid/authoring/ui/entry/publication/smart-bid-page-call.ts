@@ -26,7 +26,6 @@ const operationTitle='AI 作业与核验'
 const knowledgeTitle='知识目录与指南'
 const catalogTitle='ClassModel 登记'
 const submissionTitle='签署与递交'
-const deadlineTitle='回执与截止核对'
 const configurationTitle='配置编审与启用'
 const submissionPageId='smart-bid-authoring-page13'
 const deadlinePageId='smart-bid-authoring-page14'
@@ -47,7 +46,7 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
   submissionPageId,deadlinePageId,knowledgePageId,catalogPageId,operationPageId,configurationPageId,
  ])
  if(standardActionPages.has(title))return preparePublishedSmartBidActionCall(route)
- if(!recognizedPageIds.has(normalizedPageId)&&![knowledgeTitle,catalogTitle,operationTitle,configurationTitle,submissionTitle,deadlineTitle]
+ if(!recognizedPageIds.has(normalizedPageId)&&![knowledgeTitle,catalogTitle,operationTitle,configurationTitle,submissionTitle]
   .includes(title))return undefined
  const entry={applicationId,nodeId:typeof nodeId==='string'?nodeId:'',
   pageId:normalizedPageId,scenarioId:typeof scenarioId==='string'?scenarioId:''}
@@ -59,7 +58,7 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
  }))return undefined
  if(normalizedPageId===submissionPageId||title===submissionTitle)
   return preparePublishedContentSubmissionCall(route,entry,()=>({}))
- if(normalizedPageId===deadlinePageId||title===deadlineTitle)
+ if(normalizedPageId===deadlinePageId)
   return preparePublishedContentDeadlineCall(route,entry,()=>({}))
  if(normalizedPageId===knowledgePageId||title===knowledgeTitle)
   return preparePublishedKnowledgeDirectoryCall(route,entry,(runtime,scope)=>bindModelRoot(runtime,scope.scenarioId))

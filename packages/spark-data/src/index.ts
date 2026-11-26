@@ -97,11 +97,13 @@ export {
   ensureDataSetResourceView,
   ensureDataSetStaticInputTable,
   prepareDataSetReadonlyCommandQuery,
+  submitDataSetCommand,
 } from './data-set-command/data-set-command-view'
 export type {
   BindCommandSubmitOptions,
   BindReadonlyCommandQueryOptions,
   DataSetCommandColumnSpec,
+  DataSetCommandExecution,
   DataSetCommandRequestProof,
   DataSetCommandResourceIdentity,
   DataSetCommandRowsLoader,

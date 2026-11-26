@@ -61,10 +61,10 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
    if(command.registrationId!==registrationId||command.businessInstanceId!==projectId
      ||command.runtimeInstanceId!==runtime.call.instanceId)throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
  }
- const reserve=(command:SmartBidOperationCommand)=>{
+ const reserve=(command:SmartBidOperationCommand,signal?:AbortSignal)=>{
    const key=JSON.stringify([scenarioId,projectId,command.operationId,command.requestKey])
    if(requests.has(key))throw Error('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
-   const action=prepareSmartBidRuntimeAction(owner)
+   const action=prepareSmartBidRuntimeAction(owner,signal)
    requests.add(key)
    return {key,action}
  }
@@ -134,7 +134,7 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
      const commandText=canonicalSnapshotValue(inputCommand)
      const command=structuredClone(inputCommand)
      const now=new Date().toISOString(),turnId=crypto.randomUUID()
-     const {key:reserved,action:prepared}=reserve(command)
+     const {key:reserved,action:prepared}=reserve(command,signal)
      accepted=undefined
      const dispatch:ActiveDispatch={command,commandText,action:prepared}
      active=dispatch

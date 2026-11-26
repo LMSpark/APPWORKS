@@ -9584,6 +9584,7 @@
         "symbols": [
           "DataSetCommandColumnSpec",
           "DataSetCommandScopeGuard",
+          "DataSetCommandExecution",
           "DataSetCommandRowsLoader",
           "DataSetCommandPageLoader",
           "DataSetCommandResourceIdentity",
@@ -26507,6 +26508,10 @@
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-attempt.ts.json"
     },
     "DataSetCommandColumnSpec": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "DataSetCommandExecution": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },

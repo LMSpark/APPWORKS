@@ -2749,7 +2749,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.009Z"
+      "sourceModifiedAt": "2026-11-26T17:46:54.021Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2779,7 +2779,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:26:00.196Z"
+      "sourceModifiedAt": "2026-11-26T17:23:58.343Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -5889,7 +5889,7 @@
     "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts": {
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts",
       "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts.json",
-      "sourceModifiedAt": "2026-11-26T14:41:40.808Z"
+      "sourceModifiedAt": "2026-11-26T17:14:03.230Z"
     },
     "src/services/smart-bid/operation/agent-module/smart-bid-command.ts": {
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-command.ts",
@@ -5909,7 +5909,7 @@
     "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts": {
       "sourceFile": "src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts",
       "shardFile": "files/src/services/smart-bid/operation/agent-module/smart-bid-runtime-action-owner.ts.json",
-      "sourceModifiedAt": "2026-11-26T14:42:08.622Z"
+      "sourceModifiedAt": "2026-11-26T17:23:58.343Z"
     },
     "src/services/smart-bid/operation/guides/operation-action-guide.ts": {
       "sourceFile": "src/services/smart-bid/operation/guides/operation-action-guide.ts",

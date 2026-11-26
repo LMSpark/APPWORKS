@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../../dataset'
 import type {DataRow} from '../../../types'
 import {bindFileResourceAdapter} from '../../../query/file-resource-adapter'
-import {bindDataSetCommandSubmit, ensureDataSetResourceView,type BindCommandSubmitOptions} from '../../../data-set-command/data-set-command-view'
+import {bindDataSetCommandSubmit, ensureDataSetResourceView, submitDataSetCommand, type BindCommandSubmitOptions} from '../../../data-set-command/data-set-command-view'
 
 class TransportFailure extends Error {}
 
@@ -51,6 +51,94 @@ async function addInput(view: ReturnType<typeof setup>['view'], values: Record<s
 }
 
 describe('DataSet command submit helper', () => {
+  it('rejects a concurrent command before staging while the original submit is in flight', async () => {
+    let entered!: () => void, release!: () => void
+    const started = new Promise<void>(resolve => {entered = resolve})
+    const wait = new Promise<void>(resolve => {release = resolve})
+    const f = setup({submit: async row => {entered(); await wait; return row}})
+    try {
+      await f.view.refresh()
+      const original = submitDataSetCommand(f.view, {ServerName: 'original'})
+      try {
+        await started
+        const controller = new AbortController()
+        const competing = submitDataSetCommand(f.view, {ServerName: 'competing'}, {signal: controller.signal})
+        controller.abort()
+        await expect(competing).rejects.toThrow('DATA_SET_COMMAND_BUSY')
+        expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual(['K1'])
+      } finally {release(); await original}
+      expect(f.submit).toHaveBeenCalledOnce()
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each([false, true])('keeps a replacement under the same key outside the original attempt when cancelled=%s', async cancel => {
+    const f = setup()
+    const controller = new AbortController()
+    try {
+      await f.view.refresh()
+      const attempt = submitDataSetCommand(f.view, {rowid: 'K', ServerName: 'original'}, {signal: controller.signal})
+      const removed = f.view.removeRow('K')
+      const replacement = f.view.addRow({rowid: 'K', ServerName: 'replacement'})
+      if (cancel) controller.abort()
+      await expect(attempt).rejects.toThrow(cancel ? /abort/i : 'DATA_SET_COMMAND_DRAFT_CHANGED')
+      await Promise.all([removed, replacement])
+      expect(f.submit).not.toHaveBeenCalled()
+      expect(f.view.rows).toMatchObject([{rowid: 'K', ServerName: 'replacement'}])
+      expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual(['K'])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('cancels after proof generation, clears the exact journal draft and permits a new command', async () => {
+    const f = setup()
+    const controller = new AbortController()
+    const digest = crypto.subtle.digest.bind(crypto.subtle)
+    const proof = vi.spyOn(crypto.subtle, 'digest').mockImplementationOnce(async (algorithm, bytes) => {
+      const result = await digest(algorithm, bytes)
+      controller.abort(new Error('Cancelled while preparing command proof'))
+      return result
+    })
+    try {
+      const unrelated = await addInput(f.view, {ServerName: 'other draft'})
+      await expect(submitDataSetCommand(f.view, {ServerName: 'cancelled'}, {signal: controller.signal}))
+        .rejects.toThrow('Cancelled while preparing command proof')
+      expect(f.submit).not.toHaveBeenCalled()
+      expect(f.verify).not.toHaveBeenCalled()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(f.dataSet.saveJournal.completed).toBe(true)
+      expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([unrelated['rowid']])
+      await expect(submitDataSetCommand(f.view, {ServerName: 'next command'}))
+        .resolves.toMatchObject({ServerName: 'next command'})
+      expect(f.submit).toHaveBeenCalledOnce()
+      expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([unrelated['rowid']])
+    } finally {proof.mockRestore(); f.dataSet.destroy()}
+  })
+
+  it('keeps an already dispatched result unknown when cancellation accompanies a lost receipt', async () => {
+    const controller = new AbortController()
+    const f = setup({submit: async () => {controller.abort(); throw new TransportFailure('Original receipt lost')}})
+    try {
+      await f.view.refresh()
+      await expect(submitDataSetCommand(f.view, {ServerName: 'original'}, {signal: controller.signal})).rejects.toThrow('Original receipt lost')
+      expect(f.submit).toHaveBeenCalledOnce()
+      expect(f.verify).not.toHaveBeenCalled()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect(f.dataSet.saveJournal.currentRecoverableAction).toBe('verify-original-receipt')
+      await expect(submitDataSetCommand(f.view, {ServerName: 'new'})).rejects.toThrow('DATA_SET_COMMAND_UNCONFIRMED')
+      expect(f.verify).not.toHaveBeenCalled()
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('keeps the old draft intact when a new command collides with its key', async () => {
+    const f = setup()
+    try {
+      await addInput(f.view, {rowid: 'K1', ServerName: 'old draft'})
+      await expect(submitDataSetCommand(f.view, {ServerName: 'new'})).rejects.toThrow('命令键已存在')
+      expect(f.view.rows).toMatchObject([{rowid: 'K1', ServerName: 'old draft'}])
+      expect(f.submit).not.toHaveBeenCalled()
+    } finally {f.dataSet.destroy()}
+  })
+
   it('rejects a file document passed to the command binder without occupying its real file owner', async () => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     try {

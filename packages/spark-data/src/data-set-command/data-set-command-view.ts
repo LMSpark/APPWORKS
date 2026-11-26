@@ -4,7 +4,7 @@
  * 边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。
  */
 import {DataViewLocalQuery} from '../query/data-view-local-query'
-import {isRecord} from '@spark-appworks/spark-utils'
+import {isRecord,toErrorMessage} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../dataset'
 import type {DataTable} from '../data-table'
 import {DataViewSaveNotAppliedError, type DataView} from '../data-view'
@@ -15,6 +15,74 @@ export type DataSetCommandColumnSpec = Readonly<Partial<Omit<DataColumn, 'name' 
   & {name: string; primary?: boolean}>
 
 export type DataSetCommandScopeGuard = () => void
+
+/** 本次写命令的生命周期。已派发时继续结算原回执，不再消费取消信号。 */
+export type DataSetCommandExecution = Readonly<{
+  /** 命令派发前可取消；派发后保留正式结果及原请求核验。 */
+  signal?: AbortSignal
+  /** 复核本次业务、执行域和原 owner；发现失效时同步抛错。 */
+  assertCurrent?: DataSetCommandScopeGuard
+}>
+
+const boundCommandViews = new WeakSet<DataView>()
+const commandDispatchGuards = new WeakMap<DataView, (key: unknown) => void>()
+
+/** 在已装配的原命令视图执行一笔临时命令，只撤销经生命周期检查证实未派发的该行。 */
+export async function submitDataSetCommand(view: DataView, input: DataRow, execution: DataSetCommandExecution = {}): Promise<DataRow> {
+  const dataSet = view.dataSet
+  if (!dataSet || !boundCommandViews.has(view)) throw Error('DATA_SET_COMMAND_VIEW_IDENTITY: 写命令需要原绑定视图')
+  if (view.hasUnconfirmedSave) throw Error('DATA_SET_COMMAND_UNCONFIRMED: 请先核验原命令结果')
+  if (view.mutating || commandDispatchGuards.has(view)) throw Error('DATA_SET_COMMAND_BUSY: 原命令视图正在执行')
+  const attempt = {stoppedBeforeDispatch: false}
+  let draft: Readonly<{row: DataRow; key: string | number}> | undefined
+  const ownsDraft = (): boolean => draft !== undefined && view.rows.includes(draft.row)
+    && view.dirtyTracking.isPendingCreate(draft.key)
+  const assertCurrent = (): void => {
+    try {
+      execution.signal?.throwIfAborted()
+      execution.assertCurrent?.()
+      if (view.destroyed || view.dataSet !== dataSet || dataSet.getView(view.tableName, view.viewId) !== view) {
+        throw Error('DATA_SET_COMMAND_VIEW_IDENTITY: 原命令视图已失效')
+      }
+      if (draft !== undefined && !ownsDraft()) throw Error('DATA_SET_COMMAND_DRAFT_CHANGED: 原暂存命令已替换')
+    } catch (error) {
+      attempt.stoppedBeforeDispatch = true
+      throw error
+    }
+  }
+  assertCurrent()
+  commandDispatchGuards.set(view, key => {
+    if (!draft || key !== draft.key) throw Error('DATA_SET_COMMAND_BUSY: 只允许当前视图的原命令派发')
+    assertCurrent()
+  })
+  try {
+    const row = await view.addRow(input)
+    const key = view.getPkKey(row)
+    if (key === undefined) throw Error('DATA_SET_COMMAND_KEY: 暂存命令缺少正式键')
+    draft = {row, key}
+    assertCurrent()
+    const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [key]}]})
+    if (!result.success) throw Error(result.message ?? 'DATA_SET_COMMAND_SAVE: 命令保存失败')
+    const batch = result.data, saved = batch?.viewResults[0]
+    if (batch?.viewCount !== 1 || batch.viewResults.length !== 1 || saved?.tableName !== view.tableName
+      || saved.viewId !== view.viewId || saved.createdCount !== 1 || saved.savedCount !== 0 || saved.deletedCount !== 0
+      || saved.failedCount !== 0 || saved.failedEditingRows !== 0) throw Error('DATA_SET_COMMAND_RECEIPT: 缺少原命令回执')
+    const receipt = view.rows.find(savedRow => view.getPkKey(savedRow) === key)
+    if (!receipt) throw Error('DATA_SET_COMMAND_RECEIPT: 缺少原命令行')
+    return receipt
+  } catch (error) {
+    if (attempt.stoppedBeforeDispatch && !view.destroyed && draft && ownsDraft()) {
+      const {key} = draft
+      const [record, other] = dataSet.saveJournal.views
+      if (!other && record?.state === 'not-applied' && record.tableName === view.tableName && record.viewId === view.viewId
+        && record.ids.length === 1 && record.ids[0] === key) dataSet.discardSaveJournalNotApplied()
+      else view.discardPendingChanges([key])
+    }
+    throw error
+  } finally {
+    commandDispatchGuards.delete(view)
+  }
+}
 
 type QueryResult = Awaited<ReturnType<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>>
 
@@ -223,13 +291,15 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
       options.guard()
       const defaults = Object.fromEntries(options.inputFields.filter(field => columns.has(field)).map(field => [field, '']))
       const key = data[pk]
-      const row={...defaults, ...data, [pk]: typeof key === 'string' && key !== '' ? key : options.createKey()}
+      const id = typeof key === 'string' && key !== '' ? key : options.createKey()
+      const row = {...defaults, ...data, [pk]: id}
       if(options.onPrepareInput){
         const prepare:(input:Readonly<DataRow>)=>unknown=options.onPrepareInput
         const outcome=prepare(Object.freeze(structuredClone(row)))
         if(outcome!==undefined){void Promise.resolve(outcome).catch(()=>undefined);throw new Error('DATA_SET_COMMAND_PREPARE_SYNC: 准备回调须同步完成且不能返回替代行')}
         options.guard()
       }
+      if (view.rows.some(existing => rowKey(existing) === id)) throw Error('DATA_SET_COMMAND_KEY: 命令键已存在')
       return row
     },
     isFieldReadOnly: field => !options.inputFields.includes(field),
@@ -273,11 +343,15 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
       if (added.length !== 1 || submitted === undefined) throw new Error(`DATA_SET_COMMAND_SINGLE_ROW: ${view.tableName} 每次提交一行命令`)
       const original = pending.get(change.context) ?? structuredClone(submitted)
       const key = original[view.primaryKey]
+      const assertDispatch = (): void => {
+        try { commandDispatchGuards.get(view)?.(key) }
+        catch (error) { throw new DataViewSaveNotAppliedError([change], toErrorMessage(error)) }
+      }
       const input = JSON.stringify(stableCommandValue(original))
       let captured = proofs.get(change.context)
       if (!pending.has(change.context) && captured?.input !== input) {
+        assertDispatch()
         const proof = await commandRequestProof(original, key)
-        options.guard()
         captured = {input, proof}
         proofs.set(change.context, captured)
       }
@@ -296,6 +370,8 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
           throw new DataViewSaveNotAppliedError([change], `DATA_SET_COMMAND_NOT_APPLIED: ${view.tableName} 核验确认命令未生效，可修改后重新提交`)
         }
       } else {
+        assertDispatch()
+        options.guard()
         try {
           accepted = await options.submit(structuredClone(original), proof)
         } catch (error) {
@@ -347,6 +423,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
   const resource = {...options.resource}
   const assertBinding = () => view.bindQueryExecutor(executor, {resource})
   assertBinding()
+  boundCommandViews.add(view)
   return assertBinding
 }
 

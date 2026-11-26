@@ -176,6 +176,97 @@ it('preserves the original owner receipt when the actual tool-result return is i
  }finally{f.runtime.dispose();reopened.runtime.dispose()}
 })
 
+it('drops only the command cancelled after staging and before the save starts',async()=>{
+ const f=await openCommandRuntime()
+ const controller=new AbortController()
+ try{
+  const unrelated=await f.view.addRow({...f.command,requestKey:'UNRELATED'})
+  const unrelatedKey=f.view.getPkKey(unrelated)
+  const addRow=f.view.addRow.bind(f.view)
+  vi.spyOn(f.view,'addRow').mockImplementationOnce(async row=>{
+   const staged=await addRow(row)
+   controller.abort()
+   return staged
+  })
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  const result=await f.dispatcher.dispatch(f.command,controller.signal)
+  expect(result.outcome.dispatched).toBe(false)
+  expect(f.submit).not.toHaveBeenCalled()
+  expect(f.verify).not.toHaveBeenCalled()
+  expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([unrelatedKey])
+
+  state.sent=false
+  const next={...f.command,requestKey:'NEXT'}
+  state.script=`return await this.dispatchOperation(${JSON.stringify(next)})`
+  expect((await f.dispatcher.dispatch(next,f.signal)).outcome.state).toBe('ACTION_APPLIED')
+  expect(f.submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({requestKey:'NEXT'}),expect.anything())
+  expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([unrelatedKey])
+ }finally{f.runtime.dispose()}
+})
+
+it('does not dispatch if cancellation arrives while SPARK Data computes the command proof',async()=>{
+ const f=await openCommandRuntime()
+ const controller=new AbortController()
+ const digest=crypto.subtle.digest.bind(crypto.subtle)
+ const proof=vi.spyOn(crypto.subtle,'digest')
+ try{
+  const addRow=f.view.addRow.bind(f.view)
+  vi.spyOn(f.view,'addRow').mockImplementationOnce(async row=>{
+   const staged=await addRow(row)
+   proof.mockImplementationOnce(async (algorithm,data)=>{
+    const output=await digest(algorithm,data)
+    controller.abort()
+    return output
+   })
+   return staged
+  })
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  const result=await f.dispatcher.dispatch(f.command,controller.signal)
+  expect(controller.signal.aborted).toBe(true)
+  expect(result.outcome.dispatched).toBe(false)
+  expect(f.submit).not.toHaveBeenCalled()
+  expect(f.verify).not.toHaveBeenCalled()
+  expect(f.view.hasUnconfirmedSave).toBe(false)
+  expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([])
+ }finally{proof.mockRestore();f.runtime.dispose()}
+})
+
+it('drops the staged command when the original owner is no longer unique before save',async()=>{
+ const f=await openCommandRuntime()
+ try{
+  const addRow=f.view.addRow.bind(f.view)
+  vi.spyOn(f.view,'addRow').mockImplementationOnce(async row=>{
+   const staged=await addRow(row)
+   await f.declare('Replacement').refresh()
+   return staged
+  })
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  const result=await f.dispatcher.dispatch(f.command,f.signal)
+  expect(result.outcome.dispatched).toBe(false)
+  expect(f.submit).not.toHaveBeenCalled()
+  expect(f.verify).not.toHaveBeenCalled()
+  expect([...f.view.dirtyTracking.pendingCreateIds]).toEqual([])
+ }finally{f.runtime.dispose()}
+})
+
+it('keeps the confirmed original receipt if cancellation arrives during submission',async()=>{
+ const f=await openCommandRuntime()
+ const controller=new AbortController()
+ try{
+  f.submit.mockImplementationOnce(async row=>{
+   controller.abort()
+   return {...row,receiptRef:'AFTER_CANCEL'}
+  })
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  const result=await f.dispatcher.dispatch(f.command,controller.signal)
+  expect(result.outcome).toMatchObject({state:'ACTION_APPLIED',dispatched:true,
+   actionReceipt:{requestKey:'ORIGINAL',receiptRef:'AFTER_CANCEL'}})
+  await expect(f.createDispatcher().dispatch(f.command,f.signal)).rejects.toThrow('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+  expect(f.submit).toHaveBeenCalledOnce()
+  expect(f.verify).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose()}
+})
+
 it('uses the same owner execution for a repeated command in one generated ClassModel turn',async()=>{
  const f=await openCommandRuntime()
  try{

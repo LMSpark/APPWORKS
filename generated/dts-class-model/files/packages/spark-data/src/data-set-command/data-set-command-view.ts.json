@@ -12,6 +12,7 @@
     "symbols": [
       "DataSetCommandColumnSpec",
       "DataSetCommandScopeGuard",
+      "DataSetCommandExecution",
       "DataSetCommandRowsLoader",
       "DataSetCommandPageLoader",
       "DataSetCommandResourceIdentity",
@@ -294,7 +295,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305476": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -349,7 +350,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305476"
               ],
               "additionalProperties": false
             }
@@ -451,6 +452,22 @@
       "required": [
         "name"
       ],
+      "additionalProperties": false
+    },
+    "DataSetCommandExecution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCommandExecution",
+      "properties": {
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        }
+      },
       "additionalProperties": false
     },
     "QueryResult": {
@@ -847,7 +864,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.009Z",
+  "generatedAt": "2026-11-26T17:46:54.021Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -885,6 +902,37 @@
       "typeAlias": {
         "declarationTypeText": "() => void",
         "members": {}
+      }
+    },
+    "DataSetCommandExecution": {
+      "name": "DataSetCommandExecution",
+      "jsdoc": "本次写命令的生命周期。已派发时继续结算原回执，不再消费取消信号。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 命令派发前可取消；派发后保留正式结果及原请求核验。 */\n    signal?: AbortSignal;\n    /** 复核本次业务、执行域和原 owner；发现失效时同步抛错。 */\n    assertCurrent?: DataSetCommandScopeGuard;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 命令派发前可取消；派发后保留正式结果及原请求核验。 */\n    signal?: AbortSignal;\n    /** 复核本次业务、执行域和原 owner；发现失效时同步抛错。 */\n    assertCurrent?: DataSetCommandScopeGuard;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "signal",
+              "jsdoc": "命令派发前可取消；派发后保留正式结果及原请求核验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "复核本次业务、执行域和原 owner；发现失效时同步抛错。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "QueryResult": {

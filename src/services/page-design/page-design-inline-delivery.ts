@@ -87,15 +87,37 @@ function createPageDesignDeliveryPort(
       if(targetNames.length>0&&savePageFile===undefined)throw new Error('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner')
       const page=context.editor.project.getActivePage()
       if(targetNames.length>0&&(page?.pageId!==context.pageId||page.isLoaded!==true))throw new Error('PAGE_DESIGN_REQUEST_MISMATCH: AI交付页面未就绪')
-      const saves:Array<Promise<void>>=[]
+      const fileSaves: Array<() => Promise<void>> = []
       if(targetNames.length>0){
         if(savePageFile===undefined||page===null)throw new Error('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave owner或页面缺失')
-        for(const name of targetNames)saves.push(savePageFile(context.pageId,name,page.getFileText(name)))
+        for (const name of targetNames) {
+          const text = page.getFileText(name)
+          fileSaves.push(async () => {
+            if (context.editor.project.getActivePage() !== page || page.getFileText(name) !== text) {
+              throw new Error(`PAGE_DESIGN_FILE_CHANGED: ${name} 的页面或草稿已变化，请另行保存`)
+            }
+            await savePageFile(context.pageId, name, text)
+          })
+        }
       }
-      if (scene && shouldSaveScene) saves.push(scene.saveChanges({views: sceneViews}).then(result => {
+      // 具名文件共享同一个 DataSet，各自提交和结算。场景定义由独立 DataSet 持有。
+      const fileResults = (async () => {
+        const results: Array<PromiseSettledResult<void>> = []
+        for (const save of fileSaves) {
+          try {
+            await save()
+            results.push({status: 'fulfilled', value: undefined})
+          } catch (reason) {
+            results.push({status: 'rejected', reason})
+          }
+        }
+        return results
+      })()
+      const sceneSave = scene && shouldSaveScene ? scene.saveChanges({views: sceneViews}).then(result => {
         if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
-      }))
-      const results = await Promise.allSettled(saves)
+      }) : undefined
+      const scenarioResults = Promise.allSettled(sceneSave ? [sceneSave] : [])
+      const results = [...await fileResults, ...await scenarioResults]
       const errors = results.flatMap(result => result.status === 'rejected' ? [toError(result.reason).message] : [])
       const remainingFiles = new Set(context.editor.project.findPageTool(context.pageId)?.getDirtyFileNames() ?? [])
       const scenePending = scene !== null && scenarioId !== undefined && pendingDefinitionViews(scene, scenarioId).length > 0

@@ -34,7 +34,7 @@ import {
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import type {DataView, DataSet, DataViewSourceWriteAttemptStatus} from '@spark-appworks/spark-data'
+import {RequestState,type DataView,type DataSet,type DataViewSourceWriteAttemptStatus} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
@@ -44,9 +44,9 @@ import { readRepositoryScenarioText } from '@/platform-adapters/resources/reposi
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
-import {createPageFileResourceView, pageFileResourceViewId} from '@/services/project/page-tool-file-dataview'
+import {createPageFileResourceView, createPagePublicationManifestFileView, pageFileResourceViewId, type PageToolFileBindingScope} from '@/services/project/page-tool-file-dataview'
 import { BlueprintWorkspaceDataView, type BlueprintModuleCreateCandidate, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
-import {createPageToolFiles,compensatePageToolFiles,deletePageToolFiles,listPageToolFileNames} from '@/services/project/page-tool-file-operations'
+import {createPageToolFiles,compensatePageToolFiles,deletePageToolFiles,preparePageToolFileDeletion,retainSharedPageToolFiles,assertPageToolFileDeletionReady,findPendingPageToolFileHistory,beginPageToolFileCreation,type PageToolFileCreation} from '@/services/project/page-tool-file-operations'
 
 const PAGE_FILE_TABLE='ProjectToolFile'
 
@@ -142,8 +142,8 @@ export type ExternalDataViewSession = Readonly<{
   hasTreeProjection?: () => boolean
   childCreateActionState?: (parentNodeId:string) => 'enabled'|'hidden'|'disabled'|'unknown'
 }>
-type PendingPageBindingCreate={kind:'binding';pageId:string;parentId:string;nodeId:string;projectId:string;title:string;icon:string;stage:'files'|'blueprint'|'compensate'|'done'}
-type PendingChildPageCreate={kind:'child';pageId:string;parentId:string;nodeId:string;projectId:string;childInput:Record<string,unknown>;stage:'files'|'blueprint'|'compensate'|'done'}
+type PendingPageBindingCreate={kind:'binding';pageId:string;parentId:string;nodeId:string;projectId:string;title:string;icon:string;fileCreation:PageToolFileCreation;stage:'files'|'blueprint'|'compensate'|'done'}
+type PendingChildPageCreate={kind:'child';pageId:string;parentId:string;nodeId:string;projectId:string;childInput:Record<string,unknown>;fileCreation:PageToolFileCreation;stage:'files'|'blueprint'|'compensate'|'done'}
 type PendingPageOperation=PendingPageBindingCreate|PendingChildPageCreate
 type PendingMountedPageDelete={pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}
 type BlueprintOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;executionProjectId:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;
@@ -154,6 +154,17 @@ function assertOwnerBundleHeld(bundle:BlueprintOwnerBundle):void{
   const check=bundle.holderCheck
   if(!check)throw new Error('蓝图 DataView owner 当前未被同项目工作区持有')
   check()
+}
+function captureOwnerBundleOperation(bundle:BlueprintOwnerBundle):()=>void{
+  assertOwnerBundleHeld(bundle)
+  const generation=bundle.leaseGeneration
+  return ()=>{
+    if(bundle.leaseGeneration!==generation)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 原工作区租约已失效')
+    assertOwnerBundleHeld(bundle)
+  }
+}
+function pageFileBindingScope(bundle:BlueprintOwnerBundle):PageToolFileBindingScope{
+  return {assertCurrent:()=>assertOwnerBundleHeld(bundle),captureOperationScope:()=>captureOwnerBundleOperation(bundle)}
 }
 const blueprintOwnerBundles=new WeakMap<ProjectBlueprintDomain.ProjectWorkspace,Map<string,BlueprintOwnerBundle>>()
 let blueprintLeaseGeneration=0
@@ -171,6 +182,7 @@ function deleteBlueprintOwnerBundle(workspace:ProjectBlueprintDomain.ProjectWork
 // ═══════════════════════════════════════════════════════════
 
 export function useDevState() {
+  const workspaceScope=getCurrentScope()
   const initialPrincipal = readLowcodePrincipal()
   const initialScope: ProjectWorkspaceScope = {
     projectId: initialPrincipal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID,
@@ -205,7 +217,7 @@ export function useDevState() {
   function currentPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
     if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前 DataSet 未就绪')
-    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,workspace:bundle.workspace,assertCurrent:()=>assertOwnerBundleHeld(bundle)})
+    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,workspace:bundle.workspace,...pageFileBindingScope(bundle)})
   }
   /** 读取或暂存只定位已加载的原文件 DataView；不重新绑定，避免替换在途保存所依赖的绑定。 */
   function loadedPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
@@ -219,7 +231,12 @@ export function useDevState() {
   function pageFileOperationScope(pageId:string){
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
     if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前正式 DataSet 未就绪')
-    return {dataSet:session.dataSet,appId:session.projectId,pageId,assertCurrent:()=>assertOwnerBundleHeld(bundle)}
+    return {dataSet:session.dataSet,appId:session.projectId,pageId,assertCurrent:captureOwnerBundleOperation(bundle),viewScope:pageFileBindingScope(bundle)}
+  }
+  /** 发布工作清单复用工作台文件 owner，文件操作捕获当次租约。 */
+  function getPagePublicationManifestDataView(pageId:string):DataView{
+    const {dataSet,appId,viewScope}=pageFileOperationScope(pageId)
+    return createPagePublicationManifestFileView({dataSet,appId,pageId,workspace:currentEditor.value,...viewScope})
   }
   function readPageToolFileDataViewText(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):string{
     const view=loadedPageFileView(pageId,fileName)
@@ -249,10 +266,14 @@ export function useDevState() {
   function hasPendingPageFileViews(dataSet:DataSet):boolean{return pendingPageToolFileTargets(dataSet).length>0}
   function hasUnconfirmedPageFileViews(dataSet:DataSet):boolean{return dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.viewId!=='default'&&view.hasUnconfirmedSave)===true}
   async function savePendingPageFiles(dataSet:DataSet, verifyOnly = false):Promise<void>{
+    const owner=activeOwnerBundle
+    if(owner?.blueprint.dataSet!==dataSet)throw new Error('PAGE_TOOL_FILE_SAVE_SCOPE: 当前工作区与待保存文件不一致')
+    const assertLease=captureOwnerBundleOperation(owner)
     const table=dataSet.getTable(PAGE_FILE_TABLE)
     if(!table)throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile DataTable 缺失')
     if(verifyOnly){
       const journal=await dataSet.verifySaveJournal()
+      assertLease()
       const unknown=journal.views.find(view=>view.state==='unknown')
       if(unknown)throw unknown.originalError??new Error('PAGE_TOOL_FILE_UNKNOWN: 原文件 DataView 回执仍待核验')
       return
@@ -260,6 +281,7 @@ export function useDevState() {
     for(const view of table.viewList){
       if(view.viewId==='default'||!view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave)continue
       const result=await dataSet.saveChanges({views:[{tableName:PAGE_FILE_TABLE,viewId:view.viewId}]})
+      assertLease()
       if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存失败')
       if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
     }
@@ -275,6 +297,7 @@ export function useDevState() {
       const pending=!!pendingMountedPageDelete||!!pendingPageBindingCreate||bundle.blueprint.hasPendingBlueprintCommand
         ||bundle.blueprint.isBusy||bundle.blueprint.dirty
         ||(bundle.blueprint.dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.dirtyTracking.hasPendingChanges()||view.hasEditingChanges()||view.hasUnconfirmedSave)??false)
+        ||findPendingPageToolFileHistory(bundle.blueprint.dataSet)!==undefined
         ||bundle.workspace.hasPendingScenarioVersionAttempt
       retainHistoryOwner=bundle.workspace.hasPendingScenarioVersionAttempt
       if(!pending){for(const page of bundle.workspace.project.design.pages)page.unbindCleanFileDataViews();deleteBlueprintOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.session.dispose()}
@@ -294,52 +317,56 @@ export function useDevState() {
     externalDataViewRevision.value++
   }
   async function loadBlueprintWorkspaceDataView():Promise<BlueprintWorkspaceDataView>{
+    if(workspaceScope?.active===false)throw new Error('DEV_SYSTEM_OWNER_LEASE_STALE: 请求工作区已关闭')
     const projectKey=projectId.value,workspace=currentEditor.value
     if(blueprintWorkspaceDataView.value?.projectId===projectKey){if(activeOwnerBundle)assertOwnerBundleCurrent(activeOwnerBundle);return blueprintWorkspaceDataView.value}
+    if(blueprintWorkspaceLoad)return blueprintWorkspaceLoad
     const bundleKey=devSystemOwnerKey(activeEditScope.value)
     const requestScope=lowcodeApi.readRequestScope()
     const scopeToken=requestScope.token
     const executionProjectId=requestScope.headers['X-AppId']
     if(!executionProjectId)throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 蓝图场景缺少当前执行应用身份')
-    const parked=getBlueprintOwnerBundle(workspace,bundleKey)
-    if(parked){
-      if(parked.assertCurrent!==undefined)throw new Error('DEV_SYSTEM_OWNER_LEASE_ACTIVE: 同项目 DataView owner 仍由另一 SPA scope 持有')
-      const fingerprint=await fingerprintRequestScope(scopeToken)
-      if(parked.scopeFingerprint!==fingerprint||parked.executionProjectId!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: 同项目存在另一认证上下文的待处理 owner；拒绝交叉续接')
-      if(blueprintOwnerBundles.get(workspace)?.get(bundleKey)!==parked||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: owner 核验期间认证上下文或租约已变化')
-      if(parked.blueprint.projectId!==projectKey||parked.runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!==parked.blueprint.dataSet)throw new Error('DEV_SYSTEM_OWNER_IDENTITY: parked owner 不属于当前项目或运行时')
-      const guard=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图 owner lease 已失效')}
-      parked.leaseGeneration=++blueprintLeaseGeneration
-      ownerLeaseGeneration=parked.leaseGeneration
-      ownerScopeToken=scopeToken
-      parked.assertCurrent=guard
-      parked.holderCheck=()=>assertOwnerBundleCurrent(parked)
-      parked.blueprint.rebindScope(()=>assertOwnerBundleCurrent(parked))
-      activeOwnerBundle=parked
-      pendingMountedPageDelete=parked.pendingMountedPageDelete
-      pendingPageBindingCreate=parked.pendingPageBindingCreate
-      blueprintPageRuntime.value=parked.runtime
-      activeBlueprintSession=parked.session
-      blueprintWorkspaceDataView.value=parked.blueprint
-      const session=parked.blueprint
-      const external:ExternalDataViewSession={isDirty:()=>session.dirty||hasPendingPageFileViews(session.dataSet)||!!pendingMountedPageDelete||!!pendingPageBindingCreate,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||hasUnconfirmedPageFileViews(session.dataSet),save:async()=>{
-        assertOwnerBundleCurrent(parked)
-        if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
-        if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
-        if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(session.dataSet)
-        if(session.dirty)await session.save()
-        refreshBlueprintTreeProjection()
-        return
-      },
-        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),moveBlueprintNodeRelative:command=>session.moveNodeRelative(command),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
-        childCreateActionState:id=>session.childCreateActionState(id)}
-      unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
-      return session
-    }
-    if(blueprintWorkspaceLoad)return blueprintWorkspaceLoad
     const revision=++blueprintWorkspaceLoadRevision
-    let loadScopeToken=scopeToken
     const loading=(async()=>{
+      const parked=getBlueprintOwnerBundle(workspace,bundleKey)
+      if(parked){
+        if(parked.assertCurrent!==undefined)throw new Error('DEV_SYSTEM_OWNER_LEASE_ACTIVE: 同项目 DataView owner 仍由另一 SPA scope 持有')
+        const parkedGeneration=parked.leaseGeneration
+        const fingerprint=await fingerprintRequestScope(scopeToken)
+        if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('DEV_SYSTEM_OWNER_LEASE_STALE: 请求工作区已关闭或切换')
+        if(parked.scopeFingerprint!==fingerprint||parked.executionProjectId!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: 同项目存在另一认证上下文的待处理 owner；拒绝交叉续接')
+        if(blueprintOwnerBundles.get(workspace)?.get(bundleKey)!==parked||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('DEV_SYSTEM_OWNER_AUTH_SCOPE: owner 核验期间认证上下文或租约已变化')
+        if(parked.leaseGeneration!==parkedGeneration)throw new Error('DEV_SYSTEM_OWNER_LEASE_ACTIVE: 同项目 DataView owner 已被其他工作区接管')
+        if(parked.blueprint.projectId!==projectKey||parked.runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!==parked.blueprint.dataSet)throw new Error('DEV_SYSTEM_OWNER_IDENTITY: parked owner 不属于当前项目或运行时')
+        const guard=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId)throw new Error('蓝图 owner lease 已失效')}
+        parked.leaseGeneration=++blueprintLeaseGeneration
+        ownerLeaseGeneration=parked.leaseGeneration
+        ownerScopeToken=scopeToken
+        parked.assertCurrent=guard
+        parked.holderCheck=()=>assertOwnerBundleCurrent(parked)
+        parked.blueprint.rebindScope(()=>assertOwnerBundleCurrent(parked))
+        activeOwnerBundle=parked
+        pendingMountedPageDelete=parked.pendingMountedPageDelete
+        pendingPageBindingCreate=parked.pendingPageBindingCreate
+        blueprintPageRuntime.value=parked.runtime
+        activeBlueprintSession=parked.session
+        blueprintWorkspaceDataView.value=parked.blueprint
+        const session=parked.blueprint
+        const external:ExternalDataViewSession={isDirty:()=>session.dirty||hasPendingPageFileViews(session.dataSet)||!!pendingMountedPageDelete||!!pendingPageBindingCreate,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||hasUnconfirmedPageFileViews(session.dataSet),save:async()=>{
+          assertOwnerBundleCurrent(parked)
+          if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
+          if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
+          if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(session.dataSet)
+          if(session.dirty)await session.save()
+          refreshBlueprintTreeProjection()
+          return
+        },
+          moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),moveBlueprintNodeRelative:command=>session.moveNodeRelative(command),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
+          childCreateActionState:id=>session.childCreateActionState(id)}
+        unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
+        return session
+      }
+      let loadScopeToken=scopeToken
       const runtimeSession=new NativePageRuntimeSession()
       const runtime=runtimeSession.acquire({pageId:'project-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId,...BLUEPRINT_OPTION_SCENARIO_IDS],deferredScenarioIds:BLUEPRINT_OPTION_SCENARIO_IDS,mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,targetId:projectKey,
         loadScenario:async scenarioId=>{
@@ -370,6 +397,7 @@ export function useDevState() {
       if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
       const scopeFingerprint=await fingerprintRequestScope(scopeToken)
       if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||lowcodeApi.readRequestScope().headers['X-AppId']!==executionProjectId||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+      if(getBlueprintOwnerBundle(workspace,bundleKey)){releaseAttempt();throw new Error('DEV_SYSTEM_OWNER_LEASE_ACTIVE: 同项目 DataView owner 已被其他工作区接管')}
       let session:BlueprintWorkspaceDataView
       try{
         let assertLease:()=>void=()=>{throw new Error('蓝图 DataView owner 尚未取得活动租约')}
@@ -467,8 +495,10 @@ export function useDevState() {
     const workspace=currentEditor.value,scope=currentScopeKey()
     await loadBlueprintWorkspaceDataView()
     const page=workspace.project.findPageTool(pageId)
-    if(!page||(requireActive&&workspace.project.getActivePage()!==page))throw new Error('PAGE_TOOL_FILE_SAVE_SCOPE: 活跃文件 DataView 或页面身份不可用')
-    const assertCurrent=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(pageId)!==page||requireActive&&workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区或页面身份已变化')}
+    const owner=activeOwnerBundle
+    if(!owner||!page||(requireActive&&workspace.project.getActivePage()!==page))throw new Error('PAGE_TOOL_FILE_SAVE_SCOPE: 活跃文件 DataView 或页面身份不可用')
+    const assertLease=captureOwnerBundleOperation(owner)
+    const assertCurrent=()=>{assertLease();if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(pageId)!==page||requireActive&&workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区或页面身份已变化')}
     const view=await loadPageToolFileDataView({pageId,fileName});assertCurrent()
     const row=view.currentRow,id=row&&view.getPkKey(row)
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName||typeof row['text']!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: 查询没有返回目标文件行')
@@ -498,9 +528,11 @@ export function useDevState() {
     await loadBlueprintWorkspaceDataView()
     const page=workspace.project.findPageTool(input.pageId)
     if(!page)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件 DataView 或页面身份不可用')
-    const view=currentPageFileView(input.pageId,input.fileName)
     const owner=activeOwnerBundle
-    const assertCurrent=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 项目、页面或owner已切换');if(owner)assertOwnerBundleCurrent(owner)}
+    if(!owner)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前文件 owner 不可用')
+    const assertLease=captureOwnerBundleOperation(owner)
+    const view=currentPageFileView(input.pageId,input.fileName)
+    const assertCurrent=()=>{assertLease();if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 项目、页面或owner已切换')}
     const assertPageToolEditCurrent=()=>{assertCurrent();if(activePageId.value!==input.pageId||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 当前页面目标已切换')}
     const bindPageToolView=()=>page.bindFileDataView(input.fileName,view,{assertCurrent:assertPageToolEditCurrent,onChanged:()=>{assertPageToolEditCurrent();externalDataViewRevision.value++;workspace.notifyPageFileChanged(input.pageId,input.fileName)}})
     if(view.hasUnconfirmedSave&&view.queryContext['fileName']!==input.fileName)throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原文件提交仍待核验')
@@ -512,7 +544,7 @@ export function useDevState() {
       view.discardPendingChanges()
     }
     view.queryContext={...view.queryContext,appId:projectId.value,pageId:input.pageId,fileName:input.fileName,versionId:''}
-    if(input.forceReload!==true){
+    if(input.forceReload!==true&&view.requestState===RequestState.Loaded){
       const loaded=view.rows.find(candidate=>candidate['pageId']===input.pageId&&candidate['fileName']===input.fileName)
       if(loaded){const id=view.getPkKey(loaded);if(id!==undefined){view.setCurrentRowById(id);bindPageToolView();return view}}
     }
@@ -556,20 +588,35 @@ export function useDevState() {
     if(projectId.value!==pending.projectId)throw new Error('MOUNTED_PAGE_DELETE_SCOPE: 项目身份已切换')
     let blueprintDeleted=pending.stage==='files'
     try{
+      const owner=await loadBlueprintWorkspaceDataView()
+      if(pendingMountedPageDelete!==pending||owner.projectId!==pending.projectId)throw new Error('MOUNTED_PAGE_DELETE_SCOPE: 原挂载删除目标已变化')
+      const files=pageFileOperationScope(pending.pageId)
+      let tree:ProjectBlueprintDomain.ProjectBlueprintTreeData
       if(pending.stage==='blueprint'){
-        const owner=await loadBlueprintWorkspaceDataView()
-        await listPageToolFileNames(pageFileOperationScope(pending.pageId))
-        await owner.removeLeafNode(pending.nodeId,pending.projectId,pending.parentNodeId)
+        await preparePageToolFileDeletion(files)
+        tree=await owner.removeLeafNode({nodeId:pending.nodeId,projectId:pending.projectId,parentNodeId:pending.parentNodeId,
+          beforeStage:()=>assertPageToolFileDeletionReady(files)})
         pending.stage='files';blueprintDeleted=true
+        files.assertCurrent()
         refreshBlueprintTreeProjection();externalDataViewRevision.value++
+      }else{
+        tree=await owner.loadProjectTree()
       }
-      await deletePageToolFiles(pageFileOperationScope(pending.pageId))
-      project.closePageDesign(pending.pageId);project.markPageLoadedChanged(pending.pageId,false)
+      files.assertCurrent()
+      const shared=findPageNodeByPageId(tree.children,pending.pageId)!==null
+      if(shared){
+        await retainSharedPageToolFiles(files)
+        files.assertCurrent()
+      }else{
+        await deletePageToolFiles(files)
+        files.assertCurrent()
+        project.closePageDesign(pending.pageId);project.markPageLoadedChanged(pending.pageId,false)
+        bumpPageCache(pending.pageId,'__deleted')
+      }
       if(selectedNode.value?.nodeId===pending.nodeId){project.selectNode(null);clearActivePageContext()}
-      bumpPageCache(pending.pageId,'__deleted')
       pendingMountedPageDelete=undefined
       void syncRuntimeNavigationIfDefaultProject()
-      addStatus(`已删除 ${pending.title}`,'info')
+      addStatus(shared?`已解除挂载 ${pending.title}，其他节点仍引用该工具，剩余文件已保留`:`已删除 ${pending.title}`,'info')
     }catch(error){
       if(blueprintDeleted)throw new Error(`MOUNTED_PAGE_FILE_DELETE_PARTIAL: 蓝图节点已删除，文件清理待确认：${String(error)}`)
       throw error
@@ -579,23 +626,26 @@ export function useDevState() {
     const pending=pendingPageBindingCreate
     if(!pending)return
     if(projectId.value!==pending.projectId||currentEditor.value.project.projectId!==pending.projectId)throw new Error('PAGE_BINDING_SCOPE: 项目身份已切换')
+    const bundle=activeOwnerBundle
+    if(!bundle)throw new Error('PAGE_BINDING_SCOPE: 创建流程没有当前工作区租约')
+    const assertLease=captureOwnerBundleOperation(bundle)
     if(pending.kind==='child'){
       const scope=currentScopeKey(),workspace=currentEditor.value,owner=await loadBlueprintWorkspaceDataView()
-      const assertTarget=()=>{if(currentScopeKey()!==scope||currentEditor.value!==workspace||projectId.value!==pending.projectId
+      const assertTarget=()=>{assertLease();if(currentScopeKey()!==scope||currentEditor.value!==workspace||projectId.value!==pending.projectId
         ||owner.projectId!==pending.projectId)throw new Error('PAGE_TOOL_CHILD_CREATE_STALE: 项目或父节点已切换')}
       assertTarget()
       if(pending.stage==='compensate'){
-        await compensatePageToolFiles(pageFileOperationScope(pending.pageId));pendingPageBindingCreate=undefined
+        await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertLease();pendingPageBindingCreate=undefined
         addStatus(`工具 ${pending.pageId} 子节点创建失败，未修改的默认文件已补偿清理`,'warning');return
       }
       if(pending.stage==='files'||!owner.hasPendingChildCreate)owner.preflightChildNode(pending.parentId,pending.childInput)
       if(pending.stage==='files'){
-        try{await createPageToolFiles(pageFileOperationScope(pending.pageId),{resume:true});assertTarget()}
+        try{await createPageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertTarget()}
         catch(error){
-          const dataSet=blueprintWorkspaceDataView.value?.dataSet
-          if(dataSet&&hasUnconfirmedPageFileViews(dataSet))throw error
+          assertLease()
+          if(hasUnconfirmedPageFileViews(bundle.blueprint.dataSet))throw error
           pending.stage='compensate'
-          try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId));pendingPageBindingCreate=undefined}
+          try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertLease();pendingPageBindingCreate=undefined}
           catch(cleanupError){throw new Error(`PAGE_TOOL_CHILD_COMPENSATION_PENDING: ${String(error)}; ${String(cleanupError)}`)}
           throw error
         }
@@ -610,35 +660,38 @@ export function useDevState() {
         }
         assertTarget()
       }catch(error){
+        assertLease()
         if(owner.hasPendingChildCreate)throw error
         pending.stage='compensate'
-        try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId));pendingPageBindingCreate=undefined}
+        try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertLease();pendingPageBindingCreate=undefined}
         catch(cleanupError){throw new Error(`PAGE_TOOL_CHILD_COMPENSATION_PENDING: ${String(error)}; ${String(cleanupError)}`)}
         throw error
       }
       pending.stage='done';pendingPageBindingCreate=undefined
       refreshBlueprintTreeProjection();externalDataViewRevision.value++
       await syncRuntimeNavigationIfDefaultProject()
+      assertLease()
       addStatus(`已在 ${owner.projectId} 项目下创建工具页面 ${pending.pageId}`,'info')
       return
     }
     if(pending.stage==='compensate'){
-      await compensatePageToolFiles(pageFileOperationScope(pending.pageId))
+      await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation)
+      assertLease()
       pendingPageBindingCreate=undefined
       addStatus(`工具 ${pending.pageId} 蓝图绑定失败，默认页面文件已按原补偿命令清理`,'warning')
       return
     }
     const scope=currentScopeKey(),workspace=currentEditor.value
-    const assertTarget=()=>{if(currentScopeKey()!==scope||currentEditor.value!==workspace
+    const assertTarget=()=>{assertLease();if(currentScopeKey()!==scope||currentEditor.value!==workspace
       ||selectedNode.value?.nodeId!==pending.nodeId)throw new Error('工具创建期间原项目或节点目标已切换')}
     assertTarget()
     if(pending.stage==='files'){
-      try{await createPageToolFiles(pageFileOperationScope(pending.pageId),{resume:true});assertTarget()}
+      try{await createPageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertTarget()}
       catch(error){
-        const dataSet=blueprintWorkspaceDataView.value?.dataSet
-        if(dataSet&&hasUnconfirmedPageFileViews(dataSet))throw error
+        assertLease()
+        if(hasUnconfirmedPageFileViews(bundle.blueprint.dataSet))throw error
         pending.stage='compensate'
-        try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId));pendingPageBindingCreate=undefined}
+        try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertLease();pendingPageBindingCreate=undefined}
         catch(cleanupError){throw new Error(`PAGE_BINDING_COMPENSATION_PENDING: ${String(error)}; ${String(cleanupError)}`)}
         throw error
       }
@@ -659,10 +712,11 @@ export function useDevState() {
         await owner.saveSelectedNode();assertTarget()
       }
     }catch(error){
+      assertLease()
       if(owner.hasUnconfirmedSave)throw error
       if(owner.dirty)owner.cancel()
       pending.stage='compensate'
-      try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId));pendingPageBindingCreate=undefined}
+      try{await compensatePageToolFiles(pageFileOperationScope(pending.pageId),pending.fileCreation);assertLease();pendingPageBindingCreate=undefined}
       catch(cleanupError){throw new Error(`PAGE_BINDING_COMPENSATION_PENDING: ${String(error)}; ${String(cleanupError)}`)}
       throw error
     }
@@ -670,6 +724,7 @@ export function useDevState() {
     pendingPageBindingCreate=undefined
     refreshBlueprintTreeProjection();notifyExternalDataViewChanged()
     if(isDefaultUserProjectScope())await reloadAndSyncNavigation()
+    assertLease()
     handlePathChange(`/${pending.pageId}`);bumpPageCache(pending.pageId,'__created')
     assertTarget()
     if(!setActivePageContext(pending.pageId))throw new Error('PAGE_BINDING_ACTIVE_PAGE: 新建工具未能绑定活动页面')
@@ -1761,7 +1816,7 @@ export function useDevState() {
       owner.preflightNodeData(next)
       if(owner.dataSet.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY)throw new Error('工具创建所需正式 Blueprint DataSet 身份无效')
       const parentId=`page-binding:${selected.nodeId}`
-      saga={kind:'binding',pageId,parentId,nodeId:selected.nodeId,projectId:selected.projectId,title,icon:params.icon,stage:'files'}
+      saga={kind:'binding',pageId,parentId,nodeId:selected.nodeId,projectId:selected.projectId,title,icon:params.icon,fileCreation:beginPageToolFileCreation(pageFileOperationScope(pageId)),stage:'files'}
       pendingPageBindingCreate=saga
       await resumePendingPageBindingCreate()
       return true
@@ -1962,7 +2017,7 @@ export function useDevState() {
         DifficultyFactor:'0',Manhour:'0',Number:'0',Sum:'0',Total:'0',personCharge:'',status:'',FunOrderValue:'0',NavigationImageWxz:'Document',MobileUrl:'',
         IsShowAtNav:'1',IsShowChildItem:'1',BeginGroup:'0',ChildItemLocation:'Left',HorizontalAlignment:''}
       session.preflightChildNode(parent.nodeId,childInput)
-      pendingPageBindingCreate={kind:'child',pageId,parentId:parent.nodeId,nodeId:parent.nodeId,projectId:session.projectId,childInput,stage:'files'}
+      pendingPageBindingCreate={kind:'child',pageId,parentId:parent.nodeId,nodeId:parent.nodeId,projectId:session.projectId,childInput,fileCreation:beginPageToolFileCreation(pageFileOperationScope(pageId)),stage:'files'}
       await resumePendingPageBindingCreate()
     } catch (e) {
       addStatus(`添加节点失败: ${String(e)}`, 'error')
@@ -1996,7 +2051,7 @@ export function useDevState() {
           return
         }
         const owner=await loadBlueprintWorkspaceDataView()
-        await owner.removeLeafNode(data.nodeId,data.projectId,data.parentNodeId)
+        await owner.removeLeafNode({nodeId:data.nodeId,projectId:data.projectId,parentNodeId:data.parentNodeId})
         refreshBlueprintTreeProjection()
         externalDataViewRevision.value++
       }finally{blueprintSaving.value=false;resume()}
@@ -2141,6 +2196,7 @@ export function useDevState() {
     loadBlueprintWorkspaceDataView,
     savePageToolFile,
     getPageToolFileDataView: currentPageFileView,
+    getPagePublicationManifestDataView,
     loadPageToolFileDataView,
     readPageToolFileDataViewText,
     pageToolFileDataViewState,

@@ -29,7 +29,7 @@ export { DataTable, type DataTableQuerySaveRule, type DataTableQuerySaveRuleGrou
 export { DataView, DataViewSaveNotAppliedError, type DataViewNewRowIdentity, type DataViewChildRowInput,
   type DataViewSaveResolution, type DataSetSaveResolution } from './data-view'
 export type {DataViewSourceHistoryStatus, DataViewSourceHistoryAttempt, DataViewSourceVersion, DataViewSourceWriteAttemptStatus} from './query/data-view-source'
-export {bindFileDirectoryQueryAdapter, bindFileResourceAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView,isFileResourceReadbackConfirmed} from './query/file-resource-adapter'
+export {bindFileDirectoryQueryAdapter, bindFileResourceAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView,isFileResourceReadbackConfirmed,listDetachedFileResourceDeletionTargets,listPendingFileResourceHistoryTargets,verifyDetachedFileResourceDeletion} from './query/file-resource-adapter'
 export type {BindFileDirectoryQueryAdapterOptions, BindFileResourceAdapterOptions, FileResourceHistoryAttempt, FileResourceSnapshot, FileResourceTarget, FileResourceTransport} from './query/file-resource-adapter'
 export { DataViewFilter } from './query/filter/data-view-filter'
 export { DataViewFilterLocal } from './query/filter/data-view-filter-local'

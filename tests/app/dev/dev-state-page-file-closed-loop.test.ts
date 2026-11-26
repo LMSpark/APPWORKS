@@ -1,3 +1,4 @@
+import {PageTool} from '@spark-appworks/spark-project-model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -8,6 +9,7 @@ import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkCo
 import {getVuePageOptions} from '@/registries/vue-page-registry'
 import { DataSet, DataViewSaveNotAppliedError, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
+import {markFileMutationMayHaveApplied} from '@/platform-adapters/api/design/file-mutation-state'
 import { useDevState } from '@/views/features/application/application-function-management/ui/blueprint-state/useDevState'
 import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {
@@ -23,6 +25,7 @@ import { refreshRoutes } from '@spark-appworks/spark-app'
 import { lowcodeHttp as http } from '@/platform-adapters/lowcode-runtime'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import {createPageFileResourceView,createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 import {readPageDesignRunContext} from '@/services/page-design/page-design-gates'
 import {useDevFileEditor} from '@/views/features/application/application-function-management/ui/page-design/useDevFileEditor'
@@ -43,6 +46,8 @@ const httpFns = vi.hoisted(() => ({
   },
 }))
 const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),readFailures:0,legacyReads:[] as Array<{pageId:string;fileName:string}>,upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
+let leaseReadHook:((page:string,name:string)=>Promise<string|null>|undefined)|undefined
+let archiveUploadHook: ((pageId:string, basename:string)=>void|Promise<void>)|undefined
 const pageDesignAiRun=vi.hoisted(()=>({run:vi.fn(async()=> 'completed' as const)}))
 
 const navTreeState = vi.hoisted(() => ({
@@ -157,7 +162,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   },
   createPageToolFilesIo: (projectId:string) => ({
     list:async(_app:string,page:string)=>[...pageFiles.files.keys()].filter(key=>key.startsWith(`${page}/`)).map(key=>key.slice(page.length+1)),
-    read:async(_app:string,page:string,name:string)=>{if(pageFiles.readFailures>0){pageFiles.readFailures--;throw Object.assign(new Error('accepted upload readback unavailable'),{status:503,response:{status:503}})}return pageFiles.files.get(`${page}/${name}`)??null},
+    read:async(_app:string,page:string,name:string)=>{const pending=leaseReadHook?.(page,name);if(pending)return pending;if(pageFiles.readFailures>0){pageFiles.readFailures--;throw Object.assign(new Error('accepted upload readback unavailable'),{status:503,response:{status:503}})}return pageFiles.files.get(`${page}/${name}`)??null},
     upload:pageFiles.upload,restoreWorkingFile:pageFiles.restoreWorkingFile,remove:pageFiles.remove,
     listVersions:async({customPath,fileName}:{customPath:string;fileName:string})=>{
       const page=customPath.split('/').at(-1)??''
@@ -169,7 +174,9 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => ({
       })
     },
     uploadVersion:async({customPath,fileName,version,text}:{customPath:string;fileName:string;version:number;text:string})=>{
-      const page=customPath.split('/').at(-1)??'';pageFiles.files.set(`${page}/${version}__${fileName}`,text)
+      const page=customPath.split('/').at(-1)??'',basename=`${version}__${fileName}`
+      pageFiles.files.set(`${page}/${basename}`,text)
+      await archiveUploadHook?.(page,basename)
     },
     readVersion:async({customPath,fileName,version}:{customPath:string;fileName:string;version:number})=>{
       const page=customPath.split('/').at(-1)??'';return pageFiles.files.get(`${page}/${version}__${fileName}`)??null
@@ -295,7 +302,8 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     },
     save,hasUnconfirmedSave:()=>unknownReceipt,
   })
-  return {dataSet,readAllPages:()=>allPagesRequested,readQueryCount:()=>queryCount,save}
+  return {dataSet,readAllPages:()=>allPagesRequested,readQueryCount:()=>queryCount,save,
+    attachNode:(item:ProjectBlueprintTreeNodeData)=>collect(item,item.parentNodeId,0)}
 }
 
 function createDynamicBlueprintDataSetFromFullScenario(){
@@ -397,6 +405,202 @@ describe('DevState 页面文件闭环', () => {
     blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>
       scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
     vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
+  })
+
+  async function isolatePendingToolWorkspace() {
+    const root=blueprintRoot([node('lease-audit-node','工具','cfg:lease-audit','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('lease-audit/rule.json','[]')
+    pageFiles.files.set('lease-audit/script.js','initial')
+    pageFiles.files.set('lease-audit/style.css','original-style')
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    await state.openEditingProject({projectId:'APP-A'},{force:true})
+    const owner=await state.loadBlueprintWorkspaceDataView()
+    await state.selectNode(state.treeData.value[0]!)
+    await ensureDevStateActivePageLoaded(state)
+    const script=await state.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js'})
+    const style=await state.loadPageToolFileDataView({pageId:'lease-audit',fileName:'style.css'})
+    const styleRow=style.currentRow
+    const styleId=styleRow&&style.getPkKey(styleRow)
+    if(styleId===null||styleId===undefined)throw new Error('Missing original style identity')
+    style.updateEditingValue(styleId,'text','retained-earlier-work')
+    state.stagePageToolFileDataView({pageId:'lease-audit',fileName:'style.css',text:'retained-earlier-work'})
+    expect(style.hasEditingChanges()).toBe(true)
+    return {scope,state,owner,script,style}
+  }
+  it.each(['return-while-parked','return-after-reacquire'] as const)('ProjectToolFile workspace lease read: %s',async timing=>{
+    const old=await isolatePendingToolWorkspace()
+    let released=()=>{}, started=()=>{}
+    const isStarted=new Promise<void>(resolve=>{started=resolve})
+    const gate=new Promise<void>(resolve=>{released=resolve})
+    let hits=0
+    leaseReadHook=(page,name)=>{
+      if(page!=='lease-audit'||name!=='script.js'||hits++!==0)return
+      started()
+      return gate.then(()=>'old-inflight-text')
+    }
+    const nextScope=effectScope(),next=nextScope.run(()=>useDevState())!
+    const attempted=old.state.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js',forceReload:true})
+     .then(()=>({state:'resolved'}),error=>({state:'rejected',message:String(error)}))
+    try{
+      await isStarted
+      old.scope.stop()
+      expect(old.owner.dataSet.destroyed).toBe(false)
+      if(timing==='return-after-reacquire'){
+        await next.openEditingProject({projectId:'APP-A'},{force:true})
+        expect(await next.loadBlueprintWorkspaceDataView()).toBe(old.owner)
+      }
+      released()
+      const original=await attempted
+      expect(original.state).toBe('rejected')
+      expect(old.script.rows[0]?.['text']).toBe('initial')
+      const styleId=old.style.currentRow&&old.style.getPkKey(old.style.currentRow)
+      if(styleId===null||styleId===undefined)throw new Error('Missing original style identity')
+      expect(old.style.getEditingRow(styleId)?.['text']).toBe('retained-earlier-work')
+      if(timing==='return-while-parked'){
+        await next.openEditingProject({projectId:'APP-A'},{force:true})
+        expect(await next.loadBlueprintWorkspaceDataView()).toBe(old.owner)
+      }
+      const reopened=await next.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js'})
+      expect(reopened.currentRow?.['text']).toBe('initial')
+      expect(reopened.loadingError).toBeNull()
+      pageFiles.files.set('lease-audit/script.js','new-holder-refresh')
+      const refresh=await next.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js',forceReload:true})
+      expect(refresh.currentRow?.['text']).toBe('new-holder-refresh')
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+    }finally{released();await attempted;leaseReadHook=undefined;old.scope.stop();nextScope.stop()}
+  })
+  it.each(['two-waiters','disposed-waiter'] as const)('ProjectToolFile workspace lease acquisition: %s',async mode=>{
+    const old=await isolatePendingToolWorkspace()
+    old.scope.stop()
+    const leftScope=effectScope(),left=leftScope.run(()=>useDevState())!
+    const rightScope=effectScope(),right=rightScope.run(()=>useDevState())!
+    let signal=()=>{},release=()=>{}
+    const count=mode==='two-waiters'?2:1
+    let inDigest=0
+    const ready=new Promise<void>(resolve=>{signal=resolve})
+    const pause=new Promise<void>(resolve=>{release=resolve})
+    const digest=crypto.subtle.digest.bind(crypto.subtle)
+    const spy=vi.spyOn(crypto.subtle,'digest').mockImplementation(async(...args)=>{
+      inDigest++;if(inDigest===count)signal()
+      await pause
+      return digest(...args)
+    })
+    const contenders=[left.openEditingProject({projectId:'APP-A'},{force:true})]
+    if(mode==='two-waiters')contenders.push(right.openEditingProject({projectId:'APP-A'},{force:true}))
+    try{
+      await ready
+      if(mode==='disposed-waiter')leftScope.stop()
+      release()
+      await Promise.allSettled(contenders)
+      const installed=[left,right].filter(candidate=>candidate.blueprintPageRuntime.value!==undefined)
+      if(mode==='disposed-waiter'){
+        expect(installed).toHaveLength(0)
+        await right.openEditingProject({projectId:'APP-A'},{force:true})
+        expect(await right.loadBlueprintWorkspaceDataView()).toBe(old.owner)
+      }else{
+        expect(installed).toHaveLength(1)
+        const [winner]=installed
+        if(!winner)throw new Error('Missing lease holder')
+        expect(await winner.loadBlueprintWorkspaceDataView()).toBe(old.owner)
+        const loser=winner===left?right:left
+        await expect(loser.loadBlueprintWorkspaceDataView()).rejects.toThrow('DEV_SYSTEM_OWNER_LEASE_ACTIVE')
+      }
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+    }finally{release();await Promise.allSettled(contenders);spy.mockRestore();leftScope.stop();rightScope.stop()}
+  })
+  it.each(['ack-while-parked','ack-after-reacquire'] as const)('ProjectToolFile workspace lease write receipt: %s',async timing=>{
+    const old=await isolatePendingToolWorkspace()
+    const scriptRow=old.script.currentRow
+    const scriptId=scriptRow&&old.script.getPkKey(scriptRow)
+    if(scriptId===null||scriptId===undefined)throw new Error('Missing original script identity')
+    old.script.updateEditingValue(scriptId,'text','accepted-in-original-lease')
+    old.state.stagePageToolFileDataView({pageId:'lease-audit',fileName:'script.js',text:'accepted-in-original-lease'})
+    let signal=()=>{},release=()=>{}
+    const started=new Promise<void>(resolve=>{signal=resolve})
+    const paused=new Promise<void>(resolve=>{release=resolve})
+    pageFiles.upload.mockImplementationOnce(async command=>{
+      pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+      signal()
+      await paused
+    })
+    const nextScope=effectScope(),next=nextScope.run(()=>useDevState())!
+    const attempted=old.state.savePageToolFile({pageId:'lease-audit',fileName:'script.js',requireActive:false})
+      .then(()=>({state:'resolved'}),error=>({state:'rejected',message:String(error)}))
+    const acquire=async()=>{
+      await next.openEditingProject({projectId:'APP-A'},{force:true})
+      expect(await next.loadBlueprintWorkspaceDataView()).toBe(old.owner)
+    }
+    try{
+      await started
+      old.scope.stop()
+      if(timing==='ack-after-reacquire')await acquire()
+      release()
+      const original=await attempted
+      const pending=old.script.hasUnconfirmedSave
+      if(timing==='ack-while-parked')await acquire()
+      const fresh=await next.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js'})
+      let recovery='n/a'
+      if(pending){
+        recovery=(await fresh.verifySourceWriteAttempt()).state
+        if(recovery==='confirmed')await next.savePageToolFile({pageId:'lease-audit',fileName:'script.js',requireActive:false})
+      }
+      const readback=await next.loadPageToolFileDataView({pageId:'lease-audit',fileName:'script.js',forceReload:true})
+      expect(readback.currentRow?.['text']).toBe('accepted-in-original-lease')
+      expect(pageFiles.upload).toHaveBeenCalledOnce()
+      expect(original.state).toBe('rejected')
+      expect(pending).toBe(true)
+      expect(recovery).toBe('confirmed')
+    }finally{release();await attempted;old.scope.stop();nextScope.stop()}
+  })
+
+  it.each(['binding','child'] as const)('continues original tool creation after lease handoff: %s',async kind=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    let signal=()=>{},release=()=>{},pageId=''
+    const started=new Promise<void>(resolve=>{signal=resolve})
+    const paused=new Promise<void>(resolve=>{release=resolve})
+    let creation:Promise<void|boolean>|undefined
+    try{
+      await first.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await first.loadBlueprintWorkspaceDataView()
+      const selected=first.treeData.value.find(node=>node.nodeId==='CHILD-A')
+      if(!selected)throw new Error('Missing tool creation target')
+      await first.selectNode(selected)
+      pageFiles.upload.mockImplementationOnce(async command=>{
+        pageId=command.pageId
+        pageFiles.files.set(`${pageId}/${command.fileName}`,command.text)
+        signal()
+        await paused
+      })
+      creation=kind==='child'?first.addChildNode(selected):
+        first.createPageForSelectedNode({pageId:'lease-tool',title:'Lease tool',icon:'Document'})
+      await Promise.race([started,creation.then(()=>{throw new Error('Tool creation did not dispatch its first file')})])
+      firstScope.stop()
+      await second.openEditingProject({projectId:'APP-A'},{force:true})
+      expect(await second.loadBlueprintWorkspaceDataView()).toBe(owner)
+      const reopened=second.treeData.value.find(node=>node.nodeId===selected.nodeId)
+      if(!reopened)throw new Error('Missing reopened tool creation target')
+      await second.selectNode(reopened)
+      release()
+      await creation
+      expect(pageFiles.upload).toHaveBeenCalledOnce()
+      expect(fixture.save).not.toHaveBeenCalled()
+      await second.saveAll()
+      await second.saveAll()
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect(pageFiles.upload.mock.calls.map(([command])=>[command.pageId,command.fileName])).toEqual([
+        [pageId,'rule.json'],[pageId,'script.js'],[pageId,'style.css'],
+      ])
+      expect(fixture.save).toHaveBeenCalledOnce()
+      const change=fixture.save.mock.calls[0]?.[0].changes[0]?.changes
+      expect(kind==='child'?change?.added:change?.changed).toEqual([
+        expect.objectContaining({NavigationUrl:`cfg:${pageId}`}),
+      ])
+    }finally{release();await creation;firstScope.stop();secondScope.stop()}
   })
 
   it('selects the formal application root from its DataView even when it has no child nodes', async () => {
@@ -1334,6 +1538,45 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+
+  it.each(['initial-defaults','initial-mixed','late-same-default'] as const)('retains file ownership on a conflicting tool creation (%s)',async variant=>{
+    const pageId=`owned-create-${variant}`
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},false,true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const page=new PageTool({pageId})
+    page.markLoaded()
+    const fileName=`${pageId}/style.css`
+    const defaultStyle=page.getFileText('style.css')
+    if(variant!=='late-same-default'){
+      pageFiles.files.set(`${pageId}/rule.json`,page.getFileText('rule.json'))
+      pageFiles.files.set(`${pageId}/script.js`,variant==='initial-defaults'?page.getFileText('script.js'):'pre-existing custom script')
+      pageFiles.files.set(fileName,defaultStyle)
+    }else{
+      pageFiles.upload.mockImplementationOnce(async command=>{
+        pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+        pageFiles.files.set(fileName,defaultStyle)
+      })
+    }
+    const initialEntries=[...pageFiles.files.entries()]
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+      await expect(state.createPageForSelectedNode({pageId,title:'Conflicting tool',icon:'Document'})).resolves.toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+      if(variant==='late-same-default'){
+        expect(pageFiles.files.get(fileName)).toBe(defaultStyle)
+        expect([...pageFiles.files.keys()]).toEqual([fileName])
+        expect(pageFiles.remove.mock.calls.every(([, ,name])=>name!=='style.css')).toBe(true)
+        expect(pageFiles.upload).toHaveBeenCalledTimes(2)
+      }else{
+        expect(pageFiles.upload).not.toHaveBeenCalled()
+        expect(pageFiles.remove).not.toHaveBeenCalled()
+        expect([...pageFiles.files.entries()]).toEqual(initialEntries)
+      }
+    }finally{scope.stop()}
+  })
+
   it('蓝图绑定明确失败时经原文件 command owner 补偿默认文件，不调用旧删除 gateway',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},false,true)
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -1630,7 +1873,7 @@ describe('DevState 页面文件闭环', () => {
     const firstOwner=await first.loadBlueprintWorkspaceDataView()
     const runtime=first.blueprintPageRuntime.value
     await firstOwner.loadProjectTree()
-    await expect(firstOwner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)).rejects.toThrow('transport timeout')
+    await expect(firstOwner.removeLeafNode({nodeId:leaf.nodeId,projectId:'APP-A',parentNodeId:leaf.parentNodeId})).rejects.toThrow('transport timeout')
     expect(firstOwner.hasUnconfirmedSave).toBe(true)
     firstScope.stop()
 
@@ -1670,7 +1913,7 @@ describe('DevState 页面文件闭环', () => {
     await first.openEditingProject({projectId:'APP-A'},{force:true})
     const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
     await owner.loadProjectTree()
-    const deletion=owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+    const deletion=owner.removeLeafNode({nodeId:leaf.nodeId,projectId:'APP-A',parentNodeId:leaf.parentNodeId})
     await acceptedPromise
     expect(owner.isBusy).toBe(true)
     // Model the narrow acceptance window where mutation state is active before
@@ -1763,7 +2006,7 @@ describe('DevState 页面文件闭环', () => {
       expect(owner.view.dirtyTracking.hasPendingChanges('LEAF-FAIL')).toBe(true)
       expect(owner.dirty).toBe(true)
 
-      const refreshed=await owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+      const refreshed=await owner.removeLeafNode({nodeId:leaf.nodeId,projectId:'APP-A',parentNodeId:leaf.parentNodeId})
       expect(fixture.save).toHaveBeenCalledTimes(2)
       expect(owner.dirty).toBe(false)
       expect(refreshed.children?.some(item=>item.nodeId==='LEAF-FAIL')).toBe(false)
@@ -1787,6 +2030,254 @@ describe('DevState 页面文件闭环', () => {
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(fixture.save).toHaveBeenCalled()
     } finally {ownerScope.stop()}
+  })
+
+  it('keeps the blueprint node and files when an active publication manifest still has unsaved changes', async () => {
+    const mounted = node('MOUNTED-MANIFEST-EDIT','工作清单还在编辑的挂载页','cfg:manifest-edit-page','APP-A')
+    const root = blueprintRoot([mounted],'APP-A')
+    const fixture = createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('manifest-edit-page/rule.json','{}')
+    pageFiles.files.set('manifest-edit-page/publication-manifest.json','confirmed manifest')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner = await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const manifest = createPagePublicationManifestFileView({
+        dataSet:owner.dataSet,appId:'APP-A',pageId:'manifest-edit-page',assertCurrent:()=>undefined,
+      })
+      expect((await manifest.requestRefresh()).success).toBe(true)
+      const row=manifest.rows[0], id=row&&manifest.getPkKey(row)
+      if(id===undefined)throw new Error('Missing manifest identity')
+      await manifest.editRowById(id,{text:'draft manifest'})
+      state.removeNodeById(mounted.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败')||item.text.includes('已删除'))).toBe(true))
+      expect(fixture.save.mock.calls).toHaveLength(0)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect(pageFiles.files.get('manifest-edit-page/rule.json')).toBe('{}')
+      expect(pageFiles.files.get('manifest-edit-page/publication-manifest.json')).toBe('confirmed manifest')
+      expect(manifest.getEditingRow(id)?.['text']).toBe('draft manifest')
+    } finally {ownerScope.stop()}
+  })
+
+
+  it('keeps a mounted node while its working snapshot is allocating a version',async()=>{
+    const pageId='archive-before-unlink'
+    const mounted=node('MOUNTED-ARCHIVE-IN-FLIGHT','正在创建快照的挂载页',`cfg:${pageId}`,'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([mounted],'APP-A'),{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set(`${pageId}/rule.json`,'[]')
+    pageFiles.files.set(`${pageId}/script.js`,'working script')
+    const effect=effectScope(),state=effect.run(()=>useDevState())!
+    let release: (()=>void)|undefined
+    let started=false
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const script=createPageFileResourceView({dataSet:owner.dataSet,appId:'APP-A',pageId,fileName:'script.js',assertCurrent:()=>undefined})
+      expect((await script.requestRefresh()).success).toBe(true)
+      leaseReadHook=(page,name)=>{
+        if(page!==pageId||name!=='script.js'||started)return
+        started=true
+        return new Promise(resolve=>{release=()=>resolve('working script')})
+      }
+      const history=script.createSourceVersion().then(result=>({result}),(error:unknown)=>({error}))
+      await vi.waitFor(()=>expect(started).toBe(true))
+      state.removeNodeById(mounted.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/删除节点失败|已删除/.test(item.text))).toBe(true))
+      const beforeSettlement=fixture.save.mock.calls.length
+      release?.()
+      const result=await history
+      expect(beforeSettlement).toBe(0)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect(result).toMatchObject({result:{state:'confirmed',version:1}})
+      expect((await owner.loadProjectTree()).children.map(item=>item.nodeId)).toEqual([mounted.nodeId])
+      expect(pageFiles.files.get(`${pageId}/1__script.js`)).toBe('working script')
+    }finally{release?.();leaseReadHook=undefined;effect.stop()}
+  })
+
+  it('checks the mounted file source again after the blueprint owner reads the tree',async()=>{
+    const pageId='archive-during-blueprint-read'
+    const mounted=node('MOUNTED-ARCHIVE-AFTER-DIRECTORY','蓝图读取期间启动归档',`cfg:${pageId}`,'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([mounted],'APP-A'),{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set(`${pageId}/rule.json`,'[]')
+    pageFiles.files.set(`${pageId}/script.js`,'working script')
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    let resumeTree: (()=>void)|undefined
+    let resumeVersion: (()=>void)|undefined
+    let versionRequested=false
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const script=createPageFileResourceView({dataSet:owner.dataSet,appId:'APP-A',pageId,fileName:'script.js',assertCurrent:()=>undefined})
+      expect((await script.requestRefresh()).success).toBe(true)
+      const currentRefresh=owner.view.refresh.bind(owner.view)
+      vi.spyOn(owner.view,'refresh').mockImplementationOnce(async()=>{
+        await new Promise<void>(resolve=>{resumeTree=resolve})
+        return currentRefresh()
+      })
+      state.removeNodeById(mounted.nodeId)
+      await vi.waitFor(()=>expect(resumeTree).toBeDefined())
+      leaseReadHook=(page,name)=>{
+        if(page!==pageId||name!=='script.js'||versionRequested)return
+        versionRequested=true
+        return new Promise(resolve=>{resumeVersion=()=>resolve('working script')})
+      }
+      const history=script.createSourceVersion().then(result=>({result}),(error:unknown)=>({error}))
+      await vi.waitFor(()=>expect(resumeVersion).toBeDefined())
+      resumeTree?.()
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/删除节点失败|已删除/.test(item.text))).toBe(true))
+      const blueprintWrites=fixture.save.mock.calls.length
+      resumeVersion?.()
+      const outcome=await history
+      expect(blueprintWrites).toBe(0)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect(outcome).toMatchObject({result:{state:'confirmed',version:1}})
+      expect((await owner.loadProjectTree()).children.map(item=>item.nodeId)).toEqual([mounted.nodeId])
+    }finally{resumeTree?.();resumeVersion?.();leaseReadHook=undefined;scope.stop()}
+  })
+
+  it.each(['unknown-before-close','settles-after-reopen'] as const)('retains only the original file archive for a same-owner workspace reopen (%s)',async timing=>{
+    const pageId=`manual-history-${timing}`
+    const mounted=node('ARCHIVE-REOPEN-NODE','手动快照恢复',`cfg:${pageId}`,'APP-A')
+    const root=blueprintRoot([mounted],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet,()=>createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true}).dataSet)
+    pageFiles.files.set(`${pageId}/rule.json`,'[]')
+    pageFiles.files.set(`${pageId}/script.js`,'original script')
+    pageFiles.files.set(`${pageId}/style.css`,'')
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    const nextScope=effectScope(),next=nextScope.run(()=>useDevState())!
+    let attempts=0
+    let release: (()=>void)|undefined
+    let firstAttempt:Promise<unknown>|undefined
+    try{
+      await first.openEditingProject({projectId:'APP-A'},{force:true})
+      const originalOwner=await first.loadBlueprintWorkspaceDataView()
+      await first.selectNode(first.treeData.value[0]!)
+      await ensureDevStateActivePageLoaded(first)
+      const script=await first.loadPageToolFileDataView({pageId,fileName:'script.js'})
+      archiveUploadHook=async(page,basename)=>{
+        expect(page).toBe(pageId)
+        expect(basename).toBe('1__script.js')
+        attempts++
+        if(timing==='settles-after-reopen')await new Promise<void>(resolve=>{release=resolve})
+        throw markFileMutationMayHaveApplied(new Error('snapshot receipt lost'))
+      }
+      firstAttempt=script.createSourceVersion().catch((error:unknown)=>error)
+      await vi.waitFor(()=>expect(attempts).toBe(1))
+      if(timing==='unknown-before-close')expect(await firstAttempt).toMatchObject({message:'snapshot receipt lost'})
+      firstScope.stop()
+      const preserved=!originalOwner.dataSet.destroyed
+      await next.openEditingProject({projectId:'APP-A'},{force:true})
+      const reopened=await next.loadBlueprintWorkspaceDataView()
+      await next.selectNode(next.treeData.value[0]!)
+      await ensureDevStateActivePageLoaded(next)
+      const reopenedFile=await next.loadPageToolFileDataView({pageId,fileName:'script.js'})
+      release?.()
+      await firstAttempt
+      expect(preserved).toBe(true)
+      expect(reopened).toBe(originalOwner)
+      expect(reopenedFile.getSourceHistoryStatus()).toMatchObject({state:'unknown',version:1,fileName:'1__script.js'})
+      await expect(reopenedFile.createSourceVersion()).resolves.toMatchObject({state:'confirmed',version:1})
+      reopenedFile.acknowledgeSourceHistoryAttempt()
+      expect(attempts).toBe(1)
+      expect(pageFiles.files.has(`${pageId}/2__script.js`)).toBe(false)
+    }finally{release?.();await firstAttempt;archiveUploadHook=undefined;nextScope.stop();firstScope.stop()}
+  })
+
+  it.each([true,false])('retains files referenced by a second mounted node (menu visibility %s)',async publishInMenu=>{
+    const selected=node('SHARED-FIRST','第一个挂载','cfg:shared-page','APP-A')
+    const peer=node('SHARED-PEER','另一个挂载','cfg:shared-page','APP-A')
+    if(!peer.navigation)throw new Error('Missing peer navigation fixture')
+    peer.navigation={...peer.navigation,publishInMenu}
+    const root=blueprintRoot([selected,peer],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const originalFiles=[
+      ['shared-page/rule.json','{}'],['shared-page/script.js','script'],['shared-page/style.css','style'],
+      ['shared-page/1__script.js','original version'],['shared-page/publication-manifest.json','original manifest'],
+    ] as const
+    for(const [file,contents] of originalFiles)pageFiles.files.set(file,contents)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      state.removeNodeById(selected.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/已删除|已解除挂载/.test(item.text))).toBe(true))
+      expect(fixture.save.mock.calls.flatMap(([command])=>command.changes.flatMap(change=>change.changes.deleted??[]))
+        .map(row=>row['rowid'])).toEqual(['SHARED-FIRST'])
+      const reloaded=await owner.loadProjectTree()
+      expect(reloaded.children.map(item=>item.nodeId)).toEqual(['SHARED-PEER'])
+      expect(reloaded.children[0]?.navigation?.publishInMenu).toBe(publishInMenu)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect([...pageFiles.files.entries()]).toEqual(originalFiles)
+    }finally{ownerScope.stop()}
+  })
+
+  it('checks the formal tree again before resuming file cleanup when a new shared mount appears',async()=>{
+    const selected=node('SHARED-RESUME-FIRST','等待清理的挂载','cfg:resume-shared-page','APP-A')
+    const peer=node('SHARED-RESUME-PEER','后来挂载的节点','cfg:resume-shared-page','APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([selected],'APP-A'),{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('resume-shared-page/rule.json','{}')
+    pageFiles.files.set('resume-shared-page/1__style.css','original version')
+    pageFiles.remove.mockRejectedValueOnce(new Error('definite removal rejection'))
+    const effect=effectScope(),state=effect.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      state.removeNodeById(selected.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      fixture.attachNode(peer)
+      await state.saveAll()
+      const reloaded=await owner.loadProjectTree()
+      expect(reloaded.children.map(item=>item.nodeId)).toEqual(['SHARED-RESUME-PEER'])
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      const fileViews=fixture.dataSet.getTable('ProjectToolFile')?.viewList.filter(view=>view.queryContext['pageId']==='resume-shared-page')??[]
+      expect(fileViews.some(view=>view.dirtyTracking.hasPendingChanges())).toBe(false)
+      await state.saveAll()
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      expect(pageFiles.files.get('resume-shared-page/rule.json')).toBe('{}')
+      expect(pageFiles.files.get('resume-shared-page/1__style.css')).toBe('original version')
+    }finally{effect.stop()}
+  })
+
+  it('verifies the original removal without deleting other files when a shared mount appears',async()=>{
+    const selected=node('SHARED-UNKNOWN-FIRST','原挂载','cfg:unknown-shared-page','APP-A')
+    const peer=node('SHARED-UNKNOWN-PEER','后来挂载的节点','cfg:unknown-shared-page','APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([selected],'APP-A'),{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('unknown-shared-page/rule.json','{}')
+    pageFiles.files.set('unknown-shared-page/1__style.css','original version')
+    pageFiles.remove.mockImplementationOnce(async(_appId,pageId,fileName)=>{
+      pageFiles.files.delete(`${pageId}/${fileName}`)
+      throw markFileMutationMayHaveApplied(new Error('removal receipt lost'))
+    })
+    const effect=effectScope(),state=effect.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      state.removeNodeById(selected.nodeId)
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true))
+      expect(fixture.dataSet.saveJournal.views).toMatchObject([{owner:'file',state:'unknown'}])
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      fixture.attachNode(peer)
+      await state.saveAll()
+      expect(fixture.dataSet.saveJournal.views).toMatchObject([{owner:'file',state:'applied'}])
+      expect(pageFiles.remove).toHaveBeenCalledOnce()
+      expect(pageFiles.files.get('unknown-shared-page/1__style.css')).toBe('original version')
+      expect(state.statusMessages.value.some(item=>item.text.includes('剩余文件已保留'))).toBe(true)
+    }finally{effect.stop()}
   })
 
   it('mounted page delete commits every listed filename through formal ProjectToolFile views',async()=>{

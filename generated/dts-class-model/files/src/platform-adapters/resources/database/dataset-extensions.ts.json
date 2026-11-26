@@ -201,10 +201,9 @@
         "_fieldCascadeRuntime": true,
         "_optionFillRuntime": true,
         "_saveJournal": true,
-        "_saveJournalPhaseIndex": true,
         "_saveJournalBatchSequence": true,
-        "_saveJournalPreparedExact": true,
         "_saveChangesInFlight": true,
+        "_saveDispatchOwner": true,
         "_fieldCascadeListeners": true,
         "_resourceChildRelationIdx": true,
         "_resourceParentRelationIdx": true,
@@ -438,9 +437,8 @@
         },
         "saveJournalIds": true,
         "saveJournalPendingSignature": true,
-        "beginSaveJournal": true,
-        "currentJournalViews": true,
-        "bindSaveJournalDispatchSignatures": true,
+        "createSaveJournal": true,
+        "selectSaveJournal": true,
         "prepareSaveJournal": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => SparkData.DataSetSaveJournal"
@@ -451,8 +449,8 @@
         },
         "saveJournalOptionSignature": true,
         "saveJournalMatches": true,
-        "saveJournalPhaseMatches": true,
-        "bindPreparedSaveOptions": true,
+        "journalViewOptions": true,
+        "assertJournalViews": true,
         "cancelPreparedSaveJournal": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions, batchId?: string | null) => SparkData.DataSetSaveJournal"
@@ -470,6 +468,10 @@
         "saveJournal": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveJournal"
         },
+        "settleConfirmedDetachedSaves": {
+          "type": "object",
+          "title": "() => SparkData.DataSetSaveJournal"
+        },
         "verifySaveJournal": {
           "type": "object",
           "title": "() => Promise<SparkData.DataSetSaveJournal>"
@@ -478,6 +480,8 @@
           "type": "object",
           "title": "() => Promise<SparkData.DataSetPhasedSaveResult>"
         },
+        "originalJournalRecords": true,
+        "settleJournalRecovery": true,
         "retainSaveJournalDraft": {
           "type": "object",
           "title": "() => SparkData.DataSetSaveJournal"
@@ -490,6 +494,7 @@
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
         },
+        "saveWithJournal": true,
         "setSaveCompletionHandler": {
           "type": "object",
           "title": "(handler?: DataSetSaveCompletionHandler) => () => void"
@@ -499,9 +504,10 @@
           "type": "object",
           "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => Promise<SparkData.DataSetPhasedSaveResult>"
         },
+        "runSaveJournalPhases": true,
         "resolveUnconfirmedSaves": {
           "type": "object",
-          "title": "() => Promise<SparkData.DataSetSaveResolution>"
+          "title": "(selected?: readonly SparkData.DataView[]) => Promise<SparkData.DataSetSaveResolution>"
         },
         "abandonUnconfirmedSaves": {
           "type": "object",
@@ -543,10 +549,9 @@
         "_fieldCascadeRuntime",
         "_optionFillRuntime",
         "_saveJournal",
-        "_saveJournalPhaseIndex",
         "_saveJournalBatchSequence",
-        "_saveJournalPreparedExact",
         "_saveChangesInFlight",
+        "_saveDispatchOwner",
         "_fieldCascadeListeners",
         "_resourceChildRelationIdx",
         "_resourceParentRelationIdx",
@@ -612,29 +617,33 @@
         "resolveOptionView",
         "saveJournalIds",
         "saveJournalPendingSignature",
-        "beginSaveJournal",
-        "currentJournalViews",
-        "bindSaveJournalDispatchSignatures",
+        "createSaveJournal",
+        "selectSaveJournal",
         "prepareSaveJournal",
         "prepareSaveJournalPhases",
         "saveJournalOptionSignature",
         "saveJournalMatches",
-        "saveJournalPhaseMatches",
-        "bindPreparedSaveOptions",
+        "journalViewOptions",
+        "assertJournalViews",
         "cancelPreparedSaveJournal",
         "abandonPreparedSaveJournal",
         "releaseSettledSaveJournal",
         "settleSaveJournal",
         "refreshSaveJournalCompletion",
         "saveJournal",
+        "settleConfirmedDetachedSaves",
         "verifySaveJournal",
         "continueSaveJournal",
+        "originalJournalRecords",
+        "settleJournalRecovery",
         "retainSaveJournalDraft",
         "discardSaveJournalNotApplied",
         "saveChanges",
+        "saveWithJournal",
         "setSaveCompletionHandler",
         "executeSaveChanges",
         "saveChangesInPhases",
+        "runSaveJournalPhases",
         "resolveUnconfirmedSaves",
         "abandonUnconfirmedSaves",
         "discardAndReload",
@@ -1207,22 +1216,17 @@
               "writable": true
             },
             {
-              "name": "_saveJournalPhaseIndex",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "_saveJournalBatchSequence",
               "readable": true,
               "writable": true
             },
             {
-              "name": "_saveJournalPreparedExact",
+              "name": "_saveChangesInFlight",
               "readable": true,
               "writable": true
             },
             {
-              "name": "_saveChangesInFlight",
+              "name": "_saveDispatchOwner",
               "readable": true,
               "writable": true
             },
@@ -1552,17 +1556,12 @@
               "writable": true
             },
             {
-              "name": "beginSaveJournal",
+              "name": "createSaveJournal",
               "readable": true,
               "writable": true
             },
             {
-              "name": "currentJournalViews",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "bindSaveJournalDispatchSignatures",
+              "name": "selectSaveJournal",
               "readable": true,
               "writable": true
             },
@@ -1587,12 +1586,12 @@
               "writable": true
             },
             {
-              "name": "saveJournalPhaseMatches",
+              "name": "journalViewOptions",
               "readable": true,
               "writable": true
             },
             {
-              "name": "bindPreparedSaveOptions",
+              "name": "assertJournalViews",
               "readable": true,
               "writable": true
             },
@@ -1627,12 +1626,27 @@
               "writable": true
             },
             {
+              "name": "settleConfirmedDetachedSaves",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "verifySaveJournal",
               "readable": true,
               "writable": true
             },
             {
               "name": "continueSaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "originalJournalRecords",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "settleJournalRecovery",
               "readable": true,
               "writable": true
             },
@@ -1652,6 +1666,11 @@
               "writable": true
             },
             {
+              "name": "saveWithJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "setSaveCompletionHandler",
               "readable": true,
               "writable": true
@@ -1663,6 +1682,11 @@
             },
             {
               "name": "saveChangesInPhases",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runSaveJournalPhases",
               "readable": true,
               "writable": true
             },

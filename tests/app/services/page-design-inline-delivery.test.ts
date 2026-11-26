@@ -5,6 +5,7 @@ import {createPageDesignInlineDeliveryPort} from '@/services/page-design/page-de
 import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 import type {createPageToolFilesIo} from '@/platform-adapters/lowcode-runtime'
+import {markFileMutationMayHaveApplied} from '@/platform-adapters/api/design/file-mutation-state'
 import fileConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 import definitionConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 
@@ -68,6 +69,32 @@ describe('pageDesign inline delivery',()=>{
     }finally{owner.dispose()}
   })
 
+  it('retains the first original receipt for verification while the second file is saved', async () => {
+    const owner = createFileOwner()
+    try {
+      const script = await owner.bind('script.js'), style = await owner.bind('style.css')
+      owner.page.setFileText('script.js', 'submitted script')
+      owner.page.setFileText('style.css', 'submitted style')
+      owner.uploads.mockImplementationOnce(async input => {
+        owner.files.set(`${input.appId}/${input.pageId}/${input.fileName}`, input.text)
+        throw markFileMutationMayHaveApplied(new Error('script receipt lost'))
+      })
+      const result = await createPageDesignInlineDeliveryPort({autoSave: true})
+        .save({editor: owner.workspace, pageId: 'PAGE', savePageFile: owner.savePageFile})
+      expect(result).toMatchObject({status: 'failed', artifacts: [
+        {kind: 'page-file', name: 'script.js', status: 'dirty'}, {kind: 'page-file', name: 'style.css', status: 'saved'},
+      ]})
+      expect(script.hasUnconfirmedSave).toBe(true)
+      expect(style.hasUnconfirmedSave).toBe(false)
+      const batchId = owner.dataSet.saveJournal.batchId
+      expect(owner.dataSet.saveJournal.views).toMatchObject([{viewId: script.viewId, state: 'unknown'}])
+      expect(await owner.dataSet.verifySaveJournal()).toMatchObject({batchId, completed: true})
+      expect(owner.uploads.mock.calls.map(([call]) => call.fileName)).toEqual(['script.js', 'style.css'])
+      expect(owner.files.get('APP/PAGE/script.js')).toBe('submitted script')
+      expect(owner.files.get('APP/PAGE/style.css')).toBe('submitted style')
+    } finally {owner.dispose()}
+  })
+
   it('commits only the explicitly scoped dirty ProjectToolFile DataView and leaves other files pending',async()=>{
     const owner=createFileOwner()
     try{
@@ -105,6 +132,39 @@ describe('pageDesign inline delivery',()=>{
       expect(owner.page.getFileText('script.js')).toBe('next edit')
       expect(owner.page.isFileDirty('script.js')).toBe(true)
     }finally{owner.dispose()}
+  })
+
+  it('keeps a changed second file out of the original delivery while the first upload finishes', async () => {
+    const owner = createFileOwner()
+    let release = () => {}
+    try {
+      await owner.bind('script.js')
+      const style = await owner.bind('style.css')
+      owner.page.setFileText('script.js', 'submitted script')
+      owner.page.setFileText('style.css', 'submitted style')
+      let started = () => {}
+      const entered = new Promise<void>(resolve => { started = resolve })
+      const gate = new Promise<void>(resolve => { release = resolve })
+      owner.uploads.mockImplementationOnce(async input => {
+        started()
+        await gate
+        owner.files.set(`${input.appId}/${input.pageId}/${input.fileName}`, input.text)
+      })
+      const saving = createPageDesignInlineDeliveryPort({autoSave: true})
+        .save({editor: owner.workspace, pageId: 'PAGE', savePageFile: owner.savePageFile})
+      await entered
+      owner.page.setFileText('style.css', 'later style draft')
+      release()
+      expect(await saving).toMatchObject({status: 'failed', message: expect.stringContaining('PAGE_DESIGN_FILE_CHANGED'),
+        artifacts: [{kind: 'page-file', name: 'script.js', status: 'saved'}, {kind: 'page-file', name: 'style.css', status: 'dirty'}]})
+      expect(owner.uploads.mock.calls.map(([call]) => call.fileName)).toEqual(['script.js'])
+      expect(owner.files.get('APP/PAGE/style.css')).toBe('base')
+      const id = style.getPkKey(style.currentRow!)!
+      expect(style.getEditingRow(id)?.['text']).toBe('later style draft')
+    } finally {
+      release()
+      owner.dispose()
+    }
   })
 
   it('saves scenario-only edits through the same definition DataSet without requiring file delivery',async()=>{

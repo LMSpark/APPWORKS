@@ -7,7 +7,7 @@ import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import type * as SparkData from '@spark-appworks/spark-data'
 import { DataSet, DataViewQuery, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, compileRuntimeDataSetPlan } from '@spark-appworks/spark-data'
 import type { BindCommandSubmitOptions, DataResourceRelation } from '@spark-appworks/spark-data'
-import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import { ProjectToolResource, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
 import { LowcodeDataSpaceViewFields } from './view-design/lowcode-data-space-view-fields'
@@ -211,7 +211,13 @@ export class LowcodeDataSpaceAssembler {
      DataViewQuery.validateFields(view.queryConfig, new Set(table.columns.filter(column => !column.computeExpression && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()}, new Set(view.columns.filter(column => column.name !== '_pk').map(column => column.name)))
     })
-    table.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
+    const binding = {resource: {resourceType: 'file' as const, resourceId}}
+    if (resourceId === ProjectToolResource.resources.ProjectToolFile) {
+     // Declared queries and their clones use this owner. Explicit file and directory operations bind their own named views.
+     table.forEachView(view => view.bindQueryExecutor(executor, binding))
+    } else {
+     table.bindQueryExecutor(executor, binding)
+    }
    }
    for (const table of Object.values(dataSet.tables)) {
     if (table.resourceType !== 'logical-view' || table.modelBinding) continue

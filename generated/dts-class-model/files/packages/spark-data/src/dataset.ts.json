@@ -852,6 +852,14 @@
         "method.releaseSettledSaveJournal.return": {
           "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
         },
+        "method.settleConfirmedDetachedSaves.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.settleConfirmedDetachedSaves.return": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
+        },
         "method.verifySaveJournal.params": {
           "type": "object",
           "properties": {},
@@ -1025,7 +1033,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T18:01:53.141Z",
+  "generatedAt": "2026-11-26T19:05:47.920Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2377,6 +2385,16 @@
                   }
                 }
               ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetSaveJournal",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "settleConfirmedDetachedSaves",
+              "jsdoc": "消费资源层已确认的原派发对象。只结算已释放视图，不调来源或重发。",
+              "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "DataSetSaveJournal",

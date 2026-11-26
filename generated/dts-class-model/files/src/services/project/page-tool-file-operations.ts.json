@@ -7,10 +7,11 @@
     "sourceFile": "src/services/project/page-tool-file-operations.ts",
     "packageName": "app",
     "modulePath": "services/project/page-tool-file-operations",
-    "jsdoc": "app 的 services/project/page-tool-file-operations 模块。\n导出 DtsTypeDeclarationModel symbol: PageFileOperationScope（共 1 个 symbol）。",
+    "jsdoc": "app 的 services/project/page-tool-file-operations 模块。\n导出 DtsTypeDeclarationModel symbol: PageFileOperationScope, PageToolFileCreation（共 2 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
-      "PageFileOperationScope"
+      "PageFileOperationScope",
+      "PageToolFileCreation"
     ]
   },
   "$defs": {
@@ -28,6 +29,9 @@
         },
         "pageId": {
           "type": "string"
+        },
+        "viewScope": {
+          "$ref": "page-tool-file-dataview.ts.json#/$defs/PageToolFileBindingScope"
         }
       },
       "additionalProperties": false,
@@ -39,20 +43,94 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "PendingPageToolFileCreate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PendingPageToolFileCreate",
+      "properties": {
+        "fileName": {
+          "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "batchId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileName",
+        "viewId",
+        "id",
+        "batchId"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolFileCreation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileCreation",
+      "properties": {
+        "target": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "appId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pageId",
+            "dataSet",
+            "appId"
+          ],
+          "additionalProperties": false
+        },
+        "created": {
+          "type": "object",
+          "title": "Map<\"rule.json\" | \"script.js\" | \"style.css\", string | number>"
+        },
+        "pending": {
+          "$ref": "#/$defs/PendingPageToolFileCreate"
+        }
+      },
+      "required": [
+        "target",
+        "created",
+        "pending"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-24T06:39:54.258Z",
+  "generatedAt": "2026-11-26T19:06:34.473Z",
   "models": {
     "PageFileOperationScope": {
       "name": "PageFileOperationScope",
-      "jsdoc": "",
+      "jsdoc": "The command guard belongs to the current caller. The optional binding survives owner handoff for recovery.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    appId: string;\n    pageId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    appId: string;\n    pageId: string;\n    assertCurrent: () => void;\n    viewScope?: PageToolFileBindingScope;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    appId: string;\n    pageId: string;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    appId: string;\n    pageId: string;\n    assertCurrent: () => void;\n    viewScope?: PageToolFileBindingScope;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -72,6 +150,11 @@
               "name": "pageId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "viewScope",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -82,6 +165,72 @@
                 "type": "intrinsic",
                 "name": "void"
               }
+            }
+          ]
+        }
+      }
+    },
+    "PendingPageToolFileCreate": {
+      "name": "PendingPageToolFileCreate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fileName: PageToolFileName;\n    viewId: string;\n    id: string | number;\n    batchId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fileName: PageToolFileName;\n    viewId: string;\n    id: string | number;\n    batchId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "batchId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolFileCreation": {
+      "name": "PageToolFileCreation",
+      "jsdoc": "本次工具命令确认的文件身份，以及仍需按原 DataSet 保存批次核验的单次新增。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly target: Pick<PageFileOperationScope, 'dataSet' | 'appId' | 'pageId'>;\n    readonly created: Map<PageToolFileName, string | number>;\n    pending: PendingPageToolFileCreate | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "created",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "readable": true,
+              "writable": true
             }
           ]
         }

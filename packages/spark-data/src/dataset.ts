@@ -1823,14 +1823,31 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     })
   }
 
-  /** Verify only the original unknown captures and retain the first error for UI diagnosis. */
-  async verifySaveJournal(): Promise<DataSetSaveJournal> {
+  /** 消费资源层已确认的原派发对象。只结算已释放视图，不调来源或重发。 */
+  settleConfirmedDetachedSaves(): DataSetSaveJournal {
     if (this.destroyed) throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原 DataSet 已释放')
     const journal = this._saveJournal
     if (!journal) return this.saveJournal
     if (this._saveDispatchOwner) throw new Error('DATA_SET_SAVE_JOURNAL_ACTIVE: 原保存仍在执行')
+    for (const phase of journal.phases) {
+      for (const record of phase.views) {
+        if (record.state === 'unknown' && record.view.destroyed && record.dispatch?.outcome() === 'applied') {
+          record.state = 'applied'
+          delete record.dispatch
+        }
+      }
+    }
+    this.refreshSaveJournalCompletion(journal)
+    return this.saveJournal
+  }
+
+  /** Verify only the original unknown captures and retain the first error for UI diagnosis. */
+  async verifySaveJournal(): Promise<DataSetSaveJournal> {
+    const settled=this.settleConfirmedDetachedSaves()
+    const journal=this._saveJournal
+    if(!journal)return settled
     const originals = this.originalJournalRecords(journal)
-    if (originals.length === 0) return this.saveJournal
+    if (originals.length === 0) return settled
 
     this._saveDispatchOwner = Symbol()
     this._saveChangesInFlight++

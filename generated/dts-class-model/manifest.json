@@ -17406,7 +17406,7 @@
         "packageName": "app",
         "modulePath": "services/project/blueprint-workspace-dataview",
         "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "BlueprintNodeFormData",
           "BlueprintChildNodeCreate",
@@ -17487,6 +17487,7 @@
         "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "PageToolFileBindingScope",
           "PagePublicationFileName"
         ]
       }
@@ -17499,10 +17500,11 @@
         "sourceFile": "src/services/project/page-tool-file-operations.ts",
         "packageName": "app",
         "modulePath": "services/project/page-tool-file-operations",
-        "jsdoc": "app 的 services/project/page-tool-file-operations 模块。\n导出 DtsTypeDeclarationModel symbol: PageFileOperationScope（共 1 个 symbol）。",
+        "jsdoc": "app 的 services/project/page-tool-file-operations 模块。\n导出 DtsTypeDeclarationModel symbol: PageFileOperationScope, PageToolFileCreation（共 2 个 symbol）。",
         "jsdocSource": "inferred",
         "symbols": [
-          "PageFileOperationScope"
+          "PageFileOperationScope",
+          "PageToolFileCreation"
         ]
       }
     },
@@ -29921,6 +29923,14 @@
     "PageToolFileBindingOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
+    },
+    "PageToolFileBindingScope": {
+      "sourcePath": "src/services/project/page-tool-file-dataview.ts",
+      "file": "files/src/services/project/page-tool-file-dataview.ts.json"
+    },
+    "PageToolFileCreation": {
+      "sourcePath": "src/services/project/page-tool-file-operations.ts",
+      "file": "files/src/services/project/page-tool-file-operations.ts.json"
     },
     "PageToolFileName": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",

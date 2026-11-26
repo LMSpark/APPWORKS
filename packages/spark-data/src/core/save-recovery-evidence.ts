@@ -1,5 +1,16 @@
 import { isRecord } from '@spark-appworks/spark-utils'
 
+// The dispatched change object is the identity. Reusing a target or query never reuses its proof.
+const confirmedFileDeletions = new WeakSet<object>()
+
+export function recordConfirmedFileDeletion(change: object): void {
+  confirmedFileDeletions.add(change)
+}
+
+export function hasConfirmedFileDeletion(change: object): boolean {
+  return confirmedFileDeletions.has(change)
+}
+
 export function canonicalSaveRecoveryValue(value: unknown): string {
   if (value === undefined) return 'undefined'
   if (value === null) return 'null'

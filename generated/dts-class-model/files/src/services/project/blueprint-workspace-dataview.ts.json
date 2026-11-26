@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "services/project/blueprint-workspace-dataview",
     "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "BlueprintNodeFormData",
       "BlueprintChildNodeCreate",
@@ -321,6 +321,31 @@
         }
       }
     },
+    "BlueprintLeafDeleteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintLeafDeleteCommand",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.beforeStage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeStage.return": true
+      }
+    },
     "BlueprintWorkspaceDataView": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -500,14 +525,8 @@
         "method.removeLeafNode.params": {
           "type": "object",
           "properties": {
-            "nodeId": {
-              "type": "string"
-            },
-            "expectedProjectId": {
-              "type": "string"
-            },
-            "expectedParentNodeId": {
-              "type": "string"
+            "command": {
+              "$ref": "#/$defs/BlueprintLeafDeleteCommand"
             }
           },
           "additionalProperties": false
@@ -984,7 +1003,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T19:11:45.320Z",
+  "generatedAt": "2026-11-26T01:25:45.970Z",
   "models": {
     "SelectedNodeSaveProgress": {
       "name": "SelectedNodeSaveProgress",
@@ -1359,6 +1378,50 @@
         }
       }
     },
+    "BlueprintLeafDeleteCommand": {
+      "name": "BlueprintLeafDeleteCommand",
+      "jsdoc": "Exact tree target and a final upstream precondition before a fresh local deletion is staged.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    projectId: string;\n    parentNodeId: string;\n    beforeStage?(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    projectId: string;\n    parentNodeId: string;\n    beforeStage?(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "beforeStage",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "BlueprintWorkspaceDataView": {
       "name": "BlueprintWorkspaceDataView",
       "jsdoc": "一个已查询目标的 DataView 编辑入口；正式元数据和查询权限均由原 DataSpace owner 提供。",
@@ -1665,24 +1728,11 @@
               "jsdoc": "Delete one ordinary leaf through the current project tree DataView and confirm it by readback.",
               "parameters": [
                 {
-                  "name": "nodeId",
+                  "name": "command",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "expectedProjectId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "expectedParentNodeId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "BlueprintLeafDeleteCommand",
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
                   }
                 }
               ],

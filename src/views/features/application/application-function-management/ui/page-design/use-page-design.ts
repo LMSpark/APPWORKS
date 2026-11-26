@@ -24,7 +24,6 @@ import {
   type PageToolPublicationFileSource,
   type PageToolPublicationScenarioSource,
 } from '@/services/project/page-tool-publication'
-import {createPagePublicationManifestFileView} from '@/services/project/page-tool-file-dataview'
 import { lowcodeApi } from '@/platform-adapters/lowcode-runtime'
 import {readRuntimeDataSetPlan} from '@/platform-adapters/data-space/runtime-data-set-plan-file'
 import type { DevState } from '../blueprint-state/useDevState'
@@ -505,9 +504,8 @@ export function usePageDesign(state: DevState) {
         })
         : await createPageToolPublicationManifest({pageId, files: fileSources, pagedata: pagedataSources})
       const manifestText = `${JSON.stringify(manifest, null, 2)}\n`
-      const manifestView = createPagePublicationManifestFileView({
-        dataSet: current.dataSet, appId: projectId, pageId, workspace: state.editor, assertCurrent: () => assertTarget(),
-      })
+      assertTarget()
+      const manifestView = state.getPagePublicationManifestDataView(pageId)
       await manifestView.refresh()
       assertTarget()
       let manifestRow = manifestView.currentRow

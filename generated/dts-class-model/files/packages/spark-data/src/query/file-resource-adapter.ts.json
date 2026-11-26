@@ -38,6 +38,9 @@
             }
           },
           "additionalProperties": true
+        },
+        "historyScope": {
+          "type": "string"
         }
       },
       "required": [
@@ -440,18 +443,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T05:28:12.521Z",
+  "generatedAt": "2026-11-26T19:07:07.261Z",
   "models": {
     "FileResourceTarget": {
       "name": "FileResourceTarget",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n}>",
+        "declarationTypeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n    /** 声明同一资源内需要互斥的新删除与快照创建范围，随原目标冻结。 */\n    historyScope?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n}>",
+            "typeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n    /** 声明同一资源内需要互斥的新删除与快照创建范围，随原目标冻结。 */\n    historyScope?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -464,6 +467,12 @@
             },
             {
               "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "historyScope",
+              "jsdoc": "声明同一资源内需要互斥的新删除与快照创建范围，随原目标冻结。",
               "readable": true,
               "writable": false
             }

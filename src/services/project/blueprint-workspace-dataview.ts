@@ -101,6 +101,14 @@ export type BlueprintLeafMoveBatchOptions=Readonly<{
   beforeStage?:()=>boolean
 }>
 
+/** Exact tree target and a final upstream precondition before a fresh local deletion is staged. */
+type BlueprintLeafDeleteCommand=Readonly<{
+  nodeId:string
+  projectId:string
+  parentNodeId:string
+  beforeStage?():void
+}>
+
 type StageMoveFromRowsCommand=Readonly<{
   nodeKey:string
   parentId:string|null
@@ -547,9 +555,9 @@ export class BlueprintWorkspaceDataView {
   }
 
   /** Delete one ordinary leaf through the current project tree DataView and confirm it by readback. */
-  public async removeLeafNode(nodeId:string,expectedProjectId:string,expectedParentNodeId:string):Promise<ProjectBlueprintTreeData>{
+  public async removeLeafNode(command: BlueprintLeafDeleteCommand):Promise<ProjectBlueprintTreeData>{
     this.assertWritable()
-    const targetId=nodeId.trim(),projectId=expectedProjectId.trim(),parentId=expectedParentNodeId.trim()
+    const targetId=command.nodeId.trim(),projectId=command.projectId.trim(),parentId=command.parentNodeId.trim()
     if(!targetId||!projectId||!parentId)throw new Error('蓝图 DataView 删除目标身份不完整')
     if(projectId!==this.#projectId)throw new Error('蓝图 DataView 删除目标项目身份不匹配')
     if(this.isBusy)throw new Error('蓝图 DataView 正在查询或保存，不能删除节点')
@@ -582,6 +590,7 @@ export class BlueprintWorkspaceDataView {
     const id=this.view.getPkKey(target)
     if((typeof id!=='string'&&typeof id!=='number')||String(id)!==targetId)throw new Error('蓝图 DataView 正式主键与删除目标身份不匹配')
 
+    command.beforeStage?.()
     const removed=await this.view.removeRow(id)
     if(removed!==true)throw new Error('蓝图 DataView 未准备目标删除变更')
     this.#unconfirmedDeleteId=id
@@ -1312,8 +1321,17 @@ export class BlueprintWorkspaceDataView {
     this.#dispatchedModuleCandidate=undefined
   }
 
+  private discardRejectedSave(ids:ReadonlyArray<string|number>):boolean{
+    const {views}=this.dataSet.saveJournal
+    const [receipt]=views
+    if(views.length!==1||receipt?.state!=='not-applied'||receipt.tableName!==this.view.tableName
+      ||receipt.viewId!==this.view.viewId||receipt.ids.length!==ids.length||receipt.ids.some(id=>!ids.includes(id)))return false
+    this.dataSet.discardSaveJournalNotApplied()
+    return true
+  }
+
   private async clearPendingChildCreate(id:string|number):Promise<void>{
-    if(this.view.rows.some(row=>this.view.getPkKey(row)===id&&this.view.dirtyTracking.hasPendingChanges(id)))await this.view.removeRow(id)
+    if(!this.discardRejectedSave([id])&&this.view.rows.some(row=>this.view.getPkKey(row)===id&&this.view.dirtyTracking.hasPendingChanges(id)))await this.view.removeRow(id)
     this.#unconfirmedIds=this.#unconfirmedIds.filter(item=>item!==id)
     this.#unconfirmedPatches.delete(id)
     if(this.#unconfirmedChildId===id){this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined}
@@ -1620,7 +1638,7 @@ export class BlueprintWorkspaceDataView {
     if (!this.dirty) return
     const ids=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       .filter(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))
-    this.view.discardPendingChanges(ids)
+    if(!this.discardRejectedSave(ids))this.view.discardPendingChanges(ids)
     if(ids.some(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('蓝图 DataView 取消后仍有待提交修改')
     this.#unconfirmedIds=[];this.#unconfirmedPatches.clear()
     if(this.#batchStageBlocked){
@@ -1637,7 +1655,7 @@ export class BlueprintWorkspaceDataView {
     if(this.#unconfirmedDeleteId!==undefined){
       const id=String(this.#unconfirmedDeleteId),parentId=this.#unconfirmedDeleteParentId
       if(!parentId)throw new Error('蓝图 DataView 删除待核验缺少原父节点身份')
-      await this.removeLeafNode(id,this.#projectId,parentId)
+      await this.removeLeafNode({nodeId:id,projectId:this.#projectId,parentNodeId:parentId})
       return
     }
     if(this.#pendingChildBatch!==undefined){await this.verifyPendingChildBatch();return}

@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
-import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor, type FileResourceTransport} from '../../query/file-resource-adapter'
+import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor,listDetachedFileResourceDeletionTargets,
+  verifyDetachedFileResourceDeletion,type FileResourceTransport} from '../../query/file-resource-adapter'
 
 function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='page-files',equivalentRetry=false) {
   const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId,
@@ -31,6 +32,57 @@ function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true,resourceId='
 }
 
 describe('file readback cannot prove an unknown attempt was not applied',()=>{
+  it('requires the frozen original deletion target and never reuses an earlier receipt for the same file',async()=>{
+    const f=fixture()
+    const queryContext={pageId:'PAGE',fileName:'rule.json'}
+    const key=JSON.stringify(['PAGE','rule.json'])
+    try{
+      const table=f.view.dataTable!
+      await f.view.refresh()
+      await f.view.removeRow(key)
+      f.remove.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      table.destroyView(f.view.viewId)
+      const [firstTarget]=listDetachedFileResourceDeletionTargets(f.dataSet,'page-files')
+      if(!firstTarget)throw new Error('Missing detached original file target')
+      f.current.text=null;f.current.revision=null
+
+      const wrong=table.getOrCreateView('wrong')
+      wrong.queryContext=queryContext
+      bindFileResourceAdapter(wrong,{resourceId:'page-files',contentField:'text',revisionField:'revision',transport:f.transport,
+        target:()=>({key,fields:{...queryContext,fileName:'other.json'}})})
+      const reads=f.read.mock.calls.length
+      await expect(wrong.verifySourceWriteAttempt()).rejects.toThrow('FILE_RESOURCE_IDENTITY')
+      expect(f.read).toHaveBeenCalledTimes(reads)
+      expect((await f.dataSet.verifySaveJournal()).views).toMatchObject([{state:'unknown'}])
+
+      const reopened=table.getOrCreateView(f.view.viewId)
+      reopened.queryContext=queryContext
+      f.bind(reopened)
+      await expect(reopened.verifySourceWriteAttempt()).resolves.toMatchObject({state:'confirmed'})
+      reopened.acknowledgeSourceWriteAttempt()
+      const first=await f.dataSet.verifySaveJournal()
+      expect(first.views).toMatchObject([{state:'applied'}])
+
+      f.current.text='new file';f.current.revision='v2'
+      await reopened.refresh()
+      await reopened.removeRow(key)
+      f.remove.mockRejectedValueOnce(new Error('timeout'))
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('timeout')
+      table.destroyView(reopened.viewId)
+      const second=await f.dataSet.verifySaveJournal()
+      expect(second.batchId).not.toBe(first.batchId)
+      expect(second.views).toMatchObject([{state:'unknown'}])
+      const receiver=table.getOrCreateView('receiver')
+      receiver.queryContext=queryContext
+      f.bind(receiver)
+      const beforeStaleVerification=f.read.mock.calls.length
+      await expect(verifyDetachedFileResourceDeletion(receiver,firstTarget)).resolves.toBe(false)
+      expect(f.read).toHaveBeenCalledTimes(beforeStaleVerification)
+      expect(f.remove).toHaveBeenCalledTimes(2)
+    }finally{f.dataSet.destroy()}
+  })
+
   it.each(['create','update','delete'] as const)('keeps the original %s capture until late arrival without another mutation',async operation=>{
     const f=fixture()
     if(operation==='create'){f.current.text=null;f.current.revision=null}
@@ -873,7 +925,9 @@ describe('DataView file resource adapter',()=>{
       f.write.mockImplementationOnce(async({text})=>{await waiting;f.current.text=text;f.current.revision='v2'})
       const first=f.dataSet.saveChanges({views:[{tableName:'Files',viewId:f.view.viewId,ids:[firstId]}]})
       await vi.waitFor(()=>expect(f.write).toHaveBeenCalledOnce())
-      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:clone.viewId,ids:[secondId]}]})).rejects.toThrow('FILE_RESOURCE_SAVE_PENDING')
+      await expect(f.dataSet.saveChanges({ views: [{ tableName: 'Files', viewId: clone.viewId, ids: [secondId] }] }))
+        .rejects.toThrow('DATA_SET_SAVE_JOURNAL_ACTIVE')
+      await expect(clone.saveChanges([secondId])).rejects.toThrow('FILE_RESOURCE_SAVE_PENDING')
       finish?.()
       expect((await first).success).toBe(true)
       expect(f.write).toHaveBeenCalledOnce()

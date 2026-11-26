@@ -10,10 +10,33 @@
     "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "PageToolFileBindingScope",
       "PagePublicationFileName"
     ]
   },
   "$defs": {
+    "PageToolFileBindingScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileBindingScope",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.captureOperationScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureOperationScope.return": {
+          "type": "object",
+          "title": "() => void"
+        }
+      }
+    },
     "PagePublicationFileName": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PagePublicationFileName",
@@ -25,8 +48,53 @@
       ]
     }
   },
-  "generatedAt": "2026-11-23T19:17:17.287Z",
+  "generatedAt": "2026-11-26T18:41:14.208Z",
   "models": {
+    "PageToolFileBindingScope": {
+      "name": "PageToolFileBindingScope",
+      "jsdoc": "A binding can outlive a workspace holder. Capture the holder separately for each file request.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent: () => void;\n    captureOperationScope?: () => () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent: () => void;\n    captureOperationScope?: () => () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "captureOperationScope",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
     "PagePublicationFileName": {
       "name": "PagePublicationFileName",
       "jsdoc": "",

@@ -48,7 +48,7 @@ import { Logger, toErrorMessage, toError, isRecord } from '@spark-appworks/spark
 import { createEventEmitter } from './core/event-emitter'
 import { DataFieldMember, type DataFieldMemberEdit, type DataFieldMemberRef } from './core/data-field-member'
 import { isDataRow } from './core/data-row-guards'
-import { saveRecoveryDigest } from './core/save-recovery-evidence'
+import { hasConfirmedFileDeletion, saveRecoveryDigest } from './core/save-recovery-evidence'
 import { assertNoSeparator } from './core/utils'
 import { CrudDelegate } from './strategies/crud/crud-delegate'
 import { CascadeDelegate } from './strategies/cascade/cascade-delegate'
@@ -3925,12 +3925,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             if (!recovering) view.#unconfirmedQuerySaveBatch = batch
             const observer = dispatchObservers.get(view)
             if (observer) {
+              const change = dispatchedChanges.get(view)
               const status: { state: DataViewSaveDispatchState } = { state: 'unknown' }
               dispatchOutcomes.set(view, status)
               observer({
                 matchesUnconfirmed: candidate => candidate === view && !view.destroyed
                   && view.#unconfirmedQuerySave === capture && view.hasUnconfirmedSave,
-                outcome: () => status.state,
+                outcome: () => status.state === 'unknown' && view.destroyed && change && hasConfirmedFileDeletion(change)
+                  ? 'applied' : status.state,
               })
             }
           }

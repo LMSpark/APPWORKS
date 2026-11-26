@@ -440,6 +440,105 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(records('Base_TblField').find(row=>row['rowid']==='F1')).toMatchObject({enname:'token',DataType:'string'})
     expect(f.ds.getView('_Base_ParamList')!.hasEditingChanges('A1')).toBe(true)
   })
+  it.each(['not loaded', 'unreadable'] as const)('blocks output reset with a %s baseline before sampling', async state => {
+    const f = await interfaceFixture()
+    if (state === 'unreadable') f.http.hiddenFields['Base_TblField'] = ['enname']
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.rows).toHaveLength(1))
+    if (state === 'not loaded') outputs.resetState()
+    await button(f.wrapper, '重新设置输出')!.trigger('click')
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain(state === 'not loaded' ? '请先完整读取当前接口的输出定义' : '输出定义字段不可读'))
+    expect(f.http.invocations).toEqual([])
+    expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(f.http.saves).toEqual([])
+  })
+  it('keeps the output when the original public parameter reference is unreadable', async () => {
+    const f = await interfaceFixture()
+    f.http.invocationResult = {replacement: true}
+    f.http.hiddenFields['Base_Interface_PublicParam'] = ['outputfield']
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.rows).toHaveLength(1))
+    await button(f.wrapper, '重新设置输出')!.trigger('click')
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain('Base_Interface_PublicParam.outputfield不可读'))
+    expect(outputs.rows.map(row => row['rowid'])).toEqual(['F1'])
+    expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(f.http.invocations).toHaveLength(1)
+    expect(f.http.saves).toEqual([])
+  })
+  it('keeps the existing type when its public parameter still references the output', async () => {
+    const f = await interfaceFixture()
+    f.http.invocationResult = {token: 1}
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.rows).toHaveLength(1))
+    await button(f.wrapper, '重新设置输出')!.trigger('click')
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain('输出字段 token 已设置公共参数'))
+    expect(outputs.getEditingPatch('F1')).toBeUndefined()
+    expect(f.http.invocations).toHaveLength(1)
+    expect(f.http.saves).toEqual([])
+  })
+  it('stages new outputs when the full query confirms an empty original definition', async () => {
+    const f = await interfaceFixture()
+    records('Base_TblField').splice(0)
+    records('Base_Interface_PublicParam').splice(0)
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.countReported).toBe(true))
+    expect(outputs.rows).toEqual([])
+    await button(f.wrapper, '重新设置输出')!.trigger('click')
+    await vi.waitFor(() => expect(outputs.rows.map(row => row['enname'])).toEqual(['token', 'expires', 'ratio']))
+    expect(outputs.rows.every(row => row['tblid'] === 'I1')).toBe(true)
+    expect(f.http.invocations).toHaveLength(1)
+    expect(f.http.saves).toEqual([])
+  })
+  it('drops a confirmed sample when its interface changes during reference readback', async () => {
+    const f = await interfaceFixture()
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.rows).toHaveLength(1))
+    records('Base_Interface_PublicParam').splice(0)
+    f.http.invocationResult = {replacement: true}
+    let entered = false, release = () => {}
+    const gate = new Promise<void>(resolve => {release = resolve})
+    f.http.beforeDefinitionRead = async table => {
+      if (table === 'Base_Interface_PublicParam') {entered = true; await gate}
+    }
+    try {
+      await button(f.wrapper, '重新设置输出')!.trigger('click')
+      await vi.waitFor(() => expect(entered).toBe(true))
+      f.select('I2')
+      await vi.waitFor(() => expect(outputs.rows.map(row => row['rowid'])).toEqual(['F2']))
+      release()
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('当前接口已切换，未重新设置输出'))
+      expect(outputs.rows.map(row => row['rowid'])).toEqual(['F2'])
+      expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.ds.getView('InterfaceCallRequest')!.rows[0]).toMatchObject({interfaceId: 'I1', result: expect.stringContaining('replacement')})
+      expect(f.http.invocations).toHaveLength(1)
+      expect(f.http.saves).toEqual([])
+    } finally {release()}
+  })
+  it('keeps all output fields untouched when one operation cannot be staged', async () => {
+    const f = await interfaceFixture()
+    f.http.denyAdd.add('Base_TblField')
+    f.http.invocationResult = {token: 1, replacement: true}
+    f.select('I1')
+    await f.tab('输出内容')
+    const outputs = f.ds.getView('Base_TblField')!
+    await vi.waitFor(() => expect(outputs.rows).toHaveLength(1))
+    await button(f.wrapper, '重新设置输出')!.trigger('click')
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain('当前查询不允许新增输出字段'))
+    expect(outputs.getEditingPatch('F1')).toBeUndefined()
+    expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(f.http.invocations).toHaveLength(1)
+    expect(f.http.saves).toEqual([])
+  })
   it('verifies the original output save without submitting the input draft',async()=>{
     const f=await interfaceFixture()
     f.select('I1');await flushPromises()

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/integration/api-management/ui/interface-list/interface-output-reset",
+    "sourcePath": "src/views/features/integration/api-management/ui/interface-list/interface-output-reset.ts",
+    "sourceFile": "src/views/features/integration/api-management/ui/interface-list/interface-output-reset.ts",
+    "packageName": "app",
+    "modulePath": "views/features/integration/api-management/ui/interface-list/interface-output-reset",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/interface-list/interface-output-reset\n职责：基于当前接口的输出查询和调用回执重建输出草稿。\n边界：沿现有接口命令和原输出 DataView 暂存，保存与跨空间引用仍由原模型负责。\nAI用途：处理重新设置输出时，先核当前接口的完整结果，再检查公共参数引用和本次可写范围。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "InterfaceOutputResetInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InterfaceOutputResetInput",
+      "properties": {
+        "outputs": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-26T12:00:54.327Z",
+  "models": {
+    "InterfaceOutputResetInput": {
+      "name": "InterfaceOutputResetInput",
+      "jsdoc": "当前接口命令、输出视图及原页面实例校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "InterfaceCallViews & Readonly<{\n    /** 当前已读完整的原输出定义视图，与命令及接口视图属于同一运行空间。 */\n    outputs: DataView;\n    /** 原宿主切换或释放时拒绝迟到的样本和引用。 */\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "InterfaceCallViews",
+            "targetName": "InterfaceCallViews"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 当前已读完整的原输出定义视图，与命令及接口视图属于同一运行空间。 */\n    outputs: DataView;\n    /** 原宿主切换或释放时拒绝迟到的样本和引用。 */\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "outputs",
+              "jsdoc": "当前已读完整的原输出定义视图，与命令及接口视图属于同一运行空间。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "原宿主切换或释放时拒绝迟到的样本和引用。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

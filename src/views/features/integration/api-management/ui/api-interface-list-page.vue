@@ -18,7 +18,8 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
-import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, invokeApi, abandonInterfaceCall, outputFieldsOf} from './interface-list/interface-list-workspace'
+import {INTERFACE_KEYS, INTERFACE_SCENARIO_ID as scenarioId, syncPathParameters, invokeApi, abandonInterfaceCall} from './interface-list/interface-list-workspace'
+import {resetInterfaceOutputs} from './interface-list/interface-output-reset'
 import InterfaceJsonImportDialog from './interface-list/interface-json-import-dialog.vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './interface-list/rule.json?raw'
@@ -165,7 +166,11 @@ const listHost=computed(()=>{
     if(command==='interfaces.invoke'&&!pendingCreate.value){
       await act(()=>invokeApi({calls:requireView('InterfaceCallRequest'),interfaces:requireView('Base_DataServiceInterface')}))
     }
-    if(command==='interfaces.resetOutput'&&!pendingCreate.value)await resetOutputs()
+    if(command==='interfaces.resetOutput'&&!pendingCreate.value)await act(async () => {
+      await resetInterfaceOutputs({calls: requireView('InterfaceCallRequest'), interfaces: requireView('Base_DataServiceInterface'),
+        outputs: requireView('Base_TblField'), assertCurrent})
+      pageService.showMessage('输出内容已重置，保存后生效', 'success')
+    })
     if(command==='interfaces.saveOutput')await act(()=>runFeatureTableAction(requireView('Base_TblField'),'save',pageService))
     if(command==='interfaces.bindOutput'){
       const outputs=view('Base_TblField')
@@ -289,35 +294,6 @@ async function closeBinding(result: SparkComponent.DataViewRecordEditingFinish):
     if (catalog.hasEditingChanges() || catalog.dirtyTracking.hasPendingChanges() || catalog.hasUnconfirmedSave) throw new Error('目录有原修改')
     await catalog.refresh(); if (catalog.loadingError) throw catalog.loadingError
   } catch {if (active && session.runtime === owner) error.value = '绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
-}
-function resetOutputs(): Promise<void> {
-  return act(async () => {
-    const outputs = requireView('Base_TblField'), interfaces = requireView('Base_DataServiceInterface'), bindings = requireView('Base_Interface_PublicParam','outputBinding')
-    if (outputs.hasEditingChanges() || outputs.dirtyTracking.hasPendingChanges()) throw new Error('请先保存或取消输出内容的修改')
-    const owner = interfaces.currentRow, interfaceId = owner ? interfaces.getPkKey(owner) : undefined
-    const fields = outputFieldsOf(await invokeApi({calls: requireView('InterfaceCallRequest'), interfaces}))
-    if (interfaces.currentRow !== owner || interfaceId === undefined) throw new Error('当前接口已切换，未重新设置输出')
-    const types = new Map(fields.map(field => [field.enname, field.DataType]))
-    const current = [...outputs.rows], names = new Set(current.map(row => String(row['enname'] ?? '')))
-    const removed = current.filter(row => !types.has(String(row['enname'] ?? '')))
-    if (removed.length) {
-      await bindings.refresh()
-      if (bindings.loadingError) throw bindings.loadingError
-      const bound = removed.map(row => String(row['enname'] ?? ''))
-        .filter(name => bindings.rows.some(binding => binding['interfaceId'] === interfaceId && binding['outputfield'] === name))
-      if (bound.length) throw new Error(`输出字段 ${bound.join('、')} 已设置公共参数，请先解除绑定再重新设置输出`)
-    }
-    for (const row of current) {
-      const id = outputs.getPkKey(row), type = types.get(String(row['enname'] ?? ''))
-      if (id !== undefined && type !== undefined && row['DataType'] !== type) outputs.updateEditingValue(id, 'DataType', type)
-    }
-    for (const row of removed) {
-      const id = outputs.getPkKey(row)
-      if (id !== undefined) await outputs.removeRow(id)
-    }
-    for (const field of fields) if (!names.has(field.enname)) await outputs.addRow({tblname: 'api_output_info', enname: field.enname, DataType: field.DataType, IsPKey: 0, Memo: ''})
-    pageService.showMessage('输出内容已重置，保存后生效', 'success')
-  })
 }
 async function verifyOriginalSaves(): Promise<void> {
   const runtime = listRuntime.value

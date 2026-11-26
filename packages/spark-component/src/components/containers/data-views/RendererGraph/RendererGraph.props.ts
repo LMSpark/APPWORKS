@@ -173,6 +173,22 @@ export type RGraphProps = SparkNodeProps & Pick<SparkTableModelProps, 'dataViewK
   edgeSourceField?: string
   /** 边记录的终点字段，默认target。 */
   edgeTargetField?: string
+  /** 按可读关系字段的原生值匹配唯一端点样式。无匹配、字段隐藏或脱敏时保留普通连线。 */
+  edgeMarkers?: Readonly<{
+    /** 原关系 DataView 的标量字段名。 */
+    field: string
+    /** 起点为圆、终点为箭头的可读显示选项，不影响关系几何或写入。 */
+    options: ReadonlyArray<Readonly<{
+      /** 与字段原生值严格比较，不转换类型。 */
+      value: string | number | boolean
+      /** 端点标记所表达的关系含义，用作无障碍名称。 */
+      label: string
+      /** 起点圆是否填充。 */
+      sourceFilled: boolean
+      /** 终点箭头是否填充。 */
+      targetFilled: boolean
+    }>>
+  }>
   /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */
   edgeNodeKeys?: Readonly<Record<string, string | number>>
   /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */

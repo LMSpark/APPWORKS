@@ -31,6 +31,7 @@ const {
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
+  FLOW_RELATION_EDGE_MARKERS,
   FLOW_WORKBENCH_SCENARIO_ID,
   buildFlowRunPageRoute,
   readFlowRuntimeRouteQuery,
@@ -116,7 +117,7 @@ const host = computed(() => {
         if (!graph) return undefined
         return {dataViewKey: graph.nodeViewKey, edgeDataViewKey: graph.edgeViewKey,
           nodePositions: graph.graphLayout.nodePositions, edgePaths: graph.graphLayout.edgePaths,
-          nodeBadgeRules, onSelect: onGraphSelect}
+          edgeMarkers: FLOW_RELATION_EDGE_MARKERS, nodeBadgeRules, onSelect: onGraphSelect}
       },
       drilldown: () => ({
         node: {

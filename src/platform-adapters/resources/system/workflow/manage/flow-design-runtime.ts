@@ -12,6 +12,17 @@ import {buildFlowDesignGraphLayout, type FlowDesignGraphLayout} from './flow-des
 
 const DESIGN_TABLES = ['WFM_FLOW_MODLE', 'WFM_FLOW_NODE', 'WFM_NODE_REALATION', 'WFM_WORKFORM'] as const
 
+/** 正式连线提交类型的端点图例；设计和运行图使用同一字段与显示含义。 */
+export const FLOW_RELATION_EDGE_MARKERS = {
+  field: 'submitType',
+  options: [
+    {value: 'oneToOne', label: '一对一', sourceFilled: false, targetFilled: false},
+    {value: 'oneToMany', label: '一对多', sourceFilled: false, targetFilled: true},
+    {value: 'manyToMany', label: '多对多', sourceFilled: true, targetFilled: true},
+    {value: 'manyToOne', label: '多对一', sourceFilled: true, targetFilled: false},
+  ],
+} as const
+
 export type FlowDesignPreparedViews = Readonly<{
   documentViewKey: string
   modelTitle: string

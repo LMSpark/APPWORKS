@@ -53,7 +53,7 @@ vi.mock('@spark-appworks/spark-component', async importOriginal => {
   return {
     ...actual,
     RendererGraph: {
-      name: 'RendererGraph', props: {disabled: Boolean, draggableKeys: Array, connectableKeys: Array},
+      name: 'RendererGraph', props: {disabled: Boolean, draggableKeys: Array, connectableKeys: Array, edgeMarkers: Object},
       template: '<div data-testid="flow-graph">流程图</div>',
     },
   }
@@ -127,6 +127,9 @@ describe('flow design page mount', () => {
     expect(state.runtime.resolveView(views.nodeViewKey)).toBe(state.nodes)
     expect(state.runtime.resolveView(views.workFormViewKey)).toBe(state.forms)
     expect(state.runtime.resolveView(views.edgeViewKey)).toBe(state.ds.getView('WFM_NODE_REALATION'))
+    expect(state.http.reads.find(read => read.table === 'WFM_NODE_REALATION')?.data).toMatchObject({
+      Table: [{Fields: expect.arrayContaining([expect.objectContaining({Name: 'submitType'})])}],
+    })
 
     const swapped = await readRepositoryScenarioText({...design, path:directory.path}, () => undefined)
     const sameIdentity = new ScenarioViewConfig(design.scenarioId, swapped)
@@ -208,6 +211,7 @@ describe('flow design page mount', () => {
     await save!.trigger('click'); await flushPromises(); await flushPromises()
     expect(saveFlowDesignInfo).toHaveBeenCalledTimes(1)
     expect(wrapper.findComponent({name: 'RendererGraph'}).props('disabled')).toBe(false)
+    expect(wrapper.getComponent({name: 'RendererGraph'}).props('edgeMarkers')).toMatchObject({field: 'submitType'})
     const again = wrapper.findAll('button').find(button => button.text().includes('保存设计'))!
     expect(again.attributes('disabled')).toBeUndefined()
   })

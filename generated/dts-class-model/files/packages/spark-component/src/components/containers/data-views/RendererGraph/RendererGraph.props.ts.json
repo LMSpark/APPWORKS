@@ -596,6 +596,62 @@
         "edgeTargetField": {
           "type": "string"
         },
+        "edgeMarkers": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "sourceFilled": {
+                    "enum": [
+                      false,
+                      true
+                    ]
+                  },
+                  "targetFilled": {
+                    "enum": [
+                      false,
+                      true
+                    ]
+                  }
+                },
+                "required": [
+                  "value",
+                  "label",
+                  "sourceFilled",
+                  "targetFilled"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "field",
+            "options"
+          ],
+          "additionalProperties": false
+        },
         "edgeNodeKeys": {
           "type": "object",
           "properties": {},
@@ -788,7 +844,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.600Z",
+  "generatedAt": "2026-11-26T06:25:03.521Z",
   "models": {
     "GraphArrange": {
       "name": "GraphArrange",
@@ -1348,7 +1404,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键及接点；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: GraphConnection) => void;\n    /** 全部节点共用的接点布局；省略时每个节点只有左侧输入、右侧输出各一个接点。 */\n    nodeHandles?: GraphNodeHandles;\n    /** 关系记录中的起点接点字段；值不可读或不是已声明的输出接点时，按两端距离自动选最近接点。 */\n    edgeSourceHandleField?: string;\n    /** 关系记录中的终点接点字段；值不可读或不是已声明的输入接点时，按两端距离自动选最近接点。 */\n    edgeTargetHandleField?: string;\n    /** 关系记录中的线型字段，值取GraphEdgeLineType；配置后连线按线型经过控制点，其它值按orthogonal。 */\n    edgeLineTypeField?: string;\n    /** 关系记录中的控制点字段，值为{x,y}数组；只是布局，不改变关系端点。 */\n    edgeControlPointsField?: string;\n    /** 控制点拖动、双击连线加点、双击控制点删点后发出；仅当控制点字段对该行可写时开放编辑。 */\n    onEdgePathChange?: (event: GraphEdgePathChange) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}",
+        "declarationTypeText": "SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 按可读关系字段的原生值匹配唯一端点样式。无匹配、字段隐藏或脱敏时保留普通连线。 */\n    edgeMarkers?: Readonly<{\n        /** 原关系 DataView 的标量字段名。 */\n        field: string;\n        /** 起点为圆、终点为箭头的可读显示选项，不影响关系几何或写入。 */\n        options: ReadonlyArray<Readonly<{\n            /** 与字段原生值严格比较，不转换类型。 */\n            value: string | number | boolean;\n            /** 端点标记所表达的关系含义，用作无障碍名称。 */\n            label: string;\n            /** 起点圆是否填充。 */\n            sourceFilled: boolean;\n            /** 终点箭头是否填充。 */\n            targetFilled: boolean;\n        }>>;\n    }>;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键及接点；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: GraphConnection) => void;\n    /** 全部节点共用的接点布局；省略时每个节点只有左侧输入、右侧输出各一个接点。 */\n    nodeHandles?: GraphNodeHandles;\n    /** 关系记录中的起点接点字段；值不可读或不是已声明的输出接点时，按两端距离自动选最近接点。 */\n    edgeSourceHandleField?: string;\n    /** 关系记录中的终点接点字段；值不可读或不是已声明的输入接点时，按两端距离自动选最近接点。 */\n    edgeTargetHandleField?: string;\n    /** 关系记录中的线型字段，值取GraphEdgeLineType；配置后连线按线型经过控制点，其它值按orthogonal。 */\n    edgeLineTypeField?: string;\n    /** 关系记录中的控制点字段，值为{x,y}数组；只是布局，不改变关系端点。 */\n    edgeControlPointsField?: string;\n    /** 控制点拖动、双击连线加点、双击控制点删点后发出；仅当控制点字段对该行可写时开放编辑。 */\n    onEdgePathChange?: (event: GraphEdgePathChange) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -1362,7 +1418,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键及接点；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: GraphConnection) => void;\n    /** 全部节点共用的接点布局；省略时每个节点只有左侧输入、右侧输出各一个接点。 */\n    nodeHandles?: GraphNodeHandles;\n    /** 关系记录中的起点接点字段；值不可读或不是已声明的输出接点时，按两端距离自动选最近接点。 */\n    edgeSourceHandleField?: string;\n    /** 关系记录中的终点接点字段；值不可读或不是已声明的输入接点时，按两端距离自动选最近接点。 */\n    edgeTargetHandleField?: string;\n    /** 关系记录中的线型字段，值取GraphEdgeLineType；配置后连线按线型经过控制点，其它值按orthogonal。 */\n    edgeLineTypeField?: string;\n    /** 关系记录中的控制点字段，值为{x,y}数组；只是布局，不改变关系端点。 */\n    edgeControlPointsField?: string;\n    /** 控制点拖动、双击连线加点、双击控制点删点后发出；仅当控制点字段对该行可写时开放编辑。 */\n    onEdgePathChange?: (event: GraphEdgePathChange) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}"
+            "typeText": "{\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 按可读关系字段的原生值匹配唯一端点样式。无匹配、字段隐藏或脱敏时保留普通连线。 */\n    edgeMarkers?: Readonly<{\n        /** 原关系 DataView 的标量字段名。 */\n        field: string;\n        /** 起点为圆、终点为箭头的可读显示选项，不影响关系几何或写入。 */\n        options: ReadonlyArray<Readonly<{\n            /** 与字段原生值严格比较，不转换类型。 */\n            value: string | number | boolean;\n            /** 端点标记所表达的关系含义，用作无障碍名称。 */\n            label: string;\n            /** 起点圆是否填充。 */\n            sourceFilled: boolean;\n            /** 终点箭头是否填充。 */\n            targetFilled: boolean;\n        }>>;\n    }>;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键及接点；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: GraphConnection) => void;\n    /** 全部节点共用的接点布局；省略时每个节点只有左侧输入、右侧输出各一个接点。 */\n    nodeHandles?: GraphNodeHandles;\n    /** 关系记录中的起点接点字段；值不可读或不是已声明的输出接点时，按两端距离自动选最近接点。 */\n    edgeSourceHandleField?: string;\n    /** 关系记录中的终点接点字段；值不可读或不是已声明的输入接点时，按两端距离自动选最近接点。 */\n    edgeTargetHandleField?: string;\n    /** 关系记录中的线型字段，值取GraphEdgeLineType；配置后连线按线型经过控制点，其它值按orthogonal。 */\n    edgeLineTypeField?: string;\n    /** 关系记录中的控制点字段，值为{x,y}数组；只是布局，不改变关系端点。 */\n    edgeControlPointsField?: string;\n    /** 控制点拖动、双击连线加点、双击控制点删点后发出；仅当控制点字段对该行可写时开放编辑。 */\n    onEdgePathChange?: (event: GraphEdgePathChange) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}"
           }
         ],
         "members": {
@@ -1466,6 +1522,12 @@
             {
               "name": "edgeTargetField",
               "jsdoc": "边记录的终点字段，默认target。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeMarkers",
+              "jsdoc": "按可读关系字段的原生值匹配唯一端点样式。无匹配、字段隐藏或脱敏时保留普通连线。",
               "readable": true,
               "writable": false
             },

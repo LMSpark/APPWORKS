@@ -43,7 +43,7 @@ it.each([
   const designSource = runtimeDetail ? await designFixture(false, false) : undefined
   if (designSource) {
     designSource.http.records['WFM_FLOW_NODE']?.push({rowid: 'N2', FLOWID: 'FM-1', TITLE: 'Target', TYPEID: 11})
-    designSource.http.records['WFM_NODE_REALATION'] = [{rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N2'}]
+    designSource.http.records['WFM_NODE_REALATION'] = [{rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N2', submitType: 'oneToMany'}]
   }
   const design = designSource?.ds ?? DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
   const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
@@ -99,6 +99,10 @@ it.each([
       expect(graph.props('edgeTargetField')).toBe('NextNodeID')
       expect(graph.props('dataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_FLOW_NODE@default`)
       expect(graph.props('edgeDataViewKey')).toBe(`${FLOW_DESIGN_SCENARIO_ID}@WFM_NODE_REALATION@default`)
+      expect(designSource?.http.reads.find(read => read.table === 'WFM_NODE_REALATION')?.data).toMatchObject({
+        Table: [{Fields: expect.arrayContaining([expect.objectContaining({Name: 'submitType'})])}],
+      })
+      expect(graph.get('[aria-label="关系图例"]').text()).toContain('○▶ 一对多')
       graph.vm.$emit('select', {kind: 'node', id: 'N1', open: true, control: {cancel: false}})
       await flushPromises()
       const drilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.endsWith(' - 步骤信息'))

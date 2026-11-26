@@ -75,7 +75,7 @@ async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideId
     Edges: {tableName: 'Edges', resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'}],
       views: {default: {rows: [{id: 'AB', from: 'AliasA', to: 'AliasB'}]}}},
     ProtectedEdges: {tableName: 'ProtectedEdges', modelBinding: {modelId: 'PE', modelName: 'ProtectedEdges'},
-      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'}], views: {default: {}}},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'}, {name: 'kind', type: 'string'}], views: {default: {}}},
     Lines: {tableName: 'Lines', modelBinding: {modelId: 'L', modelName: 'Lines'}, columns: LINE_COLUMNS, views: {default: {}}},
   }})
   const runtime = new PageRuntime({pageId: 'graph', scenarioIds: ['G'], loadScenario: async () => ds})
@@ -102,6 +102,37 @@ async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideId
 }
 
 describe('standard graph DataView binding', () => {
+  it('renders only unique readable edge markers and keeps their SVG definitions scoped to the canvas', async () => {
+    const {wrapper, ds} = await fixture({edgeDataViewKey: 'G@ProtectedEdges@default', edgeMarkers: {field: 'kind', options: [
+      {value: 'open', label: '两端空心', sourceFilled: false, targetFilled: false},
+      {value: 'start', label: '起点实心', sourceFilled: true, targetFilled: false},
+      {value: 'end', label: '终点实心', sourceFilled: false, targetFilled: true},
+      {value: 'both', label: '两端实心', sourceFilled: true, targetFilled: true},
+    ]}})
+    const view = ds.getView('ProtectedEdges', 'default')!
+    const query = new DataSpaceQueryTable({scenarioId: 'G', metaName: 'ProtectedEdges'})
+    const items = ['open', 'start', 'end', 'both', 'masked', 'hidden', 'unknown'].map(kind => ({
+      id: kind, from: 'AliasA', to: 'AliasB', kind: kind === 'masked' || kind === 'hidden' ? 'both' : kind,
+      lingma_sys_params: {r: [], e: [], h: kind === 'hidden' ? ['kind'] : [], m: kind === 'masked' ? ['kind'] : [], d: false},
+    }))
+    const context = new DataSpaceQueryContext({identity: query.identity, scope: 'graph', readScope: () => 'graph',
+      snapshot: query.applyResult({Result: {primaryKeyField: 'id', data: {Items: items, Count: items.length}}})})
+    view.bindQueryExecutor({executeQuery: async () => context}); await view.loadFromServer(); await flushPromises()
+    const flow = wrapper.getComponent(VueFlow)
+    const expected = [['两端空心', 'open', 'open'], ['起点实心', 'filled', 'open'], ['终点实心', 'open', 'filled'], ['两端实心', 'filled', 'filled']]
+    const edges = flow.props('edges')!
+    expect(edges).toHaveLength(7)
+    for (const [index, [label, start, end]] of expected.entries()) {
+      const markerStart = `${flow.props('id')}-start-${start}`, markerEnd = `${flow.props('id')}-end-${end}`
+      expect(edges[index]).toMatchObject({ariaLabel: label, markerStart, markerEnd})
+      expect(wrapper.find(`marker[id="${markerStart}"] circle`).exists()).toBe(true)
+      expect(wrapper.find(`marker[id="${markerEnd}"] path`).exists()).toBe(true)
+      expect(wrapper.findAll('.vue-flow__edge-path').some(path => path.attributes('marker-start')?.includes(markerStart)
+        && path.attributes('marker-end')?.includes(markerEnd))).toBe(true)
+    }
+    expect(edges.slice(4).every(edge => edge.markerStart === undefined && edge.markerEnd === undefined)).toBe(true)
+    expect(wrapper.get('[aria-label="关系图例"]').text()).toContain('两端实心')
+  })
   it('opts into graph presentation without changing the default projection or DataView', async () => {
     const {wrapper, input, nodes} = await fixture()
     const canvas = wrapper.get('.graph-canvas')

@@ -109,6 +109,32 @@
         "target": {
           "type": "string"
         },
+        "markers": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "sourceFilled": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "targetFilled": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "sourceFilled",
+            "targetFilled"
+          ],
+          "additionalProperties": false
+        },
         "pointsList": {
           "type": "array",
           "items": {
@@ -224,7 +250,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.598Z",
+  "generatedAt": "2026-11-26T06:25:03.522Z",
   "models": {
     "GraphCanvasPoint": {
       "name": "GraphCanvasPoint",
@@ -344,11 +370,11 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 由上层已授权字段匹配的端点样式。 */\n    markers?: Readonly<{\n        label: string;\n        sourceFilled: boolean;\n        targetFilled: boolean;\n    }>;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 由上层已授权字段匹配的端点样式。 */\n    markers?: Readonly<{\n        label: string;\n        sourceFilled: boolean;\n        targetFilled: boolean;\n    }>;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -369,6 +395,12 @@
             {
               "name": "target",
               "jsdoc": "终点节点绘图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "markers",
+              "jsdoc": "由上层已授权字段匹配的端点样式。",
               "readable": true,
               "writable": false
             },

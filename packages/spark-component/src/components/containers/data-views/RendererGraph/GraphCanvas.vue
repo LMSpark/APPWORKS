@@ -6,6 +6,18 @@ AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据�
 -->
 <template>
   <div ref="canvasElement" class="graph-canvas" :class="{'graph-canvas--dots': props.backgroundPattern === 'dots'}" data-testid="graph-canvas">
+    <svg v-if="props.edges.some(edge => edge.markers)" class="graph-edge-markers" width="0" height="0" aria-hidden="true">
+      <defs>
+        <template v-for="filled in [false, true]" :key="String(filled)">
+          <marker :id="edgeMarkerId('start', filled)" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse">
+            <circle cx="6" cy="6" r="3.5" :fill="filled ? 'currentColor' : 'var(--el-bg-color, white)'" stroke="currentColor" />
+          </marker>
+          <marker :id="edgeMarkerId('end', filled)" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M 2 2 L 11 6 L 2 10 Z" :fill="filled ? 'currentColor' : 'var(--el-bg-color, white)'" stroke="currentColor" />
+          </marker>
+        </template>
+      </defs>
+    </svg>
     <VueFlow
       :id="flowId"
       :nodes="flowNodes"
@@ -54,13 +66,13 @@ AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据�
       </template>
       <template #edge-graph-edge="edge">
         <g v-if="pathEditable(edge.id)" class="graph-edge--editable" @dblclick.stop="addControlPoint($event, edge)">
-          <BaseEdge :id="edge.id" :path="edgePath(edge)" :marker-end="edge.markerEnd" :style="edge.style" :interaction-width="18" />
+          <BaseEdge :id="edge.id" :path="edgePath(edge)" :marker-start="edge.markerStart" :marker-end="edge.markerEnd" :style="edge.style" :interaction-width="18" />
           <circle v-for="(point, index) in controlPointsOf(edge.id)" :key="index" class="graph-edge__control-point"
             :cx="point.x" :cy="point.y" r="6"
             @pointerdown.stop.prevent="startControlPointDrag($event, edge.id, index)"
             @dblclick.stop.prevent="removeControlPoint(edge.id, index)" />
         </g>
-        <BaseEdge v-else :id="edge.id" :path="edgePath(edge)" :marker-end="edge.markerEnd" :style="edge.style" />
+        <BaseEdge v-else :id="edge.id" :path="edgePath(edge)" :marker-start="edge.markerStart" :marker-end="edge.markerEnd" :style="edge.style" />
       </template>
     </VueFlow>
     <div v-if="props.viewportControls !== false" class="graph-canvas__controls" aria-label="画布视口">
@@ -109,6 +121,9 @@ const emit = defineEmits<{
 const instance = getCurrentInstance()
 if (!instance) throw new Error('GraphCanvas requires a Vue component instance')
 const flowId = `graph-canvas-${instance.uid}`
+function edgeMarkerId(endpoint: 'start' | 'end', filled: boolean): string {
+  return `${flowId}-${endpoint}-${filled ? 'filled' : 'open'}`
+}
 const flow = useVueFlow(flowId)
 const canvasElement = ref<HTMLElement>()
 const nodeBounds = computed(() => {
@@ -350,6 +365,11 @@ const flowEdges = computed<Edge<GraphFlowEdgeData>[]>(() => props.edges.map(edge
   focusable: interactive.value,
   selected: props.selectedId === edge.id,
   updatable: false,
+  ...(edge.markers ? {
+    ariaLabel: edge.markers.label,
+    markerStart: edgeMarkerId('start', edge.markers.sourceFilled),
+    markerEnd: edgeMarkerId('end', edge.markers.targetFilled),
+  } : {}),
   ...(props.handles && edge.sourceHandle ? {sourceHandle: edge.sourceHandle} : {}),
   ...(props.handles && edge.targetHandle ? {targetHandle: edge.targetHandle} : {}),
   data: edge.pointsList !== undefined ? {
@@ -400,6 +420,8 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
   background-position: 10px 10px;
   background-size: 20px 20px;
 }
+
+.graph-edge-markers { position: absolute; }
 
 :deep(.vue-flow) {
   position: absolute;

@@ -1,6 +1,6 @@
 export {WorkflowFlowModelManager, type FlowModelListResult} from './flow-model-manager'
 export {FLOW_DESIGN_SCENARIO_ID, assertFlowDesignTarget} from './flow-design-client'
-export {prepareFlowDesignViews, type FlowDesignPreparedViews} from './flow-design-runtime'
+export {FLOW_RELATION_EDGE_MARKERS, prepareFlowDesignViews, type FlowDesignPreparedViews} from './flow-design-runtime'
 export {
   buildFlowDesignGraphLayout,
   parseFlowDesignGraphJson,

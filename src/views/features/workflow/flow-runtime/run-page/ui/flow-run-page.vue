@@ -52,6 +52,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
+  FLOW_RELATION_EDGE_MARKERS,
   FLOW_WORKBENCH_SCENARIO_ID,
   readFlowRuntimeRouteQuery,
 } from '@/platform-adapters/resources/system/workflow/manage'
@@ -252,6 +253,7 @@ function chartDialogs(children: readonly SparkNode[]): SparkNode[] {
       ...node.props,
       dataViewKey: graph.nodeViewKey,
       edgeDataViewKey: graph.edgeViewKey,
+      edgeMarkers: FLOW_RELATION_EDGE_MARKERS,
       nodePositions: graph.graphLayout.nodePositions,
       edgePaths: graph.graphLayout.edgePaths,
       nodeBadgeField: graph.nodeBadgeField,

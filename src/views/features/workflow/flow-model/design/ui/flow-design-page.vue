@@ -19,6 +19,7 @@
       <RendererGraph class="flow-design-page__graph" :data-view-key="prepared.nodeViewKey"
         :edge-data-view-key="prepared.edgeViewKey" label-field="TITLE" description-field="MEMO"
         node-caption-field="TYPEID" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
+        :edge-markers="FLOW_RELATION_EDGE_MARKERS"
         :node-positions="graphLayout.nodePositions" :edge-paths="graphLayout.edgePaths"
         :draggable-keys="draggableNodeKeys" :connectable-keys="draggableNodeKeys" :current="graphSelection"
         background-pattern="dots" node-appearance="card" :viewport-controls="true" :disabled="saving || loading || acting || unconfirmed || loadedTarget !== flowModelId"
@@ -39,7 +40,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {GraphSelection} from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
-  FLOW_DESIGN_SCENARIO_ID,addFlowDesignEdge,
+  FLOW_DESIGN_SCENARIO_ID, FLOW_RELATION_EDGE_MARKERS, addFlowDesignEdge,
   addFlowDesignNode,
   prepareFlowDesignViews,
   removeFlowDesignGraphSelection,

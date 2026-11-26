@@ -45,6 +45,8 @@ export type GraphCanvasEdge = Readonly<{
   source: string
   /** 终点节点绘图身份。 */
   target: string
+  /** 由上层已授权字段匹配的端点样式。 */
+  markers?: Readonly<{label: string; sourceFilled: boolean; targetFilled: boolean}>
   /** 显式折线路径；缺省时由画布计算连线。 */
   pointsList?: readonly GraphCanvasPoint[]
   /** 起点输出接点身份；仅在配置接点布局时有效。 */

@@ -190,7 +190,7 @@ const WorkflowRendererStub = defineComponent({
 beforeEach(async () => {
   const prepared=await designFixture(false,false);designDataSet=prepared.ds
   prepared.http.records['WFM_FLOW_NODE']!.push({rowid:'N2',FLOWID:'FM-1',TITLE:'Next',TYPEID:11})
-  prepared.http.records['WFM_NODE_REALATION']=[{rowid:'E1',FLOWID:'FM-1',UpNodeID:'N1',NextNodeID:'N2'}]
+  prepared.http.records['WFM_NODE_REALATION']=[{rowid:'E1',FLOWID:'FM-1',UpNodeID:'N1',NextNodeID:'N2',submitType:'manyToOne'}]
   registerAllRenderers()
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
@@ -326,6 +326,7 @@ describe('flow run page mount', () => {
     if(!source||!target)throw Error('流程图必须声明正式连线端点字段')
     expect(edge[source]).toBe('N1')
     expect(edge[target]).toBe('N2')
+    expect(graph.get('[aria-label="关系图例"]').text()).toContain('●▷ 多对一')
     const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '流程图')
     expect(dialog?.props('modelValue')).toBe(true)
     dialog?.vm.$emit('update:modelValue', false)
@@ -334,6 +335,7 @@ describe('flow run page mount', () => {
     await wrapper.findAll('button').find(button => button.text() === '流程图')!.trigger('click')
     await flushPromises()
     expect(dialog?.props('modelValue')).toBe(true)
+    expect(wrapper.getComponent({name: 'RendererGraph'}).get('[aria-label="关系图例"]').text()).toContain('●▷ 多对一')
     routeState.query.stepid = 'missing-step'
     await flushPromises()
     expect(dialog?.props('modelValue')).toBe(false)

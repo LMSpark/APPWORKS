@@ -11,6 +11,12 @@ AI用途：绑定节点与关系视图，通过字段名和显式端点映射恢
     </div>
     <div class="renderer-graph-body">
     <p v-for="message in projection.messages" :key="message" role="alert">{{ message }}</p>
+    <div v-if="props.edgeMarkers && projection.edges.some(edge => edge.markers)" class="renderer-graph-edge-legend" aria-label="关系图例">
+      <span v-for="(option, index) in props.edgeMarkers.options" :key="index">
+        <span aria-hidden="true">{{ option.sourceFilled ? '●' : '○' }}{{ option.targetFilled ? '▶' : '▷' }}</span>
+        {{ option.label }}
+      </span>
+    </div>
     <GraphCanvas ref="canvas" :nodes="projection.nodes" :edges="projection.edges" :context-key="contextKey"
       :background-pattern="props.backgroundPattern" :node-appearance="props.nodeAppearance"
       :viewport-controls="props.viewportControls" :handles="props.nodeHandles"
@@ -209,8 +215,13 @@ const projection = computed(() => {
     if (points === null) result.messages.push('存在无效的连线控制点，请核查布局配置。')
     const editable = points !== null && Boolean(props.onEdgePathChange) && props.edgeControlPointsField !== undefined
       && view.fieldAccess(row, props.edgeControlPointsField).write === 'allowed'
+    const markerConfig = props.edgeMarkers
+    const matches = markerConfig && visible(view, row, markerConfig.field)
+      ? markerConfig.options.filter(option => option.value === row[markerConfig.field]) : []
+    const marker = matches.length === 1 ? matches[0] : undefined
     result.edges.push({id, source, target, ...(path ? {pointsList: path} : {}),
       ...(pair ? {sourceHandle: pair.source.id, targetHandle: pair.target.id} : {}),
+      ...(marker ? {markers: {label: marker.label, sourceFilled: marker.sourceFilled, targetFilled: marker.targetFilled}} : {}),
       ...(type ? {lineType: type} : {}), ...(points ? {controlPoints: points} : {}), ...(editable ? {pathEditable: true} : {})})
     result.keys.set(id, {kind: 'edge', id: key, view})
   }
@@ -322,6 +333,7 @@ defineExpose<RendererGraphApi>({selectCurrent, center, fitView, zoomIn, zoomOut,
 .renderer-graph--right {flex-direction: row-reverse;}
 .renderer-graph-toolbar {flex: 0 0 auto; padding: 0 0 8px;}
 .renderer-graph-body {display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 420px;}
+.renderer-graph-edge-legend {display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0 0 8px; font-size: 12px; color: var(--el-text-color-secondary);}
 .renderer-graph-body > .graph-canvas {flex: 1; min-height: 420px;}
 [role="alert"] {color: var(--el-color-warning); margin: 0 0 .5rem;}
 </style>

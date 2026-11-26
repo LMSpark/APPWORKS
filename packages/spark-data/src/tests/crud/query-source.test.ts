@@ -181,6 +181,26 @@ describe('requested refresh lifecycle', () => {
     } finally {release?.(); f.ds.destroy()}
   })
 
+  it.each(['changed', 'restored'] as const)('rejects an original refresh superseded by a query with %s input', async kind => {
+    const f = fixture()
+    let release!: () => void
+    try {
+      f.view.queryContext = {target: 'original'}
+      f.holdQuery(new Promise(resolve => {release = resolve}))
+      const original = f.view.requestRefresh()
+      expect(f.executor.executeQuery).toHaveBeenCalledOnce()
+      f.holdQuery()
+      f.view.queryContext = {target: 'different'}
+      if (kind === 'restored') f.view.queryContext = {target: 'original'}
+      f.stored('new result')
+      expect((await f.view.requestRefresh()).success).toBe(true)
+      release()
+      expect((await original).success).toBe(false)
+      expect(f.view.rows[0]?.['text']).toBe('new result')
+      expect(f.view.requestState).toBe(RequestState.Loaded)
+    } finally {release?.(); f.ds.destroy()}
+  })
+
   it('keeps a requested refresh while the original query waits for a parent view', async () => {
     const f = fixture(); let release!: () => void
     try {

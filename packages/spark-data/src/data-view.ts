@@ -1824,7 +1824,7 @@ treeManager?: TreeManager | undefined
   /** 失败后保留的结果基线在重试期间也不可写；只有成功登记新结果才恢复。 */
   private _resultStale = false
   /** requestData() 进行中的 Promise（用于并发调用复用，避免丢弃后续请求） */
-  private _pendingRequestData: Promise<void> | null = null
+  private _pendingRequestData: Promise<number> | null = null
   private _refreshRequest: DataViewRefreshRequest | undefined
   private _refreshScheduled = false
   private static readonly refreshEvents = ['editingChanged', 'rowsChanged', 'mutatingChanged', 'requestStateChanged', 'cleared'] as const
@@ -2180,6 +2180,11 @@ protected logger = Logger('DataView')
    * 查询模式和读取范围来自queryConfig，父依赖使用各自视图的配置。
    */
   async requestData(): Promise<void> {
+    await this.runRequestData()
+  }
+
+  /** 返回本次加载实际持有的代次，供调用方排除被后继查询替代的结果。 */
+  private async runRequestData(): Promise<number> {
     this.assertResultReplacementAllowed()
     if (this.queryConfig.parentResult) {
       DataViewParentResult.resolve(this)
@@ -2189,7 +2194,7 @@ protected logger = Logger('DataView')
     if (this.requestState !== RequestState.Idle) {
       if (this._pendingRequestData) return this._pendingRequestData
       this.logger.debug(`requestData 跳过（当前状态: ${this.requestState}），请使用 refresh() 强制刷新`)
-      return
+      return requestId
     }
 
     // 没有输入依赖的本地视图可直接完成；其余视图走同一输入编排。
@@ -2199,10 +2204,10 @@ protected logger = Logger('DataView')
       this.selectionDelegate.applyAutoFirst()
       this.setRequestState(RequestState.Loaded)
       this.emitRequestCompleted()
-      return
+      return requestId
     }
 
-    const run = async (): Promise<void> => {
+    const run = async (): Promise<number> => {
       this.setRequestState(RequestState.Preparing)
 
       // 逐个父视图检查依赖是否满足
@@ -2213,27 +2218,27 @@ protected logger = Logger('DataView')
       try {
         for (const rel of parents) {
           await this.requestCascadeSource(rel)
-          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return
+          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return requestId
         }
         for (const rel of parents) {
           const cascadeFilter = ds?.resolveCascadeFilter(rel)
           if (cascadeFilter === null) {
             this.setRequestState(RequestState.Failed)
-            return
+            return requestId
           }
           if (cascadeFilter !== undefined) cascadeFilters.push(cascadeFilter)
         }
         if (!this.cascadeDelegate.applyInputs()) {
           this.rejectCascade(new Error('QUERY_CASCADE_INPUT: 父输入尚未就绪'))
-          return
+          return requestId
         }
         // 配置赋值使旧请求失效；当前编排在同一同步段接管新配置。
         requestId = this.currentLoadRequestId
         this.setRequestState(RequestState.Preparing)
       } catch (error) {
-        if (requestId !== this.currentLoadRequestId) return
+        if (requestId !== this.currentLoadRequestId) return requestId
         this.rejectCascade(error)
-        return
+        return requestId
       }
 
       const params: QueryParams = {...DataViewQuery.capture(this.queryConfig)}
@@ -2248,11 +2253,11 @@ protected logger = Logger('DataView')
       if (this._shouldApplyStaticLocalFilter() && !this.queryConfig.parentResult) {
         try {
           const filter = await DataViewFilterLookup.resolve(this, mergedFilter)
-          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return
+          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return requestId
           this.loadingError = null
           this.applyInMemoryCascade(filter)
         } catch (error) {if (requestId === this.currentLoadRequestId) this.rejectCascade(error)}
-        return
+        return requestId
       }
 
       // 父视图未选中任何行时级联得到 in []：结果必为空，不发请求，也不沿用旧查询的新增许可。
@@ -2265,27 +2270,29 @@ protected logger = Logger('DataView')
         this.selectionDelegate.applyAutoFirst()
         this.setRequestState(RequestState.Loaded)
         this.emitRequestCompleted()
-        return
+        return requestId
       }
 
       try {
-        const result = await this.loadFromServer(this.withViewQueryDefaults(params))
-        if (!result.success) return
+        const loading = this.loadFromServer(this.withViewQueryDefaults(params))
+        requestId = this.currentLoadRequestId
+        await loading
       } catch (error: unknown) {
+        if (requestId !== this.currentLoadRequestId) return requestId
         // 不再静默吞异常：记录错误、设置失败状态、通知订阅方
         this.logger.error(`requestData 失败 [${this.tableName}@${this.viewId}]: ${toErrorMessage(error)}`)
         this.loadingError = error instanceof Error ? error : new Error(toErrorMessage(error))
         this.setRequestState(RequestState.Failed)
-        return
       }
 
       // 子视图级联由 rowsChanged 等父视图事件驱动，无需主动推
+      return requestId
     }
 
     const pending = run()
     this._pendingRequestData = pending
     try {
-      await pending
+      return await pending
     } finally {
       if (this._pendingRequestData === pending) this._pendingRequestData = null
     }
@@ -2574,16 +2581,20 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * 使用当前queryConfig，不在调用点维护另一份查询模式。
    */
   async refresh(): Promise<void> {
-    this.assertResultReplacementAllowed()
-    if (!this.queryConfig.parentResult) this.#queryExecutor?.invalidateQueryCache?.()
-    return this.reloadQuery()
+    this.prepareQueryReload(true)
+    return this.requestData()
   }
 
   private async reloadQuery(): Promise<void> {
+    this.prepareQueryReload()
+    return this.requestData()
+  }
+
+  private prepareQueryReload(invalidateCache = false): void {
     this.assertResultReplacementAllowed()
+    if (invalidateCache && !this.queryConfig.parentResult) this.#queryExecutor?.invalidateQueryCache?.()
     this.currentLoadRequestId++
     this.setRequestState(RequestState.Idle)
-    return this.requestData()
   }
 
   /** 是否存在等待本视图编辑、提交或查询结束的刷新请求；仅为运行状态，不序列化。 */
@@ -2604,8 +2615,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return {success: true, message: '刷新已登记，等待当前修改或操作结束'}
     }
     this.clearRefreshRequest()
-    await this.refresh()
+    this.prepareQueryReload(true)
+    const requestId = await this.runRequestData()
     if (this._isDestroyed || table !== this._dataTable) return {success: false, message: '刷新视图已失效'}
+    if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
     // 请求发出后也可能产生编辑；接纳守卫会保留草稿，此时继续等待而不是丢掉刷新意图。
     if (this.loadingError instanceof DataViewUnsavedChangesError
       && (this.hasUnconfirmedSave || this.hasEditingChanges() || this._dirtyTrackingDelegate?.hasPendingChanges()) && identity === this.refreshIdentity()) {

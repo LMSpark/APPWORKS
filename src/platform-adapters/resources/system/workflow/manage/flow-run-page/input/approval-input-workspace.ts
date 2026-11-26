@@ -21,7 +21,7 @@ const forceTargetResource = {resourceType: 'logical-view', resourceId: 'workflow
 export function ensureFlowRunApprovalViews(ds: DataSet) {
   if (!ds.scenarioId) throw Error('办理参数缺少明确数据空间身份')
   ensureDataSetStaticInputTable(ds, 'ApprovalInput', [{name: 'inputId', primary: true}, ...['idea', 'forceNodeId'].map(name => ({name})), ...['notifySms', 'notifyQywx', 'notifyDingTalk', 'notifyWechat'].map(name => ({name, type: 'boolean'}))])
-  ensureDataSetStaticInputTable(ds, 'ApprovalNodeInput', [{name: 'NodeId', primary: true}, {name: 'title'}, {name: 'selected', type: 'boolean'}, {name: 'ExecUserList', type: 'array'}, {name: 'checkedReturn', type: 'boolean'}, {name: 'candidateViewKey'}, {name: 'peopleReadonly', type: 'boolean'}, {name: 'returnReadonly', type: 'boolean'}])
+  ensureDataSetStaticInputTable(ds, 'ApprovalNodeInput', [{name: 'NodeId', primary: true}, {name: 'title'}, {name: 'directionLabel'}, {name: 'selected', type: 'boolean'}, {name: 'ExecUserList', type: 'array'}, {name: 'checkedReturn', type: 'boolean'}, {name: 'candidateViewKey'}, {name: 'peopleReadonly', type: 'boolean'}, {name: 'returnReadonly', type: 'boolean'}])
   const inputs = ds.getView('ApprovalInput'), nodes = ds.getView('ApprovalNodeInput')
   if (!inputs || !nodes) throw Error('办理参数视图未装配')
   const forceTargets = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalForceTargets', resource: forceTargetResource, columns: [{name: 'id', primary: true}, {name: 'title'}]})
@@ -86,7 +86,8 @@ export class FlowRunApprovalInputWorkspace {
       if (view.loadingError) throw view.loadingError
       const config = configs.find(item => item.nodeId === node.id), max = config?.maxNum ?? 0
       const users = config?.users.map(user => `${user.id}:${user.name || user.id}`) ?? []
-      rows.push({NodeId: node.id, title: node.title, selected: next.length === 1 || node.id === String(data['DefaultNodeId'] ?? data['defaultNodeId'] ?? ''),
+      const directionLabel = node.direction === 'forward' ? '向前' : node.direction === 'backward' ? '回退' : '未确认'
+      rows.push({NodeId: node.id, title: node.title, directionLabel, selected: next.length === 1 || node.id === String(data['DefaultNodeId'] ?? data['defaultNodeId'] ?? ''),
         ExecUserList: max > 0 && users.length <= max ? users : [], checkedReturn: false, candidateViewKey: buildDataViewKey('ApprovalCandidates', viewId, ds.scenarioId),
         peopleReadonly: max < 1, returnReadonly: node.direction !== 'backward' || node.isTurnBack !== true})
     }

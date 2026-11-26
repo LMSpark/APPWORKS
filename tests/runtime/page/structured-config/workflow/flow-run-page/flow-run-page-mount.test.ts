@@ -55,18 +55,18 @@ vi.mock('vue-router', async importOriginal => {
   return {
     ...actual,
     useRoute: () => routeState,
-    useRouter: () => ({resolve: vi.fn(() => ({matched: [], path: '/demo'}))}),
+    useRouter: () => fixtureRouter,
   }
 })
 vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-renderer.vue', async () => {
   const {defineComponent, h, onMounted, onBeforeUnmount} = await import('vue')
-  return {default: defineComponent({name: 'FlowRunRouteRenderer', props: ['fallbackProps', 'registry', 'tabKey'], setup(props) {
+  return {default: defineComponent({name: 'FlowRunRouteRenderer', props: ['fallbackProps', 'registry', 'tabKey', 'route'], setup(props) {
     onMounted(() => props['registry'].set(props['tabKey'], {flowSubmitEnd: callbacks.end, flowSubmitSucceeded: callbacks.succeeded, flowSubmitFailed: callbacks.failed}))
     onBeforeUnmount(() => props['registry'].set(props['tabKey'], null))
-    return () => h('div', {'data-testid': 'biz-route'}, JSON.stringify(props['fallbackProps']))
+    return () => h('div', {'data-testid': 'biz-route', 'data-form-route': props['route'].path}, JSON.stringify(props['fallbackProps']))
   }})}
 })
-vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}]}))
+vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}, {path: '/business-mobile'}]}))
 vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/tool/style.css?raw', async () => {
   const {readFileSync} = await import('node:fs')
   return {default: readFileSync('src/views/features/workflow/flow-runtime/run-page/ui/tool/style.css', 'utf8')}
@@ -120,6 +120,7 @@ function createView(rows: MockView['rows']): MockView {
 }
 
 let designDataSet:DataSet
+let emptyInstanceForms = false
 let historyFixtureDataSet:DataSet | undefined
 function createRuntime(): PageRuntime {
   const monitor = {
@@ -132,7 +133,7 @@ function createRuntime(): PageRuntime {
     ApprovalOptions: originalOptionsView,
     ApprovalCommand: originalCommandView ?? approvalState,
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
-    WFOBJ_FLOW_FORM: createView([
+    WFOBJ_FLOW_FORM: createView(emptyInstanceForms ? [] : [
       {rowid: 'OF1', WFOBJID: 'WF-1', FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9', FormName: ''},
       {rowid: 'OF2', WFOBJID: 'WF-1', FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-10', FormName: ''},
     ]),
@@ -184,7 +185,10 @@ const RawHost = defineComponent({
   },
 })
 const pagePool = new SystemPageIdentityPool()
-const fixtureRouter = createRouter({history: createMemoryHistory(), routes: []})
+const fixtureRouter = createRouter({history: createMemoryHistory(), routes: ['/workbench', '/test/mobile', '/business', '/business-mobile']
+  .map(path => ({path, component: {render: () => null}}))})
+const mobileInstance = () => pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'mobile-navigation-node',
+  pageId: 'mobile-navigation-node', path: '/test/mobile', title: '移动办理', component: MobileFlowRunPage, explicitQuery: {}})
 const pageInstance = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'run', pageId: 'run', path: '/test', title: '办理', component: RawHost, explicitQuery: {}})
 const Host = pageInstance.view
 
@@ -198,6 +202,7 @@ beforeEach(async () => {
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
   originalDirectoryView = undefined
+  emptyInstanceForms = false
   historyFixtureDataSet = undefined
   config.global.stubs = {...baselineStubs}
   delete config.global.stubs['SparkPageRenderer']
@@ -222,8 +227,7 @@ afterEach(() => {
 
 describe('flow run page mount', () => {
   it('keeps the mobile navigation node distinct from the monitoring data space', async () => {
-    const mobile = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'mobile-navigation-node',
-      pageId: 'mobile-navigation-node', path: '/test/mobile', title: '移动办理', component: MobileFlowRunPage, explicitQuery: {}})
+    const mobile = mobileInstance()
     const wrapper = mount(withTestPageService(mobile.view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
     wrappers.push(wrapper)
     await flushPromises()
@@ -238,7 +242,37 @@ describe('flow run page mount', () => {
     expect(wrapper.get('style').element.textContent).toContain(`[data-page="${page.attributes('data-page')}"].spark-page-container .flow-run-page__layout.flow-run-page__layout--mobile`)
   })
 
-  it('loads the history rule under the original navigation and workbench view identities', async () => {
+  it('returns to the original navigation only after the unresolved work is cleared', async () => {
+    await fixtureRouter.push('/workbench')
+    await fixtureRouter.push('/test/mobile')
+    const wrapper = mount(withTestPageService(mobileInstance().view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await flushPromises()
+    const goBack = () => wrapper.get('.flow-run-page__mobile-footer').findAll('button').find(button => button.text() === '返回')!
+    approvalState.hasUnconfirmedSave = true
+    await goBack().trigger('click'); await flushPromises()
+    expect(fixtureRouter.currentRoute.value.path).toBe('/test/mobile')
+    expect(wrapper.text()).toContain('先处理原办理操作')
+    approvalState.hasUnconfirmedSave = false
+    await goBack().trigger('click')
+    await vi.waitFor(() => expect(fixtureRouter.currentRoute.value.path).toBe('/workbench'))
+  })
+
+  it('mounts the registered mobile design form with the same flow and form identity', async () => {
+    const design = await designFixture(false, false)
+    design.http.records['WFM_WORKFORM']![0] = {rowid: 'WF1', FlowID: 'FM-1', FORMID: 'FORM1', FormName: '原设计表单',
+      URL: '/business', mobileUrl: '/business-mobile'}
+    designDataSet = design.ds
+    emptyInstanceForms = true
+    const wrapper = mount(withTestPageService(mobileInstance().view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    await flushPromises()
+    const form = wrapper.get('[data-testid="biz-route"]')
+    expect(form.attributes('data-form-route')).toBe('/business-mobile')
+    expect(JSON.parse(form.text())).toMatchObject({flowobjid: 'WF-1', workFormId: 'FORM1', pageParam: 'flowobjid=WF-1&formkey=FORM1'})
+  })
+
+  it.each(['desktop', 'mobile'])('loads %s history from the current workbench with field permissions', async mode => {
     const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
     const configured = workbenchScenario.tables[model]
     const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {
@@ -267,16 +301,24 @@ describe('flow run page mount', () => {
         createChildActionState: () => 'hidden', viewActionState: () => 'enabled',
       })})
       historyFixtureDataSet = workbench
-      const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      const wrapper = mount(withTestPageService(mode === 'mobile' ? mobileInstance().view : Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
       wrappers.push(wrapper)
       await flushPromises()
       expect(history.loadingError).toBeNull()
       await flushPromises()
-      expect(wrapper.text()).toContain('步骤历史')
+      if (mode === 'mobile') {
+        expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+        await wrapper.get('.flow-run-page__mobile-footer').findAll('button').find(button => button.text() === '历史')!.trigger('click')
+        await flushPromises()
+        const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '步骤历史')
+        expect(dialog?.props('modelValue')).toBe(true)
+        expect(dialog?.props('fullscreen')).toBe(true)
+      } else expect(wrapper.text()).toContain('步骤历史')
       expect(wrapper.findComponent({name: 'ElTable'}).props('data')).toMatchObject([{rowid: 'STEP-1', description: '原步骤摘要', ReceiveUserName: '测试办理人'}])
-      expect(wrapper.text()).toContain('原步骤摘要')
-      expect(wrapper.text()).toContain('测试办理人')
-      expect(wrapper.text()).not.toContain('2026-11-19')
+      const historyText = mode === 'mobile' ? new DOMWrapper(document.body).text() : wrapper.text()
+      expect(historyText).toContain('原步骤摘要')
+      expect(historyText).toContain('测试办理人')
+      expect(historyText).not.toContain('2026-11-19')
       expect(wrapper.findAll('button').some(button => button.text() === '核验原办理结果')).toBe(true)
     } finally {
       wrappers.pop()?.unmount()
@@ -301,8 +343,8 @@ describe('flow run page mount', () => {
     expect(wrapper.findAll('button').find(button => button.text() === '核验原办理结果')?.element.disabled).toBe(false)
   })
 
-  it('opens its flow chart with the original formal edge endpoints',async()=>{
-    const wrapper=mount(withTestPageService(Host),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
+  it.each(['desktop', 'mobile'])('opens the %s flow chart with the original formal edge endpoints',async mode=>{
+    const wrapper=mount(withTestPageService(mode === 'mobile' ? mobileInstance().view : Host),{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
     wrappers.push(wrapper);await flushPromises()
     await wrapper.findAll('button').find(button=>button.text()==='流程图')!.trigger('click');await flushPromises()
     const graph=wrapper.findComponent({name: 'RendererGraph'}),edge=designDataSet.getView('WFM_NODE_REALATION')!.rows[0]!
@@ -325,7 +367,11 @@ describe('flow run page mount', () => {
     await flushPromises()
     expect(dialog?.props('modelValue')).toBe(false)
   })
-  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input', 'append-hidden-title', 'append-masked-title', 'append-hidden-parent'])('uses original parameter views through the %s outcome', async outcome => {
+  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input', 'append-hidden-title',
+    'append-masked-title', 'append-hidden-parent', 'mobile-success', 'mobile-unknown', 'mobile-directory',
+    'mobile-back', 'mobile-force-back', 'mobile-to-creator'])('uses original parameter views through the %s outcome', async variant => {
+    const mobile = variant.startsWith('mobile-')
+    const outcome = mobile ? variant.slice('mobile-'.length) : variant
     const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: outcome === 'append-input' ? {AppendCandidates: workbenchScenario.tables.AppendCandidates} : {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
@@ -364,7 +410,10 @@ describe('flow run page mount', () => {
     const readDirectory = vi.fn(async () => [{rowid: 'U1', UserName: '张三'}, {rowid: 'U2', UserName: '李四'}])
     bindDataSetReadonlyCommandQuery(directory, {resource: {resourceType: 'logical-view', resourceId: 'directory'}, guard: () => {}, loadRows: readDirectory})
     if (outcome === 'directory') originalDirectoryView = directory
-    const payload = {curNode: {rowid: 'CUR', TYPEID: '1', TITLE: '当前'}, nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点', direction: 'forward'}], execUser: outcome === 'directory' ? [{nodeId: 'NEXT-1', minNum: 1, maxNum: 1, allowChange: '1', userList: [{UserId: 'U1', UserName: '张三'}]}] : []}
+    const payload = {curNode: {rowid: 'CUR', TYPEID: '1', TITLE: '当前'}, nextNodes: [{rowid: 'NEXT-1', title: '正式后续节点', direction: 'forward'}],
+      execUser: outcome === 'directory' ? [{nodeId: 'NEXT-1', minNum: 1, maxNum: 1, allowChange: '1', userList: [{UserId: 'U1', UserName: '张三'}]}] : [],
+      ...(outcome === 'back' ? {allowToBackSteps: [{rowid: 'PRIOR', title: '可退回步骤'}]} : {}),
+      ...(outcome === 'force-back' ? {AllowToForceBack: true, forceBackNodes: [{rowid: 'TARGET', title: '指定退回目标'}]} : {})}
     const query = vi.fn(async () => payload)
     bindDataSetReadonlyCommandQuery(view, createFlowRunOptionsBinding({view, client: {getHandleOptionData: query}, guard: () => {}, captureTarget: () => () => {}}))
     const command = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCommand', resource: {resourceType: 'command', resourceId: 'workflow:approval'}, columns: [{name: 'rowid', primary: true}, ...['action', 'flowObjectId', 'stepId', 'flowId', 'busRowid', 'formKey', 'idea', 'nodeId', 'type', 'notifyType'].map(name => ({name})), {name: 'isReturn', type: 'boolean'}, {name: 'nextNode', type: 'array'}]})
@@ -381,7 +430,7 @@ describe('flow run page mount', () => {
     for (const key of ['el-table', 'el-table-column', 'el-button']) delete stubs[key]
     config.global.stubs = stubs
     routeState.query.stepid = 'S1'
-    const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    const wrapper = mount(withTestPageService(mobile ? mobileInstance().view : Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
     try {
       await flushPromises()
       if (outcome.startsWith('append-')) {
@@ -430,8 +479,18 @@ describe('flow run page mount', () => {
       const button = wrapper.findAll('button').find(item => item.text() === '办理')!
       await button.trigger('click')
       await flushPromises()
+      const dialog = () => wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '办理流程')
+      const approval = () => mobile ? new DOMWrapper(document.body).get('[role="dialog"][aria-label="办理流程"]') : wrapper
+      const submit = () => approval().findAll('button').find(item => item.text() === '提交')!
+      if (mobile) {
+        expect(dialog()?.props('modelValue')).toBe(true)
+        expect(dialog()?.props('fullscreen')).toBe(true)
+        expect(wrapper.find('textarea').exists()).toBe(false)
+        expect(approval().text()).toContain('方向')
+        expect(approval().text()).toContain('向前')
+      }
       expect(query).toHaveBeenCalledWith({modelId: 'FM-1', stepId: 'S1', busRowId: 'BUS-1', formid: 'F1'})
-      expect(wrapper.text()).toContain('正式后续节点')
+      expect(approval().text()).toContain('正式后续节点')
       const nodes = wrapper.findAllComponents(RendererTable)
         .find(table => table.props('dataViewKey') === `${FLOW_WORKBENCH_SCENARIO_ID}@ApprovalNodeInput@default`)
       expect(nodes?.text()).toContain('下一节点')
@@ -459,10 +518,23 @@ describe('flow run page mount', () => {
         expect(wrapper.text()).toContain('目标已变化')
         return
       }
-      await wrapper.get('textarea').setValue('同意')
+      await approval().get('textarea').setValue('同意')
+      const returnActions = {
+        back: {label: '普通退回', action: 'back', payload: {name: '返回'}, nodeId: ''},
+        'force-back': {label: '强制退回', action: 'forceBack', payload: {name: '强退', targetNode: {rowid: 'TARGET', TITLE: '指定退回目标'}}, nodeId: 'TARGET'},
+        'to-creator': {label: '退回发起人', action: 'toCreator', payload: {name: '驳回'}, nodeId: ''},
+      }
+      if (outcome === 'back' || outcome === 'force-back' || outcome === 'to-creator') {
+        const target = returnActions[outcome]
+        await approval().findAll('button').find(item => item.text() === target.label)!.trigger('click')
+        await vi.waitFor(() => expect(dispatch).toHaveBeenCalledOnce())
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({action: target.action, flowObjectId: 'WF-1', stepId: 'S1', idea: '同意', nodeId: target.nodeId}))
+        expect(callbacks.end).toHaveBeenCalledWith(expect.objectContaining({action: target.payload, opinionText: '同意'}))
+        return
+      }
       ds.getView('ApprovalInput')!.updateEditingValue('current', 'notifySms', true)
       callbacks.end.mockResolvedValueOnce(false)
-      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+      await submit().trigger('click'); await flushPromises()
       expect(dispatch).not.toHaveBeenCalled()
       expect(command.dirtyTracking.hasPendingChanges()).toBe(false)
       expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
@@ -475,8 +547,8 @@ describe('flow run page mount', () => {
         expect(wrapper.text()).toContain('business validation failed')
       }
       callbacks.end.mockResolvedValue(true)
-      await vi.waitFor(() => expect(wrapper.findAll('button').find(item => item.text() === '提交')?.attributes('disabled')).toBeUndefined())
-      await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click')
+      await vi.waitFor(() => expect(submit()?.attributes('disabled')).toBeUndefined())
+      await submit().trigger('click')
       await vi.waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1))
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({idea: '同意', notifyType: '0', nextNode: [{NodeId: 'NEXT-1', ExecUserList: outcome === 'directory' ? ['U2:李四'] : []}]}))
@@ -484,13 +556,22 @@ describe('flow run page mount', () => {
         expect(command.hasUnconfirmedSave).toBe(true)
         expect(runtimeOptions.mock.lastCall?.[0].preserveRuntime()).toBe(true)
         expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(true)
-        expect(wrapper.text()).toContain('审批结果未知')
+        expect(approval().text()).toContain('审批结果未知')
         expect(ds.getView('ApprovalInput')?.getEditingRow('current')?.['idea']).toBe('同意')
         expect(callbacks.succeeded).not.toHaveBeenCalled()
         expect(callbacks.failed).not.toHaveBeenCalled()
-        await wrapper.findAll('button').find(item => item.text() === '关闭')!.trigger('click'); await flushPromises()
-        expect(wrapper.find('textarea').exists()).toBe(true)
-        await wrapper.findAll('button').find(item => item.text() === '提交')!.trigger('click'); await flushPromises()
+        if (mobile) {
+          expect(dialog()?.props('closeDisabled')).toBe(true)
+          dialog()?.vm.$emit('update:modelValue', false); await flushPromises()
+          expect(dialog()?.props('modelValue')).toBe(true)
+          await approval().findAll('button').find(item => item.text() === '核验原办理结果')!.trigger('click'); await flushPromises()
+          expect(approval().text()).toContain('原审批命令权威核验合同')
+          expect(command.hasUnconfirmedSave).toBe(true)
+        } else {
+          await wrapper.findAll('button').find(item => item.text() === '关闭')!.trigger('click'); await flushPromises()
+        }
+        expect(approval().find('textarea').exists()).toBe(true)
+        await submit().trigger('click'); await flushPromises()
         expect(dispatch).toHaveBeenCalledTimes(1)
         return
       }
@@ -504,6 +585,7 @@ describe('flow run page mount', () => {
         expect(dispatch).toHaveBeenCalledTimes(1)
       }
       expect(callbacks.succeeded).toHaveBeenCalledTimes(1)
+      if (mobile) expect(dialog()?.props('modelValue') ?? false).toBe(false)
       expect(callbacks.failed).not.toHaveBeenCalled()
       expect(callbacks.end).toHaveBeenCalledWith(expect.objectContaining({action: {name: '提交', nodes: [{nodeId: 'NEXT-1', title: '正式后续节点', direction: 'forward', selectedUsers: outcome === 'directory' ? ['U2:李四'] : []}]}, currentNode: expect.objectContaining({rowid: 'CUR'}), opinionText: '同意'}))
       expect(wrapper.findAll('button').find(item => item.text() === '办理')!.attributes('disabled')).toBeUndefined()

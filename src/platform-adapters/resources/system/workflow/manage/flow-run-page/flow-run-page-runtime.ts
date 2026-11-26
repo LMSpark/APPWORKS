@@ -106,16 +106,17 @@ function readInstanceForms(view: DataView, objectId: string): FlowRunFormRecord[
   return tabs
 }
 
-function readDesignForms(view: DataView, instance: {objectId: string; modelId: string}): FlowRunFormRecord[] {
+function readDesignForms(view: DataView, instance: {objectId: string; modelId: string}, preferMobile: boolean): FlowRunFormRecord[] {
   assertCompleteForms(view)
   const tabs: FlowRunFormRecord[] = []
+  const [preferredPath, alternatePath] = preferMobile ? ['mobileUrl', 'URL'] as const : ['URL', 'mobileUrl'] as const
   for (const [index, row] of view.rows.entries()) {
-    view.captureReadRow(row, ['FlowID', 'URL'])()
+    view.captureReadRow(row, ['FlowID', preferredPath])()
     if (row['FlowID'] !== instance.modelId) throw Error('设计表单与当前流程模型不符')
-    let sourcePath = formText(row['URL'])
+    let sourcePath = formText(row[preferredPath])
     if (!sourcePath) {
-      view.captureReadRow(row, ['mobileUrl'])()
-      sourcePath = formText(row['mobileUrl'])
+      view.captureReadRow(row, [alternatePath])()
+      sourcePath = formText(row[alternatePath])
     }
     if (!sourcePath) continue
     view.captureReadRow(row, ['FORMID'])()
@@ -133,6 +134,8 @@ export type PrepareFlowRunPageCommand = Readonly<{
   wfid: string
   flowid: string
   stepId?: string
+  /** 移动入口对已证为空的实例表单，优先读取设计表单的移动地址。 */
+  preferMobileForm?: boolean
   assertCurrent?: () => void
 }>
 
@@ -186,7 +189,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
     throw new Error('指定办理步骤不在本次实例正式查询结果中')
   }
   const instanceForms = readInstanceForms(objectFormView, wfid)
-  const formTabs = instanceForms.length ? instanceForms : readDesignForms(formView, {objectId: wfid, modelId: flowid})
+  const formTabs = instanceForms.length ? instanceForms : readDesignForms(formView, {objectId: wfid, modelId: flowid}, command.preferMobileForm === true)
   return {
     instanceTitle: title || wfid,
     flowObjectId: wfid,

@@ -4,7 +4,15 @@
 .flow-run-page__business {min-width: 0}
 .flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
 .flow-run-page__layout.flow-run-page__layout--mobile {grid-template-columns: 1fr}
-.flow-run-page__layout--mobile .flow-run-page__handle {position: static; width: 100%}
+.flow-run-page__mobile-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: 12px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--el-border-color);
+  background: var(--el-bg-color);
+}
 @media (max-width: 960px) {
   .flow-run-page__layout {grid-template-columns: 1fr}
   .flow-run-page__handle {grid-column: 1}

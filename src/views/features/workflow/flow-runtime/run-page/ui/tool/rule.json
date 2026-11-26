@@ -379,6 +379,47 @@
                 }
               ]
             }
+          },
+          "mobilePanels": {
+            "history": {
+              "title": "步骤历史",
+              "fullscreen": true,
+              "fullscreenable": false,
+              "appendToBody": true,
+              "destroyOnClose": true,
+              "closeOnClickModal": false,
+              "gridColumns": 1
+            },
+            "approval": {
+              "dialog": {
+                "title": "办理流程",
+                "fullscreen": true,
+                "fullscreenable": false,
+                "appendToBody": true,
+                "destroyOnClose": true,
+                "closeOnClickModal": false,
+                "gridColumns": 1
+              },
+              "directionColumn": {
+                "type": "r-text",
+                "props": {"field": "directionLabel", "label": "方向", "readonly": true, "minWidth": 72}
+              },
+              "verification": {
+                "type": "r-toolbar",
+                "id": "mobileApprovalVerification",
+                "children": [
+                  {
+                    "type": "r-button",
+                    "id": "mobileApprovalVerify",
+                    "props": {
+                      "commandId": "verify",
+                      "label": "核验原办理结果",
+                      "onClick": "runVerify"
+                    }
+                  }
+                ]
+              }
+            }
           }
         }
       },
@@ -621,6 +662,88 @@
                     }
                   }
                 ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "RenderWorkflowActions",
+        "id": "mobileWorkflowFooter",
+        "props": {
+          "mobile": true,
+          "bar": {
+            "type": "r-toolbar",
+            "id": "mobilePageActions",
+            "props": {
+              "class": "flow-run-page__mobile-footer",
+              "wrap": true,
+              "gap": 8
+            },
+            "children": [
+              {
+                "type": "r-button",
+                "id": "mobileReturn",
+                "props": {
+                  "commandId": "mobileReturn",
+                  "label": "返回",
+                  "onClick": "goBackToWorkflowCaller"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobile-chart",
+                "props": {
+                  "label": "流程图",
+                  "onClick": "runChart",
+                  "commandId": "chart"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobileHistory",
+                "props": {
+                  "commandId": "mobileHistory",
+                  "label": "历史",
+                  "onClick": "showWorkflowHistory"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobile-handle",
+                "props": {
+                  "label": "办理",
+                  "buttonType": "primary",
+                  "onClick": "runHandle",
+                  "commandId": "handle"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobile-append",
+                "props": {
+                  "label": "加签",
+                  "onClick": "runAppend",
+                  "commandId": "append"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobile-revoke",
+                "props": {
+                  "label": "撤回",
+                  "onClick": "runRevoke",
+                  "commandId": "revoke"
+                }
+              },
+              {
+                "type": "r-button",
+                "id": "mobile-verify",
+                "props": {
+                  "label": "核验原办理结果",
+                  "onClick": "runVerify",
+                  "commandId": "verify"
+                }
               }
             ]
           }

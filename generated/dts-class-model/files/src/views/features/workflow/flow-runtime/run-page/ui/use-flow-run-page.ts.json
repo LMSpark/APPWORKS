@@ -11,7 +11,113 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-11-23T08:02:15.197Z",
-  "models": {}
+  "$defs": {
+    "FlowRunPageOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlowRunPageOptions",
+      "properties": {
+        "preferMobileForm": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.routeQuery.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.routeQuery.return": {
+          "type": "object",
+          "title": "ReturnType<typeof readFlowRuntimeRouteQuery>"
+        },
+        "method.getRuntime.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRuntime.return": {
+          "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.navigationBlocked.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.navigationBlocked.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-26T10:21:51.327Z",
+  "models": {
+    "FlowRunPageOptions": {
+      "name": "FlowRunPageOptions",
+      "jsdoc": "当前办理入口、运行实例与切换保护。移动入口只改变设计表单的地址优先级。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 从当前系统页的路由快照读取正式流程、模型和步骤身份。 */\n    routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>;\n    /** 获取本次页面调用持有的运行实例，尚未装配时返回空。 */\n    getRuntime: () => PageRuntime | undefined;\n    /** 原办理有待处理工作且导航目标变化时，保护原实例和参数。 */\n    navigationBlocked: () => boolean;\n    /** 由已登记的移动入口决定设计表单地址的优先顺序。 */\n    preferMobileForm: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 从当前系统页的路由快照读取正式流程、模型和步骤身份。 */\n    routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>;\n    /** 获取本次页面调用持有的运行实例，尚未装配时返回空。 */\n    getRuntime: () => PageRuntime | undefined;\n    /** 原办理有待处理工作且导航目标变化时，保护原实例和参数。 */\n    navigationBlocked: () => boolean;\n    /** 由已登记的移动入口决定设计表单地址的优先顺序。 */\n    preferMobileForm: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preferMobileForm",
+              "jsdoc": "由已登记的移动入口决定设计表单地址的优先顺序。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "routeQuery",
+              "jsdoc": "从当前系统页的路由快照读取正式流程、模型和步骤身份。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof readFlowRuntimeRouteQuery"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getRuntime",
+              "jsdoc": "获取本次页面调用持有的运行实例，尚未装配时返回空。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "navigationBlocked",
+              "jsdoc": "原办理有待处理工作且导航目标变化时，保护原实例和参数。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
 }

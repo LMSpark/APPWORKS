@@ -1,6 +1,6 @@
 <!--
 @module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page
-职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。
+职责：流程办理入口，向桌面与移动页面工具提供当前流程参数、动作和回执状态。
 -->
 <template>
   <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false" />
@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import {computed, shallowRef} from 'vue'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
@@ -33,6 +33,7 @@ import {useFlowRunPage} from './use-flow-run-page'
 const props = defineProps<{mobile?: boolean}>()
 const scenarioId = FLOW_MONITOR_SCENARIO_ID
 const route = useRoute()
+const router = useRouter()
 const routeQuery = () => readFlowRuntimeRouteQuery(route.query)
 const {
   session,
@@ -101,8 +102,9 @@ const {
   openFlowChart,
   revokeCurrentStep,
   stepViewKey,
-} = useFlowRunPage(routeQuery, () => runtime.value, () => reloadBlocked.value)
+} = useFlowRunPage({routeQuery, getRuntime: () => runtime.value, navigationBlocked: () => reloadBlocked.value, preferMobileForm: props.mobile === true})
 
+const mobileHistorySource = shallowRef<NonNullable<typeof prepared.value>>()
 const actions: Record<string, {run: () => void | Promise<void>; loading?: true; blockedByNavigation?: true; visible?: () => boolean}> = {
   chart: {run: openFlowChart, blockedByNavigation: true},
   append: {run: openAppendDialog, blockedByNavigation: true},
@@ -114,6 +116,12 @@ const actions: Record<string, {run: () => void | Promise<void>; loading?: true; 
   forceBack: {run: forceBack, loading: true, visible: () => allowForceBack.value && forceBackNodeOptions.value.length > 0},
   backToCreator: {run: backToCreator, loading: true},
   close: {run: closeHandlePanel},
+  mobileReturn: {run: () => {
+    if (hasPendingWork()) {handleError.value = '请先处理原办理操作再返回'; return}
+    router.back()
+  }, visible: () => props.mobile === true},
+  mobileHistory: {run: () => {mobileHistorySource.value = prepared.value}, blockedByNavigation: true,
+    visible: () => props.mobile === true},
 }
 const appendUser = shallowRef<Readonly<{context: NonNullable<typeof appendContext.value>; component: InstanceType<typeof FlowAppendUser>}>>()
 const appendSession = computed(() => {
@@ -147,13 +155,16 @@ const host = computed(() => {
       controls: {render: SparkComponentRenderer, empty: SparkComponent.DisplayEmpty, alert: SparkComponent.DisplayAlert,
         tabs: SparkComponent.RendererTabs, pane: SparkComponent.RendererTabPane, dialog: SparkComponent.RendererDialog,
         route: FlowRunRouteRenderer, append: FlowAppendUser},
-      shell: () => ({status: shellStatus.value, error: shellError.value, retryable: !shellLoading.value,
+      shell: () => ({status: shellStatus.value, error: shellError.value, retryable: !shellLoading.value, mobile: props.mobile === true,
         reloadBlocked: reloadBlocked.value, ready: !!prepared.value}),
       hasPendingWork, actionState,
       business: () => ({source: prepared.value, error: handleError.value, tabs: businessTabs.value, mobile: props.mobile === true,
         active: activeFormId.value, registry: businessRegistry, select: selectBusinessForm}),
       approval: () => ({open: handleOpen.value, locked: inputLocked.value,
-        showForceTarget: allowForceBack.value && forceBackNodeOptions.value.length > 0}),
+        showForceTarget: allowForceBack.value && forceBackNodeOptions.value.length > 0,
+        close: () => {if (runtime.value === current && session.isCurrent(current) && !inputLocked.value) closeHandlePanel()}}),
+      mobileHistory: () => ({open: !!prepared.value && mobileHistorySource.value === prepared.value,
+        close: () => {if (runtime.value === current && session.isCurrent(current)) mobileHistorySource.value = undefined}}),
       append: () => ({open: appendOpen.value, closeDisabled: appendCloseDisabled.value, child: appendSession.value,
         close: () => {
           if (runtime.value !== current || !session.isCurrent(current) || appendCloseDisabled.value) return

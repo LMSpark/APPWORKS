@@ -14,13 +14,15 @@ function bindNavigationRetry() {
 
 function bindActions(bar) {
   return {...bar, children: bar.children.flatMap(button => {
-    const {visible, disabled, loading} = workflow.actionState(button.id)
-    return visible ? [{...button, props: {...button.props, disabled, loading}}] : []
+    const {commandId, ...props} = button.props
+    const {visible, disabled, loading} = workflow.actionState(commandId ?? button.id)
+    return visible ? [{...button, props: {...props, disabled, loading}}] : []
   })}
 }
 
-function RenderWorkflowActions({bar}) {
-  return workflow?.shell().ready ? h(workflow.controls.render, {config: bindActions(bar)}) : null
+function RenderWorkflowActions({bar, mobile = false}) {
+  const shell = workflow?.shell()
+  return shell?.ready && shell.mobile === mobile ? h(workflow.controls.render, {config: bindActions(bar)}) : null
 }
 
 function workflowFormTabs(controls, rule, state) {
@@ -37,29 +39,47 @@ function workflowFormTabs(controls, rule, state) {
     })))
 }
 
-function workflowApprovalPane(rule, state) {
-  if (!state.open) return null
-  const {section, nodes, input, actions, className} = rule
+function workflowApprovalConfig(rule, state, directionColumn) {
+  const {section, nodes, input, actions} = rule
   const fields = input.children.filter(field => field.props.field !== 'forceNodeId' || state.showForceTarget)
     .map(field => ({...field, props: {...field.props, readonly: state.locked}}))
   const columns = nodes.children.map(column => column.type !== 'r-column-group' ? column :
     {...column, children: column.children.map(field => ({...field, props: {...field.props, readonly: state.locked || field.props.readonly || false}}))})
-  const children = [{...nodes, children: columns}, {...input, children: fields}, bindActions(actions)]
-  return h('aside', {class: className}, [h(workflow.controls.render, {config: {...section, children}})])
+  const nodeColumns = directionColumn ? [columns[0], directionColumn, ...columns.slice(1)] : columns
+  const children = [{...nodes, children: nodeColumns}, {...input, children: fields}, bindActions(actions)]
+  return {...section, children}
 }
 
-function RenderWorkflowLayout({layoutClass, mobileClass, business, history, approval}) {
+function workflowMobileHistory(dialog, history) {
+  const state = workflow.mobileHistory(), controls = workflow.controls
+  return h(controls.dialog, {...dialog, modelValue: state.open, 'onUpdate:modelValue': visible => {if (!visible) state.close()}},
+    () => history.children.map(config => h(controls.render, {config})))
+}
+
+function workflowMobileApproval(mobile, approval, notice) {
+  const state = workflow.approval(), controls = workflow.controls
+  return h(controls.dialog, {...mobile.dialog, modelValue: state.open, closeDisabled: state.locked,
+    'onUpdate:modelValue': visible => {if (!visible) state.close()}}, () => state.open ? [
+    notice.title ? h(controls.alert, notice) : null,
+    h(controls.render, {config: workflowApprovalConfig(approval, state, mobile.directionColumn)}),
+    h(controls.render, {config: bindActions(mobile.verification)}),
+  ] : null)
+}
+
+function RenderWorkflowLayout({layoutClass, mobileClass, business, history, approval, mobilePanels}) {
   const state = workflow?.business()
   if (!state?.source) return null
   const controls = workflow.controls
+  const approvalState = workflow.approval()
   return h('div', {class: [layoutClass, state.mobile && mobileClass]}, [
     h('section', {class: business.className}, [
       h('p', {class: business.titleClass}, state.source.instanceTitle),
       state.error ? h(controls.alert, {...business.error, title: state.error}) : null,
       workflowFormTabs(controls, business, state),
     ]),
-    h(controls.render, {config: history}),
-    workflowApprovalPane(approval, workflow.approval()),
+    state.mobile ? workflowMobileHistory(mobilePanels.history, history) : h(controls.render, {config: history}),
+    state.mobile ? workflowMobileApproval(mobilePanels.approval, approval, {...business.error, title: state.error})
+      : approvalState.open ? h('aside', {class: approval.className}, [h(controls.render, {config: workflowApprovalConfig(approval, approvalState)})]) : null,
   ])
 }
 
@@ -104,6 +124,8 @@ function bindChartGraph() {
 }
 
 async function retryWorkflow() { await $page.invokeHostCommand('workflow.retry') }
+async function goBackToWorkflowCaller() { await $page.invokeHostCommand('workflow.mobileReturn') }
+async function showWorkflowHistory() { await $page.invokeHostCommand('workflow.mobileHistory') }
 async function runChart() { await $page.invokeHostCommand('workflow.chart') }
 async function runAppend() { await $page.invokeHostCommand('workflow.append') }
 async function runRevoke() { await $page.invokeHostCommand('workflow.revoke') }

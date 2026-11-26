@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
     "packageName": "app",
     "modulePath": "views/features/workflow/flow-runtime/run-page/ui/flow-run-page",
-    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page\n职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。",
+    "jsdoc": "@module app:views/features/workflow/flow-runtime/run-page/ui/flow-run-page\n职责：流程办理入口，向桌面与移动页面工具提供当前流程参数、动作和回执状态。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-23T08:02:15.196Z",
+  "generatedAt": "2026-11-26T10:20:25.232Z",
   "models": {}
 }

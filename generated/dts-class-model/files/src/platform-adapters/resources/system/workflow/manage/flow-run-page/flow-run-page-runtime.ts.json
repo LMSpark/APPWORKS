@@ -125,6 +125,12 @@
         },
         "stepId": {
           "type": "string"
+        },
+        "preferMobileForm": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false,
@@ -138,7 +144,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-25T23:24:18.699Z",
+  "generatedAt": "2026-11-26T10:20:25.231Z",
   "models": {
     "FlowRunFormRecord": {
       "name": "FlowRunFormRecord",
@@ -285,11 +291,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    /** 移动入口对已证为空的实例表单，优先读取设计表单的移动地址。 */\n    preferMobileForm?: boolean;\n    assertCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    assertCurrent?: () => void;\n}>",
+            "typeText": "Readonly<{\n    runtime: PageRuntime;\n    wfid: string;\n    flowid: string;\n    stepId?: string;\n    /** 移动入口对已证为空的实例表单，优先读取设计表单的移动地址。 */\n    preferMobileForm?: boolean;\n    assertCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -312,6 +318,12 @@
             },
             {
               "name": "stepId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preferMobileForm",
+              "jsdoc": "移动入口对已证为空的实例表单，优先读取设计表单的移动地址。",
               "readable": true,
               "writable": false
             }

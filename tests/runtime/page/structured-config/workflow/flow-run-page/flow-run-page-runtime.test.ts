@@ -99,11 +99,28 @@ describe('prepareFlowRunPage', () => {
     view.rows = [{rowid: 'OF1', WFOBJID: 'WF-1', FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-9', FormName: '原业务表单'}]
     view.total = 1
     const command = {runtime, wfid: 'WF-1', flowid: 'FM-1'}
-    const result = await prepareFlowRunPage(command)
+    const result = await prepareFlowRunPage({...command, ...{preferMobileForm: true}})
     expect(result.formTabs).toEqual([{tabKey: 'F2', formKey: 'F2', label: '原业务表单', sourcePath: '/business', queryString: 'rowid=BUS-9'}])
     view.rows = []; view.total = 0
     design.WFM_WORKFORM.rows[0]!['FlowID'] = 'FM-OTHER'
     await expect(prepareFlowRunPage(command)).rejects.toThrow(/表单/)
+  })
+
+  it('prefers the authorized mobile design path and falls back only after a readable empty value', async () => {
+    const {runtime, design} = fixture()
+    const view = design.WFM_WORKFORM
+    view.rows[0]!['mobileUrl'] = '/demo/mobile'
+    const command = {runtime, wfid: 'WF-1', flowid: 'FM-1'}
+    const mobile = {...command, preferMobileForm: true}
+    expect((await prepareFlowRunPage(command)).formTabs[0]?.sourcePath).toBe('/demo/form')
+    expect((await prepareFlowRunPage(mobile)).formTabs[0]).toMatchObject({sourcePath: '/demo/mobile', queryString: 'flowobjid=WF-1&formkey=F1'})
+    view.rows[0]!['mobileUrl'] = ''
+    expect((await prepareFlowRunPage(mobile)).formTabs[0]?.sourcePath).toBe('/demo/form')
+    view.captureReadRow.mockImplementation((_row, fields: string[]) => {
+      if (fields.includes('mobileUrl')) throw Error('原正式字段不可读')
+      return () => {}
+    })
+    await expect(prepareFlowRunPage(mobile)).rejects.toThrow('原正式字段不可读')
   })
 
   it.each(['absent', 'multiple', 'unreported', 'other object', 'other model', 'hidden business key'])('rejects %s before loading companion views', async mode => {

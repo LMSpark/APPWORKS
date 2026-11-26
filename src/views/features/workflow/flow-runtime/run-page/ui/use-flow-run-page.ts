@@ -34,7 +34,19 @@ import {getVuePageOptions} from '@/registries/vue-page-registry'
 
 const STEP_MODEL = 'WFOBJ_FLOW_RELATIONLINE_STEP'
 
-export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>, getRuntime: () => PageRuntime | undefined, navigationBlocked: () => boolean) {
+/** 当前办理入口、运行实例与切换保护。移动入口只改变设计表单的地址优先级。 */
+type FlowRunPageOptions = Readonly<{
+  /** 从当前系统页的路由快照读取正式流程、模型和步骤身份。 */
+  routeQuery: () => ReturnType<typeof readFlowRuntimeRouteQuery>
+  /** 获取本次页面调用持有的运行实例，尚未装配时返回空。 */
+  getRuntime: () => PageRuntime | undefined
+  /** 原办理有待处理工作且导航目标变化时，保护原实例和参数。 */
+  navigationBlocked: () => boolean
+  /** 由已登记的移动入口决定设计表单地址的优先顺序。 */
+  preferMobileForm: boolean
+}>
+
+export function useFlowRunPage({routeQuery, getRuntime, navigationBlocked, preferMobileForm}: FlowRunPageOptions) {
   const router = useRouter()
   const approvalWorkspace = shallowRef<FlowRunApprovalInputWorkspace>()
   function hasPendingApproval(): boolean {
@@ -201,6 +213,7 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
         runtime,
         wfid: query.wfid,
         flowid: query.flowid,
+        preferMobileForm,
         ...(query.stepid ? {stepId: query.stepid} : {}),
         assertCurrent: () => assertGeneration(own),
       })

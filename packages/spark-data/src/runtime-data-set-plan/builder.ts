@@ -289,6 +289,10 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       const allFilters = [...staticFilter ? [staticFilter] : [], ...dependentFilters]
       const filter = allFilters.length === 0 ? '' : JSON.stringify(allFilters.length === 1 ? allFilters[0] : {Type: 'And', Filters: allFilters})
       const queryConfig = isRecord(rawView['queryConfig']) ? rawView['queryConfig'] : {}
+      const queryFields = queryConfig['fields']
+      if (Array.isArray(queryFields) && queryFields.length > 0) {
+        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${input.scenarioId} ${tableName}@${viewId} 不支持保存显式 queryConfig.fields`)
+      }
       const projection = Array.isArray(rawView['fieldProjection']) ? rawView['fieldProjection'].filter(isRecord) : []
       views.push({
         id: recordId, code: viewId, name: viewId, description: '',

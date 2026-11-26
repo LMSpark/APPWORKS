@@ -85,6 +85,7 @@ it.each([
   },
   {label: 'default query inputs', config: {queryContext: {region: 'north'}}, error: '不支持保存非空 queryContext'},
   {label: 'independent sort', config: {sortExpression: [{field: 'region', direction: 'desc'}]}, error: '不支持保存独立 sortExpression'},
+  {label: 'explicit query fields', config: {queryConfig: {fields: ['rowid']}}, error: '不支持保存显式 queryConfig.fields'},
 ])('keeps the confirmed metadata save when $label prevent Plan generation', async ({config, error}) => {
   const f = dataSpaceChainFixture()
   const scenario: unknown = JSON.parse(f.files.get(f.target)!)

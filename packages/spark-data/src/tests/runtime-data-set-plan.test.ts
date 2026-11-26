@@ -228,7 +228,10 @@ describe('runtime data set plan', () => {
       .toThrow('SPACE Orders@default 不支持保存非空 queryContext')
     expect(() => build({sortExpression: [{field: 'createdAt', direction: 'desc'}, {field: 'id', direction: 'asc'}]}))
       .toThrow('SPACE Orders@default 不支持保存独立 sortExpression')
-    expect(compileRuntimeDataSetPlan(build({queryContext: {}, sortExpression: []})).metadata.tables['Orders']?.views['default'])
+    expect(() => build({queryConfig: {fields: ['id']}}))
+      .toThrow('SPACE Orders@default 不支持保存显式 queryConfig.fields')
+    expect(compileRuntimeDataSetPlan(build({queryContext: {}, sortExpression: [], queryConfig: {fields: []}}))
+      .metadata.tables['Orders']?.views['default'])
       .toBeDefined()
   })
 

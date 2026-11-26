@@ -3,10 +3,10 @@
  * 职责：确认当前数据库及表选择，原子写回定义编辑视图并清除旧条件。
  * 边界：只消费原DataView身份、权限和检查点；不查询、不持草稿、不保存或触发流程。
  */
-import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import {buildDataViewKey,resolveDataViewKey,RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import configuration from '../../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
 function selected(dataSet:DataSet,name:string){
- const view=dataSet.getView(name)
+ const view=resolveDataViewKey(buildDataViewKey(name,'default',configuration.scenarioId),dataSet)
  if(view?.requestState!==RequestState.Loaded||view.loadingError||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('触发表来源尚未就绪或正在编辑')
  const ids=view.getSelectedValues(),snapshot=view.readSnapshot()
  if(ids.length!==1)throw Error('请选择唯一的数据库及触发表')
@@ -30,7 +30,7 @@ export function projectWorkflowTriggerSelection(dataSet:DataSet):Readonly<Record
 /** 仅确认选择写入当前定义草稿；同表再次确认也按参考语义清空filter，打开或取消不调用此命令。 */
 export function applyWorkflowTriggerSelection(dataSet:DataSet,definitionId:string):void{
  if(dataSet.destroyed||dataSet.scenarioId!==configuration.scenarioId)throw Error('工作流触发表所属空间已变化')
- const target=dataSet.getView('Base_WorkflowDefinition','edit'),row=target?.currentRow
+ const target=resolveDataViewKey(buildDataViewKey('Base_WorkflowDefinition','edit',configuration.scenarioId),dataSet),row=target?.currentRow
  if(!target||target.dataTable?.modelBinding?.modelName!=='Base_WorkflowDefinition'||!row||target.rows.length!==1||target.getPkKey(row)!==definitionId
   ||target.queryContext['definitionId']!==definitionId||target.hasUnconfirmedSave||target.mutating||target.requestState!==RequestState.Loaded)throw Error('工作流触发表编辑目标已变化')
  const mapping=projectWorkflowTriggerSelection(dataSet)

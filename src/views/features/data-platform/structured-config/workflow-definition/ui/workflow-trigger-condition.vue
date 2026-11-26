@@ -13,24 +13,27 @@
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
-import {RequestState} from '@spark-appworks/spark-data'
+import {buildDataViewKey,RequestState} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME,RendererFilterExpression,useSparkComponent} from '@spark-appworks/spark-component'
 import {WorkflowTriggerCondition} from '@/platform-adapters/resources/structured-config/workflow-definition/trigger/trigger-condition'
 import configuration from '../../../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
 const props=defineProps<{workflowId:string;dataViewKey:string;readonly:boolean}>()
 const emit=defineEmits<{editing:[value:boolean]}>()
 const {sparkConsume}=useSparkComponent({type:'workflow-trigger-condition'}),runtime=sparkConsume(PAGE_RUNTIME)
-const ds=runtime?.getDataSet(configuration.scenarioId),revision=ref(0),loading=ref(false),error=ref(''),loadedFor=ref<string>()
+const scene=configuration.scenarioId
+const ds=runtime?.getDataSet(scene),revision=ref(0),loading=ref(false),error=ref(''),loadedFor=ref<string>()
+const editKey=buildDataViewKey('Base_WorkflowDefinition','edit',scene),fieldsKey=buildDataViewKey('Base_TblField','default',scene)
 let active=true,generation=0
 const off=ds?.onAnyViewChange({editingChanged:()=>revision.value++,editingFieldChanged:()=>revision.value++,rowsChanged:()=>revision.value++,requestStateChanged:()=>revision.value++})
 const targetState=computed(()=>{
  revision.value
  try{
-  if(!ds||runtime?.resolveView(props.dataViewKey)!==ds.getView('Base_WorkflowDefinition','edit'))throw Error('触发条件缺少原定义运行实例')
+  const target=runtime?.resolveView(editKey)
+  if(!ds||!target||runtime?.resolveView(props.dataViewKey)!==target)throw Error('触发条件缺少原定义运行实例')
   return{tableId:WorkflowTriggerCondition.tableId(ds,props.workflowId),error:''}
  }catch(cause){return{tableId:'',error:cause instanceof Error?cause.message:String(cause)}}
 })
-const ready=computed(()=>{revision.value;const fields=ds?.getView('Base_TblField');return !!targetState.value.tableId&&loadedFor.value===targetState.value.tableId&&fields?.requestState===RequestState.Loaded&&!fields.loadingError&&fields.queryContext['triggerTableId']===loadedFor.value})
+const ready=computed(()=>{revision.value;const fields=runtime?.resolveView(fieldsKey);return !!targetState.value.tableId&&loadedFor.value===targetState.value.tableId&&fields?.requestState===RequestState.Loaded&&!fields.loadingError&&fields.queryContext['triggerTableId']===loadedFor.value})
 const columnState=computed(()=>{
  revision.value
  try{return{columns:ready.value&&ds?WorkflowTriggerCondition.columns(ds,props.workflowId):[],functionContext:ready.value&&ds?WorkflowTriggerCondition.functionContext(ds,props.workflowId):{},error:''}}

@@ -30,8 +30,8 @@ const emit=defineEmits<{close:[];applied:[]}>()
 const {sparkConsume}=SparkComponent.useSparkComponent({type:'workflow-trigger-table-dialog'}),runtime=sparkConsume(SparkComponent.PAGE_RUNTIME)
 const captured={id:props.workflowId,key:props.dataViewKey},scene=LowcodeWorkflowDefinition.navigationScenarioId
 const ds=runtime?.getDataSet(scene),target=runtime?.resolveView(captured.key),targetRow=target?.currentRow
-const db=ds?.getView('_base_dbInfo'),tables=ds?.getView('_Base_TblList')
 const dbKey=buildDataViewKey('_base_dbInfo','default',scene),tableKey=buildDataViewKey('_Base_TblList','default',scene)
+const db=runtime?.resolveView(dbKey),tables=runtime?.resolveView(tableKey)
 const fields:SparkNode[]=[{type:'r-text',props:{field:'tblname',label:'表名',readonly:true}},{type:'r-text',props:{field:'tbldesc',label:'中文名',readonly:true}}]
 const searchFields:SparkNode[]=[{type:'r-text',props:{field:'tblname',label:'表名'}},{type:'r-text',props:{field:'tbldesc',label:'中文名'}}]
 const ready=ref(false),loading=ref(true),error=ref(''),revision=ref(0)

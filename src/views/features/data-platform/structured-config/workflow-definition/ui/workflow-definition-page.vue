@@ -68,7 +68,7 @@ const conditionEditing=ref(false)
 const triggerTypes=[{label:'表',value:'table'},{label:'时间',value:'time'}]
 const triggerOperations=[{label:'删除',value:'delete'},{label:'添加',value:'add'},{label:'编辑',value:'edit'}]
 const editTarget=ref(''),editReady=ref(false),editBusy=ref(false)
-const editor=()=>session.runtime?.getDataSet(scenarioId.value)?.getView(LowcodeWorkflowDefinition.catalogMetaName,'edit')
+const editor=()=>session.runtime?.resolveView(editKey.value)
 const definitionUnconfirmed=computed(()=>{revision.value;return editor()?.hasUnconfirmedSave===true})
 const definitionLocked=computed(()=>editBusy.value||definitionUnconfirmed.value)
 const definitionPending=computed(()=>{revision.value;const target=editor();return conditionEditing.value||editBusy.value||!!target&&(target.hasUnconfirmedSave||target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges())})
@@ -98,7 +98,7 @@ const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'workflow_key', label: '工作流编码', width: 180}},
   {type: 'r-text', props: {field: 'description', label: '描述', width: 320}},
   {type: 'r-select', props: {field: 'status', label: '状态', width: 120,
-    optionDataViewKey: buildDataViewKey('workflowStatus', 'default', scenarioId.value)}},
+    optionDataViewKey: statusKey.value}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createFlow(): void {error.value='暂不能创建工作流：领码要求工作流记录已存在，创建时的建行及编码回写流程尚未确认。'}
@@ -110,11 +110,12 @@ function validateTriggerTarget():void{
 }
 async function openDefinition():Promise<void>{
  if(!selected.value||editTarget.value||designTarget.value)return
- const id=selected.value,target=editor(),own=generation;if(!target)return
+ const id=selected.value,target=editor(),own=generation
+ if(!target){error.value='工作流定义编辑视图缺失';return}
  editTarget.value=id;editReady.value=false;editBusy.value=true;error.value=''
  try{
   target.queryContext={...target.queryContext,definitionId:id}
-  const status=session.runtime?.getDataSet(scenarioId.value)?.getView('workflowStatus');if(!status)throw Error('工作流状态视图缺失')
+  const status=session.runtime?.resolveView(statusKey.value);if(!status)throw Error('工作流状态视图缺失')
   await Promise.all([target.refresh(),status.refresh()]);if(target.loadingError)throw target.loadingError;if(status.loadingError)throw status.loadingError
   if(target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id)throw Error('工作流定义不存在或身份不唯一')
   if(active&&own===generation)editReady.value=true
@@ -148,7 +149,9 @@ watch(scenarioId, async id => {
       loadScenario: async () => dataSet})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
-    view.value = dataSet.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')
+    const catalog = current.resolveView(catalogKey.value)
+    if (!catalog) {session.dispose(); throw Error('工作流目录视图缺失')}
+    view.value = catalog
     const changed=()=>revision.value++
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,editingChanged:changed,rowsChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
     if (active && own === generation && session.isCurrent(current)) {sparkProvide(SparkComponent.PAGE_RUNTIME, current); ready.value = true}

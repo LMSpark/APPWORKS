@@ -3,8 +3,10 @@
  * 职责：按定义原编辑视图的触发表身份读取字段元数据，供标准条件编辑器消费。
  * 边界：不编辑条件、不保存、不执行过滤；不把目录记录变成第二份字段真源。
  */
-import {RequestState,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
+import {buildDataViewKey,resolveDataViewKey,RequestState,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import configuration from '../../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
+const editKey=buildDataViewKey('Base_WorkflowDefinition','edit',configuration.scenarioId)
+const fieldsKey=buildDataViewKey('Base_TblField','default',configuration.scenarioId)
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`触发表字段不可读：${field}`)
  return row[field]
@@ -12,7 +14,7 @@ function read(view:DataView,row:DataRow,field:string):unknown{
 export class WorkflowTriggerCondition{
  /** 当前定义的有效触发表ID；空值保持为空，不回退其他流程或同名表。 */
  static tableId(ds:DataSet,id:string):string{
-  const view=ds.getView('Base_WorkflowDefinition','edit'),row=view?.currentRow
+  const view=resolveDataViewKey(editKey,ds),row=view?.currentRow
   if(ds.destroyed||ds.scenarioId!==configuration.scenarioId||view?.requestState!==RequestState.Loaded||view.rows.length!==1||!row||view.getPkKey(row)!==id||view.queryContext['definitionId']!==id)throw Error('触发表条件定义目标已变化')
   read(view,row,'tblid')
   const value=view.getEditingRow(id)?.['tblid']
@@ -21,7 +23,7 @@ export class WorkflowTriggerCondition{
   return value
  }
  static async load(ds:DataSet,id:string):Promise<void>{
-  const tableId=this.tableId(ds,id),fields=ds.getView('Base_TblField')
+  const tableId=this.tableId(ds,id),fields=resolveDataViewKey(fieldsKey,ds)
   if(!tableId)throw Error('请先选择触发表')
   if(!fields)throw Error('触发表字段目录视图缺失')
   fields.queryContext={triggerTableId:tableId};await fields.refresh()
@@ -29,7 +31,7 @@ export class WorkflowTriggerCondition{
   if(this.tableId(ds,id)!==tableId)throw Error('触发表已变化，旧字段目录不再使用')
  }
  static columns(ds:DataSet,id:string):DataColumn[]{
-  const tableId=this.tableId(ds,id),fields=ds.getView('Base_TblField')
+  const tableId=this.tableId(ds,id),fields=resolveDataViewKey(fieldsKey,ds)
   if(!tableId||fields?.requestState!==RequestState.Loaded||fields.loadingError||fields.queryContext['triggerTableId']!==tableId)throw Error('触发表字段目录尚未就绪')
   const names=new Set<string>()
   return fields.readSnapshot().rows.map(row=>{
@@ -42,7 +44,7 @@ export class WorkflowTriggerCondition{
  /** 值函数编辑目录使用当前触发表名称及已确认字段；只描述输入，不宣称服务端支持执行。 */
  static functionContext(ds:DataSet,id:string):DataViewFilterFunctionContext{
   this.tableId(ds,id)
-  const view=ds.getView('Base_WorkflowDefinition','edit'),row=view?.currentRow
+  const view=resolveDataViewKey(editKey,ds),row=view?.currentRow
   if(!view||!row)throw Error('触发条件定义目标已失效')
   read(view,row,'tblName')
   const name=view.getEditingRow(id)?.['tblName']

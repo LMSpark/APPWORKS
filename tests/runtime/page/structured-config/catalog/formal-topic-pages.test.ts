@@ -17,6 +17,7 @@ import Excel from '@/views/features/data-platform/semi-structured/excel-import/u
 import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
+import workflowCatalog from '../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
 import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
@@ -43,6 +44,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => {
  }}}
 })
 const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
+const originalWorkflowText = topicTexts[WORKFLOW]!
 class TopicBackend extends ApiBackend{
  allocations=0
  templateRequests:RequestConfig[]=[]
@@ -71,7 +73,11 @@ beforeEach(() => {
   const stubs = {...original}; for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[key]
   config.global.stubs = stubs
 })
-afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
+afterEach(() => {
+  wrappers.splice(0).forEach(wrapper => wrapper.unmount())
+  config.global.stubs = original
+  topicTexts[WORKFLOW] = originalWorkflowText
+})
 describe('formal topic catalog pages', () => {
   it('releases the Excel catalog when the application changes on the same route',async()=>{
     const route={path:'/apps/:project/excel',component:Excel,meta:{blueprintScenarioId:EXCEL}}
@@ -285,7 +291,18 @@ describe('formal topic catalog pages', () => {
     }
     expect(state.http.records['Base_WorkflowDefinition']![0]).toMatchObject({tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:outcome==='cancel'?'add,edit':'add,edit,delete'})
   })
-  it.each(['cancel-picker','confirm-cancel','confirm-save','search-empty'])('uses the real trigger selector with %s through the original definition view',async outcome=>{
+  it.each(['cancel-picker','confirm-cancel','confirm-save','search-empty','separate-table-keys'])('uses the real trigger selector with %s through the original definition view',async outcome=>{
+    if(outcome==='separate-table-keys'){
+      const {Base_WorkflowDefinition:definition,_base_dbInfo:databaseRows,_Base_TblList:tableRows,Base_TblField:fieldRows,workflowStatus:statusRows}=workflowCatalog.tables
+      const definitionRows={...definition,columns:definition.columns.map(column=>column.optionsView
+        ? {...column,optionsView:{...column.optionsView,tableName:'statusRows'}} : column)}
+      topicTexts[WORKFLOW]=JSON.stringify({...workflowCatalog,tables:{definitionRows,databaseRows,tableRows,fieldRows,statusRows},
+        viewCascades:workflowCatalog.viewCascades.map(cascade=>({...cascade,parentTable:'databaseRows',childTable:'tableRows'}))})
+      state.http.records['Base_TblField']=[
+        {rowid:'F1',tblid:'T1',enname:'Count',cnname:'数量',DataType:'INT'},
+        {rowid:'F2',tblid:'T2',enname:'Other',cnname:'另一张表',DataType:'VARCHAR'},
+      ]
+    }
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',dbName:'old_db',tblName:'OldTable',tblid:'OLD',filter:'old-filter'})
     state.http.records['_base_dbInfo']=[{Id:'D1',Name:'physical_db',Remark:'显示备注'},{Id:'D2',Name:'other_db'}]
     state.http.records['_Base_TblList']=[{rowid:'T1',dbid:'D1',tblname:'Orders',tbldesc:'订单'},{rowid:'T2',dbid:'D2',tblname:'Other',tbldesc:'其他'}]
@@ -315,7 +332,11 @@ describe('formal topic catalog pages', () => {
     expect(wrapper.findComponent(WorkflowTrigger).exists()).toBe(false);expect(state.http.saves).toEqual([])
     const form=wrapper.getComponent(RendererForm),targetName=()=>form.findAllComponents(FieldText).find(field=>field.props('field')==='tblName')!.get('input').element.value
     expect(targetName()).toBe(cancelled?'OldTable':'Orders')
-    if(outcome==='confirm-save'){
+    if(outcome==='separate-table-keys'){
+      await vi.waitFor(()=>expect(form.getComponent(RendererFilterExpression).props('columns')).toEqual([{name:'Count',label:'数量',type:'int'}]))
+      expect(form.getComponent(RendererFilterExpression).props('readonly')).toBe(false)
+    }
+    if(outcome==='confirm-save'||outcome==='separate-table-keys'){
       await click('保存定义');expect(state.http.saves.map(save=>save.table)).toEqual(['Base_WorkflowDefinition'])
       expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',dbName:'physical_db',tblName:'Orders',tblid:'T1',filter:''})])
     }else{await click('取消定义修改');expect(targetName()).toBe('OldTable');expect(state.http.saves).toEqual([])}

@@ -367,6 +367,23 @@ describe('external API pages assembled through the standard scenario entry', () 
     await vi.waitFor(()=>expect(f.ds.getView('InterfaceCallRequest')!.currentRow?.['result']).toContain('"token": "abc"'))
     expect(f.http.saves).toHaveLength(0)
   })
+  it.each([{tab: '调用输出', action: '调用'}, {tab: '输出内容', action: '重新设置输出'}])(
+    'blocks $action before dispatch when the original parameter query is no longer loaded',
+    async ({tab, action}) => {
+      const f = await interfaceFixture()
+      f.select('I1')
+      const inputs = f.ds.getView('_Base_ParamList')!
+      const outputs = f.ds.getView('Base_TblField')!
+      await vi.waitFor(() => expect(inputs.rows).toHaveLength(1))
+      await f.tab(tab)
+      inputs.resetState()
+      await button(f.wrapper, action)!.trigger('click')
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('请先完整读取当前接口的输入参数'))
+      expect(f.http.invocations).toEqual([])
+      expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.http.saves).toEqual([])
+    },
+  )
   it('lets the user abandon an unknown external call without clearing the input draft or resending it',async()=>{
     const f=await interfaceFixture()
     f.select('I1');await flushPromises()
@@ -383,6 +400,29 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(f.http.invocations).toHaveLength(1)
     expect(inputs.getEditingRow('A1')?.['pardesc']).toBe('input before external call')
     expect(f.http.saves).toEqual([])
+  })
+  it('releases only the staged command when parameter proof changes before actual dispatch', async () => {
+    const f = await interfaceFixture()
+    f.select('I1')
+    const inputs = f.ds.getView('_Base_ParamList')!
+    const calls = f.ds.getView('InterfaceCallRequest')!
+    await vi.waitFor(() => expect(inputs.rows).toHaveLength(1))
+    await f.tab('调用输出')
+    const replaceInput = () => {
+      if (!calls.rows.length) return
+      calls.events.off('rowsChanged', replaceInput)
+      inputs.queryContext = {...inputs.queryContext, fixtureRevision: 'replacement'}
+    }
+    calls.events.on('rowsChanged', replaceInput)
+    try {
+      await button(f.wrapper, '调用')!.trigger('click')
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('DATA_VIEW_READ_RESULT'))
+      expect(calls.rows).toEqual([])
+      expect(calls.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.http.invocations).toEqual([])
+    } finally {
+      calls.events.off('rowsChanged', replaceInput)
+    }
   })
   it('resets outputs from the call result keeping same-name rows and saves only the output view',async()=>{
     const f=await interfaceFixture();f.select('I1');await flushPromises()

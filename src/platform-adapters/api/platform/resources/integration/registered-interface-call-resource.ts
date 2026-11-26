@@ -20,7 +20,31 @@ type Request=Readonly<{path:string;params:Readonly<Record<string,string>>;data:u
 type Intent={interfaceId:string;request:Request;assertRead:()=>void;attempt:DataSetCommandAttempt;result?:string}
 class RegisteredInterfaceCallUnknown extends Error{}
 const identity=['ProviderID','Name','RequestType'] as const
+const parameterIdentity=['pid','parname','parzdtype'] as const
+const parameterFields=[...parameterIdentity,'testvalue'] as const
 const text=(value:unknown)=>value===undefined||value===null?'':String(value)
+
+function captureParameters(parameters:DataView,interfaces:DataView,interfaceId:string):()=>void{
+ const assertScope=()=>{
+  const dataSet=parameters.dataSet
+  const cascades=dataSet?.getParentCascades(parameters.tableName,parameters.viewId)??[]
+  const cascade=cascades[0]
+  const filter=cascades.length===1&&cascade?.parentTable===interfaces.tableName
+   &&cascade.parentViewId===interfaces.viewId?dataSet?.resolveCascadeFilter(cascade):null
+  if(!filter||'logic'in filter||filter.field!=='pid'||filter.operator!=='in'
+   ||!Array.isArray(filter.value)||filter.value.length!==1||filter.value[0]!==interfaceId
+   ||parameters.queryConfig.allPages!==true||parameters.resultKind!=='entity'||parameters.countReported!==true||parameters.rows.length!==parameters.total
+   ||parameters.scopeFilter||parameters.filterExpression||parameters.refreshPending||parameters.mutating
+   ||parameters.hasUnconfirmedSave||parameters.dirtyTracking.hasPendingChanges()){
+   throw Error('INTERFACE_CALL_PARAMETERS: 请先完整读取当前接口的输入参数')
+  }
+ }
+ let assertResult:()=>void
+ try{assertResult=parameters.captureReadResult()}
+ catch(cause){throw Error('INTERFACE_CALL_PARAMETERS: 请先完整读取当前接口的输入参数',{cause})}
+ assertScope()
+ return()=>{assertResult();assertScope()}
+}
 
 /** 命令行ID只标识本次本地捕获；结果未知时可放弃该命令，再由用户重新调用。 */
 export class RegisteredInterfaceCallResource{
@@ -43,31 +67,43 @@ export class RegisteredInterfaceCallResource{
     ||interfaces.tableName!=='Base_DataServiceInterface'||parameters.tableName!=='_Base_ParamList'
     ||interfaces.primaryKey!=='rowid'||parameters.primaryKey!=='parid')throw Error('INTERFACE_CALL_SCOPE: 接口调用命令资源已失效')
   }
-  const request=(interfaceId:string,resultFilter:string):Request=>{
-   const row=interfaces.rows.find(candidate=>interfaces.getPkKey(candidate)===interfaceId)
-   if(!row||interfaces.hasUnconfirmedSave||interfaces.dirtyTracking.hasPendingChanges())throw Error('INTERFACE_CALL_SOURCE: 接口不在当前列表或尚有待提交修改，请先保存接口')
+  const request=(interfaceId:string,resultFilter:string):Pick<Intent,'request'|'assertRead'>=>{
+   const row=interfaces.currentRow
+   if(!row||interfaces.getPkKey(row)!==interfaceId||interfaces.hasUnconfirmedSave||interfaces.dirtyTracking.hasPendingChanges())throw Error('INTERFACE_CALL_SOURCE: 接口不在当前列表或尚有待提交修改，请先保存接口')
    const patch=interfaces.getEditingPatch(interfaceId)
    if(patch&&identity.some(field=>Object.hasOwn(patch,field)))throw Error('INTERFACE_CALL_SOURCE: 接口名称或参数类型尚未保存，请先保存接口')
    if(identity.some(field=>interfaces.fieldAccess(row,field).read!=='visible'))throw Error('INTERFACE_CALL_PERMISSION: 接口身份字段不可读')
    const provider=text(row['ProviderID']).trim(),name=text(row['Name']).trim(),form=text(row['RequestType'])==='FormData'
    if(!provider||!name)throw Error('INTERFACE_CALL_SOURCE: 接口缺少提供商或名称')
+   const assertInterface=interfaces.captureReadRow(row,[...identity]),assertParameters=captureParameters(parameters,interfaces,interfaceId)
+   const parameterReads:Array<()=>void>=[]
    const values:Record<string,unknown>={}
    for(const source of parameters.rows){
-    const key=parameters.getPkKey(source),param=key===undefined?source:parameters.getEditingRow(key)??source
-    if(text(param['pid'])!==interfaceId)continue
-    if(['parname','parzdtype','testvalue'].some(field=>parameters.fieldAccess(source,field).read!=='visible'))throw Error('INTERFACE_CALL_PERMISSION: 输入参数不可读')
-    const paramName=text(param['parname']).trim(),value=text(param['testvalue']).trim(),type=text(param['parzdtype'])
+    if(parameterFields.some(field=>parameters.fieldAccess(source,field).read!=='visible'))throw Error('INTERFACE_CALL_PERMISSION: 输入参数不可读')
+    if(source['pid']!==interfaceId)throw Error('INTERFACE_CALL_PARAMETERS: 参数查询含其他接口记录')
+    const key=parameters.getPkKey(source)
+    if(key===undefined)throw Error('INTERFACE_CALL_PARAMETERS: 输入参数缺少原行身份')
+    const parameterPatch=parameters.getEditingPatch(key)
+    if(parameterPatch&&parameterIdentity.some(field=>Object.hasOwn(parameterPatch,field)))throw Error('INTERFACE_CALL_PARAMETERS: 请先保存参数定义')
+    parameterReads.push(parameters.captureReadRow(source,parameterFields))
+    const paramName=text(source['parname']).trim(),value=text((parameters.getEditingRow(key)??source)['testvalue']).trim(),type=text(source['parzdtype'])
     if(!paramName)throw Error('INTERFACE_CALL_SOURCE: 输入参数名称为空')
     if(Object.hasOwn(values,paramName))throw Error(`INTERFACE_CALL_SOURCE: 输入参数“${paramName}”重复`)
     try{values[paramName]=!form&&(type==='object'||type==='array')?JSON.parse(value):value}
     catch{throw Error(`INTERFACE_CALL_SOURCE: 输入参数“${paramName}”的测试值不是有效JSON`)}
    }
+   const assertRead=()=>{
+    if(interfaces.currentRow!==row)throw Error('INTERFACE_CALL_SOURCE: 当前接口已切换')
+    assertInterface()
+    assertParameters()
+    for(const read of parameterReads)read()
+   }
    const params={qy_provider:provider,qy_api:name}
-   if(!form)return{path:'/api/dataInterface/callApi/Body',params,data:{qy_client_param:values,qy_is_filter:resultFilter}}
+   if(!form)return{assertRead,request:{path:'/api/dataInterface/callApi/Body',params,data:{qy_client_param:values,qy_is_filter:resultFilter}}}
    const data=new FormData()
    for(const [paramName,value]of Object.entries(values))data.append(paramName,text(value))
    data.append('qy_is_filter',resultFilter)
-   return{path:'/api/dataInterface/callApi/FormData',params,data}
+   return{assertRead,request:{path:'/api/dataInterface/callApi/FormData',params,data}}
   }
   const capture=(row:Readonly<DataRow>):Intent=>{
    const id=row['commandId'],intent=typeof id==='string'?intents.get(id):undefined
@@ -85,9 +121,7 @@ export class RegisteredInterfaceCallResource{
     if(typeof id!=='string'||!id||intents.has(id)||command.hasUnconfirmedSave)throw Error('INTERFACE_CALL_CAPTURE: 原调用未处理或命令身份重复')
     if(typeof interfaceId!=='string'||!interfaceId)throw Error('INTERFACE_CALL_CAPTURE: 缺少接口身份')
     const filter=text(row['resultFilter']).trim()||'$'
-    const source=interfaces.rows.find(candidate=>interfaces.getPkKey(candidate)===interfaceId)
-    const built=request(interfaceId,filter)
-    intents.set(id,{interfaceId,request:built,assertRead:source?interfaces.captureReadRow(source,[...identity]):()=>undefined,attempt:new DataSetCommandAttempt()})
+    intents.set(id,{interfaceId,...request(interfaceId,filter),attempt:new DataSetCommandAttempt()})
    },
    submit:async row=>{
     guard();const intent=capture(row)

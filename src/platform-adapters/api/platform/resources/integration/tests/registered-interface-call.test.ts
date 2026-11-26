@@ -1,6 +1,6 @@
 // @vitest-environment node
-import {afterEach,expect,it} from 'vitest'
-import {DataSpaceRuntimeApi,DataSet,bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
+import {afterEach,expect,it,vi} from 'vitest'
+import {DataSpaceRuntimeApi,DataSet,DataViewFilterCodec,DataViewFilterLocal,RequestState,bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
 import * as Api from '@/platform-adapters/api'
 import {HttpClientBase,isRecord,type HttpResponse,type RequestConfig} from '@spark-appworks/spark-utils'
 
@@ -10,6 +10,8 @@ class InterfaceHttp extends HttpClientBase{
  params:Row[]=[{parid:'A',pid:'I1',parname:'city',parzdtype:'string',testvalue:'wuhan'},{parid:'B',pid:'I1',parname:'opts',parzdtype:'object',testvalue:'{"unit":"c"}'},
   {parid:'C',pid:'I2',parname:'name',parzdtype:'string',testvalue:'a.txt'}]
  calls:RequestConfig[]=[];failure:'none'|'rejected'|'lost'='none'
+ parameterRead?: () => Promise<void>
+ parameterCount?: number
  protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
   if(request.url?.startsWith('/api/dataInterface/callApi/')){
    this.calls.push(request)
@@ -18,9 +20,14 @@ class InterfaceHttp extends HttpClientBase{
    return{status:200,statusText:'OK',headers:{},data:{Code:200,Result:{temp:20}}}
   }
   const body=request.data;if(!isRecord(body)||!Array.isArray(body['Table'])||!isRecord(body['Table'][0]))throw Error('bad request')
-  const source=body['Table'][0]['Name']==='Base_DataServiceInterface'?this.interfaces:this.params
+  const table=body['Table'][0], isInterface=table['Name']==='Base_DataServiceInterface'
+  if(!isInterface)await this.parameterRead?.()
+  const all=isInterface?this.interfaces:this.params
+  const filter=table['Filter']?new DataViewFilterLocal(DataViewFilterCodec.decode(table['Filter'])):undefined
+  const source=filter?all.filter(row=>filter.matches(row)):all
   const rows=source.map(item=>({...item,lingma_sys_params:{r:[],e:Object.keys(item),h:[],m:[],d:false}}))
-  return{status:200,statusText:'OK',headers:{},data:{Code:200,Result:{primaryKeyField:source===this.interfaces?'rowid':'parid',allowAdd:true,data:{Items:rows}}}}
+  const count=isInterface?rows.length:this.parameterCount??rows.length
+  return{status:200,statusText:'OK',headers:{},data:{Code:200,Result:{primaryKeyField:isInterface?'rowid':'parid',allowAdd:true,data:{Items:rows,Count:count}}}}
  }
 }
 const sets:DataSet[]=[]
@@ -34,10 +41,13 @@ async function fixture(configure:(http:InterfaceHttp)=>void=()=>undefined){
  const ifields=['rowid','ProviderID','Name','RequestType','resultPath'],pfields=['parid','pid','parname','parzdtype','testvalue']
  const ds=DataSet.fromJson({scenarioId:'EC84',tables:{
   Base_DataServiceInterface:{modelBinding:{modelId:'I',modelName:'Base_DataServiceInterface'},columns:ifields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:view}},
-  _Base_ParamList:{modelBinding:{modelId:'P',modelName:'_Base_ParamList'},columns:pfields.map(name=>({name,type:'string',isPrimaryKey:name==='parid'})),views:{default:view}},
+  _Base_ParamList:{modelBinding:{modelId:'P',modelName:'_Base_ParamList'},columns:pfields.map(name=>({name,type:'string',isPrimaryKey:name==='parid'})),
+   views:{default:{...view,queryConfig:{allPages:true}}}},
   InterfaceCallRequest:{resourceType:'command',resourceId:Api.RegisteredInterfaceCallResource.resourceId,
    columns:[{name:'commandId',type:'string',isPrimaryKey:true},{name:'interfaceId',type:'string'},{name:'resultFilter',type:'string'},{name:'result',type:'string'}],
-   views:{default:view}}}})
+   views:{default:view}}},
+  viewCascades:[{kind:'query',cascadeId:'selected-interface-parameters',parentTable:'Base_DataServiceInterface',parentViewId:'default',
+   childTable:'_Base_ParamList',childViewId:'default',autoLoad:true,filterBindings:[{targetField:'pid',operator:'in'}]}]})
  sets.push(ds)
  const http=new InterfaceHttp();configure(http)
  const readScope=()=>({token:'scope',headers:{}}),runtime=new DataSpaceRuntimeApi({http,readScope})
@@ -45,8 +55,16 @@ async function fixture(configure:(http:InterfaceHttp)=>void=()=>undefined){
  runtime.bindModelView(interfaces,formal('I','Base_DataServiceInterface','rowid',ifields));runtime.bindModelView(parameters,formal('P','_Base_ParamList','parid',pfields))
  const binding=new Api.RegisteredInterfaceCallResource({interfaces,parameters,http,readScope,assertCurrent:()=>undefined}).binding(command)
  bindDataSetCommandSubmit(command,binding)
- await interfaces.refresh();await parameters.refresh();await command.refresh()
- return{interfaces,parameters,command,http,binding,save:()=>ds.saveChanges({views:[{tableName:'InterfaceCallRequest',viewId:'default'}]})}
+ await interfaces.refresh();await command.refresh()
+ const select=(id:string)=>{
+  const row=interfaces.rows.find(candidate=>interfaces.getPkKey(candidate)===id)
+  if(!row)throw Error('missing fixture interface')
+  interfaces.setCurrentRow(row)
+  interfaces.setSelectedRows([row])
+ }
+ select('I1')
+ await vi.waitFor(()=>expect(parameters.requestState).toBe(RequestState.Loaded))
+ return{interfaces,parameters,command,http,binding,select,save:()=>ds.saveChanges({views:[{tableName:'InterfaceCallRequest',viewId:'default'}]})}
 }
 
 it('calls a json interface once with current test values and keeps the output text as the receipt',async()=>{
@@ -60,7 +78,9 @@ it('calls a json interface once with current test values and keeps the output te
  expect(f.command.rows[0]).toMatchObject({interfaceId:'I1',result:JSON.stringify({temp:20},null,2)})
 })
 it('sends form fields and the result filter as FormData for a FormData interface',async()=>{
- const f=await fixture();await f.command.addRow({interfaceId:'I2'});await f.save()
+ const f=await fixture();f.select('I2')
+ await vi.waitFor(()=>expect(f.parameters.rows.map(row=>row['parid'])).toEqual(['C']))
+ await f.command.addRow({interfaceId:'I2'});await f.save()
  const data=f.http.calls[0]?.data
  expect(f.http.calls[0]?.url).toBe('/api/dataInterface/callApi/FormData')
  expect(data instanceof FormData?[...data.entries()]:data).toEqual([['name','a.txt'],['qy_is_filter','$']])
@@ -68,9 +88,59 @@ it('sends form fields and the result filter as FormData for a FormData interface
 it('refuses unsaved interface identity and invalid json test values before staging',async()=>{
  const f=await fixture(http=>{http.params[1]={...http.params[1]!,testvalue:'{bad'}})
  await expect(f.command.addRow({interfaceId:'I1'})).rejects.toThrow('不是有效JSON')
+ f.select('I2')
+ await vi.waitFor(()=>expect(f.parameters.rows.map(row=>row['parid'])).toEqual(['C']))
  f.interfaces.updateEditingValue('I2','Name','renamed')
  await expect(f.command.addRow({interfaceId:'I2'})).rejects.toThrow('INTERFACE_CALL_SOURCE')
  expect(f.command.rows).toEqual([]);expect(f.http.calls).toEqual([])
+})
+it('refuses an unqueried parameter view and an authorized parameter query that failed',async()=>{
+ const f=await fixture()
+ f.parameters.resetState()
+ await expect(f.command.addRow({interfaceId:'I1'})).rejects.toThrow('INTERFACE_CALL_PARAMETERS')
+ f.http.parameterRead=async()=>{throw Error('parameter query unavailable')}
+ await f.parameters.refresh().catch(()=>undefined)
+ expect(f.parameters.requestState).toBe(RequestState.Failed)
+ await expect(f.command.addRow({interfaceId:'I1'})).rejects.toThrow('INTERFACE_CALL_PARAMETERS')
+ expect(f.command.rows).toEqual([])
+ expect(f.http.calls).toEqual([])
+})
+it('refuses the selected interface while its new parameter query is in flight',async()=>{
+ const f=await fixture()
+ let release=()=>{}
+ f.http.parameterRead=()=>new Promise<void>(resolve=>{release=resolve})
+ try{
+  f.select('I2')
+  await vi.waitFor(()=>expect(f.parameters.requestState).toBe(RequestState.Loading))
+  await expect(f.command.addRow({interfaceId:'I2'})).rejects.toThrow('INTERFACE_CALL_PARAMETERS')
+  expect(f.http.calls).toEqual([])
+ }finally{release()}
+})
+it('refuses a prepared command after the parameter proof is replaced by a same-value query',async()=>{
+ const f=await fixture()
+ await f.command.addRow({interfaceId:'I1'})
+ await f.parameters.refresh()
+ await expect(f.save()).rejects.toThrow('DATA_VIEW_READ_RESULT')
+ expect(f.http.calls).toEqual([])
+})
+it('refuses an incomplete collection and a completed collection for multiple interfaces',async()=>{
+ const f=await fixture()
+ f.http.parameterCount=3
+ await f.parameters.refresh().catch(()=>undefined)
+ expect(f.parameters.requestState).toBe(RequestState.Failed)
+ await expect(f.command.addRow({interfaceId:'I1'})).rejects.toThrow('INTERFACE_CALL_PARAMETERS')
+ delete f.http.parameterCount
+ f.interfaces.setSelectedRows(f.interfaces.rows)
+ await vi.waitFor(()=>expect(f.parameters.rows.map(row=>row['parid'])).toEqual(['A','B','C']))
+ await expect(f.command.addRow({interfaceId:'I1'})).rejects.toThrow('INTERFACE_CALL_PARAMETERS')
+ expect(f.http.calls).toEqual([])
+})
+it('accepts an independently proved empty parameter collection for the selected interface',async()=>{
+ const f=await fixture(http=>{http.params=[]})
+ expect(f.parameters.countReported).toBe(true)
+ await f.command.addRow({interfaceId:'I1'})
+ await f.save()
+ expect(f.http.calls[0]?.data).toMatchObject({qy_client_param:{}})
 })
 it('keeps a rejected call failed and never resends it',async()=>{
  const f=await fixture(http=>{http.failure='rejected'});await f.command.addRow({interfaceId:'I1'})

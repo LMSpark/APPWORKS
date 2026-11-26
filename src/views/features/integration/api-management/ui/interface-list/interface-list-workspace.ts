@@ -55,11 +55,13 @@ export async function invokeApi(input: InterfaceCallViews): Promise<string> {
   const added = await calls.addRow({interfaceId, resultFilter}), id = calls.getPkKey(added)
   if (id === undefined) throw new Error('调用命令缺少原生身份')
   calls.setCurrentRow(added)
-  const saved = await calls.dataSet?.saveChanges({views: [{tableName: calls.tableName, viewId: calls.viewId, ids: [id]}]})
-  if (!saved) throw new Error('调用命令缺少所属数据空间')
-  if (!saved.success) {
-    if (!unconfirmed(calls) && calls.dirtyTracking.isPendingCreate(id)) await calls.removeRow(id)
-    throw new Error(saved.error?.message ?? saved.message ?? '接口调用失败')
+  try {
+    const saved = await calls.dataSet?.saveChanges({views: [{tableName: calls.tableName, viewId: calls.viewId, ids: [id]}]})
+    if (!saved) throw new Error('调用命令缺少所属数据空间')
+    if (!saved.success) throw new Error(saved.error?.message ?? saved.message ?? '接口调用失败')
+  } catch (error) {
+    if (!calls.destroyed && !unconfirmed(calls) && calls.dirtyTracking.isPendingCreate(id)) await calls.removeRow(id)
+    throw error
   }
   return String(calls.rows.find(item => calls.getPkKey(item) === id)?.['result'] ?? '')
 }

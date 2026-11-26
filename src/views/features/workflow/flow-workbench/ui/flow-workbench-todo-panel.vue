@@ -3,19 +3,12 @@
 职责：流程工作台四页签列表，消费 pagedata 命名视图并提供办理/详情入口。
 -->
 <template>
-  <RendererSection class="flow-workbench-todo" title="流程工作台" :bordered="false" :grid-columns="1" :grid-gap="16"
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
+  <RendererSection v-else :class="shell.props.class" :title="shell.props.title" :bordered="shell.props.bordered"
+    :grid-columns="shell.props.gridColumns" :grid-gap="shell.props.gridGap"
     :status="loading ? '正在读取…' : ''" :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <RendererTabs v-model="activeTab" class="flow-workbench-todo__tabs">
-      <RendererTabPane v-for="item in TAB_ITEMS" :key="item.id" :name="item.id" :label="item.label" :index="tabIndex(item.id)">
-        <SparkPageRenderer v-if="runtime && host && activeTab === item.id" :page-runtime="runtime"
-          :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
-          <template #content="{children}">
-            <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
-              <SparkComponentRenderer v-if="nodeId(node) === activeTab" :config="node" />
-            </template>
-          </template>
-        </SparkPageRenderer>
-      </RendererTabPane>
+    <RendererTabs :model-value="activeTab" :class="tabs.props.class" @update:model-value="selectTab">
+      <RendererTabPane v-for="(pane, index) of tabs.children" :key="pane.id" :name="pane.props.name" :label="pane.props.label" :index="index" />
     </RendererTabs>
   </RendererSection>
 </template>
@@ -25,7 +18,7 @@ import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import {PageTool} from '@spark-appworks/spark-project-model'
-import {isDataRow, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {
   RendererSection,
   SparkPageRenderer,
@@ -35,12 +28,11 @@ import {
   consumeRequiredPageService,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
-import type {FlowWorkbenchTab} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-filters'
 import {buildFlowRunDetailRoute, buildFlowRunPageRoute} from '@/platform-adapters/resources/system/workflow/manage'
 import {readFlowWorkbenchRowRoute} from '@/platform-adapters/resources/system/workflow/manage/flow-workbench/flow-workbench-row'
 import {useFlowWorkbenchTodo} from '../model/use-flow-workbench-todo'
 
-import rule from './tool/rule.json?raw'
+import rules from './tool/rule.json'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
 
@@ -54,9 +46,12 @@ const appScope = () => {
   return scope
 }
 
-const {TAB_ITEMS, activeTab, viewKey, session, ready, loading, error, loadCurrentRoute} = useFlowWorkbenchTodo(pageId => {
+const shell = rules[0]
+const tabs = shell?.children[0]?.props.tabs
+if (!shell || !tabs) throw Error('流程工作台工具缺少标签声明')
+const {activeTab, selectTab, viewKey, session, ready, loading, error, loadCurrentRoute} = useFlowWorkbenchTodo(pageId => {
   const tool = new PageTool({pageId})
-  tool.hydrateFileText('rule.json', rule)
+  tool.hydrateFileText('rule.json', JSON.stringify(rules))
   tool.hydrateFileText('script.js', script)
   tool.hydrateFileText('style.css', style)
   tool.markLoaded()
@@ -70,23 +65,28 @@ const routeSnapshot = computed(() => {
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
+  const tab = activeTab.value, key = viewKey.value
   const assertCurrent = () => {
-    if (!session.isCurrent(current)) throw new Error('流程工作台运行实例已失效')
+    if (!ready.value || !session.isCurrent(current) || activeTab.value !== tab || viewKey.value !== key) {
+      throw Error('流程工作台运行实例已失效')
+    }
   }
   return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
     assertCurrent()
-    if (!isDataRow(input)) return
+    if (command === 'workbench.connect') return {
+      controls: {tabs: RendererTabs, pane: RendererTabPane, render: SparkComponentRenderer},
+      tab,
+      select: (value: string | number) => {assertCurrent(); selectTab(value)},
+    }
+    if (!isDataRow(input)) return undefined
     const row = input
-    const source = current.resolveView(viewKey.value)
-    if (!source?.rows.includes(row)) return
-    if (command === 'workbench.run' && activeTab.value === 'pending') openRoute(source, row, false)
+    const source = current.resolveView(key)
+    if (!source?.rows.includes(row)) return undefined
+    if (command === 'workbench.run' && tab === 'pending') openRoute(source, row, false)
     if (command === 'workbench.detail') openRoute(source, row, true)
+    return undefined
   }}
 })
-
-function tabIndex(id: FlowWorkbenchTab): number {
-  return TAB_ITEMS.findIndex(item => item.id === id)
-}
 
 function openRoute(source: DataView, row: DataRow, detail: boolean): void {
   const tab = activeTab.value
@@ -107,7 +107,4 @@ function openRoute(source: DataView, row: DataRow, detail: boolean): void {
 
 </script>
 
-<style scoped>
-.flow-workbench-todo {padding: 8px}
-.flow-workbench-todo__tabs {margin-top: 4px}
-</style>
+<style scoped src="./tool/style.css"></style>

@@ -1,6 +1,6 @@
 /**
  * @module app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo
- * 职责：工作台四页签绑定与列定义。
+ * 职责：工作台当前标签、正式查询视图及运行实例装配。
  */
 import {computed, ref} from 'vue'
 import type {PageTool} from '@spark-appworks/spark-project-model'
@@ -15,15 +15,14 @@ import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-a
 
 const SCENARIO_ID = FLOW_WORKBENCH_SCENARIO_ID
 
-const TAB_ITEMS = [
-  {id: 'pending' as const, label: '待处理'},
-  {id: 'processed' as const, label: '已处理'},
-  {id: 'shared' as const, label: '传阅分享'},
-  {id: 'started' as const, label: '我发起'},
-]
-
 export function useFlowWorkbenchTodo(tool: (navigationId: string) => PageTool) {
   const activeTab = ref<FlowWorkbenchTab>('pending')
+  function selectTab(value: string | number): void {
+    if (value !== 'pending' && value !== 'processed' && value !== 'shared' && value !== 'started') {
+      throw Error('流程工作台标签未登记')
+    }
+    activeTab.value = value
+  }
   const binding = computed(() => flowWorkbenchTabBinding(activeTab.value))
 
   const runtime = useFeaturePageRuntime({
@@ -41,5 +40,5 @@ export function useFlowWorkbenchTodo(tool: (navigationId: string) => PageTool) {
     },
   })
 
-  return {TAB_ITEMS, activeTab, ...runtime}
+  return {activeTab, selectTab, ...runtime}
 }

@@ -1,1 +1,2 @@
-.spark-page-container {min-width: 0}
+.flow-workbench-todo {min-width: 0; padding: 8px}
+.flow-workbench-todo__tabs {margin-top: 4px}

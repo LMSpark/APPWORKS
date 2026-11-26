@@ -9,13 +9,7 @@ AI用途：迁移系统运维数据恢复时，核对级联输入、data_id取�
     :status="loading ? '正在读取应用系统…' : reloadBlocked ? '当前显示原导航的数据恢复记录。' : ''"
     :error="error" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="locked" @click="loadCurrentRoute" />
-    <SparkPageRenderer v-if="runtime && toolHost" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="toolHost" :auto-load="false">
-      <template #content="{children}">
-        <div class="recovery-page__body">
-          <SparkComponentRenderer v-for="(node, index) in children" :key="nodeId(node) ?? index" :config="bindDataFields(node)" />
-        </div>
-      </template>
-    </SparkPageRenderer>
+    <SparkPageRenderer v-if="runtime && toolHost" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="toolHost" :auto-load="false" />
   </RendererSection>
 </template>
 
@@ -24,7 +18,7 @@ import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, getSparkNodeChildren, isDataRow, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, isDataRow, RequestState, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {DataRecoverySession} from './data-recovery-session'
@@ -66,6 +60,8 @@ const toolHost = computed(() => {
   }, async invoke(command: string, input: unknown) {
     if (!session.isCurrent(current)) throw new Error('数据恢复运行实例已失效')
     if (command === 'recovery.connect') return {
+      node: SparkComponentRenderer,
+      columns: () => columns.value,
       selectionLocked: () => locked.value || reloadBlocked.value,
       status: () => ({title: table.value?.label ?? '数据',
         status: table.value ? recovery.notice : '请先选择应用系统和数据库，再选择数据表', error: recovery.message}),
@@ -91,24 +87,10 @@ const key = (model: string) => buildDataViewKey(model, 'default', scenarioId)
 const appKey = key('Base_AppSystemList'), dbKey = key('Base_AppAndSource_Relation'), tableKey = key('_Base_TblList')
 const fieldKey = key('Base_TblField'), deletedKey = key('获取软删除的数据'), allKey = key('获取表数据')
 const recoveredKey = key('Base_TableData_Recovery')
-const text = (field: string, label: string, minWidth = 140): SparkNode =>
-  ({type: 'r-text', props: {field, label, readonly: true, minWidth, showOverflowTooltip: true}})
 const tab = ref<string | number>('deleted')
 const table = shallowRef<{rowid: string; label: string}>()
 const columns = shallowRef<readonly {name: string; label: string}[]>([])
 useSystemPageDirtySource({get isDirty() {return locked.value}})
-/** 软删除读取适配器拒绝排序，表数据列为运行时生成、不在视图输出合同内，二者均不提供表头排序。 */
-const dataFields = computed(() => columns.value.map(column => {
-  const node = text(column.name, column.label)
-  return {...node, props: {...node.props, sortable: false}}
-}))
-function bindDataFields(node: SparkNode): SparkNode {
-  if (nodeId(node) === 'recovery-deleted-table' || nodeId(node) === 'recovery-all-table') {
-    return {...node, children: dataFields.value}
-  }
-  if (!node.children) return node
-  return {...node, children: getSparkNodeChildren(node.children).map(bindDataFields)}
-}
 const view = (dataViewKey: string): DataView => {
   const found = session.runtime?.resolveView(dataViewKey)
   if (!found) throw new Error(`数据恢复缺少正式视图 ${dataViewKey}`)
@@ -135,7 +117,8 @@ function syncTable(): void {
 function syncColumns(): void {
   const tableId = table.value?.rowid
   const source = view(fieldKey)
-  if (!tableId || source.loadingError || source.nextPageAvailable === true || (source.countReported && source.total !== source.rows.length)) {
+  if (!tableId || source.requestState !== RequestState.Loaded || source.loadingError || source.nextPageAvailable === true
+    || source.total > source.rows.length || (source.countReported && source.total < source.rows.length)) {
     columns.value = []
     return
   }

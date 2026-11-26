@@ -1,5 +1,6 @@
 [
-  {"type":"r-section","props":{"class":"recovery-page__side","title":"数据表选择","gridColumns":1,"gridGap":12},"children":[
+  {"type":"RenderRecoveryWorkspace","props":{"panels":[
+  {"id":"recovery-selection","type":"r-section","props":{"class":"recovery-page__side","title":"数据表选择","gridColumns":1,"gridGap":12},"children":[
     {"type":"r-form","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_AppSystemList@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1},"children":[{"type":"r-select","props":{"dataMember":"value","optionDataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_AppSystemList@default","optionLabelFields":["AppDesc","AppName"],"label":"应用系统","placeholder":"请选择应用系统","filterable":true,"clearable":true,"onBeforeRender":"bindRecoverySelection"}}]},
     {"type":"r-form","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_AppAndSource_Relation@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1},"children":[{"type":"r-select","props":{"dataMember":"value","optionDataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_AppAndSource_Relation@default","optionLabelFields":["conName"],"label":"数据库","placeholder":"请选择数据库","filterable":true,"clearable":true,"onBeforeRender":"bindRecoverySelection"}}]},
     {"type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@_Base_TblList@default","autoColumns":false,"showDataViewMeta":false,"pagination":{"pageSizes":[15,30,50]}},"children":[{"type":"r-text","props":{"field":"tbldesc","label":"表描述","readonly":true,"minWidth":120,"showOverflowTooltip":true}},{"type":"r-text","props":{"field":"tblname","label":"表名","readonly":true,"minWidth":120,"showOverflowTooltip":true}}]}
@@ -8,7 +9,7 @@
     {"type":"r-button","props":{"label":"核验原保存结果","onClick":"verifyRecoverySave","onBeforeRender":"bindRecoveryVerification"}},
     {"type":"r-tabs","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@_Base_TblList@default","onBeforeRender":"bindRecoveryTabs","on":{"update:modelValue":"selectRecoveryTab"}},"children":[
       {"type":"r-tab-pane","props":{"name":"deleted","label":"待恢复数据","index":0},"children":[
-        {"id":"recovery-deleted-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取软删除的数据@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"恢复","onClick":"restoreRecoveryRow","buttonType":"primary","link":true,"onBeforeRender":"bindRestoreRecovery"}}]}}}
+        {"id":"recovery-deleted-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取软删除的数据@default","showDataViewMeta":false,"autoColumns":false,"onBeforeRender":"bindRecoveryColumns","pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"恢复","onClick":"restoreRecoveryRow","buttonType":"primary","link":true,"onBeforeRender":"bindRestoreRecovery"}}]}}}
       ]},
       {"type":"r-tab-pane","props":{"name":"recovered","label":"已恢复数据","index":1},"children":[
         {"id":"recovery-records-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@Base_TableData_Recovery@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]},"actions":{"children":[{"type":"r-button","props":{"label":"撤销恢复","onClick":"undoRecoveryRow","buttonType":"warning","link":true,"onBeforeRender":"bindUndoRecovery"}}]}},"children":[
@@ -21,8 +22,9 @@
         ]}
       ]},
       {"type":"r-tab-pane","props":{"name":"all","label":"全部数据","index":2,"lazy":true},"children":[
-        {"id":"recovery-all-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取表数据@default","showDataViewMeta":false,"autoColumns":false,"pagination":{"pageSizes":[15,30,50,100]}}}
+        {"id":"recovery-all-table","type":"r-table","props":{"dataViewKey":"70D5D8FACCC201A822F64B16A441BE8F@获取表数据@default","showDataViewMeta":false,"autoColumns":false,"onBeforeRender":"bindRecoveryColumns","pagination":{"pageSizes":[15,30,50,100]}}}
       ]}
     ]}
   ]}
+  ]}}
 ]

@@ -126,7 +126,14 @@ it('renders only the selected recovery table fields while the next field result 
   const tables = ds.getView('_Base_TblList')!, fields = ds.getView('Base_TblField')!
   const databases = ds.getView('Base_AppAndSource_Relation')!, all = ds.getView('获取表数据')!
   let fieldRows = [{rowid: 'F1', tblid: 'T1', enname: 'before', cnname: '原字段'}]
-  bindDataSetReadonlyCommandQuery(fields, {resource: {resourceType: 'logical-view', resourceId: fields.tableName}, guard: () => {}, loadRows: async () => fieldRows})
+  let pendingFields: Promise<typeof fieldRows> | undefined
+  let remainingFields = 0
+  bindDataSetReadonlyCommandQuery(fields, {resource: {resourceType: 'logical-view', resourceId: fields.tableName}, guard: () => {},
+    loadPage: async () => {
+      const rows = await (pendingFields ?? fieldRows)
+      return {rows, total: rows.length + remainingFields}
+    },
+  })
   bindDataSetReadonlyCommandQuery(databases, {resource: {resourceType: 'logical-view', resourceId: databases.tableName}, guard: () => {}, loadRows: async () => [{rowid: 'D', conid: 'DB1', conName: '原库'}]})
   bindDataSetReadonlyCommandQuery(tables, {resource: {resourceType: 'logical-view', resourceId: tables.tableName}, guard: () => {}, loadRows: async () => [{rowid: 'T1', tblname: 'First'}, {rowid: 'T2', tblname: 'Second'}]})
   await Promise.all([fields.refresh(), databases.refresh(), tables.refresh()])
@@ -153,10 +160,11 @@ it('renders only the selected recovery table fields while the next field result 
   config.global.stubs = stubs
   const wrapper = mount(withTestPageService(RouterView, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   try {
-    const deletedFields = () => {
-      const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === `${scenarioId}@获取软删除的数据@default`)
-      return table ? getSparkNodeChildren(table.props('children')).map(node => node.props?.['field']) : undefined
+    const columnsOf = (modelName: string) => {
+      const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === `${scenarioId}@${modelName}@default`)
+      return table ? getSparkNodeChildren(table.props('children')).map(node => node.props) : undefined
     }
+    const deletedFields = () => columnsOf('获取软删除的数据')?.map(props => props?.['field'])
     await vi.waitFor(() => expect(deletedFields()).toEqual(['before']))
     tables.setCurrentRowById('T2')
     await flushPromises()
@@ -165,6 +173,25 @@ it('renders only the selected recovery table fields while the next field result 
     expect(wrapper.get('style').element.textContent).toContain(`${scope} .recovery-page__body`)
     expect(deletedFields()).toEqual([])
     fieldRows = [...fieldRows, {rowid: 'F2', tblid: 'T2', enname: 'after', cnname: '新字段'}]
+    await fields.refresh()
+    await vi.waitFor(() => expect(deletedFields()).toEqual(['after']))
+    let resolveFields!: (rows: typeof fieldRows) => void
+    pendingFields = new Promise(resolve => {resolveFields = resolve})
+    const refreshing = fields.refresh()
+    try {
+      await flushPromises()
+      expect(deletedFields()).toEqual([])
+    } finally {
+      resolveFields(fieldRows)
+      await refreshing
+      pendingFields = undefined
+    }
+    await vi.waitFor(() => expect(deletedFields()).toEqual(['after']))
+    remainingFields = 1
+    await fields.refresh()
+    expect(fields.total).toBe(3)
+    await vi.waitFor(() => expect(deletedFields()).toEqual([]))
+    remainingFields = 0
     await fields.refresh()
     await vi.waitFor(() => expect(deletedFields()).toEqual(['after']))
     expect(allRead).not.toHaveBeenCalled()
@@ -179,6 +206,13 @@ it('renders only the selected recovery table fields while the next field result 
     all.queryContext = {TbName: 'Second', DbId: 'DB1'}
     await selectTab('all')
     expect(allRead).toHaveBeenCalledTimes(1)
+    expect(columnsOf('获取表数据')).toEqual([
+      expect.objectContaining({field: 'after', label: '新字段', readonly: true, sortable: false}),
+    ])
+    await selectTab('recovered')
+    expect(columnsOf('Base_TableData_Recovery')?.map(props => props?.['field'])).toEqual(
+      ['sys_id', 'db_id', 'data_id', 'recovery_date', 'table_id', 'recovery_userid'],
+    )
   } finally {
     wrapper.unmount()
     config.global.stubs = originalStubs

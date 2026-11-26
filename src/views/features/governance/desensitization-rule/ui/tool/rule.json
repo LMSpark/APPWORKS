@@ -20,6 +20,7 @@
       {"type":"r-text","props":{"field":"original_sample","label":"示例原文","minWidth":180,"readonly":true,"showOverflowTooltip":true}},
       {"type":"r-text","props":{"field":"desensitized_sample","label":"脱敏后样例","minWidth":180,"readonly":true,"showOverflowTooltip":true}}
   ]},
+  {"type":"RenderRuleEditor","props":{"createTitle":"新增脱敏规则","editTitle":"编辑脱敏规则","width":720,"excludeOnCreate":"is_gabale","form":
   {"id":"ruleForm","type":"r-form","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":1},"children":[
     {"type":"r-select","props":{"field":"type","label":"分类","required":true,"filterable":true,"optionNumericText":true,"optionDataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@脱敏分类@default"}},
     {"type":"r-text","props":{"field":"name","label":"名称","required":true}},
@@ -29,5 +30,21 @@
     {"type":"r-text","props":{"field":"original_sample","label":"示例原文","required":true}},
     {"type":"r-text","props":{"field":"desensitized_sample","label":"脱敏后样例"}},
     {"type":"r-textarea","props":{"field":"description","label":"脱敏规则描述"}}
-  ]}
+  ]}}},
+  {"type":"RenderRuleDeletion","props":{"dialog":{
+    "id":"ruleDeleteDialog","type":"r-dialog","props":{"modelValue":true,"title":"删除确认","width":520,
+      "dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","onBeforeRender":"bindRuleDeleteWindow",
+      "footer":{"children":[
+        {"id":"ruleDeleteCancel","type":"r-button","props":{"label":"取消","onBeforeRender":"bindRuleDeleteCancel"}},
+        {"id":"ruleDeleteSubmit","type":"r-button","props":{"label":"确定删除","buttonType":"danger","onBeforeRender":"bindRuleDeleteSubmit"}}
+      ]}},
+    "children":[
+      {"type":"r-text-display","props":{"tag":"p","value":"确定要删除此脱敏规则吗？"}},
+      {"id":"ruleDeletePreview","type":"r-form","props":{"dataViewKey":"3A45C53F29C2C005FF21AA06B2BCA133@Base_Desensitization_Rule@default","showDataViewMeta":false,"autoColumns":false,"onBeforeRender":"bindRuleDeletePreview"},"children":[
+        {"type":"r-text","props":{"field":"name","label":"名称","readonly":true}}
+      ]},
+      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleDeleteError"}},
+      {"type":"r-alert","props":{"alertType":"warning","closable":false,"title":"删除结果未知，保留原提交，不会重复删除。","onBeforeRender":"bindRuleDeleteUnknown"}}
+    ]
+  }}}
 ]

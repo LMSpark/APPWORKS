@@ -8,18 +8,7 @@
     :status="loading ? '正在读取脱敏规则…' : reloadBlocked ? '请先处理原操作，再切换导航。' : ''"
     :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPending()" @click="loadCurrentRoute" />
-    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
-      <template #content="{children}">
-        <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
-          <FeatureRecordDialog v-if="nodeId(node) === 'ruleForm' && ready && dialog?.kind === 'edit'" :key="dialog.epoch"
-            :data-view-key="viewKey" :record-id="dialog.id" :created="dialog.created"
-            :title="dialog.created ? '新增脱敏规则' : '编辑脱敏规则'" :form-rule="formRule(node)" :validate="validateRule" :width="720" @close="closeDialog" />
-          <SparkComponentRenderer v-else-if="nodeId(node) !== 'ruleForm'" :config="node" />
-        </template>
-      </template>
-    </SparkPageRenderer>
-    <RuleDeleteDialog v-if="ready && dialog?.kind === 'delete'" :key="dialog.epoch" :data-view-key="viewKey"
-      :record-id="dialog.id" @close="closeDialog" />
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
   </RendererSection>
 </template>
 
@@ -27,7 +16,7 @@
 import {computed, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, getSparkNodeChildren, isDataRow, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {RendererButton, RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
@@ -58,6 +47,7 @@ const {viewKey, session, ready, loading, error, reloadBlocked, loadCurrentRoute}
 type Dialog = Readonly<{kind: 'edit'; id: string | number; created: boolean; epoch: number}>
   | Readonly<{kind: 'delete'; id: string | number; epoch: number}>
 const dialog = shallowRef<Dialog>()
+const deletion = shallowRef<{owner: Dialog; target: InstanceType<typeof RuleDeleteDialog>}>()
 const busy = ref(false), message = ref(''), revision = ref(0)
 let epoch = 0
 function hasPending(): boolean { return busy.value || session.runtime?.isDirty === true }
@@ -98,6 +88,22 @@ const host = computed(() => {
   return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
     assertCurrent()
     if (command === 'rules.connect') return {
+      node: SparkComponentRenderer,
+      editor: FeatureRecordDialog,
+      deleteDialog: RuleDeleteDialog,
+      capture: (kind: Dialog['kind']) => {
+        const opened = dialog.value
+        if (!opened || opened.kind !== kind) return undefined
+        const isCurrent = () => session.isCurrent(current) && dialog.value === opened
+        const common = {key: opened.epoch, dataViewKey: viewKey.value, recordId: opened.id,
+          onClose: () => isCurrent() ? closeDialog() : undefined}
+        if (opened.kind === 'edit') return {...common, created: opened.created,
+          validate: (row: Readonly<DataRow>) => isCurrent() ? validateRule(opened, row) : '原规则编辑实例已失效'}
+        return {...common, bind: (target: InstanceType<typeof RuleDeleteDialog> | null) => {
+          if (isCurrent()) deletion.value = target ? {owner: opened, target} : undefined
+        }}
+      },
+      deletion: () => deletion.value?.owner === dialog.value && session.isCurrent(current) ? deletion.value?.target : undefined,
       locked: () => reloadBlocked.value || busy.value || !!dialog.value || unconfirmed.value,
       canEdit: (row: DataRow | null | undefined) => !!row && list().editActionState(row) === 'enabled',
       canDelete: (row: DataRow | null | undefined) => !!row && list().deleteActionState(row) === 'enabled',
@@ -113,10 +119,6 @@ const host = computed(() => {
   }}
 })
 
-function formRule(node: SparkNode): SparkNode {
-  if (dialog.value?.kind !== 'edit' || !dialog.value.created) return node
-  return {...node, children: getSparkNodeChildren(node.children).filter(child => child.props?.['field'] !== 'is_gabale')}
-}
 function selectedOption(key: string, value: unknown): boolean {
   if ((typeof value !== 'string' || value === '') && (typeof value !== 'number' || !Number.isFinite(value))) return false
   const options = view(key)
@@ -127,10 +129,8 @@ function selectedOption(key: string, value: unknown): boolean {
   if (matches.length > 1) throw new Error('字典选项编码不唯一')
   return matches.length === 1
 }
-function validateRule(row: Readonly<DataRow>): string | undefined {
+function validateRule(current: Extract<Dialog, {kind: 'edit'}>, row: Readonly<DataRow>): string | undefined {
   try {
-    const current = dialog.value
-    if (current?.kind !== 'edit') return '原记录已关闭'
     if (!selectedOption(categoryKey, row['type'])) return '请选择有效的分类'
     if (!current.created && !selectedOption(globalKey, row['is_gabale'])) return '请选择有效的全局匹配方式'
     if (!current.created && row['is_gabale'] !== '0' && row['is_gabale'] !== '1'
@@ -161,6 +161,7 @@ function openEdit(row: DataRow): void {
 }
 async function closeDialog(): Promise<void> {
   dialog.value = undefined
+  deletion.value = undefined
   await guarded(async () => {
     if (list().hasUnconfirmedSave || list().dirtyTracking.hasPendingChanges()) return
     await list().refresh()

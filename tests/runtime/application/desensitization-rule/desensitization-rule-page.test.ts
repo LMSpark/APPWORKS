@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldSelect, RendererButton, RendererDialog, RendererForm, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {ApiBackend} from '../../page/api-provider/api-provider.fixture'
@@ -51,9 +51,9 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function open(values: Readonly<{type?: string | number; global?: string | number | null}> = {}) {
-  const http = new ApiBackend()
-  http.records = {
+async function open(values: Readonly<{type?: string | number; global?: string | number | null}> = {}, backend?: ApiBackend) {
+  const http = backend ?? new ApiBackend()
+  if (!backend) http.records = {
     Base_Desensitization_Rule: [{rowid: 'R1', type: values.type ?? '1', name: '规则一', description: '', regex: 'a', template: '*',
       original_sample: 'aba', desensitized_sample: '*ba', is_gabale: values.global === undefined ? '0' : values.global}],
     脱敏分类: [{rowid: 'C1', val: '1', txt: '个人信息类'}],
@@ -151,6 +151,7 @@ describe('脱敏规则页面', () => {
   it('新增可取消；无效正则不派发保存', async () => {
     const f = await open()
     await f.click('新增')
+    expect(f.wrapper.getComponent(RendererDialog).findAllComponents(FieldSelect).map(field => field.props('field'))).toEqual(['type'])
     await f.router.push('/clean')
     expect(f.router.currentRoute.value.path).toBe('/rules')
     const id = [...f.rules.dirtyTracking.pendingCreateIds][0]
@@ -177,8 +178,48 @@ describe('脱敏规则页面', () => {
     await f.click('确定删除')
     await vi.waitFor(() => expect(f.rules.hasUnconfirmedSave).toBe(true))
     expect(f.http.saves).toHaveLength(1)
+    expect(document.body.textContent).toContain('删除结果未知，保留原提交，不会重复删除。')
     await f.router.push('/clean')
     expect(f.router.currentRoute.value.path).toBe('/rules')
+    await f.click('核验原删除结果')
+    await vi.waitFor(() => expect(f.rules.hasUnconfirmedSave).toBe(false))
+    expect(f.rules.rows).toEqual([])
+    expect(f.http.saves).toHaveLength(1)
+    await f.router.push('/clean')
+    expect(f.router.currentRoute.value.path).toBe('/clean')
+  })
+
+  it('confirms the chosen rule and reads the remaining original rule in a new instance', async () => {
+    const f = await open()
+    const records = f.http.records['Base_Desensitization_Rule']!
+    records.push({...records[0], rowid: 'R2', name: '规则二'})
+    await f.rules.refresh()
+    f.action('删除')(f.rules.rows.find(row => row['rowid'] === 'R2')!)
+    await flushPromises()
+    const dialog = f.wrapper.getComponent(RendererDialog)
+    expect(dialog.props('id')).toBe('ruleDeleteDialog')
+    expect(dialog.text()).toContain('确定要删除此脱敏规则吗？')
+    expect(dialog.getComponent(RendererForm).props('contextRowId')).toBe('R2')
+    await f.click('确定删除')
+    await vi.waitFor(() => expect(f.wrapper.findComponent(RendererDialog).exists()).toBe(false))
+    expect(f.http.saves).toMatchObject([{table: 'Base_Desensitization_Rule', deleted: [{rowid: 'R2'}]}])
+    const reopened = await open({}, f.http)
+    expect(reopened.rules.rows.map(row => row['rowid'])).toEqual(['R1'])
+    expect(f.http.saves).toHaveLength(1)
+  })
+
+  it('keeps a hidden original name out of the delete dialog and reports a rejected write', async () => {
+    const f = await open()
+    f.http.hiddenFields['Base_Desensitization_Rule'] = ['name']
+    await f.rules.refresh()
+    f.action('删除')(f.rules.rows[0]!)
+    await flushPromises()
+    expect(f.wrapper.getComponent(RendererDialog).text()).not.toContain('规则一')
+    f.http.rejectNextSave = true
+    await f.click('确定删除')
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Rejected before write'))
+    expect(f.http.saves).toEqual([])
+    expect(f.http.records['Base_Desensitization_Rule']?.map(row => row['rowid'])).toEqual(['R1'])
   })
 })
 

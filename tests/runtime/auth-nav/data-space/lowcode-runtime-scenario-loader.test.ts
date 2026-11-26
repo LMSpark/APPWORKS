@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
+import { DATA_SPACE_DESIGN_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig, ProjectToolResource, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
@@ -45,6 +45,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
   lowcodeHttp: http,
   lowcodeDesignFileUpload: vi.fn(),
   createLowcodeProjectGateways: () => ({ scenarioViews: { readText: mocks.readText } }),
+  readLowcodeRuntimeDatasetPlan: async () => {throw Error('published Plan must not use the legacy file reader')},
   }
 })
 
@@ -114,6 +115,53 @@ function relationFixture(field = 'missing', childModelId = 'CHILD') {
 describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
+
+  it('reopens an independently proved Plan only after a current FileResource read', async () => {
+    const scenarioId = 'PUBLISHED-PLAN'
+    const sourceRevision = 'fnv1a:12345678'
+    const text = JSON.stringify({
+      schemaVersion: 1, kind: 'spark.runtimeDataSetPlan', scenarioId, name: scenarioId, description: '', type: '数据源',
+      savedAt: '2026-11-23T00:00:00.000Z', contentHash: sourceRevision,
+      source: {dataSetId: scenarioId, exportedFrom: 'data-space-design', graphFile: `${scenarioId}.json`},
+      inputParams: [], models: [], modelFields: [], views: [], viewFields: [], relations: [], linkage: {edges: []},
+    })
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+    const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
+    const command = {
+      projectId: 'APP', scenarioId,
+      source: {mode: 'published' as const, sourceRevision: 'manifest-proof', publicationRef: 'r=1;s=1;t=1;m=1', scenarioIds: [scenarioId]},
+      dataset: {scenarioId, fileName: `${scenarioId}.dataset.json`, sha256, sourceRevision},
+    }
+    mocks.readRequestScope.mockReturnValue(scope('published-token', 'APP'))
+    mocks.readTextFile.mockResolvedValue(text)
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: scenarioId, name: scenarioId})
+    mocks.readModelBatch.mockResolvedValue([])
+    mocks.readRelations.mockResolvedValue([])
+    const opened = await loadLowcodeRuntimeScenario(command)
+    try {
+      expect(opened.scenarioId).toBe(scenarioId)
+      expect(mocks.readTextFile).toHaveBeenCalledExactlyOnceWith({
+        appType: 'designfile', customPath: 'DataSet', fileName: command.dataset.fileName,
+      })
+      expect(mocks.readText).not.toHaveBeenCalled()
+      mocks.readSpaceDefinition.mockClear()
+      mocks.readTextFile.mockRejectedValueOnce(new LowcodeApiError(403, 'Plan read denied'))
+      await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('Plan read denied')
+      mocks.readTextFile.mockRejectedValueOnce(new LowcodeApiError(404, 'Plan file missing'))
+      await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('DATASET_PLAN_FILE_MISSING')
+      mocks.readTextFile.mockResolvedValueOnce(`${text} `)
+      await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('Dataset 文件 SHA 不匹配')
+      await expect(loadLowcodeRuntimeScenario({...command, dataset: {...command.dataset, sourceRevision:'fnv1a:88776655'}}))
+        .rejects.toThrow('Dataset contentHash 不匹配')
+      mocks.readTextFile.mockImplementationOnce(async () => {
+        mocks.readRequestScope.mockReturnValue(scope('replacement-token', 'APP'))
+        return text
+      })
+      await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+      expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+      expect(mocks.readTextFile).toHaveBeenCalledTimes(6)
+    } finally {opened.destroy()}
+  })
 
   it('assembles published pagedata from the verified manifest snapshot without reading the working file', async () => {
     const scenarioId = 'PUBLISHED-SCENE'

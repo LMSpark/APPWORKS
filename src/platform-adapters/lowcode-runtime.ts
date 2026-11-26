@@ -803,18 +803,6 @@ function assertProjectFilePath(applicationId:string,customPath:string):string {
   return normalized
 }
 
-/** Read the backend-owned independent Dataset Plan; no upload or version side effect is allowed here. */
-export async function readLowcodeRuntimeDatasetPlan(projectId: string, scenarioId: string): Promise<string | null> {
-  const normalizedProjectId = projectId.trim(), normalizedScenarioId = scenarioId.trim()
-  if (!normalizedProjectId || !normalizedScenarioId) throw new Error('DATASET_PLAN_SCOPE: 应用或场景身份不能为空')
-  const locator = {appType: 'designfile', customPath: 'DataSet', fileName: `${normalizedScenarioId}.dataset.json`} as const
-  return await readScopedRuntimeFile({
-    projectId: normalizedProjectId, locator, staleMessage: 'Dataset Plan 读取身份已失效',
-    readVersion: () => lowcodeApi.design.readFileLastModified(locator),
-    readText: () => lowcodeApi.design.readTextFile(locator),
-  })
-}
-
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')

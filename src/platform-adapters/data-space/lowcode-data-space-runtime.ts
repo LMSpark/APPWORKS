@@ -3,16 +3,15 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceApi } from '@/platform-adapters/api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp,
- readLowcodeRuntimeDatasetPlan } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type PageRuntimeSource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
-import type { DataSet } from '@spark-appworks/spark-data'
-import {parseRuntimeDataSetPlanFile} from '@spark-appworks/spark-data'
+import {DataSet,parseRuntimeDataSetPlanFile} from '@spark-appworks/spark-data'
+import {readRuntimeDataSetPlan} from './runtime-data-set-plan-file'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
@@ -281,10 +280,13 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
   if (command.dataset.scenarioId !== scenarioId || command.dataset.fileName !== `${scenarioId}.dataset.json`) {
    throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: Dataset Plan 身份不一致')
   }
-  const text = await readLowcodeRuntimeDatasetPlan(projectId, scenarioId)
+  const fileDataSet = DataSet.fromJson({scenarioId, tables: {}})
+  const text = await readRuntimeDataSetPlan({scenarioId, dataSet: fileDataSet, assertCurrent})
+   .finally(() => fileDataSet.destroy())
   assertCurrent()
   if (text === null) throw new Error('DATASET_PLAN_FILE_MISSING: 后端独立 Dataset 文件不存在')
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  assertCurrent()
   const sha256 = [...new Uint8Array(bytes)].map(value => value.toString(16).padStart(2, '0')).join('')
   if (sha256 !== command.dataset.sha256) throw new Error('PAGE_PUBLICATION_DATASET_PROOF_CONFLICT: Dataset 文件 SHA 不匹配')
   const plan = parseRuntimeDataSetPlanFile(text, scenarioId)

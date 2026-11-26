@@ -120,6 +120,7 @@ export class DataViewLocalQuery {
     return {
       rows:selected.rows,
       total:input.serverTotal??selected.total,
+      ...(input.serverTotal === undefined ? {} : {countReported: true}),
       rowKey,
       assertIdentity,
       fieldAccess:(key,field)=>{

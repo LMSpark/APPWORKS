@@ -214,6 +214,7 @@ it('loads PDF history through the formal scenario assembler and the exported rea
   await view.refresh()
   expect(view.loadingError).toBeNull();expect(view.rows).toMatchObject([{inspectJobId:'JOB',requestId:'REQ'}])
   expect(view.total).toBe(7);expect(http.calls).toHaveLength(1)
+  expect(view.countReported).toBe(true)
   expect(view.captureReadRow(view.rows[0]!,['inspectJobId','requestId'])).not.toThrow()
   expect(view.fieldAccess(view.rows[0]!,'status').write).toBe('denied')
  }finally{dataSet.destroy()}

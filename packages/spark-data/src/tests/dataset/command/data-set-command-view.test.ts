@@ -271,6 +271,7 @@ describe('DataSet command view helper', () => {
     }})
     await view.refresh()
     expect(view.rows).toHaveLength(20);expect(view.total).toBe(45)
+    expect(view.readSnapshot()).toMatchObject({page: 2, total: 45, countReported: true})
     expect(view.rows[0]).not.toHaveProperty('private')
     expect(view.fieldAccess(view.rows[0]!,'caption').write).toBe('denied')
     ds.destroy()
@@ -284,6 +285,26 @@ describe('DataSet command view helper', () => {
     }})
     await view.refresh()
     expect(view.rows).toHaveLength(0);expect(view.loadingError?.message).toContain('scope changed')
+    expect(view.countReported).toBeUndefined()
     ds.destroy()
+  })
+
+  it.each([
+    {mode: 'service page', reported: true},
+    {mode: 'local rows', reported: undefined},
+  ])('retains count provenance for an empty $mode', async ({reported}) => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PAGE', tables: {}})
+    try {
+      const resource = {resourceType: 'service-query', resourceId: 'empty-history'}
+      const view = ensureDataSetResourceView({dataSet, tableName: 'History', resource, columns: [{name: 'id', primary: true}]})
+      const guard = () => undefined
+      if (reported) bindDataSetReadonlyCommandQuery(view, {resource, guard, loadPage: async () => ({rows: [], total: 0})})
+      else bindDataSetReadonlyCommandQuery(view, {resource, guard, loadRows: async () => []})
+
+      expect(await view.requestRefresh()).toMatchObject({success: true})
+      expect(view.rows).toEqual([])
+      expect(view.total).toBe(0)
+      expect(view.countReported).toBe(reported)
+    } finally {dataSet.destroy()}
   })
 })

@@ -49,7 +49,9 @@ import {useRoute,onBeforeRouteLeave,onBeforeRouteUpdate} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {readLowcodeExecutionProject} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {LowcodeWorkflowDefinition} from '@/platform-adapters/resources/structured-config/workflow-definition/resource'
+import {resolveExecutionProjectId, APPLICATION_CATALOG_PROJECT_ID} from '@/services/application-scope'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
 import WorkflowTriggerCondition from './workflow-trigger-condition.vue'
 import WorkflowDesign from '../design/ui/workflow-design-page.vue'
@@ -79,6 +81,7 @@ const selectionState = computed(() => {
   catch(cause){return{id:'',error:cause instanceof Error?cause.message:String(cause)}}
 })
 const selected=computed(()=>selectionState.value.id)
+const projectId = computed(() => resolveExecutionProjectId(route.path))
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeWorkflowDefinition.catalogMetaName, 'default', scenarioId.value))
 const editKey=computed(()=>buildDataViewKey(LowcodeWorkflowDefinition.catalogMetaName,'edit',scenarioId.value))
@@ -126,37 +129,51 @@ function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){
 function cancelDefinition():void{if(definitionLocked.value)return;try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function saveDefinition():Promise<void>{
  if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}
- const target=editor(),ds=session.runtime?.getDataSet(scenarioId.value),id=editTarget.value,own=generation
+ const target=editor(),ds=session.runtime?.getDataSet(scenarioId.value),catalog=view.value,id=editTarget.value,own=generation
  if(editBusy.value||!editReady.value||!target||!ds)return
  if(target.queryContext['definitionId']!==id||target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id){error.value='工作流定义编辑目标已变化';return}
  editBusy.value=true;error.value=''
  let saved=false
- try{const result=await ds.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'定义保存未确认');saved=true;await view.value?.refresh();if(view.value?.loadingError)throw view.value.loadingError}
+ try{
+  const result=await ds.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]})
+  if(!result.success)throw Error(result.message??'定义保存未确认')
+  saved=true
+  if(!active||own!==generation)return
+  await catalog?.refresh()
+  if(catalog?.loadingError)throw catalog.loadingError
+ }
  catch(cause){if(active&&own===generation)error.value=(saved?'定义保存已确认，目录刷新失败：':'')+(cause instanceof Error?cause.message:String(cause))}
  finally{if(active&&own===generation){editBusy.value=false;revision.value++}}
 }
 function closeDesign(open:boolean):void{if(!open&&!designPending.value)designTarget.value=''}
 function discardDesign():void{if(designPage.value?.busy||designPage.value?.unconfirmed)return;if(designPage.value?.discardChanges()===true)closeDesign(false)}
-watch(scenarioId, async id => {
+watch([scenarioId, projectId], async ([id, project]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
+  designTarget.value=''; editTarget.value=''; editReady.value=false; editBusy.value=false
+  triggerOpen.value=false; conditionEditing.value=false
   unsubscribe?.(); view.value = undefined; session.dispose()
   try {
     if (!id) throw new Error('数据工作流入口缺少导航绑定的数据空间ID')
-    const dataSet = await LowcodeWorkflowDefinition.loadCatalog(id)
-    if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = session.acquire({pageId: 'workflow-definition-page', scenarioIds: [id], targetId: id,
-      loadScenario: async () => dataSet})
+    if (!project || project === APPLICATION_CATALOG_PROJECT_ID) throw Error('数据工作流入口缺少正式应用身份')
+    const execution = readLowcodeExecutionProject()
+    if (project !== execution.projectId) throw Error('工作流目录导航与当前执行应用不一致')
+    const current = session.acquire({pageId: 'workflow-definition-page', scenarioIds: [id], targetId: `${project}:${id}`,
+      loadScenario: scenario => LowcodeWorkflowDefinition.loadCatalog(scenario)})
     await current.load()
     if (!active || own !== generation || !session.isCurrent(current)) return
+    execution.assertCurrent()
+    const dataSet = current.getDataSet(id)
     const catalog = current.resolveView(catalogKey.value)
-    if (!catalog) {session.dispose(); throw Error('工作流目录视图缺失')}
+    if (!dataSet || !catalog) throw Error('工作流目录视图缺失')
     view.value = catalog
     const changed=()=>revision.value++
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,editingChanged:changed,rowsChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
     if (active && own === generation && session.isCurrent(current)) {sparkProvide(SparkComponent.PAGE_RUNTIME, current); ready.value = true}
     dataSet.triggerAutoLoad()
-  } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
+  } catch (cause) {
+    if (active && own === generation) {session.dispose(); error.value = cause instanceof Error ? cause.message : String(cause)}
+  }
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})

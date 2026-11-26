@@ -207,6 +207,76 @@ describe('维度规则页面入口与生命周期', () => {
     expect(f.instance.isDirty).toBe(false)
   })
 
+
+  async function beginRuleDeletion(f: Awaited<ReturnType<typeof open>>) {
+    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === keys.rule)
+    const row = f.rule.rows.find(item => item['rowid'] === 'R1')
+    const action = table?.props('actions')?.children?.find(item =>
+      typeof item === 'object' && item !== null && item.props?.['label'] === '删除')
+    if (!row || !action || typeof action !== 'object' || typeof action.props?.['onClick'] !== 'function') {
+      throw new Error('缺少 R1 原删除入口')
+    }
+    action.props['onClick'](row)
+    await flushPromises()
+    const confirm = Array.from(document.querySelectorAll<HTMLButtonElement>('.el-message-box__btns button')).reverse()
+      .find(button => button.textContent?.trim() === '确定')
+    if (!confirm) throw new Error('缺少删除确认按钮')
+    confirm.click()
+    await flushPromises()
+  }
+
+  it('allows original child receipt with another rule draft', async () => {
+    const f = await open({existing: true, prepare: fixture => {
+      const records = fixture.http.records['Bil_Dimension_Rule']!
+      records.push({...records[0], rowid: 'R2', rule_code: 'second', rule_name: '另一个规则'})
+    }})
+    await f.rule.refresh()
+    f.http.failAfterWrite = true
+    await beginRuleDeletion(f)
+    await vi.waitFor(() => expect(f.condition.hasUnconfirmedSave).toBe(true))
+    f.rule.updateEditingValue('R2', 'rule_name', '后来修改')
+    await f.click('核验原删除结果')
+    expect(f.wrapper.text()).toContain('原删除阶段已确认')
+    expect(f.condition.hasUnconfirmedSave).toBe(false)
+    expect(f.result.hasUnconfirmedSave).toBe(false)
+    expect(f.rule.getEditingRow('R2')?.['rule_name']).toBe('后来修改')
+    expect(f.rule.dirtyTracking.isPendingDelete('R1')).toBe(true)
+    expect(f.http.records['Bil_Dimension_Rule']?.map(row => row['rowid'])).toEqual(['R1', 'R2'])
+    expect(f.http.saves).toHaveLength(2)
+  })
+
+  it('requires a fresh deletion readback when its own read was replaced', async () => {
+    const f = await open({existing: true})
+    let release!: () => void
+    let waiting = false
+    const gate = new Promise<void>(done => {release = done})
+    f.http.beforeDefinitionRead = async table => {
+      if (table !== 'Bil_Dimension_Rule_Condition' || f.http.saves.length !== 3 || waiting) return
+      waiting = true
+      await gate
+    }
+    try {
+      await beginRuleDeletion(f)
+      await vi.waitFor(() => expect(waiting).toBe(true))
+      expect(f.http.saves).toHaveLength(3)
+      await f.condition.refresh()
+      expect(f.condition.requestState).toBe(RequestState.Loaded)
+      release()
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('删除已提交，但回读失败'))
+      expect(f.wrapper.text()).not.toContain('规则已删除并回读确认')
+      delete f.http.beforeDefinitionRead
+      await f.click('重试删除回读')
+      expect(f.wrapper.text()).toContain('规则已删除并回读确认')
+      expect(f.http.saves).toHaveLength(3)
+      expect(f.http.records['Bil_Dimension_Rule']).toHaveLength(0)
+      expect(f.http.records['Bil_Dimension_Rule_Condition']).toHaveLength(0)
+      expect(f.http.records['Bil_Dimension_Rule_Result']).toHaveLength(0)
+    } finally {
+      release()
+      delete f.http.beforeDefinitionRead
+    }
+  })
+
   it('删除回执中断后页面保留核验入口并阻止离开', async () => {
     const f = await open({existing: true})
     const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey') === keys.rule)

@@ -69,8 +69,8 @@ async function reload(state: DimensionRuleDeletion, requireDeleted: boolean): Pr
   state.phase = 'reload'
   for (const target of state.targets) {
     assertCurrent(state)
-    await target.view.refresh()
-    if (target.view.loadingError) throw target.view.loadingError
+    const result = await target.view.requestRefresh()
+    if (result.refreshStatus !== 'read') throw new Error(result.message ?? '删除回读未完成')
   }
   assertCurrent(state)
   if (requireDeleted) {
@@ -126,7 +126,7 @@ export async function submitRuleDeletion(state: DimensionRuleDeletion): Promise<
 
 export async function verifyRuleDeletion(state: DimensionRuleDeletion): Promise<void> {
   if (state.phase !== 'verify' || !state.failure) throw new Error('没有本次待核验删除')
-  assertOwned(state)
+  assertCurrent(state)
   const unresolved = pending(state)
   if (!unresolved.length || unresolved.some(target => !target.view.hasUnconfirmedSaveFor(target.ids, state.failure))) {
     state.phase = 'broken'

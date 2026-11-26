@@ -152,12 +152,13 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
   try{if(!isCurrent())throw Error('RECORD_EDIT_STALE: 原待提交记录已变化');view.discardPendingChanges([id]);finish('cancelled')}catch(cause){message(cause)}
  }
  async function verifyOriginalReceipt():Promise<void>{
-  if(!active||closed.value||busy.value||!ownUnconfirmed.value||!journalOwnView.value)return
+  const batchId=saveJournal.value.batchId
+  if(!sameContext()||busy.value||!ownUnconfirmed.value||!journalOwnView.value||!batchId)return
   busy.value=true;error.value=''
   try{
-   const projection=await dataSet.verifySaveJournal()
+   const result=await dataSet.verifySaveJournalAndRead({batchId,receiptViews:[view],readbackViews:[]})
    if(!sameContext())return
-   const outcome=projection.views.find(item=>item.tableName===view.tableName&&item.viewId===view.viewId
+   const outcome=result.journal.views.find(item=>item.tableName===view.tableName&&item.viewId===view.viewId
     &&item.ids.length===1&&item.ids[0]===id)
    if(outcome?.state==='applied')finish('saved')
    else error.value=outcome?.originalError?.message??'原保存结果仍未确认'

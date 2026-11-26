@@ -176,6 +176,26 @@ it('does not verify its original unknown after the caller changes record identit
  expect(f.http.reads).toHaveLength(reads);expect(f.http.saves).toHaveLength(1)
  expect(f.view.hasUnconfirmedSaveFor(['A'])).toBe(true);expect(e.finished).toEqual([])
 })
+
+it.each(['record', 'view', 'query'] as const)('refuses the explicit receipt read after the original %s changes', async kind => {
+ const f = await fixture(), e = editor(f)
+ f.view.updateEditingValue('A', 'caption', 'written once')
+ f.http.failAfterWrite = true
+ await e.state.save()
+ expect(e.state.ownUnconfirmed.value).toBe(true)
+ const batchId = f.ds.saveJournal.batchId
+ const reads = f.http.reads.length
+ if (kind === 'record') e.id.value = 'B'
+ if (kind === 'view') e.key.value = 'EDIT@Records@replacement'
+ if (kind === 'query') f.view.queryContext = {target: 'replacement'}
+ await e.state.verifyOriginalReceipt()
+ expect(f.http.reads).toHaveLength(reads)
+ expect(f.http.saves).toHaveLength(1)
+ expect(f.ds.saveJournal).toMatchObject({batchId, views: [{ids: ['A'], state: 'unknown'}]})
+ expect(f.view.hasUnconfirmedSaveFor(['A'])).toBe(true)
+ expect(e.finished).toEqual([])
+})
+
 it('does not read saved creation permissions after its original query context changes',async()=>{
  const f=await fixture();await f.view.addRowWithIdentity({field:'rowid',value:'C'},{caption:'new',extra:'original'})
  const e=editor(f,true,'C')

@@ -7,7 +7,9 @@ import {defineComponent, h, reactive, ref, isRef, type Ref} from 'vue'
 import {fixture} from './flow-design-data.fixture'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {ScenarioViewConfig, type PageRuntime} from '@spark-appworks/spark-project-model'
+import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
+import {readRepositoryScenarioText} from '@/platform-adapters/resources/repository/scenarios/resource'
 import {FLOW_DESIGN_SCENARIO_ID, prepareFlowDesignViews, saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
@@ -89,6 +91,7 @@ beforeEach(() => {
 afterEach(() => {
   wrappers.splice(0).forEach(item => item.unmount())
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
 })
 
 async function mountDesign(flowModelId: string | Ref<string> = 'FM-1'): Promise<VueWrapper> {
@@ -107,6 +110,29 @@ async function mountDesign(flowModelId: string | Ref<string> = 'FM-1'): Promise<
 }
 
 describe('flow design page mount', () => {
+  it('consumes the registered design model and views and rejects the directory file under its identity', async () => {
+    vi.stubEnv('DEV', false)
+    const design = getSystemScenarioResource('flowDesign')
+    const directory = getSystemScenarioResource('flowModelList')
+    const directoryConfig = new ScenarioViewConfig(directory.scenarioId,
+      await readRepositoryScenarioText(directory, () => undefined))
+    expect(directoryConfig.toJSON()['tables']).toMatchObject({WFM_FLOW_MODLE:{
+      modelBinding:{modelId:'87F0EF6AD1B64D67FFE597E7E3285994p000'}, views:{default:expect.any(Object)},
+    }})
+    const config = new ScenarioViewConfig(design.scenarioId, await readRepositoryScenarioText(design, () => undefined))
+    const state = await fixture(false, false, config)
+    expect(state.ds.getTable('WFM_FLOW_MODLE')?.modelBinding?.modelId).toBe('6E462C4A39EE0D96F4D1A28FFE887C89p000')
+    expect(state.ds.getView('WFM_FLOW_MODLE', 'fileTarget')).toBeDefined()
+    const views = await prepareFlowDesignViews(state.runtime, 'FM-1')
+    expect(state.runtime.resolveView(views.nodeViewKey)).toBe(state.nodes)
+    expect(state.runtime.resolveView(views.workFormViewKey)).toBe(state.forms)
+    expect(state.runtime.resolveView(views.edgeViewKey)).toBe(state.ds.getView('WFM_NODE_REALATION'))
+
+    const swapped = await readRepositoryScenarioText({...design, path:directory.path}, () => undefined)
+    const sameIdentity = new ScenarioViewConfig(design.scenarioId, swapped)
+    await expect(fixture(false, false, sameIdentity)).rejects.toThrow('场景表 WFM_FLOW_MODLE 未解析到唯一正式模型')
+  })
+
   it('selects only rows issued by the active node and edge views', async () => {
     const state = await fixture(false, false)
     state.http.records['WFM_NODE_REALATION'] = [

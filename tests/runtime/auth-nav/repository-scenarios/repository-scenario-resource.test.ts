@@ -1,10 +1,10 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
+import {getPublicScenarioResource, resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {readRepositoryScenarioText} from '@/platform-adapters/resources/repository/scenarios/resource'
+import registeredScenarios from '../../../../config/pages/system-scenarios.json'
 
-const applicationId = 'D99A1DCE9894698799101EFD70F8FC76'
 const scenarioIds = [
   '8D1AB14DD8277F3E7017CD38F77B09FD',
   '90A82E287930A234FEC3E687C94A93EA',
@@ -18,6 +18,41 @@ const scenarioIds = [
 ]
 
 describe('repository-backed system scenario resources', () => {
+  it.each(registeredScenarios.scenarios)('bundles registered $name under its formal scenario identity', async entry => {
+    vi.stubEnv('DEV', false)
+    const host = vi.fn(() => {throw Error('bundled repository scenarios must not query the development host')})
+    vi.stubGlobal('fetch', host)
+    const resource = entry.scope === 'public'
+      ? getPublicScenarioResource('platformLogin')
+      : resolveSystemScenarioResource(entry.scenarioId)
+    expect(resource).toMatchObject({name: entry.name, scenarioId: entry.scenarioId, resourceId: entry.resourceId, path: entry.path})
+    if (!resource) throw Error(`Missing repository scenario ${entry.name}`)
+    const text = await readRepositoryScenarioText(resource, () => undefined)
+    const config = new ScenarioViewConfig(entry.scenarioId, text)
+    expect(config.scenarioId).toBe(entry.scenarioId)
+    expect(host).not.toHaveBeenCalled()
+    if (entry.scope === 'public') expect(resolveSystemScenarioResource(entry.scenarioId)).toBeNull()
+  })
+
+  it('refuses a registered scenario pointing to a file absent from the build', async () => {
+    vi.stubEnv('DEV', false)
+    const resource = resolveSystemScenarioResource(scenarioIds[0]!)!
+    await expect(readRepositoryScenarioText({...resource, path: 'config/pages/unregistered/pagedata.json'}, () => undefined))
+      .rejects.toThrow('REPOSITORY_RESOURCE_FILE_MISSING')
+  })
+
+  it.each([
+    {label: 'malformed JSON', text: '{', message: /JSON/},
+    {label: 'another scenario', text: '{"scenarioId":"OTHER","tables":{}}', message: /不属于当前场景/},
+    {label: 'invalid tables', text: '{"scenarioId":"__SCENARIO__","tables":[]}', message: /tables/},
+  ])('rejects host text with $label at the scenario config boundary', async ({text, message}) => {
+    const scenarioId = scenarioIds[0]!
+    const resource = resolveSystemScenarioResource(scenarioId)!
+    await stubHostResponses([{resourceId: resource.resourceId, scenarioId, text}])
+    const content = await readRepositoryScenarioText(resource, () => undefined)
+    expect(() => new ScenarioViewConfig(scenarioId, content)).toThrow(message)
+  })
+
   it.each(scenarioIds)('reads %s through the repository file DataView', async scenarioId => {
     const resource = resolveSystemScenarioResource(scenarioId)
     expect(resource).not.toBeNull()

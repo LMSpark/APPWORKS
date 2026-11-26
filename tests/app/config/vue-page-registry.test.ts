@@ -2,6 +2,7 @@ import { defineComponent, h, ref } from 'vue'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import vuePages from '../../../config/navigation/vue-pages.json'
 
 import {
   buildPreAuthNavTree,
@@ -20,6 +21,15 @@ afterEach(() => {
 })
 
 describe('Vue page registry', () => {
+  it('projects every registered route into the component map without losing its source', async () => {
+    const components = await buildComponentMap()
+    const entries = parseVuePagesConfig(vuePages).pages
+    expect(Object.keys(components).sort()).toEqual(entries.map(page => page.path).sort())
+    for (const entry of entries) {
+      expect(getVuePageEntry(entry.path)).toMatchObject({scope: entry.scope, source: entry.source, load: expect.any(Function)})
+    }
+  })
+
   it('normalizes an explicit dataSpaceId and leaves an omitted one unset', () => {
     const config = parseVuePagesConfig({
       protocol: 'spark-appworks.vue-pages',

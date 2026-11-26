@@ -1,24 +1,34 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, reactive} from 'vue'
-import ElementPlus from 'element-plus'
-import {DataSet, buildDataViewKey, isSparkNode} from '@spark-appworks/spark-data'
+import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
+import {DataSet, bindDataSetReadonlyCommandQuery, buildDataViewKey, ensureDataSetResourceView, isSparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererTable, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import detailRule from '@/views/features/workflow/flow-runtime/detail/ui/tool/rule.json'
 import StepTable from '@/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue'
+import {FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-adapters/resources/system/workflow/manage'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
 const fields = ['rowid','WFOBJID','STEPTYPE','StepState','description','STARTTIME','SendNodeModelId','ReceiveNodeModelId']
 const instances: Array<{wrapper: VueWrapper; runtime: PageRuntime}> = []
-beforeEach(() => {registerAllRenderers(); vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})})
-afterEach(() => {instances.splice(0).forEach(({wrapper, runtime}) => {wrapper.unmount(); runtime.dispose()}); vi.unstubAllGlobals()})
+const defaultStubs = config.global.stubs
+beforeEach(() => {
+  config.global.stubs = {...defaultStubs}
+  Reflect.deleteProperty(config.global.stubs, 'el-table')
+  Reflect.deleteProperty(config.global.stubs, 'el-table-column')
+  registerAllRenderers(); vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+})
+afterEach(() => {
+  instances.splice(0).forEach(({wrapper, runtime}) => {wrapper.unmount(); runtime.dispose()})
+  config.global.stubs = defaultStubs; vi.unstubAllGlobals()
+})
 
 async function fixture(hidden = false) {
-  const ds = DataSet.fromJson({scenarioId: 'WORK', tables: {Steps: {modelBinding: {modelId: 'Steps-model', modelName: 'Steps'},
+  const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {Steps: {modelBinding: {modelId: 'Steps-model', modelName: 'Steps'},
     columns: fields.map(name => ({name, type: 'string' as const, ...(name === 'rowid' ? {isPrimaryKey: true} : {})})),
     views: {default: {autoLoad: false, queryContext: {WFOBJID: 'WF-1'}, filterExpression: {logic: 'and', filters: [
       {field: 'WFOBJID', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'WFOBJID'}},
@@ -36,13 +46,20 @@ async function fixture(hidden = false) {
   const source = ds.getView('Steps')!, api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'fixture', headers: {}})})
   api.bindModelView(source, buildFormalModels({Steps: fields})[0]!)
   await source.refresh()
-  const runtime = new PageRuntime({pageId: 'step-detail', scenarioIds: ['WORK'], loadScenario: async () => ds})
+  const resource = {resourceType: 'logical-view', resourceId: 'application-dictionary:流程步骤状态'}
+  const states = ensureDataSetResourceView({dataSet: ds, tableName: 'AppendStepStates', resource,
+    columns: [{name: 'rowid', primary: true}, {name: 'value'}, {name: 'label'}]})
+  bindDataSetReadonlyCommandQuery(states, {resource, guard: () => {}, loadRows: async () => [{rowid: '0', value: '0', label: '未签收'}]})
+  await states.refresh()
+  const runtime = new PageRuntime({pageId: 'step-detail', scenarioIds: [FLOW_WORKBENCH_SCENARIO_ID], loadScenario: async () => ds})
   await runtime.load()
-  const options = reactive<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided: boolean}>({viewKey: buildDataViewKey('Steps','default','WORK'), receivedNodeId: 'N1', showVoided: false})
+  const options = reactive<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided: boolean}>({viewKey: buildDataViewKey('Steps','default',FLOW_WORKBENCH_SCENARIO_ID), receivedNodeId: 'N1', showVoided: false})
   const rule = detailRule[0]?.children.find(node => node.id === 'stepDrilldowns')?.props.stepTable
   if (!isSparkNode(rule)) throw Error('运行详情缺少钻取表规则')
   const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'step-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(StepTable, {...options, rule})}})
-  const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
+  const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()],
+    components: {'el-table': ElTable, 'el-table-column': ElTableColumn},
+    stubs: {SparkComponentRenderer: false}}})
   instances.push({wrapper, runtime}); await flushPromises(); await flushPromises()
   return {ds, source, http, runtime, wrapper, options}
 }
@@ -52,7 +69,7 @@ it('binds a native derived view, preserves the source scope and switches voided-
   const rendered = wrapper.findComponent(RendererTable)
   expect(rendered.exists()).toBe(true)
   const key = rendered.props('dataViewKey') as string
-  expect(key).toMatch(/^WORK@Steps@/)
+  expect(key.startsWith(`${FLOW_WORKBENCH_SCENARIO_ID}@Steps@`)).toBe(true)
   expect(runtime.resolveView(key)?.rows.map(row => row['rowid'])).toEqual(['A'])
   options.showVoided = true; await flushPromises()
   expect(runtime.resolveView(key)?.rows.map(row => row['rowid'])).toEqual(['A','B'])
@@ -66,6 +83,21 @@ it('keeps original field visibility in the standard bound table', async () => {
   const {wrapper} = await fixture(true)
   expect(wrapper.findComponent(RendererTable).exists()).toBe(true)
   expect(wrapper.text()).not.toContain('收到的正常步骤')
+})
+
+it('routes start-time header sorting through the derived query view only', async () => {
+  const {runtime, source, wrapper, http} = await fixture()
+  const table = wrapper.getComponent(RendererTable)
+  const header = table.findAll('th').find(item => item.text() === '开始时间')
+  expect(header?.classes()).toContain('is-sortable')
+  await header?.trigger('click')
+  await flushPromises()
+  const key = table.props('dataViewKey') as string
+  expect(runtime.resolveView(key)?.sortExpression).toEqual([{field: 'STARTTIME', direction: 'asc'}])
+  expect(http.reads.at(-1)).toMatchObject({table: 'Steps', data: {
+    Table: [{Fields: expect.arrayContaining([expect.objectContaining({Name: 'STARTTIME', OrderType: 'ascending'})])}],
+  }})
+  expect(source.sortExpression).toBeUndefined()
 })
 
 it('withdraws the drilldown when its original source query is retargeted', async () => {

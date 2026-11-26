@@ -58,13 +58,14 @@ export async function prepareFlowRunDetailPage(
   if (!monitor) throw new Error('流程运行详情场景尚未装配')
   const workbench = command.runtime.getDataSet(FLOW_WORKBENCH_SCENARIO_ID)
   if (!workbench) throw new Error('运行详情缺少运行工作台伙伴场景')
+  const stepStates = workbench.getView('AppendStepStates', 'default')
   if (wfid) {
     const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
     const waitingView = requireView(workbench.getView(WAITING_MODEL, 'default'), WAITING_MODEL)
     stepView.queryContext = {...stepView.queryContext, WFOBJID: wfid}
     waitingView.queryContext = {...waitingView.queryContext, wfid}
     command.assertCurrent?.()
-    await Promise.all([stepView.refresh(), waitingView.refresh()])
+    await Promise.all([stepView.refresh(), waitingView.refresh(), stepStates?.refresh()])
     command.assertCurrent?.()
     const failed = [stepView, waitingView].find(item => item.loadingError)
     if (failed?.loadingError) throw failed.loadingError

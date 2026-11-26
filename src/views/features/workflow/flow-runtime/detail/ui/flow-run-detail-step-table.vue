@@ -3,7 +3,7 @@
 职责：按需派生原步骤查询视图，标准表格消费原生过滤、请求状态及字段权限。
 -->
 <template>
-  <RendererSection :error="error" :bordered="false" :grid-columns="1">
+  <RendererSection :error="error || (statusError ?? '')" :bordered="false" :grid-columns="1">
     <SparkComponentRenderer v-if="detailView" :config="tableConfig" />
   </RendererSection>
 </template>
@@ -13,7 +13,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, useId, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, type DataView, type DataViewFilterTree, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererSection, SparkComponentRenderer, useSparkComponent} from '@spark-appworks/spark-component'
 
-const props = defineProps<{rule: SparkNode; viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided?: boolean}>()
+const props = defineProps<{rule: SparkNode; viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided?: boolean; statusError?: string}>()
 const {sparkConsume} = useSparkComponent({type: 'flow-run-detail-step-table'})
 const detailView = shallowRef<DataView>(), detailViewKey = ref(''), error = ref('')
 const viewId = `step-detail-${useId()}`

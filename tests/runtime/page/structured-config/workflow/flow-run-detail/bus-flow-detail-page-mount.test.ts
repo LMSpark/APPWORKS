@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest'
-import {flushPromises, mount} from '@vue/test-utils'
-import ElementPlus from 'element-plus'
+import {config, flushPromises, mount} from '@vue/test-utils'
+import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {RendererDialog, RendererTable, RendererTabs, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
@@ -22,19 +22,25 @@ vi.mock('@/views/features/workflow/flow-runtime/detail/ui/tool/style.css?raw', a
   return {default: readFileSync('src/views/features/workflow/flow-runtime/detail/ui/tool/style.css', 'utf8')}
 })
 
+const defaultStubs = config.global.stubs
 beforeEach(() => {
   loadScenario.mockClear()
+  config.global.stubs = {...defaultStubs}
+  Reflect.deleteProperty(config.global.stubs, 'el-table')
+  Reflect.deleteProperty(config.global.stubs, 'el-table-column')
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {config.global.stubs = defaultStubs; vi.unstubAllGlobals()})
 
 it.each([
-  {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page'},
-  {name: 'runtime detail', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page'},
-  {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page'},
-])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix}) => {
+  {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page', denyDictionary: false},
+  {name: 'runtime detail', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page', denyDictionary: false},
+  {name: 'runtime detail with state dictionary denied', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page', denyDictionary: true},
+  {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page', denyDictionary: false},
+])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix, denyDictionary}) => {
+  const runtimeDetail = component === FlowRunDetailPage
   const monitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
-  const designSource = name === 'runtime detail' ? await designFixture(false, false) : undefined
+  const designSource = runtimeDetail ? await designFixture(false, false) : undefined
   if (designSource) {
     designSource.http.records['WFM_FLOW_NODE']?.push({rowid: 'N2', FLOWID: 'FM-1', TITLE: 'Target', TYPEID: 11})
     designSource.http.records['WFM_NODE_REALATION'] = [{rowid: 'E1', FLOWID: 'FM-1', UpNodeID: 'N1', NextNodeID: 'N2'}]
@@ -42,19 +48,27 @@ it.each([
   const design = designSource?.ds ?? DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
   const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
   const instance = {rowid: 'WF-1', WFMID: 'FM-1', TITLE: '流程实例摘要', status: '待办理', BusTblObjID: 'BUS-1'}
-  function bind(dataSet: DataSet, tableName: string, row?: Record<string, string>) {
+  function bind(dataSet: DataSet, tableName: string, value?: Record<string, string> | Record<string, string>[]) {
     const resource = {resourceType: 'logical-view', resourceId: tableName}
-    const columns = Object.keys(row ?? {rowid: ''}).map(name => ({name, primary: name === 'rowid'}))
+    const rows = Array.isArray(value) ? value : value ? [value] : []
+    const columns = Object.keys(rows[0] ?? {rowid: ''}).map(name => ({name, primary: name === 'rowid'}))
     const view = ensureDataSetResourceView({dataSet, tableName, resource, columns})
-    bindDataSetReadonlyCommandQuery(view, {resource, guard: () => {}, loadRows: async () => row ? [row] : []})
+    bindDataSetReadonlyCommandQuery(view, {resource, guard: () => {}, loadRows: async () => {
+      if (tableName === 'AppendStepStates' && denyDictionary) throw Error('当前人不可读')
+      return rows
+    }})
   }
-  bind(monitor, 'View_FlowObjList', name === 'runtime detail' ? instance : {...instance, rowid: 'WF-OTHER', TITLE: '另一流程', BusTblObjID: 'BUS-OTHER'})
+  bind(monitor, 'View_FlowObjList', runtimeDetail ? instance : {...instance, rowid: 'WF-OTHER', TITLE: '另一流程', BusTblObjID: 'BUS-OTHER'})
   bind(monitor, 'WFOBJ_FLOW', instance)
-  if (name !== 'runtime detail') bind(design, 'WFM_WORKFORM')
+  if (!runtimeDetail) bind(design, 'WFM_WORKFORM')
   bind(monitor, 'Dict_state')
-  bind(workbench, 'WFOBJ_FLOW_Waiting')
+  bind(workbench, 'WFOBJ_FLOW_Waiting', [{rowid: 'W1', wfid: 'WF-1', StepID: 'S1', NodeID: 'N1'},
+    {rowid: 'W2', wfid: 'WF-OTHER', StepID: 'S2', NodeID: 'N1'}])
   bind(workbench, 'WFOBJ_FLOW_FORM')
-  bind(workbench, 'WFOBJ_FLOW_RELATIONLINE_STEP')
+  const step = {rowid: 'S1', WFOBJID: 'WF-1', StepState: '0', description: '待处理的正式步骤',
+    STARTTIME: '2026-11-26 08:00:00', ReceiveNodeModelId: 'N1', SendNodeModelId: 'N2'}
+  bind(workbench, 'WFOBJ_FLOW_RELATIONLINE_STEP', [step, {...step, rowid: 'S2', description: '仅另一实例待办'}])
+  bind(workbench, 'AppendStepStates', {rowid: '0', value: '0', label: '未签收'})
   bind(workbench, 'WFOBJ_FLOW', instance)
   const scenarios = new Map([[FLOW_MONITOR_SCENARIO_ID, monitor], [FLOW_DESIGN_SCENARIO_ID, design], [FLOW_WORKBENCH_SCENARIO_ID, workbench]])
   loadScenario.mockImplementation(async ({scenarioId}: {scenarioId: string}) => scenarios.get(scenarioId))
@@ -67,11 +81,13 @@ it.each([
     scope: 'application', nodeId, pageId: nodeId, path, title: name, component, explicitQuery: query,
   })
   registerAllRenderers()
-  const wrapper = mount(withTestPageService(page.view, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
+  const wrapper = mount(withTestPageService(page.view, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()],
+    components: {'el-table': ElTable, 'el-table-column': ElTableColumn},
+    stubs: {SparkComponentRenderer: false}}})
   try {
     await flushPromises()
     expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
-    if (name === 'runtime detail') {
+    if (runtimeDetail) {
       const pageRoot = wrapper.get('.spark-page-container')
       const instanceId = pageRoot.attributes('data-page')
       expect(instanceId).toBeTruthy()
@@ -90,6 +106,18 @@ it.each([
       expect(drilldown?.getComponent(FlowRunDetailStepTable).props()).toMatchObject({
         viewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`, receivedNodeId: 'N1', showVoided: false,
       })
+      const receivedSteps = drilldown?.getComponent(FlowRunDetailStepTable)
+      const stepTable = receivedSteps?.getComponent(RendererTable)
+      const rows = stepTable?.findAll('.el-table__row') ?? []
+      expect(rows.map(row => row.text())).toEqual(expect.arrayContaining([expect.stringContaining('待处理的正式步骤'), expect.stringContaining('仅另一实例待办')]))
+      expect(rows.find(row => row.text().includes('待处理的正式步骤'))?.text()).toContain('待办')
+      expect(rows.find(row => row.text().includes('仅另一实例待办'))?.find('.el-tag').exists()).toBe(false)
+      if (denyDictionary) {
+        expect(receivedSteps?.text()).toContain('流程步骤状态字典读取失败')
+        expect(stepTable?.text()).not.toContain('未签收')
+      } else {
+        expect(stepTable?.text()).toContain('未签收')
+      }
       drilldown?.getComponent(RendererTabs).vm.$emit('update:modelValue', 'sent')
       await flushPromises()
       expect(drilldown?.findAllComponents(FlowRunDetailStepTable).some(table => table.props('sentNodeId') === 'N1')).toBe(true)

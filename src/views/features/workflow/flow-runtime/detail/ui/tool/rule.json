@@ -236,29 +236,32 @@
             },
             "children": [
               {
-                "type": "r-text",
-                "props": {
-                  "field": "description",
-                  "label": "摘要",
-                  "minWidth": 280,
-                  "readonly": true,
-                  "showOverflowTooltip": true
-                }
+                "type": "r-column-group",
+                "props": {"title": "摘要", "minWidth": 280},
+                "children": [
+                  {"type": "r-text-display", "props": {"field": "description"}},
+                  {"type": "r-tag", "props": {"content": "待办", "tagType": "warning", "size": "small", "style": {"marginLeft": "8px"}, "onBeforeRender": "bindWaitingStep"}}
+                ]
               },
               {
                 "type": "r-text",
                 "props": {
                   "field": "STARTTIME",
                   "label": "开始时间",
+                  "sortable": "custom",
                   "minWidth": 160,
                   "readonly": true
                 }
               },
               {
-                "type": "r-text",
+                "type": "r-select",
                 "props": {
                   "field": "StepState",
                   "label": "步骤状态",
+                  "optionDataViewKey": "A5BADCEE11D2438CB9E75C2453A220A6@AppendStepStates@default",
+                  "optionValueField": "value",
+                  "optionLabelField": "label",
+                  "optionNumericText": true,
                   "minWidth": 100,
                   "readonly": true
                 }

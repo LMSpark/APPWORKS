@@ -150,6 +150,8 @@ export class BlueprintWorkspaceDataView {
   #lazyFlight: Promise<unknown> = Promise.resolve()
   #loadInFlight: Promise<unknown> | undefined
   #unconfirmedIds: Array<string | number> = []
+  /** 通用字段回读不能为待核发布指针确认原请求。 */
+  #publicationAwaitingReceipt = false
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
   #acceptedReceiptPending = false
   #unconfirmedRootId: string | number | undefined
@@ -1612,7 +1614,7 @@ export class BlueprintWorkspaceDataView {
   public cancel(): void {
     this.assertUsable()
     if (this.isBusy) throw new Error('保存或查询期间不能取消蓝图修改')
-    if (this.hasUnconfirmedSave) throw new Error('保存结果未确认，不能取消；请先沿原 DataSet 保存入口核验')
+    if (this.hasUnconfirmedSave || this.#publicationAwaitingReceipt) throw new Error('保存结果未确认，不能取消；请先沿原 DataSet 保存入口核验')
     if(this.#acceptedReceiptPending)throw new Error('蓝图 DataView 已收到保存回执但正式回读未完成，不能取消；请沿原 DataSet 查询与保存入口核验')
     if(this.#unconfirmedDeleteId!==undefined)throw new Error('蓝图 DataView 删除结果待核验，不能取消')
     if (!this.dirty) return
@@ -1690,6 +1692,7 @@ export class BlueprintWorkspaceDataView {
     const targetNodeId=this.#nodeId, revision=this.#revision
     if (this.hasUnconfirmedSave || this.#unconfirmedIds.length>0) {
       if(targetIds&&this.#unconfirmedIds.some(id=>!targetIds.includes(id)))throw new Error('蓝图 DataView 核验须包含原提交全部节点')
+      if (this.#publicationAwaitingReceipt) throw new Error('发布指针原提交缺少权威保存回执，请按原请求核验')
       if (this.hasUnconfirmedSave) {
         const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
         this.assertTarget(revision, targetNodeId)
@@ -1728,9 +1731,11 @@ export class BlueprintWorkspaceDataView {
     progress?.beforeSubmit()
     this.#unconfirmedIds=[...changedIds]
     this.#unconfirmedPatches=new Map([...patches].filter(([key])=>changedIds.includes(key)))
+    this.#publicationAwaitingReceipt = progress !== undefined
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]}).catch(error => {
       if (progress && !this.hasUnconfirmedSave && (error instanceof SparkData.DataSetSavePreflightError
         || error instanceof SparkData.DataSpaceApiError || (error instanceof LowcodeApiError && error.code !== 0))) {
+        this.#publicationAwaitingReceipt = false
         this.#unconfirmedIds=[]
         this.#unconfirmedPatches.clear()
         progress.rejected()
@@ -1740,7 +1745,7 @@ export class BlueprintWorkspaceDataView {
     this.assertTarget(revision, targetNodeId)
     if(!progress && (result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0))this.#acceptedReceiptPending=true
     if (!result.success) {
-      if (!this.view.hasUnconfirmedSave && !this.#acceptedReceiptPending) {
+      if (!this.view.hasUnconfirmedSave && !this.#acceptedReceiptPending && !this.#publicationAwaitingReceipt) {
         this.#unconfirmedIds=[]
         this.#unconfirmedPatches.clear()
       }
@@ -1748,6 +1753,7 @@ export class BlueprintWorkspaceDataView {
     }
     if(expectedSavedCount!==undefined)this.assertBatchSaveCounts(result,0,expectedSavedCount)
     if (progress) {
+      this.#publicationAwaitingReceipt = false
       this.#acceptedReceiptPending=true
       progress.accepted()
     }

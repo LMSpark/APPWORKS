@@ -8,7 +8,7 @@ const FIELDS=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode
   'NavigationImageWxz','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment',
   'IsShowAtNav','IsShowChildItem','BeginGroup','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
 type FixtureOptions=Readonly<{hiddenFields?:readonly string[];editableByRow?:Readonly<Record<string,readonly string[]>>;outputFields?:readonly string[];
-  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;firstSaveRejection?:DataSpaceApiError;
+  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;firstSaveRejection?:DataSpaceApiError;loseReceiptBeforeWrite?:boolean;
   allowAdd?:boolean;allowChild?:boolean;preparedOverride?:Readonly<DataRow>}>
 
 function initialRows():DataRow[]{return [
@@ -81,6 +81,10 @@ function createFixture(options:FixtureOptions={}){
     save:async command=>{
       saveAttempts++
       if(saveAttempts===1&&options.firstSaveRejection)throw options.firstSaveRejection
+      if(saveAttempts===1&&options.loseReceiptBeforeWrite){
+        unknownPending=true
+        throw new Error('publication transport interrupted')
+      }
       const added=command.changes[0]?.changes.added??[]
       const changes=command.changes[0]?.changes.changed??[]
       const ids=[...added,...changes].map(row=>String(row['rowid']??''))
@@ -121,6 +125,29 @@ function createFixture(options:FixtureOptions={}){
 
 function findNode(node:{nodeId:string;children?:readonly any[]},id:string):any{return node.nodeId===id?node:node.children?.map(child=>findNode(child,id)).find(Boolean)}
 function withPosition(node:any,parentNodeId:string,order:number):any{return {...node,parentNodeId,navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}}}
+
+it('keeps the original publication receipt unknown when another workspace writes the same pointer',async()=>{
+  const fixture=createFixture({editableByRow:{'NAV-BOUND':['VersionId']},loseReceiptBeforeWrite:true})
+  const {owner}=fixture
+  const progress={beforeSubmit:vi.fn(),accepted:vi.fn(),rejected:vi.fn()}
+  const version='r=1;s=1;t=1;m=1'
+  await owner.load('NAV-BOUND')
+  owner.update('VersionId',version)
+  await expect(owner.saveSelectedNode(progress)).rejects.toThrow('publication transport interrupted')
+  const storedRow=fixture.rows.find(row=>row['rowid']==='NAV-BOUND')!
+  expect(storedRow['VersionId']).toBe('')
+  storedRow['VersionId']=version
+
+  await expect(owner.saveSelectedNode(progress)).rejects.toThrow('发布指针原提交缺少权威保存回执')
+  await expect(owner.save()).rejects.toThrow('发布指针原提交缺少权威保存回执')
+  expect(()=>owner.cancel()).toThrow('保存结果未确认，不能取消')
+  expect(progress.beforeSubmit).toHaveBeenCalledOnce()
+  expect(progress.accepted).not.toHaveBeenCalled()
+  expect(progress.rejected).not.toHaveBeenCalled()
+  expect(owner.hasPendingBlueprintCommand).toBe(true)
+  expect(fixture.saveAttempts()).toBe(1)
+  expect(fixture.verificationIds).toEqual([])
+})
 
 it('settles a formally rejected publication pointer and preserves a later explicit save',async()=>{
   const refusal=new DataSpaceApiError(409,'publication pointer request rejected')

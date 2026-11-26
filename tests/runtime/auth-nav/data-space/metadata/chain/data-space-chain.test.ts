@@ -101,6 +101,40 @@ it('keeps the confirmed metadata save when both filter layers prevent Plan gener
   expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
 })
 
+it('replaces a stale working Plan whose reported hash matches the confirmed definition', async () => {
+  const {DataSet: PlanCarrier} = await import('@spark-appworks/spark-data')
+  const {readRuntimeDataSetPlan: readPlan} = await import('@/platform-adapters/data-space/runtime-data-set-plan-file')
+  const save = async (fixture: ReturnType<typeof dataSpaceChainFixture>) => {
+    transport.request.mockImplementation(fixture.request)
+    transport.scope.mockImplementation(fixture.readScope)
+    transport.workspace.mockImplementation(fixture.workspace)
+    transport.gateways.mockReturnValue({scenarioViews: fixture.fileGateway})
+    const session = await open(fixture.target)
+    session.stageInputParameters({expectedValue: '[]', value: [
+      {rowid: 'PARAM-1', Name: 'region', Description: '区域', IsBusParam: true},
+    ]})
+    await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
+    expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+  }
+  const reference = dataSpaceChainFixture()
+  await save(reference)
+  expect(reference.planFileWrites).toHaveLength(1)
+  const original: unknown = JSON.parse(reference.planFileWrites[0]!)
+  if (!isRecord(original)) throw Error('fixture must provide the saved Plan')
+  const f = dataSpaceChainFixture()
+  const fileName = `${f.target}.dataset.json`
+  f.files.set(fileName, JSON.stringify({...original, inputParams: []}))
+
+  await save(f)
+  expect(f.planFileWrites).toHaveLength(1)
+  const carrier = PlanCarrier.fromJson({scenarioId: f.target, tables: {}})
+  runtimes.push(carrier)
+  const reopened = await readPlan({scenarioId: f.target, dataSet: carrier, assertCurrent: f.readScope})
+  expect(reopened).toBe(f.planFileWrites[0])
+  expect(JSON.parse(reopened!)).toMatchObject({contentHash: original['contentHash'], inputParams: [{name: 'region'}]})
+  expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+})
+
 describe('one data space from metadata definitions through persistence to runtime', () => {
   it('reads formal model columns through the current metadata DataViews and preserves the editing workspace', async () => {
     const f = dataSpaceChainFixture()

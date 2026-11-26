@@ -224,6 +224,8 @@ describe('runtime data set plan', () => {
     expect(first.contentHash).toBe(second.contentHash)
     const previous = JSON.stringify(first), generated = JSON.stringify(second)
     expect(stableRuntimeDataSetPlanText(previous, generated, 'SPACE')).toBe(previous)
+    const stale = JSON.stringify({...first, description: 'stale body with the same reported hash'})
+    expect(stableRuntimeDataSetPlanText(stale, generated, 'SPACE')).toBe(generated)
   })
 
   it('round-trips complete paging semantics through Plan v1', () => {

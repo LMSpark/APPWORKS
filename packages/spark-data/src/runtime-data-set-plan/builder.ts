@@ -387,9 +387,10 @@ export function buildRuntimeDataSetPlanText(input: BuildRuntimeDataSetPlanInput)
   return JSON.stringify(buildRuntimeDataSetPlan(input))
 }
 
-/** 结构未变化时保留原 savedAt 和原字节，避免同一结构保存制造新的 publication SHA。 */
+/** 摘要和解析后的结构均一致时保留原字节，避免仅因保存时间变化改变发布 SHA。 */
 export function stableRuntimeDataSetPlanText(existing: string, generated: string, scenarioId: string): string {
   const previous = parseRuntimeDataSetPlanFile(existing, scenarioId)
   const next = parseRuntimeDataSetPlanFile(generated, scenarioId)
-  return previous.contentHash === next.contentHash ? existing : generated
+  if (previous.contentHash !== next.contentHash) return generated
+  return JSON.stringify({...previous, savedAt: next.savedAt}) === JSON.stringify(next) ? existing : generated
 }

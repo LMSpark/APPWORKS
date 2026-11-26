@@ -26,11 +26,12 @@
       {"type":"r-text","props":{"field":"updatetime","label":"修改时间","width":140,"readonly":true,"showOverflowTooltip":true,"onBeforeRender":"bindDate"}}
     ]
   },
-  {"id":"api-provider-config","type":"r-dialog","props":{"modelValue":true,"on":{"update:modelValue":"closeProviderConfiguration"},"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","width":1180},"children":[
-    {"type":"r-section","props":{"class":"api-config-page","title":"配置信息设置","on":{"retry":"retryProviderConfigTab"},"bordered":false,"gridColumns":1,"gridGap":12,"style":{"minHeight":"560px"},"header":{"children":[{"id":"config-interfaces","type":"r-button","props":{"label":"接口列表","onClick":"openConfigInterfaces","buttonType":"primary"}},{"id":"config-save","type":"r-button","props":{"label":"保存","onClick":"saveProviderAuthentication","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","buttonType":"primary","permAction":"edit"}},{"id":"config-close","type":"r-button","props":{"label":"关闭","onClick":"requestProviderConfigClose"}}]}},"children":[
-      {"type":"r-tabs","props":{"on":{"update:modelValue":"selectProviderConfigTab"},"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication"},"children":[
+  {"id":"provider-configuration","type":"RenderProviderConfiguration","props":{"dialog":
+  {"id":"api-provider-config","type":"r-dialog","props":{"modelValue":true,"onBeforeRender":"bindConfigurationDialog","on":{"update:modelValue":"closeProviderConfiguration"},"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","width":1180},"children":[
+    {"type":"r-section","props":{"class":"api-config-page","title":"配置信息设置","onBeforeRender":"bindConfigurationSection","on":{"retry":"retryProviderConfigTab"},"bordered":false,"gridColumns":1,"gridGap":12,"header":{"children":[{"id":"config-interfaces","type":"r-button","props":{"label":"接口列表","onClick":"openConfigInterfaces","onBeforeRender":"bindConfigurationAction","buttonType":"primary"}},{"id":"config-save","type":"r-button","props":{"label":"保存","onClick":"saveProviderAuthentication","onBeforeRender":"bindConfigurationSave","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","buttonType":"primary","permAction":"edit"}},{"id":"config-close","type":"r-button","props":{"label":"关闭","onClick":"requestProviderConfigClose","onBeforeRender":"bindConfigurationClose"}}]}},"children":[
+      {"id":"api-provider-config-tabs","type":"r-tabs","props":{"onBeforeRender":"bindConfigurationTabs","on":{"update:modelValue":"selectProviderConfigTab"},"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication"},"children":[
         {"id":"jwt","type":"r-tab-pane","props":{"name":"jwt","label":"JWT设置","index":0},"children":[
-          {"type":"r-section","props":{"bordered":false,"gridColumns":1},"children":[
+          {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindJwtSettings"},"children":[
             {"type":"r-form","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider@authentication","gridColumns":2,"labelWidth":"130px","showDataViewMeta":false,"autoColumns":false},"children":[
               {"type":"r-text","props":{"field":"Name","label":"提供商名称","readonly":true}},
               {"type":"r-text","props":{"field":"BaseURL","label":"API 基础 URL","readonly":true}}
@@ -53,34 +54,35 @@
               ]}
             ]}
           ]},
-          {"type":"r-alert","props":{"title":"认证接口引用失效，已保留原值，请重新选择后保存。","alertType":"warning","closable":false,"showIcon":true}}
+          {"type":"r-alert","props":{"onBeforeRender":"bindInvalidAuthentication","title":"认证接口引用失效，已保留原值，请重新选择后保存。","alertType":"warning","closable":false,"showIcon":true}}
         ]},
         {"id":"headers","type":"r-tab-pane","props":{"name":"headers","label":"请求头部信息","index":1,"lazy":true},"children":[
-          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+          {"type":"r-table","props":{"onBeforeRender":"bindHeaderTable","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
             {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":240,"showCellControl":true,"sortable":false}},
             {"type":"r-value-function","props":{"field":"paramValue","label":"值函数","minWidth":280,"publicParameterDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@references","functionContext":{"capabilities":["huoshan"]}}},
             {"type":"r-select","props":{"field":"type","label":"使用场景","minWidth":220,"showCellControl":true,"sortable":false,"clearable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@接口公共头部信息使用类型@default"}}
           ]}
         ]},
         {"id":"publicParams","type":"r-tab-pane","props":{"name":"publicParams","label":"公共参数","index":2,"lazy":true},"children":[
-          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+          {"type":"r-table","props":{"onBeforeRender":"bindParameterTable","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_Interface_PublicParam@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
             {"type":"r-text","props":{"field":"paramName","label":"参数名称","minWidth":180,"showCellControl":true,"sortable":false}},
             {"type":"r-text","props":{"field":"desc","label":"参数描述","minWidth":180,"showCellControl":true,"sortable":false}},
-            {"id":"outputfield","type":"r-select","props":{"field":"outputfield","label":"输出字段","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@default"}},
+            {"id":"outputfield","type":"r-select","props":{"onBeforeRender":"bindOutputField","field":"outputfield","label":"输出字段","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_TblField@default"}},
             {"type":"r-select","props":{"field":"interfaceId","label":"接口名称","minWidth":180,"showCellControl":true,"sortable":false,"filterable":true,"optionDataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_DataServiceInterface@default"}},
             {"type":"r-text","props":{"field":"accessPath","label":"接口路径","minWidth":220,"readonly":true,"sortable":false,"showOverflowTooltip":true}}
           ]},
-          {"type":"r-alert","props":{"title":"当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。","alertType":"warning","closable":false,"showIcon":true}}
+          {"type":"r-alert","props":{"onBeforeRender":"bindInvalidParameter","title":"当前公共参数的接口或输出字段引用失效，已保留原值，请选择有效引用后保存。","alertType":"warning","closable":false,"showIcon":true}}
         ]},
         {"id":"accounts","type":"r-tab-pane","props":{"name":"accounts","label":"认证账号","index":3,"lazy":true},"children":[
-          {"type":"r-table","props":{"dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Account@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
+          {"type":"r-table","props":{"onBeforeRender":"bindAccountTable","dataViewKey":"446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Account@default","autoColumns":false,"stripe":true,"border":true,"showDataViewMeta":false},"children":[
             {"type":"r-text","props":{"field":"UserName","label":"用户名","minWidth":220,"showCellControl":true,"sortable":false}},
             {"type":"r-text","props":{"field":"Password","label":"密码","minWidth":240,"showCellControl":true,"sortable":false,"showPassword":true}},
             {"type":"r-text","props":{"field":"description","label":"备注","minWidth":240,"showCellControl":true,"sortable":false}}
           ]}
         ]}
       ]},
-      {"id":"config-verify","type":"r-button","props":{"label":"核验原保存结果","onClick":"verifyProviderConfiguration"}}
+      {"id":"config-verify","type":"r-button","props":{"label":"核验原保存结果","onClick":"verifyProviderConfiguration","onBeforeRender":"bindConfigurationVerify"}}
     ]}
   ]}
+  }}
 ]

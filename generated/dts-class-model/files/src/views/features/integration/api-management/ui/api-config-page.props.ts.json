@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
     "packageName": "app",
     "modulePath": "views/features/integration/api-management/ui/api-config-page.props",
-    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page.props\n职责：声明服务商请求方案设计页的目标身份输入。\n边界：宿主传入服务商 rowid 和已编译的工具配置，场景由原运行实例提供。\nAI用途：从服务商目录打开原路径配置页时传递同一正式身份。",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page.props\n职责：声明服务商请求方案设计页的目标身份输入。\n边界：宿主传入服务商 rowid，场景由原运行实例提供。\nAI用途：从服务商目录打开原路径配置页时传递同一正式身份。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ApiConfigPageProps"
@@ -21,33 +21,29 @@
       "properties": {
         "providerId": {
           "type": "string"
-        },
-        "config": {
-          "$ref": "../../../../../../packages/spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         }
       },
       "required": [
-        "providerId",
-        "config"
+        "providerId"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.296Z",
+  "generatedAt": "2026-11-26T06:50:26.861Z",
   "models": {
     "ApiConfigPageProps": {
       "name": "ApiConfigPageProps",
-      "jsdoc": "服务商身份与宿主工具编译后的配置。",
+      "jsdoc": "一次基础配置会话的正式服务商身份。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "api-config-page"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 正式服务商 rowid，用于限定配置视图的查询。 */\n    providerId: string;\n    config: SparkNode;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 正式服务商 rowid，用于限定配置视图的查询。 */\n    providerId: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 正式服务商 rowid，用于限定配置视图的查询。 */\n    providerId: string;\n    config: SparkNode;\n}>",
+            "typeText": "Readonly<{\n    /** 正式服务商 rowid，用于限定配置视图的查询。 */\n    providerId: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -56,11 +52,6 @@
             {
               "name": "providerId",
               "jsdoc": "正式服务商 rowid，用于限定配置视图的查询。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "config",
               "readable": true,
               "writable": false
             }

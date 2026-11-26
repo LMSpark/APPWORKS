@@ -7324,12 +7324,12 @@
     "src/views/features/integration/api-management/ui/api-config-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.props.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.296Z"
+      "sourceModifiedAt": "2026-11-26T06:50:26.861Z"
     },
     "src/views/features/integration/api-management/ui/api-config-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.vue.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.296Z"
+      "sourceModifiedAt": "2026-11-26T06:57:32.889Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",

@@ -5,20 +5,19 @@
 AI用途：每个页签只保存本页签视图，不夹带其它页签草稿；未知回执须重读核验，不自动重放。
 -->
 <template>
-  <SparkComponentRenderer :config="dialogConfig" />
+  <slot />
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref} from 'vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, getSparkNodeChildren, nodeId, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {isRecord} from '@spark-appworks/spark-utils'
 import {featureTableToolbar, runFeatureTableAction, type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
-const {PAGE_RUNTIME, SparkComponentRenderer, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, consumeRequiredPageService} = SparkComponent
 
 const scenarioId = '446B5D94A71587E9BD4D325A4DF5F6F8'
 const props = defineProps<ApiConfigPageProps>()
@@ -81,75 +80,25 @@ function selectTab(name: unknown): void {
   tab.value = name
   void loadTab(name)
 }
-function bindTabs(tabs: SparkNode): SparkNode {
-  return {
-    ...tabs,
-    props: {...tabs.props, modelValue: tab.value},
-    children: getSparkNodeChildren(tabs.children).map(pane => {
-      const name = nodeId(pane)
-      if (name === undefined || !isTab(name)) throw new Error('服务商配置包含未知页签')
-      if (!loaded.has(name)) return {...pane, children: []}
-      const children = getSparkNodeChildren(pane.children).flatMap(node => {
-        if (node.type === 'r-alert') {
-          const invalidReference = name === 'jwt' ? invalid(authKey, 'loginApiName')
-            : invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield')
-          return invalidReference ? [node] : []
-        }
-        if (name === 'jwt') return [node]
-        const {viewKey, actions} = tableTabs[name]
-        return [{
-          ...node,
-          props: {...node.props, toolbar: toolbar(viewKey, actions)},
-          children: getSparkNodeChildren(node.children).map(child =>
-            name === 'publicParams' && nodeId(child) === 'outputfield'
-              ? {...child, props: {...child.props, cellReadonly: notCurrent}}
-              : child),
-        }]
-      })
-      return {...pane, children}
-    }),
-  }
-}
-
-const dialogConfig = computed<SparkNode>(() => {
-  const [section] = getSparkNodeChildren(props.config.children)
-  if (!section) throw new Error('服务商配置缺少弹窗内容')
-  const header=section.props?.['header']
-  if(!isRecord(header)||!Array.isArray(header['children']))throw Error('服务商配置缺少弹窗操作')
-  const closeBlocked = busy.value || unconfirmed.value || pendingTabs.size > 0
-  const actions = getSparkNodeChildren(header['children']).map(node => ({
-    ...node,
-    props: nodeId(node) === 'config-save'
-      ? {...node.props, disabled: !ready.value || busy.value || unconfirmed.value}
-      : {...node.props, disabled: nodeId(node) === 'config-close' ? closeBlocked : busy.value},
-  }))
-  const children = getSparkNodeChildren(section.children).flatMap(node => {
-    if (node.type === 'r-tabs') return ready.value ? [bindTabs(node)] : []
-    return unconfirmed.value
-      ? [{...node, props: {...node.props, disabled: busy.value}}]
-      : []
-  })
-  return {
-    ...props.config,
-    props: {...props.config.props, closeDisabled: closeBlocked || dirty.value},
-    children: [{
-      ...section,
-      props: {...section.props, header: {...header, children: actions},
-        status: selectedTabLoading.value ? '正在读取服务提供商配置…' : '',
-        error: selectedTabError.value || error.value,
-        retryable: Boolean(selectedTabError.value) && !selectedTabLoading.value},
-      children,
-    }],
-  }
-})
-
-function toolbar(viewKey: string, order: readonly FeatureTableAction[]): RToolbarProps {
+function toolbar(name: keyof typeof tableTabs): RToolbarProps {
   revision.value
+  const {viewKey, actions: order} = tableTabs[name]
   return featureTableToolbar({view: view(viewKey), order, locked: busy.value, run: action => run(viewKey, action)})
 }
 
+const bindings = {
+  status: () => ({ready: ready.value, busy: busy.value, dirty: dirty.value, unconfirmed: unconfirmed.value,
+    pending: pendingTabs.size > 0, selectedLoading: selectedTabLoading.value,
+    selectedError: selectedTabError.value, error: error.value, tab: tab.value}),
+  tabLoaded: (name: TabName) => loaded.has(name),
+  invalidAuthentication: () => invalid(authKey, 'loginApiName'),
+  invalidParameter: () => invalid(parameterKey, 'interfaceId') || invalid(parameterKey, 'outputfield'),
+  toolbar,
+  notCurrent,
+}
+
 async function act(action: () => Promise<unknown>): Promise<void> {
-  if (busy.value) return
+  if (!active || busy.value) return
   busy.value = true; error.value = ''
   try {await action()} catch (cause) {error.value = failure(cause)}
   finally {busy.value = false; changed()}
@@ -171,12 +120,12 @@ function verifyOriginalSaves(): Promise<void> {
     }
   })
 }
-defineExpose({saveAuthentication, verifyOriginalSaves, selectTab, retryTab: () => loadTab(tab.value), close})
+defineExpose({bindings, saveAuthentication, verifyOriginalSaves, selectTab, retryTab: () => loadTab(tab.value), close})
 async function close(): Promise<void> {
-  if (busy.value || unconfirmed.value || pendingTabs.size > 0) return
+  if (!active || busy.value || unconfirmed.value || pendingTabs.size > 0) return
   if (dirty.value) {
     const confirmed = await pageService.showConfirm('存在未保存的修改，关闭将放弃这些修改。', '关闭确认', {type: 'warning'})
-    if (!confirmed || busy.value || unconfirmed.value || pendingTabs.size > 0) return
+    if (!confirmed || !active || busy.value || unconfirmed.value || pendingTabs.size > 0) return
     for (const item of views.value) item.discardPendingChanges()
   }
   emit('close')

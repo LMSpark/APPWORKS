@@ -11,7 +11,285 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-11-20T20:59:33.296Z",
-  "models": {}
+  "$defs": {
+    "RToolbarProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RToolbarProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../packages/spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataSource": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-data\").DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "columns",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "showDataViewMeta": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showAggregateSummary": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showSelectionSummary": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "tail": {
+          "$ref": "../../../../../../packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json#/$defs/RTailProps"
+        },
+        "position": {
+          "enum": [
+            "left",
+            "right",
+            "top",
+            "bottom"
+          ]
+        },
+        "wrap": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "class": {
+          "type": "string"
+        },
+        "gap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "zoneGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "align": {
+          "enum": [
+            "start",
+            "end",
+            "center",
+            "stretch"
+          ]
+        },
+        "justify": {
+          "enum": [
+            "start",
+            "end",
+            "center",
+            "space-between"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "TabName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "TabName",
+      "enum": [
+        "headers",
+        "jwt",
+        "publicParams",
+        "accounts"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-26T06:57:32.889Z",
+  "models": {
+    "RToolbarProps": {
+      "name": "RToolbarProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkComponent.RToolbarProps",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "SparkComponent.RToolbarProps",
+            "targetName": "SparkComponent.RToolbarProps"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionDeniedMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showDataViewMeta",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showAggregateSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showSelectionSummary",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tail",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wrap",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gap",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "zoneGap",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "align",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "justify",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TabName": {
+      "name": "TabName",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'jwt' | 'headers' | 'publicParams' | 'accounts'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'jwt'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'headers'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'publicParams'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'accounts'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

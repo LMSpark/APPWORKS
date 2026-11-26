@@ -1,3 +1,7 @@
 .api-provider-catalog {
   min-width: 0;
 }
+
+.api-config-page {
+  min-height: 560px;
+}

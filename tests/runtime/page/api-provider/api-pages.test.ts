@@ -10,7 +10,7 @@ import ElementPlus, {ElSelect} from 'element-plus'
 import VXETable from 'vxe-table'
 import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable, FieldSelect, PAGE_SERVICE, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
-import {FieldJson, RendererDialog} from '@spark-appworks/spark-component'
+import {FieldJson, RendererDialog, RendererTabs} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
 
@@ -20,6 +20,10 @@ const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string, _opti
 vi.mock('@/views/features/integration/api-management/ui/interface-list/style.css?raw', async () => {
   const {readFileSync} = await import('node:fs')
   return {default: readFileSync('src/views/features/integration/api-management/ui/interface-list/style.css', 'utf8')}
+})
+vi.mock('@/views/features/integration/api-management/ui/provider-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/integration/api-management/ui/provider-tool/style.css', 'utf8')}
 })
 vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
@@ -551,6 +555,44 @@ describe('external API pages assembled through the standard scenario entry', () 
     const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('width') === 1180)!
     await dialog.get('.el-dialog__headerbtn').trigger('click')
     await vi.waitFor(() => expect(wrapper.text()).not.toContain('配置信息设置'))
+  })
+
+  it('reopens the configured tab group for a different provider without reusing the previous tab results', async () => {
+    const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})
+    const wrapper = await mountAt(ManagementPage)
+    const configButton = (index: number) => wrapper.findAll('button').filter(item => item.text() === '基础配置')[index]!
+    const headersTab = () => wrapper.findAll('.el-tabs__item').find(item => item.text() === '请求头部信息')!
+    await configButton(0).trigger('click')
+    await vi.waitFor(() => expect(headersTab()?.exists()).toBe(true))
+    expect(wrapper.getComponent(RendererTabs).props('id')).toBe('api-provider-config-tabs')
+    const page = wrapper.get('.spark-page-container')
+    expect(wrapper.get('style').element.textContent).toContain(`[data-page="${page.attributes('data-page')}"].spark-page-container .api-config-page`)
+    await headersTab().trigger('click')
+    const dataSet = [...observed].find(runtime => runtime.getDataSet(CONFIG))!.getDataSet(CONFIG)!
+    const headers = dataSet.getView('Base_InterfaceProvider_Headers')!
+    await vi.waitFor(() => expect(headers.rows.map(row => row['rowid'])).toEqual(['H1']))
+    const oldToolbar = wrapper.findAllComponents(RendererTable).find(table =>
+      table.props('dataViewKey') === `${CONFIG}@Base_InterfaceProvider_Headers@default`)?.props('toolbar')
+    const oldAddNode = oldToolbar?.children?.find(node => isRecord(node) && isRecord(node['props']) && node['props']['label'] === '新增')
+    const oldAdd = isRecord(oldAddNode) && isRecord(oldAddNode['props']) ? oldAddNode['props']['onClick'] : undefined
+    if (typeof oldAdd !== 'function') throw Error('原请求头工具栏缺少新增动作')
+    await button(wrapper, '关闭')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTabs).exists()).toBe(false))
+    const http = api.current.state.http
+    const reads = http.reads.length
+    await configButton(1).trigger('click')
+    await vi.waitFor(() => expect(headersTab()?.exists()).toBe(true))
+    expect(dataSet.getView('Base_InterfaceProvider', 'authentication')!.rows.map(row => row['rowid'])).toEqual(['P2'])
+    expect(wrapper.getComponent(RendererTabs).props('modelValue')).toBe('jwt')
+    expect(http.reads.slice(reads).map(read => read.table)).not.toContain('Base_InterfaceProvider_Headers')
+    await headersTab().trigger('click')
+    await vi.waitFor(() => expect(headers.rows.map(row => row['rowid'])).toEqual(['H2']))
+    await oldAdd()
+    expect(headers.rows.map(row => row['rowid'])).toEqual(['H2'])
+    expect(headers.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(http.saves).toHaveLength(0)
+    expect(observed.size).toBe(1)
   })
 
   it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {

@@ -7,15 +7,7 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 <template>
   <RendererSection class="api-manage-page" title="外部服务管理" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取外部服务目录…' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
-    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
-      <template #content="{children}">
-        <template v-for="(child, index) in children" :key="nodeId(child) ?? index">
-          <ApiConfigPage v-if="nodeId(child) === 'api-provider-config' && ready && dialog?.kind === 'config'"
-            :key="dialog.epoch" ref="providerConfig" :provider-id="dialog.id" :config="child" @close="dialog = null" />
-          <SparkComponentRenderer v-else-if="nodeId(child) !== 'api-provider-config'" :config="child" />
-        </template>
-      </template>
-    </SparkPageRenderer>
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
     <FeatureRecordDialog v-if="ready && dialog?.kind === 'record'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.id"
       :created="dialog.created" :title="dialog.created ? '新增外部服务提供商' : '编辑外部服务提供商'" :specs="specs" :width="640"
       @close="closeRecord" />
@@ -26,9 +18,9 @@ AI用途：恢复外部服务入口时复用标准外壳、通用记录对话框
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed, ref, shallowRef} from 'vue'
 import {useRoute} from 'vue-router'
-import {buildDataViewKey, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
@@ -79,7 +71,7 @@ type ProviderDialog = Readonly<{kind: 'record'; id: string | number; created: bo
   | Readonly<{kind: 'ai'; epoch: number}>
 type InterfaceDialog = Readonly<{id: string; name: string; epoch: number}>
 const dialog = ref<ProviderDialog | null>(null)
-const providerConfig = ref<InstanceType<typeof ApiConfigPage>[]>([])
+const providerConfig = shallowRef<InstanceType<typeof ApiConfigPage> | null>(null)
 const interfaces = ref<InterfaceDialog | null>(null)
 const busy = ref(false), message = ref(''), revision = ref(0)
 let epoch = 0
@@ -114,7 +106,7 @@ const host=computed(()=>{
   return {runtime:current,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if (dialog.value?.kind === 'config') {
-      const config = providerConfig.value[0]
+      const config = providerConfig.value
       if (command === 'providers.configInterfaces') return openConfigInterfaces()
       if (command === 'providers.configSave') return await config?.saveAuthentication()
       if (command === 'providers.configVerify') return await config?.verifyOriginalSaves()
@@ -126,6 +118,17 @@ const host=computed(()=>{
       blocked:()=>blocked.value,unresolved:()=>unresolvedModifier.value,
       canEdit:(row:DataRow|null|undefined)=>!!row&&list().editActionState(row)==='enabled',
       canDelete:(row:DataRow|null|undefined)=>!!row&&list().deleteActionState(row)==='enabled',
+      configuration: ApiConfigPage,
+      node: SparkComponentRenderer,
+      configurationProps: () => {
+        const target = dialog.value
+        if (!ready.value || target?.kind !== 'config') return undefined
+        return {key: target.epoch, providerId: target.id, onClose: () => {
+          if (dialog.value === target) dialog.value = null
+        }}
+      },
+      bindConfiguration: (config: InstanceType<typeof ApiConfigPage> | null) => {providerConfig.value = config},
+      configurationBindings: () => providerConfig.value?.bindings,
     }
     if(blocked.value)return undefined
     if(command==='providers.create')await openCreate()

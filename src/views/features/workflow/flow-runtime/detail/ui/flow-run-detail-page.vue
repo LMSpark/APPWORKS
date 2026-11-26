@@ -4,29 +4,7 @@
 边界：消费监控场景与伙伴设计场景；不含强退与办理写入。
 -->
 <template>
-  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
-    <template #content="{children}">
-      <RendererSection v-for="section in children.filter(node => nodeId(node) === 'runtimeDetail')" key="runtimeDetail"
-        v-bind="section.props" :children="detailContent(section)"
-        :status="loading || graphLoading ? '正在读取运行详情…' : ''"
-        :error="error || graphError" :retryable="!loading && !graphLoading && (!ready || !graphReady)" @retry="retryLoad">
-        <template v-if="ready && canOpenRun" #header-actions>
-          <SparkComponentRenderer v-for="node in getSparkNodeChildren(section.children).filter(item => nodeId(item) === 'openRun')" key="openRun" :config="node" />
-        </template>
-        <RendererDialog v-for="dialog in drilldownDialogs(getSparkNodeChildren(section.children))" :key="dialog.id"
-          v-bind="dialog.rule.props" :model-value="dialog.open.value" :title="dialog.title.value"
-          @update:model-value="dialog.open.value = $event">
-          <FieldCheckbox v-bind="dialog.checkbox.props" v-model="dialog.showVoided.value" />
-          <RendererTabs v-bind="dialog.tabs.props" v-model="dialog.activeTab.value">
-            <RendererTabPane v-for="(pane, index) in dialog.panes" :key="index" :index="index" v-bind="pane.props">
-              <FlowRunDetailStepTable v-if="dialog.open.value && prepared" :rule="dialog.stepTable" :view-key="prepared.stepViewKey"
-                v-bind="stepFilters(pane.props?.['name'])" :show-voided="dialog.showVoided.value" />
-            </RendererTabPane>
-          </RendererTabs>
-        </RendererDialog>
-      </RendererSection>
-    </template>
-  </SparkPageRenderer>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false" />
   <RendererSection v-else title="流程运行详情" :bordered="false" :status="loading ? '正在读取运行详情…' : ''"
     :error="error" :retryable="!loading" @retry="retryLoad" />
 </template>
@@ -34,7 +12,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
@@ -46,7 +23,6 @@ const {
   RendererDialog,
   RendererSection,
   RendererTabPane,
-  SparkComponentRenderer,
   SparkPageRenderer,
   RendererTabs,
   consumeRequiredPageService,
@@ -121,84 +97,53 @@ const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
   const assertCurrent = () => {
-    if (!session.isCurrent(current)) throw Error('流程运行详情实例已失效')
+    if (runtime.value !== current || !session.isCurrent(current)) throw Error('流程运行详情实例已失效')
   }
   return {runtime: current, assertCurrent, invoke(command: string) {
     assertCurrent()
-    if (command === 'workflow.openRun' && canOpenRun.value) openRunPage()
+    if (command === 'workflow.openRun') {
+      if (canOpenRun.value) openRunPage()
+      return undefined
+    }
+    if (command === 'workflow.retryDetail') return retryLoad()
+    if (command === 'workflow.connectDetail') return {
+      controls: {dialog: RendererDialog, checkbox: FieldCheckbox, tabs: RendererTabs, tabPane: RendererTabPane, stepTable: FlowRunDetailStepTable},
+      status: () => ({loading: loading.value || graphLoading.value, error: error.value || graphError.value, ready: graphReady.value}),
+      identity: () => `实例 ${routeQuery.value.wfid} · 模型 ${routeQuery.value.flowid}`,
+      canOpenRun: () => canOpenRun.value,
+      graph: () => {
+        const graph = graphReady.value ? prepared.value : undefined
+        if (!graph) return undefined
+        return {dataViewKey: graph.nodeViewKey, edgeDataViewKey: graph.edgeViewKey,
+          nodePositions: graph.graphLayout.nodePositions, edgePaths: graph.graphLayout.edgePaths,
+          nodeBadgeRules, onSelect: onGraphSelect}
+      },
+      drilldown: () => ({
+        node: {
+          open: nodeDialogOpen.value, title: nodeDialogTitle.value, showVoided: nodeShowVoided.value,
+          viewKey: prepared.value?.stepViewKey, tab: nodeActiveTab.value,
+          setOpen: (open: boolean) => {nodeDialogOpen.value = open},
+          setShowVoided: (show: boolean) => {nodeShowVoided.value = show},
+          setTab: (tab: typeof nodeActiveTab.value) => {nodeActiveTab.value = tab},
+          filters: (tab: string) => tab === 'received' ? {receivedNodeId: selectedNodeId.value}
+            : tab === 'sent' ? {sentNodeId: selectedNodeId.value} : {},
+        },
+        edge: {
+          open: edgeDialogOpen.value, title: edgeDialogTitle.value, showVoided: edgeShowVoided.value,
+          viewKey: prepared.value?.stepViewKey, tab: edgeActiveTab.value,
+          setOpen: (open: boolean) => {edgeDialogOpen.value = open},
+          setShowVoided: (show: boolean) => {edgeShowVoided.value = show},
+          setTab: (tab: typeof edgeActiveTab.value) => {edgeActiveTab.value = tab},
+          filters: (tab: string) => tab === 'edge' ? {sentNodeId: edgeSourceId.value, receivedNodeId: edgeTargetId.value} : {},
+        },
+      }),
+    }
+    throw Error(`流程运行详情不支持命令 ${command}`)
   }}
 })
-
-function detailContent(section: SparkNode): SparkNode[] {
-  if (!ready.value) return []
-  return getSparkNodeChildren(section.children).flatMap(node => {
-    switch (nodeId(node)) {
-      case 'instanceIdentity': return [{
-        ...node,
-        props: {...node.props, title: `实例 ${routeQuery.value.wfid} · 模型 ${routeQuery.value.flowid}`},
-      }]
-      case 'summary': return [node]
-      case 'runTrace': return [traceSection(node)]
-      default: return []
-    }
-  })
-}
-
-function traceSection(section: SparkNode): SparkNode {
-  const graph = graphReady.value ? prepared.value : undefined
-  const nodes = getSparkNodeChildren(section.children).flatMap(node => {
-    switch (nodeId(node)) {
-      case 'runGraph':
-        return graph ? [{
-          ...node,
-          props: {
-            ...node.props,
-            dataViewKey: graph.nodeViewKey,
-            edgeDataViewKey: graph.edgeViewKey,
-            nodePositions: graph.graphLayout.nodePositions,
-            edgePaths: graph.graphLayout.edgePaths,
-            nodeBadgeRules,
-            onSelect: onGraphSelect,
-          },
-        }] : []
-      case 'runGraphUnavailable': return graph || graphLoading.value ? [] : [node]
-      default: return [node]
-    }
-  })
-  return {...section, children: nodes}
-}
-
-const drilldownState = [
-  {id: 'nodeSteps', open: nodeDialogOpen, title: nodeDialogTitle, activeTab: nodeActiveTab, showVoided: nodeShowVoided},
-  {id: 'edgeSteps', open: edgeDialogOpen, title: edgeDialogTitle, activeTab: edgeActiveTab, showVoided: edgeShowVoided},
-]
-function drilldownDialogs(children: readonly SparkNode[]) {
-  const stepTable = children.find(node => nodeId(node) === 'stepTable' && node.type === 'r-table')
-  if (!stepTable) return []
-  return drilldownState.flatMap(state => {
-    const rule = children.find(node => nodeId(node) === state.id)
-    const [checkbox, tabs] = getSparkNodeChildren(rule?.children)
-    return rule && checkbox && tabs
-      ? [{...state, rule, checkbox, tabs, stepTable, panes: getSparkNodeChildren(tabs.children)}]
-      : []
-  })
-}
-
-function stepFilters(pane: unknown) {
-  switch (pane) {
-    case 'received': return {receivedNodeId: selectedNodeId.value}
-    case 'sent': return {sentNodeId: selectedNodeId.value}
-    case 'edge': return {sentNodeId: edgeSourceId.value, receivedNodeId: edgeTargetId.value}
-    default: return {}
-  }
-}
 
 async function retryLoad(): Promise<void> {
   await loadCurrentRoute()
   await reloadGraph()
 }
 </script>
-
-<style scoped>
-.flow-run-detail-page__voided {margin-bottom: 8px}
-</style>

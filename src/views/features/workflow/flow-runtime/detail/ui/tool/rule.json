@@ -7,7 +7,25 @@
       "title": "流程运行详情",
       "bordered": false,
       "gridColumns": 1,
-      "gridGap": 12
+      "gridGap": 12,
+      "onBeforeRender": "bindDetail",
+      "on": {
+        "retry": "retryDetail"
+      },
+      "header": {
+        "children": [
+          {
+            "id": "openRun",
+            "type": "r-button",
+            "props": {
+              "label": "前往办理",
+              "buttonType": "primary",
+              "onClick": "openRun",
+              "onBeforeRender": "bindOpenRun"
+            }
+          }
+        ]
+      }
     },
     "children": [
       {
@@ -16,7 +34,8 @@
         "props": {
           "alertType": "info",
           "closable": false,
-          "showIcon": true
+          "showIcon": true,
+          "onBeforeRender": "bindIdentity"
         }
       },
       {
@@ -69,15 +88,6 @@
         ]
       },
       {
-        "id": "openRun",
-        "type": "r-button",
-        "props": {
-          "label": "前往办理",
-          "buttonType": "primary",
-          "onClick": "openRun"
-        }
-      },
-      {
         "id": "runTrace",
         "type": "r-section",
         "props": {
@@ -108,7 +118,8 @@
               "backgroundPattern": "dots",
               "nodeAppearance": "card",
               "viewportControls": true,
-              "disabled": true
+              "disabled": true,
+              "onBeforeRender": "bindGraph"
             }
           },
           {
@@ -118,136 +129,143 @@
               "alertType": "info",
               "closable": false,
               "showIcon": true,
-              "title": "运行图尚未加载。"
+              "title": "运行图尚未加载。",
+              "onBeforeRender": "bindGraphUnavailable"
             }
           }
         ]
       },
       {
-        "id": "nodeSteps",
-        "type": "r-dialog",
+        "id": "stepDrilldowns",
+        "type": "RenderFlowStepDrilldowns",
         "props": {
-          "width": 960,
-          "appendToBody": true,
-          "destroyOnClose": true
-        },
-        "children": [
-          {
-            "type": "r-checkbox",
+          "node": {
+            "id": "nodeSteps",
+            "type": "r-dialog",
             "props": {
-              "checkboxText": "显示作废信息",
-              "class": "flow-run-detail-page__voided"
-            }
-          },
-          {
-            "type": "r-tabs",
+              "width": 960,
+              "appendToBody": true,
+              "destroyOnClose": true
+            },
             "children": [
               {
-                "type": "r-tab-pane",
+                "type": "r-checkbox",
                 "props": {
-                  "name": "received",
-                  "label": "提交到当前节点",
-                  "lazy": true
+                  "checkboxText": "显示作废信息",
+                    "style": { "marginBottom": "8px" }
                 }
               },
               {
-                "type": "r-tab-pane",
+                "type": "r-tabs",
+                "children": [
+                  {
+                    "type": "r-tab-pane",
+                    "props": {
+                      "name": "received",
+                      "label": "提交到当前节点",
+                      "lazy": true
+                    }
+                  },
+                  {
+                    "type": "r-tab-pane",
+                    "props": {
+                      "name": "sent",
+                      "label": "当前节点提交的",
+                      "lazy": true
+                    }
+                  },
+                  {
+                    "type": "r-tab-pane",
+                    "props": {
+                      "name": "all",
+                      "label": "所有信息",
+                      "lazy": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "edge": {
+            "id": "edgeSteps",
+            "type": "r-dialog",
+            "props": {
+              "width": 960,
+              "appendToBody": true,
+              "destroyOnClose": true
+            },
+            "children": [
+              {
+                "type": "r-checkbox",
                 "props": {
-                  "name": "sent",
-                  "label": "当前节点提交的",
-                  "lazy": true
+                  "checkboxText": "显示作废信息",
+                    "style": { "marginBottom": "8px" }
                 }
               },
               {
-                "type": "r-tab-pane",
+                "type": "r-tabs",
+                "children": [
+                  {
+                    "type": "r-tab-pane",
+                    "props": {
+                      "name": "edge",
+                      "label": "连线步骤",
+                      "lazy": true
+                    }
+                  },
+                  {
+                    "type": "r-tab-pane",
+                    "props": {
+                      "name": "all",
+                      "label": "所有信息",
+                      "lazy": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "stepTable": {
+            "id": "stepTable",
+            "type": "r-table",
+            "props": {
+              "stripe": true,
+              "maxHeight": 380,
+              "showPagination": false,
+              "showDataViewMeta": false
+            },
+            "children": [
+              {
+                "type": "r-text",
                 "props": {
-                  "name": "all",
-                  "label": "所有信息",
-                  "lazy": true
+                  "field": "description",
+                  "label": "摘要",
+                  "minWidth": 280,
+                  "readonly": true,
+                  "showOverflowTooltip": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "STARTTIME",
+                  "label": "开始时间",
+                  "minWidth": 160,
+                  "readonly": true
+                }
+              },
+              {
+                "type": "r-text",
+                "props": {
+                  "field": "StepState",
+                  "label": "步骤状态",
+                  "minWidth": 100,
+                  "readonly": true
                 }
               }
             ]
           }
-        ]
-      },
-      {
-        "id": "edgeSteps",
-        "type": "r-dialog",
-        "props": {
-          "width": 960,
-          "appendToBody": true,
-          "destroyOnClose": true
-        },
-        "children": [
-          {
-            "type": "r-checkbox",
-            "props": {
-              "checkboxText": "显示作废信息",
-              "class": "flow-run-detail-page__voided"
-            }
-          },
-          {
-            "type": "r-tabs",
-            "children": [
-              {
-                "type": "r-tab-pane",
-                "props": {
-                  "name": "edge",
-                  "label": "连线步骤",
-                  "lazy": true
-                }
-              },
-              {
-                "type": "r-tab-pane",
-                "props": {
-                  "name": "all",
-                  "label": "所有信息",
-                  "lazy": true
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "stepTable",
-        "type": "r-table",
-        "props": {
-          "stripe": true,
-          "maxHeight": 380,
-          "showPagination": false,
-          "showDataViewMeta": false
-        },
-        "children": [
-          {
-            "type": "r-text",
-            "props": {
-              "field": "description",
-              "label": "摘要",
-              "minWidth": 280,
-              "readonly": true,
-              "showOverflowTooltip": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "STARTTIME",
-              "label": "开始时间",
-              "minWidth": 160,
-              "readonly": true
-            }
-          },
-          {
-            "type": "r-text",
-            "props": {
-              "field": "StepState",
-              "label": "步骤状态",
-              "minWidth": 100,
-              "readonly": true
-            }
-          }
-        ]
+        }
       }
     ]
   }

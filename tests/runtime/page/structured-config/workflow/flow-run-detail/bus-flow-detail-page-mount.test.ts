@@ -3,13 +3,14 @@ import {flushPromises, mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
-import {RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererDialog, RendererTable, RendererTabs, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {FLOW_DESIGN_SCENARIO_ID, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-adapters/resources/system/workflow/manage'
 import BusFlowDetailPage from '@/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue'
 import FlowRunPage from '@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import FlowRunDetailPage from '@/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue'
+import FlowRunDetailStepTable from '@/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-step-table.vue'
 import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
 
@@ -86,6 +87,12 @@ it.each([
       await flushPromises()
       const drilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.endsWith(' - 步骤信息'))
       expect(drilldown?.props('modelValue')).toBe(true)
+      expect(drilldown?.getComponent(FlowRunDetailStepTable).props()).toMatchObject({
+        viewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`, receivedNodeId: 'N1', showVoided: false,
+      })
+      drilldown?.getComponent(RendererTabs).vm.$emit('update:modelValue', 'sent')
+      await flushPromises()
+      expect(drilldown?.findAllComponents(FlowRunDetailStepTable).some(table => table.props('sentNodeId') === 'N1')).toBe(true)
       drilldown?.vm.$emit('update:modelValue', false)
       const edge = design.getView('WFM_NODE_REALATION')?.rows[0]
       expect(edge?.['rowid']).toBeDefined()
@@ -94,6 +101,7 @@ it.each([
       const edgeDrilldown = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title')?.includes(' → '))
       expect(drilldown?.props('modelValue')).toBe(false)
       expect(edgeDrilldown?.props('modelValue')).toBe(true)
+      expect(edgeDrilldown?.getComponent(FlowRunDetailStepTable).props()).toMatchObject({sentNodeId: 'N1', receivedNodeId: 'N2'})
       expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@View_FlowObjList@default`)
       const destination = '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'
       router.addRoute({path: destination, component: {render: () => null}})

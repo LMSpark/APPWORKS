@@ -2,7 +2,7 @@ import {afterEach, beforeEach, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, reactive} from 'vue'
 import ElementPlus from 'element-plus'
-import {DataSet, buildDataViewKey} from '@spark-appworks/spark-data'
+import {DataSet, buildDataViewKey, isSparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererTable, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
@@ -39,8 +39,8 @@ async function fixture(hidden = false) {
   const runtime = new PageRuntime({pageId: 'step-detail', scenarioIds: ['WORK'], loadScenario: async () => ds})
   await runtime.load()
   const options = reactive<{viewKey: string; receivedNodeId?: string; sentNodeId?: string; showVoided: boolean}>({viewKey: buildDataViewKey('Steps','default','WORK'), receivedNodeId: 'N1', showVoided: false})
-  const rule = detailRule[0]?.children.find(node => node.id === 'stepTable')
-  if (!rule) throw Error('运行详情缺少钻取表规则')
+  const rule = detailRule[0]?.children.find(node => node.id === 'stepDrilldowns')?.props.stepTable
+  if (!isSparkNode(rule)) throw Error('运行详情缺少钻取表规则')
   const Host = defineComponent({setup() {const {sparkProvide} = useSparkComponent({type: 'step-host'}); sparkProvide(PAGE_RUNTIME, runtime); return () => h(StepTable, {...options, rule})}})
   const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false}}})
   instances.push({wrapper, runtime}); await flushPromises(); await flushPromises()

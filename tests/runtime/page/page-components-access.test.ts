@@ -38,6 +38,21 @@ function contextRuntime(dataSet?: DataSet): PageRuntime {
 }
 
 describe('PageContext $components (metadata only)', () => {
+  it('distinguishes dismissing the native selector fallback from confirming an empty selection', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const service = buildPageService(router)
+    const prompt = vi.spyOn(window, 'prompt').mockReturnValueOnce(null).mockReturnValueOnce('')
+    const options = { options: [{ label: '张三', value: 'U1' }], currentValue: 'U1' }
+    try {
+      await expect(service.selectEntities(options)).resolves.toBeNull()
+      await expect(service.selectEntities(options)).resolves.toEqual([])
+      await expect(service.selectEntities({...options, options: []})).resolves.toBeNull()
+      expect(prompt).toHaveBeenCalledTimes(2)
+    } finally {
+      prompt.mockRestore()
+    }
+  })
+
   it('compiled scripts await the default clipboard write', async () => {
     const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
     const writeText = vi.fn(async (_text: string) => {})

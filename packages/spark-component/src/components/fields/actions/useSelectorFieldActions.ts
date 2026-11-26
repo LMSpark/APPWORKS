@@ -27,8 +27,8 @@ export function useSelectorFieldActions(options: UseSelectorFieldActionsOptions)
   const hasSelectorCapability = computed(() => typeof pageService?.selectEntities === 'function')
   const primaryAction = chooseByMode<'select' | 'view'>('select', 'view')
 
-  async function selectEntities(selectorOptions: PageSelectEntitiesOptions): Promise<PageSelectorOption[]> {
-    if (typeof pageService?.selectEntities !== 'function') return []
+  async function selectEntities(selectorOptions: PageSelectEntitiesOptions): Promise<PageSelectorOption[] | null> {
+    if (typeof pageService?.selectEntities !== 'function') return null
     return await pageService.selectEntities(selectorOptions)
   }
 

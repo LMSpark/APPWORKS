@@ -231,7 +231,7 @@
         },
         "method.selectEntities.return": {
           "type": "object",
-          "title": "Promise<EntityPickerSelectedOption[]>"
+          "title": "Promise<EntityPickerSelectedOption[] | null>"
         },
         "method.captureWriteGuard.params": {
           "type": "object",
@@ -269,7 +269,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.853Z",
+  "generatedAt": "2026-11-26T15:05:51.882Z",
   "models": {
     "EntityPickerSelectOption": {
       "name": "EntityPickerSelectOption",
@@ -399,7 +399,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 可编辑态选择按钮文本。 */\n    buttonText: ValueRef<NonNullable<SparkPrimaryActionTextProps['buttonText']>>;\n    /** 只读态查看按钮文本。 */\n    readonlyButtonText: ValueRef<NonNullable<SparkReadonlyActionTextProps['readonlyButtonText']>>;\n    /** 是否允许清空当前选择值。 */\n    clearable: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 是否允许多选实体。 */\n    multiple: ValueRef<NonNullable<SparkOptionFieldProps['multiple']>>;\n    /** 选择器是否开启搜索。 */\n    searchable: ValueRef<boolean>;\n    /** 多选字符串模式下的值分隔符。 */\n    valueSeparator: ValueRef<NonNullable<SparkOptionFieldProps['valueSeparator']>>;\n    /** 多选值写回模式：数组、字符串或按当前值自动判断。 */\n    valueMode: ValueRef<SparkOptionValueMode>;\n    /** 选择器中展示的实体名称。 */\n    entityName: ValueRef<string>;\n    /** 选择器搜索或空值提示。 */\n    placeholder: ValueRef<NonNullable<SparkFieldSemanticProps['placeholder']>>;\n    /** 已归一化的一维可选实体集合。 */\n    flatOptions: ValueRef<FieldOption[]>;\n    /** 当前字段原始值，保留数组或字符串等原始形态。 */\n    currentRawValue: ValueRef<PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string>;\n    /** 当前字段值的字符串形态，用于判断是否有值。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 当前页面运行时是否提供实体选择器能力。 */\n    hasSelectorCapability: ValueRef<boolean>;\n    /** 主按钮执行选择还是只读查看。 */\n    primaryAction: ValueRef<'select' | 'view'>;\n    /** 打开实体选择器并返回用户选择结果。 */\n    selectEntities: (options: EntityPickerSelectCommand) => Promise<EntityPickerSelectedOption[]>;\n    /** 打开时捕获原字段及原候选身份，迟到结果不得跟随新上下文。 */\n    captureWriteGuard: () => () => boolean;\n    /** 独立核候选查询的可读身份；只读查看仍可打开，过期来源不可读旧候选。 */\n    captureOptionsGuard: () => () => boolean;\n    /** 将选择结果写回字段值，异步事件期间继续核对原选择意图。 */\n    updateValue: (value: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string, isCurrentIntent?: () => boolean) => void | Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 可编辑态选择按钮文本。 */\n    buttonText: ValueRef<NonNullable<SparkPrimaryActionTextProps['buttonText']>>;\n    /** 只读态查看按钮文本。 */\n    readonlyButtonText: ValueRef<NonNullable<SparkReadonlyActionTextProps['readonlyButtonText']>>;\n    /** 是否允许清空当前选择值。 */\n    clearable: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 是否允许多选实体。 */\n    multiple: ValueRef<NonNullable<SparkOptionFieldProps['multiple']>>;\n    /** 选择器是否开启搜索。 */\n    searchable: ValueRef<boolean>;\n    /** 多选字符串模式下的值分隔符。 */\n    valueSeparator: ValueRef<NonNullable<SparkOptionFieldProps['valueSeparator']>>;\n    /** 多选值写回模式：数组、字符串或按当前值自动判断。 */\n    valueMode: ValueRef<SparkOptionValueMode>;\n    /** 选择器中展示的实体名称。 */\n    entityName: ValueRef<string>;\n    /** 选择器搜索或空值提示。 */\n    placeholder: ValueRef<NonNullable<SparkFieldSemanticProps['placeholder']>>;\n    /** 已归一化的一维可选实体集合。 */\n    flatOptions: ValueRef<FieldOption[]>;\n    /** 当前字段原始值，保留数组或字符串等原始形态。 */\n    currentRawValue: ValueRef<PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string>;\n    /** 当前字段值的字符串形态，用于判断是否有值。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 当前页面运行时是否提供实体选择器能力。 */\n    hasSelectorCapability: ValueRef<boolean>;\n    /** 主按钮执行选择还是只读查看。 */\n    primaryAction: ValueRef<'select' | 'view'>;\n    /** 返回已确认的选择结果。取消或关闭返回 null。 */\n    selectEntities: (options: EntityPickerSelectCommand) => Promise<EntityPickerSelectedOption[] | null>;\n    /** 打开时捕获原字段及原候选身份，迟到结果不得跟随新上下文。 */\n    captureWriteGuard: () => () => boolean;\n    /** 独立核候选查询的可读身份；只读查看仍可打开，过期来源不可读旧候选。 */\n    captureOptionsGuard: () => () => boolean;\n    /** 将选择结果写回字段值，异步事件期间继续核对原选择意图。 */\n    updateValue: (value: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string, isCurrentIntent?: () => boolean) => void | Promise<void>;\n}",
         "members": {
           "attributes": [
             {
@@ -496,7 +496,7 @@
           "methods": [
             {
               "name": "selectEntities",
-              "jsdoc": "打开实体选择器并返回用户选择结果。",
+              "jsdoc": "返回已确认的选择结果。取消或关闭返回 null。",
               "parameters": [
                 {
                   "name": "options",
@@ -512,12 +512,21 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "array",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "EntityPickerSelectedOption",
-                      "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts"
-                    }
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "EntityPickerSelectedOption",
+                          "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts"
+                        }
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
                   }
                 ]
               }

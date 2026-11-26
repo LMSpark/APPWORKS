@@ -98,7 +98,7 @@
             },
             "selectEntities": {
               "type": "object",
-              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[]>"
+              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[] | null>"
             },
             "browseFiles": {
               "type": "object",
@@ -123,7 +123,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.958Z",
+  "generatedAt": "2026-11-26T15:05:51.881Z",
   "models": {
     "PageServiceOverrides": {
       "name": "PageServiceOverrides",

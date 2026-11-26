@@ -4,6 +4,7 @@ import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, bindDataSetReadonlyCommandQuery, bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {appPageUiService, appPageUiState, cancelAppSelector, closeAppSelector, confirmAppSelector} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererForm, Spark, registerAllRenderers, useSparkComponent, type PageSelectorOption} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
 import {createFlowRunCandidatesBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
@@ -12,7 +13,7 @@ import {submitApprovalCommand} from '@/platform-adapters/resources/system/workfl
 const originalStubs = {...config.global.stubs}
 afterEach(() => {config.global.stubs = originalStubs})
 
-async function fixture(freeChoice = false, nodeId = 'N1') {
+async function fixture(freeChoice = false, nodeId = 'N1', useAppSelector = false) {
   const ds = DataSet.fromJson({scenarioId: 'S', tables: {}})
   const source = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
   bindDataSetReadonlyCommandQuery(source, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, guard: () => {}, loadRows: async () => [{id: 'current', payload: {execUser: [{nodeId: 'N1', maxNum: 1, allowChange: freeChoice, userList: [{UserId: 'U1', UserName: '张三'}]}, {nodeId: 'N2', userList: []}]}}]})
@@ -35,7 +36,7 @@ async function fixture(freeChoice = false, nodeId = 'N1') {
   const runtime = new PageRuntime({pageId: 'candidate-picker', scenarioIds: ['S'], loadScenario: async () => ds})
   await runtime.load(); registerAllRenderers()
   const select = vi.fn<(options: {options?: PageSelectorOption[]}) => Promise<PageSelectorOption[]>>(async options => options.options ?? [])
-  const service = {...createTestPageService(), selectEntities: select}
+  const service = {...createTestPageService(), selectEntities: useAppSelector ? appPageUiService.selectEntities : select}
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'candidate-test'})
     sparkProvide(PAGE_RUNTIME, runtime); sparkProvide(PAGE_SERVICE, service)
@@ -48,6 +49,39 @@ async function fixture(freeChoice = false, nodeId = 'N1') {
   await flushPromises()
   return {wrapper, runtime, input, ds, candidates, source, directory, select, dispatch, id}
 }
+
+it.each(['cancel', 'close', 'replacement', 'confirm-empty'])('settles %s on the original approval field through the application selector', async action => {
+  const f = await fixture(false, 'N1', true)
+  const open = async () => {
+    await f.wrapper.get('.primary-action-button').trigger('click')
+    await flushPromises()
+  }
+  try {
+    await open()
+    appPageUiState.selector.selectedValues = ['U1:张三']
+    confirmAppSelector()
+    await flushPromises()
+    expect(f.input.getEditingRow(f.id)?.['nextNode']).toEqual([{NodeId: 'N1', ExecUserList: ['U1:张三']}])
+
+    await open()
+    if (action === 'cancel') cancelAppSelector()
+    else if (action === 'close') closeAppSelector()
+    else if (action === 'replacement') void appPageUiService.selectEntities({title: '其他选择'})
+    else {
+      appPageUiState.selector.selectedValues = []
+      confirmAppSelector()
+    }
+    await flushPromises()
+    expect(f.input.getEditingRow(f.id)?.['nextNode']).toEqual([
+      {NodeId: 'N1', ExecUserList: action === 'confirm-empty' ? [] : ['U1:张三']},
+    ])
+    expect(f.dispatch).not.toHaveBeenCalled()
+  } finally {
+    f.wrapper.unmount()
+    closeAppSelector()
+    f.runtime.dispose()
+  }
+})
 
 it('writes selected encoded people through standard JSON children to the original parameter view and cancels without dispatch', async () => {
   const f = await fixture()

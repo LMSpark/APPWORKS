@@ -76,8 +76,8 @@ type UseEntityPickerStateOptions = {
   hasSelectorCapability: ValueRef<boolean>
   /** 主按钮执行选择还是只读查看。 */
   primaryAction: ValueRef<'select' | 'view'>
-  /** 打开实体选择器并返回用户选择结果。 */
-  selectEntities: (options: EntityPickerSelectCommand) => Promise<EntityPickerSelectedOption[]>
+  /** 返回已确认的选择结果。取消或关闭返回 null。 */
+  selectEntities: (options: EntityPickerSelectCommand) => Promise<EntityPickerSelectedOption[] | null>
   /** 打开时捕获原字段及原候选身份，迟到结果不得跟随新上下文。 */
   captureWriteGuard: () => () => boolean
   /** 独立核候选查询的可读身份；只读查看仍可打开，过期来源不可读旧候选。 */
@@ -119,7 +119,7 @@ export function useEntityPickerState(options: UseEntityPickerStateOptions) {
       })),
     })
 
-    if (!isCurrentIntent() || !options.isCurrentFieldEditable.value) return
+    if (selected === null || !isCurrentIntent() || !options.isCurrentFieldEditable.value) return
     await options.updateValue(buildNextValue(selected.map(item => item.value)), isCurrentIntent)
   }
 

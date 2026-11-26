@@ -229,8 +229,8 @@ export type PageServiceCapability = {
   showAlert(message: string, title?: string, options?: { type?: PageMessageType }): Promise<void>
   /** 显示自定义对话框 */
   showDialog(options: PageDialogOptions): Promise<PageDialogResult>
-  /** 打开实体选择器 */
-  selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>
+  /** 返回确认的实体项，空数组表示确认空选择，取消或关闭返回 null。 */
+  selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[] | null>
   /** 打开文件浏览对话框 */
   browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>
   /**

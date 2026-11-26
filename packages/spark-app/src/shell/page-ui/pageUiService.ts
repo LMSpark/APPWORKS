@@ -10,7 +10,8 @@ import type { PageServiceCapability } from '@spark-appworks/spark-component'
 type PageDialogOptions = Parameters<PageServiceCapability['showDialog']>[0]
 type PageDialogResult = Awaited<ReturnType<PageServiceCapability['showDialog']>>
 type PageSelectEntitiesOptions = Parameters<PageServiceCapability['selectEntities']>[0]
-type PageSelectorOption = Awaited<ReturnType<PageServiceCapability['selectEntities']>>[number]
+type PageSelectorResult = Awaited<ReturnType<PageServiceCapability['selectEntities']>>
+type PageSelectorOption = NonNullable<PageSelectorResult>[number]
 type PageSelectorValue = PageSelectorOption['value']
 type PageSelectorCurrentValue = PageSelectorValue | PageSelectorValue[]
 
@@ -63,7 +64,7 @@ const selectorState = reactive<SelectorState>({
 })
 
 let dialogResolver: ((result: PageDialogResult) => void) | null = null
-let selectorResolver: ((result: PageSelectorOption[]) => void) | null = null
+let selectorResolver: ((result: PageSelectorResult) => void) | null = null
 
 function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): string[] {
   if (Array.isArray(value)) return value.map(item => String(item))
@@ -75,9 +76,9 @@ function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): str
   return []
 }
 
-async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]> {
+async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorResult> {
   if (selectorResolver) {
-    selectorResolver([])
+    selectorResolver(null)
   }
 
   selectorState.title = options.title ?? `选择${options.entityName ?? '项目'}`
@@ -92,7 +93,7 @@ async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageS
   selectorState.selectedValues = normalizeSelectorKeys(options.currentValue)
   selectorState.visible = true
 
-  return await new Promise<PageSelectorOption[]>((resolve) => {
+  return await new Promise<PageSelectorResult>((resolve) => {
     selectorResolver = resolve
   })
 }
@@ -123,7 +124,7 @@ function resolveDialog(result: PageDialogResult): void {
   if (resolver) resolver(result)
 }
 
-function resolveSelector(result: PageSelectorOption[]): void {
+function resolveSelector(result: PageSelectorResult): void {
   const resolver = selectorResolver
   selectorResolver = null
   selectorState.visible = false
@@ -161,9 +162,9 @@ export function confirmAppSelector(): void {
 }
 
 export function cancelAppSelector(): void {
-  resolveSelector([])
+  resolveSelector(null)
 }
 
 export function closeAppSelector(): void {
-  resolveSelector([])
+  resolveSelector(null)
 }

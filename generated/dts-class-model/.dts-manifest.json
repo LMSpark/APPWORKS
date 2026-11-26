@@ -694,7 +694,7 @@
     "packages/spark-app/src/shell/page-ui/pageUiService.ts": {
       "sourceFile": "packages/spark-app/src/shell/page-ui/pageUiService.ts",
       "shardFile": "files/packages/spark-app/src/shell/page-ui/pageUiService.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.546Z"
+      "sourceModifiedAt": "2026-11-26T15:05:51.880Z"
     },
     "packages/spark-app/src/shell/plugins/index.ts": {
       "sourceFile": "packages/spark-app/src/shell/plugins/index.ts",
@@ -1894,7 +1894,7 @@
     "packages/spark-component/src/components/fields/actions/useSelectorFieldActions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/actions/useSelectorFieldActions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/actions/useSelectorFieldActions.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.817Z"
+      "sourceModifiedAt": "2026-11-26T15:05:51.881Z"
     },
     "packages/spark-component/src/components/fields/columnFormRules.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/columnFormRules.ts",
@@ -2049,7 +2049,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.853Z"
+      "sourceModifiedAt": "2026-11-26T15:05:51.882Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts",
@@ -2639,7 +2639,7 @@
     "packages/spark-component/src/page/services/buildPageService.ts": {
       "sourceFile": "packages/spark-component/src/page/services/buildPageService.ts",
       "shardFile": "files/packages/spark-component/src/page/services/buildPageService.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.958Z"
+      "sourceModifiedAt": "2026-11-26T15:05:51.881Z"
     },
     "packages/spark-component/src/page/services/consumeRequiredPageService.ts": {
       "sourceFile": "packages/spark-component/src/page/services/consumeRequiredPageService.ts",
@@ -2679,7 +2679,7 @@
     "packages/spark-component/src/runtime/app-services.ts": {
       "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
       "shardFile": "files/packages/spark-component/src/runtime/app-services.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.965Z"
+      "sourceModifiedAt": "2026-11-26T15:05:51.879Z"
     },
     "packages/spark-component/src/runtime/index.ts": {
       "sourceFile": "packages/spark-component/src/runtime/index.ts",

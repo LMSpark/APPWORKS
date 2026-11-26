@@ -105,10 +105,10 @@ function normalizeSelectorKeys(value: PageSelectEntitiesOptions['currentValue'] 
   return []
 }
 
-function selectFallbackEntities(options: PageSelectEntitiesOptions): PageSelectorOption[] {
+function selectFallbackEntities(options: PageSelectEntitiesOptions): PageSelectorOption[] | null {
   const candidates = options.options?.filter(option => option.disabled !== true) ?? []
-  if (candidates.length === 0) return []
-  if (typeof window === 'undefined' || typeof window.prompt !== 'function') return []
+  if (candidates.length === 0) return null
+  if (typeof window === 'undefined' || typeof window.prompt !== 'function') return null
 
   const title = options.title ?? `选择${options.entityName ?? '项目'}`
   const defaultValue = normalizeSelectorKeys(options.currentValue).join(', ')
@@ -119,7 +119,7 @@ function selectFallbackEntities(options: PageSelectEntitiesOptions): PageSelecto
   ].join('\n\n')
 
   const input = window.prompt(message, defaultValue)
-  if (input === null) return []
+  if (input === null) return null
 
   const selectedKeys = normalizeSelectorKeys(input)
   const matched = candidates.filter(option => selectedKeys.includes(String(option.value)))

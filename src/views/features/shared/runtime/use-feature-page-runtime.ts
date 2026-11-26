@@ -8,7 +8,7 @@ import {computed, onBeforeUnmount, ref, toValue, watch, type MaybeRefOrGetter, t
 import {useRoute} from 'vue-router'
 import type {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
-import {buildDataViewKey} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {resolveExecutionProjectId} from '@/services/application-scope'
@@ -115,9 +115,11 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       })]
       if (context) for (const item of views) item.queryContext = {...item.queryContext, ...context}
       await Promise.all(views.map(item => item.refresh()))
+      if (!isCurrent(current, own)) return
       const failed = views.find(item => item.loadingError)
       if (failed?.loadingError) throw failed.loadingError
-      if (!isCurrent(current, own)) return
+      const incomplete = views.find(item => item.requestState !== RequestState.Loaded)
+      if (incomplete) throw new Error(`${title}视图 ${incomplete.tableName}@${incomplete.viewId} 查询未完成`)
       sparkProvide(PAGE_RUNTIME, current)
       ready.value = true
     } catch (cause) {

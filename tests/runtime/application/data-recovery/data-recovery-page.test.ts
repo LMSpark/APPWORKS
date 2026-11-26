@@ -137,11 +137,11 @@ it('renders only the selected recovery table fields while the next field result 
   bindDataSetReadonlyCommandQuery(databases, {resource: {resourceType: 'logical-view', resourceId: databases.tableName}, guard: () => {}, loadRows: async () => [{rowid: 'D', conid: 'DB1', conName: '原库'}]})
   bindDataSetReadonlyCommandQuery(tables, {resource: {resourceType: 'logical-view', resourceId: tables.tableName}, guard: () => {}, loadRows: async () => [{rowid: 'T1', tblname: 'First'}, {rowid: 'T2', tblname: 'Second'}]})
   await Promise.all([fields.refresh(), databases.refresh(), tables.refresh()])
+  await bindRecoveryRows(ds.getView('Base_AppSystemList')!, [])
   databases.setCurrentRowById('D')
   tables.setCurrentRowById('T1')
   const loader = vi.spyOn(scenarioLoader, 'loadLowcodeRuntimeScenario').mockResolvedValue(ds)
   registerAllRenderers()
-  const mainRead = vi.spyOn(ds.getView('Base_AppSystemList')!, 'refresh').mockResolvedValue(undefined)
   const allRead = vi.spyOn(all, 'refresh').mockResolvedValue(undefined)
   const path = '/apps/APP/recovery'
   const pool = new SystemPageIdentityPool()
@@ -217,7 +217,6 @@ it('renders only the selected recovery table fields while the next field result 
     wrapper.unmount()
     config.global.stubs = originalStubs
     loader.mockRestore()
-    mainRead.mockRestore()
     allRead.mockRestore()
   }
 })

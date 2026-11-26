@@ -45,12 +45,13 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function open(wait = true, component: Component = JobPage) {
+async function open(wait = true, component: Component = JobPage, prepare?: (runtime: PageRuntime) => void) {
   const observed = new Set<PageRuntime>()
   const load = PageRuntime.prototype.load
   vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function(this: PageRuntime) {
     observed.add(this)
-    return load.call(this)
+    const loaded = load.call(this)
+    return prepare ? loaded.then(() => prepare(this)) : loaded
   })
   const router = createRouter({history: createMemoryHistory(), routes: [{
     path: `/apps/:projectId${JOB_PATH}`, component,
@@ -211,6 +212,38 @@ describe('reference job page through SPARK data', () => {
     const {observed} = await open(), {departments} = currentViews(observed)
     expect(departments.rows).toHaveLength(501)
     expect(http.reads.map(read => read.table)).toEqual(['Base_JobInfo', 'Base_DepartInfo', 'Base_DepartInfo'])
+  })
+
+  it.each([
+    {parent: 'Base_DepartInfo', child: 'Base_JobInfo', sourceField: 'DepID', targetField: 'Depid'},
+    {parent: 'Base_JobInfo', child: 'Base_DepartInfo', sourceField: 'Depid', targetField: 'DepID'},
+  ])('keeps the entry closed until $child completes its required query', async relation => {
+    let configure = true
+    let prepared: PageRuntime | undefined
+    const {wrapper, observed} = await open(true, JobPage, runtime => {
+      if (!configure || prepared === runtime) return
+      prepared = runtime
+      const dataSet = runtime.getDataSet(JOB_SCENARIO)
+      if (!dataSet) throw Error('岗位数据空间未装配')
+      dataSet.addCascade({
+        kind: 'query', parentTable: relation.parent, parentViewId: 'default',
+        childTable: relation.child, childViewId: 'default', autoLoad: false,
+        filterBindings: [{sourceField: relation.sourceField, targetField: relation.targetField, emptyValueMode: 'emptyResult'}],
+      })
+    })
+    expect(http.reads.some(read => read.table === relation.child)).toBe(false)
+    expect(wrapper.findComponent(RendererTable).exists()).toBe(false)
+    expect(wrapper.get('.renderer-section-error').text()).toContain(`${relation.child}@default`)
+    expect([...observed].every(runtime => runtime.destroyed)).toBe(true)
+
+    configure = false
+    http.records[relation.child] = []
+    await getButton(wrapper, '重试').trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
+    expect(wrapper.find('.renderer-section-error').exists()).toBe(false)
+    expect(http.reads.some(read => read.table === relation.child)).toBe(true)
+    const {jobs, departments} = currentViews(observed)
+    expect((relation.child === 'Base_JobInfo' ? jobs : departments).total).toBe(0)
   })
 
   it('fails the entry on an option query failure and retries jobs with options in the same batch', async () => {

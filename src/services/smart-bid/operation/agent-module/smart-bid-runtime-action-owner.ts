@@ -4,6 +4,7 @@
  * 边界：只接受完整动作输入；不推断模型视图、不把普通 CRUD 当业务命令、不创建后端协议。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
+import {RequestState} from '@spark-appworks/spark-data'
 import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
 import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import type {SmartBidActionExecutor} from './smart-bid-action-module'
@@ -13,9 +14,7 @@ const commandFields=[
 ] as const
 type RuntimeOwner=Readonly<{runtime:Pick<PageRuntime,'getDataSet'|'destroyed'|'isLoaded'>;scenarioId:string;assertCurrent:()=>void}>
 
-/** 当前场景必须且只能声明一个与公开动作合同完全匹配的 command 视图。 */
-export function createSmartBidRuntimeActionExecutor(source:RuntimeOwner):SmartBidActionExecutor{
- return async input=>{
+function resolveActionView(source:RuntimeOwner){
   source.assertCurrent()
   const runtime=source.runtime
   if(runtime.destroyed||!runtime.isLoaded)throw Error('SMART_BID_ACTION_OWNER_STALE')
@@ -29,7 +28,21 @@ export function createSmartBidRuntimeActionExecutor(source:RuntimeOwner):SmartBi
   if(candidates.length!==1)throw Error(`SMART_BID_ACTION_COMMAND_REQUIRED: ${candidates.length}`)
   const view=candidates[0]
   if(!view||view.destroyed||view.dataSet!==dataSet)throw Error('SMART_BID_ACTION_OWNER_STALE')
-  source.assertCurrent()
+  if(view.hasUnconfirmedSave)throw Error('SMART_BID_ACTION_OWNER_UNCONFIRMED')
+  if(!view.hasQueryExecutorBinding()||view.requestState!==RequestState.Loaded||view.addActionState()!=='enabled')
+   throw Error('SMART_BID_ACTION_OWNER_NOT_READY')
+  return {dataSet,view}
+}
+
+/** 开轮前固定唯一可提交的原命令视图。已打开的轮次不能转用其他 owner。 */
+export function prepareSmartBidRuntimeAction(source:RuntimeOwner){
+ const {dataSet,view}=resolveActionView(source)
+ const assertCurrent=()=>{
+  if(view.destroyed||view.dataSet!==dataSet||resolveActionView(source).view!==view)
+   throw Error('SMART_BID_ACTION_OWNER_STALE')
+ }
+ const execute:SmartBidActionExecutor=async input=>{
+  assertCurrent()
   const submitted=structuredClone(input)
   const row=await view.addRow({...submitted})
   const key=view.getPkKey(row)
@@ -55,4 +68,5 @@ export function createSmartBidRuntimeActionExecutor(source:RuntimeOwner):SmartBi
    throw error
   }
  }
+ return Object.freeze({assertCurrent,execute})
 }

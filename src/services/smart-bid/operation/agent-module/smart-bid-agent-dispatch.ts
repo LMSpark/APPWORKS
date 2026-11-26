@@ -12,7 +12,7 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart
 import {createAiAgentTurnCallbacks} from '@/services/ai/ai-turn-bridge'
 import {getDtsClassModelManifestUrl} from '@/services/class-model-artifacts/artifact-urls'
 import {SmartBidOperationModule,type SmartBidOperationCommand} from './smart-bid-operation-module'
-import {createSmartBidRuntimeActionExecutor} from './smart-bid-runtime-action-owner'
+import {prepareSmartBidRuntimeAction} from './smart-bid-runtime-action-owner'
 
 const registrationId='SmartBidOperationModule'
 // 同一 PageRuntime 内的派发资格。回执与未决请求仍由原 DataView 管理。
@@ -54,7 +54,7 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
  }})
  const current=()=>{assertCurrent();if(runtime.destroyed||!runtime.isLoaded||!runtime.call.scenarioIds.includes(scenarioId))
    throw Error('SMART_BID_AGENT_RUNTIME_STALE')}
- const executeOwner=createSmartBidRuntimeActionExecutor({runtime,scenarioId,assertCurrent:current})
+ const owner={runtime,scenarioId,assertCurrent:current}
  const requests=runtimeRequests.get(runtime)??new Set<string>()
  runtimeRequests.set(runtime,requests)
  const assertScope=(command:SmartBidOperationCommand)=>{
@@ -64,20 +64,26 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
  const reserve=(command:SmartBidOperationCommand)=>{
    const key=JSON.stringify([scenarioId,projectId,command.operationId,command.requestKey])
    if(requests.has(key))throw Error('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+   const action=prepareSmartBidRuntimeAction(owner)
    requests.add(key)
-   return key
+   return {key,action}
  }
- let active:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}|undefined
+ type ActiveDispatch=Readonly<{command:SmartBidOperationCommand;commandText:string;action:ReturnType<typeof prepareSmartBidRuntimeAction>}>
+  & {receipt?:JsonValue;execution?:Promise<JsonValue>}
+ let active:ActiveDispatch|undefined
  const execute=async(command:SmartBidOperationCommand):Promise<JsonValue>=>{
    const dispatch=active
    if(dispatch&&(['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey'] as const)
      .some(field=>dispatch.command[field]!==command[field]))throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
    if(dispatch&&canonicalSnapshotValue(command)!==dispatch.commandText)throw Error('SMART_BID_AGENT_DISPATCH_INPUT_CHANGED')
    if(!dispatch){
-     current();assertScope(command);reserve(command)
-     return executeOwner(command)
+     current();assertScope(command)
+     return reserve(command).action.execute(command)
    }
-   dispatch.execution??=executeOwner(command)
+   if(!dispatch.execution){
+     dispatch.action.assertCurrent()
+     dispatch.execution=dispatch.action.execute(command)
+   }
    const receipt=await dispatch.execution
    dispatch.receipt=receipt
    return receipt
@@ -128,14 +134,15 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
      const commandText=canonicalSnapshotValue(inputCommand)
      const command=structuredClone(inputCommand)
      const now=new Date().toISOString(),turnId=crypto.randomUUID()
-     const reserved=reserve(command)
+     const {key:reserved,action:prepared}=reserve(command)
      accepted=undefined
-     const dispatch:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}={command,commandText}
+     const dispatch:ActiveDispatch={command,commandText,action:prepared}
      active=dispatch
      try{
        const inputDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(command.inputs))
        current()
        signal.throwIfAborted()
+       prepared.assertCurrent()
        let transportError:string|undefined
        try {
          await host.run(registrationId,command,{turn:{

@@ -8,7 +8,7 @@ import type {AiAgentTurnBridgeOptions} from '@/services/ai/ai-turn-bridge'
 import type {AiAgentTurnCallbacks} from '@spark-appworks/spark-ai/agent'
 import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
 
-const state=vi.hoisted(()=>({script:'',sent:false,failReturn:false,failBefore:false,forwarded:vi.fn(),prompt:vi.fn()}))
+const state=vi.hoisted(()=>({script:'',sent:false,failReturn:false,failBefore:false,forwarded:vi.fn(),prompt:vi.fn(),beforeTool:vi.fn()}))
 vi.mock('@/services/ai/ai-turn-bridge',()=>({
  createAiAgentTurnCallbacks:(options:AiAgentTurnBridgeOptions={})=>{
   const callbacks:AiAgentTurnCallbacks={
@@ -19,6 +19,7 @@ vi.mock('@/services/ai/ai-turn-bridge',()=>({
     state.prompt(input.messages.filter(row=>row.role==='user').at(-1)?.content)
     options.onAccepted?.({sessionId:'SSE-SESSION',turnId:'SSE-TURN',localTurnId:input.turn.turnId})
     if(state.failBefore)throw Error('LOCAL_TURN_INTERRUPTED')
+    await state.beforeTool()
     return {text:'',toolCalls:[{id:'CALL',type:'function',function:{
      name:'model_script',arguments:JSON.stringify({script:state.script}),
     }}]}
@@ -31,7 +32,7 @@ vi.mock('@/services/ai/ai-turn-bridge',()=>({
 
 afterEach(()=>{
  vi.unstubAllGlobals();state.sent=false;state.failReturn=false;state.failBefore=false
- state.forwarded.mockReset();state.prompt.mockReset()
+ state.forwarded.mockReset();state.prompt.mockReset();state.beforeTool.mockReset()
 })
 
 
@@ -50,14 +51,19 @@ beforeEach(()=>{
 async function openCommandRuntime(){
  const scenarioId='SPACE'
  const dataSet=DataSet.fromJson({scenarioId,tables:{}})
- const view=ensureDataSetResourceView({dataSet,tableName:'SmartBidAction',resource:{resourceType:'command',resourceId:'smart-bid:action'},
-  columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
-   .map(name=>({name})),{name:'inputs',type:'json'}]})
  const submit=vi.fn(async row=>({...row,receiptRef:'RECEIPT'}))
  const verify=vi.fn(async()=>undefined)
- bindDataSetCommandSubmit(view,{resource:{resourceType:'command',resourceId:'smart-bid:action'},
-  guard:()=>{},inputFields:['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','inputs'],
-  createKey:()=> crypto.randomUUID(),submit,verify,isUnconfirmed:error=>error instanceof Error&&error.message==='LOCAL_OWNER_RECEIPT_LOST'})
+ const declare=(tableName:string,bound=true)=>{
+  const resource={resourceType:'command',resourceId:'smart-bid:action'} as const
+  const view=ensureDataSetResourceView({dataSet,tableName,resource,
+   columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
+    .map(name=>({name})),{name:'inputs',type:'json'}]})
+  if(bound)bindDataSetCommandSubmit(view,{resource,
+   guard:()=>{},inputFields:['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','inputs'],
+   createKey:()=>crypto.randomUUID(),submit,verify,isUnconfirmed:error=>error instanceof Error&&error.message==='LOCAL_OWNER_RECEIPT_LOST'})
+  return view
+ }
+ const view=declare('SmartBidAction')
  await view.refresh()
  const tool=new PageTool({pageId:'TEST-OWNER'})
  tool.hydrateFileText('rule.json','[]')
@@ -70,9 +76,49 @@ async function openCommandRuntime(){
  const dispatcher=createDispatcher()
  const command={operationId:'39',registrationId:'SmartBidOperationModule',businessInstanceId:'PROJECT',
   runtimeInstanceId:runtime.call.instanceId,requestKey:'ORIGINAL',prompt:'原采用请求',inputs:{revisionId:'V1',options:{copies:1}}}
- return {command,dispatcher,createDispatcher,signal:new AbortController().signal,submit,verify,runtime}
+ return {command,dispatcher,createDispatcher,signal:new AbortController().signal,submit,verify,runtime,view,declare}
 }
 
+it.each([
+ {mode:'missing',error:'SMART_BID_ACTION_COMMAND_REQUIRED: 0'},
+ {mode:'unbound',error:'SMART_BID_ACTION_OWNER_NOT_READY'},
+ {mode:'idle',error:'SMART_BID_ACTION_OWNER_NOT_READY'},
+ {mode:'ambiguous',error:'SMART_BID_ACTION_COMMAND_REQUIRED: 2'},
+])('refuses to open an Agent turn for a $mode command owner',async ({mode,error})=>{
+ const f=await openCommandRuntime()
+ try{
+  if(mode==='missing'||mode==='unbound')f.view.dataTable?.destroyView(f.view.viewId)
+  if(mode==='unbound'||mode==='ambiguous')f.declare('Replacement',false)
+  if(mode==='idle')f.view.resetState()
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  await expect(f.dispatcher.dispatch(f.command,f.signal)).rejects.toThrow(error)
+  expect(state.prompt).not.toHaveBeenCalled()
+  expect(f.submit).not.toHaveBeenCalled()
+  if(mode==='idle'){
+   await f.view.refresh()
+   await expect(f.dispatcher.dispatch(f.command,f.signal)).resolves.toMatchObject({outcome:{state:'ACTION_APPLIED'}})
+   expect(f.submit).toHaveBeenCalledOnce()
+  }
+ }finally{f.runtime.dispose()}
+})
+
+it('does not dispatch to a substitute owner added after the Agent turn starts',async()=>{
+ const f=await openCommandRuntime()
+ try{
+  state.beforeTool.mockImplementationOnce(async()=>{
+   f.view.dataTable?.destroyView(f.view.viewId)
+   await f.declare('Replacement').refresh()
+  })
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  await expect(f.dispatcher.dispatch(f.command,f.signal)).resolves.toMatchObject({outcome:{state:'NO_ACTION_RECEIPT'}})
+  expect(state.prompt).toHaveBeenCalledOnce()
+  expect(f.submit).not.toHaveBeenCalled()
+  expect(JSON.stringify(state.forwarded.mock.calls)).toContain('SMART_BID_ACTION_OWNER_STALE')
+  state.sent=false
+  await expect(f.dispatcher.dispatch(f.command,f.signal)).resolves.toMatchObject({outcome:{state:'ACTION_APPLIED'}})
+  expect(f.submit).toHaveBeenCalledOnce()
+ }finally{f.runtime.dispose()}
+})
 
 it.each(['identical','reordered','changed','changed-prompt'] as const)('requires exact input in the generated ClassModel tool path for %s',async mode=>{
  const f=await openCommandRuntime()
@@ -152,6 +198,8 @@ it.each(['confirmed','delivery-failed','owner-unknown'] as const)('stops a new t
   state.sent=false;state.failReturn=false
   await expect(f.createDispatcher().dispatch(f.command,f.signal)).rejects.toThrow('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
   await expect(f.dispatcher.dispatch({...f.command,inputs:{revisionId:'V2'}},f.signal)).rejects.toThrow('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+  if(mode==='owner-unknown')await expect(f.dispatcher.dispatch({...f.command,requestKey:'NEW'},f.signal))
+   .rejects.toThrow('SMART_BID_ACTION_OWNER_UNCONFIRMED')
   expect(state.prompt).toHaveBeenCalledOnce()
   expect(f.submit).toHaveBeenCalledOnce()
   expect(f.verify).not.toHaveBeenCalled()

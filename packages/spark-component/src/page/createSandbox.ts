@@ -39,6 +39,32 @@ function extractNamesFromScript(scriptText: string): string[] {
   return Array.from(names)
 }
 
+function compilePageScript(scriptText: string) {
+  const functionNames = extractNamesFromScript(scriptText)
+  const returnStatement = functionNames.length > 0
+    ? `\nreturn { ${functionNames.map(n =>
+        `'${n}': (typeof ${n} !== 'undefined' ? ${n} : undefined)`
+      ).join(', ')} }`
+    : '\nreturn {}'
+
+  // ✅ 使用 with 语句创建动态作用域，让变量每次访问都从 __ctx 获取最新值
+  // 页面能力访问由当前 call 上下文持有
+  // 注意：with 在非严格模式下工作，所以不能在函数内添加 'use strict'
+  //
+  // ⚠️ returnStatement 必须放在 with 块内部：
+  //    async function / generator / class 声明在 with 块内是块作用域的，
+  //    不会被提升到外层函数作用域（与普通 function 声明不同）。
+  //    将 return 放在 with 块外部会导致这些声明不可见（typeof → 'undefined'）。
+  const fullScript = `with (__ctx) { ${scriptText} ${returnStatement}\n}`
+
+  return new Function('__ctx', fullScript)
+}
+
+/** 检查页面脚本能否按渲染器的方式编译。函数体在本次调用中保持未执行。 */
+export function validatePageScriptSyntax(scriptText: string): void {
+  compilePageScript(scriptText)
+}
+
 /**
  * 编译业务脚本为可执行的函数对象
  *
@@ -56,25 +82,8 @@ export function compileFunctions(
   scriptText: string,
   context: PageContext
 ): Record<string, (...args: unknown[]) => unknown> {
-  const functionNames = extractNamesFromScript(scriptText)
   try {
-    const returnStatement = functionNames.length > 0
-      ? `\nreturn { ${functionNames.map(n =>
-          `'${n}': (typeof ${n} !== 'undefined' ? ${n} : undefined)`
-        ).join(', ')} }`
-      : '\nreturn {}'
-
-    // ✅ 使用 with 语句创建动态作用域，让变量每次访问都从 __ctx 获取最新值
-    // 页面能力访问由当前 call 上下文持有
-    // 注意：with 在非严格模式下工作，所以不能在函数内添加 'use strict'
-    //
-    // ⚠️ returnStatement 必须放在 with 块内部：
-    //    async function / generator / class 声明在 with 块内是块作用域的，
-    //    不会被提升到外层函数作用域（与普通 function 声明不同）。
-    //    将 return 放在 with 块外部会导致这些声明不可见（typeof → 'undefined'）。
-    const fullScript = `with (__ctx) { ${scriptText} ${returnStatement}\n}`
-
-    const func = new Function('__ctx', fullScript)
+    const func = compilePageScript(scriptText)
     const safeContext = createSafeProxy(context)
     // Dynamic page scripts intentionally compile through Function; the result is validated below.
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call

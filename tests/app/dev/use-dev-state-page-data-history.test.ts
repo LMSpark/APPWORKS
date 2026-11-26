@@ -9,9 +9,9 @@ import {useDevFileEditor} from '@/views/features/application/application-functio
 import {usePageDesign} from '@/views/features/application/application-function-management/ui/page-design/use-page-design'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
+import {buildRuntimeDataSetPlanText, DataSet, DataSpaceApiError, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
 import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, Spark, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 import {PageRuntime, ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
@@ -23,13 +23,17 @@ vi.mock('@/services/sse-events', async importOriginal => ({
 }))
 
 const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad, previewCalls, savedVersions,
-  scenarioVersions, designVersions, designWorking } = vi.hoisted(() => ({
+  scenarioVersions, scenarioCreateCalls, loseScenarioReceipt, designVersions, designWorking, readPlan, assemblePlan } = vi.hoisted(() => ({
   httpGet: vi.fn(),
   readModels: vi.fn(),
   previewLoad: vi.fn(),
-  previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean; loseReceipt?: boolean}>(),
+  readPlan: vi.fn(),
+  assemblePlan: vi.fn(),
+  previewCalls: new Map<string, {target: string; main: string; publish?: boolean; failReadback?: boolean; loseReceipt?: boolean; rejectPointer?: boolean}>(),
   savedVersions: new Map<string,string>(),
   scenarioVersions: new Map<string,Map<number,string>>(),
+  scenarioCreateCalls: new Array<string>(),
+  loseScenarioReceipt: new Set<string>(),
   designVersions: new Map<string,string>(),
   designWorking: new Map<string,string>(),
   httpPost: vi.fn(),
@@ -49,6 +53,7 @@ vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
     const result = await previewLoad(input) as {dataSet: DataSet}
     return result.dataSet
   },
+  assembleLowcodeRuntimeDataSetPlan: assemblePlan,
   loadLowcodeRuntimeScenario: async ({ projectId, scenarioId }: { projectId: string; scenarioId: string }) => {
     if(scenarioId==='90A82E287930A234FEC3E687C94A93EA')return DataSet.fromJson({scenarioId,tables:{Base_DataSet:{
       modelBinding:{modelId:`${scenarioId}catalog`,modelName:'Base_DataSet'},
@@ -113,6 +118,7 @@ vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({
         for (const row of changed) {
           const id = String(row['rowid'])
           if (!previewCalls.get(id)?.publish || typeof row['VersionId'] !== 'string') throw new Error('unexpected pointer save')
+          if (previewCalls.get(id)?.rejectPointer) throw new DataSpaceApiError(409, 'fixture formal pointer rejection')
           savedVersions.set(id, row['VersionId'])
           if (previewCalls.get(id)?.loseReceipt) throw new Error('publication receipt lost')
           if (previewCalls.get(id)?.failReadback) failReadback = true
@@ -158,6 +164,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => ({
     session:{get:()=>({enterprise:{id:'ent',shortName:'tenant'},identity:{userId:'user'}})},
     readRequestScope:()=>({token:'scope',headers:{'X-AppId':'homepage'}}),
     dataSpace:{design:{readModels}},
+    design:{readTextFile: ({fileName}: {fileName: string}) => readPlan(fileName)},
     platform: {},
   },
   createLowcodeProjectGateways: () => ({
@@ -186,7 +193,9 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => ({
         command.onAttempt({scenarioId:command.scenarioId,scope:'scope',version:command.version,
           fileName:`${command.version}__pagedata.json`,text:command.text,resourceId:`scenario:${command.scenarioId}`})
         const versions=scenarioVersions.get(command.scenarioId)??new Map<number,string>()
+        scenarioCreateCalls.push(`${command.scenarioId}/${command.version}`)
         versions.set(command.version,command.text);scenarioVersions.set(command.scenarioId,versions)
+        if (loseScenarioReceipt.delete(command.scenarioId)) throw new Error('scenario snapshot receipt lost')
         return {version:command.version,fileName:`${command.version}__pagedata.json`,lastModified:null}
       },
     },
@@ -712,7 +721,7 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(false)
  })
  beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();sessionStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
- afterEach(()=>{vi.useRealTimers();previewCalls.clear();savedVersions.clear();scenarioVersions.clear();designVersions.clear();designWorking.clear()})
+ afterEach(()=>{vi.useRealTimers();previewCalls.clear();savedVersions.clear();scenarioVersions.clear();scenarioCreateCalls.length=0;loseScenarioReceipt.clear();designVersions.clear();designWorking.clear()})
  it('opens the active file through its DataView without loading PageTool owner text',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
   const state=createDevStateWithConfigPages()
@@ -781,6 +790,504 @@ describe('tool and shared scenario editing owners',()=>{
    } finally {wrapper.unmount()}
   },
  )
+ describe('publication binding preflight', () => {
+  const target = 'cfg:orders-page?additionalScenarioIds=extra'
+  const explicitFieldsText = fixtureText(20).replace('"pageSize":20', '"pageSize":20,"queryConfig":{"fields":["id"]}')
+
+  beforeEach(() => {
+   readPlan.mockReset().mockRejectedValue(new LowcodeApiError(404, 'fixture Plan absent'))
+   assemblePlan.mockReset()
+  })
+
+  function scenario(scenarioId: string) {
+   return DataSet.fromJson({scenarioId, tables:{Internal:{
+    modelBinding:{modelId:'orders-model', modelName:'Orders'},
+    columns:[{name:'id', type:'string', isPrimaryKey:true}], views:{default:{}},
+   }}})
+  }
+
+  function configurePagedataAssembly() {
+   const assembled: DataSet[] = []
+   previewLoad.mockImplementation(async ({scenarioId}: {scenarioId: string}) => {
+    const dataSet = scenario(scenarioId)
+    assembled.push(dataSet)
+    return {dataSet}
+   })
+   return assembled
+  }
+
+  async function openPublication(rule: string, script = '') {
+   httpGet.mockImplementation(async (url: string) => ({content: url.startsWith('scenario:')
+    ? fixtureText(20).replaceAll('"scene"', JSON.stringify(url.slice('scenario:'.length)))
+    : url.endsWith('/rule.json') ? rule : url.endsWith('/script.js') ? script : ''}))
+   const state = createDevStateWithConfigPages([], '')
+   const node = sceneNode()
+   node.navigation!.target = target
+   previewCalls.set(node.nodeId, {target, main:'scene', publish:true})
+   state.project.replaceBlueprintChildren([node])
+   await state.selectNode(node)
+   await ensureDevStateActivePageLoaded(state)
+   const owner = state.blueprintWorkspaceDataView.value!
+   const save = vi.spyOn(owner, 'saveSelectedNode')
+   let page!: ReturnType<typeof usePageDesign>
+   const wrapper = mount(defineComponent({setup() {page = usePageDesign(state); return () => h('div')}}))
+   return {page, state, save, wrapper}
+  }
+
+  function configurePublicationSources(kind: string) {
+   const createPlan = (scenarioId: string) => buildRuntimeDataSetPlanText({
+    scenarioId, space:{rowid:scenarioId, Name:scenarioId, Type:'数据源'},
+    models:[{rowid:'orders-model', Name:'Orders', Type:'数据库表', OutputType:'Table', IsBusiness:1, IsBusinessMain:1}],
+    fields:[{rowid:'orders-id', dataModelId:'orders-model', type:'dataModel', Name:'id', FieldType:'varchar', IsOutput:1, IsPKey:1}],
+    relations:[], scenarioConfig:{scenarioId, tables:{Orders:{
+     modelBinding:{modelId:'orders-model', modelName:'Orders'}, views:{default:{}},
+    }}},
+   })
+   const sources = new Map([['scene', createPlan('scene')], ['extra', createPlan('extra')]])
+   if (kind === 'Dataset Plan') readPlan.mockImplementation(async (fileName: string) => sources.get(fileName.replace('.dataset.json', '')))
+   const assembled = configurePagedataAssembly()
+   assemblePlan.mockImplementation(async ({scenarioId}: {scenarioId: string}) => {
+    const dataSet = scenario(scenarioId)
+    assembled.push(dataSet)
+    return dataSet
+   })
+   return {assembled, sources}
+  }
+
+  it.each(['initial','assembly','pointer'] as const)('rejects the stored Plan when explicit query fields are found at %s',async phase=>{
+   configurePublicationSources('Dataset Plan')
+   const {page,state,save,wrapper}=await openPublication('[]')
+   expect(explicitFieldsText).not.toBe(fixtureText(20))
+   httpGet.mockImplementation(async (url:string)=>({content:url==='scenario:scene'?explicitFieldsText:url.endsWith('/rule.json')?'[]':''}))
+   const observe=async()=>{
+    await state.loadSelectedScenarioViews()
+    const source=state.editor.getScenarioViews('scene')
+    if(!source)throw Error('Missing the original loaded working scene')
+    expect(source.savedText).toBe(explicitFieldsText)
+    expect(state.editor.getScenarioDefinitions('scene')?.getView('DataViewDefinition')?.hasEditingChanges()).toBe(false)
+   }
+   try{
+    if(phase==='initial')await observe()
+    else if(phase==='assembly'){
+     assemblePlan.mockImplementationOnce(async ({scenarioId}: {scenarioId: string})=>{
+      await observe()
+      return scenario(scenarioId)
+     })
+    }else{
+     const view=state.blueprintWorkspaceDataView.value!.view
+     const apply=view.applyEditingRows.bind(view)
+     vi.spyOn(view,'applyEditingRows').mockImplementationOnce(async ids=>{
+      const result=await apply(ids)
+      await observe()
+      return result
+     })
+    }
+    page.actions.value.saveDelivery()
+    const status=()=>state.statusMessages.value.map(message=>message.text).join(' ')
+    await vi.waitFor(()=>expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect(status()).toContain('scene Orders@default 不支持保存显式 queryConfig.fields')
+    expect(savedVersions.has('orders-page-node')).toBe(false)
+    expect(scenarioVersions.size).toBe(0)
+    expect(httpPut).not.toHaveBeenCalled()
+    if(phase!=='pointer'){
+     expect(save).not.toHaveBeenCalled()
+     expect(designVersions.size).toBe(0)
+     expect(designWorking.size).toBe(0)
+    }else{
+     expect(save).toHaveBeenCalledOnce()
+     expect(designVersions.size).toBeGreaterThan(0)
+    }
+   }finally{wrapper.unmount()}
+  })
+
+  it('reads the original Plan publication receipt after the working definition declares explicit fields', async () => {
+   configurePublicationSources('Dataset Plan')
+   const {page,state,wrapper}=await openPublication('[]')
+   const writePointer=vi.spyOn(savedVersions,'set')
+   previewCalls.get('orders-page-node')!.failReadback=true
+   const status=()=>state.statusMessages.value.map(message=>message.text).join(' ')
+   try {
+    page.actions.value.saveDelivery()
+    await vi.waitFor(()=>expect(status()).toContain('publication readback interrupted'))
+    const snapshots=new Map(designVersions)
+    const workingFiles=new Map(designWorking)
+    httpGet.mockImplementation(async (url: string) => ({content:url==='scenario:scene'?explicitFieldsText:url.endsWith('/rule.json')?'[]':''}))
+    await state.loadSelectedScenarioViews()
+    expect(state.editor.getScenarioViews('scene')?.savedText).toBe(explicitFieldsText)
+    page.verifyPendingWrites()
+    await vi.waitFor(()=>expect(status()).toContain('发布指针已一次切换并读回'))
+    expect(savedVersions.get('orders-page-node')).toBe('r=1;s=1;t=1;m=1')
+    expect(writePointer).toHaveBeenCalledExactlyOnceWith('orders-page-node','r=1;s=1;t=1;m=1')
+    expect(designVersions).toEqual(snapshots)
+    expect(designWorking).toEqual(workingFiles)
+   } finally {writePointer.mockRestore();wrapper.unmount()}
+  })
+
+  it.each(['same', 'cold'] as const)('allows a new publication after the original pointer was formally rejected in a %s workspace', async kind => {
+   configurePagedataAssembly()
+   const nodeId = 'orders-page-node'
+   let stage = await openPublication('[]')
+   const first = stage.state.blueprintWorkspaceDataView.value!
+   previewCalls.get(nodeId)!.rejectPointer = true
+   const status = () => stage.state.statusMessages.value.map(item => item.text).join(' ')
+   try {
+    stage.page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(status()).toContain('fixture formal pointer rejection'))
+    expect(stage.save).toHaveBeenCalledOnce()
+    expect(first.hasPendingBlueprintCommand).toBe(false)
+    expect(stage.page.canVerifyPendingWrites.value).toBe(false)
+    expect(first.value('VersionId')).toBe('')
+    expect(savedVersions.has(nodeId)).toBe(false)
+    const snapshots = new Map(designVersions)
+    const scenarioWrites = [...scenarioCreateCalls]
+    expect(snapshots.size).toBeGreaterThan(0)
+    if (kind === 'cold') {
+     stage.wrapper.unmount()
+     stage = await openPublication('[]')
+     const reopened = stage.state.blueprintWorkspaceDataView.value!
+     expect(reopened).not.toBe(first)
+     expect(reopened.value('VersionId')).toBe('')
+    }
+    previewCalls.get(nodeId)!.rejectPointer = false
+    stage.page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(status()).toContain('发布指针已一次切换并读回'))
+    expect(stage.save).toHaveBeenCalledTimes(kind === 'same' ? 2 : 1)
+    expect(designVersions).toEqual(snapshots)
+    expect(scenarioCreateCalls).toEqual(scenarioWrites)
+    expect(savedVersions.get(nodeId)).toBe('r=1;s=1;t=1;m=1')
+   } finally {stage.wrapper.unmount()}
+  })
+
+  it.each([
+   {scenarioId:'scene', phase:'initial'},
+   {scenarioId:'extra', phase:'initial'},
+   {scenarioId:'scene', phase:'assembly'},
+   {scenarioId:'scene', phase:'pointer'},
+  ])('does not publish a stored Plan over a draft in $scenarioId at $phase', async ({scenarioId, phase}) => {
+   const {assembled} = configurePublicationSources('Dataset Plan')
+   const {page, state, save, wrapper} = await openPublication('[]')
+   try {
+    await state.loadSelectedScenarioViews()
+    const draft = (await state.editor.loadScenarioDefinitions({scenarioId})).getView('DataViewDefinition')
+    if (!draft) throw new Error('The original scenario owner is absent')
+    if (phase === 'pointer') {
+     const view = state.blueprintWorkspaceDataView.value!.view
+     const apply = view.applyEditingRows.bind(view)
+     vi.spyOn(view, 'applyEditingRows').mockImplementationOnce(async ids => {
+      const result = await apply(ids)
+      await state.writeScenarioViewText(fixtureText(66))
+      return result
+     })
+    } else if (phase === 'assembly') {
+     assemblePlan.mockImplementationOnce(async ({scenarioId: assemblyId}: {scenarioId: string}) => {
+      await state.writeScenarioViewText(fixtureText(66))
+      const dataSet = scenario(assemblyId)
+      assembled.push(dataSet)
+      return dataSet
+     })
+    } else if (scenarioId === 'scene') {
+     await state.writeScenarioViewText(fixtureText(66))
+    } else {
+     await draft.refresh()
+     const row = draft.rows.find(item => item['viewId'] === 'default')
+     const rowId = row ? draft.getPkKey(row) : undefined
+     if (rowId === undefined) throw new Error('The original additional scenario row is absent')
+     draft.updateEditingValue(rowId, 'pageSize', 66)
+    }
+    expect(draft.hasEditingChanges()).toBe(phase === 'initial')
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(state.statusMessages.value.map(message => message.text).join('\n'))
+     .toContain(`场景 ${scenarioId} 有未保存或未确认的 pagedata 修改`))
+    expect(draft.hasEditingChanges()).toBe(true)
+    expect(httpPut).not.toHaveBeenCalled()
+    expect(assembled.every(dataSet => dataSet.destroyed)).toBe(true)
+    expect(savedVersions.has('orders-page-node')).toBe(false)
+    if (phase === 'pointer') {
+     expect(save).toHaveBeenCalledOnce()
+     expect(designVersions.size).toBeGreaterThan(0)
+    } else {
+     expect(save).not.toHaveBeenCalled()
+     expect(designVersions.size).toBe(0)
+    }
+    expect(scenarioCreateCalls).toEqual([])
+   } finally {wrapper.unmount()}
+  })
+
+  it('checks an independently confirmed working source immediately before Plan pointer submission', async () => {
+   configurePublicationSources('Dataset Plan')
+   const {page, state, save, wrapper} = await openPublication('[]')
+   const original = fixtureText(20)
+   const remote = new Map([['scenario:scene', original]])
+   httpGet.mockImplementation(async (url: string) => ({content: remote.get(url) ?? (url.endsWith('/rule.json') ? '[]' : '')}))
+   httpPut.mockImplementation(async (url: string, payload: {content: string}) => {remote.set(url, payload.content)})
+   try {
+    await state.loadSelectedScenarioViews()
+    const workspace = state.editor
+    const design = workspace.getScenarioDefinitions('scene')?.getView('DataViewDefinition')
+    const baseline = workspace.getScenarioViews('scene')
+    if (!design || !baseline) throw new Error('Original loaded definition is missing')
+    expect(baseline.savedText).toBe(original)
+    const view = state.blueprintWorkspaceDataView.value!.view
+    const apply = view.applyEditingRows.bind(view)
+    vi.spyOn(view, 'applyEditingRows').mockImplementationOnce(async ids => {
+     const result = await apply(ids)
+     await state.writeScenarioViewText(fixtureText(66))
+     await state.saveScenarioViewText()
+     expect(design.hasEditingChanges()).toBe(false)
+     return result
+    })
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(state.statusMessages.value.map(message => message.text).join('\n'))
+     .toContain('场景 scene 的工作来源在发布期间已保存变更'))
+    expect(JSON.parse(remote.get('scenario:scene') ?? '')).toMatchObject({tables:{Orders:{views:{default:{pageSize:66}}}}})
+    expect(httpPut.mock.calls.filter(([key]) => key === 'scenario:scene')).toHaveLength(1)
+    expect(design.hasEditingChanges()).toBe(false)
+    expect(save).toHaveBeenCalledOnce()
+    expect(designVersions.size).toBeGreaterThan(0)
+    expect(savedVersions.has('orders-page-node')).toBe(false)
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['pagedata', 'Dataset Plan'])('rejects an unavailable named view before writing snapshots with %s', async kind => {
+   const {assembled, sources} = configurePublicationSources(kind)
+   const rule = JSON.stringify([{id:'dialog', type:'r-dialog', props:{dataViewKey:'Orders@default',
+    footer:{children:[{id:'select', type:'r-select', props:{optionDataViewKey:'extra@Orders@unavailable'}}]},
+   }}])
+   const {page, state, save, wrapper} = await openPublication(rule)
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+    await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect(status()).toContain('页面绑定的视图不存在: extra@Orders@unavailable')
+    expect(designVersions.size).toBe(0)
+    expect(scenarioVersions.size).toBe(0)
+    expect(designWorking.size).toBe(0)
+    expect(save).not.toHaveBeenCalled()
+    expect(assembled).toHaveLength(2)
+    expect(assembled.every(dataSet => dataSet.destroyed)).toBe(true)
+    if (kind === 'Dataset Plan') {
+     expect(assemblePlan.mock.calls.map(([input]) => [input.scenarioId, input.text])).toEqual([...sources])
+     expect(previewLoad).not.toHaveBeenCalled()
+    }
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['pagedata', 'Dataset Plan'])('rejects an invalid captured script before writing with %s', async kind => {
+   const {assembled} = configurePublicationSources(kind)
+   const {page, state, save, wrapper} = await openPublication('[]', 'function broken( {')
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+    await vi.waitFor(() => expect(status()).toContain('交付保存失败'))
+    expect(status()).toContain('orders-page 的 script.js')
+    expect(designVersions.size).toBe(0)
+    expect(scenarioVersions.size).toBe(0)
+    expect(designWorking.size).toBe(0)
+    expect(assembled).toHaveLength(0)
+    expect(save).not.toHaveBeenCalled()
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['pagedata', 'Dataset Plan'])('checks captured script syntax without executing it before publication with %s', async kind => {
+   configurePublicationSources(kind)
+   const script = 'throw new Error("publication must not execute this"); function __init__() {}'
+   const {page, state, save, wrapper} = await openPublication('[]', script)
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+    await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect(status()).toContain('发布指针已一次切换并读回')
+    expect([...designVersions.values()]).toContain(script)
+    expect(save).toHaveBeenCalledOnce()
+   } finally {wrapper.unmount()}
+  })
+
+  it('publishes a valid local binding and additional graph sources from the captured pagedata', async () => {
+   const assembled = configurePagedataAssembly()
+   const rule = JSON.stringify([{id:'graph', type:'r-graph', props:{
+    dataViewKey:'Orders@default', edgeDataViewKey:'extra@Orders@default',
+    additionalNodeSources:[{dataViewKey:'extra@Orders@default'}],
+   }}])
+   const {page, state, save, wrapper} = await openPublication(rule)
+   try {
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(state.statusMessages.value.map(message => message.text).join('\n'))
+     .toContain('发布指针已一次切换并读回'))
+    expect(previewLoad.mock.calls.map(([input]) => [input.scenarioId, input.config.toJSON().tables.Orders.views.default.pageSize]))
+     .toEqual([['scene', 20], ['extra', 20]])
+    expect(assembled).toHaveLength(2)
+    expect(assembled.every(dataSet => dataSet.destroyed)).toBe(true)
+    expect([...scenarioVersions.keys()]).toEqual(['scene', 'extra'])
+    expect([...designVersions.values()]).toContain(rule)
+    expect(save).toHaveBeenCalledOnce()
+    expect(savedVersions.get('orders-page-node')).toBe('r=1;s=1;t=1;m=1')
+   } finally {wrapper.unmount()}
+  })
+
+  const uncoveredLocations = [
+   {type:'r-filter-expression', property:'columnDataViewKey'},
+   {type:'r-filter-expression', property:'inputParameterDataViewKey'},
+   {type:'r-value-function', property:'inputParameterDataViewKey'},
+   {type:'r-value-function', property:'publicParameterDataViewKey'},
+   {type:'r-button', property:'resultDataViewKey'},
+  ]
+  const sourceKinds = ['pagedata', 'Dataset Plan']
+  it.each(sourceKinds.flatMap(kind => uncoveredLocations.map(location => ({kind, ...location}))))
+   ('rejects a missing $type $property before writing with $kind', async ({kind, type, property}) => {
+    configurePublicationSources(kind)
+    const props = {[property]:'extra@Orders@missing', ...(type === 'r-button' ? {action:'host-command', command:'fixture.read'} : {})}
+    const {page, state, save, wrapper} = await openPublication(JSON.stringify([{id:'binding', type, props}]))
+    try {
+     page.actions.value.saveDelivery()
+     const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+     await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+     expect(status()).toContain('页面绑定的视图不存在: extra@Orders@missing')
+     expect(designVersions.size).toBe(0)
+     expect(scenarioVersions.size).toBe(0)
+     expect(designWorking.size).toBe(0)
+     expect(save).not.toHaveBeenCalled()
+    } finally {wrapper.unmount()}
+   })
+
+  it.each([
+   {type:'r-button', props:{on:{click:{action:'refresh', dataViewKey:'extra@Orders@missing'}}}},
+   {type:'r-button', props:{action:'show-message', message:'confirm',
+     then:{action:'host-command', command:'fixture.read', resultDataViewKey:'extra@Orders@missing'}}},
+  ])('rejects a missing declared event view before writing', async ({type,props}) => {
+   configurePublicationSources('pagedata')
+   const {page, state, save, wrapper} = await openPublication(JSON.stringify([{id:'binding',type,props}]))
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+    await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect(status()).toContain('页面绑定的视图不存在: extra@Orders@missing')
+    expect(designVersions.size).toBe(0)
+    expect(scenarioVersions.size).toBe(0)
+    expect(designWorking.size).toBe(0)
+    expect(save).not.toHaveBeenCalled()
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['landed', 'landed-with-plan', 'missing', 'mismatched', 'corrupt'] as const)('verifies the original scenario attempt after a working file change, %s',
+   async outcome => {
+    configurePublicationSources('pagedata')
+    loseScenarioReceipt.add('scene')
+    const first = await openPublication('[]', 'function previous() {}')
+    const status = () => first.state.statusMessages.value.map(message => message.text).join('\n')
+    first.page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(status()).toContain('scenario snapshot receipt lost'))
+    const scenario = scenarioVersions.get('scene')
+    const priorVersion = scenario ? [...scenario.keys()][0] : undefined
+    if (scenario === undefined || priorVersion === undefined) throw Error('fixture original scenario version is absent')
+    const originalToolVersions = [...designVersions]
+    expect(scenarioCreateCalls).toEqual([`scene/${priorVersion}`])
+    expect(designWorking.size).toBe(0)
+    const key = Object.keys(sessionStorage).find(name => name.includes('spark:page-tool-publication:v1'))
+    if (key === undefined) throw Error('fixture publication key is absent')
+    const originalJournal = sessionStorage.getItem(key)
+    if (originalJournal === null) throw Error('fixture original publication journal is absent')
+    const originalScenarioText = scenario.get(priorVersion)
+    if (originalScenarioText === undefined) throw Error('fixture original bytes are absent')
+    if (outcome === 'missing') scenario.delete(priorVersion)
+    if (outcome === 'mismatched') scenario.set(priorVersion, fixtureText(21))
+    if (outcome === 'corrupt') scenario.set(priorVersion, 'invalid scenario fixture JSON')
+    const originalMatches = outcome === 'landed' || outcome === 'landed-with-plan'
+    try {
+     httpGet.mockImplementation(async (url: string) => ({content: url.startsWith('scenario:')
+      ? fixtureText(20).replaceAll('"scene"', JSON.stringify(url.slice('scenario:'.length)))
+      : url.endsWith('/rule.json') ? '[]' : url.endsWith('/script.js') ? 'function newer() {}' : ''}))
+     const scriptView = await first.state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'})
+     await scriptView.refresh()
+     expect(scriptView.currentRow?.['text']).toBe('function newer() {}')
+     if (outcome === 'landed-with-plan') configurePublicationSources('Dataset Plan')
+     const priorStatuses = new Set(first.state.statusMessages.value)
+     const reopenedStatus = () => first.state.statusMessages.value.filter(message => !priorStatuses.has(message)).map(message => message.text).join('\n')
+     first.page.actions.value.saveDelivery()
+     await vi.waitFor(() => expect(reopenedStatus()).toMatch(/原场景快照已核验|交付保存失败|发布指针已一次切换并读回/))
+     expect([...designVersions]).toEqual(originalToolVersions)
+     expect(scenarioCreateCalls).toEqual([`scene/${priorVersion}`])
+     expect(designWorking.size).toBe(0)
+     expect(first.save).not.toHaveBeenCalled()
+     if (!originalMatches) {
+      expect(sessionStorage.getItem(key)).toBe(originalJournal)
+      const expected = {missing:'原快照仍待核验', mismatched:'原快照与本次发布内容不符', corrupt:'JSON'}
+      expect(reopenedStatus()).toContain(expected[outcome])
+      return
+     }
+     expect(reopenedStatus()).toContain('原场景快照已核验')
+     expect(sessionStorage.getItem(key)).not.toBe(originalJournal)
+     first.page.actions.value.saveDelivery()
+     await vi.waitFor(() => expect(reopenedStatus()).toContain('发布指针已一次切换并读回'))
+     expect(first.save).toHaveBeenCalledOnce()
+     expect(scenarioCreateCalls.filter(entry => entry === `scene/${priorVersion}`)).toHaveLength(1)
+     if (outcome === 'landed-with-plan') expect(scenarioCreateCalls).toEqual([`scene/${priorVersion}`])
+     expect([...designVersions.values()]).toContain('function newer() {}')
+    } finally {
+     scenario.set(priorVersion, originalScenarioText)
+     const dataSet = await first.state.editor.loadScenarioDefinitions({scenarioId:'scene'})
+     const view = dataSet.getView('DataViewDefinition')
+     if (view?.getSourceHistoryStatus().state === 'unknown') {
+      await view.verifySourceHistoryAttempt()
+      view.acknowledgeSourceHistoryAttempt()
+     }
+     first.wrapper.unmount()
+    }
+   })
+
+  it('stops before writing when the captured tool changes during assembly', async () => {
+   const {page, state, save, wrapper} = await openPublication('[]')
+   const ruleView = await state.loadPageToolFileDataView({pageId:'orders-page', fileName:'rule.json'})
+   const row = ruleView.currentRow
+   const rowId = row ? ruleView.getPkKey(row) : undefined
+   if (rowId === undefined) throw new Error('fixture tool file has no row key')
+   const assembled = configurePagedataAssembly()
+   previewLoad.mockImplementationOnce(async ({scenarioId}: {scenarioId: string}) => {
+    await ruleView.editRowById(rowId, {text:'[ ]'})
+    const dataSet = scenario(scenarioId)
+    assembled.push(dataSet)
+    return {dataSet}
+   })
+   try {
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(state.statusMessages.value.map(message => message.text).join('\n'))
+     .toContain('rule.json 存在未保存的文件 DataView 修改'))
+    expect(assembled).toHaveLength(2)
+    expect(assembled.every(dataSet => dataSet.destroyed)).toBe(true)
+    expect(designVersions.size).toBe(0)
+    expect(scenarioVersions.size).toBe(0)
+    expect(designWorking.size).toBe(0)
+    expect(save).not.toHaveBeenCalled()
+   } finally {wrapper.unmount()}
+  })
+
+  it('verifies a pending original snapshot before checking the next new write', async () => {
+   configurePagedataAssembly()
+   const rule = JSON.stringify([{id:'table', type:'r-table', props:{dataViewKey:'Orders@default'}}])
+   const {page, state, save, wrapper} = await openPublication(rule)
+   const ruleView = await state.loadPageToolFileDataView({pageId:'orders-page', fileName:'rule.json'})
+   const createSourceVersion = ruleView.createSourceVersion.bind(ruleView)
+   const create = vi.spyOn(ruleView, 'createSourceVersion').mockImplementationOnce(async notify => {
+    await createSourceVersion(notify)
+    throw new Error('fixture lost original rule snapshot receipt')
+   })
+   const readback = vi.spyOn(ruleView, 'previewSourceVersion')
+   const status = () => state.statusMessages.value.map(message => message.text).join('\n')
+   try {
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(status()).toContain('fixture lost original rule snapshot receipt'))
+    expect([...designVersions.values()]).toEqual([rule])
+    readback.mockClear()
+    previewLoad.mockImplementation(async ({scenarioId}: {scenarioId: string}) => ({dataSet:DataSet.fromJson({scenarioId, tables:{}})}))
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(status()).toContain('页面绑定的视图不存在: scene@Orders@default'))
+    expect(readback).toHaveBeenCalledWith(1)
+    expect(create).toHaveBeenCalledOnce()
+    expect([...designVersions.values()]).toEqual([rule])
+    expect(scenarioVersions.size).toBe(0)
+    expect(save).not.toHaveBeenCalled()
+   } finally {wrapper.unmount()}
+  })
+ })
  it.each(['same','cold','cold-missing','cold-mismatch','cold-recovered'] as const)('resumes a partial publication with the original confirmed snapshot, %s workspace',async kind=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
   const writes = new Map<string, number>()

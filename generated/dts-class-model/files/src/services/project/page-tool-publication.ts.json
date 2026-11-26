@@ -76,6 +76,44 @@
       ],
       "additionalProperties": false
     },
+    "ChangedScenarioRecovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ChangedScenarioRecovery",
+      "properties": {
+        "call": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "baseline": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.resolveView.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveView.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.assertTarget.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertTarget.return": true
+      }
+    },
     "PageToolPublicationIntent": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -489,6 +527,19 @@
         "method.open.return": {
           "$ref": "#/$defs/PageToolPublicationIntent"
         },
+        "method.verifyChangedScenarioAttempt.params": {
+          "type": "object",
+          "properties": {
+            "recovery": {
+              "$ref": "#/$defs/ChangedScenarioRecovery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyChangedScenarioAttempt.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
         "method.write.params": {
           "type": "object",
           "properties": {
@@ -678,6 +729,72 @@
               "name": "text",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ChangedScenarioRecovery": {
+      "name": "ChangedScenarioRecovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    call: string;\n    digest: string;\n    baseline: string;\n    resolveView(scenarioId: string): Promise<DataView>;\n    assertTarget(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    call: string;\n    digest: string;\n    baseline: string;\n    resolveView(scenarioId: string): Promise<DataView>;\n    assertTarget(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "call",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "digest",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "resolveView",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertTarget",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -1045,6 +1162,30 @@
                 "type": "reference",
                 "name": "PageToolPublicationIntent",
                 "sourcePath": "src/services/project/page-tool-publication.ts"
+              }
+            },
+            {
+              "name": "verifyChangedScenarioAttempt",
+              "jsdoc": "Verify a saved scenario attempt from the same call before a different capture may start.",
+              "parameters": [
+                {
+                  "name": "recovery",
+                  "type": {
+                    "type": "reference",
+                    "name": "ChangedScenarioRecovery",
+                    "sourcePath": "src/services/project/page-tool-publication.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
               }
             },
             {

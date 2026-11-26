@@ -11,6 +11,7 @@
  */
 
 export { default as SparkPageRenderer } from './renderer/SparkPageRenderer.vue'
+export { validatePageScriptSyntax } from './createSandbox.js'
 export type {
   PageContext,
 } from './context/types.js'

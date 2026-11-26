@@ -2539,7 +2539,7 @@
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.935Z"
+      "sourceModifiedAt": "2026-11-25T12:26:54.739Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
@@ -2609,12 +2609,12 @@
     "packages/spark-component/src/page/createSandbox.ts": {
       "sourceFile": "packages/spark-component/src/page/createSandbox.ts",
       "shardFile": "files/packages/spark-component/src/page/createSandbox.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.953Z"
+      "sourceModifiedAt": "2026-11-25T12:26:54.737Z"
     },
     "packages/spark-component/src/page/index.ts": {
       "sourceFile": "packages/spark-component/src/page/index.ts",
       "shardFile": "files/packages/spark-component/src/page/index.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.953Z"
+      "sourceModifiedAt": "2026-11-25T12:26:54.738Z"
     },
     "packages/spark-component/src/page/renderer/scopeCSS.ts": {
       "sourceFile": "packages/spark-component/src/page/renderer/scopeCSS.ts",
@@ -2779,7 +2779,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-26T19:05:47.922Z"
+      "sourceModifiedAt": "2026-11-26T20:05:21.473Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2794,7 +2794,7 @@
     "packages/spark-data/src/node-tree/spark-node-tree.ts": {
       "sourceFile": "packages/spark-data/src/node-tree/spark-node-tree.ts",
       "shardFile": "files/packages/spark-data/src/node-tree/spark-node-tree.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.020Z"
+      "sourceModifiedAt": "2026-11-25T12:26:54.756Z"
     },
     "packages/spark-data/src/node-tree/spark-node.ts": {
       "sourceFile": "packages/spark-data/src/node-tree/spark-node.ts",
@@ -3014,7 +3014,7 @@
     "packages/spark-data/src/runtime-data-set-plan/builder.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json",
-      "sourceModifiedAt": "2026-11-26T19:34:53.046Z"
+      "sourceModifiedAt": "2026-11-26T20:08:06.914Z"
     },
     "packages/spark-data/src/runtime-data-set-plan/compiler.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
@@ -6154,7 +6154,7 @@
     "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/use-page-design.ts",
       "shardFile": "files/src/views/features/application/application-function-management/ui/page-design/use-page-design.ts.json",
-      "sourceModifiedAt": "2026-11-26T01:48:26.915Z"
+      "sourceModifiedAt": "2026-11-26T20:05:21.474Z"
     },
     "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts": {
       "sourceFile": "src/views/features/application/application-function-management/ui/page-design/useDevFileEditor.ts",

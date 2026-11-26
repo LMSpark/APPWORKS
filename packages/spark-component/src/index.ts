@@ -138,6 +138,7 @@ export type {
 // ── 7. 页面渲染引擎 ──
 export {
   SparkPageRenderer,
+  validatePageScriptSyntax,
 } from './page/index.js'
 export { buildPageService } from './page/services/buildPageService.js'
 export {consumeRequiredPageService} from './page/services/consumeRequiredPageService.js'

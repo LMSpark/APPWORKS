@@ -124,3 +124,27 @@ describe('browser publication recovery', () => {
     expect(request).toHaveBeenCalledTimes(3)
   })
 })
+
+
+it('keeps the original pending scenario protected by caller and authenticated workspace', async () => {
+  const previousText = '{"scenarioId":"orders","tables":{}}'
+  const hash = await sha256(previousText)
+  await withPageToolPublication(owner, async journal => {
+    const intent = journal.open(call, digest, '')
+    intent.scenarioSnapshots['orders'] = {state:'pending', version:7, sourceRevision:'3', sha256:hash, text:previousText}
+    journal.write(intent)
+  })
+  const resolveView = vi.fn(async () => { throw Error('must not read an unrelated original scene') })
+  const base = {call, digest, baseline:'', resolveView, assertTarget: () => undefined}
+  await withPageToolPublication(['enterprise','tenant','other','app','node'], async journal => {
+    await expect(journal.verifyChangedScenarioAttempt({...base, digest:'c'.repeat(64)})).resolves.toBe(false)
+  })
+  await withPageToolPublication(owner, async journal => {
+    await expect(journal.verifyChangedScenarioAttempt(base)).resolves.toBe(false)
+    expect(journal.open(call, digest, '').scenarioSnapshots['orders']?.state).toBe('pending')
+    await expect(journal.verifyChangedScenarioAttempt({...base, call:'d'.repeat(64)})).rejects.toThrow('页面工具调用已经变化')
+    expect(() => journal.open(call, 'c'.repeat(64), '')).toThrow('原发布仍待核验')
+    expect(journal.open(call, digest, '').scenarioSnapshots['orders']?.state).toBe('pending')
+  })
+  expect(resolveView).not.toHaveBeenCalled()
+})

@@ -305,3 +305,63 @@ describe('PageRuntime lifecycle',()=>{
   })
 
 })
+
+
+describe('PageRuntime standard component and event bindings', () => {
+  const location = (name: string) => `scene@Orders@${name}`
+  const nodes = [
+    {id: 'filter', type: 'r-filter-expression', props: {
+      columnDataViewKey: location('columns'), inputParameterDataViewKey: location('filterInput'),
+    }},
+    {id: 'function', type: 'r-value-function', props: {
+      inputParameterDataViewKey: location('functionInput'), publicParameterDataViewKey: location('publicParameters'),
+    }},
+    {id: 'command', type: 'r-button', props: {
+      action: 'host-command', resultDataViewKey: location('result'),
+      input: {action: 'refresh', dataViewKey: 'opaque-input'},
+      then: {action: 'host-command', resultDataViewKey: location('followUp')},
+    }},
+    {id: 'events', type: 'r-button', props: {
+      on: {change: [{action: 'refresh', dataViewKey: location('onEvent')}]},
+      onClick: {action: 'confirm',
+        onConfirm: {action: 'refresh', dataViewKey: location('confirmed')},
+        onCancel: {action: 'refresh', dataViewKey: location('cancelled')},
+        then: {action: 'refresh', dataViewKey: location('after')},
+      },
+      custom: {onClick: {action: 'refresh', dataViewKey: 'opaque-config'}},
+    }},
+  ]
+  const viewIds = ['columns', 'filterInput', 'functionInput', 'publicParameters', 'result', 'followUp',
+    'onEvent', 'confirmed', 'cancelled', 'after']
+
+  it('validates only declared standard binding locations with the same runtime materialization', async () => {
+    const shared = tool()
+    shared.hydrateFileText('rule.json', JSON.stringify(nodes))
+    expect([...shared.getNodeTree().collectDataViewKeys()].sort()).toEqual(viewIds.map(location).sort())
+    const runtime = new PageRuntime({tool: shared, scenarioIds: ['scene'], loadScenario: async scenarioId =>
+      DataSet.fromJson({scenarioId, tables: {Orders: {tableName: 'Orders',
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}],
+        views: {default: {}, ...Object.fromEntries(viewIds.map(id => [id, {}]))},
+      }}})})
+    try {
+      await runtime.load()
+      const content = JSON.stringify(runtime.materialize().rule)
+      expect(content).toContain('opaque-input')
+      expect(content).toContain('opaque-config')
+    } finally {runtime.dispose()}
+  })
+
+  it.each(viewIds)('rejects an unavailable declared view %s', async missing => {
+    const shared = tool()
+    shared.hydrateFileText('rule.json', JSON.stringify(nodes))
+    const runtime = new PageRuntime({tool: shared, scenarioIds: ['scene'], loadScenario: async scenarioId =>
+      DataSet.fromJson({scenarioId, tables: {Orders: {tableName: 'Orders',
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}],
+        views: {default: {}, ...Object.fromEntries(viewIds.filter(id => id !== missing).map(id => [id, {}]))},
+      }}})})
+    try {
+      await runtime.load()
+      expect(() => runtime.materialize()).toThrow(`页面绑定的视图不存在: ${location(missing)}`)
+    } finally {runtime.dispose()}
+  })
+})

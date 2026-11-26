@@ -62,16 +62,60 @@ export function visitSparkNodeDataViewBindings(
   const bindingProperties = ['dataViewKey', 'optionDataViewKey', 'edgeDataViewKey', 'additionalEdgeDataViewKey'] as const
   const structuredProperties = ['toolbar', 'actions', 'filter', 'header', 'footer', 'tail'] as const
   const visited = new WeakSet<object>()
+  const visitedActions = new WeakSet<object>()
+  const dataViewActions = new Set(['set-field', 'append-row', 'delete', 'patch', 'move', 'message-row',
+    'refresh', 'clear-rows', 'submit-current-form', 'discard-changes'])
 
   const visitProperty = (record: Record<string, unknown>, property: string): void => {
     const key = record[property]
     if (typeof key === 'string' && key.length > 0) visit(key, next => { record[property] = next })
   }
 
+  const visitActionChildren = (action: Record<string, unknown>): void => {
+    visitAction(action['then'])
+    if (action['action'] === 'confirm') {
+      visitAction(action['onConfirm'])
+      visitAction(action['onCancel'])
+    }
+  }
+
+  const visitAction = (action: unknown): void => {
+    if (!isRecord(action) || typeof action['action'] !== 'string' || visitedActions.has(action)) return
+    visitedActions.add(action)
+    if (dataViewActions.has(action['action'])) visitProperty(action, 'dataViewKey')
+    if (action['action'] === 'host-command') visitProperty(action, 'resultDataViewKey')
+    visitActionChildren(action)
+  }
+
+  const visitHandler = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      for (const action of value) visitAction(action)
+      return
+    }
+    visitAction(value)
+  }
+
   const visitNode = (node: SparkNode): void => {
     if (visited.has(node)) return
     visited.add(node)
-    if (node.props) visitConfig(node.props)
+    if (node.props) {
+      const props = node.props
+      if (node.type === 'r-filter-expression') visitProperty(props, 'columnDataViewKey')
+      if (node.type === 'r-value-function') visitProperty(props, 'publicParameterDataViewKey')
+      if (node.type === 'r-filter-expression' || node.type === 'r-value-function') visitProperty(props, 'inputParameterDataViewKey')
+      if (node.type === 'r-button') {
+        if (props['action'] === 'host-command') visitProperty(props, 'resultDataViewKey')
+        if (typeof props['action'] === 'string') visitActionChildren(props)
+      }
+      for (const [event, handler] of Object.entries(props)) {
+        if (event === 'on') {
+          if (isRecord(handler)) for (const declared of Object.values(handler)) visitHandler(declared)
+        } else if (event.startsWith('on')) {
+          visitHandler(handler)
+        }
+      }
+      visitConfig(props)
+    }
     if (Array.isArray(node.children)) {
       for (const child of node.children) if (isSparkNode(child)) visitNode(child)
     }

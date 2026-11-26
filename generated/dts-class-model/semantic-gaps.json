@@ -1,5 +1,5 @@
 {
-  "gapCount": 9108,
+  "gapCount": 9113,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -71475,12 +71475,83 @@
     },
     {
       "kind": "model",
+      "className": "ChangedScenarioRecovery",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 18,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChangedScenarioRecovery",
+      "memberName": "call",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery.call 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 19,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChangedScenarioRecovery",
+      "memberName": "digest",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery.digest 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ChangedScenarioRecovery",
+      "memberName": "baseline",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery.baseline 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 21,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ChangedScenarioRecovery",
+      "memberName": "resolveView",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery.resolveView 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 22,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "ChangedScenarioRecovery",
+      "memberName": "assertTarget",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ChangedScenarioRecovery.assertTarget 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project/page-tool-publication.ts",
+      "declarationLine": 23,
+      "sourceFile": "src/services/project/page-tool-publication.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
       "className": "PageToolPublicationIntent",
       "reason": "missing-jsdoc",
       "chainBreak": "PageToolPublicationIntent 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 18,
+      "declarationLine": 25,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71492,7 +71563,7 @@
       "chainBreak": "PageToolPublicationIntent.call 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 19,
+      "declarationLine": 26,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71504,7 +71575,7 @@
       "chainBreak": "PageToolPublicationIntent.digest 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 20,
+      "declarationLine": 27,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71516,7 +71587,7 @@
       "chainBreak": "PageToolPublicationIntent.baseline 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 21,
+      "declarationLine": 28,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71528,7 +71599,7 @@
       "chainBreak": "PageToolPublicationIntent.snapshots 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 22,
+      "declarationLine": 29,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71540,19 +71611,7 @@
       "chainBreak": "PageToolPublicationIntent.scenarioSnapshots 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 23,
-      "sourceFile": "src/services/project/page-tool-publication.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "PageToolPublicationIntent",
-      "memberName": "pointer",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageToolPublicationIntent.pointer 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 24,
+      "declarationLine": 30,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71563,7 +71622,7 @@
       "chainBreak": "PageToolPublicationFileSource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 29,
+      "declarationLine": 38,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71575,7 +71634,7 @@
       "chainBreak": "PageToolPublicationFileSource.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 30,
+      "declarationLine": 39,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71587,7 +71646,7 @@
       "chainBreak": "PageToolPublicationFileSource.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 31,
+      "declarationLine": 40,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71599,7 +71658,7 @@
       "chainBreak": "PageToolPublicationFileSource.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 32,
+      "declarationLine": 41,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71610,7 +71669,7 @@
       "chainBreak": "PageToolPublicationScenarioSource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 34,
+      "declarationLine": 43,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71622,7 +71681,7 @@
       "chainBreak": "PageToolPublicationScenarioSource.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 35,
+      "declarationLine": 44,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71634,7 +71693,7 @@
       "chainBreak": "PageToolPublicationScenarioSource.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 36,
+      "declarationLine": 45,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71646,7 +71705,7 @@
       "chainBreak": "PageToolPublicationScenarioSource.sourceRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 37,
+      "declarationLine": 46,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71658,7 +71717,7 @@
       "chainBreak": "PageToolPublicationScenarioSource.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 38,
+      "declarationLine": 47,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71669,7 +71728,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 40,
+      "declarationLine": 49,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71681,7 +71740,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 41,
+      "declarationLine": 50,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71693,7 +71752,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 42,
+      "declarationLine": 51,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71705,7 +71764,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 43,
+      "declarationLine": 52,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71717,7 +71776,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.sha256 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 44,
+      "declarationLine": 53,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71729,7 +71788,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.sourceRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 45,
+      "declarationLine": 54,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71741,7 +71800,7 @@
       "chainBreak": "PageToolPublicationPagedataSnapshot.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 46,
+      "declarationLine": 55,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71752,7 +71811,7 @@
       "chainBreak": "PageToolPublicationDatasetSnapshot 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 48,
+      "declarationLine": 57,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71764,7 +71823,7 @@
       "chainBreak": "PageToolPublicationDatasetSnapshot.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 49,
+      "declarationLine": 58,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71776,7 +71835,7 @@
       "chainBreak": "PageToolPublicationDatasetSnapshot.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 50,
+      "declarationLine": 59,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71788,7 +71847,7 @@
       "chainBreak": "PageToolPublicationDatasetSnapshot.sha256 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 51,
+      "declarationLine": 60,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71800,7 +71859,7 @@
       "chainBreak": "PageToolPublicationDatasetSnapshot.sourceRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 52,
+      "declarationLine": 61,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71811,7 +71870,7 @@
       "chainBreak": "PageToolPublicationManifestCommon 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 54,
+      "declarationLine": 63,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71823,7 +71882,7 @@
       "chainBreak": "PageToolPublicationManifestCommon.format 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 55,
+      "declarationLine": 64,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71835,7 +71894,7 @@
       "chainBreak": "PageToolPublicationManifestCommon.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 56,
+      "declarationLine": 65,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71847,7 +71906,7 @@
       "chainBreak": "PageToolPublicationManifestCommon.scenarioIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 57,
+      "declarationLine": 66,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71859,7 +71918,7 @@
       "chainBreak": "PageToolPublicationManifestCommon.sourceRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 58,
+      "declarationLine": 67,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71871,7 +71930,7 @@
       "chainBreak": "PageToolPublicationManifestCommon.files 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 59,
+      "declarationLine": 68,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71882,7 +71941,7 @@
       "chainBreak": "PageToolPublicationManifest 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 65,
+      "declarationLine": 74,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "typeAlias"
     },
@@ -71894,7 +71953,7 @@
       "chainBreak": "PageToolPublicationManifest.schemaVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 66,
+      "declarationLine": 75,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71906,7 +71965,7 @@
       "chainBreak": "PageToolPublicationManifest.pagedata 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 67,
+      "declarationLine": 76,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71918,7 +71977,7 @@
       "chainBreak": "PageToolPublicationManifest.dataset 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 68,
+      "declarationLine": 77,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "interface"
     },
@@ -71929,7 +71988,7 @@
       "chainBreak": "PageToolPublication 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 92,
+      "declarationLine": 101,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "class"
     },
@@ -71941,7 +72000,7 @@
       "chainBreak": "PageToolPublication.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 96,
+      "declarationLine": 105,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "class"
     },
@@ -71953,7 +72012,7 @@
       "chainBreak": "PageToolPublication.open 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 99,
+      "declarationLine": 108,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "class"
     },
@@ -71965,7 +72024,7 @@
       "chainBreak": "PageToolPublication.write 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 100,
+      "declarationLine": 111,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "class"
     },
@@ -71977,7 +72036,7 @@
       "chainBreak": "PageToolPublication.finish 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/page-tool-publication.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/page-tool-publication.ts",
-      "declarationLine": 120,
+      "declarationLine": 131,
       "sourceFile": "src/services/project/page-tool-publication.ts",
       "declarationKind": "class"
     },

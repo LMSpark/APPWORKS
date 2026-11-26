@@ -289,10 +289,7 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       const allFilters = [...staticFilter ? [staticFilter] : [], ...dependentFilters]
       const filter = allFilters.length === 0 ? '' : JSON.stringify(allFilters.length === 1 ? allFilters[0] : {Type: 'And', Filters: allFilters})
       const queryConfig = isRecord(rawView['queryConfig']) ? rawView['queryConfig'] : {}
-      const queryFields = queryConfig['fields']
-      if (Array.isArray(queryFields) && queryFields.length > 0) {
-        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${input.scenarioId} ${tableName}@${viewId} 不支持保存显式 queryConfig.fields`)
-      }
+      assertPlanViewQueryFields(queryConfig['fields'], `${input.scenarioId} ${tableName}@${viewId}`)
       const projection = Array.isArray(rawView['fieldProjection']) ? rawView['fieldProjection'].filter(isRecord) : []
       views.push({
         id: recordId, code: viewId, name: viewId, description: '',
@@ -336,6 +333,26 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
 function tableViewsByName(tables: RuntimePlanRecord, tableName: string): RuntimePlanRecord | undefined {
   const table = tables[tableName]
   return isRecord(table) ? table : undefined
+}
+
+function assertPlanViewQueryFields(fields: unknown, viewIdentity: string): void {
+  if (Array.isArray(fields) && fields.length > 0) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${viewIdentity} 不支持保存显式 queryConfig.fields`)
+  }
+}
+
+/** 拒绝 Plan v1 无法保存的正式视图默认请求列。生成和新发布使用同一工作场景规则。 */
+export function assertRuntimeDataSetPlanQueryFields(input: Pick<BuildRuntimeDataSetPlanInput, 'scenarioId' | 'scenarioConfig'>): void {
+  const tables = input.scenarioConfig['tables']
+  if (!isRecord(tables)) return
+  for (const [tableName, table] of Object.entries(tables)) {
+    if (!isRecord(table) || table['resourceType'] === 'file' || table['resourceType'] === 'command'
+      || !isRecord(table['modelBinding']) || !isRecord(table['views'])) continue
+    for (const [viewId, view] of Object.entries(table['views'])) {
+      const fields = isRecord(view) && isRecord(view['queryConfig']) ? view['queryConfig']['fields'] : undefined
+      assertPlanViewQueryFields(fields, `${input.scenarioId} ${tableName}@${viewId}`)
+    }
+  }
 }
 
 /** 正式行与文件配置都已校验时，生成稳定结构哈希并返回冻结 Plan。 */

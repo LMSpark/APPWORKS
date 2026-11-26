@@ -17,6 +17,13 @@ import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-fil
 type Progress = 'pending' | 'confirmed'
 type Snapshot = Readonly<{version: number; state: Progress}>
 type ScenarioSnapshot = Snapshot & Readonly<{sha256: string; sourceRevision: string; text: string}>
+type ChangedScenarioRecovery = Readonly<{
+  call: string
+  digest: string
+  baseline: string
+  resolveView(scenarioId: string): Promise<DataView>
+  assertTarget(): void
+}>
 export type PageToolPublicationIntent = {
   call: string
   digest: string
@@ -309,10 +316,31 @@ export class PageToolPublication {
     const previous = this.raw === null ? null : decode(this.raw)
     if (previous?.pointer) throw Error('请先核验原发布指针')
     if (previous?.call === call && previous.digest === digest && previous.baseline === baseline) return previous
-    if (previous && Object.values(previous.snapshots).some(snapshot => snapshot.state === 'pending')) {
+    if (previous && [...Object.values(previous.snapshots), ...Object.values(previous.scenarioSnapshots)].some(snapshot => snapshot.state === 'pending')) {
       throw Error('原发布仍待核验，调用、内容或发布基线已经变化')
     }
     return {call, digest, baseline, snapshots: {}, scenarioSnapshots: {}, pointer: null}
+  }
+
+  /** Verify a saved scenario attempt from the same call before a different capture may start. */
+  async verifyChangedScenarioAttempt(recovery: ChangedScenarioRecovery): Promise<boolean> {
+    const {call, digest, baseline, resolveView, assertTarget} = recovery
+    const previous = this.raw === null ? null : decode(this.raw)
+    if (!previous || previous.pointer || (previous.call === call && previous.digest === digest && previous.baseline === baseline)) return false
+    const pending = Object.entries(previous.scenarioSnapshots).filter(([, snapshot]) => snapshot.state === 'pending')
+    if (pending.length === 0) return false
+    if (previous.call !== call) throw Error('原场景快照待核验，页面工具调用已经变化')
+    for (const [scenarioId, snapshot] of pending) {
+      assertTarget()
+      const fileView = await resolveView(scenarioId)
+      assertTarget()
+      await this.scenarioSnapshot({
+        intent: previous, scenarioId, fileView, text: snapshot.text, sourceRevision: snapshot.sourceRevision,
+        assertTarget,
+        onAttempt: () => { throw Error('原场景快照核验禁止创建新版本') },
+      })
+    }
+    return true
   }
 
   write(intent: PageToolPublicationIntent): void {
@@ -407,6 +435,7 @@ export class PageToolPublication {
       if (snapshot.text !== text || snapshot.sourceRevision !== sourceRevision || snapshot.sha256 !== await sha256(text)) {
         throw Error(`${scenarioId} 原场景快照与本次发布内容不符`)
       }
+      assertTarget()
       const versionName = formatFileSnapshotName(snapshot.version, 'pagedata.json')
       if (snapshot.state === 'pending') {
         const versions = await fileView.listSourceVersions()
@@ -421,6 +450,7 @@ export class PageToolPublication {
       if (snapshot.state === 'pending') {
         if (status.state === 'unknown' && status.fileName === versionName) {
           const verified = await fileView.verifySourceHistoryAttempt()
+          assertTarget()
           if (verified.state !== 'confirmed') throw new Error(`${scenarioId}/${versionName} 原文件回执仍待核验`)
         }
         snapshot = {...snapshot, state: 'confirmed'}

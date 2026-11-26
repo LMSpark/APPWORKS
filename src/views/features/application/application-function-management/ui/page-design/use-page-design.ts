@@ -7,12 +7,11 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { getNavTree, resolveNavNodeRuntimeTarget, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
+import { assertRuntimeDataSetPlanQueryFields, buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
  type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
-import {
-  PAGE_TOOL_FILE_NAMES, PageTool, encodePageToolPublicationVersions, pageToolPublicationVersionKey,
-  parseConfigToolPageId, parsePageToolPublicationVersions, type PageToolFileName, type PageToolPublicationFileName,
-} from '@spark-appworks/spark-project-model'
+import * as ProjectModel from '@spark-appworks/spark-project-model'
+import { validatePageScriptSyntax } from '@spark-appworks/spark-component'
+import { toErrorMessage } from '@spark-appworks/spark-utils'
 import { buildConfigPageNavigationPath, readConfigPageScenarioCall } from '@/services/application-scope'
 import { onPageConfigChange } from '@/services/sse-events'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
@@ -25,15 +24,16 @@ import {
   type PageToolPublicationScenarioSource,
 } from '@/services/project/page-tool-publication'
 import { lowcodeApi } from '@/platform-adapters/lowcode-runtime'
+import { assembleLowcodeRuntimeDataSetPlan, assembleLowcodeRuntimeScenario } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {readRuntimeDataSetPlan} from '@/platform-adapters/data-space/runtime-data-set-plan-file'
 import type { DevState } from '../blueprint-state/useDevState'
 import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
-const DELIVERY_FILES = PAGE_TOOL_FILE_NAMES
+const DELIVERY_FILES = ProjectModel.PAGE_TOOL_FILE_NAMES
 
-export function resolvePageToolCall(tool: PageTool, target: string, mainScenarioId?: string) {
-  if (parseConfigToolPageId(target) !== tool.pageId) throw new Error('配置工具调用目标与页面身份不符')
+export function resolvePageToolCall(tool: ProjectModel.PageTool, target: string, mainScenarioId?: string) {
+  if (ProjectModel.parseConfigToolPageId(target) !== tool.pageId) throw new Error('配置工具调用目标与页面身份不符')
   const call = readConfigPageScenarioCall(target, mainScenarioId)
   for (const binding of tool.getNodeTree().collectDataViewKeys()) {
     const descriptor = parseDataViewKey(binding)
@@ -64,7 +64,7 @@ export function usePageDesign(state: DevState) {
   }
   /** 预览中的业务修改或工具/场景写入待核验：页面离开与节点切换都须先处理。 */
   const hasPendingWork = (): boolean => state.hasPendingBlueprintWrite() || hasPendingPreview()
-  const isPageFileName = (value: string): value is PageToolFileName =>
+  const isPageFileName = (value: string): value is ProjectModel.PageToolFileName =>
     state.pageFileNames.some((name) => name === value)
 
   const previewRequest = shallowRef<DevPreviewRequest>()
@@ -222,7 +222,7 @@ export function usePageDesign(state: DevState) {
     const scenarioId=String(scope.owner.value('conid') ?? '').trim()
     const resource=target.startsWith('vue:') ? target.slice(4).replace(/^\/+/,'') : ''
     const matchesNative=resource!=='' && match.node.itemKind==='system-page' && match.node.path===`/${resource}`
-    const toolPageId=parseConfigToolPageId(target)
+    const toolPageId=ProjectModel.parseConfigToolPageId(target)
     let configPath: string | undefined
     if (toolPageId) {
       try {configPath = buildConfigPageNavigationPath(scope.nodeId, scenarioId, target)}
@@ -251,7 +251,7 @@ export function usePageDesign(state: DevState) {
     if (!canPreviewCurrentPage.value) return
     const target=currentNavigationTarget.value
     if (target.startsWith('vue:')) {openRuntimePage(scope);return}
-    if (!scope.pageId || parseConfigToolPageId(target)!==scope.pageId) {
+    if (!scope.pageId || ProjectModel.parseConfigToolPageId(target)!==scope.pageId) {
       state.addStatus('当前节点的配置工具目标身份无效，无法预览', 'warning')
       return
     }
@@ -321,12 +321,12 @@ export function usePageDesign(state: DevState) {
     const mainScenarioId = String(current.value('conid') ?? '').trim()
     const originalVersionId = String(current.value('VersionId') ?? '')
     let expectedVersionId = originalVersionId
-    let fileViews=new Map<PageToolPublicationFileName,DataView>()
+    let fileViews=new Map<ProjectModel.PageToolPublicationFileName,DataView>()
     const written: string[] = []
     const confirmed: string[] = []
     const attemptedSnapshots: string[] = []
     const attemptedReferences: string[] = []
-    const readFileText=(fileName:PageToolPublicationFileName):string=>{
+    const readFileText=(fileName:ProjectModel.PageToolPublicationFileName):string=>{
       const view=fileViews.get(fileName)
       const row=view?.currentRow
       const id=view&&row?view.getPkKey(row):undefined
@@ -388,7 +388,8 @@ export function usePageDesign(state: DevState) {
     const finishPublication = async () => {
       assertTarget()
       const readbackVersions = String(current.value('VersionId') ?? '').trim()
-      if (encodePageToolPublicationVersions(parsePageToolPublicationVersions(readbackVersions)) !== expectedVersionId) {
+      const readback = ProjectModel.parsePageToolPublicationVersions(readbackVersions)
+      if (ProjectModel.encodePageToolPublicationVersions(readback) !== expectedVersionId) {
         throw new Error('四文件发布指针回读不一致')
       }
       recoverPublication = undefined
@@ -421,11 +422,14 @@ export function usePageDesign(state: DevState) {
       if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || pageId.trim() !== pageId
         || pageId === '.' || pageId === '..' || /[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
         || !current.canRead('conid')) throw new Error('交付工具与主空间身份必须可核验')
-      const tool = new PageTool({pageId})
-      const ruleText = texts.get('rule.json')
-      if (ruleText === undefined) throw new Error('交付规则文本缺失')
-      tool.hydrateFileText('rule.json', ruleText)
+      const tool = new ProjectModel.PageTool({pageId})
+      for (const [fileName, text] of texts) tool.hydrateFileText(fileName, text)
+      tool.markLoaded()
       const callDefinition = resolvePageToolCall(tool, originalNavigationUrl, mainScenarioId)
+      const knownWorkingSources = new Map(callDefinition.scenarioIds.flatMap(scenarioId => {
+        const file = state.editor.getScenarioViews(scenarioId)
+        return file ? [[scenarioId, file.savedText] as const] : []
+      }))
       const datasetSources = await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
         const text=await readRuntimeDataSetPlan({scenarioId,dataSet:current.dataSet,assertCurrent:()=>assertTarget()})
         assertTarget()
@@ -437,13 +441,18 @@ export function usePageDesign(state: DevState) {
         throw new Error('PAGE_PUBLICATION_DATASET_INCOMPLETE: 同一次页面调用的场景必须统一使用独立 Dataset Plan')
       }
       const useDatasetPublication = datasetSources.every(Boolean)
-      const scenarioSources = useDatasetPublication ? [] : await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
+      const loadScenarioFile = async (scenarioId: string) => {
+        if (!callDefinition.scenarioIds.includes(scenarioId)) throw new Error('原发布引用的场景不属于当前工具调用')
         const dataSet = await state.editor.loadScenarioDefinitions({scenarioId})
         assertTarget()
         const fileView = dataSet.getView('DataViewDefinition')
         if (!fileView || fileView.destroyed || fileView.queryContext['dataSpaceId'] !== scenarioId) {
           throw new Error(`场景 ${scenarioId} 的正式 pagedata DataView 无效`)
         }
+        return {dataSet, fileView}
+      }
+      const scenarioSources = useDatasetPublication ? [] : await Promise.all(callDefinition.scenarioIds.map(async scenarioId => {
+        const {dataSet, fileView} = await loadScenarioFile(scenarioId)
         await fileView.refresh()
         assertTarget()
         const source = await fileView.previewSource()
@@ -462,8 +471,88 @@ export function usePageDesign(state: DevState) {
           : {pagedata: scenarioSources.map(source => [source.scenarioId, source.sourceRevision, source.text])}),
       }))
       assertTarget()
+      const recoveredScenarios = await journal.verifyChangedScenarioAttempt({
+        call, digest, baseline: originalVersionId, assertTarget,
+        resolveView: async scenarioId => scenarioSources.find(source => source.scenarioId === scenarioId)?.fileView
+          ?? (await loadScenarioFile(scenarioId)).fileView,
+      })
+      if (recoveredScenarios) {
+        assertTarget()
+        state.addStatus('原场景快照已核验，请另行发起当前工作稿发布', 'success')
+        return
+      }
       const intent = journal.open(call, digest, originalVersionId)
-      let versions = parsePageToolPublicationVersions(expectedVersionId.trim())
+      const assertPlanDraftsSettled = () => {
+        if (!useDatasetPublication) return
+        for (const scenarioId of callDefinition.scenarioIds) {
+          const dataSet = state.editor.getScenarioDefinitions(scenarioId)
+          const baseline = knownWorkingSources.get(scenarioId)
+          if (baseline !== undefined && state.editor.getScenarioViews(scenarioId)?.savedText !== baseline) {
+            throw new Error(`场景 ${scenarioId} 的工作来源在发布期间已保存变更`)
+          }
+          const active = dataSet && Object.values(dataSet.tables).some(table => table.viewList.some(view =>
+            view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+          if (active) throw new Error(`场景 ${scenarioId} 有未保存或未确认的 pagedata 修改`)
+        }
+      }
+      const assertCapturedFiles = () => {
+        assertTarget()
+        assertPlanDraftsSettled()
+        for (const [fileName, text] of texts) {
+          if (readFileText(fileName) !== text) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
+        }
+      }
+      const assertPlanQueryFieldsRepresentable = () => {
+        if (!useDatasetPublication) return
+        for (const scenarioId of callDefinition.scenarioIds) {
+          const working = state.editor.getScenarioViews(scenarioId)?.savedText
+          if (working === undefined) continue
+          const scenarioConfig = new ProjectModel.ScenarioViewConfig(scenarioId, working).toJSON()
+          assertRuntimeDataSetPlanQueryFields({scenarioId, scenarioConfig})
+        }
+      }
+      let validated = false
+      // 原快照可以继续核验。新增写入要先用本次捕获的来源完成运行时绑定校验。
+      async function validateNewPublication(): Promise<void> {
+        assertCapturedFiles()
+        assertPlanQueryFieldsRepresentable()
+        if (validated) return
+        const scriptText = texts.get('script.js')
+        if (scriptText === undefined) throw new Error('交付脚本文本缺失')
+        try {
+          validatePageScriptSyntax(scriptText)
+        } catch (cause: unknown) {
+          throw new Error(`工具 ${pageId} 的 script.js 无法编译：${toErrorMessage(cause)}`, {cause})
+        }
+        const validationRuntime = new ProjectModel.PageRuntime({
+          tool,
+          scenarioIds: callDefinition.scenarioIds,
+          ...(mainScenarioId ? {mainScenarioId} : {}),
+          ...(callDefinition.scenarioInputs ? {scenarioInputs: callDefinition.scenarioInputs} : {}),
+          loadScenario: async scenarioId => {
+            const command = {projectId, scenarioId, assertCurrent: () => assertTarget()}
+            if (useDatasetPublication) {
+              const source = datasetSources.find(candidate => candidate?.scenarioId === scenarioId)
+              if (!source) throw new Error(`缺少场景 ${scenarioId} 的发布 Dataset Plan`)
+              return assembleLowcodeRuntimeDataSetPlan({...command, text: source.text})
+            }
+            const source = scenarioSources.find(candidate => candidate.scenarioId === scenarioId)
+            if (!source) throw new Error(`缺少场景 ${scenarioId} 的发布 pagedata`)
+            return assembleLowcodeRuntimeScenario({...command, config: new ProjectModel.ScenarioViewConfig(scenarioId, source.text)})
+          },
+        })
+        try {
+          await validationRuntime.load()
+          assertTarget()
+          validationRuntime.materialize()
+        } finally {
+          validationRuntime.dispose()
+        }
+        assertCapturedFiles()
+        assertPlanQueryFieldsRepresentable()
+        validated = true
+      }
+      let versions = ProjectModel.parsePageToolPublicationVersions(expectedVersionId.trim())
       const fileSources: PageToolPublicationFileSource[] = []
       for (const fileName of DELIVERY_FILES) {
         assertTarget()
@@ -472,18 +561,20 @@ export function usePageDesign(state: DevState) {
         const fileView=await state.loadPageToolFileDataView({pageId,fileName})
         assertTarget()
         if(readFileText(fileName)!==text)throw new Error(`${fileName} 交付期间 DataView 已修改`)
+        if (!intent.snapshots[fileName]) await validateNewPublication()
         const version = await journal.snapshot({intent, fileView, fileName, text, assertTarget,
           onAttempt: name => attemptedSnapshots.push(name)})
         assertTarget()
         written.push(formatFileSnapshotName(version,fileName))
         fileSources.push({fileName, version, text})
         if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
-        versions = Object.freeze({ ...versions, [pageToolPublicationVersionKey(fileName)]: version })
+        versions = Object.freeze({ ...versions, [ProjectModel.pageToolPublicationVersionKey(fileName)]: version })
       }
       const pagedataSources: PageToolPublicationScenarioSource[] = []
       if (!useDatasetPublication) {
         for (const source of scenarioSources) {
           assertTarget()
+          if (!intent.scenarioSnapshots[source.scenarioId]) await validateNewPublication()
           const snapshot = await journal.scenarioSnapshot({
             intent, scenarioId: source.scenarioId, fileView: source.fileView, text: source.text,
             sourceRevision: source.sourceRevision, assertTarget,
@@ -493,10 +584,7 @@ export function usePageDesign(state: DevState) {
           written.push(`${source.scenarioId}/${formatFileSnapshotName(snapshot.version,'pagedata.json')}`)
         }
       }
-      assertTarget()
-      for (const fileName of DELIVERY_FILES) {
-        if (readFileText(fileName) !== texts.get(fileName)) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
-      }
+      assertCapturedFiles()
       const manifest = useDatasetPublication
         ? await createPageToolDatasetPublicationManifest({
           pageId, files: fileSources,
@@ -508,26 +596,33 @@ export function usePageDesign(state: DevState) {
       const manifestView = state.getPagePublicationManifestDataView(pageId)
       await manifestView.refresh()
       assertTarget()
-      let manifestRow = manifestView.currentRow
+      if (manifestView.loadingError) throw manifestView.loadingError
+      if (manifestView.hasUnconfirmedSave) {
+        const verified = await manifestView.verifySourceWriteAttempt()
+        assertTarget()
+        if (verified.state !== 'confirmed') throw new Error('发布 manifest 原工作文件提交仍待核验')
+        manifestView.acknowledgeSourceWriteAttempt()
+      }
+      const manifestRow = manifestView.currentRow
       if (!manifestRow) {
+        await validateNewPublication()
         await manifestView.addRow({text: manifestText})
-        manifestRow = manifestView.currentRow
       } else {
         const manifestId = manifestView.getPkKey(manifestRow)
         if (manifestId === undefined) throw new Error('发布 manifest 文件 DataView 缺少身份')
         const edited = manifestView.getEditingRow(manifestId) ?? manifestRow
-        if (edited['text'] !== manifestText) await manifestView.editRowById(manifestId, {text: manifestText})
-      }
-      if (manifestView.hasUnconfirmedSave) {
-        const verified = await manifestView.verifySourceWriteAttempt()
-        if (verified.state !== 'confirmed') throw new Error('发布 manifest 原工作文件提交仍待核验')
-        manifestView.acknowledgeSourceWriteAttempt()
+        if (edited['text'] !== manifestText) {
+          await validateNewPublication()
+          await manifestView.editRowById(manifestId, {text: manifestText})
+        }
       }
       if (manifestView.dirtyTracking.hasPendingChanges() || manifestView.hasEditingChanges()) {
+        await validateNewPublication()
         const result = await current.dataSet.saveChanges({views: [{tableName: manifestView.tableName, viewId: manifestView.viewId}]})
         assertTarget()
         if (!result.success) throw result.error ?? new Error(result.message ?? '发布 manifest 工作文件保存失败')
       }
+      if (!intent.snapshots['publication-manifest.json']) await validateNewPublication()
       const manifestVersion = await journal.snapshot({
         intent, fileView: manifestView, fileName: 'publication-manifest.json', text: manifestText, assertTarget,
         onAttempt: name => attemptedSnapshots.push(name),
@@ -535,18 +630,22 @@ export function usePageDesign(state: DevState) {
       assertTarget()
       written.push(`${manifestVersion}__publication-manifest.json`)
       versions = Object.freeze({...versions, manifest: manifestVersion})
-      expectedVersionId = encodePageToolPublicationVersions(versions)
-      if(originalVersionId===expectedVersionId){
+      const nextVersionId = ProjectModel.encodePageToolPublicationVersions(versions)
+      if(originalVersionId===nextVersionId){
         assertTarget()
         await finishPublication()
         return
       }
+      await validateNewPublication()
+      expectedVersionId = nextVersionId
       current.update('VersionId', expectedVersionId)
       state.notifyExternalDataViewChanged()
       assertTarget(true)
       const progress = {
         beforeSubmit() {
           assertTarget(true)
+          assertPlanDraftsSettled()
+          assertPlanQueryFieldsRepresentable()
           for (const file of DELIVERY_FILES) {
             if (readFileText(file) !== texts.get(file)) throw new Error(`${file} 在提交发布指针前已修改`)
           }

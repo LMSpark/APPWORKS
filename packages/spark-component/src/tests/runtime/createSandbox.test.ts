@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { compileFunctions } from '../../page/createSandbox'
+import { compileFunctions, validatePageScriptSyntax } from '../../page/createSandbox'
 import type { PageContext } from '../../page/context/types'
 import { SparkData } from '@spark-appworks/spark-data'
 import { h } from 'vue'
@@ -334,5 +334,19 @@ describe('createSandbox — compileFunctions', () => {
     const fns = compileFunctions(script, ctx)
     // 未注入的变量通过 with 安全代理返回 undefined
     expect(fns['tryUnknown']!()).toBe('undefined')
+  })
+})
+
+
+describe('page script syntax validation', () => {
+  it('reports the syntax errors caught by the rendering compiler', () => {
+    expect(() => validatePageScriptSyntax('function broken( {')).toThrow(SyntaxError)
+    expect(() => compileFunctions('function broken( {', createMockContext())).toThrow(SyntaxError)
+  })
+
+  it('leaves the compiled script body inert until the runtime evaluates it', () => {
+    const script = 'throw new Error("runtime evaluated the body"); function __init__() {}'
+    expect(() => validatePageScriptSyntax(script)).not.toThrow()
+    expect(() => compileFunctions(script, createMockContext())).toThrow('runtime evaluated the body')
   })
 })

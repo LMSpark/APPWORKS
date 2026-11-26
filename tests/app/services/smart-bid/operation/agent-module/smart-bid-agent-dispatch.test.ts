@@ -54,9 +54,10 @@ async function openCommandRuntime(){
   columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
    .map(name=>({name})),{name:'inputs',type:'json'}]})
  const submit=vi.fn(async row=>({...row,receiptRef:'RECEIPT'}))
+ const verify=vi.fn(async()=>undefined)
  bindDataSetCommandSubmit(view,{resource:{resourceType:'command',resourceId:'smart-bid:action'},
   guard:()=>{},inputFields:['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','inputs'],
-  createKey:()=> crypto.randomUUID(),submit,verify:async()=>undefined})
+  createKey:()=> crypto.randomUUID(),submit,verify,isUnconfirmed:error=>error instanceof Error&&error.message==='LOCAL_OWNER_RECEIPT_LOST'})
  await view.refresh()
  const tool=new PageTool({pageId:'TEST-OWNER'})
  tool.hydrateFileText('rule.json','[]')
@@ -65,10 +66,11 @@ async function openCommandRuntime(){
  tool.markLoaded()
  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,loadScenario:async()=>dataSet})
  await runtime.load()
- const dispatcher=createSmartBidAgentDispatcher({runtime,scenarioId,projectId:'PROJECT',assertCurrent:()=>{}})
+ const createDispatcher=()=>createSmartBidAgentDispatcher({runtime,scenarioId,projectId:'PROJECT',assertCurrent:()=>{}})
+ const dispatcher=createDispatcher()
  const command={operationId:'39',registrationId:'SmartBidOperationModule',businessInstanceId:'PROJECT',
   runtimeInstanceId:runtime.call.instanceId,requestKey:'ORIGINAL',prompt:'原采用请求',inputs:{revisionId:'V1',options:{copies:1}}}
- return {command,dispatcher,signal:new AbortController().signal,submit,runtime}
+ return {command,dispatcher,createDispatcher,signal:new AbortController().signal,submit,verify,runtime}
 }
 
 
@@ -121,6 +123,30 @@ it('uses the same owner execution for a repeated command in one generated ClassM
  }finally{f.runtime.dispose()}
 })
 
+it.each(['confirmed','delivery-failed','owner-unknown'] as const)('stops a new turn for the same owner attempt after %s',async mode=>{
+ const f=await openCommandRuntime()
+ try{
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  state.failReturn=mode==='delivery-failed'
+  if(mode==='owner-unknown') f.submit.mockRejectedValueOnce(Error('LOCAL_OWNER_RECEIPT_LOST'))
+  const original=await f.dispatcher.dispatch(f.command,f.signal)
+  expect(original.outcome.state).toBe(mode==='owner-unknown'?'NO_ACTION_RECEIPT':'ACTION_APPLIED')
+  state.sent=false;state.failReturn=false
+  await expect(f.createDispatcher().dispatch(f.command,f.signal)).rejects.toThrow('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+  await expect(f.dispatcher.dispatch({...f.command,inputs:{revisionId:'V2'}},f.signal)).rejects.toThrow('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+  expect(state.prompt).toHaveBeenCalledOnce()
+  expect(f.submit).toHaveBeenCalledOnce()
+  expect(f.verify).not.toHaveBeenCalled()
+  if(mode==='owner-unknown')return
+  const originalRead=await readOperationDispatchParameter({projectId:'PROJECT',assertCurrent:()=>{}},original)
+  expect(originalRead.readActionReceipt()).toMatchObject({requestKey:'ORIGINAL',receiptRef:'RECEIPT'})
+  const next={...f.command,requestKey:'NEW'}
+  state.script=`return await this.dispatchOperation(${JSON.stringify(next)})`
+  expect((await f.dispatcher.dispatch(next,f.signal)).outcome.state).toBe('ACTION_APPLIED')
+  expect(f.submit).toHaveBeenCalledTimes(2)
+ }finally{f.runtime.dispose()}
+})
+
 it('retains a transport interruption before any owner receipt as unknown',async()=>{
  const f=await openCommandRuntime()
  try{
@@ -130,6 +156,10 @@ it('retains a transport interruption before any owner receipt as unknown',async(
    sessionId:'SSE-SESSION',turnId:'SSE-TURN',transport:'SSE',state:'SSE_UNKNOWN',dispatched:false,error:'LOCAL_TURN_INTERRUPTED',
   })
   expect(f.submit).not.toHaveBeenCalled()
+  state.sent=false;state.failBefore=false
+  state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
+  expect((await f.dispatcher.dispatch(f.command,f.signal)).outcome.state).toBe('ACTION_APPLIED')
+  expect(f.submit).toHaveBeenCalledOnce()
  }finally{f.runtime.dispose()}
 })
 
@@ -155,9 +185,11 @@ it('keeps its original dispatch slot while awaiting the digest',async()=>{
   state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
   const first=f.dispatcher.dispatch(f.command,f.signal)
   const overlap=f.dispatcher.dispatch({...f.command,requestKey:'SECOND'},f.signal)
-  const [owner,other]=await Promise.allSettled([first,overlap])
+  const repeat=f.createDispatcher().dispatch(f.command,f.signal)
+  const [owner,other,duplicate]=await Promise.allSettled([first,overlap,repeat])
   expect(owner).toMatchObject({status:'fulfilled',value:{requestKey:'ORIGINAL',outcome:{state:'ACTION_APPLIED'}}})
   expect(other).toMatchObject({status:'rejected',reason:expect.objectContaining({message:'SMART_BID_AGENT_DISPATCH_BUSY'})})
+  expect(duplicate).toMatchObject({status:'rejected',reason:expect.objectContaining({message:'SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED'})})
   expect(f.submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({requestKey:'ORIGINAL'}),expect.anything())
  }finally{f.runtime.dispose()}
 })

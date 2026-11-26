@@ -15,6 +15,8 @@ import {SmartBidOperationModule,type SmartBidOperationCommand} from './smart-bid
 import {createSmartBidRuntimeActionExecutor} from './smart-bid-runtime-action-owner'
 
 const registrationId='SmartBidOperationModule'
+// 同一 PageRuntime 内的派发资格。回执与未决请求仍由原 DataView 管理。
+const runtimeRequests=new WeakMap<PageRuntime,Set<string>>()
 
 export type SmartBidAgentDispatchResult=Readonly<{
  operationId:string
@@ -53,13 +55,28 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
  const current=()=>{assertCurrent();if(runtime.destroyed||!runtime.isLoaded||!runtime.call.scenarioIds.includes(scenarioId))
    throw Error('SMART_BID_AGENT_RUNTIME_STALE')}
  const executeOwner=createSmartBidRuntimeActionExecutor({runtime,scenarioId,assertCurrent:current})
+ const requests=runtimeRequests.get(runtime)??new Set<string>()
+ runtimeRequests.set(runtime,requests)
+ const assertScope=(command:SmartBidOperationCommand)=>{
+   if(command.registrationId!==registrationId||command.businessInstanceId!==projectId
+     ||command.runtimeInstanceId!==runtime.call.instanceId)throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
+ }
+ const reserve=(command:SmartBidOperationCommand)=>{
+   const key=JSON.stringify([scenarioId,projectId,command.operationId,command.requestKey])
+   if(requests.has(key))throw Error('SMART_BID_AGENT_ORIGINAL_REQUEST_ENTERED')
+   requests.add(key)
+   return key
+ }
  let active:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}|undefined
  const execute=async(command:SmartBidOperationCommand):Promise<JsonValue>=>{
    const dispatch=active
    if(dispatch&&(['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey'] as const)
      .some(field=>dispatch.command[field]!==command[field]))throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
    if(dispatch&&canonicalSnapshotValue(command)!==dispatch.commandText)throw Error('SMART_BID_AGENT_DISPATCH_INPUT_CHANGED')
-   if(!dispatch)return executeOwner(command)
+   if(!dispatch){
+     current();assertScope(command);reserve(command)
+     return executeOwner(command)
+   }
    dispatch.execution??=executeOwner(command)
    const receipt=await dispatch.execution
    dispatch.receipt=receipt
@@ -106,12 +123,12 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
    async dispatch(inputCommand,signal){
      current()
      signal.throwIfAborted()
-     if(inputCommand.registrationId!==registrationId||inputCommand.businessInstanceId!==projectId
-       ||inputCommand.runtimeInstanceId!==runtime.call.instanceId)throw Error('SMART_BID_AGENT_DISPATCH_SCOPE')
+     assertScope(inputCommand)
      if(active)throw Error('SMART_BID_AGENT_DISPATCH_BUSY')
      const commandText=canonicalSnapshotValue(inputCommand)
      const command=structuredClone(inputCommand)
      const now=new Date().toISOString(),turnId=crypto.randomUUID()
+     const reserved=reserve(command)
      accepted=undefined
      const dispatch:Readonly<{command:SmartBidOperationCommand;commandText:string}> & {receipt?:JsonValue;execution?:Promise<JsonValue>}={command,commandText}
      active=dispatch
@@ -140,6 +157,7 @@ export function createSmartBidAgentDispatcher(input:Readonly<{
            ...(transportError===undefined?{}:{error:transportError})}),
        })
      }finally{
+       if(dispatch.execution===undefined)requests.delete(reserved)
        if(active===dispatch)active=undefined
        accepted=undefined
      }

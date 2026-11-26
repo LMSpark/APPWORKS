@@ -206,6 +206,34 @@ describe('LowcodeDesignFileUpload', () => {
     expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/UploadFile','/api/File/UploadFile','/api/File/DownFile'])
   })
 
+  it.each(['primary upload', 'fallback upload'] as const)('rechecks working text before %s enters transport', async phase => {
+    class PlanHttp extends FixtureHttpClient {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (config.url.includes('/v2/')) {
+          this.requests.push(config)
+          return {data: {Code: 404, Message: 'not registered'}, status: 200, statusText: 'OK', headers: {}}
+        }
+        return super.executeRequest(config)
+      }
+    }
+    const http = new PlanHttp({Code: 200, Result: [
+      {state: 'success', filePath: '/DesignFilePaths_publisher/DataSet/SPACE.dataset.json'},
+    ]}, 'body')
+    let current = true
+    http.interceptors.request.use({onRequest: async config => {
+      await Promise.resolve()
+      if (config.url.endsWith('/UploadFile') && (phase === 'primary upload') === config.url.includes('/v2/')) current = false
+      return config
+    }})
+    const assertReady = () => {if (!current) throw Error('original Plan source changed')}
+    const command = {customPath: 'DataSet', fileName: 'SPACE.dataset.json', text: 'body', assertReady}
+
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText(command))
+      .rejects.toMatchObject({name: 'FileMutationNotDispatchedError', message: expect.stringContaining('original Plan source changed')})
+    expect(http.requests).toHaveLength(phase === 'primary upload' ? 0 : 1)
+    expect(http.requests.every(request => request.url.includes('/v2/'))).toBe(true)
+  })
+
   it('confirms a V2 upload by stat hash without another byte download',async()=>{
     const bytes=new TextEncoder().encode('body')
     const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer))]
@@ -225,6 +253,30 @@ describe('LowcodeDesignFileUpload', () => {
       customPath:'APP-A/page',fileName:'rule.json',text:'body',
     })).resolves.toMatchObject({sha256:hash})
     expect(http.requests.map(request=>request.url)).toEqual(['/api/File/v2/UploadFile','/api/File/v2/stat'])
+  })
+
+
+  it('keeps an accepted text upload unknown when its hash readback is refused', async () => {
+    const bytes = new TextEncoder().encode('body')
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+      .map(byte => byte.toString(16).padStart(2, '0')).join('')
+    class ReadbackRefused extends FixtureHttpClient {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (config.url === '/api/File/v2/stat') {
+          this.requests.push(config)
+          return { data: { Code: 403, Message: 'readback refused' }, status: 200, statusText: 'OK', headers: {} }
+        }
+        return super.executeRequest(config)
+      }
+    }
+    const http = new ReadbackRefused({ Code: 200, Result: [{
+      state: 'success', sha256: hash, filePath: '/DesignFilePaths_publisher/APP-A/page/script.js',
+    }] })
+    const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
+
+    await expect(upload.uploadWorkingText({ customPath: 'APP-A/page', fileName: 'script.js', text: 'body' }))
+      .rejects.toMatchObject({ message: 'readback refused', fileResourceMutationMayHaveApplied: true })
+    expect(http.requests.map(request => request.url)).toEqual(['/api/File/v2/UploadFile', '/api/File/v2/stat'])
   })
 
   it('keeps a V2 upload response unknown when scope expires without replaying through V1',async()=>{

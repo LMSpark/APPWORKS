@@ -57,6 +57,9 @@ cacheKey?: string
   /** 跨域请求携带 cookie（对应 axios withCredentials / fetch credentials:'include'） */
   withCredentials?: boolean
 
+  /** 观测本次调用是否进入传输适配器。开始准备时为 false，进入适配器时为 true。 */
+  onTransportAttempt?: (started: boolean) => void
+
   /** 自定义元数据（透传给拦截器） */
   meta?: Record<string, unknown>
 
@@ -172,6 +175,8 @@ export type RequestInterceptor = {
 name?: string
     /** on Request 事件回调。 */
 onRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>
+    /** 在所有异步请求准备完成后、调用传输适配器前同步复核最终配置。抛错时本次未进入适配器。 */
+beforeDispatch?: (config: RequestConfig) => undefined
   /**
    * 请求阶段错误回调。
    *
@@ -186,8 +191,9 @@ export type ResponseInterceptor = {
 name?: string
     /** on Response 事件回调。 */
 onResponse?: <T>(response: HttpResponse<T>) => HttpResponse<T> | Promise<HttpResponse<T>>
-    /** on Response Error 事件回调。 */
-onResponseError?: (error: RequestError) => RequestError | Promise<RequestError>}
+  /** 错误回调。第二参数是交给传输适配器的当次配置，派发前失败时为空。 */
+  onResponseError?: (error: RequestError, dispatchedConfig?: RequestConfig) => RequestError | Promise<RequestError>
+}
 
 /** createHttpClient 工厂参数 */
 export type HttpClientFactoryOptions = Partial<RequestConfig>

@@ -7,11 +7,56 @@
     "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
     "packageName": "app",
     "modulePath": "platform-adapters/api/design/file-mutation-state",
-    "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n导出 DtsTypeDeclarationModel symbol: FileMutationNotDispatchedError（共 1 个 symbol）。",
     "jsdocSource": "inferred",
-    "symbols": []
+    "symbols": [
+      "FileMutationNotDispatchedError"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-11-23T19:11:19.195Z",
-  "models": {}
+  "$defs": {
+    "FileMutationNotDispatchedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileMutationNotDispatchedError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "cause": true
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-25T07:11:30.216Z",
+  "models": {
+    "FileMutationNotDispatchedError": {
+      "name": "FileMutationNotDispatchedError",
+      "jsdoc": "本次文件请求在进入传输适配器前失败。保留原错误供调用方诊断。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(cause: unknown)",
+          "parameters": [
+            {
+              "name": "cause",
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

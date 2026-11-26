@@ -7,6 +7,7 @@
 import { isRecord, isRequestError, type HttpClientBase, type RequestConfig } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
+import { FileMutationNotDispatchedError, markFileMutationMayHaveApplied } from './file-mutation-state.js'
 import { LowcodeDesignApi,type LowcodeFileLocator } from './lowcode-design-api.js'
 import { assertExactTextUpload, exactFileContentPath, exactFileName, matchesFileUploadPath } from './lowcode-file-identity.js'
 import type { DataSpaceRequestScope } from '@spark-appworks/spark-data'
@@ -24,6 +25,8 @@ export type LowcodeDesignFileUploadCommand = Readonly<{
   customPath: string
   fileName: string
   text: string
+  /** 在每次实际派发前重核工作来源，拒绝时上传尚未进入传输。 */
+  assertReady?: () => void
 }>
 
 /** 完成字节回读后的实际后端单文件回执；快照还须核对 filePath 最终名，后续失败不伪造回滚。 */
@@ -159,15 +162,17 @@ export class LowcodeDesignFileUpload {
     data.append('newName', fileName)
     data.append('isCrossEnt', 'false')
     data.append('file', new Blob([bytes]), fileName)
+    let uploadAccepted = false
     try {
       let result: unknown
       try{
-        result=await this.requestUpload({url:'/api/File/v2/UploadFile',method:'POST',data,headers:{...scope.headers}})
+        result=await this.requestUpload({url:'/api/File/v2/UploadFile',method:'POST',data,headers:{...scope.headers}}, command.assertReady)
       }catch(error){
         if(!v2UploadUnavailable(error))throw error
         this.assertScope(scope)
-        result=await this.requestUpload({url:'/api/File/UploadFile',method:'POST',data,headers:{...scope.headers}})
+        result=await this.requestUpload({url:'/api/File/UploadFile',method:'POST',data,headers:{...scope.headers}}, command.assertReady)
       }
+      uploadAccepted = true
       this.assertScope(scope)
       if (!Array.isArray(result) || result.length !== 1 || !isRecord(result[0])) {
         throw new LowcodeApiError(0, '文件上传 Result 不是单文件信息数组')
@@ -195,8 +200,9 @@ export class LowcodeDesignFileUpload {
       }
       return receipt
     } catch (cause) {
-      if(cause instanceof LowcodeApiError&&cause.code!==0)throw cause
-      throw Object.assign(cause instanceof Error ? cause : new Error(String(cause)), {fileResourceMutationMayHaveApplied:true})
+      if (!uploadAccepted && (cause instanceof FileMutationNotDispatchedError
+        || cause instanceof LowcodeApiError && cause.code !== 0)) throw cause
+      throw markFileMutationMayHaveApplied(cause)
     }
   }
 
@@ -206,13 +212,19 @@ export class LowcodeDesignFileUpload {
     }
   }
 
-  private async requestUpload(config: RequestConfig): Promise<unknown> {
+  private async requestUpload(config: RequestConfig, assertReady?: () => void): Promise<unknown> {
     let response: unknown
+    let transportAttempted: boolean | undefined
     try {
       response = await this.http.request<unknown>({
         ...config, retry: 0, cache: false, meta: { rawEnvelope: true },
+        onTransportAttempt: (started) => {
+          if (started) assertReady?.()
+          transportAttempted = started
+        },
       })
     } catch (error) {
+      if (transportAttempted === false) throw new FileMutationNotDispatchedError(error)
       if (!isRequestError(error) || error.response === undefined) throw error
       response = error.response
     }

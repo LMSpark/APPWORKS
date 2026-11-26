@@ -275,6 +275,9 @@
           "properties": {
             "error": {
               "$ref": "types.ts.json#/$defs/RequestError"
+            },
+            "dispatchedConfig": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
             }
           },
           "additionalProperties": false
@@ -361,7 +364,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.484Z",
+  "generatedAt": "2026-11-25T07:50:09.205Z",
   "models": {
     "HttpClientBase": {
       "name": "HttpClientBase",
@@ -929,7 +932,7 @@
             },
             {
               "name": "applyResponseErrorInterceptors",
-              "jsdoc": "执行 apply Response Error Interceptors 操作。",
+              "jsdoc": "传递本次传输尝试的内存配置，独立于适配器归一化后的错误。",
               "parameters": [
                 {
                   "name": "error",
@@ -937,6 +940,17 @@
                     "type": "reference",
                     "name": "RequestError",
                     "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                },
+                {
+                  "name": "dispatchedConfig",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

@@ -12586,9 +12586,11 @@
         "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
         "packageName": "app",
         "modulePath": "platform-adapters/api/design/file-mutation-state",
-        "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdoc": "app 的 platform-adapters/api/design/file-mutation-state 模块。\n导出 DtsTypeDeclarationModel symbol: FileMutationNotDispatchedError（共 1 个 symbol）。",
         "jsdocSource": "inferred",
-        "symbols": []
+        "symbols": [
+          "FileMutationNotDispatchedError"
+        ]
       }
     },
     "src/platform-adapters/api/design/lowcode-design-api.ts": {
@@ -28086,6 +28088,10 @@
     "FileLoadResult": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
+    },
+    "FileMutationNotDispatchedError": {
+      "sourcePath": "src/platform-adapters/api/design/file-mutation-state.ts",
+      "file": "files/src/platform-adapters/api/design/file-mutation-state.ts.json"
     },
     "FileResourceHistoryAttempt": {
       "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",

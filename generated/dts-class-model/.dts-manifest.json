@@ -3504,7 +3504,7 @@
     "packages/spark-utils/src/http/HttpClientBase.ts": {
       "sourceFile": "packages/spark-utils/src/http/HttpClientBase.ts",
       "shardFile": "files/packages/spark-utils/src/http/HttpClientBase.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.484Z"
+      "sourceModifiedAt": "2026-11-25T07:50:09.205Z"
     },
     "packages/spark-utils/src/http/HttpClientFactory.ts": {
       "sourceFile": "packages/spark-utils/src/http/HttpClientFactory.ts",
@@ -3524,7 +3524,7 @@
     "packages/spark-utils/src/http/types.ts": {
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "shardFile": "files/packages/spark-utils/src/http/types.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.487Z"
+      "sourceModifiedAt": "2026-11-25T07:50:09.211Z"
     },
     "packages/spark-utils/src/index.ts": {
       "sourceFile": "packages/spark-utils/src/index.ts",
@@ -3674,7 +3674,7 @@
     "src/platform-adapters/api/design/file-mutation-state.ts": {
       "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
       "shardFile": "files/src/platform-adapters/api/design/file-mutation-state.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:11:19.195Z"
+      "sourceModifiedAt": "2026-11-25T07:11:30.216Z"
     },
     "src/platform-adapters/api/design/lowcode-design-api.ts": {
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-api.ts",
@@ -3684,7 +3684,7 @@
     "src/platform-adapters/api/design/lowcode-design-file-upload.ts": {
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "shardFile": "files/src/platform-adapters/api/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:44.293Z"
+      "sourceModifiedAt": "2026-11-26T13:08:45.945Z"
     },
     "src/platform-adapters/api/design/lowcode-file-identity.ts": {
       "sourceFile": "src/platform-adapters/api/design/lowcode-file-identity.ts",

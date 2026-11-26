@@ -145,6 +145,8 @@ async requestFull<T = unknown>(config: RequestConfig): Promise<HttpResponse<T>>
   private async requestWithRetry(config: RequestConfig, useCache: boolean): Promise<HttpResponse<unknown>> {
     const merged = this.mergeConfig(config)
     const method = merged.method ?? 'GET'
+    const onTransportAttempt = config.onTransportAttempt
+    onTransportAttempt?.(false)
 
     // 缓存检查（仅 GET + cache 开启 + useCache=true）
     if (useCache && method === 'GET' && (merged.cache ?? false)) {
@@ -156,6 +158,7 @@ async requestFull<T = unknown>(config: RequestConfig): Promise<HttpResponse<T>>
     const retryDelay = merged.retryDelay ?? 1000
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      let dispatchedConfig: RequestConfig | undefined
       try {
         if (attempt > 0) {
           await this.delay(retryDelay * attempt, merged.signal)
@@ -163,6 +166,9 @@ async requestFull<T = unknown>(config: RequestConfig): Promise<HttpResponse<T>>
         }
 
         const cfg = await this.applyRequestInterceptors(merged)
+        for (const interceptor of this.reqInterceptors) interceptor.beforeDispatch?.(cfg)
+        onTransportAttempt?.(true)
+        dispatchedConfig = cfg
         const res = await this.executeRequest(cfg)
         const processed = await this.applyResponseInterceptors(res)
         const unwrapped = this.unwrapApiEnvelopeResponse(processed, cfg)
@@ -174,7 +180,7 @@ async requestFull<T = unknown>(config: RequestConfig): Promise<HttpResponse<T>>
         return unwrapped
       } catch (err) {
         const normalized = this.normalizeAdapterError(err, merged)
-        const transformed = await this.applyResponseErrorInterceptors(normalized)
+        const transformed = await this.applyResponseErrorInterceptors(normalized, dispatchedConfig)
         // 用户主动取消（signal.abort）不重试——信号已中止说明调用方不希望继续
         const userCancelled = merged.signal?.aborted === true
         const status = transformed.status ?? 0
@@ -288,11 +294,14 @@ protected async applyResponseInterceptors<T>(response: HttpResponse<T>): Promise
     return res
   }
 
-    /** 执行 apply Response Error Interceptors 操作。 */
-protected async applyResponseErrorInterceptors(error: RequestError): Promise<RequestError> {
+  /** 传递本次传输尝试的内存配置，独立于适配器归一化后的错误。 */
+  protected async applyResponseErrorInterceptors(
+    error: RequestError,
+    dispatchedConfig?: RequestConfig,
+  ): Promise<RequestError> {
     let current = error
     for (const i of this.resInterceptors) {
-      if (i.onResponseError !== undefined) current = await i.onResponseError(current)
+      if (i.onResponseError !== undefined) current = await i.onResponseError(current, dispatchedConfig)
     }
     return current
   }

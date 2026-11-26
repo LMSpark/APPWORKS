@@ -60,12 +60,15 @@
           "type": "string"
         }
       },
-      "required": [
-        "customPath",
-        "fileName",
-        "text"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertReady.return": true
+      }
     },
     "LowcodeDesignFileUploadResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -253,7 +256,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:03:44.293Z",
+  "generatedAt": "2026-11-26T13:08:45.945Z",
   "models": {
     "LowcodeDesignFileUploadOptions": {
       "name": "LowcodeDesignFileUploadOptions",
@@ -294,11 +297,11 @@
       "jsdoc": "明确目录、最终文件名和原文本；空文本仍按空 UTF-8 字节上传，不自动分配编号。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n    /** 在每次实际派发前重核工作来源，拒绝时上传尚未进入传输。 */\n    assertReady?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+            "typeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n    /** 在每次实际派发前重核工作来源，拒绝时上传尚未进入传输。 */\n    assertReady?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -324,6 +327,17 @@
               "name": "text",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertReady",
+              "jsdoc": "在每次实际派发前重核工作来源，拒绝时上传尚未进入传输。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

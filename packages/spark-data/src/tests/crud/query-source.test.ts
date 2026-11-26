@@ -113,7 +113,7 @@ describe('requested refresh lifecycle', () => {
       await f.view.refresh(); f.stored('persisted')
       if (mode === 'editing') f.view.updateEditingValue('1', 'text', 'draft')
       else await f.view.editRowById('1', {text: 'draft'})
-      expect((await f.view.requestRefresh()).success).toBe(true)
+      expect(await f.view.requestRefresh()).toMatchObject({success:true,refreshStatus:'deferred'})
       await f.view.requestRefresh()
       expect(f.view.refreshPending).toBe(true)
       expect(f.executor.executeQuery).toHaveBeenCalledTimes(1)
@@ -193,9 +193,9 @@ describe('requested refresh lifecycle', () => {
       f.view.queryContext = {target: 'different'}
       if (kind === 'restored') f.view.queryContext = {target: 'original'}
       f.stored('new result')
-      expect((await f.view.requestRefresh()).success).toBe(true)
+      expect(await f.view.requestRefresh()).toMatchObject({success:true,refreshStatus:'read'})
       release()
-      expect((await original).success).toBe(false)
+      expect(await original).toMatchObject({success:false,refreshStatus:'invalidated'})
       expect(f.view.rows[0]?.['text']).toBe('new result')
       expect(f.view.requestState).toBe(RequestState.Loaded)
     } finally {release?.(); f.ds.destroy()}
@@ -228,7 +228,7 @@ describe('requested refresh lifecycle', () => {
       await vi.waitFor(() => expect(f.view.requestState).toBe(RequestState.Failed))
       expect(f.view.loadingError?.message).toBe('query failed'); expect(f.view.refreshPending).toBe(false)
       expect(f.executor.executeQuery).toHaveBeenCalledTimes(2)
-      expect((await f.view.requestRefresh()).success).toBe(false)
+      expect(await f.view.requestRefresh()).toMatchObject({success:false,refreshStatus:'failed',message:'query failed'})
       f.failQuery(false); f.stored('retried')
       expect((await f.view.requestRefresh()).success).toBe(true)
       expect(f.view.rows[0]?.['text']).toBe('retried')

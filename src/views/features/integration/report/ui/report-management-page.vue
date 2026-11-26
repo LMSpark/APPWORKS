@@ -25,7 +25,7 @@ import ReportCreateDialog from './report-create-dialog.vue'
 import ReportVersionDialog from './report-version-dialog.vue'
 import ReportModelDialog from './report-model-dialog.vue'
 import {formatDay, syncAppName, textOf} from './report-format'
-import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT, verifyReportSaves} from './report-save'
+import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT} from './report-save'
 
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
@@ -85,15 +85,41 @@ function assertSettled(): void {
   if (reason) throw new Error(reason)
 }
 const verify = () => guarded(async () => {
+  const page = session.runtime
   const views = reportViews()
+  const [directory, reports] = views
+  const dataSet = directory?.dataSet
+  const batchId = dataSet?.saveJournal.batchId
+  if (!page || !directory || !reports || !dataSet || !batchId) throw new Error('缺少报表原保存批次')
+  let outcome: Awaited<ReturnType<typeof dataSet.verifySaveJournalAndRead>>
   try {
-    pageService.showMessage(await verifyReportSaves(views), 'success')
-  } finally {
-    if (!views.some(item => item.hasUnconfirmedSave || item.hasEditingChanges()
-      || item.dirtyTracking.hasPendingChanges())) {
-      await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])
-    }
+    outcome = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: views,
+      readbackViews: [directory, reports], discardNotApplied: true})
+  } catch (cause) {
+    if (session.isCurrent(page)) throw new Error(`核验原保存结果：${failure(cause)}；${UNCONFIRMED_HINT}`)
+    return
   }
+  if (!session.isCurrent(page)) return
+  if (outcome.settlement === 'unknown') {
+    const detail = outcome.journal.originalError?.message
+    throw new Error(`原保存结果仍未确认${detail ? `：${detail}` : ''}；${UNCONFIRMED_HINT}`)
+  }
+  if (outcome.settlement === 'pending') {
+    throw new Error(`原保存仍有阶段待处理，请按 SPARK Data 恢复动作继续；${UNCONFIRMED_HINT}`)
+  }
+  const label = outcome.settlement === 'confirmed' ? '原保存结果已确认'
+    : outcome.settlement === 'partial' ? '原保存结果部分已确认生效' : '原保存结果已确认未生效'
+  const readbackErrors = outcome.readbacks.filter(result => !result.success)
+    .map(result => result.message ?? '读取视图已失效')
+  if (readbackErrors.length > 0) throw new Error(`${label}。目录回读失败：${readbackErrors.join('；')}`)
+  if (outcome.draftCleanup === 'retained') {
+    const next = outcome.journalReleased ? '可发起新的明确保存' : '原批次仍待处理'
+    const errors = [outcome.cleanupError, outcome.releaseError].flatMap(error => error ? [error.message] : [])
+    throw new Error(`${label}。原草稿已保留，${next}${errors.length ? `：${errors.join('；')}` : ''}`)
+  }
+  const detail = outcome.readbacks.some(result => result.refreshStatus === 'deferred') ? '，目录读取已延期'
+    : outcome.draftCleanup === 'discarded' ? '，明确未生效的原草稿已撤销' : ''
+  pageService.showMessage(label + detail, outcome.settlement === 'confirmed' ? 'success' : 'warning')
 })
 
 const runtime = computed(() => ready.value ? session.runtime : undefined)

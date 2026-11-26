@@ -17,7 +17,7 @@ import {DataTreeField} from './core/tree-field'
 import type {
   DataRow, ViewMetadata, SortExpression,
   QueryParams, DataColumn, DataViewQueryCascade,
-  CrudResult, CrudOperationConfig, TableMetadata,
+  CrudResult, CrudOperationConfig, DataViewRefreshResult, TableMetadata,
   DataSource,
   AggregateResultRow,
   FlatTreeNode, TreePath, NestedTreeSearchResult, NestedTreeNode,
@@ -2603,29 +2603,33 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   /**
    * 请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。
    * 延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。
-   * @returns 实际刷新结果；延期登记成功返回success=true，可用refreshPending区分。后续异步失败由requestState和loadingError报告。
+   * @returns 本次刷新已读、延期、失败或失效。延期登记返回 success=true，后续异步失败由 requestState 和 loadingError 报告。
    */
-  async requestRefresh(): Promise<CrudResult> {
+  async requestRefresh(): Promise<DataViewRefreshResult> {
     this.checkDestroyed()
     const identity = this.refreshIdentity(), table = this._dataTable
     if (this.refreshBlocked()) {
       this._refreshRequest = {identity, table}
       for (const event of DataView.refreshEvents) this.events.on(event, this.scheduleRefresh)
       this.events.on('configChanged', this.clearRefreshRequest)
-      return {success: true, message: '刷新已登记，等待当前修改或操作结束'}
+      return {success: true, refreshStatus: 'deferred', message: '刷新已登记，等待当前修改或操作结束'}
     }
     this.clearRefreshRequest()
     this.prepareQueryReload(true)
     const requestId = await this.runRequestData()
-    if (this._isDestroyed || table !== this._dataTable) return {success: false, message: '刷新视图已失效'}
-    if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
+    if (this._isDestroyed || table !== this._dataTable) {
+      return {success: false, refreshStatus: 'invalidated', message: '刷新视图已失效'}
+    }
+    if (requestId !== this.currentLoadRequestId) {
+      return {...this._createRequestSupersededResult(), refreshStatus: 'invalidated'}
+    }
     // 请求发出后也可能产生编辑；接纳守卫会保留草稿，此时继续等待而不是丢掉刷新意图。
     if (this.loadingError instanceof DataViewUnsavedChangesError
       && (this.hasUnconfirmedSave || this.hasEditingChanges() || this._dirtyTrackingDelegate?.hasPendingChanges()) && identity === this.refreshIdentity()) {
       return this.requestRefresh()
     }
-    return this.requestState === RequestState.Loaded ? {success: true, message: '视图已刷新'}
-      : {success: false, message: this.loadingError?.message ?? '视图刷新未完成'}
+    return this.requestState === RequestState.Loaded ? {success: true, refreshStatus: 'read', message: '视图已刷新'}
+      : {success: false, refreshStatus: 'failed', message: this.loadingError?.message ?? '视图刷新未完成'}
   }
 
   private refreshBlocked(): boolean {

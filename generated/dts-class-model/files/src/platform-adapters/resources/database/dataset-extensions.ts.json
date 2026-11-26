@@ -476,6 +476,11 @@
           "type": "object",
           "title": "() => Promise<SparkData.DataSetSaveJournal>"
         },
+        "verifySaveJournalAndRead": {
+          "type": "object",
+          "title": "(options: SparkData.DataSetSaveJournalReadOptions) => Promise<SparkData.DataSetSaveJournalReadResult>"
+        },
+        "ownsSaveRecoveryView": true,
         "continueSaveJournal": {
           "type": "object",
           "title": "() => Promise<SparkData.DataSetPhasedSaveResult>"
@@ -633,6 +638,8 @@
         "saveJournal",
         "settleConfirmedDetachedSaves",
         "verifySaveJournal",
+        "verifySaveJournalAndRead",
+        "ownsSaveRecoveryView",
         "continueSaveJournal",
         "originalJournalRecords",
         "settleJournalRecovery",
@@ -1632,6 +1639,16 @@
             },
             {
               "name": "verifySaveJournal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verifySaveJournalAndRead",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ownsSaveRecoveryView",
               "readable": true,
               "writable": true
             },

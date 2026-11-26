@@ -208,6 +208,36 @@ describe('脱敏规则页面', () => {
     expect(f.http.saves).toHaveLength(1)
   })
 
+  it('preserves the confirmed deletion when the rule directory cannot be read', async () => {
+    const f = await open()
+    f.action('删除')(f.rules.rows[0]!)
+    await flushPromises()
+    f.http.failAfterWrite = true
+    await f.click('确定删除')
+    await vi.waitFor(() => expect(f.rules.hasUnconfirmedSave).toBe(true))
+    const dataSet = f.rules.dataSet
+    if (!dataSet) throw new Error('Missing original rule DataSet')
+    const batchId = dataSet.saveJournal.batchId
+    await f.click('关闭并保留修改')
+    expect(f.wrapper.findComponent(RendererDialog).exists()).toBe(false)
+    expect(f.rules.hasUnconfirmedSave).toBe(true)
+    f.http.beforeDefinitionRead = async table => {
+      if (table === 'Base_Desensitization_Rule' && !f.rules.hasUnconfirmedSave) throw new Error('脱敏规则目录暂不可用')
+    }
+    try {
+      await f.click('核验原保存结果')
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('原保存结果已确认'))
+      expect(f.wrapper.text()).toContain('脱敏规则目录暂不可用')
+      expect(dataSet.saveJournal).toMatchObject({batchId, completed: true})
+      expect(f.http.saves).toHaveLength(1)
+    } finally {
+      delete f.http.beforeDefinitionRead
+    }
+    const reopened = await open({}, f.http)
+    expect(reopened.rules.rows).toEqual([])
+    expect(f.http.saves).toHaveLength(1)
+  })
+
   it('keeps a hidden original name out of the delete dialog and reports a rejected write', async () => {
     const f = await open()
     f.http.hiddenFields['Base_Desensitization_Rule'] = ['name']

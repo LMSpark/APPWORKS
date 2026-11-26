@@ -85,9 +85,12 @@
       "DataSetSaveJournalPhase",
       "DataSetSaveRecoverableAction",
       "DataSetSaveJournal",
+      "DataSetSaveJournalReadOptions",
+      "DataSetSaveJournalReadResult",
       "DataSetSaveChangesViewResult",
       "DataSetSaveChangesResult",
       "CrudResult",
+      "DataViewRefreshResult",
       "DataViewQueryChild",
       "QueryParams",
       "BatchResult",
@@ -436,7 +439,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@305505": {
+            "__@iterator@305685": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -491,7 +494,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@305505"
+            "__@iterator@305685"
           ],
           "additionalProperties": false
         }
@@ -1035,7 +1038,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@305505": {
+            "__@iterator@305685": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1090,7 +1093,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@305505"
+            "__@iterator@305685"
           ],
           "additionalProperties": false
         },
@@ -1316,7 +1319,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@305505": {
+            "__@iterator@305685": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1371,7 +1374,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@305505"
+            "__@iterator@305685"
           ],
           "additionalProperties": false
         },
@@ -1609,7 +1612,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@305505": {
+                "__@iterator@305685": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1664,7 +1667,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@305505"
+                "__@iterator@305685"
               ],
               "additionalProperties": false
             },
@@ -1894,7 +1897,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@305505": {
+                "__@iterator@305685": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1949,7 +1952,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@305505"
+                "__@iterator@305685"
               ],
               "additionalProperties": false
             },
@@ -2885,7 +2888,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@305505": {
+                "__@iterator@305685": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2940,7 +2943,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@305505"
+                "__@iterator@305685"
               ],
               "additionalProperties": false
             },
@@ -3170,7 +3173,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@305505": {
+                "__@iterator@305685": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3225,7 +3228,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@305505"
+                "__@iterator@305685"
               ],
               "additionalProperties": false
             },
@@ -6169,7 +6172,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@305505": {
+                "__@iterator@305685": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -6224,7 +6227,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@305505"
+                "__@iterator@305685"
               ],
               "additionalProperties": false
             },
@@ -6390,6 +6393,133 @@
         "retainedDraft",
         "phases",
         "views"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetSaveJournalReadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveJournalReadOptions",
+      "properties": {
+        "batchId": {
+          "type": "string"
+        },
+        "receiptViews": {
+          "type": "array",
+          "items": {
+            "$ref": "data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "readbackViews": {
+          "type": "array",
+          "items": {
+            "$ref": "data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "discardNotApplied": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "batchId",
+        "receiptViews",
+        "readbackViews"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetSaveJournalReadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveJournalReadResult",
+      "properties": {
+        "journal": {
+          "$ref": "#/$defs/DataSetSaveJournal"
+        },
+        "settlement": {
+          "enum": [
+            "not-applied",
+            "unknown",
+            "pending",
+            "confirmed",
+            "partial"
+          ]
+        },
+        "draftCleanup": {
+          "enum": [
+            "retained",
+            "untouched",
+            "discarded"
+          ]
+        },
+        "journalReleased": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "cleanupError": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
+        "releaseError": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
+        "readbacks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "data": true,
+              "error": {
+                "type": "object",
+                "title": "ErrorDefault"
+              },
+              "message": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "number"
+              },
+              "refreshStatus": {
+                "enum": [
+                  "read",
+                  "failed",
+                  "deferred",
+                  "invalidated"
+                ]
+              },
+              "view": {
+                "$ref": "data-view.ts.json#/$defs/DataView"
+              }
+            },
+            "required": [
+              "success",
+              "refreshStatus",
+              "view"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "journal",
+        "settlement",
+        "draftCleanup",
+        "journalReleased",
+        "readbacks"
       ],
       "additionalProperties": false
     },
@@ -6590,6 +6720,46 @@
       },
       "required": [
         "success"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewRefreshResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRefreshResult",
+      "properties": {
+        "success": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "data": true,
+        "error": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "refreshStatus": {
+          "enum": [
+            "read",
+            "failed",
+            "deferred",
+            "invalidated"
+          ]
+        }
+      },
+      "required": [
+        "success",
+        "refreshStatus"
       ],
       "additionalProperties": false
     },
@@ -6906,7 +7076,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T18:01:53.142Z",
+  "generatedAt": "2026-11-26T20:54:09.592Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -11387,6 +11557,100 @@
         }
       }
     },
+    "DataSetSaveJournalReadOptions": {
+      "name": "DataSetSaveJournalReadOptions",
+      "jsdoc": "原保存核验范围与其后由调用者指定的独立读取目标，均使用当次 DataSet 的视图实例。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    batchId: string;\n    receiptViews: readonly DataView[];\n    readbackViews: readonly DataView[];\n    /** 按原签名清理明确未应用的草稿。遇到新草稿时保留，并尝试释放已结算的批次。 */\n    discardNotApplied?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    batchId: string;\n    receiptViews: readonly DataView[];\n    readbackViews: readonly DataView[];\n    /** 按原签名清理明确未应用的草稿。遇到新草稿时保留，并尝试释放已结算的批次。 */\n    discardNotApplied?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "batchId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receiptViews",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readbackViews",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "discardNotApplied",
+              "jsdoc": "按原签名清理明确未应用的草稿。遇到新草稿时保留，并尝试释放已结算的批次。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetSaveJournalReadResult": {
+      "name": "DataSetSaveJournalReadResult",
+      "jsdoc": "原回执、可执行的恢复动作及读取结果分别保留。后置读取失败不会改写原回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    journal: DataSetSaveJournal;\n    settlement: 'confirmed' | 'partial' | 'not-applied' | 'unknown' | 'pending';\n    draftCleanup: 'untouched' | 'discarded' | 'retained';\n    journalReleased: boolean;\n    cleanupError?: Error;\n    releaseError?: Error;\n    readbacks: ReadonlyArray<Readonly<DataViewRefreshResult & {\n        view: DataView;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    journal: DataSetSaveJournal;\n    settlement: 'confirmed' | 'partial' | 'not-applied' | 'unknown' | 'pending';\n    draftCleanup: 'untouched' | 'discarded' | 'retained';\n    journalReleased: boolean;\n    cleanupError?: Error;\n    releaseError?: Error;\n    readbacks: ReadonlyArray<Readonly<DataViewRefreshResult & {\n        view: DataView;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "settlement",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draftCleanup",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journalReleased",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cleanupError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "releaseError",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readbacks",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataSetSaveChangesViewResult": {
       "name": "DataSetSaveChangesViewResult",
       "jsdoc": "DataSet 级单视图保存结果",
@@ -11584,6 +11848,30 @@
             {
               "name": "timestamp",
               "jsdoc": "时间戳",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewRefreshResult": {
+      "name": "DataViewRefreshResult",
+      "jsdoc": "本次 DataView 刷新调用的结果。延期的 success 表示已登记，实际读取仍待执行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<CrudResult & {\n    refreshStatus: 'read' | 'deferred' | 'failed' | 'invalidated';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<CrudResult & {\n    refreshStatus: 'read' | 'deferred' | 'failed' | 'invalidated';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "refreshStatus",
               "readable": true,
               "writable": false
             }

@@ -177,15 +177,30 @@ function openDelete(row: DataRow): void {
   } catch (cause) {message.value = failure(cause)}
 }
 const verifySave = () => guarded(async () => {
+  const page = session.runtime
   const target = list()
   if (!target.hasUnconfirmedSave) throw new Error('没有待核验的原保存')
   const owner = target.dataSet
-  if (!owner) throw new Error('脱敏规则缺少所属数据空间')
-  const result = await owner.verifySaveJournal()
-  const original = result.views.find(item => item.tableName === target.tableName && item.viewId === target.viewId)
-  if (original?.state !== 'applied') throw new Error(original?.originalError?.message ?? '原保存结果仍未确认')
-  await target.refresh()
-  if (target.loadingError) throw target.loadingError
-  pageService.showMessage('原保存结果已确认', 'success')
+  const batchId = owner?.saveJournal.batchId
+  if (!page || !owner || !batchId) throw new Error('脱敏规则缺少原保存批次')
+  let result: Awaited<ReturnType<typeof owner.verifySaveJournalAndRead>>
+  try {
+    result = await owner.verifySaveJournalAndRead({batchId, receiptViews: [target], readbackViews: [target]})
+  } catch (cause) {
+    if (session.isCurrent(page)) throw cause
+    return
+  }
+  if (!session.isCurrent(page)) return
+  if (result.settlement !== 'confirmed') {
+    const detail = result.journal.originalError?.message
+    const original = result.settlement === 'not-applied' ? '原保存结果已确认未生效' : '原保存结果仍未确认'
+    throw new Error(detail ? `${original}：${detail}` : original)
+  }
+  const readback = result.readbacks[0]
+  if (readback?.success === false) {
+    throw new Error(`原保存结果已确认。脱敏规则目录回读失败：${readback.message ?? '读取视图已失效'}`)
+  }
+  pageService.showMessage(readback?.refreshStatus === 'deferred'
+    ? '原保存结果已确认，目录读取已延期' : '原保存结果已确认', 'success')
 })
 </script>

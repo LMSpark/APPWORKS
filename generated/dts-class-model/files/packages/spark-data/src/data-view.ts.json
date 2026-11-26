@@ -2584,7 +2584,7 @@
         },
         "method.requestRefresh.return": {
           "type": "object",
-          "title": "Promise<CrudResult>"
+          "title": "Promise<DataViewRefreshResult>"
         },
         "method.assertResultReplacementAllowed.params": {
           "type": "object",
@@ -3504,7 +3504,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T19:01:12.392Z",
+  "generatedAt": "2026-11-26T20:50:20.298Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -7255,7 +7255,7 @@
             },
             {
               "name": "requestRefresh",
-              "jsdoc": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n@returns 实际刷新结果；延期登记成功返回success=true，可用refreshPending区分。后续异步失败由requestState和loadingError报告。",
+              "jsdoc": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n@returns 本次刷新已读、延期、失败或失效。延期登记返回 success=true，后续异步失败由 requestState 和 loadingError 报告。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -7263,7 +7263,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "CrudResult",
+                    "name": "DataViewRefreshResult",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 ]

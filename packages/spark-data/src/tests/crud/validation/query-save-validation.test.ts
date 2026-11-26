@@ -198,6 +198,123 @@ describe('formal query-save receipt identity', () => {
     }finally{f.dataSet.destroy()}
   })
 
+  it.each(['unchanged', 'edited'] as const)('keeps partial recovery evidence when the original draft is %s', async mode => {
+    const f = await resourceOwners(undefined, true)
+    const read = vi.spyOn(f.fileOwner, 'executeQuery')
+    const normalOrderSave = f.orderOwner.save.getMockImplementation()!
+    let rejected = false
+    f.orderOwner.hasUnconfirmedSave.mockImplementation(() => rejected)
+    f.orderOwner.save.mockImplementation(async command => {
+      if (!rejected) {
+        rejected = true
+        throw new Error('order original result lost')
+      }
+      rejected = false
+      throw new DataViewSaveNotAppliedError(command.changes, 'order original not applied')
+    })
+    try {
+      f.items.updateEditingValue('1', 'title', 'Confirmed item')
+      f.orders.updateEditingValue('1', 'title', 'Original order draft')
+      const selection = {views: [{tableName: 'Items'}, {tableName: 'Orders'}]}
+      f.dataSet.prepareSaveJournal(selection)
+      await expect(f.dataSet.saveChanges(selection)).rejects.toThrow('order original result lost')
+      const batchId = f.dataSet.saveJournal.batchId
+      if (!batchId) throw new Error('missing original batch')
+      if (mode === 'edited') f.orders.updateEditingValue('1', 'title', 'Later order draft')
+      await expect(f.dataSet.verifySaveJournalAndRead({
+        batchId, receiptViews: [f.orders], readbackViews: [f.file], discardNotApplied: true,
+      })).resolves.toMatchObject({
+        settlement: 'partial', journal: {batchId, views: [
+          {tableName: 'Items', state: 'applied'}, {tableName: 'Orders', state: 'not-applied'},
+        ]}, draftCleanup: mode === 'edited' ? 'retained' : 'discarded',
+        journalReleased: mode === 'edited',
+        readbacks: mode === 'edited' ? [] : [{refreshStatus: 'read', view: f.file}],
+      })
+      expect(f.stored.get('Orders')?.[0]?.['title']).toBe('Before')
+      expect(f.stored.get('Items')?.[0]?.['title']).toBe('Confirmed item')
+      expect(f.batches).toEqual([['Items']])
+      if (mode === 'unchanged') {
+        expect(f.orders.hasEditingChanges()).toBe(false)
+        expect(f.orders.dirtyTracking.hasPendingChanges()).toBe(false)
+        expect(f.dataSet.saveJournal).toMatchObject({batchId, completed: true})
+        expect(read).toHaveBeenCalledOnce()
+        return
+      }
+      expect(f.orders.getEditingRow('1')?.['title']).toBe('Later order draft')
+      expect(read).not.toHaveBeenCalled()
+      expect(f.dataSet.saveJournal.batchId).toBeNull()
+      f.orderOwner.save.mockImplementation(normalOrderSave)
+      expect((await f.dataSet.saveChanges({views: [{tableName: 'Orders'}]})).success).toBe(true)
+      expect(f.stored.get('Orders')?.[0]?.['title']).toBe('Later order draft')
+      expect(f.batches).toEqual([['Items'], ['Orders']])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each(['replaced','disposed','deferred'] as const)('retains the confirmed journal when post-save readback is %s',async mode=>{
+    const f=await resourceOwners()
+    const persist=f.database.save.getMockImplementation()!
+    let pending=false
+    f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
+    f.database.save.mockImplementation(async command=>{
+      if(!pending){pending=true;throw new Error('item result lost')}
+      const receipts=await persist(command);pending=false;return receipts
+    })
+    let release!:()=>void,entered!:()=>void
+    const gate=new Promise<void>(resolve=>{release=resolve})
+    const started=new Promise<void>(resolve=>{entered=resolve})
+    try{
+      f.items.updateEditingValue('1','title','Confirmed item')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('item result lost')
+      const batchId=f.dataSet.saveJournal.batchId
+      if(!batchId)throw new Error('missing original batch')
+      const queryFile=f.fileOwner.executeQuery
+      const read=vi.spyOn(f.fileOwner,'executeQuery').mockImplementationOnce(async view=>{entered();await gate;return queryFile(view)})
+      if(mode==='disposed')f.file.destroy()
+      if(mode==='deferred')f.file.updateEditingValue('1','title','Unsaved file draft')
+      const readbackViews=[f.file]
+      const outcome=f.dataSet.verifySaveJournalAndRead({batchId,receiptViews:[f.items],readbackViews})
+      readbackViews[0]=f.orders
+      if(mode==='replaced'){
+        await Promise.race([started,outcome])
+        f.file.queryContext={target:'replacement'}
+        f.stored.set('File',[{id:'1',title:'Replacement'}])
+        await f.file.refresh()
+        release()
+        expect(f.file.rows[0]?.['title']).toBe('Replacement')
+      } else expect(read).not.toHaveBeenCalled()
+      await expect(outcome).resolves.toMatchObject({settlement:'confirmed',journal:{batchId,completed:true},
+        readbacks:[{view:f.file,refreshStatus:mode==='deferred'?'deferred':'invalidated'}]})
+      if(mode==='deferred'){
+        expect(f.file.getEditingRow('1')?.['title']).toBe('Unsaved file draft')
+        expect(f.file.refreshPending).toBe(true)
+        expect(read).not.toHaveBeenCalled()
+      }
+      expect(f.batches).toEqual([['Items']])
+    }finally{release();f.dataSet.destroy()}
+  })
+
+  it('withholds post-save reads while the original result remains unknown',async()=>{
+    const f=await resourceOwners()
+    const read=vi.spyOn(f.fileOwner,'executeQuery')
+    let pending=false
+    f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
+    f.database.save.mockImplementation(async()=>{
+      pending=true
+      throw new Error('original verification unavailable')
+    })
+    try{
+      f.items.updateEditingValue('1','title','Unconfirmed item')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('original verification unavailable')
+      const batchId=f.dataSet.saveJournal.batchId
+      if(!batchId)throw new Error('missing original batch')
+      const result=await f.dataSet.verifySaveJournalAndRead({batchId,receiptViews:[f.items],readbackViews:[f.file]})
+      expect(result).toMatchObject({settlement:'unknown',journal:{batchId,currentRecoverableAction:'verify-original-receipt'},readbacks:[]})
+      expect(f.items.hasUnconfirmedSave).toBe(true)
+      expect(f.batches).toEqual([])
+      expect(read).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
   it('does not collapse confirmed and not-applied sources into an entirely not-applied recovery',async()=>{
     const f=await resourceOwners(undefined,true),timeout=new Error('receipt unavailable')
     const persist=f.database.save.getMockImplementation()!

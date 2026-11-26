@@ -1590,6 +1590,26 @@ export type DataSetSaveJournal = Readonly<{
   views: readonly DataSetSaveJournalView[]
 }>
 
+/** 原保存核验范围与其后由调用者指定的独立读取目标，均使用当次 DataSet 的视图实例。 */
+export type DataSetSaveJournalReadOptions = Readonly<{
+  batchId: string
+  receiptViews: readonly DataView[]
+  readbackViews: readonly DataView[]
+  /** 按原签名清理明确未应用的草稿。遇到新草稿时保留，并尝试释放已结算的批次。 */
+  discardNotApplied?: boolean
+}>
+
+/** 原回执、可执行的恢复动作及读取结果分别保留。后置读取失败不会改写原回执。 */
+export type DataSetSaveJournalReadResult = Readonly<{
+  journal: DataSetSaveJournal
+  settlement: 'confirmed' | 'partial' | 'not-applied' | 'unknown' | 'pending'
+  draftCleanup: 'untouched' | 'discarded' | 'retained'
+  journalReleased: boolean
+  cleanupError?: Error
+  releaseError?: Error
+  readbacks: ReadonlyArray<Readonly<DataViewRefreshResult & {view: DataView}>>
+}>
+
 /** DataSet 级单视图保存结果 */
 export type DataSetSaveChangesViewResult = {
   /** 表名 */
@@ -1660,6 +1680,11 @@ export type CrudResult<T = unknown> = {
   code?: string
   /** 时间戳 */
   timestamp?: number}
+
+/** 本次 DataView 刷新调用的结果。延期的 success 表示已登记，实际读取仍待执行。 */
+export type DataViewRefreshResult = Readonly<CrudResult & {
+  refreshStatus: 'read' | 'deferred' | 'failed' | 'invalidated'
+}>
 
 /** 显式Join子查询计划；模型使用同场景正式注册名，过滤和字段由所属模型查询责任方校验。 */
 export type DataViewQueryChild = Readonly<{

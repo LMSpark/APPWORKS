@@ -869,6 +869,19 @@
           "type": "object",
           "title": "Promise<DataSetSaveJournal>"
         },
+        "method.verifySaveJournalAndRead.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "types.ts.json#/$defs/DataSetSaveJournalReadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifySaveJournalAndRead.return": {
+          "type": "object",
+          "title": "Promise<DataSetSaveJournalReadResult>"
+        },
         "method.continueSaveJournal.params": {
           "type": "object",
           "properties": {},
@@ -1033,7 +1046,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T19:05:47.920Z",
+  "generatedAt": "2026-11-26T20:54:09.591Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2412,6 +2425,31 @@
                   {
                     "type": "reference",
                     "name": "DataSetSaveJournal",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifySaveJournalAndRead",
+              "jsdoc": "按原批次核验指定实例持有的回执。批次结算后独立读取指定视图，不重发写入。\n读取失效、延期、失败或草稿清理失败均保留已取得的回执。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveJournalReadOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetSaveJournalReadResult",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 ]

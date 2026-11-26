@@ -16,6 +16,7 @@ import type {
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
   DataSetSaveJournal, DataSetSaveJournalPhase, DataSetSaveJournalView, DataSetSaveRecoverableAction,
+  DataSetSaveJournalReadOptions, DataSetSaveJournalReadResult,
   DataSetSaveCompletionHandler,
 } from './types'
 import { RequestState } from './types'
@@ -1859,6 +1860,74 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       this._saveDispatchOwner = undefined
       this._saveChangesInFlight--
     }
+  }
+
+  /**
+   * 按原批次核验指定实例持有的回执。批次结算后独立读取指定视图，不重发写入。
+   * 读取失效、延期、失败或草稿清理失败均保留已取得的回执。
+   */
+  async verifySaveJournalAndRead(options: DataSetSaveJournalReadOptions): Promise<DataSetSaveJournalReadResult> {
+    const {batchId, discardNotApplied} = options
+    const readbackViews = [...new Set(options.readbackViews)]
+    const permitted = new Set(options.receiptViews)
+    const original = this._saveJournal
+    if (original?.batchId !== batchId || this.destroyed
+      || [...permitted].some(view => !this.ownsSaveRecoveryView(view))) {
+      throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原保存批次或回执视图已失效')
+    }
+    const unknown = original.phases.flatMap(phase => phase.views).filter(view => view.state === 'unknown')
+    const active = new Set(this.originalJournalRecords(original))
+    if (unknown.length === 0 || unknown.some(record =>
+      !(permitted.has(record.view) && active.has(record))
+      && !(record.view.destroyed && record.dispatch?.outcome() === 'applied'))) {
+      throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原保存捕获不属于当前核验视图')
+    }
+
+    let journal = await this.verifySaveJournal()
+    if (journal.batchId !== batchId) throw new Error('DATA_SET_SAVE_JOURNAL_BATCH: 原保存批次已变化')
+    const states = new Set(journal.views.map(item => item.state))
+    const settlement = states.has('unknown') ? 'unknown' : states.has('pending') ? 'pending'
+      : states.has('not-applied') ? states.has('applied') ? 'partial' : 'not-applied' : 'confirmed'
+    let draftCleanup: DataSetSaveJournalReadResult['draftCleanup'] = 'untouched'
+    let cleanupError: Error | undefined
+    let releaseError: Error | undefined
+    let journalReleased = false
+    if (discardNotApplied && journal.currentRecoverableAction === 'discard-not-applied' && this._saveJournal === original) {
+      try {
+        journal = this.discardSaveJournalNotApplied()
+        draftCleanup = 'discarded'
+      } catch (cause) {
+        cleanupError = toError(cause)
+        draftCleanup = 'retained'
+        if (!states.has('pending') && !states.has('unknown')) {
+          try {
+            this.releaseSettledSaveJournal(batchId)
+            journalReleased = true
+          } catch (releaseCause) {
+            releaseError = toError(releaseCause)
+          }
+        }
+      }
+    }
+    const readbacks = journal.currentRecoverableAction === 'none'
+      ? await Promise.all(readbackViews.map(async (view): Promise<DataSetSaveJournalReadResult['readbacks'][number]> => {
+        const isCurrent = () => this._saveJournal === original && this.ownsSaveRecoveryView(view)
+        const invalidated = {view, success: false, refreshStatus: 'invalidated'} as const
+        if (!isCurrent()) return invalidated
+        try {
+          const result = await view.requestRefresh()
+          return isCurrent() ? {view, ...result} : invalidated
+        } catch (cause) {
+          if (!isCurrent()) return invalidated
+          return {view, success: false, refreshStatus: 'failed', message: toError(cause).message}
+        }
+      })) : []
+    return {journal, settlement, draftCleanup, journalReleased, readbacks,
+      ...(cleanupError === undefined ? {} : {cleanupError}), ...(releaseError === undefined ? {} : {releaseError})}
+  }
+
+  private ownsSaveRecoveryView(view: DataView): boolean {
+    return !this.destroyed && !view.destroyed && view.dataSet === this && this.getView(view.tableName, view.viewId) === view
   }
 
   /** Resume only unfinished targets resolved by the original batch. */

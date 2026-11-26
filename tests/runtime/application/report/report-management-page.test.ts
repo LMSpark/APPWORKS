@@ -9,7 +9,7 @@ import {FieldText, FieldTextarea, RendererButton, RendererDialog, RendererTable,
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
-import {commitReportChanges, verifyReportSaves} from '@/views/features/integration/report/ui/report-save'
+import {commitReportChanges} from '@/views/features/integration/report/ui/report-save'
 import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 import script from '@/views/features/integration/report/ui/tool/script.js?raw'
 import style from '@/views/features/integration/report/ui/tool/style.css?raw'
@@ -345,6 +345,40 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.info.rows).toHaveLength(0)
   })
 
+  it('keeps the original report receipt visible when the directory readback fails', async () => {
+    const f = await open()
+    await seed(f)
+    f.http.failAfterWrite = true
+    f.http.beforeSave = vi.fn()
+    await rowAction(f, '删除', infoRow(f))
+    await confirmBox(true)
+    await vi.waitFor(() => expect(document.body.textContent).toContain('核验原保存结果'))
+    const dataSet = f.info.dataSet
+    if (!dataSet) throw new Error('Missing original report DataSet')
+    const before = dataSet.saveJournal.batchId
+    let directoryReads = 0
+    f.http.beforeDefinitionRead = async table => {
+      if (table === 'Base_ReportInfo' && !f.info.hasUnconfirmedSave) {
+        directoryReads++
+        throw new Error('报表目录来源暂不可用')
+      }
+    }
+    try {
+      await f.click('核验原保存结果')
+      await vi.waitFor(() => expect(f.wrapper.text()).toContain('原保存结果已确认'))
+      expect(dataSet.saveJournal).toMatchObject({batchId: before, completed: true})
+      expect(f.info.hasUnconfirmedSave).toBe(false)
+      expect(f.http.beforeSave).toHaveBeenCalledOnce()
+      expect(f.http.saves).toHaveLength(2)
+      expect(f.wrapper.text()).toContain('目录回读失败')
+      expect(f.wrapper.text()).toContain('报表目录来源暂不可用')
+      expect(directoryReads).toBe(1)
+    } finally {delete f.http.beforeDefinitionRead}
+    const reopened = await readPersistedReport(scenario, f.http)
+    expect(reopened.info.rows).toHaveLength(0)
+    expect(reopened.versions.rows).toHaveLength(0)
+  })
+
   it('删除在写入前被拒绝时撤销本地删除并刷新，可再次删除', async () => {
     const f = await open()
     await seed(f)
@@ -652,39 +686,6 @@ describe('报表保存只沿原SPARK Data日志恢复', () => {
       ]})).rejects.toThrow('原未生效草稿已保留')
       expect(discardJournal).toHaveBeenCalledOnce()
       expect(discardView).not.toHaveBeenCalled()
-    } finally {f.dataSet.destroy()}
-  })
-
-  it('部分回执核验后只丢弃日志确认未生效的原捕获且不重发保存', async () => {
-    const f = recoveryFixture()
-    const original = journal([{view: f.info, state: 'unknown'}, {view: f.version, state: 'unknown'}], 'verify-original-receipt')
-    const partial = journal([{view: f.info, state: 'applied'}, {view: f.version, state: 'not-applied'}], 'discard-not-applied')
-    const completed = journal([{view: f.info, state: 'applied'}, {view: f.version, state: 'not-applied'}], 'none', true)
-    vi.spyOn(f.info, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
-    vi.spyOn(f.version, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
-    vi.spyOn(f.dataSet, 'saveJournal', 'get').mockReturnValue(original)
-    vi.spyOn(f.dataSet, 'verifySaveJournal').mockResolvedValue(partial)
-    const discard = vi.spyOn(f.dataSet, 'discardSaveJournalNotApplied').mockReturnValue(completed)
-    const replay = vi.spyOn(f.dataSet, 'saveChanges').mockRejectedValue(new Error('禁止重发保存'))
-    try {
-      await expect(verifyReportSaves([f.info, f.version])).resolves.toContain('部分已确认生效')
-      expect(discard).toHaveBeenCalledOnce()
-      expect(replay).not.toHaveBeenCalled()
-    } finally {f.dataSet.destroy()}
-  })
-
-  it('结果仍未知时保留原捕获与提示，不丢弃或重放', async () => {
-    const f = recoveryFixture()
-    const original = journal([{view: f.info, state: 'unknown'}], 'verify-original-receipt')
-    vi.spyOn(f.info, 'hasUnconfirmedSave', 'get').mockReturnValue(true)
-    vi.spyOn(f.dataSet, 'saveJournal', 'get').mockReturnValue(original)
-    vi.spyOn(f.dataSet, 'verifySaveJournal').mockResolvedValue(original)
-    const discard = vi.spyOn(f.dataSet, 'discardSaveJournalNotApplied')
-    const replay = vi.spyOn(f.dataSet, 'saveChanges').mockRejectedValue(new Error('禁止重发保存'))
-    try {
-      await expect(verifyReportSaves([f.info])).rejects.toThrow('勿重复操作')
-      expect(discard).not.toHaveBeenCalled()
-      expect(replay).not.toHaveBeenCalled()
     } finally {f.dataSet.destroy()}
   })
 })

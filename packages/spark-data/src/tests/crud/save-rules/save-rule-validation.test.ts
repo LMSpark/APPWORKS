@@ -76,9 +76,12 @@ describe('declared save rules', () => {
       const created = await view.addRow({ name: 'a' })
       expect(view.fieldAccess(created, 'name').write).toBe('allowed')
       await expect(dataSet.saveChanges()).rejects.toThrow('Items@default.name: name 重复：a')
+      const rejectedBatch = dataSet.saveJournal.batchId
       view.updateRowById(view.getPkKey(created)!, { name: 'c' })
       await view.editRowById('1', { name: 'z' })
       await expect(dataSet.saveChanges()).rejects.toThrow('创建后不能修改')
+      expect(dataSet.saveJournal.batchId).not.toBe(rejectedBatch)
+      expect(save).not.toHaveBeenCalled()
       await view.editRowById('1', { name: 'a', secret: 'x' })
       await expect(dataSet.saveChanges()).rejects.toThrow('Items@default.secret: 字段不在当前视图的保存范围内')
       await view.editRowById('1', { secret: '', desc: 'ok' })
@@ -213,6 +216,32 @@ describe('declared save rules', () => {
         view.updateEditingValue('1', 'source', 'A1')
         await expect(dataSet.saveChanges()).rejects.toThrow('owner reached')
         expect(save.mock.calls[0]![0].changes[0]!.changes.changed![0]).toMatchObject({source: 'A1', title: 'One', kind: 'table'})
+      } finally { dataSet.destroy() }
+    })
+
+    it('keeps a later row edit outside the batch while awaiting the original row fill', async () => {
+      const rows = ['1', '2'].map(id => ({id, source: '', title: '', kind: ''}))
+      const {dataSet, save} = await open(fillTables(), {Params: {rows}, Apis: apis})
+      try {
+        const view = dataSet.getView('Params')!
+        await view.refresh()
+        let release = () => {}
+        const gate = new Promise<void>(resolve => { release = resolve })
+        vi.spyOn(dataSet.getView('Apis')!, 'queryOptionRows').mockImplementation(async () => {
+          await gate
+          return apis.rows
+        })
+        view.updateEditingValue('1', 'source', 'A1')
+        const pending = expect(dataSet.saveChanges()).rejects.toThrow('owner reached')
+        view.updateEditingValue('2', 'title', 'Later draft')
+        release()
+        await pending
+        expect(save).toHaveBeenCalledOnce()
+        expect(save.mock.calls[0]![0].changes[0]!.changes.changed).toEqual([
+          expect.objectContaining({id: '1', source: 'A1', title: 'One', kind: 'table'}),
+        ])
+        expect(view.getEditingRow('2')?.['title']).toBe('Later draft')
+        expect(dataSet.saveJournal.views).toMatchObject([{tableName: 'Params', ids: ['1']}])
       } finally { dataSet.destroy() }
     })
   })

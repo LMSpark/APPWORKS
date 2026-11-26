@@ -629,3 +629,66 @@ describe('DataTable instance query save rule',()=>{
  })
 
 })
+
+it('recovers only the changed row selected with an unchanged row', async () => {
+  const f = await fixture()
+  try {
+    await f.view.editRowById('1', { layout: 'sent' })
+    f.loseNextAck()
+    const options = { views: [{ tableName: 'Items', viewId: 'default', ids: ['1', '2'] }] }
+    await expect(f.ds.saveChanges(options)).rejects.toThrow('ack lost')
+    expect(f.owner.save.mock.calls[0]?.[0].changes[0]?.recovery?.entries).toMatchObject([{ action: 'changed' }])
+    expect(f.stored.map(row => row['layout'])).toEqual(['sent', 'ok'])
+    expect(f.view.hasUnconfirmedSaveFor(['1'])).toBe(true)
+    expect(f.view.hasUnconfirmedSaveFor(['1', '2'])).toBe(false)
+    expect(await f.ds.verifySaveJournal()).toMatchObject({ completed: true, views: [{ state: 'applied' }] })
+    expect(f.owner.save).toHaveBeenCalledTimes(2)
+    expect(f.writes()).toBe(1)
+  } finally {
+    f.ds.destroy()
+  }
+})
+
+it('allows another original receipt read after one temporary read fault', async () => {
+  const f = await fixture()
+  try {
+    await f.view.editRowById('1', { layout: 'submitted value' })
+    f.loseNextAck()
+    await expect(f.ds.saveChanges()).rejects.toThrow('ack lost')
+    const originalFailure = f.ds.saveJournal.originalError
+    if (originalFailure === undefined) throw new Error('original attempt missing')
+    expect(f.view.hasUnconfirmedSaveFor(['1'], originalFailure)).toBe(true)
+    const readError = new Error('temporarily unavailable')
+    f.owner.save.mockRejectedValueOnce(readError)
+    expect(await f.ds.verifySaveJournal()).toMatchObject({ completed: false, views: [{ state: 'unknown' }] })
+    expect(f.view.mutatingError).toBe(readError)
+    expect(f.view.hasUnconfirmedSaveFor(['1'], originalFailure)).toBe(true)
+    expect((await f.ds.verifySaveJournal()).completed).toBe(true)
+    expect(f.ds.saveJournal.originalError).toBe(originalFailure)
+    expect(f.stored[0]?.['layout']).toBe('submitted value')
+    expect(f.owner.save).toHaveBeenCalledTimes(3)
+    expect(f.writes()).toBe(1)
+  } finally {
+    f.ds.destroy()
+  }
+})
+
+it('recovering through the general original-result entry also settles the matching journal', async () => {
+  const f = await fixture()
+  try {
+    await f.view.editRowById('1', { layout: 'sent' })
+    f.loseNextAck()
+    const options = { views: [{ tableName: 'Items', viewId: 'default', ids: ['1', '2'] }] }
+    await expect(f.ds.saveChanges(options)).rejects.toThrow('ack lost')
+    expect(f.owner.save.mock.calls[0]?.[0].changes[0]?.recovery?.entries).toMatchObject([{ action: 'changed' }])
+    expect(f.stored.map(row => row['layout'])).toEqual(['sent', 'ok'])
+    expect(f.view.hasUnconfirmedSaveFor(['1'])).toBe(true)
+    expect(f.view.hasUnconfirmedSaveFor(['1', '2'])).toBe(false)
+    expect(await f.ds.resolveUnconfirmedSaves()).toMatchObject({ state: 'confirmed' })
+    expect(f.ds.saveJournal).toMatchObject({ completed: true, views: [{ state: 'applied' }] })
+    expect(f.owner.save).toHaveBeenCalledTimes(2)
+    expect(f.writes()).toBe(1)
+  } finally {
+    f.ds.destroy()
+  }
+})

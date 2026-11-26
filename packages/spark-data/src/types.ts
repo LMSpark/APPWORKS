@@ -1540,7 +1540,7 @@ export type DataSetDiscardAndReloadOptions = {
 
 /** DataSet.saveChangesInPhases 的结果；completedPhases 为已确认完成的连续阶段数。 */
 export type DataSetPhasedSaveResult = {
-  /** 全部阶段确认且无待提交变更 */
+  /** 原批次的全部阶段已结算。提交后新编辑另属一次保存。 */
   success: boolean
   /** 自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标 */
   completedPhases: number
@@ -1548,14 +1548,16 @@ export type DataSetPhasedSaveResult = {
   results: Array<CrudResult<DataSetSaveChangesResult>>
 }
 
-/** One immutable save-recovery fact in the current DataSet runtime instance. */
+/** 当前 DataSet 实例中同一批次的原视图、选择范围及实际结算状态。 */
 export type DataSetSaveJournalView = Readonly<{
   tableName: string
   viewId: string
   ids: ReadonlyArray<string | number>
   resourceType: TableResourceType | undefined
   owner: 'database' | 'file' | 'command' | 'pagedata'
+  /** 正式回执已接纳，或本项明确未写入且原草稿已处理。 */
   completed: boolean
+  /** 只有实际接纳本次回执才记为 applied。未到达其来源时保持 pending。 */
   state: 'pending' | 'applied' | 'not-applied' | 'unknown'
   originalError: Error | undefined
 }>
@@ -1615,6 +1617,8 @@ export type DataSetSaveChangesViewResult = {
 
 /** DataSet 级跨视图保存结果 */
 export type DataSetSaveChangesResult = {
+  /** 原批次已确认后执行的后续动作失败。原保存成功、分项结果和原回执均有效。 */
+  followUpError?: Error
   /** 涉及的视图总数 */
   viewCount: number
   /** 成功应用的编辑态行数 */

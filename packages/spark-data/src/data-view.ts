@@ -368,7 +368,19 @@ type DataViewQuerySaveReceipt = Readonly<{
 }>
 type DataViewQuerySaveRow = Readonly<{ id: string | number; row: DataRow }>
 /** 保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。 */
-type DataViewQuerySaveTarget = Readonly<{ view: DataView; ids?: Array<string | number> }>
+type DataViewQuerySaveTarget = Readonly<{
+  view: DataView
+  ids?: Array<string | number>
+  recordDispatch?: (proof: DataViewSaveDispatchProof) => void
+}>
+
+type DataViewSaveDispatchState = 'applied' | 'not-applied' | 'unknown'
+
+/** @internal 只读定位一次实际派发的原捕获，调用方不读取业务行或凭据。 */
+export type DataViewSaveDispatchProof = Readonly<{
+  matchesUnconfirmed(view: DataView): boolean
+  outcome(): DataViewSaveDispatchState
+}>
 type DataViewQuerySaveValidationInput = Readonly<{ ids?: Array<string | number>; includeEditingRows: boolean }>
 type DataViewQuerySaveCapture = Readonly<{
   executor: DataViewQueryExecutor
@@ -601,8 +613,8 @@ rows: DataRow[] = []
   /** 后发的同视图引用预检使旧票据失效，不能同时派发相同变更。 */
   #domainSaveRevision = 0
   #unconfirmedQuerySave: DataViewQuerySaveCapture | undefined
-  /** 仅关联原失败对象与当前未知捕获，不序列化或暴露捕获内容。 */
-  #unconfirmedQuerySaveFailure: Error | undefined
+  /** 将首次提交失败和最近核验诊断归到同一原捕获。 */
+  #unconfirmedQuerySaveFailure: Readonly<{ original: Error; latest: Error }> | undefined
   /** 已返回回执但未接纳，且来源未提供原提交核验；只阻止重放，不推断远端未应用。 */
   #unconfirmedQuerySaveUnverifiable = false
   /** 原始实际派发批，保留上下文集合及次序；不同调用即使共用错误对象也不合批。 */
@@ -3543,7 +3555,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   hasUnconfirmedSaveFor(ids:ReadonlyArray<string|number>,failure?:Error): boolean {
     const capture=this.#unconfirmedQuerySave
-    if(!capture||!this.hasUnconfirmedSave||failure!==undefined&&failure!==this.#unconfirmedQuerySaveFailure)return false
+    if(!capture||!this.hasUnconfirmedSave||failure!==undefined&&failure!==this.#unconfirmedQuerySaveFailure?.original&&failure!==this.#unconfirmedQuerySaveFailure?.latest)return false
     const expected=new Set([...capture.added,...capture.changed,...capture.deleted].map(row=>row.id)),selected=new Set(ids)
     return expected.size>0&&expected.size===selected.size&&[...selected].every(id=>expected.has(id))
   }
@@ -3702,7 +3714,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** 同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。 */
   static async saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>> {
-    const captured=targets.map(target=>({view:target.view,...(target.ids===undefined?{}:{ids:[...target.ids]})}))
+    const captured = targets.map(target => ({ ...target, ...(target.ids === undefined ? {} : { ids: [...target.ids] }) }))
     const checking=DataView.prepareQuerySaveDomainReferences({targets:captured,includeEditingRows:false})
     if(checking!==undefined)return (await checking).save(captured)
     return DataView.savePreparedQueryViews(captured)
@@ -3723,7 +3735,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       }
     } catch (error) {failure = toError(error)}
     const outcomes = [...expected.keys()].map(view => {
-      const error=view.#unconfirmedQuerySaveFailure??failure
+      const error=view.#unconfirmedQuerySaveFailure?.latest??failure
       return settled.get(view)??{tableName:view.tableName,viewId:view.viewId,state:'unknown' as const,...(error?{error}:{})}
     })
     const states = new Set(outcomes.map(outcome => outcome.state))
@@ -3830,7 +3842,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       const capture = recovering ? target.view.#unconfirmedQuerySave : target.view.captureQuerySave(target.ids)
       if (!capture) throw new Error('DATA_VIEW_SAVE_RECOVERY: 原提交捕获已失效')
       if (recovering && target.view.#unconfirmedQuerySaveUnverifiable && target.view.querySavePendingState(capture) !== true) {
-        throw target.view.#unconfirmedQuerySaveFailure ?? new Error('DATA_VIEW_SAVE_RECOVERY: 原回执未接纳且来源没有核验入口，不能重新派发')
+        throw target.view.#unconfirmedQuerySaveFailure?.latest ?? new Error('DATA_VIEW_SAVE_RECOVERY: 原回执未接纳且来源没有核验入口，不能重新派发')
       }
       const ids = target.ids
       if (recovering && ids !== undefined && [...capture.added, ...capture.changed, ...capture.deleted].some(row => !ids.includes(row.id))) {
@@ -3869,12 +3881,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         return item
       })
     }) : DataView.querySaveDispatchBatches(dispatchItems)
+    const dispatchObservers = new Map(targets.map(target => [target.view, target.recordDispatch]))
     const previousErrors=new Map(active.map(({view})=>[view,view.mutatingError]))
     active.forEach(({ view }) => view._trackMutating(1))
     const results = new Map<DataView, CrudResult<SaveChangesData>>()
     const dispatched = new Set<DataView>()
     const returned = new Set<DataView>()
     const dispatchedChanges = new Map<DataView,DataViewQuerySaveChange>()
+    const dispatchOutcomes = new Map<DataView, { state: DataViewSaveDispatchState }>()
     let failure: Error | null = null
     try {
       for (const batch of batches) {
@@ -3906,9 +3920,19 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             if(!change)throw new Error('DATA_VIEW_SAVE_CAPTURE: 缺少本次派发输入')
             dispatchedChanges.set(view,change)
           })
-          for (const {view} of batch) {
+          for (const { view, capture } of batch) {
             dispatched.add(view)
             if (!recovering) view.#unconfirmedQuerySaveBatch = batch
+            const observer = dispatchObservers.get(view)
+            if (observer) {
+              const status: { state: DataViewSaveDispatchState } = { state: 'unknown' }
+              dispatchOutcomes.set(view, status)
+              observer({
+                matchesUnconfirmed: candidate => candidate === view && !view.destroyed
+                  && view.#unconfirmedQuerySave === capture && view.hasUnconfirmedSave,
+                outcome: () => status.state,
+              })
+            }
           }
           const receipts = await save.call(executor,{changes})
           batch.forEach(({view})=>returned.add(view))
@@ -3926,6 +3950,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           })
           for (const {view, command} of acceptances) {
             results.set(view, view.acceptQuerySaveReceipt(command))
+            const outcome = dispatchOutcomes.get(view)
+            if (outcome) outcome.state = 'applied'
             resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'confirmed'})
             try {
               const notify: ((context: DataViewQueryResult) => unknown) | undefined = command.executor.acknowledgeSave
@@ -3952,12 +3978,19 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       active.forEach(({ view, capture }) => {
         if (view.destroyed) return
         if(dispatched.has(view) && !results.has(view)){
+          const originalFailure = view.#unconfirmedQuerySave === capture
+            ? view.#unconfirmedQuerySaveFailure?.original
+            : undefined
           const sourcePending = view.querySavePendingState(capture)
           const change=dispatchedChanges.get(view)
           const notApplied = failure instanceof DataViewSaveNotAppliedError && change!==undefined && failure.appliesTo(change) ? failure : undefined
           view.#unconfirmedQuerySave = !notApplied && (sourcePending !== false || returned.has(view) || recovering) ? capture : undefined
           view.#unconfirmedQuerySaveUnverifiable = view.#unconfirmedQuerySave !== undefined && sourcePending !== true
-          view.#unconfirmedQuerySaveFailure=view.#unconfirmedQuerySave===undefined?undefined:failure??undefined
+          view.#unconfirmedQuerySaveFailure = view.#unconfirmedQuerySave !== undefined && failure !== null
+            ? { original: originalFailure ?? failure, latest: failure }
+            : undefined
+          const outcome = dispatchOutcomes.get(view)
+          if (outcome && view.#unconfirmedQuerySave === undefined) outcome.state = 'not-applied'
           if(notApplied){view.#unconfirmedQuerySaveBatch=undefined
             resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'not-applied',error:notApplied})}
         }

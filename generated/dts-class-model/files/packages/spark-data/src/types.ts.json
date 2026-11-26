@@ -436,7 +436,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
+            "__@iterator@305505": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -491,7 +491,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065"
+            "__@iterator@305505"
           ],
           "additionalProperties": false
         }
@@ -1035,7 +1035,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
+            "__@iterator@305505": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1090,7 +1090,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065"
+            "__@iterator@305505"
           ],
           "additionalProperties": false
         },
@@ -1316,7 +1316,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
+            "__@iterator@305505": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1371,7 +1371,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065"
+            "__@iterator@305505"
           ],
           "additionalProperties": false
         },
@@ -1609,7 +1609,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305505": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1664,7 +1664,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305505"
               ],
               "additionalProperties": false
             },
@@ -1894,7 +1894,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305505": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1949,7 +1949,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305505"
               ],
               "additionalProperties": false
             },
@@ -2885,7 +2885,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305505": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2940,7 +2940,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305505"
               ],
               "additionalProperties": false
             },
@@ -3170,7 +3170,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305505": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3225,7 +3225,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305505"
               ],
               "additionalProperties": false
             },
@@ -6169,7 +6169,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
+                "__@iterator@305505": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -6224,7 +6224,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065"
+                "__@iterator@305505"
               ],
               "additionalProperties": false
             },
@@ -6264,10 +6264,10 @@
         },
         "state": {
           "enum": [
-            "pending",
-            "unknown",
+            "applied",
             "not-applied",
-            "applied"
+            "unknown",
+            "pending"
           ]
         },
         "originalError": {
@@ -6303,10 +6303,10 @@
         },
         "state": {
           "enum": [
-            "completed",
-            "pending",
+            "not-applied",
             "unknown",
-            "not-applied"
+            "completed",
+            "pending"
           ]
         },
         "views": {
@@ -6495,6 +6495,10 @@
       "type": "object",
       "title": "DataSetSaveChangesResult",
       "properties": {
+        "followUpError": {
+          "type": "object",
+          "title": "ErrorDefault"
+        },
         "viewCount": {
           "type": "number"
         },
@@ -6902,7 +6906,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-22T18:36:54.352Z",
+  "generatedAt": "2026-11-26T18:01:53.142Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -11168,12 +11172,12 @@
       "jsdoc": "DataSet.saveChangesInPhases 的结果；completedPhases 为已确认完成的连续阶段数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 全部阶段确认且无待提交变更 */\n    success: boolean;\n    /** 自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标 */\n    completedPhases: number;\n    /** 本次实际执行的各阶段 saveChanges 回执 */\n    results: Array<CrudResult<DataSetSaveChangesResult>>;\n}",
+        "declarationTypeText": "{\n    /** 原批次的全部阶段已结算。提交后新编辑另属一次保存。 */\n    success: boolean;\n    /** 自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标 */\n    completedPhases: number;\n    /** 本次实际执行的各阶段 saveChanges 回执 */\n    results: Array<CrudResult<DataSetSaveChangesResult>>;\n}",
         "members": {
           "attributes": [
             {
               "name": "success",
-              "jsdoc": "全部阶段确认且无待提交变更",
+              "jsdoc": "原批次的全部阶段已结算。提交后新编辑另属一次保存。",
               "readable": true,
               "writable": true
             },
@@ -11195,14 +11199,14 @@
     },
     "DataSetSaveJournalView": {
       "name": "DataSetSaveJournalView",
-      "jsdoc": "One immutable save-recovery fact in the current DataSet runtime instance.",
+      "jsdoc": "当前 DataSet 实例中同一批次的原视图、选择范围及实际结算状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    completed: boolean;\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    /** 正式回执已接纳，或本项明确未写入且原草稿已处理。 */\n    completed: boolean;\n    /** 只有实际接纳本次回执才记为 applied。未到达其来源时保持 pending。 */\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    completed: boolean;\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
+            "typeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    ids: ReadonlyArray<string | number>;\n    resourceType: TableResourceType | undefined;\n    owner: 'database' | 'file' | 'command' | 'pagedata';\n    /** 正式回执已接纳，或本项明确未写入且原草稿已处理。 */\n    completed: boolean;\n    /** 只有实际接纳本次回执才记为 applied。未到达其来源时保持 pending。 */\n    state: 'pending' | 'applied' | 'not-applied' | 'unknown';\n    originalError: Error | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -11235,11 +11239,13 @@
             },
             {
               "name": "completed",
+              "jsdoc": "正式回执已接纳，或本项明确未写入且原草稿已处理。",
               "readable": true,
               "writable": false
             },
             {
               "name": "state",
+              "jsdoc": "只有实际接纳本次回执才记为 applied。未到达其来源时保持 pending。",
               "readable": true,
               "writable": false
             },
@@ -11464,9 +11470,15 @@
       "jsdoc": "DataSet 级跨视图保存结果",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 涉及的视图总数 */\n    viewCount: number;\n    /** 成功应用的编辑态行数 */\n    appliedEditingRows: number;\n    /** 失败的编辑态行数 */\n    failedEditingRows: number;\n    /** 新增记录总数 */\n    createdCount: number;\n    /** 保存（更新）记录总数 */\n    savedCount: number;\n    /** 删除记录总数 */\n    deletedCount: number;\n    /** 失败记录总数 */\n    failedCount: number;\n    /** 失败的视图列表 */\n    failedViews: Array<{\n        tableName: string;\n        viewId: string;\n    }>;\n    /** 各视图的保存结果详情 */\n    viewResults: DataSetSaveChangesViewResult[];\n    /** 事务响应（mode='transaction' 时有效） */\n    transaction?: DataSetTransactionResponse;\n}",
+        "declarationTypeText": "{\n    /** 原批次已确认后执行的后续动作失败。原保存成功、分项结果和原回执均有效。 */\n    followUpError?: Error;\n    /** 涉及的视图总数 */\n    viewCount: number;\n    /** 成功应用的编辑态行数 */\n    appliedEditingRows: number;\n    /** 失败的编辑态行数 */\n    failedEditingRows: number;\n    /** 新增记录总数 */\n    createdCount: number;\n    /** 保存（更新）记录总数 */\n    savedCount: number;\n    /** 删除记录总数 */\n    deletedCount: number;\n    /** 失败记录总数 */\n    failedCount: number;\n    /** 失败的视图列表 */\n    failedViews: Array<{\n        tableName: string;\n        viewId: string;\n    }>;\n    /** 各视图的保存结果详情 */\n    viewResults: DataSetSaveChangesViewResult[];\n    /** 事务响应（mode='transaction' 时有效） */\n    transaction?: DataSetTransactionResponse;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "followUpError",
+              "jsdoc": "原批次已确认后执行的后续动作失败。原保存成功、分项结果和原回执均有效。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "viewCount",
               "jsdoc": "涉及的视图总数",

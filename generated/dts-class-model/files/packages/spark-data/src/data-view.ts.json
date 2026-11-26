@@ -17,6 +17,7 @@
       "DataViewServerRowsPayload",
       "DataViewNewRowIdentity",
       "DataViewChildRowInput",
+      "DataViewSaveDispatchProof",
       "DataView"
     ]
   },
@@ -70,9 +71,9 @@
         },
         "state": {
           "enum": [
+            "not-applied",
             "unknown",
-            "confirmed",
-            "not-applied"
+            "confirmed"
           ]
         },
         "error": {
@@ -95,9 +96,9 @@
         "state": {
           "enum": [
             "none",
+            "not-applied",
             "unknown",
             "confirmed",
-            "not-applied",
             "partial"
           ]
         },
@@ -1212,10 +1213,55 @@
           }
         }
       },
-      "required": [
-        "view"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.recordDispatch.params": {
+          "type": "object",
+          "properties": {
+            "proof": {
+              "$ref": "#/$defs/DataViewSaveDispatchProof"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.recordDispatch.return": true
+      }
+    },
+    "DataViewSaveDispatchState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewSaveDispatchState",
+      "enum": [
+        "applied",
+        "not-applied",
+        "unknown"
+      ]
+    },
+    "DataViewSaveDispatchProof": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSaveDispatchProof",
+      "$defs": {
+        "method.matchesUnconfirmed.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.matchesUnconfirmed.return": {
+          "type": "boolean"
+        },
+        "method.outcome.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.outcome.return": {
+          "$ref": "#/$defs/DataViewSaveDispatchState"
+        }
+      }
     },
     "DataViewQuerySaveValidationInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3458,7 +3504,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T05:35:40.948Z",
+  "generatedAt": "2026-11-26T18:25:42.701Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5047,11 +5093,11 @@
       "jsdoc": "保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n}>",
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n    recordDispatch?: (proof: DataViewSaveDispatchProof) => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n}>",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n    recordDispatch?: (proof: DataViewSaveDispatchProof) => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -5066,6 +5112,93 @@
               "name": "ids",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "recordDispatch",
+              "parameters": [
+                {
+                  "name": "proof",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewSaveDispatchProof",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSaveDispatchState": {
+      "name": "DataViewSaveDispatchState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'applied' | 'not-applied' | 'unknown'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'applied'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'not-applied'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewSaveDispatchProof": {
+      "name": "DataViewSaveDispatchProof",
+      "jsdoc": "@internal 只读定位一次实际派发的原捕获，调用方不读取业务行或凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "matchesUnconfirmed",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "outcome",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataViewSaveDispatchState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
             }
           ]
         }

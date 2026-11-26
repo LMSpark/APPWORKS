@@ -931,7 +931,14 @@
         },
         "method.resolveUnconfirmedSaves.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "selected": {
+              "type": "array",
+              "items": {
+                "$ref": "data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
           "additionalProperties": false
         },
         "method.resolveUnconfirmedSaves.return": {
@@ -1018,7 +1025,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T15:44:37.379Z",
+  "generatedAt": "2026-11-26T18:01:53.141Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2261,7 +2268,7 @@
             },
             {
               "name": "prepareSaveJournal",
-              "jsdoc": "Resolve the exact journal that the following saveChanges call must consume.\nThis is synchronous so a caller can bind its batch identity before preflight or dispatch begins.",
+              "jsdoc": "Capture the view instances and row selection before any asynchronous preflight.",
               "parameters": [
                 {
                   "name": "options",
@@ -2283,6 +2290,7 @@
             },
             {
               "name": "prepareSaveJournalPhases",
+              "jsdoc": "Capture the ordered phases under the same journal.",
               "parameters": [
                 {
                   "name": "phases",
@@ -2393,7 +2401,7 @@
             },
             {
               "name": "continueSaveJournal",
-              "jsdoc": "Continue the original explicit phase plan after completed recovery, never a replacement plan.",
+              "jsdoc": "Resume only unfinished targets resolved by the original batch.",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -2519,8 +2527,19 @@
             },
             {
               "name": "resolveUnconfirmedSaves",
-              "jsdoc": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n按视图报告已接纳、来源证实未生效或仍未知，保留原批次；partial不能解释为整体未生效。\n未知结果携带原错误并保留捕获，新编辑和未派发来源不参与本次核验。",
-              "parameters": [],
+              "jsdoc": "经原保存入口核验本实例在选择范围内的未确认提交（执行器只回读、不重放）。\n按视图报告已接纳、来源证实未生效或仍未知，保留原批次；partial不能解释为整体未生效。\n未知结果携带原错误并保留捕获，新编辑和未派发来源不参与本次核验。\n@param selected 由本 DataSet 持有的原视图实例。省略时核验本实例全部待核验视图。",
+              "parameters": [
+                {
+                  "name": "selected",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

@@ -1132,3 +1132,307 @@ describe('known mutation error after cancelling local changes', () => {
   } finally {f.dataSet.destroy()}
  })
 })
+
+it('continues a later phase without sending a new edit to a completed phase', async () => {
+  const f = await resourceOwners(undefined, true)
+  const saveOrder = f.orderOwner.save.getMockImplementation()
+  if (saveOrder === undefined) throw new Error('missing fixture transport')
+  let pending = false
+  f.orderOwner.hasUnconfirmedSave.mockImplementation(() => pending)
+  let readbacks = 0
+  f.orderOwner.save.mockImplementationOnce(async command => {
+    const receipts = await saveOrder(command)
+    pending = true
+    f.orderOwner.save.mockImplementationOnce(async () => {
+      readbacks += 1
+      pending = false
+      return receipts
+    })
+    throw new Error('lost order receipt')
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'Item original')
+    f.orders.updateEditingValue('1', 'title', 'Order original')
+    f.file.updateEditingValue('1', 'title', 'File original')
+    const phases = ['Items', 'Orders', 'File'].map(tableName => ({
+      views: [{ tableName, viewId: 'default', ids: ['1'] }],
+    }))
+    await expect(f.dataSet.saveChangesInPhases(phases)).rejects.toThrow('lost order receipt')
+    expect(f.batches).toEqual([['Items'], ['Orders']])
+    expect(await f.dataSet.verifySaveJournal()).toMatchObject({ completed: false, completedPhases: 2 })
+    expect(readbacks).toBe(1)
+    f.items.updateEditingValue('1', 'title', 'Item later draft')
+    const continued = await f.dataSet.continueSaveJournal()
+    expect(continued).toMatchObject({ success: true, completedPhases: 3 })
+    expect(f.batches).toEqual([['Items'], ['Orders'], ['File']])
+    expect(f.stored.get('Items')?.[0]?.['title']).toBe('Item original')
+    expect(f.items.getEditingRow('1')?.['title']).toBe('Item later draft')
+  } finally {
+    f.dataSet.destroy()
+  }
+})
+
+it('preserves an unsent file and continues the original batch', async () => {
+  const f = await resourceOwners()
+  const persist = f.database.save.getMockImplementation()
+  if (persist === undefined) throw new Error('missing fixture transport')
+  let pending = false
+  f.database.hasUnconfirmedSave.mockImplementation(() => pending)
+  f.database.save.mockImplementationOnce(async command => {
+    const receipts = await persist(command)
+    pending = true
+    f.database.save.mockImplementationOnce(async () => {
+      pending = false
+      return receipts
+    })
+    throw new Error('database receipt lost')
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'database first')
+    f.file.updateEditingValue('1', 'title', 'file next')
+    await expect(f.dataSet.saveChanges()).rejects.toThrow('database receipt lost')
+    expect(f.fileOwner.save).not.toHaveBeenCalled()
+    expect(f.dataSet.saveJournal.views).toMatchObject([
+      { tableName: 'Items', state: 'unknown' }, { tableName: 'File', state: 'pending' },
+    ])
+    expect(await f.dataSet.verifySaveJournal()).toMatchObject({ completed: false, views: [
+      { tableName: 'Items', state: 'applied' }, { tableName: 'File', state: 'pending' },
+    ] })
+    f.items.updateEditingValue('1', 'title', 'database later draft')
+    const outcome = await f.dataSet.continueSaveJournal()
+    expect(outcome).toMatchObject({ success: true, completedPhases: 1 })
+    expect(f.dataSet.saveJournal.completed).toBe(true)
+    expect(f.batches).toEqual([['Items'], ['File']])
+    expect(f.stored.get('Items')?.[0]?.['title']).toBe('database first')
+    expect(f.items.getEditingRow('1')?.['title']).toBe('database later draft')
+  } finally {
+    f.dataSet.destroy()
+  }
+})
+
+it('validates every selected recovery view before verifying and deduplicates the original capture', async () => {
+  const original = await resourceOwners()
+  const foreign = await resourceOwners()
+  const persist = original.database.save.getMockImplementation()!
+  let unconfirmed = false
+  original.database.hasUnconfirmedSave.mockImplementation(() => unconfirmed)
+  original.database.save.mockImplementation(async command => {
+    if (!unconfirmed) {unconfirmed = true; throw new Error('original response lost')}
+    const result = await persist(command)
+    unconfirmed = false
+    return result
+  })
+  try {
+    original.items.updateEditingValue('1', 'title', 'original draft')
+    await expect(original.dataSet.saveChanges()).rejects.toThrow('original response lost')
+    const originalBatch = original.dataSet.saveJournal.batchId
+    await expect(original.dataSet.resolveUnconfirmedSaves([original.items, foreign.items])).rejects.toThrow('DATA_SET_SAVE_IDENTITY')
+    expect(original.database.save).toHaveBeenCalledTimes(1)
+    expect(foreign.database.save).not.toHaveBeenCalled()
+    expect(original.dataSet.saveJournal).toMatchObject({batchId: originalBatch, completed: false, views: [{state: 'unknown'}]})
+    await expect(original.dataSet.resolveUnconfirmedSaves([original.items, original.items])).resolves.toMatchObject({
+      state: 'confirmed', views: [{tableName: 'Items', viewId: 'default', state: 'confirmed'}],
+    })
+    expect(original.database.save).toHaveBeenCalledTimes(2)
+    expect(original.dataSet.saveJournal).toMatchObject({batchId: originalBatch, completed: true, views: [{state: 'applied'}]})
+  } finally {
+    foreign.dataSet.destroy()
+    original.dataSet.destroy()
+  }
+})
+
+it('refuses a second unrelated source until the active dispatch settles', async () => {
+  let release: () => void = () => undefined
+  let entered: () => void = () => undefined
+  const gate = new Promise<void>(done => { release = done })
+  const began = new Promise<void>(done => { entered = done })
+  const f = await resourceOwners(() => { entered(); return gate })
+  let primary: ReturnType<DataSet['saveChanges']> | undefined
+  try {
+    f.items.updateEditingValue('1', 'title', 'database value')
+    f.file.updateEditingValue('1', 'title', 'file value')
+    primary = f.dataSet.saveChanges({ views: [{ tableName: 'Items' }] })
+    await began
+    const batchId = f.dataSet.saveJournal.batchId
+    await expect(f.dataSet.saveChanges({ views: [{ tableName: 'File' }] })).rejects.toThrow('DATA_SET_SAVE_JOURNAL_ACTIVE')
+    expect(f.fileOwner.save).not.toHaveBeenCalled()
+    expect(f.dataSet.saveJournal.batchId).toBe(batchId)
+    release()
+    await expect(primary).resolves.toMatchObject({ success: true })
+    await expect(f.dataSet.saveChanges({ views: [{ tableName: 'File' }] })).resolves.toMatchObject({ success: true })
+    expect(f.batches).toEqual([['Items'], ['File']])
+  } finally {
+    release()
+    await primary
+    f.dataSet.destroy()
+  }
+})
+
+it('permits a new file save in a confirmed database completion callback', async () => {
+  const f = await resourceOwners()
+  const stop = f.dataSet.setSaveCompletionHandler(async (_result, options) => {
+    if (options?.views?.some(view => view.tableName === 'Items')) {
+      expect(f.dataSet.saveJournal.views).toMatchObject([{ tableName: 'Items', state: 'applied' }])
+      expect((await f.dataSet.saveChanges({ views: [{ tableName: 'File' }] })).success).toBe(true)
+    }
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'database value')
+    f.file.updateEditingValue('1', 'title', 'file view')
+    await expect(f.dataSet.saveChanges({ views: [{ tableName: 'Items' }] })).resolves.toMatchObject({ success: true })
+    expect(f.batches).toEqual([['Items'], ['File']])
+  } finally {
+    stop()
+    f.dataSet.destroy()
+  }
+})
+
+it('returns the confirmed source receipt separately from a failed completion save', async () => {
+  const f = await resourceOwners()
+  const failure = new Error('Plan file rejected after the source was saved')
+  const complete = vi.fn(async () => {
+    await f.dataSet.saveChanges({views: [{tableName: 'File'}]})
+  })
+  f.fileOwner.save.mockRejectedValueOnce(failure)
+  const release = f.dataSet.setSaveCompletionHandler(complete)
+  try {
+    f.items.updateEditingValue('1', 'title', 'confirmed database value')
+    f.file.updateEditingValue('1', 'title', 'derived file')
+    const result = await f.dataSet.saveChanges({views: [{tableName: 'Items'}]})
+    expect(result).toMatchObject({success: true, data: {
+      savedCount: 1, failedCount: 0, viewResults: [{tableName: 'Items', savedCount: 1}], followUpError: failure,
+    }})
+    expect(f.items.rows[0]?.['title']).toBe('confirmed database value')
+    expect(f.database.save).toHaveBeenCalledOnce()
+    expect(f.fileOwner.save).toHaveBeenCalledOnce()
+    expect(complete).toHaveBeenCalledOnce()
+  } finally {release(); f.dataSet.destroy()}
+})
+
+it('keeps a failed source save on the original path without running the completion handler', async () => {
+  const f = await resourceOwners()
+  const complete = vi.fn()
+  const failure = new Error('original source rejected')
+  f.database.save.mockRejectedValueOnce(failure)
+  const release = f.dataSet.setSaveCompletionHandler(complete)
+  try {
+    f.items.updateEditingValue('1', 'title', 'unconfirmed database value')
+    await expect(f.dataSet.saveChanges({views: [{tableName: 'Items'}]})).rejects.toBe(failure)
+    expect(complete).not.toHaveBeenCalled()
+    expect(f.fileOwner.save).not.toHaveBeenCalled()
+  } finally {release(); f.dataSet.destroy()}
+})
+
+it('cannot continue a pending source against a new view with the same identity text', async () => {
+  const f = await resourceOwners()
+  const persist = f.database.save.getMockImplementation()
+  if (persist === undefined) throw new Error('missing fixture transport')
+  let pending = false
+  f.database.hasUnconfirmedSave.mockImplementation(() => pending)
+  f.database.save.mockImplementationOnce(async command => {
+    const receipts = await persist(command)
+    pending = true
+    f.database.save.mockImplementationOnce(async () => {
+      pending = false
+      return receipts
+    })
+    throw new Error('database receipt lost')
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'database original')
+    f.file.updateEditingValue('1', 'title', 'file original')
+    await expect(f.dataSet.saveChanges()).rejects.toThrow('database receipt lost')
+    await f.dataSet.verifySaveJournal()
+    const table = f.file.dataTable
+    if (!table) throw new Error('missing original table')
+    table.destroyView('default')
+    const replacement = table.getOrCreateView('default')
+    replacement.commitMode = 'staged'
+    replacement.bindQueryExecutor(f.fileOwner, { resource: { resourceType: 'file', resourceId: 'config' } })
+    await replacement.refresh()
+    await replacement.editRowById('1', { title: 'file original' })
+    await expect(f.dataSet.continueSaveJournal()).rejects.toThrow('DATA_SET_SAVE_JOURNAL_CHANGED')
+    expect(f.fileOwner.save).not.toHaveBeenCalled()
+    expect(replacement.dirtyTracking.hasPendingChanges('1')).toBe(true)
+  } finally {
+    f.dataSet.destroy()
+  }
+})
+
+it('phase save entry only resumes unexecuted phases of an existing journal', async () => {
+  const f = await resourceOwners(undefined, true)
+  const saveOrder = f.orderOwner.save.getMockImplementation()
+  if (saveOrder === undefined) throw new Error('missing fixture transport')
+  let pending = false
+  f.orderOwner.hasUnconfirmedSave.mockImplementation(() => pending)
+  let readbacks = 0
+  f.orderOwner.save.mockImplementationOnce(async command => {
+    const receipts = await saveOrder(command)
+    pending = true
+    f.orderOwner.save.mockImplementationOnce(async () => {
+      readbacks += 1
+      pending = false
+      return receipts
+    })
+    throw new Error('lost order receipt')
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'Item original')
+    f.orders.updateEditingValue('1', 'title', 'Order original')
+    f.file.updateEditingValue('1', 'title', 'File original')
+    const phases = ['Items', 'Orders', 'File'].map(tableName => ({
+      views: [{ tableName, viewId: 'default', ids: ['1'] }],
+    }))
+    await expect(f.dataSet.saveChangesInPhases(phases)).rejects.toThrow('lost order receipt')
+    expect(f.batches).toEqual([['Items'], ['Orders']])
+    expect(await f.dataSet.verifySaveJournal()).toMatchObject({ completed: false, completedPhases: 2 })
+    expect(readbacks).toBe(1)
+    f.items.updateEditingValue('1', 'title', 'Item later draft')
+    const continued = await f.dataSet.saveChangesInPhases(phases)
+    expect(continued).toMatchObject({ success: true, completedPhases: 3 })
+    expect(f.batches).toEqual([['Items'], ['Orders'], ['File']])
+    expect(f.stored.get('Items')?.[0]?.['title']).toBe('Item original')
+    expect(f.items.getEditingRow('1')?.['title']).toBe('Item later draft')
+  } finally {
+    f.dataSet.destroy()
+  }
+})
+
+it('ordinary receipt verification keeps the unsent branch pending', async () => {
+  const f = await resourceOwners()
+  const persist = f.database.save.getMockImplementation()
+  if (persist === undefined) throw new Error('missing fixture transport')
+  let pending = false
+  f.database.hasUnconfirmedSave.mockImplementation(() => pending)
+  f.database.save.mockImplementationOnce(async command => {
+    const receipts = await persist(command)
+    pending = true
+    f.database.save.mockImplementationOnce(async () => {
+      pending = false
+      return receipts
+    })
+    throw new Error('database receipt lost')
+  })
+  try {
+    f.items.updateEditingValue('1', 'title', 'database first')
+    f.file.updateEditingValue('1', 'title', 'file next')
+    await expect(f.dataSet.saveChanges()).rejects.toThrow('database receipt lost')
+    expect(f.fileOwner.save).not.toHaveBeenCalled()
+    expect(f.dataSet.saveJournal.views).toMatchObject([
+      { tableName: 'Items', state: 'unknown' }, { tableName: 'File', state: 'pending' },
+    ])
+    expect((await f.dataSet.saveChanges()).success).toBe(true)
+    expect(f.dataSet.saveJournal).toMatchObject({ completed: false, views: [
+      { tableName: 'Items', state: 'applied' }, { tableName: 'File', state: 'pending' },
+    ] })
+    f.items.updateEditingValue('1', 'title', 'database later draft')
+    const outcome = await f.dataSet.continueSaveJournal()
+    expect(outcome).toMatchObject({ success: true, completedPhases: 1 })
+    expect(f.dataSet.saveJournal.completed).toBe(true)
+    expect(f.batches).toEqual([['Items'], ['File']])
+    expect(f.stored.get('Items')?.[0]?.['title']).toBe('database first')
+    expect(f.items.getEditingRow('1')?.['title']).toBe('database later draft')
+  } finally {
+    f.dataSet.destroy()
+  }
+})

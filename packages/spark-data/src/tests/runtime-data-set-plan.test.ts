@@ -194,6 +194,26 @@ describe('runtime data set plan', () => {
     })])
   })
 
+  it('rejects independent scope and initial filters before building Plan v1', () => {
+    const scopeFilter = {field: 'tenantId', operator: 'eq', value: 'TENANT'}
+    const filterExpression = {field: 'status', operator: 'eq', value: 'open'}
+    const build = (view: Record<string, unknown>) => buildRuntimeDataSetPlan({
+      scenarioId: 'SPACE',
+      space: {rowid: 'SPACE', Name: 'Space'},
+      models: [{rowid: 'MODEL', Name: 'Orders', MetaName: 'source_orders', Type: '数据库表'}],
+      fields: [],
+      relations: [],
+      scenarioConfig: {scenarioId: 'SPACE', tables: {Orders: {
+        modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+        views: {default: view},
+      }}},
+    })
+
+    expect(() => build({scopeFilter, filterExpression})).toThrow('SPACE Orders@default 不支持同时保存常驻范围和初始过滤')
+    expect(compileRuntimeDataSetPlan(build({scopeFilter})).metadata.tables['Orders']?.views['default']?.scopeFilter)
+      .toEqual(scopeFilter)
+  })
+
   it('keeps the runtime Plan structure hash independent of savedAt', () => {
     const input = {
       scenarioId: 'SPACE', space: {rowid: 'SPACE', Name: 'Space'}, models: [], fields: [], relations: [],

@@ -72,6 +72,35 @@ async function open(target: string) {
   return session
 }
 
+it('keeps the confirmed metadata save when both filter layers prevent Plan generation', async () => {
+  const f = dataSpaceChainFixture()
+  const scenario: unknown = JSON.parse(f.files.get(f.target)!)
+  const tables = isRecord(scenario) ? scenario['tables'] : undefined
+  if (!isRecord(tables) || !isRecord(tables['OrderTable'])
+    || !isRecord(tables['OrderTable']['views']) || !isRecord(tables['OrderTable']['views']['default'])) {
+    throw new Error('fixture must declare the original Orders DataView')
+  }
+  const orders = tables['OrderTable']['views']['default']
+  orders['scopeFilter'] = {field: 'region', operator: 'ne', value: 'restricted'}
+  orders['filterExpression'] = {field: 'region', operator: 'eq', value: 'north'}
+  f.files.set(f.target, JSON.stringify(scenario))
+  transport.request.mockImplementation(f.request)
+  transport.scope.mockImplementation(f.readScope)
+  transport.workspace.mockImplementation(f.workspace)
+  transport.gateways.mockReturnValue({scenarioViews: f.fileGateway})
+  const session = await open(f.target)
+  session.stageInputParameters({expectedValue: '[]', value: [
+    {rowid: 'PARAM-1', Name: 'region', Description: '区域', IsBusParam: true},
+  ]})
+
+  await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
+  expect(session.getInputParameterState().status).toBe('idle')
+  expect(session.getRuntimeDataSetPlanState().status).toBe('retry')
+  await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow('OrderTable@default 不支持同时保存常驻范围和初始过滤')
+  expect(f.planFileWrites).toEqual([])
+  expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+})
+
 describe('one data space from metadata definitions through persistence to runtime', () => {
   it('reads formal model columns through the current metadata DataViews and preserves the editing workspace', async () => {
     const f = dataSpaceChainFixture()

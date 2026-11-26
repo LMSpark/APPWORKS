@@ -271,8 +271,12 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
           dependentFilters.push({Field: targetField, Operator: source, ValueFun: {Type: 'GetDependValue', DependKey: dependKey}})
         }
       }
-      const staticFilter = wireFilter(rawView['scopeFilter'], `${tableName}.${viewId}.scopeFilter`)
-        ?? wireFilter(rawView['filterExpression'], `${tableName}.${viewId}.filterExpression`)
+      const scopeFilter = wireFilter(rawView['scopeFilter'], `${tableName}.${viewId}.scopeFilter`)
+      const initialFilter = wireFilter(rawView['filterExpression'], `${tableName}.${viewId}.filterExpression`)
+      if (scopeFilter && initialFilter) {
+        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.filterExpression: ${input.scenarioId} ${tableName}@${viewId} 不支持同时保存常驻范围和初始过滤`)
+      }
+      const staticFilter = scopeFilter ?? initialFilter
       const allFilters = [...staticFilter ? [staticFilter] : [], ...dependentFilters]
       const filter = allFilters.length === 0 ? '' : JSON.stringify(allFilters.length === 1 ? allFilters[0] : {Type: 'And', Filters: allFilters})
       const queryConfig = isRecord(rawView['queryConfig']) ? rawView['queryConfig'] : {}

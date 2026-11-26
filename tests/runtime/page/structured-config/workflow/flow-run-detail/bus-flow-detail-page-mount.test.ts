@@ -1,7 +1,8 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
-import {createMemoryHistory, createRouter} from 'vue-router'
+import {defineComponent, h, shallowRef} from 'vue'
+import {createMemoryHistory, createRouter, useRoute} from 'vue-router'
 import {DataSet, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView} from '@spark-appworks/spark-data'
 import {RendererDialog, RendererTable, RendererTabs, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
@@ -16,10 +17,18 @@ import {withTestPageService} from '../../../../../support/helpers/page-service-h
 
 const {loadScenario} = vi.hoisted(() => ({loadScenario: vi.fn()}))
 vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: loadScenario}))
+vi.mock('@/registries/vue-page-registry', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/registries/vue-page-registry')>()
+  return {...actual, getVuePageOptions: () => [...actual.getVuePageOptions(), {path: '/fixture/business-form'}]}
+})
 // Vitest strips CSS imports by default. Pass the actual tool text to the runtime.
 vi.mock('@/views/features/workflow/flow-runtime/detail/ui/tool/style.css?raw', async () => {
   const {readFileSync} = await import('node:fs')
   return {default: readFileSync('src/views/features/workflow/flow-runtime/detail/ui/tool/style.css', 'utf8')}
+})
+vi.mock('@/views/features/workflow/flow-runtime/bus-detail/ui/tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/workflow/flow-runtime/bus-detail/ui/tool/style.css', 'utf8')}
 })
 
 const defaultStubs = config.global.stubs
@@ -33,11 +42,13 @@ beforeEach(() => {
 afterEach(() => {config.global.stubs = defaultStubs; vi.unstubAllGlobals()})
 
 it.each([
-  {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page', denyDictionary: false},
+  {name: 'business detail', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page', denyDictionary: false, formMode: 'empty'},
+  {name: 'business detail with forms', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page', denyDictionary: false, formMode: 'valid'},
+  {name: 'business detail with mismatched form', component: BusFlowDetailPage, nodeId: 'business-detail', suffix: 'bus-detail/ui/bus-flow-detail-page', denyDictionary: false, formMode: 'foreign'},
   {name: 'runtime detail', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page', denyDictionary: false},
   {name: 'runtime detail with state dictionary denied', component: FlowRunDetailPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'detail/ui/flow-run-detail-page', denyDictionary: true},
   {name: 'workflow run', component: FlowRunPage, nodeId: FLOW_MONITOR_SCENARIO_ID, suffix: 'run-page/ui/flow-run-page', denyDictionary: false},
-])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix, denyDictionary}) => {
+])('renders $name through the owned runtime and peer scenarios', async ({name, component, nodeId, suffix, denyDictionary, formMode}) => {
   const runtimeDetail = component === FlowRunDetailPage
   const monitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
   const designSource = runtimeDetail ? await designFixture(false, false) : undefined
@@ -64,7 +75,9 @@ it.each([
   bind(monitor, 'Dict_state')
   bind(workbench, 'WFOBJ_FLOW_Waiting', [{rowid: 'W1', wfid: 'WF-1', StepID: 'S1', NodeID: 'N1'},
     {rowid: 'W2', wfid: 'WF-OTHER', StepID: 'S2', NodeID: 'N1'}])
-  bind(workbench, 'WFOBJ_FLOW_FORM')
+  const form = {rowid: 'OF1', WFOBJID: 'WF-1', FORMID: 'F1', FormPath: '/fixture/business-form', FormParams: 'rowid=BUS-1', FormName: '原业务表单'}
+  bind(workbench, 'WFOBJ_FLOW_FORM', formMode === 'valid' ? [form, {...form, rowid: 'OF2', FORMID: 'F2', FormPath: '/fixture/unregistered-form', FormName: '未登记表单'}]
+    : formMode === 'foreign' ? {...form, WFOBJID: 'WF-OTHER', FormParams: 'rowid=BUS-OTHER'} : undefined)
   const step = {rowid: 'S1', WFOBJID: 'WF-1', StepState: '0', description: '待处理的正式步骤',
     STARTTIME: '2026-11-26 08:00:00', ReceiveNodeModelId: 'N1', SendNodeModelId: 'N2'}
   bind(workbench, 'WFOBJ_FLOW_RELATIONLINE_STEP', [step, {...step, rowid: 'S2', description: '仅另一实例待办'}])
@@ -75,18 +88,25 @@ it.each([
   const path = `/apps/APP-1/features/workflow/flow-runtime/${suffix}`
   const router = createRouter({history: createMemoryHistory(), routes: [{path, component,
     meta: {nodeId, blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID, systemPageIdentityState: 'resolved'}}]})
+  if (formMode === 'valid' || formMode === 'foreign') router.addRoute({path: '/fixture/business-form', component: defineComponent({setup() {
+    const embedded = useRoute()
+    return () => h('div', {class: 'fixture-embedded-form'}, `表单当前业务行 ${embedded.query['rowid']}`)
+  }})})
   const query = {wfid: 'WF-1', flowid: 'FM-1'}
   await router.push({path, query})
-  const page = new SystemPageIdentityPool().get(router.currentRoute.value, {
+  const pool = new SystemPageIdentityPool()
+  const page = pool.get(router.currentRoute.value, {
     scope: 'application', nodeId, pageId: nodeId, path, title: name, component, explicitQuery: query,
   })
+  const selectedPage = shallowRef(page.view)
+  const pageOutlet = defineComponent({setup: () => () => h(selectedPage.value)})
   registerAllRenderers()
-  const wrapper = mount(withTestPageService(page.view, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()],
+  const wrapper = mount(withTestPageService(pageOutlet, router), {global: {plugins: [router, ElementPlus, Spark.createPlugin()],
     components: {'el-table': ElTable, 'el-table-column': ElTableColumn},
     stubs: {SparkComponentRenderer: false}}})
   try {
     await flushPromises()
-    expect(loadScenario.mock.calls.map(([input]) => input.scenarioId)).toEqual(expect.arrayContaining([...scenarios.keys()]))
+    expect(loadScenario.mock.calls.map(([input]) => input.scenarioId), wrapper.text()).toEqual(expect.arrayContaining([...scenarios.keys()]))
     if (runtimeDetail) {
       const pageRoot = wrapper.get('.spark-page-container')
       const instanceId = pageRoot.attributes('data-page')
@@ -152,12 +172,58 @@ it.each([
       expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe(`${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`)
       return
     }
+    if (formMode === 'foreign') {
+      expect(wrapper.text()).toContain('业务表单与当前流程实例不符')
+      expect(wrapper.text()).not.toContain('未查询到业务表单')
+      expect(wrapper.find('.fixture-embedded-form').exists()).toBe(false)
+      expect(wrapper.findAll('button').some(button => button.text() === '办理')).toBe(false)
+      return
+    }
     const summary = wrapper.getComponent(RendererTable)
     expect(wrapper.text()).toContain('流程实例摘要')
     expect(wrapper.text()).not.toContain('另一流程')
     expect(summary.props('dataViewKey')).toBe(`${FLOW_MONITOR_SCENARIO_ID}@WFOBJ_FLOW@default`)
     expect(summary.props('children')).toEqual(expect.arrayContaining([expect.objectContaining({props: expect.objectContaining({field: 'TITLE', label: '流程标题'})})]))
     expect(monitor.getView('WFOBJ_FLOW')?.rows[0]).toMatchObject(instance)
+    const instanceId = wrapper.get('.spark-page-container').attributes('data-page')
+    expect(wrapper.get('style').element.textContent).toContain(`[data-page="${instanceId}"].spark-page-container .bus-flow-detail-page__tabs`)
+    if (formMode === 'valid') {
+      expect(wrapper.get('.fixture-embedded-form').text()).toBe('表单当前业务行 BUS-1')
+      const tabs = wrapper.getComponent(RendererTabs)
+      expect(tabs.props('modelValue')).toBe('F1')
+      tabs.vm.$emit('update:modelValue', 'F2')
+      await flushPromises()
+      expect(tabs.props('modelValue')).toBe('F2')
+      expect(wrapper.text()).toContain('/fixture/unregistered-form 未在当前应用注册')
+
+      const nextInstance = {...instance, rowid: 'WF-2', TITLE: '第二流程', BusTblObjID: 'BUS-2'}
+      const nextMonitor = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
+      bind(nextMonitor, 'View_FlowObjList', nextInstance)
+      bind(nextMonitor, 'WFOBJ_FLOW', nextInstance)
+      const nextDesign = DataSet.fromJson({scenarioId: FLOW_DESIGN_SCENARIO_ID, tables: {}})
+      bind(nextDesign, 'WFM_WORKFORM')
+      const nextWorkbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+      bind(nextWorkbench, 'WFOBJ_FLOW_FORM', {...form, rowid: 'OF3', WFOBJID: 'WF-2', FormParams: 'rowid=BUS-2', FormName: '第二流程表单'})
+      bind(nextWorkbench, 'WFOBJ_FLOW_RELATIONLINE_STEP')
+      bind(nextWorkbench, 'WFOBJ_FLOW', nextInstance)
+      scenarios.set(FLOW_MONITOR_SCENARIO_ID, nextMonitor)
+      scenarios.set(FLOW_DESIGN_SCENARIO_ID, nextDesign)
+      scenarios.set(FLOW_WORKBENCH_SCENARIO_ID, nextWorkbench)
+      const nextQuery = {...query, wfid: 'WF-2'}
+      await router.replace({path, query: nextQuery})
+      const nextPage = pool.get(router.currentRoute.value, {
+        scope: 'application', nodeId, pageId: nodeId, path, title: name, component, explicitQuery: nextQuery,
+      })
+      expect(nextPage.instanceId).not.toBe(page.instanceId)
+      selectedPage.value = nextPage.view
+      await flushPromises()
+      expect(wrapper.text()).toContain('第二流程表单')
+      expect(wrapper.get('.fixture-embedded-form').text()).toBe('表单当前业务行 BUS-2')
+      expect(wrapper.text()).not.toContain('未登记表单')
+      expect(wrapper.getComponent(RendererTabs).props('modelValue')).toBe('F1')
+      return
+    }
+    expect(wrapper.text()).toContain('未查询到业务表单')
     for (const [label, destination] of [
       ['办理', '/apps/APP-1/features/workflow/flow-runtime/run-page/ui/flow-run-page'],
       ['运行详情', '/apps/APP-1/features/workflow/flow-runtime/detail/ui/flow-run-detail-page'],

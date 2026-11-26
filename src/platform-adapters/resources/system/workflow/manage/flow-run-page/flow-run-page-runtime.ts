@@ -77,43 +77,61 @@ function firstText(row: Record<string, unknown>, keys: readonly string[]): strin
   return ''
 }
 
-function buildFormTabs(
-  forms: ReadonlyArray<Record<string, unknown>>,
-  objectForms: ReadonlyArray<Record<string, unknown>>,
-  flowObjectId: string,
-): FlowRunFormRecord[] {
+function assertCompleteForms(view: DataView): void {
+  view.captureReadResult()()
+  if (view.total !== view.rows.length || view.countReported === false || view.nextPageAvailable === true) {
+    throw Error('流程表单查询结果不完整')
+  }
+}
+
+function formText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function formLabel(view: DataView, row: DataView['rows'][number], fallback: string): string {
+  if (view.fieldAccess(row, 'FormName').read !== 'visible') return fallback
+  view.captureReadRow(row, ['FormName'])()
+  return formText(row['FormName']) || fallback
+}
+
+function assertUniqueFormKeys(tabs: readonly FlowRunFormRecord[]): void {
+  if (new Set(tabs.map(tab => tab.formKey)).size !== tabs.length) throw Error('正式流程表单身份重复')
+}
+
+function readInstanceForms(view: DataView, objectId: string): FlowRunFormRecord[] {
+  assertCompleteForms(view)
+  const tabs = view.rows.map((row, index) => {
+    view.captureReadRow(row, ['WFOBJID', 'FORMID', 'FormPath', 'FormParams'])()
+    if (row['WFOBJID'] !== objectId) throw Error('业务表单与当前流程实例不符')
+    const key = formText(row['FORMID'])
+    const sourcePath = formText(row['FormPath'])
+    const params = row['FormParams']
+    if (!key || !sourcePath || (params !== null && typeof params !== 'string')) throw Error('正式业务表单身份、路径或参数无效')
+    return {tabKey: key, formKey: key, sourcePath, queryString: formText(params), label: formLabel(view, row, `业务页 ${index + 1}`)}
+  })
+  assertUniqueFormKeys(tabs)
+  return tabs
+}
+
+function readDesignForms(view: DataView, instance: {objectId: string; modelId: string}): FlowRunFormRecord[] {
+  assertCompleteForms(view)
   const tabs: FlowRunFormRecord[] = []
-  const used = new Set<string>()
-  for (const [index, row] of objectForms.entries()) {
-    const path = firstText(row, ['FormPath', 'URL', 'url'])
-    if (!path) continue
-    const key = firstText(row, ['FORMID', 'formid']) || `obj-form-${index}`
-    if (used.has(key)) continue
-    used.add(key)
-    const params = firstText(row, ['FormParams', 'formParams'])
-    tabs.push({
-      tabKey: key,
-      label: firstText(row, ['FormName', 'TITLE']) || `业务页 ${index + 1}`,
-      sourcePath: path,
-      queryString: params,
-      formKey: key,
-    })
+  for (const [index, row] of view.rows.entries()) {
+    view.captureReadRow(row, ['FlowID', 'URL'])()
+    if (row['FlowID'] !== instance.modelId) throw Error('设计表单与当前流程模型不符')
+    let sourcePath = formText(row['URL'])
+    if (!sourcePath) {
+      view.captureReadRow(row, ['mobileUrl'])()
+      sourcePath = formText(row['mobileUrl'])
+    }
+    if (!sourcePath) continue
+    view.captureReadRow(row, ['FORMID'])()
+    const key = formText(row['FORMID'])
+    if (!key) throw Error('正式设计表单身份无效')
+    const queryString = `flowobjid=${encodeURIComponent(instance.objectId)}&formkey=${encodeURIComponent(key)}`
+    tabs.push({tabKey: key, formKey: key, sourcePath, queryString, label: formLabel(view, row, `表单 ${index + 1}`)})
   }
-  if (tabs.length > 0) return tabs
-  for (const [index, row] of forms.entries()) {
-    const path = firstText(row, ['URL', 'MobileUrl', 'url'])
-    if (!path) continue
-    const key = firstText(row, ['FORMID', 'rowid', 'formid']) || `form-${index}`
-    if (used.has(key)) continue
-    used.add(key)
-    tabs.push({
-      tabKey: key,
-      label: firstText(row, ['FormName', 'TITLE']) || `表单 ${index + 1}`,
-      sourcePath: path,
-      queryString: `flowobjid=${encodeURIComponent(flowObjectId)}&formkey=${encodeURIComponent(key)}`,
-      formKey: key,
-    })
-  }
+  assertUniqueFormKeys(tabs)
   return tabs
 }
 
@@ -155,7 +173,7 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   }
   const title = titleVisible && typeof instance['TITLE'] === 'string' ? instance['TITLE'].trim() : ''
   const formView = requireView(design.getView(FORM_MODEL, 'default'), FORM_MODEL)
-  formView.queryContext = {...formView.queryContext, FlowID: flowid, WFMID: flowid}
+  formView.queryContext = {...formView.queryContext, FlowID: flowid, WFMID: flowid, FLOWID: flowid}
   const objectFormView = requireView(workbench.getView(OBJ_FORM_MODEL, 'default'), OBJ_FORM_MODEL)
   objectFormView.queryContext = {...objectFormView.queryContext, WFOBJID: wfid, wfid}
   const stepView = requireView(workbench.getView(STEP_MODEL, 'default'), STEP_MODEL)
@@ -174,7 +192,8 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   if (stepId && stepView.rows.filter(isRecord).filter(row => String(row['rowid'] ?? '') === stepId && String(row['WFOBJID'] ?? '') === wfid).length !== 1) {
     throw new Error('指定办理步骤不在本次实例正式查询结果中')
   }
-  const formTabs = buildFormTabs(formView.rows.filter(isRecord), objectFormView.rows.filter(isRecord), wfid)
+  const instanceForms = readInstanceForms(objectFormView, wfid)
+  const formTabs = instanceForms.length ? instanceForms : readDesignForms(formView, {objectId: wfid, modelId: flowid})
   return {
     instanceTitle: title || wfid,
     flowObjectId: wfid,

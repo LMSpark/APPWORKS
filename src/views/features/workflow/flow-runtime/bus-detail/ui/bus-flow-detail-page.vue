@@ -3,28 +3,7 @@
 职责：业务表单 + 流程摘要只读页，与办理页共用监控场景装配。
 -->
 <template>
-  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
-    <template #content="{children}">
-      <RendererSection class="bus-flow-detail-page" title="业务流程详情" :bordered="false" :grid-columns="1"
-        :status="loading ? '正在加载…' : ''" :error="error" :retryable="!loading" @retry="loadPage">
-        <template v-if="prepared" #header-actions>
-          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'pageActions')" key="pageActions" :config="node" />
-        </template>
-        <p v-if="prepared" class="bus-flow-detail-page__title">{{ prepared.instanceTitle }}</p>
-        <template v-if="prepared">
-          <SparkComponentRenderer v-for="node in children.filter(item => nodeId(item) === 'summary')" key="summary" :config="node" />
-        </template>
-        <DisplayEmpty v-if="prepared && businessTabs.length === 0" description="未查询到业务表单" />
-        <RendererTabs v-else-if="prepared" v-model="activeFormId" class="bus-flow-detail-page__tabs">
-          <RendererTabPane v-for="(tab, index) in businessTabs" :key="tab.tabKey" :label="tab.label" :name="tab.tabKey" :index="index" lazy>
-            <DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
-            <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
-              :tab-key="tab.tabKey" :registry="businessRegistry" />
-          </RendererTabPane>
-        </RendererTabs>
-      </RendererSection>
-    </template>
-  </SparkPageRenderer>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false" />
   <RendererSection v-else title="业务流程详情" :bordered="false"
     :status="runtimeLoading ? '正在加载…' : ''" :error="runtimeError" :retryable="!runtimeLoading" @retry="loadCurrentRoute" />
 </template>
@@ -32,12 +11,11 @@
 <script setup lang="ts">
 import {computed, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {nodeId} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
-import {DisplayEmpty, RendererSection, SparkComponentRenderer, SparkPageRenderer, RendererTabs, RendererTabPane} from '@spark-appworks/spark-component'
+import {DisplayEmpty, RendererSection, SparkPageRenderer, RendererTabs, RendererTabPane} from '@spark-appworks/spark-component'
 import {
   FLOW_DESIGN_SCENARIO_ID,
   FLOW_MONITOR_SCENARIO_ID,
@@ -92,20 +70,40 @@ const {ready: runtimeReady, session, loading: runtimeLoading, error: runtimeErro
 })
 
 const runtime = computed(() => runtimeReady.value ? session.runtime : undefined)
+const currentPrepared = computed(() => {
+  const source = prepared.value
+  const query = routeQuery()
+  return source?.flowObjectId === query.wfid && source.flowModelId === query.flowid ? source : undefined
+})
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
   const assertCurrent = () => {
-    if (!session.isCurrent(current)) throw Error('业务流程详情运行实例已失效')
+    if (runtime.value !== current || !session.isCurrent(current)) throw Error('业务流程详情运行实例已失效')
   }
   return {runtime: current, assertCurrent, invoke(command: string) {
     assertCurrent()
-    if (!prepared.value) return
-    if (command === 'workflow.openRun') openRun()
-    if (command === 'workflow.openDetail') openDetail()
+    if (command === 'workflow.connectBusinessDetail') return {
+      controls: {empty: DisplayEmpty, tabs: RendererTabs, pane: RendererTabPane, route: FlowRunRouteRenderer},
+      registry: businessRegistry,
+      status: () => ({loading: loading.value, error: error.value, ready: !!currentPrepared.value}),
+      title: () => currentPrepared.value?.instanceTitle ?? '',
+      forms: () => {
+        const source = currentPrepared.value
+        if (!source) return undefined
+        return {instance: source.flowObjectId, items: businessTabs.value, active: activeFormId.value, select: (key: string) => {
+          if (runtime.value === current && session.isCurrent(current) && currentPrepared.value === source
+            && businessTabs.value.some(tab => tab.tabKey === key)) activeFormId.value = key
+        }}
+      },
+    }
+    if (command === 'workflow.retryBusinessDetail') return loadPage()
+    if (command === 'workflow.openRun') {if (currentPrepared.value) openRun(); return undefined}
+    if (command === 'workflow.openDetail') {if (currentPrepared.value) openDetail(); return undefined}
+    throw Error(`业务流程详情不支持命令 ${command}`)
   }}
 })
-const businessTabs = computed(() => (prepared.value?.formTabs ?? []).map(tab => buildTab({
+const businessTabs = computed(() => (currentPrepared.value?.formTabs ?? []).map(tab => buildTab({
   tabKey: tab.tabKey,
   label: tab.label,
   sourcePath: tab.sourcePath,
@@ -158,8 +156,3 @@ watch(() => [runtimeReady.value, routeQuery().wfid, routeQuery().flowid] as cons
   if (runtimeReady.value) void loadPage()
 }, {immediate: true})
 </script>
-
-<style scoped>
-.bus-flow-detail-page__title {margin: 0 0 12px; font-weight: 600}
-.bus-flow-detail-page__tabs {margin-top: 12px}
-</style>

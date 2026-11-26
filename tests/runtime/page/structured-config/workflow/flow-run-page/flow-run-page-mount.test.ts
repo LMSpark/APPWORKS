@@ -78,6 +78,7 @@ type MockView = {
   rows: Array<Record<string, unknown>>
   total: number
   captureReadRow: ReturnType<typeof vi.fn>
+  captureReadResult: ReturnType<typeof vi.fn>
   events: {on: (event: string, handler: () => void) => void; off: (event: string, handler: () => void) => void}
 }
 
@@ -98,6 +99,7 @@ function createView(rows: MockView['rows']): MockView {
     rows,
     total: rows.length,
     captureReadRow: vi.fn(() => () => {}),
+    captureReadResult: vi.fn(() => () => {}),
     events: {
       on: (event, handler) => {
         const list = handlers.get(event) ?? []
@@ -123,7 +125,10 @@ function createRuntime(): PageRuntime {
     ApprovalOptions: originalOptionsView,
     ApprovalCommand: originalCommandView ?? approvalState,
     WFOBJ_FLOW: createView([{rowid: 'WF-1', WFMID: 'FM-1'}]),
-    WFOBJ_FLOW_FORM: createView([{FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9'}, {FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-10'}]),
+    WFOBJ_FLOW_FORM: createView([
+      {rowid: 'OF1', WFOBJID: 'WF-1', FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9', FormName: ''},
+      {rowid: 'OF2', WFOBJID: 'WF-1', FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-10', FormName: ''},
+    ]),
     WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }

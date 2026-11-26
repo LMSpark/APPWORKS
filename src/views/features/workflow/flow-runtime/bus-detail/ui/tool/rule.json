@@ -1,62 +1,108 @@
 [
   {
-    "id": "summary",
-    "type": "r-table",
+    "id": "businessDetail",
+    "type": "r-section",
     "props": {
-      "class": "bus-flow-detail-summary",
-      "dataViewKey": "E328FBBF518141973C575D612CD75151@WFOBJ_FLOW@default",
-      "stripe": true,
-      "showDataViewMeta": false
+      "class": "bus-flow-detail-page",
+      "title": "业务流程详情",
+      "bordered": false,
+      "gridColumns": 1,
+      "onBeforeRender": "bindBusinessDetail",
+      "on": {
+        "retry": "retryBusinessDetail"
+      },
+      "header": {
+        "children": [
+          {
+            "id": "pageActions",
+            "type": "r-toolbar",
+            "children": [
+              {
+                "id": "openRun",
+                "type": "r-button",
+                "props": {
+                  "label": "办理",
+                  "buttonType": "primary",
+                  "onClick": "openRun"
+                }
+              },
+              {
+                "id": "openDetail",
+                "type": "r-button",
+                "props": {
+                  "label": "运行详情",
+                  "onClick": "openDetail"
+                }
+              }
+            ],
+            "props": {
+              "onBeforeRender": "bindPrepared"
+            }
+          }
+        ]
+      }
     },
     "children": [
       {
-        "type": "r-text",
+        "id": "businessDetailTitle",
+        "type": "RenderBusinessDetailTitle",
         "props": {
-          "field": "TITLE",
-          "label": "流程标题",
-          "readonly": true,
-          "minWidth": 200
+          "className": "bus-flow-detail-page__title"
         }
       },
       {
-        "type": "r-text",
+        "id": "summary",
+        "type": "r-table",
         "props": {
-          "field": "status",
-          "label": "状态",
-          "readonly": true,
-          "minWidth": 100
-        }
+          "class": "bus-flow-detail-summary",
+          "dataViewKey": "E328FBBF518141973C575D612CD75151@WFOBJ_FLOW@default",
+          "stripe": true,
+          "showDataViewMeta": false,
+          "onBeforeRender": "bindPrepared"
+        },
+        "children": [
+          {
+            "type": "r-text",
+            "props": {
+              "field": "TITLE",
+              "label": "流程标题",
+              "readonly": true,
+              "minWidth": 200
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "status",
+              "label": "状态",
+              "readonly": true,
+              "minWidth": 100
+            }
+          },
+          {
+            "type": "r-text",
+            "props": {
+              "field": "BusTblObjID",
+              "label": "业务行",
+              "readonly": true,
+              "minWidth": 160
+            }
+          }
+        ]
       },
       {
-        "type": "r-text",
+        "id": "businessDetailForms",
+        "type": "RenderBusinessDetailForms",
         "props": {
-          "field": "BusTblObjID",
-          "label": "业务行",
-          "readonly": true,
-          "minWidth": 160
-        }
-      }
-    ]
-  },
-  {
-    "id": "pageActions",
-    "type": "r-toolbar",
-    "children": [
-      {
-        "id": "openRun",
-        "type": "r-button",
-        "props": {
-          "label": "办理",
-          "buttonType": "primary",
-          "onClick": "openRun"
-        }
-      },
-      {
-        "id": "openDetail",
-        "type": "r-button",
-        "props": {
-          "label": "运行详情",
-          "onClick": "openDetail"
+          "empty": {
+            "description": "未查询到业务表单"
+          },
+          "tabs": {
+            "class": "bus-flow-detail-page__tabs"
+          },
+          "pane": {
+            "lazy": true
+          }
         }
       }
     ]

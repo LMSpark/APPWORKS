@@ -64,7 +64,7 @@ const filter: RFilterProps = {
   autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
   children: [{type: 'r-select', props: {field: 'auth_status', label: '状态', placeholder: '全部状态', clearable: true, width: 160, ...dictionary(statusKey)}}],
 }
-const listView = computed(() => ready.value ? session.runtime?.getDataSet(scenarioId)?.getView(modelName, 'default') : undefined)
+const listView = computed(() => ready.value ? session.runtime?.resolveView(viewKey.value) : undefined)
 
 function status(view: DataView, row: DataRow): string {
   const value = row['auth_status']

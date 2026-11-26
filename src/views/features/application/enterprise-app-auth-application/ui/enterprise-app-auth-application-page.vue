@@ -51,7 +51,7 @@ const fields: SparkNode[] = [
     valueTagTypes: {PENDING: 'warning'}}},
   {type: 'r-text', props: {field: 'review_comment', label: '申请说明', readonly: true, minWidth: 200, showOverflowTooltip: true}},
 ]
-const listView = computed(() => ready.value ? session.runtime?.getDataSet(scenarioId)?.getView(modelName, 'default') : undefined)
+const listView = computed(() => ready.value ? session.runtime?.resolveView(viewKey.value) : undefined)
 const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) => {
   if (!row || !dataSource || dataSource.fieldAccess(row, 'auth_status').write !== 'allowed') return false
   return dataSource.fieldAccess(row, 'auth_status').read === 'visible' && row['auth_status'] === 'PENDING'

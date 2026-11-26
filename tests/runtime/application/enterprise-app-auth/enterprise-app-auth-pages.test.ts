@@ -7,6 +7,8 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, APPLY, BASE, MY, pagedataText, resetEnterpriseAppAuthFixture, REVIEW, session} from './enterprise-app-auth.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
+import myRequests from '../../../../config/pages/application/enterprise-app-auth/my-requests/pagedata.json'
+import reviewRequests from '../../../../config/pages/application/enterprise-app-auth/review/pagedata.json'
 
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
 vi.mock('element-plus', async importOriginal => {
@@ -111,6 +113,27 @@ async function type(placeholder: string, value: string): Promise<void> {
 const authReads = () => http.reads.filter(read => read.table === 'enterprise_app_auth').map(read => JSON.stringify(read.data))
 
 describe('我的申请', () => {
+  it('uses formal view identities for initial queries, dictionary labels and the original request action', async () => {
+    const original = pagedataText[MY]!
+    const {enterprise_app_auth: requestRows, app_auth_status: statusOptions, ...other} = myRequests.tables
+    pagedataText[MY] = JSON.stringify({...myRequests, tables: {requestRows, statusOptions, ...other}})
+    try {
+      const {runtime, rows} = await open(MyPage, MY)
+      expect(document.body.textContent).toContain('待审批')
+      expect(rows(`${MY}@enterprise_app_auth@default`)).toEqual(['A1', 'A2', 'A3'])
+      expect(runtime().resolveView(`${MY}@enterprise_app_auth@default`)?.tableName).toBe('requestRows')
+      expect(runtime().resolveView(`${MY}@app_auth_status@default`)?.tableName).toBe('statusOptions')
+      expect(runtime().resolveView(`${MY}@requestRows@default`)).toBeUndefined()
+      await click('取消申请')
+      expect(http.saves).toEqual([{table: 'enterprise_app_auth', added: [], deleted: [],
+        changed: [expect.objectContaining({id: 'A1', auth_status: 'CANCELLED'})]}])
+      expect(runtime().resolveView(`${MY}@enterprise_app_auth@default`)?.rows.find(row => row['id'] === 'A1')?.['auth_status'])
+        .toBe('CANCELLED')
+    } finally {
+      pagedataText[MY] = original
+    }
+  })
+
   it('在同一运行实例装配 47DA、0221 与 C06D，常驻范围只列本企业的 REQUEST，名称经选项视图显示', async () => {
     const {wrapper, observed, runtime, rows} = await open(MyPage, MY)
     expect(observed.size).toBe(1)
@@ -235,6 +258,27 @@ describe('申请应用授权', () => {
 })
 
 describe('申请列表', () => {
+  it('audits the original request with separately named main and company tables', async () => {
+    const original = pagedataText[REVIEW]!
+    const {enterprise_app_auth: requestRows, Base_Enterprise_Info: companyRows, ...other} = reviewRequests.tables
+    pagedataText[REVIEW] = JSON.stringify({...reviewRequests, tables: {requestRows, companyRows, ...other}})
+    try {
+      const {runtime, rows} = await open(ReviewPage, REVIEW)
+      const companyView = runtime().resolveView(`${REVIEW}@Base_Enterprise_Info@byShortName`)
+      expect(companyView?.tableName).toBe('companyRows')
+      expect(companyView?.rows.some(row => row['ShortName'] === 'OTHER')).toBe(true)
+      expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual(['R1'])
+      await click('审核')
+      expect(document.body.textContent).toContain('拒绝原因（不通过时填写）')
+      await click('通过')
+      expect(http.saves).toEqual([{table: 'enterprise_app_auth', added: [], deleted: [],
+        changed: [expect.objectContaining({id: 'R1', auth_status: 'INITIALIZING'})]}])
+      expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual([])
+    } finally {
+      pagedataText[REVIEW] = original
+    }
+  })
+
   it('常驻范围只列来源为本企业的待审批 REQUEST；通过只写 INITIALIZING 与操作人', async () => {
     const {wrapper, rows} = await open(ReviewPage, REVIEW)
     expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual(['R1'])

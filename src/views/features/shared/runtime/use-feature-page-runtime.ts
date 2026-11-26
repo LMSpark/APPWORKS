@@ -99,14 +99,13 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       })
       await current.load()
       if (!isCurrent(current, own)) return
-      const dataSet = current.getDataSet(scenarioId)
       const modelName = toValue(options.modelName)
       const viewId = toValue(options.viewId ?? 'default')
-      const view = dataSet?.getView(modelName, viewId)
+      const view = current.resolveView(buildDataViewKey(modelName, viewId, scenarioId))
       if (!view) throw new Error(`${title}缺少正式${modelName}@${viewId}视图`)
       const runtime = current
       const views = [view, ...(options.optionModels ?? []).map(name => {
-        const option = dataSet?.getView(name, 'default')
+        const option = runtime.resolveView(buildDataViewKey(name, 'default', scenarioId))
         if (!option) throw new Error(`${title}缺少正式${name}选项视图`)
         return option
       }), ...(options.optionViews ?? []).map(key => {

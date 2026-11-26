@@ -137,6 +137,18 @@ it('opens only the published AI operation route and leaves unrelated tools alone
   .toThrow('SMART_BID_PUBLICATION_IDENTITY_REQUIRED')
 })
 
+it.each([
+ {title:'制件与审定',pageId:'another-production-tool'},
+ {title:'签署与递交',pageId:'another-submission-tool'},
+ {title:'其他应用的工具',pageId:'smart-bid-authoring-page18'},
+])('leaves unrelated applications using $pageId on the ordinary page path',({title,pageId})=>{
+ expect(preparePublishedSmartBidPageCall({
+  path:'/apps/OTHER/fixture',
+  query:{},
+  meta:{title,type:'config-page',nodeId:'OTHER-NODE',pageId,tool:{projectId:'OTHER',pageId}},
+ })).toBeUndefined()
+})
+
 it.each(['知识目录与指南','ClassModel 登记','配置编审与启用','制件与审定','签署与递交','任务与问题'])
 ('binds page title %s through the published runtime',title=>{
  const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title}})
@@ -164,14 +176,37 @@ it('binds reused page 18 navigation by page identity instead of node title',()=>
 it('preserves auxiliary scenario bindings for standard action pages',()=>{
  const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
   query:{...route.query,additionalScenarioIds:'AUX'}})
- expect(prepared).toBeDefined()
- const host=prepared?.createHost({pageId:'TOOL',call:{instanceId:'RUNTIME',scenarioIds:['SPACE','AUX']}} as never)
- expect(host).toMatchObject({runtime:expect.anything()})
+ if(!prepared)throw Error('Missing standard action host')
+ const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE','AUX'],mainScenarioId:'SPACE',
+  scenarioInputs:prepared.scenarioInputs,loadScenario:async()=>{throw Error('Host binding cannot load a scenario')}})
+ try{expect(prepared.createHost(runtime)).toMatchObject({runtime})}
+ finally{runtime.dispose()}
+})
+
+it.each([
+ {mainScenarioId:'AUX',projectId:'PROJECT',currentUserId:'FIXTURE_USER'},
+ {mainScenarioId:'SPACE',projectId:'OTHER',currentUserId:'FIXTURE_USER'},
+ {mainScenarioId:'SPACE',projectId:'PROJECT',currentUserId:'OTHER'},
+])('rejects a standard action runtime with mismatched $mainScenarioId $projectId $currentUserId',binding=>{
+ const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
+  query:{...route.query,additionalScenarioIds:'AUX'}})
+ if(!prepared)throw Error('Missing standard action host')
+ const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE','AUX'],mainScenarioId:binding.mainScenarioId,
+  scenarioInputs:{SPACE:{projectId:binding.projectId,currentUserId:binding.currentUserId}},
+  loadScenario:async()=>{throw Error('Host binding cannot load a scenario')}})
+ try{expect(()=>prepared.createHost(runtime)).toThrow('SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT')}
+ finally{runtime.dispose()}
 })
 
 it('rejects blank command identities on standard action pages',async()=>{
  const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'}})
- const host=prepared?.createHost({pageId:'TOOL',call:{instanceId:'RUNTIME',scenarioIds:['SPACE']}} as never)
- await expect(host?.invoke('smart-bid.dispatch',{operationId:' ',requestKey:'',prompt:'采用',inputs:{}},
-  new AbortController().signal)).rejects.toThrow('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
+ if(!prepared)throw Error('Missing standard action host')
+ const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE'],mainScenarioId:'SPACE',
+  scenarioInputs:prepared.scenarioInputs,loadScenario:async()=>{throw Error('Invalid command cannot load a scenario')}})
+ try{
+  const host=prepared.createHost(runtime)
+  if(!('invoke' in host))throw Error('Missing standard action invocation')
+  await expect(host.invoke('smart-bid.dispatch',{operationId:' ',requestKey:'',prompt:'采用',inputs:{}},
+   new AbortController().signal)).rejects.toThrow('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
+ }finally{runtime.dispose()}
 })

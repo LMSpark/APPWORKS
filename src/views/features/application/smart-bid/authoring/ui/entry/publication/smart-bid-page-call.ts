@@ -7,6 +7,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {ClassModelRuntime,createDtsBundleClassModelKnowledgeProvider} from '@spark-appworks/spark-ai/class-model'
 import {getDtsClassModelManifestUrl} from '@/services/class-model-artifacts/artifact-urls'
+import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from '../content-authoring-target'
@@ -37,6 +38,7 @@ const standardActionPages=new Set(['制件与审定','签署与递交','任务�
 
 /** 把已闭合的业务页固定到本次 PageRuntime、ClassModel 和正式命令 owner。 */
 export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
+ if(resolveExecutionProjectId(route.path)!==applicationId)return undefined
  const nodeId=route.meta['nodeId'],pageId=route.meta['pageId'],scenarioId=route.meta['blueprintScenarioId']
  const normalizedPageId=typeof pageId==='string'?pageId:''
  const title=String(route.meta['title'])
@@ -94,6 +96,11 @@ function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
  const session=captureContentAuthoringSession({applicationId,scenarioId,projectId})
  return bindPublishedPageRuntime({entry,session,
   runtimeConflictError:'SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT',
+  validateRuntime(runtime){
+   const inputs=runtime.call.scenarioInputs?.[scenarioId]
+   if(runtime.call.mainScenarioId!==scenarioId||inputs?.['projectId']!==projectId
+    ||inputs['currentUserId']!==session.actorUserId)throw Error('SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT')
+  },
   createHost(runtime:PageRuntime){
    session.assertCurrent()
    const submit=createSmartBidPageActionSubmit(runtime,projectId,session.assertCurrent)

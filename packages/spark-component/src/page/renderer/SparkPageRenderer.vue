@@ -323,7 +323,13 @@ async function loadConfig():Promise<void> {
   return
  }
  if(!alive())return
- for(const id of runtime.call.scenarioIds){const ds=runtime.getDataSet(id);if(props.autoLoad)ds?.triggerAutoLoad();ds?.initAutoSelection()}
+ for(const id of runtime.call.scenarioIds){
+  // 按需装配可以早于初始化结束，查询和选择仍由原调用入口负责。
+  if(runtime.call.deferredScenarioIds?.includes(id))continue
+  const ds=runtime.getDataSet(id)
+  if(props.autoLoad)ds?.triggerAutoLoad()
+  ds?.initAutoSelection()
+ }
  invalidate()
 }
 onErrorCaptured(errorLike=>{if(activeRuntime && !controller?.signal.aborted)report('render',activeRuntime,errorLike)})

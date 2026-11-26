@@ -131,10 +131,11 @@ describe('configured DataView query completion', () => {
     view.queryContext = {count: (view.queryContext.count || 0) + 1, key: dataViewKey, aborted: signal.aborted,
       current: view.currentRow && view.currentRow.id};
   }`
-  async function fixture(scriptText = script, scenarioIds = ['one'], autoLoad = false, deferredScenarioIds:readonly string[] = []) {
+  type FixtureOptions = Readonly<{scenarioIds?: string[]; autoLoad?: boolean; loadDeferred?: 'before-mount' | 'after-load' | 'after-startup'}>
+  async function fixture(scriptText = script, {scenarioIds = ['one'], autoLoad = false, loadDeferred}: FixtureOptions = {}) {
     const tool = markRaw(new PageTool({pageId: 'completion'}))
     tool.hydrateFileText('rule.json', '[]'); tool.hydrateFileText('script.js', scriptText); tool.markLoaded()
-    const runtime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds, deferredScenarioIds, mainScenarioId: scenarioIds[0]!,
+    const runtime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds, deferredScenarioIds: loadDeferred ? ['late'] : [], mainScenarioId: scenarioIds[0]!,
       loadScenario: async scenarioId => SparkData.createDataSet({scenarioId, dataSetName: 'Completion', tables: {Internal: {
         tableName: 'Internal', resourceType: 'static-data', modelBinding: {modelId: 'M', modelName: 'Items'},
         columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {
@@ -145,14 +146,16 @@ describe('configured DataView query completion', () => {
     const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({render: () => h('div')})}]})
     await router.push('/'); await router.isReady()
     const onRuntimeError = vi.fn()
-    const wrapper = mount(SparkPageRenderer, {props: {pageRuntime: runtime, routeSnapshot, onRuntimeError},
+    if (loadDeferred === 'before-mount') await runtime.ensureScenarioLoaded('late')
+    const wrapper = mount(SparkPageRenderer, {props: {pageRuntime: runtime, routeSnapshot, onRuntimeError,
+      afterLoad: async () => {if (loadDeferred === 'after-load') await runtime.ensureScenarioLoaded('late')}},
       global: {plugins: [Spark.createPlugin(), router]}, slots: {content: () => h('div', 'ready')}})
     await flushPromises()
     return {runtime, wrapper, onRuntimeError, view: runtime.resolveView(`${scenarioIds[0]}@Items@default`)!}
   }
 
   it('runs for accepted queries in the right space/model/view, and detaches on release', async () => {
-    const {runtime, wrapper, view, onRuntimeError} = await fixture(script, ['one', 'two'])
+    const {runtime, wrapper, view, onRuntimeError} = await fixture(script, {scenarioIds: ['one', 'two']})
     try {
       expect(view.queryContext).toEqual({}) // hydration is not a request
       await view.refresh(); await flushPromises()
@@ -178,15 +181,16 @@ describe('configured DataView query completion', () => {
   })
 
   it('binds the handler before the initial automatic query', async () => {
-    const {wrapper, view} = await fixture(script, ['one'], true)
+    const {wrapper, view} = await fixture(script, {autoLoad: true})
     try {expect(view.queryContext).toMatchObject({count: 1, key: 'one@Items@default'})}
     finally {wrapper.unmount()}
   })
 
-  it('subscribes a deferred scenario before the caller queries it and detaches on unmount', async()=>{
-    const {runtime,wrapper,onRuntimeError}=await fixture(script,['one','late'],true,['late'])
+  it.each(['before-mount', 'after-load', 'after-startup'] as const)('preserves caller-owned queries for a deferred scenario loaded %s', async loadDeferred => {
+    const {runtime, wrapper, onRuntimeError, view: main} = await fixture(script, {scenarioIds: ['one', 'late'], autoLoad: true, loadDeferred})
     try{
-      expect(runtime.getDataSet('late')).toBeUndefined()
+      expect(main.queryContext).toMatchObject({count: 1, key: 'one@Items@default'})
+      expect(runtime.getDataSet('late') !== undefined).toBe(loadDeferred !== 'after-startup')
       const dataSet=await runtime.ensureScenarioLoaded('late')
       const view=dataSet.getView('Internal')!
       expect(view.queryContext).toEqual({})

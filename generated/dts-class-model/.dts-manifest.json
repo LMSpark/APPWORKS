@@ -2624,7 +2624,7 @@
     "packages/spark-component/src/page/renderer/SparkPageRenderer.vue": {
       "sourceFile": "packages/spark-component/src/page/renderer/SparkPageRenderer.vue",
       "shardFile": "files/packages/spark-component/src/page/renderer/SparkPageRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-25T23:41:38.566Z"
+      "sourceModifiedAt": "2026-11-25T23:58:44.024Z"
     },
     "packages/spark-component/src/page/renderer/useCssScope.ts": {
       "sourceFile": "packages/spark-component/src/page/renderer/useCssScope.ts",

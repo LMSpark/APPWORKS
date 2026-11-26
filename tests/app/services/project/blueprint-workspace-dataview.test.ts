@@ -1,5 +1,5 @@
-import {describe, expect, it} from 'vitest'
-import {DataSet, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {describe, expect, it, vi} from 'vitest'
+import {DataSet, DataSpaceApiError, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@/platform-adapters/api'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 
@@ -8,7 +8,8 @@ const FIELDS=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode
   'NavigationImageWxz','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment',
   'IsShowAtNav','IsShowChildItem','BeginGroup','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
 type FixtureOptions=Readonly<{hiddenFields?:readonly string[];editableByRow?:Readonly<Record<string,readonly string[]>>;outputFields?:readonly string[];
-  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;allowAdd?:boolean;allowChild?:boolean;preparedOverride?:Readonly<DataRow>}>
+  omitTotal?:boolean;totalDelta?:number;orphan?:boolean;unknownFirstSave?:boolean;firstSaveRejection?:DataSpaceApiError;
+  allowAdd?:boolean;allowChild?:boolean;preparedOverride?:Readonly<DataRow>}>
 
 function initialRows():DataRow[]{return [
   {rowid:'NAV-ROOT',SysId:PROJECT,prowid:'000000',FunOrderValue:0,name:'APP',FunName:'APP',funCode:'APP',conid:'',conType:'Model',NavigationUrl:''},
@@ -79,6 +80,7 @@ function createFixture(options:FixtureOptions={}){
     },
     save:async command=>{
       saveAttempts++
+      if(saveAttempts===1&&options.firstSaveRejection)throw options.firstSaveRejection
       const added=command.changes[0]?.changes.added??[]
       const changes=command.changes[0]?.changes.changed??[]
       const ids=[...added,...changes].map(row=>String(row['rowid']??''))
@@ -119,6 +121,30 @@ function createFixture(options:FixtureOptions={}){
 
 function findNode(node:{nodeId:string;children?:readonly any[]},id:string):any{return node.nodeId===id?node:node.children?.map(child=>findNode(child,id)).find(Boolean)}
 function withPosition(node:any,parentNodeId:string,order:number):any{return {...node,parentNodeId,navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}}}
+
+it('settles a formally rejected publication pointer and preserves a later explicit save',async()=>{
+  const refusal=new DataSpaceApiError(409,'publication pointer request rejected')
+  const fixture=createFixture({editableByRow:{'NAV-BOUND':['VersionId']},firstSaveRejection:refusal})
+  const {owner}=fixture
+  const progress={beforeSubmit:vi.fn(),accepted:vi.fn(),rejected:vi.fn()}
+  await owner.load('NAV-BOUND')
+  owner.update('VersionId','r=1;s=1;t=1;m=1')
+  await expect(owner.saveSelectedNode(progress)).rejects.toBe(refusal)
+  expect(progress.beforeSubmit).toHaveBeenCalledOnce()
+  expect(progress.rejected).toHaveBeenCalledOnce()
+  expect(progress.accepted).not.toHaveBeenCalled()
+  expect(owner.hasPendingBlueprintCommand).toBe(false)
+  expect(fixture.saveAttempts()).toBe(1)
+  expect(fixture.writeCount()).toBe(0)
+  owner.cancel()
+  expect(owner.value('VersionId')).toBe('')
+  owner.update('VersionId','r=2;s=2;t=2;m=2')
+  await owner.saveSelectedNode(progress)
+  expect(progress.accepted).toHaveBeenCalledOnce()
+  expect(fixture.saveRequests).toEqual([{ids:['NAV-BOUND'],patches:[expect.objectContaining({VersionId:'r=2;s=2;t=2;m=2'})]}])
+  expect(owner.hasPendingBlueprintCommand).toBe(false)
+  expect(owner.value('VersionId')).toBe('r=2;s=2;t=2;m=2')
+})
 
 describe('BlueprintWorkspaceDataView direct DataSet contract',()=>{
   it.each([null,'','  '])('does not accept an owner-prepared empty value in place of numeric zero (%s)',async value=>{

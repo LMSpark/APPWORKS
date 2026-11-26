@@ -4,7 +4,8 @@
  * 边界：项目蓝图绑定正式 Base_NavigationInfo；不复制业务草稿。
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
-import {buildDataViewKey, DataSetSavePreflightError, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import {decodeProjectBlueprintRows, encodeProjectBlueprintFields, validateProjectBlueprintRecords, type ProjectBlueprintRecord} from '@spark-appworks/spark-project-model'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
@@ -1728,7 +1729,8 @@ export class BlueprintWorkspaceDataView {
     this.#unconfirmedIds=[...changedIds]
     this.#unconfirmedPatches=new Map([...patches].filter(([key])=>changedIds.includes(key)))
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]}).catch(error => {
-      if (progress && !this.hasUnconfirmedSave && (error instanceof DataSetSavePreflightError || (error instanceof LowcodeApiError && error.code !== 0))) {
+      if (progress && !this.hasUnconfirmedSave && (error instanceof SparkData.DataSetSavePreflightError
+        || error instanceof SparkData.DataSpaceApiError || (error instanceof LowcodeApiError && error.code !== 0))) {
         this.#unconfirmedIds=[]
         this.#unconfirmedPatches.clear()
         progress.rejected()

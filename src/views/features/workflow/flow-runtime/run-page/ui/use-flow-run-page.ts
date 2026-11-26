@@ -316,15 +316,18 @@ export function useFlowRunPage(routeQuery: () => ReturnType<typeof readFlowRunti
   const backToCreator = () => runParameterAction('toCreator')
 
   function openAppendDialog(): void {
-    if (navigationBlocked()) return
+    if (navigationBlocked() || appendOpen.value) return
     if (approvalWorkspace.value?.active || hasPendingApproval() || hasPendingAppendInput()) {handleError.value = '请先确认、取消办理参数或核验原审批命令'; return}
-    const step = readCurrentStep()
-    appendContext.value = buildAppendUserContext(step)
-    if (!appendContext.value) {
-      pageError.value = '当前步骤不支持加签'
-      return
+    handleError.value = ''
+    try {
+      const view = getRuntime()?.resolveView(stepViewKey.value)
+      const step = readCurrentStep()
+      if (!view || !step) throw Error('当前步骤不支持加签')
+      appendContext.value = buildAppendUserContext(view, step)
+      appendOpen.value = true
+    } catch (error) {
+      handleError.value = error instanceof Error ? error.message : '读取加签步骤失败'
     }
-    appendOpen.value = true
   }
 
   async function revokeCurrentStep(): Promise<void> {

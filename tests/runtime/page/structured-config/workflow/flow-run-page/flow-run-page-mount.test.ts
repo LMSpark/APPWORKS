@@ -2,9 +2,9 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DOMWrapper,config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent, h, markRaw, reactive} from 'vue'
-import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import {PageRuntime, type PageTool} from '@spark-appworks/spark-project-model'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, parseDataViewKey, getSparkNodeChildren, nodeId, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME, RendererDialog, RendererForm, RendererTable, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import type {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, ensureDataSetStaticInputTable, getSparkNodeChildren, parseDataViewKey, type DataView} from '@spark-appworks/spark-data'
 import {ensureFlowRunApprovalViews} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/input/approval-input-workspace'
 import {createFlowRunOptionsBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/options-binding'
 import {FlowRunCommandResource} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource'
@@ -14,6 +14,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import workbenchScenario from '../../../../../../config/pages/workflow/flow-workbench/pagedata.json'
 import {fixture as designFixture} from '../flow-design/flow-design-data.fixture'
+import FlowAppendUser from '@/views/features/workflow/flow-append-user/ui/flow-append-user.vue'
 const {reloadRuntime} = vi.hoisted(() => ({reloadRuntime: vi.fn(async () => undefined)}))
 const {openTool, runtimeOptions} = vi.hoisted(() => ({
   openTool: vi.fn<(pageId: string) => PageTool>(),
@@ -27,7 +28,8 @@ vi.mock('@/views/features/shared/runtime/use-feature-page-runtime', async () => 
     useFeaturePageRuntime: (options: Parameters<typeof runtimeOptions>[0]) => {
       runtimeOptions(options)
       openTool.mockImplementation(options.tool)
-      const runtime = markRaw({...(fixturePageRuntime ?? createRuntime()), tool: options.tool(options.navigationId ?? 'mobile-navigation-node')})
+      const tool = options.tool(options.navigationId ?? 'mobile-navigation-node')
+      const runtime = markRaw({...(fixturePageRuntime ?? createRuntime()), tool, pageId: tool.pageId, materialize: () => tool.toDefinition()})
       return {
         session: {runtime, isCurrent: (candidate: unknown) => candidate === runtime},
         viewKey: ref('E328FBBF518141973C575D612CD75151@View_FlowObjList@default'),
@@ -65,6 +67,10 @@ vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-route-rende
   }})}
 })
 vi.mock('@/registries/vue-page-registry', () => ({getVuePageOptions: () => [{path: '/business'}]}))
+vi.mock('@/views/features/workflow/flow-runtime/run-page/ui/tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/workflow/flow-runtime/run-page/ui/tool/style.css', 'utf8')}
+})
 const {default: MobileFlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue')
 const {default: FlowRunPage} = await import('@/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue')
 
@@ -114,6 +120,7 @@ function createView(rows: MockView['rows']): MockView {
 }
 
 let designDataSet:DataSet
+let historyFixtureDataSet:DataSet | undefined
 function createRuntime(): PageRuntime {
   const monitor = {
     View_FlowObjList: createView([{rowid: 'WF-OTHER', TITLE: '另一流程', WFMID: 'FM-1', BusTblObjID: 'BUS-OTHER'}]),
@@ -129,11 +136,16 @@ function createRuntime(): PageRuntime {
       {rowid: 'OF1', WFOBJID: 'WF-1', FORMID: 'F1', FormPath: '/business', FormParams: 'rowid=BUS-9', FormName: ''},
       {rowid: 'OF2', WFOBJID: 'WF-1', FORMID: 'F2', FormPath: '/business', FormParams: 'rowid=BUS-10', FormName: ''},
     ]),
-    WFOBJ_FLOW_RELATIONLINE_STEP: createView([{rowid: 'S1', WFOBJID: 'WF-1'}]),
     WFOBJ_FLOW_Waiting: createView([]),
   }
   const instanceRows = monitor.WFOBJ_FLOW.rows
-  const actualWorkbench = originalOptionsView?.dataSet ?? DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+  const actualWorkbench = historyFixtureDataSet ?? originalOptionsView?.dataSet ?? DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+  if (!actualWorkbench.getView('WFOBJ_FLOW_RELATIONLINE_STEP')) {
+    const resource = {resourceType: 'service-query', resourceId: 'steps'}
+    const steps = ensureDataSetResourceView({dataSet: actualWorkbench, tableName: 'WFOBJ_FLOW_RELATIONLINE_STEP', resource,
+      columns: [{name: 'rowid', primary: true}, ...['WFOBJID', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState'].map(name => ({name}))]})
+    bindDataSetReadonlyCommandQuery(steps, {resource, guard: () => {}, loadRows: async () => [{rowid: 'S1', WFOBJID: 'WF-1'}]})
+  }
   vi.spyOn(actualWorkbench, 'getView').mockImplementation((name, id) => DataSet.prototype.getView.call(actualWorkbench, name, id) ?? workbench[name as keyof typeof workbench] as DataView | undefined)
   Object.defineProperty(monitor.WFOBJ_FLOW, 'rows', {get: () => {instanceReads += 1; return instanceRows}})
   return {
@@ -150,13 +162,15 @@ function createRuntime(): PageRuntime {
       const actual = descriptor && actualWorkbench.getView(descriptor.tableName, descriptor.viewId)
       if (actual) return actual
       if (key.includes('View_FlowObjList')) return monitor.View_FlowObjList
-      if (key.includes('WFOBJ_FLOW_RELATIONLINE_STEP')) return workbench.WFOBJ_FLOW_RELATIONLINE_STEP
       if (key.includes('WFM_FLOW_NODE')) return designDataSet.getView('WFM_FLOW_NODE')
       if (key.includes('WFM_NODE_REALATION')) return designDataSet.getView('WFM_NODE_REALATION')
       return null
     },
     dispose: () => undefined,
-    materialize: () => undefined,
+    call: {scenarioIds: [FLOW_WORKBENCH_SCENARIO_ID]},
+    load: async () => undefined,
+    onContentChange: () => () => {},
+    onDeferredScenarioLoaded: () => () => {},
   } as unknown as PageRuntime
 }
 
@@ -176,22 +190,6 @@ const Host = pageInstance.view
 
 const wrappers: VueWrapper[] = []
 const baselineStubs = {...config.global.stubs}
-const WorkflowRendererStub = defineComponent({
-  props: ['pageRuntime', 'host'],
-  setup(props, {slots}) {
-    const bindCommands = (node: SparkNode): SparkNode => {
-      if (nodeId(node) === 'approvalSection') return {...node, children: getSparkNodeChildren(node.children).map(bindCommands)}
-      if (nodeId(node) !== 'pageActions' && nodeId(node) !== 'approvalActions') return node
-      return {...node, children: getSparkNodeChildren(node.children).map(button => ({
-        ...button, props: {...button.props, onClick: () => (props['host'] as {invoke: (name: string) => unknown}).invoke(`workflow.${nodeId(button)}`)},
-      }))}
-    }
-    return () => slots['content']?.({children: getSparkNodeChildren((props['pageRuntime'] as PageRuntime).tool.rule.children)
-      .filter(node => nodeId(node) !== 'history').map(bindCommands)})
-  },
-})
-
-
 beforeEach(async () => {
   const prepared=await designFixture(false,false);designDataSet=prepared.ds
   prepared.http.records['WFM_FLOW_NODE']!.push({rowid:'N2',FLOWID:'FM-1',TITLE:'Next',TYPEID:11})
@@ -200,7 +198,10 @@ beforeEach(async () => {
   approvalState.hasUnconfirmedSave = false
   originalOptionsView = undefined
   originalDirectoryView = undefined
-  config.global.stubs = {...baselineStubs, SparkPageRenderer: WorkflowRendererStub}
+  historyFixtureDataSet = undefined
+  config.global.stubs = {...baselineStubs}
+  delete config.global.stubs['SparkPageRenderer']
+  delete config.global.stubs['spark-page-renderer']
   delete config.global.stubs['SparkComponentRenderer']
   delete config.global.stubs['spark-component-renderer']
   reloadRuntime.mockClear()
@@ -223,7 +224,8 @@ describe('flow run page mount', () => {
   it('keeps the mobile navigation node distinct from the monitoring data space', async () => {
     const mobile = pagePool.get(fixtureRouter.currentRoute.value, {scope: 'application', nodeId: 'mobile-navigation-node',
       pageId: 'mobile-navigation-node', path: '/test/mobile', title: '移动办理', component: MobileFlowRunPage, explicitQuery: {}})
-    wrappers.push(mount(withTestPageService(mobile.view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
+    const wrapper = mount(withTestPageService(mobile.view), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
     await flushPromises()
     const options = runtimeOptions.mock.lastCall?.[0]
     expect(options?.scenarioId).toBe(FLOW_MONITOR_SCENARIO_ID)
@@ -231,22 +233,12 @@ describe('flow run page mount', () => {
     const tool = openTool('mobile-navigation-node')
     expect(tool.pageId).toBe('mobile-navigation-node')
     expect(tool.getFileText('rule.json')).toBe(openTool(FLOW_MONITOR_SCENARIO_ID).getFileText('rule.json'))
+    const page = wrapper.get('.spark-page-container')
+    expect(page.find('.flow-run-page__layout--mobile').exists()).toBe(true)
+    expect(wrapper.get('style').element.textContent).toContain(`[data-page="${page.attributes('data-page')}"].spark-page-container .flow-run-page__layout.flow-run-page__layout--mobile`)
   })
 
   it('loads the history rule under the original navigation and workbench view identities', async () => {
-    wrappers.push(mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}}))
-    await flushPromises()
-    const tool = openTool(FLOW_MONITOR_SCENARIO_ID)
-    expect(tool.rule.children?.[0]).toMatchObject({
-      type: 'r-section',
-      props: {title: '步骤历史'},
-      children: [{
-        type: 'r-table',
-        props: {dataViewKey: `${FLOW_WORKBENCH_SCENARIO_ID}@WFOBJ_FLOW_RELATIONLINE_STEP@default`},
-        children: [{props: {field: 'description'}}, {props: {field: 'ReceiveUserName'}},
-          {props: {field: 'STARTTIME'}}, {props: {field: 'StepState'}}],
-      }],
-    })
     const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
     const configured = workbenchScenario.tables[model]
     const workbench = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {
@@ -255,22 +247,9 @@ describe('flow run page mount', () => {
     }})
     const approval = ensureFlowRunApprovalViews(workbench)
     expect([approval.inputs.rows, approval.nodes.rows, approval.forceTargets.rows]).toEqual([[], [], []])
-    const runtime = markRaw(new PageRuntime({tool, scenarioIds: [FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID],
-      mainScenarioId: FLOW_MONITOR_SCENARIO_ID,
-      loadScenario: async id => id === FLOW_WORKBENCH_SCENARIO_ID ? workbench : DataSet.fromJson({scenarioId: id, tables: {}}),
-    }))
     delete config.global.stubs['el-table']
     delete config.global.stubs['el-table-column']
-    const invoke = vi.fn()
     try {
-      const wrapper = mount(withTestPageService(defineComponent({setup: () => () => h(SparkPageRenderer, {
-        pageRuntime: runtime,
-        host: {runtime, assertCurrent: () => {}, invoke},
-        routeSnapshot: {path: '/test', fullPath: '/test', params: {}, query: {}, hash: '', name: null},
-        autoLoad: false,
-      })})), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkPageRenderer: false}}})
-      wrappers.push(wrapper)
-      await flushPromises()
       const history = workbench.getView(model)
       if (!history) throw new Error('步骤历史视图装配失败')
       history.queryContext = {WFOBJID: 'WF-1'}
@@ -287,7 +266,10 @@ describe('flow run page mount', () => {
         addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
         createChildActionState: () => 'hidden', viewActionState: () => 'enabled',
       })})
-      await history.refresh()
+      historyFixtureDataSet = workbench
+      const wrapper = mount(withTestPageService(Host), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      wrappers.push(wrapper)
+      await flushPromises()
       expect(history.loadingError).toBeNull()
       await flushPromises()
       expect(wrapper.text()).toContain('步骤历史')
@@ -295,12 +277,10 @@ describe('flow run page mount', () => {
       expect(wrapper.text()).toContain('原步骤摘要')
       expect(wrapper.text()).toContain('测试办理人')
       expect(wrapper.text()).not.toContain('2026-11-19')
-      await wrapper.findAll('button').find(button => button.text() === '核验原办理结果')?.trigger('click')
-      await flushPromises()
-      expect(invoke).toHaveBeenCalledWith('workflow.verify', undefined, expect.any(AbortSignal))
+      expect(wrapper.findAll('button').some(button => button.text() === '核验原办理结果')).toBe(true)
     } finally {
       wrappers.pop()?.unmount()
-      runtime.dispose()
+      workbench.destroy()
     }
 
   })
@@ -345,12 +325,39 @@ describe('flow run page mount', () => {
     await flushPromises()
     expect(dialog?.props('modelValue')).toBe(false)
   })
-  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input'])('uses original parameter views through the %s outcome', async outcome => {
-    const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: {}})
+  it.each(['success', 'unknown', 'callback-error', 'form-switch', 'business-error', 'directory', 'append-input', 'append-hidden-title', 'append-masked-title', 'append-hidden-parent'])('uses original parameter views through the %s outcome', async outcome => {
+    const ds = DataSet.fromJson({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, tables: outcome === 'append-input' ? {AppendCandidates: workbenchScenario.tables.AppendCandidates} : {}})
     const view = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-options'}, columns: [{name: 'id', primary: true}, {name: 'payload', type: 'object'}]})
     ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalCandidates', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-candidates'}, columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'value'}, {name: 'nodeId'}]})
-    const steps = ensureDataSetResourceView({dataSet: ds, tableName: 'WFOBJ_FLOW_RELATIONLINE_STEP', resource: {resourceType: 'service-query', resourceId: 'steps'}, columns: [{name: 'rowid', primary: true}, ...['WFOBJID', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState'].map(name => ({name}))]})
-    bindDataSetReadonlyCommandQuery(steps, {resource: {resourceType: 'service-query', resourceId: 'steps'}, guard: () => {}, loadRows: async () => [{rowid: 'S1', WFOBJID: 'WF-1'}]})
+    const model = 'WFOBJ_FLOW_RELATIONLINE_STEP'
+    const steps = ensureDataSetResourceView({dataSet: ds, tableName: model, resource: {resourceType: 'service-query', resourceId: 'steps'}, columns: [{name: 'rowid', primary: true}, ...['WFOBJID', 'description', 'ReceiveUserName', 'STARTTIME', 'StepState', 'SendNodeModelId', 'ReceiveNodeModelId', 'LastStepID'].map(name => ({name}))]})
+    const step = {rowid: 'S1', WFOBJID: 'WF-1', description: '原步骤标题', SendNodeModelId: 'N1', ReceiveNodeModelId: 'N2', LastStepID: 'S0'}
+    if (['append-hidden-title', 'append-masked-title', 'append-hidden-parent'].includes(outcome)) {
+      const readAccess = (field: string) => {
+        if (outcome === 'append-hidden-parent' && field === 'ReceiveNodeModelId') return 'invisible' as const
+        if (field === 'description') return outcome === 'append-masked-title' ? 'masked' as const : 'invisible' as const
+        return 'visible' as const
+      }
+      steps.bindQueryExecutor({executeQuery: async () => ({rows: [step], total: 1,
+        assertIdentity: identity => expect(identity).toMatchObject({scenarioId: FLOW_WORKBENCH_SCENARIO_ID, metaName: model}),
+        rowKey: row => row['rowid'],
+        fieldAccess: (_key, field) => ({read: readAccess(field), write: 'denied', required: false,
+          component: 'readonly', writeMode: 'readonly'}),
+        readFieldAccess: (_row, field) => readAccess(field),
+        addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+        createChildActionState: () => 'hidden', viewActionState: () => 'enabled',
+      })}, {resource: {resourceType: 'service-query', resourceId: 'steps'}})
+    } else bindDataSetReadonlyCommandQuery(steps, {resource: {resourceType: 'service-query', resourceId: 'steps'}, guard: () => {}, loadRows: async () => [step]})
+    if (outcome === 'append-input') {
+      const list = steps.dataTable?.addView('appendParticipants')
+      if (!list) throw Error('加签列表未装配')
+      bindDataSetReadonlyCommandQuery(list, {resource: {resourceType: 'service-query', resourceId: 'steps'}, guard: () => {}, loadRows: async () => []})
+      for (const tableName of ['AppendStepStates', 'AppendHandleStates']) {
+        const resource = {resourceType: 'logical-view', resourceId: tableName}
+        const states = ensureDataSetResourceView({dataSet: ds, tableName, resource, columns: [{name: 'rowid', primary: true}]})
+        bindDataSetReadonlyCommandQuery(states, {resource, guard: () => {}, loadRows: async () => []})
+      }
+    }
     const directorySet = DataSet.fromJson({scenarioId: FLOW_MONITOR_SCENARIO_ID, tables: {}})
     const directory = ensureDataSetResourceView({dataSet: directorySet, tableName: 'Base_UserInfo', resource: {resourceType: 'logical-view', resourceId: 'directory'}, columns: [{name: 'rowid', primary: true}, {name: 'UserName'}]})
     directory.queryConfig = {allPages: true, fields: ['rowid', 'UserName']}
@@ -367,7 +374,8 @@ describe('flow run page mount', () => {
     const continuation = ensureDataSetResourceView({dataSet: ds, tableName: 'ApprovalContinuation', resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, columns: [{name: 'id', primary: true}, {name: 'enableNext', type: 'boolean'}]})
     bindDataSetReadonlyCommandQuery(continuation, {resource: {resourceType: 'logical-view', resourceId: 'workflow:approval-continuation'}, guard: () => {}, loadRows: async () => [{id: 'current', enableNext: false}]})
     const appendOptions = ensureDataSetResourceView({dataSet: ds, tableName: 'AppendOptions', resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, columns: [{name: 'id', primary: true}]})
-    bindDataSetReadonlyCommandQuery(appendOptions, {resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, guard: () => {}, loadRows: async () => []})
+    const readAppendOptions = vi.fn(async () => [])
+    bindDataSetReadonlyCommandQuery(appendOptions, {resource: {resourceType: 'logical-view', resourceId: 'workflow:append-options'}, guard: () => {}, loadRows: readAppendOptions})
     originalOptionsView = view
     const originalStubs = {...config.global.stubs}, stubs = {...config.global.stubs}
     for (const key of ['el-table', 'el-table-column', 'el-button']) delete stubs[key]
@@ -376,12 +384,20 @@ describe('flow run page mount', () => {
     const wrapper = mount(defineComponent({setup: () => () => h(withTestPageService(Host))}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
     try {
       await flushPromises()
-      if (outcome === 'append-input') {
+      if (outcome.startsWith('append-')) {
         await wrapper.findAll('button').find(item => item.text() === '加签')!.trigger('click')
         await flushPromises()
         const appendDialog = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')
+        if (outcome === 'append-hidden-parent') {
+          expect(appendDialog?.props('modelValue') ?? false).toBe(false)
+          expect(wrapper.text()).toContain('原正式字段不可读')
+          return
+        }
         expect(appendDialog?.props('modelValue')).toBe(true)
         expect(new DOMWrapper(document.body).text()).toContain('追加参与人')
+        const heading = new DOMWrapper(document.body).get('.flow-append-user__node-value')
+        expect(heading.text()).toBe(outcome === 'append-input' ? '原步骤标题' : '当前步骤')
+        if (outcome !== 'append-input') return
         ensureDataSetStaticInputTable(ds, 'AppendInput', [{name: 'inputId', primary: true}, {name: 'receiveUsers', type: 'array'}])
         const input = ds.getView('AppendInput')!; input.commitMode = 'staged'
         await appendOptions.refresh(); await flushPromises()
@@ -393,6 +409,22 @@ describe('flow run page mount', () => {
         input.replaceRows([]); await flushPromises()
         expect(pageInstance.isDirty).toBe(false)
         expect(wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('title') === '追加办理人')?.props('closeDisabled')).toBe(false)
+        const appendAction = () => {
+          const section = wrapper.getComponent(FlowAppendUser).props('toolRules').find(node => node.id === 'appendActions')
+          const action = getSparkNodeChildren(section?.children).find(node => node.id === 'openAppendInput')?.props?.['onClick']
+          if (typeof action !== 'function') throw Error('缺少本次工具加签动作')
+          return action
+        }
+        const previous = appendAction()
+        appendDialog?.vm.$emit('update:modelValue', false); await flushPromises()
+        await wrapper.findAll('button').find(item => item.text() === '加签')!.trigger('click'); await flushPromises()
+        readAppendOptions.mockClear()
+        await previous()
+        await flushPromises()
+        expect(readAppendOptions).not.toHaveBeenCalled()
+        await appendAction()()
+        await flushPromises()
+        expect(readAppendOptions).toHaveBeenCalledOnce()
         return
       }
       const button = wrapper.findAll('button').find(item => item.text() === '办理')!

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, markRaw, ref, shallowRef, type PropType} from 'vue'
 import ElementPlus from 'element-plus'
-import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type SparkNode} from '@spark-appworks/spark-data'
+import {DataSet, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, getSparkNodeChildren, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererTable, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
@@ -95,7 +95,11 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => h(SparkPageRenderer, {pageRuntime: runtime, host, autoLoad: false,
       routeSnapshot: {path: '/test', fullPath: '/test', name: null, params: {}, query: {}, hash: ''}},
-    {content: ({children}: {children: SparkNode[]}) => h(AppendHost, {toolRules: children})})
+    {content: ({children}: {children: SparkNode[]}) => {
+      const appendRules = getSparkNodeChildren(children[0]?.children).find(node => node.id === 'workflowAppend')?.props?.['rules']
+      if (!Array.isArray(appendRules)) throw Error('办理工具未声明追加办理人规则')
+      return h(AppendHost, {toolRules: getSparkNodeChildren(appendRules)})
+    }})
   }})
   const originalStubs = {...config.global.stubs}, stubs = {...originalStubs}
   for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column', 'el-button']) delete stubs[key]

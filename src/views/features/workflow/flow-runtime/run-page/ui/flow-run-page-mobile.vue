@@ -14,6 +14,4 @@ import FlowRunPage from './flow-run-page.vue'
 
 <style scoped>
 .flow-run-page-mobile {padding: 4px}
-.flow-run-page-mobile :deep(.flow-run-page__layout) {grid-template-columns: 1fr}
-.flow-run-page-mobile :deep(.flow-run-page__handle) {position: static; width: 100%}
 </style>

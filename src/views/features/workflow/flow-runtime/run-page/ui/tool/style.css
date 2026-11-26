@@ -1,1 +1,11 @@
 .flow-run-history { margin-top: 16px; }
+.flow-run-page__layout {display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start}
+.flow-run-page__title {margin: 0 0 12px; font-weight: 600}
+.flow-run-page__business {min-width: 0}
+.flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
+.flow-run-page__layout.flow-run-page__layout--mobile {grid-template-columns: 1fr}
+.flow-run-page__layout--mobile .flow-run-page__handle {position: static; width: 100%}
+@media (max-width: 960px) {
+  .flow-run-page__layout {grid-template-columns: 1fr}
+  .flow-run-page__handle {grid-column: 1}
+}

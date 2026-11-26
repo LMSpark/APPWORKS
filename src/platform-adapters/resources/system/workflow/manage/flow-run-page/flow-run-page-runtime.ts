@@ -8,6 +8,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FLOW_DESIGN_SCENARIO_ID} from '../flow-design-client'
 import {FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '../flow-runtime-client'
 import type {FlowAppendUserContext} from '../flow-append-user'
+import {captureFlowAppendStep} from '../flow-append-user/flow-append-user-list'
 
 const FLOW_OBJ_MODEL = 'WFOBJ_FLOW'
 const FORM_MODEL = 'WFM_WORKFORM'
@@ -67,14 +68,6 @@ export function captureFlowWorkbenchInstance(view: DataView | undefined, target:
     if ((businessRowId === null ? '' : businessRowId) !== target.businessRowId) throw Error('审批业务行与正式实例不符')
   }
   return assertObject
-}
-
-function firstText(row: Record<string, unknown>, keys: readonly string[]): string {
-  for (const key of keys) {
-    const text = String(row[key] ?? '').trim()
-    if (text) return text
-  }
-  return ''
 }
 
 function assertCompleteForms(view: DataView): void {
@@ -206,19 +199,21 @@ export async function prepareFlowRunPage(command: PrepareFlowRunPageCommand): Pr
   }
 }
 
+/** 从当前原步骤行证明加签关系与可读描述，再生成仅供本次窗口消费的上下文。 */
 export function buildAppendUserContext(
-  step: Record<string, unknown> | null | undefined,
-): FlowAppendUserContext | null {
-  if (!step || !isRecord(step)) return null
-  const rowid = firstText(step, ['rowid', 'ROWID'])
-  const wfId = firstText(step, ['WFOBJID', 'wfid'])
-  if (!rowid || !wfId) return null
-  return {
-    rowid,
-    WFOBJID: wfId,
-    SendNodeModelId: firstText(step, ['SendNodeModelId']),
-    ReceiveNodeModelId: firstText(step, ['ReceiveNodeModelId']),
-    LastStepID: firstText(step, ['LastStepID', 'lastStepID']),
-    TITLE: firstText(step, ['TITLE', 'description', 'ReceiveNodeModelId']),
+  view: DataView, step: DataView['rows'][number],
+): FlowAppendUserContext {
+  const target = {
+    rowid: formText(step['rowid']), WFOBJID: formText(step['WFOBJID']),
+    SendNodeModelId: formText(step['SendNodeModelId']), ReceiveNodeModelId: formText(step['ReceiveNodeModelId']),
+    LastStepID: formText(step['LastStepID']),
   }
+  if (!view.rows.includes(step)) throw Error('追加参与人缺少原步骤查询行')
+  captureFlowAppendStep(view, target)()
+  let title = ''
+  if (view.fieldAccess(step, 'description').read === 'visible') {
+    view.captureReadRow(step, ['description'])()
+    title = formText(step['description'])
+  }
+  return {...target, TITLE: title || '当前步骤'}
 }

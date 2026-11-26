@@ -3,50 +3,13 @@
 职责：流程办理桌面页：业务页签、办理侧栏、提交/退回与加签/流程图对话框。
 -->
 <template>
-  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false">
-    <template #content="{children}">
-      <SparkComponent.RendererSection class="flow-run-page" title="流程办理" :bordered="false" :grid-columns="1"
-        :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell">
-        <template v-if="prepared" #header-actions>
-          <SparkComponentRenderer v-for="node in actionToolbars(children, 'pageActions')" key="pageActions" :config="node" />
-        </template>
-        <SparkComponent.RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPendingWork()" @click="retryShell" />
-        <div v-if="prepared" class="flow-run-page__layout">
-          <section class="flow-run-page__business">
-            <p class="flow-run-page__title">{{ prepared.instanceTitle }}</p>
-            <SparkComponent.DisplayAlert v-if="handleError" alert-type="error" :closable="false" :show-icon="true" :title="handleError" />
-            <SparkComponent.DisplayEmpty v-if="businessTabs.length === 0" description="未查询到业务页签" />
-            <SparkComponent.RendererTabs v-else v-bind="businessTabsRule(children)?.props" :model-value="activeFormId" @update:model-value="selectBusinessForm">
-              <SparkComponent.RendererTabPane v-for="(tab, index) in businessTabs" :index="index" :key="tab.tabKey" v-bind="getSparkNodeChildren(businessTabsRule(children)?.children)[0]?.props" :label="tab.label" :name="tab.tabKey">
-                <SparkComponent.DisplayEmpty v-if="!tab.routeFound" :description="tab.routeError" />
-                <FlowRunRouteRenderer v-else-if="tab.routeLocation" :route="tab.routeLocation" :cache-key="tab.cacheKey"
-                  :tab-key="tab.tabKey" :registry="businessRegistry"
-                  :fallback-props="{flowid: prepared.flowModelId, flowobjid: prepared.flowObjectId, stepid: prepared.stepId,
-                    workFormId: tab.tabKey, pageParam: prepared.formTabs.find(form => form.tabKey === tab.tabKey)?.queryString ?? '', busRowid: prepared.busRowId}" />
-              </SparkComponent.RendererTabPane>
-            </SparkComponent.RendererTabs>
-          </section>
-          <SparkComponentRenderer v-for="(node, index) in children.filter(child => nodeId(child) === 'history')" :key="nodeId(node) ?? index" :config="node" />
-          <aside v-if="handleOpen" class="flow-run-page__handle">
-            <SparkComponentRenderer v-for="node in approvalSections(children)" key="approvalSection" :config="node" />
-          </aside>
-        </div>
-
-        <SparkComponent.RendererDialog v-model="appendOpen" v-bind="dialogRule(children, 'appendDialog')?.props" :close-disabled="appendCloseDisabled">
-          <FlowAppendUser v-if="appendContext && prepared" ref="appendUser" :context="appendContext" :tool-rules="children" embedded
-            :user-directory-view-key="prepared.userDirectoryViewKey" :step-view-key="stepViewKey" />
-        </SparkComponent.RendererDialog>
-
-        <SparkComponentRenderer v-for="node in chartDialogs(children)" key="chartDialog" :config="node" />
-      </SparkComponent.RendererSection>
-    </template>
-  </SparkPageRenderer>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot" :auto-load="false" />
   <SparkComponent.RendererSection v-else title="流程办理" :bordered="false" :grid-columns="1"
     :status="shellStatus" :error="shellError" :retryable="!shellLoading" @retry="retryShell" />
 </template>
 
 <script setup lang="ts">
-import {computed, useTemplateRef} from 'vue'
+import {computed, shallowRef} from 'vue'
 import {useRoute} from 'vue-router'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {
@@ -58,7 +21,6 @@ import {
 } from '@/platform-adapters/resources/system/workflow/manage'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import {SparkComponentRenderer, SparkPageRenderer} from '@spark-appworks/spark-component'
-import {getSparkNodeChildren, nodeId, type SparkNode} from '@spark-appworks/spark-data'
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
 import style from './tool/style.css?raw'
@@ -141,28 +103,6 @@ const {
   stepViewKey,
 } = useFlowRunPage(routeQuery, () => runtime.value, () => reloadBlocked.value)
 
-function bindApprovalInput(approvalInputRule: SparkNode): SparkNode {
-  return {
-    ...approvalInputRule,
-    children: getSparkNodeChildren(approvalInputRule.children)
-      .filter(field => field.props?.['field'] !== 'forceNodeId' || (allowForceBack.value && forceBackNodeOptions.value.length > 0))
-      .map(field => ({...field, props: {...field.props, readonly: inputLocked.value}})),
-  }
-}
-function bindApprovalNodes(approvalNodesRule: SparkNode): SparkNode {
-  return {
-    ...approvalNodesRule,
-    children: getSparkNodeChildren(approvalNodesRule.children).map(column => {
-      if (column.type !== 'r-column-group') return column
-      return {...column, children: getSparkNodeChildren(column.children).map(field => ({
-        ...field,
-        props: {...field.props, readonly: inputLocked.value || field.props?.['readonly'] || false,
-          ...(field.type === 'r-user-picker' ? {optionDataViewKey: '$[candidateViewKey]'} : {}),
-        },
-      }))}
-    }),
-  }
-}
 const actions: Record<string, {run: () => void | Promise<void>; loading?: true; blockedByNavigation?: true; visible?: () => boolean}> = {
   chart: {run: openFlowChart, blockedByNavigation: true},
   append: {run: openAppendDialog, blockedByNavigation: true},
@@ -175,43 +115,62 @@ const actions: Record<string, {run: () => void | Promise<void>; loading?: true; 
   backToCreator: {run: backToCreator, loading: true},
   close: {run: closeHandlePanel},
 }
-function bindActions(toolbar: SparkNode): SparkNode {
-  const children = getSparkNodeChildren(toolbar.children).flatMap(button => {
-    const action = actions[nodeId(button) ?? '']
-    if (!action || action.visible?.() === false) return []
-    return [{...button, props: {...button.props,
-      disabled: action.blockedByNavigation === true && reloadBlocked.value,
-      loading: action.loading === true && handleLoading.value,
-    }}]
-  })
-  return {...toolbar, children}
+const appendUser = shallowRef<Readonly<{context: NonNullable<typeof appendContext.value>; component: InstanceType<typeof FlowAppendUser>}>>()
+const appendSession = computed(() => {
+  const current = runtime.value, context = appendContext.value, source = prepared.value
+  if (!current || !context || !source || !appendOpen.value) return undefined
+  const isCurrent = () => runtime.value === current && session.isCurrent(current) && appendContext.value === context && appendOpen.value
+  return {
+    context, isCurrent, userDirectoryViewKey: source.userDirectoryViewKey, stepViewKey: stepViewKey.value,
+    bind(component: InstanceType<typeof FlowAppendUser> | null) {
+      if (component && isCurrent()) appendUser.value = {context, component}
+      if (!component && appendUser.value?.context === context) appendUser.value = undefined
+    },
+  }
+})
+
+function actionState(id: string) {
+  const action = Object.hasOwn(actions, id) ? actions[id] : undefined
+  return {visible: !!action && action.visible?.() !== false, disabled: action?.blockedByNavigation === true && reloadBlocked.value,
+    loading: action?.loading === true && handleLoading.value}
 }
-function approvalSections(children: readonly SparkNode[]): SparkNode[] {
-  const section = children.find(node => nodeId(node) === 'approvalSection')
-  if (!section) return []
-  return [{...section, children: getSparkNodeChildren(section.children).map(node => {
-    switch (nodeId(node)) {
-      case 'approvalNodes': return bindApprovalNodes(node)
-      case 'approvalInput': return bindApprovalInput(node)
-      case 'approvalActions': return bindActions(node)
-      default: return node
-    }
-  })}]
-}
-function actionToolbars(children: SparkNode[], id: string): SparkNode[] {
-  const toolbar = children.find(node => nodeId(node) === id)
-  return toolbar ? [bindActions(toolbar)] : []
-}
-const appendUser = useTemplateRef<InstanceType<typeof FlowAppendUser>>('appendUser')
+
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
   const assertCurrent = () => {
-    if (!session.isCurrent(current)) throw new Error('流程办理运行实例已失效')
+    if (runtime.value !== current || !session.isCurrent(current)) throw new Error('流程办理运行实例已失效')
   }
   return {runtime: current, assertCurrent, invoke(command: string, input: unknown) {
     assertCurrent()
-    if (command.startsWith('append.') && appendOpen.value) return appendUser.value?.invoke(command.slice('append.'.length), input)
+    if (command === 'workflow.connect') return {
+      controls: {render: SparkComponentRenderer, empty: SparkComponent.DisplayEmpty, alert: SparkComponent.DisplayAlert,
+        tabs: SparkComponent.RendererTabs, pane: SparkComponent.RendererTabPane, dialog: SparkComponent.RendererDialog,
+        route: FlowRunRouteRenderer, append: FlowAppendUser},
+      shell: () => ({status: shellStatus.value, error: shellError.value, retryable: !shellLoading.value,
+        reloadBlocked: reloadBlocked.value, ready: !!prepared.value}),
+      hasPendingWork, actionState,
+      business: () => ({source: prepared.value, error: handleError.value, tabs: businessTabs.value, mobile: props.mobile === true,
+        active: activeFormId.value, registry: businessRegistry, select: selectBusinessForm}),
+      approval: () => ({open: handleOpen.value, locked: inputLocked.value,
+        showForceTarget: allowForceBack.value && forceBackNodeOptions.value.length > 0}),
+      append: () => ({open: appendOpen.value, closeDisabled: appendCloseDisabled.value, child: appendSession.value,
+        close: () => {
+          if (runtime.value !== current || !session.isCurrent(current) || appendCloseDisabled.value) return
+          appendOpen.value = false
+          appendContext.value = null
+          appendUser.value = undefined
+        }}),
+      chart: () => ({open: chartOpen.value, loading: chartLoading.value, error: chartError.value, graph: chartPrepared.value,
+        markers: FLOW_RELATION_EDGE_MARKERS, close: () => {
+          if (runtime.value === current && session.isCurrent(current)) chartOpen.value = false
+        }}),
+    }
+    if (command === 'workflow.retry') return retryPage(reloadFeatureRuntime)
+    const receiver = appendUser.value
+    if (command.startsWith('append.') && appendOpen.value && receiver && receiver.context === appendContext.value) {
+      return receiver.component.invoke(command.slice('append.'.length), input)
+    }
     if (!command.startsWith('workflow.')) return
     const id = command.slice('workflow.'.length)
     if (!Object.hasOwn(actions, id)) return
@@ -234,55 +193,4 @@ function retryShell(): void {
   void retryPage(reloadFeatureRuntime)
 }
 
-function businessTabsRule(children: readonly SparkNode[]): SparkNode | undefined {
-  return children.find(node => nodeId(node) === 'businessFormTabs' && node.type === 'r-tabs')
-}
-
-function dialogRule(children: readonly SparkNode[], id: string): SparkNode | undefined {
-  return children.find(node => nodeId(node) === id && node.type === 'r-dialog')
-}
-
-function chartDialogs(children: readonly SparkNode[]): SparkNode[] {
-  const dialog = dialogRule(children, 'chartDialog')
-  const section = getSparkNodeChildren(dialog?.children)[0]
-  if (!dialog || !section) return []
-  const graph = chartPrepared.value
-  const nodes = graph ? getSparkNodeChildren(section.children).map(node => ({
-    ...node,
-    props: {
-      ...node.props,
-      dataViewKey: graph.nodeViewKey,
-      edgeDataViewKey: graph.edgeViewKey,
-      edgeMarkers: FLOW_RELATION_EDGE_MARKERS,
-      nodePositions: graph.graphLayout.nodePositions,
-      edgePaths: graph.graphLayout.edgePaths,
-      nodeBadgeField: graph.nodeBadgeField,
-    },
-  })) : []
-  return [{
-    ...dialog,
-    props: {
-      ...dialog.props,
-      modelValue: chartOpen.value,
-      'onUpdate:modelValue': (visible: boolean) => { chartOpen.value = visible },
-    },
-    children: [{
-      ...section,
-      props: {...section.props, status: chartLoading.value ? '正在加载流程图…' : '', error: chartError.value},
-      children: nodes,
-    }],
-  }]
-}
 </script>
-
-<style scoped>
-.flow-run-page__layout {display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start}
-.flow-run-page__title {margin: 0 0 12px; font-weight: 600}
-.flow-run-page__business {min-width: 0}
-.flow-run-page__handle {border: 1px solid var(--el-border-color); border-radius: 8px; padding: 12px; display: grid; gap: 12px}
-.flow-run-page__chart {min-height: 50vh}
-@media (max-width: 960px) {
-  .flow-run-page__layout {grid-template-columns: 1fr}
-  .flow-run-page__handle {grid-column: 1}
-}
-</style>

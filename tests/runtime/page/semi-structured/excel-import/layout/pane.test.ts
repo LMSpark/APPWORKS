@@ -8,10 +8,9 @@ import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {Spark,SparkPageRenderer,SparkComponentRenderer,registerAllRenderers,RendererTable,RendererButton,FieldJson} from '@spark-appworks/spark-component'
 import Pane from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue'
 import {createSingleExportLayout,readSingleExportLayout} from '@/platform-adapters/resources/semi-structured/excel-import/layout/definition'
-import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
+import {excelDesignRegions,excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
-import rules from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/rule.json'
 import script from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/script.js?raw'
 import style from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/style.css?raw'
 const cleanups:Array<()=>void>=[],originalStubs={...config.global.stubs}
@@ -21,8 +20,7 @@ async function fixture(existing=false,duplicate=false){
  const nodes=[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'主表',relatedappid:'A1',table:'数据库一@table_one',exportType:'default',sorted:'',sheet_layout_json:existing?JSON.stringify(layout):''},{rowid:'C2',schemeid:'E1',pid:'C1',sheetName:'明细',relatedappid:'A1',table:'数据库一@table_three',exportType:'default',sorted:'',sheet_layout_json:''}]
  if(duplicate)nodes.push({...nodes[1]!,rowid:'C3',sheetName:'重复来源'})
  const tool=new PageTool({pageId:'layout-pane'})
- const regions=['excel-layout-controls','excel-layout-document']
- tool.hydrateFileText('rule.json',JSON.stringify(rules.filter(node=>regions.includes(node.id))))
+ tool.hydrateFileText('rule.json',JSON.stringify(excelDesignRegions(['excel-layout-controls','excel-layout-document'])))
  tool.hydrateFileText('script.js',script)
  tool.hydrateFileText('style.css',style)
  tool.markLoaded()

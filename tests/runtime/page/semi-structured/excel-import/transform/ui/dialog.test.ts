@@ -7,15 +7,14 @@ import {FieldCheckbox,FieldSelect,RendererButton,Spark,SparkComponentRenderer,Sp
 import {buildDataViewKey,type SparkNode} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
 import RuleDialog from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue'
-import {excelDesignRuntime,EXCEL_DESIGN} from '../../excel-import-design.fixture'
-import rules from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/rule.json'
+import {excelDesignRegions,excelDesignRuntime,EXCEL_DESIGN} from '../../excel-import-design.fixture'
 import script from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/script.js?raw'
 
 const sessions:Array<()=>void>=[]
 afterEach(()=>sessions.splice(0).forEach(close=>close()))
 async function fixture(patch:Record<string,unknown>={},creating=false){
  const tool=new PageTool({pageId:'excel-transform-rule-editor'})
- tool.hydrateFileText('rule.json',JSON.stringify(rules.filter(node=>node.id==='excel-transform-edit')))
+ tool.hydrateFileText('rule.json',JSON.stringify(excelDesignRegions(['excel-transform-edit'])))
  tool.hydrateFileText('script.js',script)
  tool.markLoaded()
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'订单',exportType:'default',sheet_layout_json:'',relatedappid:'APP',table:'db@orders',parentField:'',foreignKeyField:''}],Base_ImportData_Field:[{rowid:'F1',configid:'C1',name:'code',index:'A',isReadOnly:0}],

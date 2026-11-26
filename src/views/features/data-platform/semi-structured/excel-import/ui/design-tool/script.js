@@ -1,8 +1,46 @@
-/* global $page */
+/* global $page, h */
 let tree
 
 async function __init__() {
   tree = await $page.invokeHostCommand('excel.design.connect')
+}
+
+function bindWorkspaceTree() { return {inert: tree?.treeInert() || undefined} }
+function bindTopTab() { return {modelValue: tree?.topTab() ?? 'basic'} }
+function selectTopTab(name) { return $page.invokeHostCommand('excel.design.selectTopTab', name) }
+
+function region(node) {
+  if (!node?.type) throw new Error('Excel 设计器缺少控制器规则区域')
+  return h(tree.controls.node, {config: node})
+}
+
+function RenderExcelTransform(attrs) {
+  if (!tree) return null
+  return h(tree.controls.transform, tree.transformProps(), {
+    'scheme-tools': () => region(attrs.scheme),
+    'rule-list': () => region(attrs.list),
+    'rule-editor': () => region(attrs.editor),
+    'rule-operation': () => region(attrs.operation),
+  })
+}
+
+function RenderExcelLayout(attrs) {
+  if (!tree) return null
+  const props = tree.layoutProps()
+  return props ? h(tree.controls.layout, props, {
+    'layout-controls': () => region(attrs.controls),
+    'layout-document': () => region(attrs.document),
+  }) : region(attrs.empty)
+}
+
+function RenderExcelSource(attrs) {
+  const props = tree?.sourceProps()
+  return props ? h(tree.controls.source, props, () => region(attrs.region)) : null
+}
+
+function RenderExcelReference(attrs) {
+  const props = tree?.referenceProps()
+  return props ? h(tree.controls.reference, props, () => region(attrs.region)) : null
 }
 
 function bindTreeAction() {

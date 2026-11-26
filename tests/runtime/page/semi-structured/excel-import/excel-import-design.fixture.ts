@@ -1,15 +1,39 @@
 import designText from '../../../../../config/pages/semi-structured/excel-import-editor/pagedata.json?raw'
 import {buildFormalModels} from '../../structured-config/catalog/structured-config-catalog.fixture'
 import {vi} from 'vitest'
-import {RequestState} from '@spark-appworks/spark-data'
+import {isSparkNode, nodeId, RequestState, type SparkNode} from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {PageRuntime, ScenarioViewConfig, type PageTool} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/platform-adapters/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/excel-import/resource'
+import designRules from '@/views/features/data-platform/semi-structured/excel-import/ui/design-tool/rule.json'
 export {designText}
 export const EXCEL_DESIGN = '0F93B82141CF40852021D704B0E30BF4'
 export const EXCEL_DICTIONARY='69B79AB779DF4C12A5595DACDF3283F1'
+
+/** 从正式工具中取独立控制器挂载用的规则节点，含命名槽的节点属性。 */
+export function excelDesignRegions(ids: readonly string[]): SparkNode[] {
+  const found = new Map<string, SparkNode>()
+  function visit(value: unknown): void {
+    if (value === null || typeof value !== 'object') return
+    if (isSparkNode(value)) {
+      const id = nodeId(value)
+      if (id && ids.includes(id)) {
+        if (found.has(id)) throw new Error(`Excel 工具区域重复：${id}`)
+        found.set(id, value)
+      }
+    }
+    for (const child of Object.values(value)) visit(child)
+  }
+  visit(designRules)
+  return ids.map(id => {
+    const region = found.get(id)
+    if (!region) throw new Error(`Excel 工具缺少区域：${id}`)
+    return region
+  })
+}
+
 export function excelDictionaryReferenceModels(){
   return buildFormalModels({_Base_DictType:['rowid','TypeName','functiondesc','val','txt','secondValue','thirdValue','fourthvalue','fiveValue'],_Base_DictData:['rowid','typeid','txt','val','ordIdx']})
     .map(model=>({...model,id:model.name==='_Base_DictType'?'69B79AB779DF4C12A5595DACDF3283F1p000':'FBC266CB81A3E3D1D6D67F9B9D7FFF04'}))

@@ -2,6 +2,37 @@
   min-width: 0;
 }
 
+.excel-workspaces {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  min-width: 0;
+}
+
+.excel-workspaces main {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.excel-workspaces aside,
+.excel-workspace-header {
+  min-width: 0;
+}
+
+.excel-workspace-header h1 {
+  margin: 0;
+}
+
+@media (max-width: 1280px) {
+  .excel-workspaces { grid-template-columns: minmax(0, 1fr); }
+  .excel-node-form .renderer-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 900px) {
+  .excel-node-form .renderer-form-grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
 .excel-layout-pane {
   display: grid;
   gap: 12px;

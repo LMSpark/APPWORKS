@@ -1,254 +1,512 @@
 [
   {
-    "id":"excel-design-tree",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"class":"excel-design-tree"},
+    "type":"div",
+    "id":"excel-design-workspaces",
+    "props":{"class":"excel-workspaces"},
     "children":[
-      {"type":"r-button","props":{"label":"新增根配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addRoot"}},
-      {"type":"r-button","props":{"label":"新增同级配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addSibling"}},
-      {"type":"r-button","props":{"label":"新增子级配置","permAction":"create","onBeforeRender":"bindSelectedAction","onClick":"addChild"}},
-      {"type":"r-button","props":{"label":"删除配置","permAction":"delete","onBeforeRender":"bindSelectedAction","onClick":"removeNode"}},
-      {"type":"r-tree","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","expandLevel":1,"treeProps":{"highlightCurrent":true,"expandOnClickNode":false},"showDataViewMeta":false}}
-    ]
-  },
-  {
-    "id":"excel-scheme-summary",
-    "type":"r-form",
-    "props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false,"gridColumns":2},
-    "children":[
-      {"type":"r-text","props":{"field":"solutionName","label":"方案名称","readonly":true}},
-      {"type":"r-text","props":{"field":"dataSetId","label":"方案数据空间","readonly":true}}
-    ]
-  },
-  {
-    "id":"excel-basic-workspace",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
-    "children":[
-      {"type":"r-section","props":{"bordered":false,"status":"请选择左侧节点后再编辑","onBeforeRender":"bindMissingNode"}},
-      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindCurrentNode"},"children":[
-        {
-          "id":"excel-node-basic",
-          "type":"r-form",
-          "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":3,"class":"excel-node-form"},
-          "children":[
-            {"type":"r-text","props":{"field":"sheetName","label":"工作表名称","onBeforeRender":"bindNodeField"}},
-            {"type":"r-number","props":{"field":"sheet","label":"工作表索引","onBeforeRender":"bindNodeField"}},
-            {"type":"r-number","props":{"field":"titleIndex","label":"表头行（负数则无表头）","onBeforeRender":"bindNodeField"}},
-            {"type":"r-number","props":{"field":"dataIndex","label":"数据开始行","onBeforeRender":"bindNodeField"}},
-            {"type":"r-text","props":{"field":"relatedAppName","label":"应用","readonly":true}},
-            {"type":"r-text","props":{"field":"tableDesc","label":"目标数据","readonly":true}},
-            {"type":"r-select","props":{"field":"exportType","label":"导入导出方式","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@ImportExportMethods@default","onBeforeRender":"bindNodeField"}},
-            {"type":"r-select","props":{"field":"parentField","label":"父字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@parentFields","optionLabelFields":["title","name"],"onBeforeRender":"bindParentField"}},
-            {"type":"r-select","props":{"field":"foreignKeyField","label":"外键字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@foreignKeyFields","optionLabelFields":["title","name"],"onBeforeRender":"bindForeignField"}}
-          ]
-        },
-        {
-          "id":"excel-node-filter",
-          "type":"r-section",
-          "props":{"title":"导出过滤条件","bordered":false,"gridColumns":1,"onBeforeRender":"bindFilterSection"},
-          "children":[
-            {"type":"r-filter-expression","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","dataMember":"currentRow","field":"filters","format":"spark-json","title":"导出过滤条件","onBeforeRender":"bindFilterEditor"}}
-          ]
-        },
-        {
-          "id":"excel-node-sort",
-          "type":"r-section",
-          "props":{"title":"导出排序","bordered":false,"gridColumns":1,"onBeforeRender":"bindSortSection"},
-          "children":[
-            {"type":"r-button","props":{"label":"完整JSON编辑","onBeforeRender":"bindSortToggle","onClick":"toggleSort"}},
-            {
-              "type":"r-form",
-              "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false},
-              "children":[
-                {"type":"r-json","props":{"field":"sorted","label":"排序规则","emptyArrayAsEmptyText":true,"rowDefaults":{"Type":"ascending"},"onBeforeRender":"bindSortEditor"},
-                  "children":[
-                    {"type":"r-select","props":{"field":"Field","label":"字段","filterable":true,"clearable":false,"optionLabelFields":["cnname","enname"],"onBeforeRender":"bindSortOptions"}},
-                    {"type":"r-select","props":{"field":"Type","label":"排序类型","clearable":false,"options":[{"value":"ascending","label":"升序"},{"value":"descending","label":"降序"}]}}
-                  ]}
-              ]
-            }
-          ]
-        },
-        {
-          "id":"excel-node-target",
-          "type":"r-button",
-          "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"选择目标数据","permAction":"edit","onBeforeRender":"bindOpenTarget","onClick":"openTarget"}
-        }
-      ]}
-    ]
-  },
-  {
-    "id":"excel-current-node",
-    "type":"r-form",
-    "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindCurrentNode"},
-    "children":[
-      {"type":"r-text","props":{"field":"sheetName","label":"当前节点","readonly":true}}
-    ]
-  },
-  {
-    "id":"excel-node-actions",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindNodeCommands"},
-    "children":[
-      {"type":"r-space","props":{"wrap":true,"size":8,"alignment":"center"},"children":[
-      {"type":"r-button","props":{"label":"保存配置","onBeforeRender":"bindNodeSave","onClick":"saveNode"}},
-      {"type":"r-button","props":{"label":"取消配置修改","onBeforeRender":"bindNodeCancel","onClick":"cancelNode"}},
-      {"type":"r-button","props":{"onBeforeRender":"bindNodeRetry","onClick":"retryNode"}},
-      {"type":"r-button","props":{"onBeforeRender":"bindNodeAccept","onClick":"acceptNode"}},
-      {"type":"r-button","props":{"onBeforeRender":"bindNodeDiscard","onClick":"discardNode"}}
-      ]}
-    ]
-  },
-  {
-    "id":"excel-scheme-transform",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1},
-    "children":[
-      {"type":"r-form","props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false},
-        "children":[{"type":"r-checkbox","props":{"field":"transform_enabled","label":"启用增强规则","trueValue":1,"falseValue":0,"onBeforeRender":"bindTransformSwitch"}}]},
-      {"type":"r-space","props":{"size":8,"wrap":true},"children":[
-        {"type":"r-button","props":{"label":"保存增强规则开关","onBeforeRender":"bindSaveTransformSwitch","onClick":"saveTransformSwitch"}},
-        {"type":"r-button","props":{"label":"取消增强规则开关修改","onBeforeRender":"bindCancelTransformSwitch","onClick":"cancelTransformSwitch"}}
-      ]}
-    ]
-  },
-  {
-    "id":"excel-field-workspace",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","onBeforeRender":"bindCurrentNode"},
-    "children":[
-      {"type":"r-section","props":{"bordered":false,"status":"已启用相对版式，经典字段映射已隐藏。请在相对版式中维护版式定义。","onBeforeRender":"bindLayoutMappingNotice"}},
       {
-        "type":"r-tabs",
-        "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","dataMember":"currentRow","onBeforeRender":"bindFieldTabs","on":{"update:modelValue":"selectFieldTab"}},
+        "type":"aside",
+        "props":{"onBeforeRender":"bindWorkspaceTree"},
         "children":[
-          {"type":"r-tab-pane","props":{"name":"fields","label":"列配置","index":0},"children":[
-            {
-              "id":"excel-field-mapping",
-              "type":"r-section",
-              "props":{"title":"字段映射","bordered":false,"gridColumns":1},
-              "children":[
-                {"type":"r-space","props":{"wrap":true,"size":8},"children":[
-                  {"type":"r-button","props":{"label":"设置引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"setReference"}},
-                  {"type":"r-button","props":{"label":"清空引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"clearReference"}},
-                  {"type":"r-button","props":{"label":"删除字段","permAction":"delete","onBeforeRender":"bindDeleteField","onClick":"deleteField"}},
-                  {"type":"r-button","props":{"label":"保存字段","onBeforeRender":"bindSaveFields","onClick":"saveFields"}},
-                  {"type":"r-button","props":{"label":"取消字段修改","onBeforeRender":"bindCancelFields","onClick":"cancelFields"}}
-                ]},
-                {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","highlightCurrentRow":true},"children":[
-                  {"type":"r-text","props":{"field":"name","label":"字段名称","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-                  {"type":"r-text","props":{"field":"title","label":"标题","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-                  {"type":"r-text","props":{"field":"index","label":"Excel 列号","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-                  {"type":"r-number","props":{"field":"type","label":"类型","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-                  {"type":"r-select","props":{"field":"DesenID","label":"脱敏规则","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Desensitization_Rule@default","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
-                  {"type":"r-text","props":{"field":"refTableDesc","label":"引用表描述","readonly":true}}
-                ]}
-              ]
-            }
-          ]},
-          {"type":"r-tab-pane","props":{"name":"dynamicDict","label":"动态列字典","index":1},"children":[
-            {"type":"r-section","props":{"bordered":false,"status":"动态列字典待后续实现"}}
-          ]}
+          {
+            "id":"excel-design-tree",
+            "type":"r-section",
+            "props":{"bordered":false,"gridColumns":1,"class":"excel-design-tree"},
+            "children":[
+              {"type":"r-button","props":{"label":"新增根配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addRoot"}},
+              {"type":"r-button","props":{"label":"新增同级配置","permAction":"create","onBeforeRender":"bindTreeAction","onClick":"addSibling"}},
+              {"type":"r-button","props":{"label":"新增子级配置","permAction":"create","onBeforeRender":"bindSelectedAction","onClick":"addChild"}},
+              {"type":"r-button","props":{"label":"删除配置","permAction":"delete","onBeforeRender":"bindSelectedAction","onClick":"removeNode"}},
+              {"type":"r-tree","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","expandLevel":1,"treeProps":{"highlightCurrent":true,"expandOnClickNode":false},"showDataViewMeta":false}}
+            ]
+          }
+        ]
+      },
+      {
+        "type":"main",
+        "children":[
+          {
+            "type":"header",
+            "props":{"class":"excel-workspace-header"},
+            "children":[
+              {"type":"h1","children":["导入配置设置"]},
+              {
+                "id":"excel-scheme-summary",
+                "type":"r-form",
+                "props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false,"gridColumns":2},
+                "children":[
+                  {"type":"r-text","props":{"field":"solutionName","label":"方案名称","readonly":true}},
+                  {"type":"r-text","props":{"field":"dataSetId","label":"方案数据空间","readonly":true}}
+                ]
+              },
+              {
+                "id":"excel-current-node",
+                "type":"r-form",
+                "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindCurrentNode"},
+                "children":[
+                  {"type":"r-text","props":{"field":"sheetName","label":"当前节点","readonly":true}}
+                ]
+              },
+              {
+                "id":"excel-node-actions",
+                "type":"r-section",
+                "props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindNodeCommands"},
+                "children":[
+                  {"type":"r-space","props":{"wrap":true,"size":8,"alignment":"center"},"children":[
+                  {"type":"r-button","props":{"label":"保存配置","onBeforeRender":"bindNodeSave","onClick":"saveNode"}},
+                  {"type":"r-button","props":{"label":"取消配置修改","onBeforeRender":"bindNodeCancel","onClick":"cancelNode"}},
+                  {"type":"r-button","props":{"onBeforeRender":"bindNodeRetry","onClick":"retryNode"}},
+                  {"type":"r-button","props":{"onBeforeRender":"bindNodeAccept","onClick":"acceptNode"}},
+                  {"type":"r-button","props":{"onBeforeRender":"bindNodeDiscard","onClick":"discardNode"}}
+                  ]}
+                ]
+              }
+            ]
+          },
+          {
+            "type":"r-tabs",
+            "id":"excel-design-tabs",
+            "props":{
+              "dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default",
+              "dataMember":"currentRow",
+              "onBeforeRender":"bindTopTab",
+              "on":{"update:modelValue":"selectTopTab"}
+            },
+            "children":[
+              {
+                "type":"r-tab-pane",
+                "props":{"name":"basic","label":"基本信息","dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
+                "children":[
+                  {
+                    "id":"excel-basic-workspace",
+                    "type":"r-section",
+                    "props":{"bordered":false,"gridColumns":1,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
+                    "children":[
+                      {"type":"r-section","props":{"bordered":false,"status":"请选择左侧节点后再编辑","onBeforeRender":"bindMissingNode"}},
+                      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindCurrentNode"},"children":[
+                        {
+                          "id":"excel-node-basic",
+                          "type":"r-form",
+                          "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":3,"class":"excel-node-form"},
+                          "children":[
+                            {"type":"r-text","props":{"field":"sheetName","label":"工作表名称","onBeforeRender":"bindNodeField"}},
+                            {"type":"r-number","props":{"field":"sheet","label":"工作表索引","onBeforeRender":"bindNodeField"}},
+                            {"type":"r-number","props":{"field":"titleIndex","label":"表头行（负数则无表头）","onBeforeRender":"bindNodeField"}},
+                            {"type":"r-number","props":{"field":"dataIndex","label":"数据开始行","onBeforeRender":"bindNodeField"}},
+                            {"type":"r-text","props":{"field":"relatedAppName","label":"应用","readonly":true}},
+                            {"type":"r-text","props":{"field":"tableDesc","label":"目标数据","readonly":true}},
+                            {"type":"r-select","props":{"field":"exportType","label":"导入导出方式","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@ImportExportMethods@default","onBeforeRender":"bindNodeField"}},
+                            {"type":"r-select","props":{"field":"parentField","label":"父字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@parentFields","optionLabelFields":["title","name"],"onBeforeRender":"bindParentField"}},
+                            {"type":"r-select","props":{"field":"foreignKeyField","label":"外键字段","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@foreignKeyFields","optionLabelFields":["title","name"],"onBeforeRender":"bindForeignField"}}
+                          ]
+                        },
+                        {
+                          "id":"excel-node-filter",
+                          "type":"r-section",
+                          "props":{"title":"导出过滤条件","bordered":false,"gridColumns":1,"onBeforeRender":"bindFilterSection"},
+                          "children":[
+                            {"type":"r-filter-expression","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","dataMember":"currentRow","field":"filters","format":"spark-json","title":"导出过滤条件","onBeforeRender":"bindFilterEditor"}}
+                          ]
+                        },
+                        {
+                          "id":"excel-node-sort",
+                          "type":"r-section",
+                          "props":{"title":"导出排序","bordered":false,"gridColumns":1,"onBeforeRender":"bindSortSection"},
+                          "children":[
+                            {"type":"r-button","props":{"label":"完整JSON编辑","onBeforeRender":"bindSortToggle","onClick":"toggleSort"}},
+                            {
+                              "type":"r-form",
+                              "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","autoColumns":false,"showDataViewMeta":false},
+                              "children":[
+                                {"type":"r-json","props":{"field":"sorted","label":"排序规则","emptyArrayAsEmptyText":true,"rowDefaults":{"Type":"ascending"},"onBeforeRender":"bindSortEditor"},
+                                  "children":[
+                                    {"type":"r-select","props":{"field":"Field","label":"字段","filterable":true,"clearable":false,"optionLabelFields":["cnname","enname"],"onBeforeRender":"bindSortOptions"}},
+                                    {"type":"r-select","props":{"field":"Type","label":"排序类型","clearable":false,"options":[{"value":"ascending","label":"升序"},{"value":"descending","label":"降序"}]}}
+                                  ]}
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id":"excel-node-target",
+                          "type":"r-button",
+                          "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"选择目标数据","permAction":"edit","onBeforeRender":"bindOpenTarget","onClick":"openTarget"}
+                        }
+                      ]}
+                    ]
+                  }
+                ]
+              },
+              {
+                "type":"r-tab-pane",
+                "props":{"name":"transform","label":"增强规则","dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default"},
+                "children":[
+                  {
+                    "type":"RenderExcelTransform",
+                    "props":{
+                      "scheme":
+                        {
+                          "id":"excel-scheme-transform",
+                          "type":"r-section",
+                          "props":{"bordered":false,"gridColumns":1},
+                          "children":[
+                            {"type":"r-form","props":{"dataViewKey":"36B01771C627B9BF5CD493DC75B996A1@Base_Import_solution@editorTarget","autoColumns":false,"showDataViewMeta":false},
+                              "children":[{"type":"r-checkbox","props":{"field":"transform_enabled","label":"启用增强规则","trueValue":1,"falseValue":0,"onBeforeRender":"bindTransformSwitch"}}]},
+                            {"type":"r-space","props":{"size":8,"wrap":true},"children":[
+                              {"type":"r-button","props":{"label":"保存增强规则开关","onBeforeRender":"bindSaveTransformSwitch","onClick":"saveTransformSwitch"}},
+                              {"type":"r-button","props":{"label":"取消增强规则开关修改","onBeforeRender":"bindCancelTransformSwitch","onClick":"cancelTransformSwitch"}}
+                            ]}
+                          ]
+                        },
+                      "list":
+                        {
+                          "id":"excel-transform-list",
+                          "type":"r-section",
+                          "props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindRuleList"},
+                          "children":[
+                            {"type":"r-space","props":{"wrap":true,"size":8},"children":[
+                              {"type":"r-button","props":{"label":"刷新规则","onBeforeRender":"bindRuleAction","onClick":"refreshRules"}},
+                              {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default","label":"新增规则","permAction":"create","onBeforeRender":"bindRuleAction","onClick":"addRule"}},
+                              {"type":"r-button","props":{"label":"核验原未确认规则提交","onBeforeRender":"bindVerifyRule","onClick":"verifyRule"}}
+                            ]},
+                            {
+                              "type":"r-table",
+                              "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default","highlightCurrentRow":true,"onBeforeRender":"bindRuleTable",
+                                "actions":{"children":[
+                                  {"type":"r-button","props":{"label":"编辑","permAction":"edit","onBeforeRender":"bindRuleAction","onClick":"editRule"}},
+                                  {"type":"r-button","props":{"label":"删除","permAction":"delete","onBeforeRender":"bindRuleAction","onClick":"deleteRule"}}
+                                ]}
+                              },
+                              "children":[
+                                {"type":"r-text","props":{"field":"sort_order","label":"顺序","readonly":true}},
+                                {"type":"r-text","props":{"field":"rule_name","label":"规则名称","readonly":true}},
+                                {"type":"r-text","props":{"field":"rule_type","label":"规则类型","readonly":true}},
+                                {"type":"r-text","props":{"field":"source_field","label":"来源字段","readonly":true}},
+                                {"type":"r-text","props":{"field":"target_field","label":"目标字段","readonly":true}},
+                                {"type":"r-text","props":{"field":"config_json","label":"执行方向","readonly":true,"onBeforeRender":"bindRuleDirection"}},
+                                {"type":"r-text","props":{"field":"enabled","label":"启用","readonly":true}}
+                              ]
+                            }
+                          ]
+                        },
+                      "editor":
+                        {
+                          "id":"excel-transform-edit",
+                          "type":"r-dialog",
+                          "props":{"width":720,"appendToBody":true,"destroyOnClose":true,"onBeforeRender":"bindRuleEditDialog","on":{"update:modelValue":"closeRuleEditor"},"footer":{"children":[
+                            {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleEditor","onClick":"cancelRuleEditor"}},
+                            {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleEditor","onClick":"saveRuleEditor"}}
+                          ]}},
+                          "children":[
+                            {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"预览出错策略仅影响安全预览；正式导入任意规则失败都会整批回滚。"}},
+                            {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleEditorError"}},
+                            {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindRuleEditorWarning"}},
+                            {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindRuleEditForm"},"children":[
+                              {"type":"r-text","props":{"field":"rule_name","label":"规则名称","onBeforeRender":"bindRuleField"}},
+                              {"type":"r-select","props":{"field":"rule_type","label":"规则类型","filterable":true,"onBeforeRender":"bindRuleType"}},
+                              {"type":"r-number","props":{"field":"sort_order","label":"执行顺序","onBeforeRender":"bindRuleField"}},
+                              {"type":"r-select","props":{"field":"source_field","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleSource"}},
+                              {"type":"r-select","props":{"field":"target_field","label":"目标字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleTarget"}},
+                              {"type":"r-select","props":{"field":"on_error","label":"预览出错","onBeforeRender":"bindRuleErrorPolicy"}},
+                              {"type":"r-checkbox","props":{"field":"enabled","label":"是否启用","trueValue":1,"falseValue":0,"nullChecked":true,"onBeforeRender":"bindRuleField"}},
+                              {"type":"r-json","props":{"field":"config_json","label":"规则配置","mode":"form","onBeforeRender":"bindRuleSchema"}},
+                              {"type":"r-json","props":{"field":"config_json","label":"拆解列","mode":"rows","valuePath":["columns"],"reorderable":true,"onBeforeRender":"bindRuleColumns"},"children":[
+                                {"type":"r-select","props":{"field":"sourceField","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindUnpivotSource"}},
+                                {"type":"r-json","props":{"field":"key","label":"键值","valueFormat":"native"}}
+                              ]},
+                              {"type":"r-json","props":{"field":"condition_json","label":"执行条件","mode":"text","onBeforeRender":"bindRuleCondition"}}
+                            ]}
+                          ]
+                        },
+                      "operation":
+                        {
+                          "id":"excel-transform-operation",
+                          "type":"r-dialog",
+                          "props":{"width":520,"appendToBody":true,"destroyOnClose":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default",
+                            "onBeforeRender":"bindRuleOperationDialog","on":{"update:modelValue":"closeRuleOperation"},
+                            "footer":{"children":[
+                              {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleOperation","onClick":"cancelRuleOperation"}},
+                              {"type":"r-button","props":{"label":"放弃本条待提交修改","onBeforeRender":"bindDiscardRuleOperation","onClick":"discardRuleOperation"}},
+                              {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleOperation","onClick":"saveRuleOperation"}}
+                            ]}},
+                          "children":[
+                            {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindRuleOperationPrompt"}},
+                            {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleOperationError"}}
+                          ]
+                        }
+                    }
+                  }
+                ]
+              },
+              {
+                "type":"r-tab-pane",
+                "props":{"name":"layout","label":"相对版式","lazy":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
+                "children":[
+                  {
+                    "type":"RenderExcelLayout",
+                    "props":{
+                      "controls":
+                        {
+                          "id":"excel-layout-controls",
+                          "type":"r-section",
+                          "props":{"bordered":false,"gridColumns":1,"title":"相对版式","status":"配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。"},
+                          "children":[
+                            {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindLayoutNotice"}},
+                            {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"清空版式","permAction":"edit","onBeforeRender":"bindLayoutClear","onClick":"clearLayout"}},
+                            {"type":"r-section","props":{"title":"选择明细配置","bordered":false,"gridColumns":1,"onBeforeRender":"bindLayoutDetails"},"children":[
+                              {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@layoutChildren","highlightCurrentRow":true,"showDataViewMeta":false},"children":[
+                                {"type":"r-text","props":{"field":"sheetName","label":"明细配置","readonly":true}},
+                                {"type":"r-text","props":{"field":"table","label":"物理来源","readonly":true}}
+                              ]},
+                              {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"创建单组导出版式","permAction":"edit","onBeforeRender":"bindLayoutCreate","onClick":"createLayout"}}
+                            ]}
+                          ]
+                        },
+                      "document":
+                        {
+                          "type": "r-section",
+                          "props": {
+                            "bordered": false,
+                            "gridColumns": 1
+                          },
+                          "children": [
+                            {
+                              "type": "r-form",
+                              "props": {
+                                "autoColumns": false,
+                                "showDataViewMeta": false,
+                                "gridColumns": 1,
+                                "onBeforeRender": "bindLayoutForm"
+                              },
+                              "children": [
+                                {
+                                  "type": "r-json",
+                                  "props": {
+                                    "field": "sheet_layout_json",
+                                    "label": "启用设置",
+                                    "mode": "form",
+                                    "onBeforeRender": "bindLayoutEnabled"
+                                  }
+                                },
+                                {
+                                  "type": "r-alert",
+                                  "props": {
+                                    "alertType": "info",
+                                    "closable": false,
+                                    "onBeforeRender": "bindLayoutSources"
+                                  }
+                                },
+                                {
+                                  "type": "r-section",
+                                  "props": {
+                                    "title": "主表",
+                                    "bordered": false,
+                                    "gridColumns": 1,
+                                    "class": "excel-layout-region"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "主表范围",
+                                        "mode": "form",
+                                        "onBeforeRender": "bindFormBounds"
+                                      }
+                                    },
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "主表字段",
+                                        "mode": "rows",
+                                        "onBeforeRender": "bindFormRows",
+                                        "reorderable": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "r-section",
+                                  "props": {
+                                    "title": "明细",
+                                    "bordered": false,
+                                    "gridColumns": 1,
+                                    "class": "excel-layout-region"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "明细范围",
+                                        "mode": "form",
+                                        "onBeforeRender": "bindListBounds"
+                                      }
+                                    },
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "明细表头及数据起点",
+                                        "mode": "form",
+                                        "onBeforeRender": "bindListScan"
+                                      }
+                                    },
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "主表与明细关联",
+                                        "mode": "form",
+                                        "onBeforeRender": "bindListLink"
+                                      }
+                                    },
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "明细字段",
+                                        "mode": "rows",
+                                        "onBeforeRender": "bindListRows",
+                                        "reorderable": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "r-section",
+                                  "props": {
+                                    "title": "表尾",
+                                    "bordered": false,
+                                    "gridColumns": 1,
+                                    "class": "excel-layout-region"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "表尾范围",
+                                        "mode": "form",
+                                        "onBeforeRender": "bindBlockBounds"
+                                      }
+                                    },
+                                    {
+                                      "type": "r-json",
+                                      "props": {
+                                        "field": "sheet_layout_json",
+                                        "label": "表尾字段",
+                                        "mode": "rows",
+                                        "onBeforeRender": "bindBlockRows",
+                                        "reorderable": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "r-button",
+                                  "props": {
+                                    "label": "检查版式结构",
+                                    "onBeforeRender": "bindLayoutDiagnose",
+                                    "onClick": "diagnoseLayout"
+                                  }
+                                },
+                                {
+                                  "type": "r-alert",
+                                  "props": {
+                                    "alertType": "info",
+                                    "closable": false,
+                                    "onBeforeRender": "bindLayoutDiagnostic"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "r-form",
+                              "props": {
+                                "autoColumns": false,
+                                "showDataViewMeta": false,
+                                "onBeforeRender": "bindLayoutFallback"
+                              },
+                              "children": [
+                                {
+                                  "type": "r-json",
+                                  "props": {
+                                    "field": "sheet_layout_json",
+                                    "label": "当前原定义（只读）",
+                                    "mode": "text",
+                                    "readonly": true
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "r-alert",
+                              "props": {
+                                "alertType": "error",
+                                "closable": false,
+                                "onBeforeRender": "bindLayoutDocumentError"
+                              }
+                            }
+                          ],
+                          "id": "excel-layout-document"
+                        },
+                      "empty":
+                        {
+                          "id":"excel-layout-no-node",
+                          "type":"r-section",
+                          "props":{"bordered":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","status":"请选择左侧节点后再编辑"}
+                        }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id":"excel-field-workspace",
+            "type":"r-section",
+            "props":{"bordered":false,"gridColumns":1,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","onBeforeRender":"bindCurrentNode"},
+            "children":[
+              {"type":"r-section","props":{"bordered":false,"status":"已启用相对版式，经典字段映射已隐藏。请在相对版式中维护版式定义。","onBeforeRender":"bindLayoutMappingNotice"}},
+              {
+                "type":"r-tabs",
+                "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","dataMember":"currentRow","onBeforeRender":"bindFieldTabs","on":{"update:modelValue":"selectFieldTab"}},
+                "children":[
+                  {"type":"r-tab-pane","props":{"name":"fields","label":"列配置","index":0},"children":[
+                    {
+                      "id":"excel-field-mapping",
+                      "type":"r-section",
+                      "props":{"title":"字段映射","bordered":false,"gridColumns":1},
+                      "children":[
+                        {"type":"r-space","props":{"wrap":true,"size":8},"children":[
+                          {"type":"r-button","props":{"label":"设置引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"setReference"}},
+                          {"type":"r-button","props":{"label":"清空引用","permAction":"edit","onBeforeRender":"bindReferenceAction","onClick":"clearReference"}},
+                          {"type":"r-button","props":{"label":"删除字段","permAction":"delete","onBeforeRender":"bindDeleteField","onClick":"deleteField"}},
+                          {"type":"r-button","props":{"label":"保存字段","onBeforeRender":"bindSaveFields","onClick":"saveFields"}},
+                          {"type":"r-button","props":{"label":"取消字段修改","onBeforeRender":"bindCancelFields","onClick":"cancelFields"}}
+                        ]},
+                        {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","highlightCurrentRow":true},"children":[
+                          {"type":"r-text","props":{"field":"name","label":"字段名称","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                          {"type":"r-text","props":{"field":"title","label":"标题","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                          {"type":"r-text","props":{"field":"index","label":"Excel 列号","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                          {"type":"r-number","props":{"field":"type","label":"类型","readonly":true,"showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                          {"type":"r-select","props":{"field":"DesenID","label":"脱敏规则","optionDataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Desensitization_Rule@default","showCellControl":true,"onBeforeRender":"bindMappingCell"}},
+                          {"type":"r-text","props":{"field":"refTableDesc","label":"引用表描述","readonly":true}}
+                        ]}
+                      ]
+                    }
+                  ]},
+                  {"type":"r-tab-pane","props":{"name":"dynamicDict","label":"动态列字典","index":1},"children":[
+                    {"type":"r-section","props":{"bordered":false,"status":"动态列字典待后续实现"}}
+                  ]}
+                ]
+              }
+            ]
+          }
         ]
       }
-    ]
-  },
-  {
-    "id":"excel-reference-picker",
-    "type":"r-dialog",
-    "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","title":"选择引用表／视图／字典字段","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeReferencePicker"},"footer":{"children":[{"type":"r-button","props":{"label":"取消引用选择","onClick":"cancelReferencePicker","onBeforeRender":"bindReferenceIdle"}},{"type":"r-button","props":{"label":"确认引用","onClick":"confirmReferencePicker","onBeforeRender":"bindReferenceConfirm","buttonType":"primary"}}]}},"children":[
-    {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceStatus"}},
-    {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","gridColumns":2},"children":[
-      {"type":"r-text","props":{"field":"refTableDesc","label":"当前引用","readonly":true}},
-      {"type":"r-text","props":{"field":"refTable","label":"引用路径","readonly":true}},
-      {"type":"r-text","props":{"field":"textField","label":"原文本字段","readonly":true}},
-      {"type":"r-text","props":{"field":"valueField","label":"原值字段","readonly":true}}
-    ]},
-    {"type":"r-space","props":{"wrap":true},"children":[
-      {"type":"r-button","props":{"label":"当前引用","onClick":"restoreReference","onBeforeRender":"bindReferenceIdle"}},
-      {"type":"r-button","props":{"label":"浏览其他来源","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}}
-    ]},
-    {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceContent"},"children":[
-      {"type":"r-space","props":{"onBeforeRender":"bindReferenceBrowse","wrap":true},"children":[
-        {"type":"r-button","props":{"label":"表","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}},
-        {"type":"r-button","props":{"label":"视图","onClick":"browseReferenceView","onBeforeRender":"bindReferenceIdle"}},
-        {"type":"r-button","props":{"label":"字典","onClick":"browseReferenceDictionary","onBeforeRender":"bindReferenceIdle"}}
-      ]},
-      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferencePhysicalBrowse"},"children":[
-        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceAppForm"},"children":[
-          {"type":"r-select","props":{"label":"来源应用","dataMember":"value","onBeforeRender":"bindReferenceApplication"}}
-        ]},
-        {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
-          {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
-            {"type":"r-table","props":{"onBeforeRender":"bindReferenceDatabase","maxHeight":200,"highlightCurrentRow":true},"children":[
-              {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
-            ]}
-          ]},
-          {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceObjectTitle","colSpan":2},"children":[
-            {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":200,"highlightCurrentRow":true},"children":[
-              {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
-              {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
-            ]}
-          ]}
-        ]}
-      ]},
-      {"type":"r-section","props":{"bordered":false,"title":"已保存的引用对象","onBeforeRender":"bindReferencePhysicalStored"},"children":[
-        {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":180,"highlightCurrentRow":true},"children":[
-          {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
-          {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
-        ]}
-      ]},
-      {"type":"r-table","props":{"onBeforeRender":"bindReferenceDictionary","maxHeight":230,"highlightCurrentRow":true},"children":[
-        {"type":"r-text","props":{"field":"TypeName","label":"字典名称","readonly":true}},
-        {"type":"r-text","props":{"field":"functiondesc","label":"功能描述","readonly":true}}
-      ]},
-      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceFields"},"children":[
-        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceTextForm"},"children":[
-          {"type":"r-select","props":{"label":"文本字段","dataMember":"value","onBeforeRender":"bindReferenceTextSelect"}}
-        ]},
-        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceValueForm"},"children":[
-          {"type":"r-select","props":{"label":"值字段","dataMember":"value","onBeforeRender":"bindReferenceValueSelect"}}
-        ]}
-      ]}
-    ]}
-  ]},
-  {
-    "id":"excel-target-picker",
-    "type":"r-dialog",
-    "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","title":"选择目标数据","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeSourcePicker"},
-      "footer":{"children":[
-        {"type":"r-button","props":{"label":"取消目标选择","onBeforeRender":"bindSourceCancel","onClick":"cancelSourcePicker"}},
-        {"type":"r-button","props":{"label":"确认并暂存目标及字段","buttonType":"primary","onBeforeRender":"bindSourceConfirm","onClick":"confirmSourcePicker"}}
-      ]}
-    },
-    "children":[
-      {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindSourceStatus"}},
-      {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindSourceContent"},"children":[
-        {"type":"r-form","props":{"onBeforeRender":"bindSourceAppForm","autoColumns":false,"showDataViewMeta":false},"children":[
-          {"type":"r-select","props":{"dataMember":"value","onBeforeRender":"bindSourceApplication","label":"来源应用"}}
-        ]},
-        {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
-          {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
-            {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceDatabase"},"children":[
-              {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
-            ]}
-          ]},
-          {"type":"r-section","props":{"bordered":false,"title":"目标数据表","colSpan":2},"children":[
-            {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceTable"},"children":[
-              {"type":"r-text","props":{"field":"tblname","label":"表名","readonly":true}},
-              {"type":"r-text","props":{"field":"tbldesc","label":"说明","readonly":true}}
-            ]}
-          ]}
-        ]},
-        {"type":"r-section","props":{"bordered":false,"title":"字段替换预览","status":"确认后暂存目标及完整字段替换，Excel 列号留空；保存配置时一起提交。"},"children":[
-          {"type":"r-table","props":{"onBeforeRender":"bindSourceFields","maxHeight":250},"children":[
-            {"type":"r-text","props":{"field":"enname","label":"字段名称","readonly":true}},
-            {"type":"r-text","props":{"field":"cnname","label":"标题","readonly":true}},
-            {"type":"r-text","props":{"field":"DataType","label":"数据类型","readonly":true}}
-          ]}
-        ]}
-      ]}
     ]
   },
   {
@@ -269,286 +527,110 @@
     ]
   },
   {
-    "id":"excel-transform-list",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindRuleList"},
-    "children":[
-      {"type":"r-space","props":{"wrap":true,"size":8},"children":[
-        {"type":"r-button","props":{"label":"刷新规则","onBeforeRender":"bindRuleAction","onClick":"refreshRules"}},
-        {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default","label":"新增规则","permAction":"create","onBeforeRender":"bindRuleAction","onClick":"addRule"}},
-        {"type":"r-button","props":{"label":"核验原未确认规则提交","onBeforeRender":"bindVerifyRule","onClick":"verifyRule"}}
-      ]},
+    "type":"RenderExcelSource",
+    "props":{"region":
       {
-        "type":"r-table",
-        "props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default","highlightCurrentRow":true,"onBeforeRender":"bindRuleTable",
-          "actions":{"children":[
-            {"type":"r-button","props":{"label":"编辑","permAction":"edit","onBeforeRender":"bindRuleAction","onClick":"editRule"}},
-            {"type":"r-button","props":{"label":"删除","permAction":"delete","onBeforeRender":"bindRuleAction","onClick":"deleteRule"}}
+        "id":"excel-target-picker",
+        "type":"r-dialog",
+        "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","title":"选择目标数据","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeSourcePicker"},
+          "footer":{"children":[
+            {"type":"r-button","props":{"label":"取消目标选择","onBeforeRender":"bindSourceCancel","onClick":"cancelSourcePicker"}},
+            {"type":"r-button","props":{"label":"确认并暂存目标及字段","buttonType":"primary","onBeforeRender":"bindSourceConfirm","onClick":"confirmSourcePicker"}}
           ]}
         },
         "children":[
-          {"type":"r-text","props":{"field":"sort_order","label":"顺序","readonly":true}},
-          {"type":"r-text","props":{"field":"rule_name","label":"规则名称","readonly":true}},
-          {"type":"r-text","props":{"field":"rule_type","label":"规则类型","readonly":true}},
-          {"type":"r-text","props":{"field":"source_field","label":"来源字段","readonly":true}},
-          {"type":"r-text","props":{"field":"target_field","label":"目标字段","readonly":true}},
-          {"type":"r-text","props":{"field":"config_json","label":"执行方向","readonly":true,"onBeforeRender":"bindRuleDirection"}},
-          {"type":"r-text","props":{"field":"enabled","label":"启用","readonly":true}}
+          {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindSourceStatus"}},
+          {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindSourceContent"},"children":[
+            {"type":"r-form","props":{"onBeforeRender":"bindSourceAppForm","autoColumns":false,"showDataViewMeta":false},"children":[
+              {"type":"r-select","props":{"dataMember":"value","onBeforeRender":"bindSourceApplication","label":"来源应用"}}
+            ]},
+            {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
+              {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
+                {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceDatabase"},"children":[
+                  {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
+                ]}
+              ]},
+              {"type":"r-section","props":{"bordered":false,"title":"目标数据表","colSpan":2},"children":[
+                {"type":"r-table","props":{"highlightCurrentRow":true,"maxHeight":220,"onBeforeRender":"bindSourceTable"},"children":[
+                  {"type":"r-text","props":{"field":"tblname","label":"表名","readonly":true}},
+                  {"type":"r-text","props":{"field":"tbldesc","label":"说明","readonly":true}}
+                ]}
+              ]}
+            ]},
+            {"type":"r-section","props":{"bordered":false,"title":"字段替换预览","status":"确认后暂存目标及完整字段替换，Excel 列号留空；保存配置时一起提交。"},"children":[
+              {"type":"r-table","props":{"onBeforeRender":"bindSourceFields","maxHeight":250},"children":[
+                {"type":"r-text","props":{"field":"enname","label":"字段名称","readonly":true}},
+                {"type":"r-text","props":{"field":"cnname","label":"标题","readonly":true}},
+                {"type":"r-text","props":{"field":"DataType","label":"数据类型","readonly":true}}
+              ]}
+            ]}
+          ]}
         ]
       }
-    ]
+    }
   },
   {
-    "id":"excel-transform-operation",
-    "type":"r-dialog",
-    "props":{"width":520,"appendToBody":true,"destroyOnClose":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default",
-      "onBeforeRender":"bindRuleOperationDialog","on":{"update:modelValue":"closeRuleOperation"},
-      "footer":{"children":[
-        {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleOperation","onClick":"cancelRuleOperation"}},
-        {"type":"r-button","props":{"label":"放弃本条待提交修改","onBeforeRender":"bindDiscardRuleOperation","onClick":"discardRuleOperation"}},
-        {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleOperation","onClick":"saveRuleOperation"}}
-      ]}},
-    "children":[
-      {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindRuleOperationPrompt"}},
-      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleOperationError"}}
-    ]
-  },
-  {
-    "id":"excel-transform-edit",
-    "type":"r-dialog",
-    "props":{"width":720,"appendToBody":true,"destroyOnClose":true,"onBeforeRender":"bindRuleEditDialog","on":{"update:modelValue":"closeRuleEditor"},"footer":{"children":[
-      {"type":"r-button","props":{"onBeforeRender":"bindCancelRuleEditor","onClick":"cancelRuleEditor"}},
-      {"type":"r-button","props":{"buttonType":"primary","onBeforeRender":"bindSaveRuleEditor","onClick":"saveRuleEditor"}}
-    ]}},
-    "children":[
-      {"type":"r-alert","props":{"alertType":"info","closable":false,"title":"预览出错策略仅影响安全预览；正式导入任意规则失败都会整批回滚。"}},
-      {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindRuleEditorError"}},
-      {"type":"r-alert","props":{"alertType":"warning","closable":false,"onBeforeRender":"bindRuleEditorWarning"}},
-      {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindRuleEditForm"},"children":[
-        {"type":"r-text","props":{"field":"rule_name","label":"规则名称","onBeforeRender":"bindRuleField"}},
-        {"type":"r-select","props":{"field":"rule_type","label":"规则类型","filterable":true,"onBeforeRender":"bindRuleType"}},
-        {"type":"r-number","props":{"field":"sort_order","label":"执行顺序","onBeforeRender":"bindRuleField"}},
-        {"type":"r-select","props":{"field":"source_field","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleSource"}},
-        {"type":"r-select","props":{"field":"target_field","label":"目标字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindRuleTarget"}},
-        {"type":"r-select","props":{"field":"on_error","label":"预览出错","onBeforeRender":"bindRuleErrorPolicy"}},
-        {"type":"r-checkbox","props":{"field":"enabled","label":"是否启用","trueValue":1,"falseValue":0,"nullChecked":true,"onBeforeRender":"bindRuleField"}},
-        {"type":"r-json","props":{"field":"config_json","label":"规则配置","mode":"form","onBeforeRender":"bindRuleSchema"}},
-        {"type":"r-json","props":{"field":"config_json","label":"拆解列","mode":"rows","valuePath":["columns"],"reorderable":true,"onBeforeRender":"bindRuleColumns"},"children":[
-          {"type":"r-select","props":{"field":"sourceField","label":"来源字段","filterable":true,"allowCreate":true,"onBeforeRender":"bindUnpivotSource"}},
-          {"type":"r-json","props":{"field":"key","label":"键值","valueFormat":"native"}}
+    "type":"RenderExcelReference",
+    "props":{"region":
+      {
+        "id":"excel-reference-picker",
+        "type":"r-dialog",
+        "props":{"modelValue":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","title":"选择引用表／视图／字典字段","width":1000,"appendToBody":true,"on":{"update:modelValue":"closeReferencePicker"},"footer":{"children":[{"type":"r-button","props":{"label":"取消引用选择","onClick":"cancelReferencePicker","onBeforeRender":"bindReferenceIdle"}},{"type":"r-button","props":{"label":"确认引用","onClick":"confirmReferencePicker","onBeforeRender":"bindReferenceConfirm","buttonType":"primary"}}]}},"children":[
+        {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceStatus"}},
+        {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Field@default","gridColumns":2},"children":[
+          {"type":"r-text","props":{"field":"refTableDesc","label":"当前引用","readonly":true}},
+          {"type":"r-text","props":{"field":"refTable","label":"引用路径","readonly":true}},
+          {"type":"r-text","props":{"field":"textField","label":"原文本字段","readonly":true}},
+          {"type":"r-text","props":{"field":"valueField","label":"原值字段","readonly":true}}
         ]},
-        {"type":"r-json","props":{"field":"condition_json","label":"执行条件","mode":"text","onBeforeRender":"bindRuleCondition"}}
-      ]}
-    ]
-  },
-  {
-    "id":"excel-layout-no-node",
-    "type":"r-section",
-    "props":{"bordered":false,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","status":"请选择左侧节点后再编辑"}
-  },
-  {
-    "id":"excel-layout-controls",
-    "type":"r-section",
-    "props":{"bordered":false,"gridColumns":1,"title":"相对版式","status":"配置单组主表、明细和相对表尾的导出版式。重复分段、汇总及导入尚未完成验收。"},
-    "children":[
-      {"type":"r-alert","props":{"alertType":"info","closable":false,"onBeforeRender":"bindLayoutNotice"}},
-      {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"清空版式","permAction":"edit","onBeforeRender":"bindLayoutClear","onClick":"clearLayout"}},
-      {"type":"r-section","props":{"title":"选择明细配置","bordered":false,"gridColumns":1,"onBeforeRender":"bindLayoutDetails"},"children":[
-        {"type":"r-table","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@layoutChildren","highlightCurrentRow":true,"showDataViewMeta":false},"children":[
-          {"type":"r-text","props":{"field":"sheetName","label":"明细配置","readonly":true}},
-          {"type":"r-text","props":{"field":"table","label":"物理来源","readonly":true}}
+        {"type":"r-space","props":{"wrap":true},"children":[
+          {"type":"r-button","props":{"label":"当前引用","onClick":"restoreReference","onBeforeRender":"bindReferenceIdle"}},
+          {"type":"r-button","props":{"label":"浏览其他来源","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}}
         ]},
-        {"type":"r-button","props":{"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default","label":"创建单组导出版式","permAction":"edit","onBeforeRender":"bindLayoutCreate","onClick":"createLayout"}}
+        {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceContent"},"children":[
+          {"type":"r-space","props":{"onBeforeRender":"bindReferenceBrowse","wrap":true},"children":[
+            {"type":"r-button","props":{"label":"表","onClick":"browseReferenceTable","onBeforeRender":"bindReferenceIdle"}},
+            {"type":"r-button","props":{"label":"视图","onClick":"browseReferenceView","onBeforeRender":"bindReferenceIdle"}},
+            {"type":"r-button","props":{"label":"字典","onClick":"browseReferenceDictionary","onBeforeRender":"bindReferenceIdle"}}
+          ]},
+          {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferencePhysicalBrowse"},"children":[
+            {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceAppForm"},"children":[
+              {"type":"r-select","props":{"label":"来源应用","dataMember":"value","onBeforeRender":"bindReferenceApplication"}}
+            ]},
+            {"type":"r-section","props":{"bordered":false,"gridColumns":3},"children":[
+              {"type":"r-section","props":{"bordered":false,"title":"数据库","colSpan":1},"children":[
+                {"type":"r-table","props":{"onBeforeRender":"bindReferenceDatabase","maxHeight":200,"highlightCurrentRow":true},"children":[
+                  {"type":"r-text","props":{"field":"conName","label":"数据库","readonly":true}}
+                ]}
+              ]},
+              {"type":"r-section","props":{"bordered":false,"onBeforeRender":"bindReferenceObjectTitle","colSpan":2},"children":[
+                {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":200,"highlightCurrentRow":true},"children":[
+                  {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
+                  {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
+                ]}
+              ]}
+            ]}
+          ]},
+          {"type":"r-section","props":{"bordered":false,"title":"已保存的引用对象","onBeforeRender":"bindReferencePhysicalStored"},"children":[
+            {"type":"r-table","props":{"onBeforeRender":"bindReferenceObject","maxHeight":180,"highlightCurrentRow":true},"children":[
+              {"type":"r-text","props":{"label":"名称","readonly":true,"onBeforeRender":"bindReferenceObjectName"}},
+              {"type":"r-text","props":{"label":"描述","readonly":true,"onBeforeRender":"bindReferenceObjectDescription"}}
+            ]}
+          ]},
+          {"type":"r-table","props":{"onBeforeRender":"bindReferenceDictionary","maxHeight":230,"highlightCurrentRow":true},"children":[
+            {"type":"r-text","props":{"field":"TypeName","label":"字典名称","readonly":true}},
+            {"type":"r-text","props":{"field":"functiondesc","label":"功能描述","readonly":true}}
+          ]},
+          {"type":"r-section","props":{"bordered":false,"gridColumns":1,"onBeforeRender":"bindReferenceFields"},"children":[
+            {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceTextForm"},"children":[
+              {"type":"r-select","props":{"label":"文本字段","dataMember":"value","onBeforeRender":"bindReferenceTextSelect"}}
+            ]},
+            {"type":"r-form","props":{"autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindReferenceValueForm"},"children":[
+              {"type":"r-select","props":{"label":"值字段","dataMember":"value","onBeforeRender":"bindReferenceValueSelect"}}
+            ]}
+          ]}
+        ]}
       ]}
-    ]
-  },
-  {
-    "type": "r-section",
-    "props": {
-      "bordered": false,
-      "gridColumns": 1
-    },
-    "children": [
-      {
-        "type": "r-form",
-        "props": {
-          "autoColumns": false,
-          "showDataViewMeta": false,
-          "gridColumns": 1,
-          "onBeforeRender": "bindLayoutForm"
-        },
-        "children": [
-          {
-            "type": "r-json",
-            "props": {
-              "field": "sheet_layout_json",
-              "label": "启用设置",
-              "mode": "form",
-              "onBeforeRender": "bindLayoutEnabled"
-            }
-          },
-          {
-            "type": "r-alert",
-            "props": {
-              "alertType": "info",
-              "closable": false,
-              "onBeforeRender": "bindLayoutSources"
-            }
-          },
-          {
-            "type": "r-section",
-            "props": {
-              "title": "主表",
-              "bordered": false,
-              "gridColumns": 1,
-              "class": "excel-layout-region"
-            },
-            "children": [
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "主表范围",
-                  "mode": "form",
-                  "onBeforeRender": "bindFormBounds"
-                }
-              },
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "主表字段",
-                  "mode": "rows",
-                  "onBeforeRender": "bindFormRows",
-                  "reorderable": true
-                }
-              }
-            ]
-          },
-          {
-            "type": "r-section",
-            "props": {
-              "title": "明细",
-              "bordered": false,
-              "gridColumns": 1,
-              "class": "excel-layout-region"
-            },
-            "children": [
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "明细范围",
-                  "mode": "form",
-                  "onBeforeRender": "bindListBounds"
-                }
-              },
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "明细表头及数据起点",
-                  "mode": "form",
-                  "onBeforeRender": "bindListScan"
-                }
-              },
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "主表与明细关联",
-                  "mode": "form",
-                  "onBeforeRender": "bindListLink"
-                }
-              },
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "明细字段",
-                  "mode": "rows",
-                  "onBeforeRender": "bindListRows",
-                  "reorderable": true
-                }
-              }
-            ]
-          },
-          {
-            "type": "r-section",
-            "props": {
-              "title": "表尾",
-              "bordered": false,
-              "gridColumns": 1,
-              "class": "excel-layout-region"
-            },
-            "children": [
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "表尾范围",
-                  "mode": "form",
-                  "onBeforeRender": "bindBlockBounds"
-                }
-              },
-              {
-                "type": "r-json",
-                "props": {
-                  "field": "sheet_layout_json",
-                  "label": "表尾字段",
-                  "mode": "rows",
-                  "onBeforeRender": "bindBlockRows",
-                  "reorderable": true
-                }
-              }
-            ]
-          },
-          {
-            "type": "r-button",
-            "props": {
-              "label": "检查版式结构",
-              "onBeforeRender": "bindLayoutDiagnose",
-              "onClick": "diagnoseLayout"
-            }
-          },
-          {
-            "type": "r-alert",
-            "props": {
-              "alertType": "info",
-              "closable": false,
-              "onBeforeRender": "bindLayoutDiagnostic"
-            }
-          }
-        ]
-      },
-      {
-        "type": "r-form",
-        "props": {
-          "autoColumns": false,
-          "showDataViewMeta": false,
-          "onBeforeRender": "bindLayoutFallback"
-        },
-        "children": [
-          {
-            "type": "r-json",
-            "props": {
-              "field": "sheet_layout_json",
-              "label": "当前原定义（只读）",
-              "mode": "text",
-              "readonly": true
-            }
-          }
-        ]
-      },
-      {
-        "type": "r-alert",
-        "props": {
-          "alertType": "error",
-          "closable": false,
-          "onBeforeRender": "bindLayoutDocumentError"
-        }
-      }
-    ],
-    "id": "excel-layout-document"
+    }
   }
 ]

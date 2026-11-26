@@ -187,6 +187,7 @@ describe('formal Excel design editor', () => {
     await layoutTab(f)
     const groups=f.wrapper.findAllComponents(RendererTabs)
     expect(groups).toHaveLength(2)
+    expect(groups[0]!.props('id')).toBe('excel-design-tabs')
     expect(groups[0]!.findAllComponents(RendererTabPane).map(pane=>pane.props('label'))).toEqual(['基本信息','增强规则','相对版式'])
     expect(groups[1]!.findAllComponents(RendererTabPane).map(pane=>pane.props('label'))).toEqual(['列配置','动态列字典'])
     const field=f.wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='sheetName'&&!field.props('readonly'))!

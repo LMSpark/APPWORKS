@@ -9,69 +9,14 @@
     <p v-if="unconfirmed" role="status">存在尚未确认的保存结果，请通过原保存入口核验。</p>
     <p v-if="recoveryNotice" role="status">{{ recoveryNotice }}</p>
     <SparkPageRenderer v-if="ready && validTarget && treeRuntime && treeHost" :page-runtime="treeRuntime"
-      :route-snapshot="routeSnapshot" :host="treeHost">
-      <template #content="{children}">
-      <div class="excel-workspaces">
-        <aside :inert="(acting || unconfirmed || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes') || pendingPart('rules')) || undefined">
-          <SparkComponentRenderer :config="designRegion(children,'excel-design-tree')" />
-        </aside>
-        <main>
-          <header class="excel-workspace-header">
-            <h1>导入配置设置</h1>
-            <SparkComponentRenderer :config="designRegion(children,'excel-scheme-summary')" />
-            <SparkComponentRenderer :config="designRegion(children,'excel-current-node')" />
-            <SparkComponentRenderer :config="designRegion(children,'excel-node-actions')" />
-          </header>
-          <RendererTabs v-model="activeTopTab" :data-view-key="nodesKey" data-member="currentRow">
-            <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
-              <SparkComponentRenderer :config="designRegion(children,'excel-basic-workspace')" />
-            </RendererTabPane>
-            <RendererTabPane name="transform" label="增强规则" :index="1" :data-view-key="rulesKey">
-      <ExcelTransformRulesPane ref="rulePane" :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
-        <template #scheme-tools>
-          <SparkComponentRenderer :config="designRegion(children,'excel-scheme-transform')" />
-        </template>
-        <template #rule-list>
-          <SparkComponentRenderer :config="designRegion(children,'excel-transform-list')" />
-        </template>
-        <template #rule-editor>
-          <SparkComponentRenderer :config="designRegion(children,'excel-transform-edit')" />
-        </template>
-        <template #rule-operation>
-          <SparkComponentRenderer :config="designRegion(children,'excel-transform-operation')" />
-        </template>
-      </ExcelTransformRulesPane>
-            </RendererTabPane>
-            <RendererTabPane name="layout" label="相对版式" :lazy="true" :index="2" :data-view-key="nodesKey">
-              <ExcelImportSheetLayoutPane v-if="selectedNode" ref="layoutPane" :data-view-key="nodesKey" :disabled="locked" :before-change="changeLayout" @session-change="value => pending('nodes.layout',value)">
-                <template #layout-controls><SparkComponentRenderer :config="designRegion(children,'excel-layout-controls')" /></template>
-                <template #layout-document><SparkComponentRenderer :config="designRegion(children,'excel-layout-document')" /></template>
-              </ExcelImportSheetLayoutPane>
-              <SparkComponentRenderer v-else :config="designRegion(children,'excel-layout-no-node')" />
-            </RendererTabPane>
-          </RendererTabs>
-          <SparkComponentRenderer :config="designRegion(children,'excel-field-workspace')" />
-        </main>
-      </div>
-        <SparkComponentRenderer :config="designRegion(children,'excel-node-removal')" />
-        <ExcelTargetDialog ref="sourcePicker" v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget">
-          <SparkComponentRenderer :config="designRegion(children,'excel-target-picker')" />
-        </ExcelTargetDialog>
-        <ExcelReferenceDialog ref="referencePicker" v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined">
-          <SparkComponentRenderer :config="designRegion(children,'excel-reference-picker')" />
-        </ExcelReferenceDialog>
-
-
-
-      </template>
-    </SparkPageRenderer>
+      :route-snapshot="routeSnapshot" :host="treeHost" />
   </section>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {buildDataViewKey, nodeId, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {PageTool,type PageRuntime} from '@spark-appworks/spark-project-model'
@@ -95,17 +40,12 @@ import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import {ExcelPhysicalFieldDirectory} from '@/platform-adapters/resources/semi-structured/excel-import/metadata/physical-fields'
-const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, SparkPageRenderer, SparkComponentRenderer, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
   return {path,fullPath,name:name??null,params,query,hash}
 })
-function designRegion(children:readonly SparkNode[],id:string):SparkNode {
-  const node=children.find(child=>nodeId(child)===id)
-  if(!node)throw new Error(`Excel 设计配置缺少 ${id}`)
-  return node
-}
 const treeRuntime=shallowRef<PageRuntime>()
 const treeHost=shallowRef<ReturnType<typeof makeTreeHost>>()
 const rulePane=shallowRef<InstanceType<typeof ExcelTransformRulesPane>>()
@@ -235,6 +175,29 @@ function makeTreeHost(runtime:PageRuntime){
     assertCurrent()
     if(command==='excel.design.connect')return {
       locked:()=>locked.value,selected:()=>!!selectedNode.value,
+      treeInert:()=>acting.value||unconfirmed.value||!!targetChange.value||!!removal.value||!!fieldReference.value
+        ||pendingPart('nodes')||pendingPart('rules'),
+      topTab:()=>activeTopTab.value,
+      controls:{
+        node:SparkComponentRenderer,transform:ExcelTransformRulesPane,layout:ExcelImportSheetLayoutPane,
+        source:ExcelTargetDialog,reference:ExcelReferenceDialog,
+      },
+      transformProps:()=>({
+        ref:rulePane,dataViewKey:rulesKey,fieldOptionsKey:ruleFieldOptionsKey,hasNode:!!selectedNode.value,disabled:locked.value,
+        onSessionChange:(value:boolean)=>pending('rules.dialog',value),
+      }),
+      layoutProps:()=>selectedNode.value ? {
+        ref:layoutPane,dataViewKey:nodesKey,disabled:locked.value,beforeChange:changeLayout,
+        onSessionChange:(value:boolean)=>pending('nodes.layout',value),
+      } : null,
+      sourceProps:()=>sourceTargetId.value ? {
+        ref:sourcePicker,dataViewKey:nodesKey,recordId:sourceTargetId.value,busy:acting.value,validateTarget:validateSourceTarget,
+        onClose:()=>{sourceTargetId.value=''},onConfirm:applyTarget,
+      } : null,
+      referenceProps:()=>fieldReference.value ? {
+        ref:referencePicker,dataViewKey:fieldsKey,reference:fieldReference.value,busy:acting.value,
+        onClose:()=>{fieldReference.value=undefined},
+      } : null,
       association:()=>association.value ? associationHandlers.value : undefined,
       filter:()=>({readOnly:filterReadOnly.value,table:filterTable.value}),
       setFilterPending:(editing:boolean)=>{if(active&&session.isCurrent(runtime))pending('nodes.filters',editing)},
@@ -288,6 +251,10 @@ function makeTreeHost(runtime:PageRuntime){
     }
     if(command==='excel.design.closeSourcePicker'){sourcePicker.value?.close();return undefined}
     if(command==='excel.design.confirmSourcePicker'){sourcePicker.value?.confirm();return undefined}
+    if(command==='excel.design.selectTopTab'){
+      if(input==='basic'||input==='transform'||input==='layout')activeTopTab.value=input
+      return undefined
+    }
     if(command==='excel.design.selectFieldTab'){
       if(input==='fields'||input==='dynamicDict')activeBottomTab.value=input
       return undefined
@@ -528,11 +495,4 @@ onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off())
 
 <style scoped>
 .structured-editor-page { display: grid; gap: 12px; padding: 24px; }
-.excel-workspaces {display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;min-width:0;}
-.excel-workspaces main {min-width:0;display:grid;gap:12px;}
-.excel-workspaces aside,.excel-workspace-header {min-width:0;}
-.excel-workspace-header h1 {margin:0;}
-@media (max-width:1280px) {.excel-workspaces {grid-template-columns:minmax(0,1fr);}}
-@media (max-width:1280px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
-@media (max-width:900px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:minmax(0,1fr) !important;}}
 </style>

@@ -5,57 +5,61 @@
 AI用途：实现专题方案设计页时保留元数据空间和已保存方案的独立消费边界。
 -->
 <template>
-  <p v-if="error" role="alert">{{ error }}</p>
-  <p v-if="loading">正在读取字典设计…</p>
-  <template v-if="ready && workspace">
-    <RendererForm :data-view-key="definitionKey" :children="definitionFields" grid-min-width="220px" :show-data-view-meta="false" />
-    <p class="dictionary-setting__note">注：键名称对应保存的值，值名称是用来显示</p>
-    <RendererButton :data-view-key="definitionKey" label="保存设计" button-type="primary" :disabled="busy || uncertain" @click="save" />
-    <RendererButton :data-view-key="definitionKey" :label="uncertain ? '核验原提交（保留本地修改）' : '取消设计修改并重读'" :disabled="busy" @click="reload" />
-    <RendererButton :data-view-key="definitionKey" label="放弃设计修改并关闭" :disabled="busy || uncertain" @click="cancel" />
-    <RendererButton v-if="!isCreating" :data-view-key="definitionKey" label="删除字典资源…" :disabled="true" />
-    <p v-if="!isCreating" role="status">整字典删除的持久引用及定义、条目结果合同尚未核实，暂不允许删除字典资源。</p>
-  </template>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host"
+    :route-snapshot="routeSnapshot" :auto-load="false" />
+  <p v-else-if="error" role="alert">{{ error }}</p>
+  <p v-else-if="loading" role="status">正在读取字典设计…</p>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import { DictionarySchema } from '@/platform-adapters/api'
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererForm, RendererButton} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
+import {useRoute} from 'vue-router'
+import {DictionarySchema} from '@/platform-adapters/api'
+import {buildDataViewKey} from '@spark-appworks/spark-data'
+import {SparkPageRenderer} from '@spark-appworks/spark-component'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
+import rule from './definition-tool/rule.json?raw'
+import script from './definition-tool/script.js?raw'
+import style from './definition-tool/style.css?raw'
 
 const props = defineProps<{dictionaryId: string; create?: boolean; applicationScenarioId?: string}>()
 const emit = defineEmits<{pending: [value: boolean]; saved: []; cancelled: []}>()
-const {workspace, ready, loading, busy, error, revision, uncertain, run, discard} = useDictionaryWorkspace({
-  dictionaryId: () => props.dictionaryId, purpose: 'design',
-  ...(props.create ? {create: true, applicationScenarioId: () => props.applicationScenarioId} : {}), pageId: 'dictionary-setting',
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const tool = new PageTool({pageId: 'dictionary-setting'})
+tool.hydrateFileText('rule.json', rule)
+tool.hydrateFileText('script.js', script)
+tool.hydrateFileText('style.css', style)
+tool.markLoaded()
+
+const {workspace, runtime, loading, busy, error, revision, uncertain, run, discard, bindScriptHost} = useDictionaryWorkspace({
+  dictionaryId: () => props.dictionaryId, purpose: 'design', tool,
+  ...(props.create ? {create: true, applicationScenarioId: () => props.applicationScenarioId} : {}),
   onPending: value => emit('pending', value),
 })
-const isCreating = computed(() => {
+const creating = computed(() => {
   revision.value
   return workspace.value?.definition.dirtyTracking.pendingCreateIds.has(props.dictionaryId) === true
 })
-const definitionKey = buildDataViewKey('_Base_DictType', 'default', LowcodeDictionary.editorScenarioId)
-const definitionFields = computed<SparkNode[]>(() => [
-  ...(isCreating.value && props.applicationScenarioId?.trim() ? [{type: 'r-select', props: {field: 'AppId', label: '所属应用', readonly: busy.value, clearable: true,
-    optionDataViewKey: buildDataViewKey('Base_AppSystemList', 'default', props.applicationScenarioId),
-    optionLabelField: 'AppDesc', optionValueField: 'rowid'}}] : []),
-  {type: 'r-text', props: {field: 'TypeName', label: '字典名称', readonly: busy.value}},
-  {type: 'r-select', props: {field: 'dictionaryType', label: '编码类型', readonly: busy.value,
-    options: [{value: '0', label: '字符型'}, {value: '1', label: '数值型'}]}},
-  ...DictionarySchema.fields.map(field => ({type: 'r-text', props: {field: field.titleField,
-    label: `${field.defaultLabel}标题`, readonly: busy.value}})),
-  {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', readonly: busy.value}},
-])
-async function reload(): Promise<void> {
-  await run(() => workspace.value!.load(true))
+function cancelDesign(): void {
+  if (!busy.value && !uncertain.value) {discard(); emit('cancelled')}
 }
-function cancel(): void {if (!busy.value && !uncertain.value) {discard(); emit('cancelled')}}
-async function save(): Promise<void> {if (await run(() => workspace.value!.saveDesign())) emit('saved')}
+async function saveDesign(): Promise<void> {
+  if (!uncertain.value && await run(() => workspace.value!.saveDesign())) emit('saved')
+}
+async function reloadDesign(): Promise<void> {await run(() => workspace.value!.load(true))}
+const host = bindScriptHost(command => {
+  if (command === 'dictionary.design.connect') return {
+    state: () => ({busy: busy.value, uncertain: uncertain.value, error: error.value, creating: creating.value}),
+    titleFields: DictionarySchema.fields,
+    save: saveDesign, reload: reloadDesign, cancel: cancelDesign,
+    applicationOptions: () => creating.value && props.applicationScenarioId
+      ? buildDataViewKey('Base_AppSystemList', 'default', props.applicationScenarioId) : undefined,
+  }
+  throw new Error('未知的字典设计动作')
+})
 </script>
-
-<style scoped>
-.dictionary-setting__note { margin: 8px 0 0; color: var(--el-text-color-secondary); }
-</style>

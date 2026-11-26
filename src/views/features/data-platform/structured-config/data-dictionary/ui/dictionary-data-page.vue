@@ -5,113 +5,95 @@
 AI用途：组件根据DataTable.columns中DataColumn.allowAIAdd及原DataView权限生成候选，确认仍暂存到原条目视图。
 -->
 <template>
-  <RendererDialog :model-value="open" title="字典数据维护" width="min(1100px, 94vw)" :close-disabled="isDirty" @update:model-value="requestClose">
-    <section v-if="ready && workspace" class="dictionary-data-page">
-      <header>
-        <h1>字典数据维护</h1>
-        <p>{{ dictionaryHeading }}</p>
-      </header>
-      <p v-if="error" role="alert">{{ error }}</p>
-      <p v-if="aiError && aiVisible" role="alert">AI录入不可用：{{ aiError }}</p>
-      <RendererTable :data-view-key="entryKey" :children="entryFields" :toolbar="entryToolbar" :stripe="true" :highlight-current-row="true"
-        :on-row-click="chooseEntry" :show-data-view-meta="false" />
-      <RendererForm v-if="entrySelected" :data-view-key="entryKey" :children="editFields" grid-min-width="220px" :show-data-view-meta="false" />
-      <SparkAiDataEntry v-if="aiVisible" :data-view-key="entryKey" title="AI批量新增" />
-    </section>
-    <p v-else-if="loading" role="status">正在读取字典数据…</p>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host"
+    :route-snapshot="routeSnapshot" :auto-load="false" />
+  <RendererDialog v-else-if="open" :model-value="true" title="字典数据维护" width="min(1100px, 94vw)"
+    @update:model-value="requestClose">
+    <p v-if="loading" role="status">正在读取字典数据…</p>
     <p v-else-if="error" role="alert">{{ error }}</p>
-    <template #footer>
-      <RendererButton label="关闭" :disabled="isDirty" @click="requestClose" />
-    </template>
+    <template #footer><RendererButton label="关闭" @click="requestClose" /></template>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import { DictionarySchema } from '@/platform-adapters/api'
-import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererForm, RendererTable, SparkAiDataEntry, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
+import {useRoute} from 'vue-router'
+import {DictionarySchema} from '@/platform-adapters/api'
+import {isRecord} from '@spark-appworks/spark-utils'
+import {RendererButton, RendererDialog, SparkPageRenderer} from '@spark-appworks/spark-component'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
+import rule from './entries-tool/rule.json?raw'
+import script from './entries-tool/script.js?raw'
+import style from './entries-tool/style.css?raw'
 
 const props = withDefaults(defineProps<{
-  /** 唯一字典身份；undefined表示没有目标，不能与open=false混为一义。 */
+  /** 唯一字典身份；undefined 表示没有目标。 */
   dictionaryId?: string
-  /** 目录宿主始终挂载owner；此值只控制工作区打开/关闭。 */
+  /** 目录宿主始终挂载 owner；此值控制工作区打开。 */
   open?: boolean
 }>(), {open: true})
-const emit = defineEmits<{
-  /** 宿主关闭保护状态；草稿、AI输入/候选、未知结果或忙碌时为true。 */
-  pending: [value: boolean]
-  /** 请求目录宿主执行dirty预检和正式owner释放后再关闭。 */
-  close: []
-}>()
+const emit = defineEmits<{pending: [value: boolean]; close: []}>()
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const tool = new PageTool({pageId: 'dictionary-data-page'})
+tool.hydrateFileText('rule.json', rule)
+tool.hydrateFileText('script.js', script)
+tool.hydrateFileText('style.css', style)
+tool.markLoaded()
 const owner = useDictionaryWorkspace({
-  dictionaryId: () => props.dictionaryId,
-  open: () => props.open,
-  purpose: 'data',
-  pageId: 'dictionary-data-page',
+  dictionaryId: () => props.dictionaryId, open: () => props.open, purpose: 'data', tool,
   onPending: value => emit('pending', value),
 })
 defineExpose({releaseClean: owner.releaseClean, get isDirty() {return owner.isDirty}})
-const {workspace, aiHost, aiVisible, ready, loading, busy, error, aiError, revision, uncertain, aiLocked, run, openAi} = owner
-const isDirty = computed(() => {
-  revision.value
-  return busy.value || workspace.value?.pending === true || aiHost.value?.isDirty === true
-})
-const entryKey = buildDataViewKey('_Base_DictData', 'default', LowcodeDictionary.editorScenarioId)
-const dictionaryHeading = computed(() => {
+const {workspace, runtime, aiVisible, loading, busy, error, aiError, revision, uncertain, aiLocked, run, openAi} = owner
+const heading = computed(() => {
   revision.value
   const id = props.dictionaryId ?? ''
-  const name = workspace.value?.definition.currentRow?.['TypeName']
+  const definition = workspace.value?.definition
+  const row = definition?.getEditingRow(id)
+  const name = row && definition?.fieldAccess(row, 'TypeName').read === 'visible' ? row['TypeName'] : undefined
   const title = typeof name === 'string' && name.trim() ? name.trim() : ''
   return title ? `当前方案：${title}（${id}）` : `当前方案 ID：${id}`
 })
-const entrySelected = computed(() => {revision.value; return workspace.value?.entries.currentRow != null})
-const entryRemovable = computed(() => {
+const state = computed(() => {
   revision.value
   const current = workspace.value, row = current?.entries.currentRow
   const id = row && current?.entries.getPkKey(row)
-  return id !== undefined && id !== null && current?.canRemoveEntry(id) === true
+  return {
+    busy: busy.value, uncertain: uncertain.value, aiLocked: aiLocked.value, aiVisible: aiVisible.value,
+    error: error.value, aiError: aiError.value, dirty: owner.isDirty, selected: !!row,
+    removable: id !== undefined && id !== null && current?.canRemoveEntry(id) === true,
+    canSort: current?.canApplyDisplayedOrder === true,
+  }
 })
-const entryFields = computed<SparkNode[]>(() => {
-  revision.value
-  return [...DictionarySchema.fields.map(field => ({type: 'r-text', props: {
-    field: field.name, label: workspace.value?.fieldLabel(field.name) ?? field.defaultLabel, width: 155,
-  }})), {type: 'r-number', props: {field: 'ordIdx', label: '排序', width: 90}}]
-})
-const entryToolbar = computed<RToolbarProps>(() => {
-  revision.value
-  return {wrap: true, children: [
-    {type: 'r-button', props: {label: 'AI 候选', dataViewKey: entryKey, disabled: busy.value || uncertain.value, onClick: openAi}},
-    {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || aiLocked.value || uncertain.value,
-      onClick: () => run(() => workspace.value!.addEntry())}},
-    {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || aiLocked.value || uncertain.value || !entryRemovable.value,
-      onClick: removeEntry}},
-    {type: 'r-button', props: {label: '设置排序', dataViewKey: entryKey,
-      disabled: busy.value || aiLocked.value || uncertain.value || workspace.value?.canApplyDisplayedOrder !== true,
-      onClick: () => run(() => workspace.value!.applyDisplayedOrder())}},
-    {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || aiLocked.value || uncertain.value,
-      onClick: () => run(() => workspace.value!.saveData())}},
-    {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey,
-      disabled: busy.value || aiLocked.value, onClick: () => run(() => workspace.value!.load(true))}},
-  ]}
-})
-const editFields = computed<SparkNode[]>(() => entryFields.value.map(node => ({...node, props: {...node.props, readonly: busy.value || aiLocked.value}})))
-function chooseEntry(row: DataRow): void {workspace.value?.entries.setCurrentRow(row)}
 function requestClose(): void {emit('close')}
-async function removeEntry(): Promise<void> {
-  const current = workspace.value, row = current?.entries.currentRow
-  if (!current || !row) return
-  const id = current.entries.getPkKey(row)
-  if (id !== undefined) await run(() => current.removeEntry(id))
-}
+const host = owner.bindScriptHost(command => {
+  const current = workspace.value
+  if (!current) throw new Error('字典数据工作区已失效')
+  if (command !== 'dictionary.entries.connect') throw new Error('未知的字典数据动作')
+  return {
+    state: () => state.value, heading: () => heading.value, close: requestClose,
+    fields: () => {
+      revision.value
+      return DictionarySchema.fields.map(field => ({name: field.name, label: current.fieldLabel(field.name)}))
+    },
+    select(row: unknown) {
+      if (isRecord(row) && current.entries.rows.includes(row)) current.entries.setCurrentRow(row)
+    },
+    openAi() {if (!busy.value && !uncertain.value) openAi()},
+    async reload() {if (!aiLocked.value) await run(() => current.load(true))},
+    async add() {if (!aiLocked.value && !uncertain.value) await run(() => current.addEntry())},
+    async sort() {if (!aiLocked.value && !uncertain.value) await run(() => current.applyDisplayedOrder())},
+    async save() {if (!aiLocked.value && !uncertain.value) await run(() => current.saveData())},
+    async remove() {
+      const row = current.entries.currentRow
+      const id = row && current.entries.getPkKey(row)
+      if (id !== undefined && id !== null && !aiLocked.value && !uncertain.value) await run(() => current.removeEntry(id))
+    },
+  }
+})
 </script>
-
-<style scoped>
-.dictionary-data-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
-.dictionary-data-page > * { min-width: 0; }
-.dictionary-data-page header { display: grid; gap: 4px; }
-.dictionary-data-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
-.dictionary-data-page header p { margin: 0; color: var(--el-text-color-secondary); }
-</style>

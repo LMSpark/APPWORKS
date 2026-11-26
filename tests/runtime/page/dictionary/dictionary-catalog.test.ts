@@ -12,7 +12,7 @@ import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entr
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter, RendererDialog, SparkAiDataEntry,
+import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter, RendererDialog, SparkAiDataEntry, SparkPageRenderer,
   type AiDataEntryAttachment} from '@spark-appworks/spark-component'
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
@@ -24,6 +24,15 @@ import {parseApplicationPathScope} from '@/services/application-scope'
 import {defineComponent, h} from 'vue'
 import {withTestPageService} from '../../../support/helpers/page-service-host'
 import {RouterView} from 'vue-router'
+
+vi.mock('@/views/features/data-platform/structured-config/data-dictionary/ui/definition-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/data-platform/structured-config/data-dictionary/ui/definition-tool/style.css', 'utf8')}
+})
+vi.mock('@/views/features/data-platform/structured-config/data-dictionary/ui/entries-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/data-platform/structured-config/data-dictionary/ui/entries-tool/style.css', 'utf8')}
+})
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: CatalogHttp, runtime: DataSpaceRuntimeApi, dictionaryHttp: DictionaryHttp
@@ -554,6 +563,10 @@ describe('dictionary catalog formal view assembly', () => {
     const design = wrapper.findAll('button').find(button => button.text() === '方案设计')!
     await design.trigger('click')
     await flushPromises()
+    const tool = wrapper.getComponent(DictionarySetting).getComponent(SparkPageRenderer)
+    expect(tool.props('pageRuntime').tool?.pageId).toBe('dictionary-setting')
+    expect(tool.props('pageRuntime').resolveView(`${LowcodeDictionary.editorScenarioId}@_Base_DictType@default`)).toBeDefined()
+    expect(tool.props('pageRuntime').materialize().css).toContain('.dictionary-setting__note')
     expect(wrapper.text()).toContain('保存设计')
     expect(wrapper.text()).toContain('编码类型')
   })
@@ -568,6 +581,10 @@ describe('dictionary catalog formal view assembly', () => {
     await flushPromises()
     const dataPage = wrapper.findComponent(DictionaryData)
     expect(dataPage.exists()).toBe(true)
+    const tool = dataPage.getComponent(SparkPageRenderer)
+    expect(tool.props('pageRuntime').tool?.pageId).toBe('dictionary-data-page')
+    expect(tool.props('pageRuntime').resolveView(`${LowcodeDictionary.editorScenarioId}@_Base_DictData@default`)).toBeDefined()
+    expect(tool.props('pageRuntime').materialize().css).toContain('.dictionary-data-page')
     expect(router.currentRoute.value.path).toBe('/apps/PROJ/catalog')
     expect(router.currentRoute.value.query).toEqual({})
     expect(dataPage.text()).toContain('当前方案：配色（D1）')
@@ -883,8 +900,11 @@ describe('dictionary catalog formal view assembly', () => {
     await wrapper.findAll('button').find(button => button.text() === '方案设计')!.trigger('click'); await flushPromises()
     const d2Design = wrapper.findComponent(DictionarySetting)
     await d2Design.findAll('.el-form-item').find(item => item.find('label').text() === '功能描述')!.get('input').setValue('跨应用设计保存')
+    await d2Design.findAll('.el-form-item').find(item => item.find('label').text() === '第四文本标题')!.get('input').setValue('生效后的用途')
     await wrapper.findAll('button').find(button => button.text() === '保存设计')!.trigger('click'); await flushPromises()
-    expect(dictionaryHttp.records['_Base_DictType']![1]).toMatchObject({rowid: 'D2', AppId: 'OTHER-APP', functiondesc: '跨应用设计保存'})
+    expect(dictionaryHttp.records['_Base_DictType']![1]).toMatchObject({
+      rowid: 'D2', AppId: 'OTHER-APP', functiondesc: '跨应用设计保存', fourthvalue: '生效后的用途',
+    })
     expect(dictionaryHttp.saves[2]!.data).toMatchObject([{TableName: '_Base_DictType', CrudModel: {
       Changed: [expect.objectContaining({rowid: 'D2', functiondesc: '跨应用设计保存'})],
     }}])
@@ -895,6 +915,7 @@ describe('dictionary catalog formal view assembly', () => {
     await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
     const reopened = wrapper.findComponent(DictionaryData)
     expect(reopened.text()).toContain('当前方案：双目标（D2）')
+    expect(reopened.findComponent(RendererTable).text()).toContain('生效后的用途')
     expect(reopened.findComponent(RendererTable).text()).toContain('D2目录入口保存')
     await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
     expect(sets.at(-1)?.destroyed).toBe(true)

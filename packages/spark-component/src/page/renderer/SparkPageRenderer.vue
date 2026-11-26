@@ -59,7 +59,7 @@ type Props = {
  host?: NonNullable<Parameters<typeof buildPageContext>[0]['host']>
  routeSnapshot: PageRoute
  enableCssScope?: boolean
- /** 原生宿主已按业务范围加载所需视图时，可关闭渲染器的场景自动查询。 */
+ /** 原生宿主已按业务范围装配视图时，可关闭渲染器的自动查询与初始选择。 */
  autoLoad?: boolean
  messageService?: PageServiceOverrides['messageService']
  confirmService?: PageServiceOverrides['confirmService']
@@ -323,12 +323,14 @@ async function loadConfig():Promise<void> {
   return
  }
  if(!alive())return
- for(const id of runtime.call.scenarioIds){
-  // 按需装配可以早于初始化结束，查询和选择仍由原调用入口负责。
-  if(runtime.call.deferredScenarioIds?.includes(id))continue
-  const ds=runtime.getDataSet(id)
-  if(props.autoLoad)ds?.triggerAutoLoad()
-  ds?.initAutoSelection()
+ if(props.autoLoad){
+  for(const id of runtime.call.scenarioIds){
+   // 按需装配可以早于初始化结束，查询和选择仍由原调用入口负责。
+   if(runtime.call.deferredScenarioIds?.includes(id))continue
+   const ds=runtime.getDataSet(id)
+   ds?.triggerAutoLoad()
+   ds?.initAutoSelection()
+  }
  }
  invalidate()
 }

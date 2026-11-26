@@ -1,0 +1,37 @@
+[
+  {
+    "id":"dictionary-entries-dialog","type":"r-dialog",
+    "props":{
+      "modelValue":true,"title":"字典数据维护","width":"min(1100px, 94vw)","onBeforeRender":"bindDialog",
+      "on":{"update:modelValue":"closeDialog"},
+      "footer":{"children":[{"type":"r-button","props":{"label":"关闭","onBeforeRender":"bindClose","onClick":"closeEntries"}}]}
+    },
+    "children":[
+      {
+        "type":"r-section","props":{"bordered":false,"gridColumns":1,"class":"dictionary-data-page"},
+        "children":[
+          {"type":"r-text-display","props":{"tag":"p","class":"dictionary-data-page__heading","onBeforeRender":"bindHeading"}},
+          {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindError"}},
+          {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindAiError"}},
+          {
+            "id":"dictionary-entry-table","type":"r-table",
+            "props":{
+              "dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","autoColumns":false,"stripe":true,"highlightCurrentRow":true,"showDataViewMeta":false,
+              "onRowClick":"selectEntry","onBeforeRender":"bindTable",
+              "toolbar":{"wrap":true,"children":[
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"AI 候选","onBeforeRender":"bindAiAction","onClick":"openAi"}},
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"新增条目","permAction":"create","onBeforeRender":"bindEditAction","onClick":"addEntry"}},
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"删除当前条目","onBeforeRender":"bindRemove","onClick":"removeEntry"}},
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"设置排序","onBeforeRender":"bindSort","onClick":"sortEntries"}},
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"保存数据","buttonType":"primary","onBeforeRender":"bindEditAction","onClick":"saveEntries"}},
+                {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","label":"取消数据修改并重读","onBeforeRender":"bindReload","onClick":"reloadEntries"}}
+              ]}
+            }
+          },
+          {"id":"dictionary-entry-form","type":"r-form","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","gridMinWidth":"220px","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindForm"}},
+          {"type":"ai-data-entry","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default","title":"AI批量新增","onBeforeRender":"bindAi"}}
+        ]
+      }
+    ]
+  }
+]

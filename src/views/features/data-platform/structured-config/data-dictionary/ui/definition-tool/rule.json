@@ -1,0 +1,12 @@
+[
+  {"type":"r-alert","props":{"alertType":"error","closable":false,"onBeforeRender":"bindError"}},
+  {"id":"dictionary-definition-form","type":"r-form","props":{
+    "dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictType@default","gridMinWidth":"220px","autoColumns":false,"showDataViewMeta":false,"onBeforeRender":"bindDefinition"
+  }},
+  {"type":"r-text-display","props":{"tag":"p","class":"dictionary-setting__note","value":"注：键名称对应保存的值，值名称是用来显示"}},
+  {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictType@default","label":"保存设计","buttonType":"primary","onBeforeRender":"bindEditAction","onClick":"saveDesign"}},
+  {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictType@default","label":"取消设计修改并重读","onBeforeRender":"bindReload","onClick":"reloadDesign"}},
+  {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictType@default","label":"放弃设计修改并关闭","onBeforeRender":"bindEditAction","onClick":"cancelDesign"}},
+  {"type":"r-button","props":{"dataViewKey":"69B79AB779DF4C12A5595DACDF3283F1@_Base_DictType@default","label":"删除字典资源…","disabled":true,"onBeforeRender":"bindExisting"}},
+  {"type":"r-text-display","props":{"tag":"p","role":"status","value":"整字典删除的持久引用及定义、条目结果合同尚未核实，暂不允许删除字典资源。","onBeforeRender":"bindExisting"}}
+]

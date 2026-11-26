@@ -10,6 +10,7 @@ import { DictionaryWorkspace } from '@/platform-adapters/api'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import type {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
 import type {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
 import {LowcodeDictionary} from '@/platform-adapters/resources/structured-config/dictionary/resource'
 
@@ -25,20 +26,21 @@ type DictionaryPageInput = Readonly<{
   create?: boolean
   /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */
   applicationScenarioId?: MaybeRefOrGetter<string | undefined>
-  /** 当前页面运行实例的标识。 */
-  pageId: string
+  /** 当前工作区的工具三文件。 */
+  tool: PageTool
   /** 宿主关闭保护所需的未提交状态，不提供行副本。 */
   onPending?: (value: boolean) => void
 }>
 
 /** 装配与操作结果均隔离到本次字典身份；设计与业务数据分别保存。 */
 export function useDictionaryWorkspace(input: DictionaryPageInput) {
-  const {sparkProvide, sparkRemove} = useSparkComponent({type: input.pageId})
+  const {sparkProvide, sparkRemove} = useSparkComponent({type: input.tool.pageId})
   const session = new NativePageRuntimeSession({
     provide: () => undefined,
     remove: () => sparkRemove(PAGE_RUNTIME),
   })
   const workspace = shallowRef<DictionaryWorkspace>()
+  const runtime = shallowRef<PageRuntime>()
   const aiHost = shallowRef<AiDataEntryHost>()
   const aiVisible = ref(false)
   const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), aiError = ref(''), revision = ref(0)
@@ -80,7 +82,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
   function disposeRuntime(): void {
     unsubscribe?.(); unsubscribe = undefined
     hostUnsubscribe?.(); hostUnsubscribe = undefined
-    session.dispose(); dataSet = undefined
+    runtime.value = undefined; session.dispose(); dataSet = undefined
     workspace.value = undefined; aiHost.value = undefined
     ready.value = false
     aiVisible.value = false
@@ -112,6 +114,16 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
     workspace.value?.definition.discardPendingChanges()
     workspace.value?.entries.discardPendingChanges()
     changed()
+  }
+
+  function bindScriptHost(invoke: (command: string) => unknown) {
+    return computed(() => {
+      const current = runtime.value
+      if (!current) return undefined
+      return {runtime: current, invoke, assertCurrent() {
+        if (!session.isCurrent(current) || runtime.value !== current) throw new Error('字典工具运行实例已失效')
+      }}
+    })
   }
 
   watch([() => toValue(input.dictionaryId), () => input.create ? toValue(input.applicationScenarioId) : undefined,
@@ -156,7 +168,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       if (optionsDataSet && applicationScenarioId) {scenarioIds.push(applicationScenarioId); dataSets.set(applicationScenarioId, optionsDataSet)}
       let current: ReturnType<NativePageRuntimeSession['acquire']>
       try {
-        current = session.acquire({pageId: input.pageId, scenarioIds, targetId: id,
+        current = session.acquire({tool: input.tool, scenarioIds, mainScenarioId: LowcodeDictionary.editorScenarioId, targetId: id,
           loadScenario: scenarioId => {
             const scenarioDataSet = dataSets.get(scenarioId)
             if (!scenarioDataSet) throw new Error(`字典页面请求了未装配的数据空间 ${scenarioId}`)
@@ -172,7 +184,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       sparkProvide(PAGE_RUNTIME, current)
       unsubscribe = opened.dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed,
         editingChanged: changed, editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
-      ready.value = true; changed()
+      runtime.value = current; ready.value = true; changed()
     } catch (cause) {
       if (active && own === generation) {
         unsubscribe?.(); unsubscribe = undefined; hostUnsubscribe?.(); hostUnsubscribe = undefined
@@ -192,7 +204,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       disposeRuntime()
     }
   })
-  return {workspace, aiHost, aiVisible, ready, loading, busy, error, aiError, revision, pending, uncertain, aiLocked,
+  return {workspace, runtime, bindScriptHost, aiHost, aiVisible, ready, loading, busy, error, aiError, revision, pending, uncertain, aiLocked,
     run, discard, openAi: () => {aiVisible.value = true}, closeAi: () => {aiVisible.value = false}, releaseClean,
     get isDirty() {return busy.value || hasPendingWork()}}
 }

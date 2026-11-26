@@ -75,6 +75,37 @@ describe('browser publication recovery', () => {
     expect(localStorage.length).toBe(0)
   })
 
+  it('keeps a legacy confirmation without an original receipt source pending across workspace reopen', async () => {
+    await withPageToolPublication(owner, async journal => {
+      const intent = journal.open(call, digest, '')
+      intent.snapshots = {'rule.json': {state:'confirmed',version:1}, 'script.js': {state:'confirmed',version:2}, 'style.css': {state:'confirmed',version:3}}
+      intent.pointer = {state:'confirmed', value:'r=1;s=2;t=3'}
+      journal.write(intent)
+    })
+    const key = sessionStorage.key(0)!
+    const original = sessionStorage.getItem(key)
+    await expect(withPageToolPublication(owner, async journal => {
+      journal.confirmedPointer(call)
+    })).rejects.toThrow('缺少原保存回执来源')
+    await expect(withPageToolPublication(owner, async journal => {
+      journal.open(call, digest, '')
+    })).rejects.toThrow('请先核验原发布指针')
+    expect(sessionStorage.getItem(key)).toBe(original)
+  })
+
+  it('reopens a pointer with an original-save receipt only for the original call', async () => {
+    await withPageToolPublication(owner, async journal => {
+      const intent = journal.open(call, digest, '')
+      intent.snapshots = {'rule.json': {state:'confirmed',version:1}, 'script.js': {state:'confirmed',version:2}, 'style.css': {state:'confirmed',version:3}}
+      intent.pointer = {state:'confirmed', value:'r=1;s=2;t=3', receiptSource:'original-save'}
+      journal.write(intent)
+    })
+    await withPageToolPublication(owner, async journal => {
+      expect(journal.confirmedPointer(call)).toBe('r=1;s=2;t=3')
+      expect(() => journal.confirmedPointer('c'.repeat(64))).toThrow('所属调用已变化')
+    })
+  })
+
   it('keeps the original actor’s pending pointer isolated across workspace instances', async () => {
     const request = vi.fn(async (name: string, _options: LockOptions, enter: LockGrantedCallback<void>) => enter({name, mode: 'exclusive'}))
     vi.stubGlobal('navigator', {locks: {request}})

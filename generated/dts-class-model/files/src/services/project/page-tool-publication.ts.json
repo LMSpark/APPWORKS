@@ -126,6 +126,9 @@
             },
             "state": {
               "$ref": "#/$defs/Progress"
+            },
+            "receiptSource": {
+              "const": "original-save"
             }
           },
           "required": [
@@ -591,7 +594,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T19:17:44.251Z",
+  "generatedAt": "2026-11-26T01:48:26.913Z",
   "models": {
     "Progress": {
       "name": "Progress",
@@ -685,7 +688,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<PageToolPublicationFileName, Snapshot>>;\n    scenarioSnapshots: Record<string, ScenarioSnapshot>;\n    pointer: {\n        value: string;\n        state: Progress;\n    } | null;\n}",
+        "declarationTypeText": "{\n    call: string;\n    digest: string;\n    baseline: string;\n    snapshots: Partial<Record<PageToolPublicationFileName, Snapshot>>;\n    scenarioSnapshots: Record<string, ScenarioSnapshot>;\n    /** 原保存回执经过蓝图 owner 接纳后才登记来源；旧记录可能缺失此成员。 */\n    pointer: {\n        value: string;\n        state: Progress;\n        receiptSource?: 'original-save';\n    } | null;\n}",
         "members": {
           "attributes": [
             {
@@ -715,6 +718,7 @@
             },
             {
               "name": "pointer",
+              "jsdoc": "原保存回执经过蓝图 owner 接纳后才登记来源；旧记录可能缺失此成员。",
               "readable": true,
               "writable": true
             }

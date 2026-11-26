@@ -556,7 +556,10 @@ export function usePageDesign(state: DevState) {
           journal.write(intent)
           attemptedReferences.push(...written)
         },
-        accepted() { intent.pointer = {value: expectedVersionId, state: 'confirmed'}; journal.write(intent) },
+        accepted() {
+          intent.pointer = {value: expectedVersionId, state: 'confirmed', receiptSource: 'original-save'}
+          journal.write(intent)
+        },
         rejected() { intent.pointer = null; journal.write(intent) },
       }
       try {

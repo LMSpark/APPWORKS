@@ -23,7 +23,8 @@ export type PageToolPublicationIntent = {
   baseline: string
   snapshots: Partial<Record<PageToolPublicationFileName, Snapshot>>
   scenarioSnapshots: Record<string, ScenarioSnapshot>
-  pointer: {value: string; state: Progress} | null
+  /** 原保存回执经过蓝图 owner 接纳后才登记来源；旧记录可能缺失此成员。 */
+  pointer: {value: string; state: Progress; receiptSource?: 'original-save'} | null
 }
 export type PageToolPublicationFileSource = Readonly<{fileName: 'rule.json'|'script.js'|'style.css'; version: number; text: string}>
 export type PageToolPublicationScenarioSource = Readonly<{
@@ -266,9 +267,12 @@ function decode(raw: string): PageToolPublicationIntent {
   const saved = value['pointer']
   if (saved !== null) {
     if (!isRecord(saved)) throw Error('发布指针恢复定位无效')
-    const {value: pointerValue, state} = saved
+    const {value: pointerValue, state, receiptSource} = saved
     if (typeof pointerValue !== 'string' || !validState(state)) {
       throw Error('发布指针恢复定位无效')
+    }
+    if (receiptSource !== undefined && (receiptSource !== 'original-save' || state !== 'confirmed')) {
+      throw Error('发布指针恢复记录的回执来源无效')
     }
     const parsed = parsePageToolPublicationVersions(pointerValue)
     const required = parsed.manifest === null
@@ -279,7 +283,7 @@ function decode(raw: string): PageToolPublicationIntent {
     for (const file of required) {
       if (snapshots[file]?.version !== parsed[pageToolPublicationVersionKey(file)]) throw Error('发布指针恢复定位无效')
     }
-    pointer = {value: pointerValue, state}
+    pointer = {value: pointerValue, state, ...(receiptSource === undefined ? {} : {receiptSource})}
   }
   return {call: value['call'], digest: value['digest'], baseline: value['baseline'], snapshots, scenarioSnapshots, pointer}
 }
@@ -297,6 +301,7 @@ export class PageToolPublication {
     if (!previous?.pointer) return undefined
     if (previous.pointer.state === 'pending') throw Error('原发布指针已尝试提交，尚无权威回执，请在原工作区核验')
     if (previous.call !== call) throw Error('原发布指针所属调用已变化')
+    if (previous.pointer.receiptSource !== 'original-save') throw Error('旧发布恢复记录缺少原保存回执来源，请按原请求核验')
     return previous.pointer.value
   }
 

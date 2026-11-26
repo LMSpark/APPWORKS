@@ -7,7 +7,11 @@ async function __init__() {
 
 function bindWorkspaceTree() { return {inert: tree?.treeInert() || undefined} }
 function bindTopTab() { return {modelValue: tree?.topTab() ?? 'basic'} }
-function selectTopTab(name) { return $page.invokeHostCommand('excel.design.selectTopTab', name) }
+function bindDependentTab() { return {disabled: !tree} }
+function selectTopTab(name) {
+  if (!tree) return undefined
+  return $page.invokeHostCommand('excel.design.selectTopTab', name)
+}
 
 function region(node) {
   if (!node?.type) throw new Error('Excel 设计器缺少控制器规则区域')
@@ -69,6 +73,7 @@ function bindFieldTabs() {
 }
 
 async function selectFieldTab(name) {
+  if (!tree) return
   await $page.invokeHostCommand('excel.design.selectFieldTab',name)
 }
 

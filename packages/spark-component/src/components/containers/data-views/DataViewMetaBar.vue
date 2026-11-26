@@ -8,8 +8,9 @@ AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/
   <div v-if="aggregateError" role="alert" class="spark-data-view-meta spark-data-view-meta__item--error" data-aggregate-error>
     {{ aggregateError.message }}
   </div>
-  <div v-if="errorMessage" role="alert" class="spark-data-view-meta spark-data-view-meta__item--error" data-view-error>
-    {{ errorMessage }}
+  <div v-if="errorMessage" class="spark-data-view-meta spark-data-view-meta__item--error" data-view-error>
+    <span role="alert">{{ errorMessage }}</span>
+    <slot name="error-actions" />
   </div>
   <div v-if="visible" class="spark-data-view-meta" data-testid="data-view-meta">
     <span class="spark-data-view-meta__item">行数 {{ rowCount }}</span>
@@ -33,7 +34,7 @@ AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { DataColumn, DataRow, RequestState } from '@spark-appworks/spark-data'
+import { RequestState, type DataColumn, type DataRow } from '@spark-appworks/spark-data'
 
 type AggregateEntry = {
   key: string
@@ -94,7 +95,7 @@ const REQUEST_STATE_LABELS: Record<string, string> = {
 const requestStateText = computed(() => REQUEST_STATE_LABELS[String(props.requestState)] ?? String(props.requestState ?? 'Idle'))
 const errorMessage = computed(() => {
   const error = props.loadingError ?? props.mutatingError
-  return error?.message ?? ''
+  return error?.message || (props.requestState === RequestState.Failed ? '读取失败' : '')
 })
 
 const columnLabelMap = computed(() => {

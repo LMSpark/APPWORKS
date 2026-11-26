@@ -58,6 +58,8 @@ export type RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & 
     showRowIndex?: boolean
     /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */
     showPagination?: boolean
+    /** 禁用本表格的查询失败重试。保留原查询状态及错误。 */
+    disabled?: boolean
     /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */
     maxHeight?: number | string
     /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */

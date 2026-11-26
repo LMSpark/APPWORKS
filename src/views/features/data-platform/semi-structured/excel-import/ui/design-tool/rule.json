@@ -139,7 +139,7 @@
               },
               {
                 "type":"r-tab-pane",
-                "props":{"name":"transform","label":"增强规则","dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default"},
+                "props":{"name":"transform","label":"增强规则","onBeforeRender":"bindDependentTab","dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_Import_Transform_Rule@default"},
                 "children":[
                   {
                     "type":"RenderExcelTransform",
@@ -240,7 +240,7 @@
               },
               {
                 "type":"r-tab-pane",
-                "props":{"name":"layout","label":"相对版式","lazy":true,"dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
+                "props":{"name":"layout","label":"相对版式","lazy":true,"onBeforeRender":"bindDependentTab","dataViewKey":"0F93B82141CF40852021D704B0E30BF4@Base_ImportData_Config@default"},
                 "children":[
                   {
                     "type":"RenderExcelLayout",

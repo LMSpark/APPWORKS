@@ -20,6 +20,20 @@ import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config
 import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
 import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi, dirtySources: [] as Array<{isDirty: boolean}>}))
+type ExcelInitializationProbe = {invoke?: (command: string, input: unknown) => Promise<void>}
+const initializationProbe = vi.hoisted((): ExcelInitializationProbe => ({}))
+
+vi.mock('../../../../../packages/spark-component/src/page/context/buildPageContext', async importOriginal => {
+  const original = await importOriginal<typeof import('../../../../../packages/spark-component/src/page/context/buildPageContext')>()
+  return {...original, buildPageContext(deps: Parameters<typeof original.buildPageContext>[0]) {
+    const host = deps.host, probe = initializationProbe.invoke
+    if (!host || !probe) return original.buildPageContext(deps)
+    return original.buildPageContext({...deps, host: {...host, async invoke(command, input, signal) {
+      await probe(command, input)
+      return host.invoke(command, input, signal)
+    }}})
+  }}
+})
 vi.mock('@spark-appworks/spark-app', async () => {
   const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
   return {NativePageRuntimeSession, useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}
@@ -115,6 +129,59 @@ describe('formal Excel design editor', () => {
     expect(source).toContain('scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}}')
     expect(source).not.toContain('new PageRuntime')
   })
+
+  it.each(['ready', 'rejected', 'unmounted'] as const)('waits for the actual Excel design host before changing tabs (%s)', async mode => {
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const hostProbe = vi.fn(async (command: string) => {
+      if (command !== 'excel.design.connect') return
+      await gate
+      if (mode === 'rejected') throw new Error('Isolated Excel host initialization failed')
+    })
+    initializationProbe.invoke = hostProbe
+    try {
+      const f = await open()
+      await vi.waitFor(() => expect(hostProbe).toHaveBeenCalledWith('excel.design.connect', undefined))
+      const readCount = state.http.reads.length
+      await layoutTab(f)
+      expect(hostProbe.mock.calls.filter(([command]) => command === 'excel.design.selectTopTab')).toHaveLength(0)
+      const layout = () => f.wrapper.findAllComponents(RendererTabPane).find(pane => pane.props('name') === 'layout')!
+      expect(layout().props('disabled')).toBe(true)
+      expect(layout().findComponent(FieldJson).exists()).toBe(false)
+      expect(state.http.reads).toHaveLength(readCount)
+      if (mode === 'unmounted') {
+        await f.router.push('/other')
+        expect(f.router.currentRoute.value.path).toBe('/other')
+        expect(f.wrapper.text()).toBe('other')
+        release()
+        await flushPromises()
+        expect(f.wrapper.text()).toBe('other')
+        expect(hostProbe.mock.calls.filter(([command]) => command === 'excel.design.selectTopTab')).toHaveLength(0)
+        expect(state.http.reads).toHaveLength(readCount)
+        expect(state.http.saves).toEqual([])
+        return
+      }
+      release()
+      await flushPromises()
+      if (mode === 'rejected') {
+        await vi.waitFor(() => expect(f.wrapper.text()).toContain('页面初始化失败'))
+        await layoutTab(f)
+        expect(hostProbe.mock.calls.filter(([command]) => command === 'excel.design.selectTopTab')).toHaveLength(0)
+        expect(layout().props('disabled')).toBe(true)
+      } else {
+        await vi.waitFor(() => expect(layout().props('disabled')).toBe(false))
+        await layoutTab(f)
+        expect(hostProbe.mock.calls.filter(([command]) => command === 'excel.design.selectTopTab')).toHaveLength(1)
+        expect(layout().text()).toContain('请选择左侧节点后再编辑')
+      }
+      expect(state.http.saves).toEqual([])
+    } finally {
+      release()
+      await flushPromises()
+      delete initializationProbe.invoke
+    }
+  })
+
   it('shows the configured layout empty state without querying its source or writing a draft', async () => {
     state.http.records['Base_ImportData_Config'] = []
     const f = await open()

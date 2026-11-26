@@ -57,6 +57,7 @@ export class ApiBackend extends HttpClientBase {
   hiddenFieldsById:Record<string,Record<string,string[]>> = {}
   maskedFields:Record<string,string[]> = {}
   readonlyFields:Record<string,string[]> = {}
+  paginatedTables = new Set<string>()
   beforeSave?: () => Promise<void>
   beforeDefinitionRead?: (table:string)=>Promise<void>
   invocations: RequestConfig[] = []
@@ -68,7 +69,7 @@ export class ApiBackend extends HttpClientBase {
       if (this.invocationResult instanceof Error) throw this.invocationResult
       result = this.invocationResult
     } else if (request.url === '/api/DataOperation/GetData') {
-      const body = request.data as {Table: Array<{Name: string; Filter?: unknown; Fields: Array<{Name: string}>}>; InputParams?: Row; Params?: Row}
+      const body = request.data as {Table: Array<{Name: string; Filter?: unknown; Fields: Array<{Name: string}>}>; InputParams?: Row; Params?: Row; PageParam?: {index: number; size: number}}
       const table = body.Table[0]!
       this.reads.push({table: table.Name, data: request.data})
       await this.beforeDefinitionRead?.(table.Name)
@@ -81,6 +82,11 @@ export class ApiBackend extends HttpClientBase {
         const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(resolved))
         rows = rows.filter(row => filter.matches(row))
       }
+      const count = rows.length
+      if (this.paginatedTables.has(table.Name) && body.PageParam) {
+        const {index, size} = body.PageParam
+        rows = rows.slice((index - 1) * size, index * size)
+      }
       const fields = table.Fields.map(field => field.Name)
       const primaryKey = this.primaryKeys[table.Name] ?? 'rowid'
       result = {primaryKeyField: primaryKey, allowAdd: !this.denyAdd.has(table.Name), lingma_sys_key: 'table-key',
@@ -88,7 +94,7 @@ export class ApiBackend extends HttpClientBase {
           lingma_sys_params: {r: [], e: fields.filter(field => !(this.readonlyFields[table.Name] ?? []).includes(field)),
             h: [...(this.hiddenFields[table.Name] ?? []),
               ...(this.hiddenFieldsById[table.Name]?.[String(row[primaryKey])] ?? [])],
-            m: this.maskedFields[table.Name]??[], d: !this.denyDelete.has(table.Name)}})), Count: rows.length}}
+            m: this.maskedFields[table.Name]??[], d: !this.denyDelete.has(table.Name)}})), Count: count}}
     } else if (request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
       if(this.rejectNextSave){this.rejectNextSave=false;return{data:{Code:500,Message:'Rejected before write',Result:null},status:200,statusText:'OK',headers:{}}}
       await this.beforeSave?.()

@@ -31,7 +31,13 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
       :show-selection-summary="props.showSelectionSummary !== false"
-    />
+    >
+      <template #error-actions>
+        <el-button v-if="viewQueryFailed" :disabled="!canRetryViewQuery" link type="primary" @click="retryViewQuery">
+          重试读取
+        </el-button>
+      </template>
+    </DataViewMetaBar>
 
     <el-table
       ref="nativeTableRef"
@@ -187,6 +193,21 @@ const dataState = useContainerDataSource({
   logger,
   logPrefix: 'RendererTable',
 })
+
+const viewQueryFailed = computed(() => dataState.resolvedView.value !== null
+  && dataState.requestState.value === RequestState.Failed)
+const canRetryViewQuery = computed(() => viewQueryFailed.value && !props.disabled
+  && !dataState.resultReplacementBlocked.value && !dataState.mutating.value)
+
+async function retryViewQuery(): Promise<void> {
+  const view = dataState.resolvedView.value
+  if (!canRetryViewQuery.value || !view) return
+  try {
+    await view.requestRefresh()
+  } catch (cause) {
+    if (dataState.resolvedView.value === view && !view.destroyed) logger.error('RendererTable: 重试读取失败', cause)
+  }
+}
 
 const explicitContentChildNodes = computed(() => getSparkNodeChildren(props.children))
 

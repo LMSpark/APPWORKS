@@ -599,6 +599,76 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(api.current.state.http.saves.at(-1)).toMatchObject({table: 'Base_InterfaceProvider', changed: [], deleted: []})
   })
 
+
+  it.each(['reads', 'unmounts'] as const)('retries the failed provider page from the standard table without writing and %s', async mode => {
+    const table = 'Base_InterfaceProvider'
+    const original = records(table)[0]
+    if (!original) throw new Error('Missing provider seed')
+    const added = Array.from({length: 10}, (_, index) => ({...original,
+      rowid: `PROBE-${index + 1}`, Name: `隔离目录-${index + 1}`}))
+    records(table).push(...added)
+    api.current.state.http.paginatedTables.add(table)
+    const observed = new Set<PageRuntime>(), load = PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {
+      observed.add(this)
+      return load.call(this)
+    })
+    const wrapper = await mountAt(ManagementPage)
+    const view = [...observed].find(runtime => runtime.getDataSet(NAV))?.getDataSet(NAV)?.getView(table)
+    if (!view) throw new Error('Missing original provider view')
+    const http = api.current.state.http
+    expect(wrapper.text()).toContain('隔离目录-8')
+    expect(wrapper.text()).not.toContain('隔离目录-9')
+    const requestedIndices = () => http.reads.filter(item => item.table === table).map(({data}) => {
+      const page = isRecord(data) ? data['PageParam'] : undefined
+      return isRecord(page) ? page['index'] : undefined
+    })
+    let failing = true
+    let started = false
+    let release!: () => void
+    const held = new Promise<void>(resolve => {release = resolve})
+    http.beforeDefinitionRead = async name => {
+      if (name !== table || requestedIndices().at(-1) !== 2) return
+      if (failing) throw new Error('隔离目录第2页暂不可用')
+      if (mode === 'unmounts') {
+        started = true
+        await held
+      }
+    }
+    try {
+      await wrapper.get('.api-provider-catalog button.btn-next').trigger('click')
+      await vi.waitFor(() => expect(wrapper.text()).toContain('隔离目录第2页暂不可用'))
+      expect(requestedIndices()).toEqual([1, 2])
+      expect(wrapper.findAll('.api-provider-catalog button')
+        .filter(item => item.text() === '编辑' && item.attributes('disabled') === undefined)).toHaveLength(0)
+      expect(wrapper.text()).toContain('隔离目录-8')
+      failing = false
+      const retry = wrapper.findAll('button').find(item => item.text() === '重试读取')
+      expect(retry?.exists()).toBe(true)
+      await retry!.trigger('click')
+      if (mode === 'unmounts') {
+        await vi.waitFor(() => expect(started).toBe(true))
+        const index = wrappers.indexOf(wrapper)
+        if (index < 0) throw new Error('Missing original provider wrapper')
+        wrappers.splice(index, 1)
+        wrapper.unmount()
+        expect(view.destroyed).toBe(true)
+        release()
+        await flushPromises()
+        expect(view.rows).toEqual([])
+        expect(document.body.textContent).not.toContain('隔离目录-10')
+        expect(requestedIndices()).toEqual([1, 2, 2])
+        expect(http.saves).toHaveLength(0)
+        return
+      }
+      await vi.waitFor(() => expect(wrapper.text()).toContain('隔离目录-10'))
+      expect(wrapper.text()).not.toContain('隔离目录第2页暂不可用')
+      expect(wrapper.text()).not.toContain('隔离目录-8')
+      expect(requestedIndices()).toEqual([1, 2, 2])
+      expect(http.saves).toHaveLength(0)
+    } finally {release(); delete http.beforeDefinitionRead}
+  })
+
   it('refuses to delete a provider that still owns interfaces or request settings', async () => {
     confirmBox.mockReset().mockResolvedValue('confirm')
     const wrapper = await mountAt(ManagementPage)

@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {defineComponent, h, markRaw, ref, shallowRef, type PropType} from 'vue'
+import {defineComponent, h, markRaw, ref} from 'vue'
 import ElementPlus, {ElMessageBox} from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
-import {FieldCheckbox, PAGE_SERVICE, RendererButton, RendererDialog, Spark, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldCheckbox, PAGE_SERVICE, RendererButton, RendererDialog, Spark, SparkComponentRenderer, SparkPageRenderer, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import ReportCreateDialog from '@/views/features/integration/report/ui/report-create-dialog.vue'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {createTestPageService} from '../../../support/helpers/page-service-host'
@@ -12,7 +12,7 @@ import rule from '@/views/features/integration/report/ui/tool/rule.json?raw'
 
 import script from '@/views/features/integration/report/ui/tool/script.js?raw'
 import style from '@/views/features/integration/report/ui/tool/style.css?raw'
-import {nodeId, type SparkNode} from '@spark-appworks/spark-data'
+import type {SparkNode} from '@spark-appworks/spark-data'
 
 const scenario = 'FB291E325272007AEED8921C28B93CFD'
 const infoKey = `${scenario}@Base_ReportInfo@default`
@@ -51,29 +51,30 @@ async function open() {
   await info.addRowWithIdentity({field: 'rowid', value: 'I'}, {RptName: '测试报表', modid: 'APP', modname: '应用', version_id: 'V'})
   await report.addRowWithIdentity({field: 'rowid', value: 'V'}, {RptID: 'I', Version: '0', State: '1', isMerg: '0', isDashboards: '0'})
   const closed = vi.fn(), boundInfoId = ref('I')
-  const dialog = shallowRef<InstanceType<typeof ReportCreateDialog> | null>(null)
-  const CreateHost = defineComponent({
-    props: {rules: {type: Array as PropType<SparkNode[]>, required: true}},
-    setup(props) {
-      const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
-      sparkProvide(PAGE_SERVICE, createTestPageService())
-      return () => {
-        const infoRule = props.rules.find(node => nodeId(node) === 'reportCreateInfo')
-        if (!infoRule) throw new Error('缺少报表创建规则')
-        return h(ReportCreateDialog, {ref: dialog, infoKey, reportKey, appKey, infoRule,
-          versionRule: props.rules.find(node => nodeId(node) === 'reportCreateVersion'),
-          footerRule: props.rules.find(node => nodeId(node) === 'reportCreateFooter'),
-          infoId: boundInfoId.value, reportId: 'V', onClose: closed})
-      }
-    },
-  })
+  let dialog: InstanceType<typeof ReportCreateDialog> | null = null
   const host = {runtime, assertCurrent() {}, invoke(command: string) {
-    if (command.startsWith('reports.create.')) return dialog.value?.invoke(command.slice('reports.create.'.length))
+    if (command !== 'reports.connect') return undefined
+    return {
+      components: {create: ReportCreateDialog},
+      capture: (kind: string) => kind === 'create' ? {
+        key: 'fixture', infoKey, reportKey, appKey, infoId: boundInfoId.value, reportId: 'V', onClose: closed,
+        bind: (target: InstanceType<typeof ReportCreateDialog> | null) => {dialog = target},
+        invoke: (action: string) => dialog?.invoke(action),
+      } : undefined,
+    }
   }}
-  const Host = defineComponent({setup: () => () => h(SparkPageRenderer, {
-    pageRuntime: markRaw(runtime), host, autoLoad: false,
-    routeSnapshot: {path: '/test', fullPath: '/test', name: null, params: {}, query: {}, hash: ''},
-  }, {content: ({children}: {children: SparkNode[]}) => h(CreateHost, {rules: children})})})
+  const Host = defineComponent({setup() {
+    const {sparkProvide} = useSparkComponent({type: 'report-create-test'})
+    sparkProvide(PAGE_SERVICE, createTestPageService())
+    return () => h(SparkPageRenderer, {
+      pageRuntime: markRaw(runtime), host, autoLoad: false,
+      routeSnapshot: {path: '/test', fullPath: '/test', name: null, params: {}, query: {}, hash: ''},
+    }, {content: ({children}: {children: SparkNode[]}) => {
+      const configuration = children.find(node => node.type === 'RenderReportCreate')
+      if (!configuration) throw Error('缺少报表创建工具')
+      return h(SparkComponentRenderer, {config: configuration})
+    }})
+  }})
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
   wrappers.push(wrapper)
   await flushPromises()

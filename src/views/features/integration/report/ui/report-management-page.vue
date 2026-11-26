@@ -8,42 +8,17 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
   <RendererSection title="报表列表" :bordered="false" :grid-columns="1" :grid-gap="16"
     :status="loading ? '正在读取报表列表…' : reloadBlocked ? '当前仍显示原报表，请处理原操作后切换。' : ''" :error="error || message" :retryable="!loading && !ready" @retry="loadCurrentRoute">
     <RendererButton v-if="reloadBlocked" label="切换到当前导航" :disabled="hasPending()" @click="loadCurrentRoute" />
-    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false">
-      <template #content="{children}">
-        <template v-for="(node, index) in children" :key="nodeId(node) ?? index">
-          <template v-if="nodeId(node) === 'reportVersions'">
-            <ReportVersionDialog v-if="ready && dialog?.kind === 'version'" ref="versionDialogs" :key="dialog.epoch" :info-key="viewKey"
-              :info-id="dialog.infoId" :table-rule="node" :toolbar-rule="children.find(child => nodeId(child) === 'reportVersionToolbar')"
-              :form-rule="children.find(child => nodeId(child) === 'reportVersionForm')" @close="closeDialog" />
-          </template>
-          <template v-else-if="nodeId(node) === 'reportModelPicker'">
-            <ReportModelDialog v-if="ready && dialog?.kind === 'model'" ref="modelDialogs" :key="dialog.epoch" :info-key="viewKey"
-              :report-key="reportKey" :info-id="dialog.infoId" :table-rule="node" :footer-rule="children.find(child => nodeId(child) === 'reportModelFooter')" @close="closeDialog" />
-          </template>
-          <template v-else-if="nodeId(node) === 'reportEditForm'">
-            <FeatureRecordDialog v-if="ready && dialog?.kind === 'edit'" :key="dialog.epoch" :data-view-key="viewKey" :record-id="dialog.infoId"
-              title="编辑报表" :form-rule="node" :validate="validateEdit" @close="closeDialog" />
-          </template>
-          <template v-else-if="nodeId(node) === 'reportCreateInfo'">
-            <ReportCreateDialog v-if="ready && dialog?.kind === 'create' && dialog.reportId !== undefined" ref="createDialogs" :key="dialog.epoch"
-              :info-key="viewKey" :report-key="reportKey" :app-key="appKey" :info-id="dialog.infoId" :report-id="dialog.reportId"
-              :info-rule="node" :version-rule="children.find(child => nodeId(child) === 'reportCreateVersion')"
-              :footer-rule="children.find(child => nodeId(child) === 'reportCreateFooter')" @close="closeDialog" />
-          </template>
-          <SparkComponentRenderer v-else-if="nodeId(node) !== 'reportVersionToolbar' && nodeId(node) !== 'reportModelFooter' && nodeId(node) !== 'reportVersionForm' && nodeId(node) !== 'reportCreateVersion' && nodeId(node) !== 'reportCreateFooter'" :config="node" />
-        </template>
-      </template>
-    </SparkPageRenderer>
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
   </RendererSection>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, shallowRef, useTemplateRef} from 'vue'
+import {computed, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {PageTool} from '@spark-appworks/spark-project-model'
+import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, isDataRow, nodeId, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import {RendererButton, RendererSection, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {buildDataViewKey, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {RendererButton, RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import ReportCreateDialog from './report-create-dialog.vue'
@@ -76,8 +51,10 @@ const {viewKey, session, ready, loading, error, reloadBlocked, loadCurrentRoute}
 const reportKey = key('Base_Report'), appKey = key('Base_AppSystemList')
 
 type Dialog = Readonly<{kind: 'create' | 'edit' | 'version' | 'model'; infoId: string | number; reportId?: string | number; epoch: number}>
+type DialogControls = Readonly<{invoke: (command: string, row?: DataRow) => void | Promise<void>}>
 const busy = ref(false), message = ref(''), revision = ref(0)
 const dialog = shallowRef<Dialog>()
+let controls: {owner: Dialog; target: DialogControls} | undefined
 let epoch = 0
 
 function hasPending(): boolean {
@@ -125,9 +102,29 @@ const routeSnapshot = computed(() => {
   const {path, fullPath, name, params, query, hash} = route
   return {path, fullPath, name: name ?? null, params, query, hash}
 })
-const createDialogs = useTemplateRef<InstanceType<typeof ReportCreateDialog>[]>('createDialogs')
-const versionDialogs = useTemplateRef<InstanceType<typeof ReportVersionDialog>[]>('versionDialogs')
-const modelDialogs = useTemplateRef<InstanceType<typeof ReportModelDialog>[]>('modelDialogs')
+function captureDialog(page: PageRuntime, kind: Dialog['kind']) {
+  const opened = dialog.value
+  if (!opened || opened.kind !== kind) return undefined
+  const isCurrent = () => session.isCurrent(page) && dialog.value === opened
+  const infoKey = viewKey.value
+  return {
+    key: opened.epoch, infoKey, reportKey, appKey, infoId: opened.infoId, reportId: opened.reportId,
+    validate: (row: Readonly<DataRow>) => isCurrent()
+      ? syncAppName({info: view(infoKey), apps: view(appKey), id: opened.infoId, row})
+      : '原报表编辑实例已失效',
+    bind: (target: DialogControls | null) => {
+      if (isCurrent()) controls = target ? {owner: opened, target} : undefined
+    },
+    invoke: (action: string, row: unknown) => {
+      if (!isCurrent() || controls?.owner !== opened) return undefined
+      return controls.target.invoke(action, isDataRow(row) ? row : undefined)
+    },
+    onClose: (reason?: 'abandoned') => {
+      if (isCurrent()) return closeDialog(reason)
+      return undefined
+    },
+  }
+}
 const host = computed(() => {
   const current = runtime.value
   if (!current) return undefined
@@ -137,6 +134,8 @@ const host = computed(() => {
   return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
     assertCurrent()
     if (command === 'reports.connect') return {
+      components: {create: ReportCreateDialog, edit: FeatureRecordDialog, version: ReportVersionDialog, model: ReportModelDialog},
+      capture: (kind: Dialog['kind']) => captureDialog(current, kind),
       locked: () => reloadBlocked.value || busy.value || !!dialog.value || unconfirmed.value,
       verification: () => ({visible: unconfirmed.value, disabled: busy.value}),
       formatDay,
@@ -148,16 +147,6 @@ const host = computed(() => {
     if (command === 'reports.create') {
       if (!reloadBlocked.value && !busy.value && !dialog.value && !unconfirmed.value) await create()
       return undefined
-    }
-    if (dialog.value?.kind === 'create' && command.startsWith('reports.create.')) {
-      return createDialogs.value?.[0]?.invoke(command.slice('reports.create.'.length))
-    }
-    const actionRow = isDataRow(input) ? input : undefined
-    if (dialog.value?.kind === 'version' && command.startsWith('reports.version.')) {
-      return versionDialogs.value?.[0]?.invoke(command.slice('reports.version.'.length), actionRow)
-    }
-    if (dialog.value?.kind === 'model' && command.startsWith('reports.model.')) {
-      return modelDialogs.value?.[0]?.invoke(command.slice('reports.model.'.length), actionRow)
     }
     if (reloadBlocked.value || busy.value || dialog.value || unconfirmed.value || !isDataRow(input)) return undefined
     const row = input
@@ -182,10 +171,6 @@ function open(kind: Dialog['kind'], row: DataRow): void {
     dialog.value = {kind, infoId: idOf(view(viewKey.value), row), epoch: ++epoch}
   } catch (cause) { message.value = failure(cause) }
 }
-function validateEdit(row: Readonly<DataRow>): string | undefined {
-  const id = dialog.value?.infoId
-  return id === undefined ? '记录缺少原生身份' : syncAppName({info: view(viewKey.value), apps: view(appKey), id, row})
-}
 const create = () => guarded(async () => {
   const info = view(viewKey.value), report = view(reportKey)
   assertSettled()
@@ -204,6 +189,7 @@ const create = () => guarded(async () => {
 async function closeDialog(reason?: 'abandoned'): Promise<void> {
   const original = reason === 'abandoned' ? dialog.value : undefined
   dialog.value = undefined
+  controls = undefined
   await guarded(async () => {
     if (reportViews().some(item => item.hasUnconfirmedSave)) throw new Error(`存在${UNCONFIRMED_HINT}`)
     await Promise.all([view(viewKey.value).refresh(), view(reportKey).refresh()])

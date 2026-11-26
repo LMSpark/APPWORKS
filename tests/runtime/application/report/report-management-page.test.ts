@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageTool, type PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSet, getSparkNodeChildren, type DataSetSaveJournal, type DataSetSaveRecoverableAction, type DataView} from '@spark-appworks/spark-data'
-import {FieldText, FieldTextarea, RendererButton, RendererDialog, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText, FieldTextarea, RendererButton, RendererDialog, RendererTable, RendererToolbar, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createReportRuntime, readPersistedReport} from './report.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
@@ -143,6 +143,33 @@ describe('报表系统页的新增生命周期', () => {
     await f.router.push('/clean')
     expect(f.router.currentRoute.value.path).toBe('/clean')
     expect(f.http.saves).toHaveLength(0)
+  })
+
+  it('ignores a submit callback from the preceding report creation dialog', async () => {
+    const f = await open()
+    await f.click('新增')
+    const oldSubmit = f.wrapper.findAllComponents(RendererToolbar)
+      .flatMap(toolbar => getSparkNodeChildren(toolbar.props('children')))
+      .find(node => node.id === 'submitCreateReport')?.props?.['onClick']
+    if (typeof oldSubmit !== 'function') throw Error('缺少原报表新增确认动作')
+    await f.click('取消')
+    await vi.waitFor(() => expect(f.instance.isDirty).toBe(false))
+    await f.click('新增')
+    const row = f.info.rows[0]
+    const id = row ? f.info.getPkKey(row) : undefined
+    if (id === undefined) throw Error('缺少第二份报表草稿')
+    f.info.updateEditingValue(id, 'RptName', '第二份报表')
+    f.info.updateEditingValue(id, 'modid', 'APP')
+    await flushPromises()
+    await oldSubmit()
+    await flushPromises()
+    expect(f.http.saves).toHaveLength(0)
+    expect(f.info.dirtyTracking.isPendingCreate(id)).toBe(true)
+    await f.click('确定')
+    expect(f.http.saves).toHaveLength(2)
+    const persisted = await readPersistedReport(scenario, f.http)
+    expect(persisted.info.rows).toMatchObject([{rowid: id, RptName: '第二份报表'}])
+    expect(persisted.versions.rows).toMatchObject([{RptID: id}])
   })
 
   it('明确拒绝的新增可以按原批次取消并开始下一份报表', async () => {
@@ -543,6 +570,9 @@ describe('报表多记录修改的失败收敛', () => {
     const reopened = f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick')
     const current = picker.rows.find(row => row['rowid'] === 'D2')
     if (!reopened || !current) throw new Error('重新打开后缺少正式模型候选')
+    choose(current)
+    await flushPromises()
+    expect(document.body.textContent).not.toContain('已选择：')
     await reopened(current, undefined, undefined, {cancel: false})
     await flushPromises()
     f.http.failAfterWrite = true

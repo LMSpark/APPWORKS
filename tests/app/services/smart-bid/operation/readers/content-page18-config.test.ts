@@ -56,7 +56,7 @@ it('keeps page 18 zero-script and binds its directory through the standard DataV
   dataViewKey:'D3BBA1F0780056C837AC35E9825CAD5A@ContentProject@projects',
  }})
  expect(buttons(rule).map(node=>node.props?.['label'])).toEqual(expect.arrayContaining([
-  '读取操作目录','派发当前操作','重查原试次','查看原实发 JSON','查看业务回执 JSON','查看返工交接',
+  '读取操作目录','派发当前操作','核对原试次交接','查看原实发 JSON','查看业务回执 JSON','查看返工交接',
  ]))
 })
 

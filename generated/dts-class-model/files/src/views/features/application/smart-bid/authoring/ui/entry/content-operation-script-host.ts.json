@@ -96,28 +96,6 @@
         }
       ]
     },
-    "ExecutableDispatchResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ExecutableDispatchResult",
-      "properties": {
-        "operationId": {
-          "type": "string"
-        },
-        "requestKey": {
-          "type": "string"
-        },
-        "outcome": {
-          "$ref": "../../../../../../../../packages/spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
-        }
-      },
-      "required": [
-        "operationId",
-        "requestKey",
-        "outcome"
-      ],
-      "additionalProperties": false
-    },
     "ContentOperationDispatch": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -188,12 +166,12 @@
         },
         "method.dispatchOperation.return": {
           "type": "object",
-          "title": "Promise<ExecutableDispatchResult>"
+          "title": "Promise<SmartBidAgentDispatchResult>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-23T02:59:39.654Z",
+  "generatedAt": "2026-11-26T00:36:32.671Z",
   "models": {
     "Open": {
       "name": "Open",
@@ -209,40 +187,6 @@
           }
         ],
         "members": {}
-      }
-    },
-    "ExecutableDispatchResult": {
-      "name": "ExecutableDispatchResult",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Awaited<ReturnType<SmartBidOperationModule['dispatchOperation']>>",
-            "targetName": "Awaited"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "operationId",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "requestKey",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "outcome",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
       }
     },
     "ContentOperationDispatch": {
@@ -284,7 +228,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
+        "declarationTypeText": "Omit<Open[2], 'signal'> & Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<SmartBidAgentDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -293,7 +237,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<ExecutableDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
+            "typeText": "Readonly<{\n    dispatchOperation?: (command: ContentOperationDispatch) => Promise<SmartBidAgentDispatchResult>;\n    operationModule?: SmartBidOperationModule;\n    registrationId?: string;\n    runtimeInstanceId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -334,8 +278,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ExecutableDispatchResult",
-                    "sourcePath": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts"
+                    "name": "SmartBidAgentDispatchResult"
                   }
                 ]
               }

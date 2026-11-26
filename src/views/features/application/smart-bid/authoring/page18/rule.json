@@ -53,7 +53,7 @@
   {
     "id": "original-operation-dispatch",
     "type": "r-section",
-    "props": {"title": "原试次实发记录"},
+    "props": {"title": "原试次交接"},
     "children": [
       {
         "type": "r-toolbar",
@@ -61,13 +61,13 @@
           {
             "type": "r-button",
             "props": {
-              "label": "重查原试次",
+              "label": "核对原试次交接",
               "action": "host-command",
               "command": "content.operation.readDispatch",
               "input": {
                 "dispatch": {"$route": "operationDispatch", "parse": "json"}
               },
-              "resultAlertTitle": "原试次实发记录"
+              "resultAlertTitle": "原试次交接核对"
             }
           },
           {

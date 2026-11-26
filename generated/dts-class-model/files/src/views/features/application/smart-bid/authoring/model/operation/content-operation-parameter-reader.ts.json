@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader\n职责：把已持有的 SmartBid 派发参数与 SSE ACK 作为页面原试次输入核验。\n边界：不查询伪 ContextManifest/GenerationRun 模型；只读取调用方传入的固定参数和正式 owner receipt。\nAI用途：页面重查时直接核对原 command、inputDigest、sessionId、turnId 和 actionReceipt。",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader\n职责：核验 SmartBid 派发交接及原结果来源，提供原实参与业务回执的读取方法。\n边界：项目、试次和摘要一致只证明交接完整性，原结果来源由可信宿主确认。\nAI用途：按 sessionId、turnId 和 requestKey 保留交接线索，避免将待核交接用于返工。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -28,22 +28,35 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.assertCurrent.return": true
+        "method.assertCurrent.return": true,
+        "method.verifyOriginal.params": {
+          "type": "object",
+          "properties": {
+            "dispatch": {
+              "$ref": "../../../../../../../services/smart-bid/operation/agent-module/smart-bid-agent-dispatch.ts.json#/$defs/SmartBidAgentDispatchResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyOriginal.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
       }
     }
   },
-  "generatedAt": "2026-11-23T09:32:12.823Z",
+  "generatedAt": "2026-11-26T00:37:57.500Z",
   "models": {
     "Scope": {
       "name": "Scope",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    projectId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    assertCurrent: () => void;\n    verifyOriginal?: (dispatch: SmartBidAgentDispatchResult) => Promise<boolean>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    projectId: string;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    projectId: string;\n    assertCurrent: () => void;\n    verifyOriginal?: (dispatch: SmartBidAgentDispatchResult) => Promise<boolean>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -62,6 +75,28 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "verifyOriginal",
+              "parameters": [
+                {
+                  "name": "dispatch",
+                  "type": {
+                    "type": "reference",
+                    "name": "SmartBidAgentDispatchResult"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
               }
             }
           ]

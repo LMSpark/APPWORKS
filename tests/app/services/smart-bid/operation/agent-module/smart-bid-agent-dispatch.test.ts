@@ -6,7 +6,7 @@ import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {createSmartBidAgentDispatcher} from '@/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch'
 import type {AiAgentTurnBridgeOptions} from '@/services/ai/ai-turn-bridge'
 import type {AiAgentTurnCallbacks} from '@spark-appworks/spark-ai/agent'
-import {readOperationDispatchParameter} from '@/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader'
+import {createContentOperationScriptHost} from '@/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host'
 
 const state=vi.hoisted(()=>({script:'',sent:false,failReturn:false,failBefore:false,forwarded:vi.fn(),prompt:vi.fn()}))
 vi.mock('@/services/ai/ai-turn-bridge',()=>({
@@ -98,18 +98,36 @@ it.each(['identical','reordered','changed','changed-prompt'] as const)('requires
 
 it('preserves the original owner receipt when the actual tool-result return is interrupted',async()=>{
  const f=await openCommandRuntime()
+ const reopened=await openCommandRuntime()
  try{
   state.script=`return await this.dispatchOperation(${JSON.stringify(f.command)})`
   state.failReturn=true
-  const dispatch=await f.dispatcher.dispatch(f.command,f.signal)
+  const makeHost=(fixture:typeof f)=>createContentOperationScriptHost(fixture.runtime,fixture.dispatcher.classModel,{
+   scenarioId:'SPACE',projectId:'PROJECT',rootKind:fixture.dispatcher.rootKind,
+   assertCurrent:fixture.dispatcher.assertCurrent,
+   dispatchOperation:({input,signal})=>fixture.dispatcher.dispatch(input,signal),
+  })
+  const host=makeHost(f)
+  const dispatch=await host.invoke('content.operation.dispatch',f.command,f.signal)
   expect(f.submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({requestKey:'ORIGINAL'}),expect.anything())
   expect(state.forwarded).toHaveBeenCalledOnce()
-  expect(dispatch.outcome).toMatchObject({state:'ACTION_APPLIED',dispatched:true,
-   actionReceipt:{requestKey:'ORIGINAL',receiptRef:'RECEIPT'},error:'LOCAL_TOOL_RETURN_INTERRUPTED'})
-  const readback=await readOperationDispatchParameter({projectId:'PROJECT',assertCurrent:()=>{}},dispatch)
+  expect(dispatch).toMatchObject({outcome:{state:'ACTION_APPLIED',dispatched:true,
+   actionReceipt:{requestKey:'ORIGINAL',receiptRef:'RECEIPT'},error:'LOCAL_TOOL_RETURN_INTERRUPTED'}})
+  const handoff={dispatch:JSON.parse(JSON.stringify(dispatch))}
+  const readback=await host.invoke('content.operation.readDispatch',handoff,f.signal)
+  expect(readback).toMatchObject({state:'DISPATCH_RECORDED',dispatchState:'ACTION_APPLIED'})
+  if(!('readActionReceipt' in readback))throw Error('Expected operation readback')
   expect(readback.readActionReceipt()).toMatchObject({requestKey:'ORIGINAL',receiptRef:'RECEIPT'})
+  expect(readback.readActualInput()).toBe('{"options":{"copies":1},"revisionId":"V1"}')
+  const independentHost=makeHost(reopened)
+  const pending=await independentHost.invoke('content.operation.readDispatch',handoff,reopened.signal)
+  expect(pending).toMatchObject({state:'HANDOFF_UNVERIFIED',requestKey:'ORIGINAL',turnId:'SSE-TURN'})
+  expect(pending).not.toHaveProperty('actionReceipt')
+  if(!('readActionReceipt' in pending))throw Error('Expected operation readback')
+  expect(pending.readActionReceipt).toThrow('OPERATION_PARAMETER_ORIGINAL_SOURCE_REQUIRED')
   expect(f.submit).toHaveBeenCalledOnce()
- }finally{f.runtime.dispose()}
+  expect(reopened.submit).not.toHaveBeenCalled()
+ }finally{f.runtime.dispose();reopened.runtime.dispose()}
 })
 
 it('uses the same owner execution for a repeated command in one generated ClassModel turn',async()=>{
@@ -138,8 +156,7 @@ it.each(['confirmed','delivery-failed','owner-unknown'] as const)('stops a new t
   expect(f.submit).toHaveBeenCalledOnce()
   expect(f.verify).not.toHaveBeenCalled()
   if(mode==='owner-unknown')return
-  const originalRead=await readOperationDispatchParameter({projectId:'PROJECT',assertCurrent:()=>{}},original)
-  expect(originalRead.readActionReceipt()).toMatchObject({requestKey:'ORIGINAL',receiptRef:'RECEIPT'})
+  expect(original.outcome.actionReceipt).toMatchObject({requestKey:'ORIGINAL',receiptRef:'RECEIPT'})
   const next={...f.command,requestKey:'NEW'}
   state.script=`return await this.dispatchOperation(${JSON.stringify(next)})`
   expect((await f.dispatcher.dispatch(next,f.signal)).outcome.state).toBe('ACTION_APPLIED')

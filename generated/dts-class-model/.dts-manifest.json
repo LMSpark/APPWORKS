@@ -6364,7 +6364,7 @@
     "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader.ts.json",
-      "sourceModifiedAt": "2026-11-23T09:32:12.823Z"
+      "sourceModifiedAt": "2026-11-26T00:37:57.500Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/content-approval-coverage.ts",
@@ -6554,7 +6554,7 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-operation-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-23T02:59:39.654Z"
+      "sourceModifiedAt": "2026-11-26T00:36:32.671Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-operation-target.ts",

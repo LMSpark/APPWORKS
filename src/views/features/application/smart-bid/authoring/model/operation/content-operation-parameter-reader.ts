@@ -1,8 +1,8 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/model/operation/content-operation-parameter-reader
- * 职责：把已持有的 SmartBid 派发参数与 SSE ACK 作为页面原试次输入核验。
- * 边界：不查询伪 ContextManifest/GenerationRun 模型；只读取调用方传入的固定参数和正式 owner receipt。
- * AI用途：页面重查时直接核对原 command、inputDigest、sessionId、turnId 和 actionReceipt。
+ * 职责：核验 SmartBid 派发交接及原结果来源，提供原实参与业务回执的读取方法。
+ * 边界：项目、试次和摘要一致只证明交接完整性，原结果来源由可信宿主确认。
+ * AI用途：按 sessionId、turnId 和 requestKey 保留交接线索，避免将待核交接用于返工。
  */
 import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -11,8 +11,12 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import type {SmartBidAgentDispatchResult} from '@/services/smart-bid/operation/agent-module/smart-bid-agent-dispatch'
 import {createSmartBidCommand} from '@/services/smart-bid/operation/agent-module/smart-bid-command'
 
-type Scope=Readonly<{projectId:string;assertCurrent:()=>void}>
+type Scope=Readonly<{
+ projectId:string;assertCurrent:()=>void
+ verifyOriginal?:(dispatch:SmartBidAgentDispatchResult)=>Promise<boolean>
+}>
 type TurnState=SmartBidAgentDispatchResult['outcome']['state']
+const handoffMessage='交接记录待正式来源复核。'
 
 function requiredTurnState(value:unknown):TurnState{
  if(value==='NO_ACTION_RECEIPT'||value==='ACTION_APPLIED'||value==='SSE_UNKNOWN')return value
@@ -51,19 +55,28 @@ function readDispatch(value:unknown,scope:Scope):SmartBidAgentDispatchResult{
  })
 }
 
-/** 只核对显式传入的派发参数；空白或伪造身份直接失败，不触发重发。 */
+/** 核对交接完整性，并在可信宿主确认来源后提供原实参与原回执。 */
 export async function readOperationDispatchParameter(scope:Scope,value:unknown){
  const dispatch=readDispatch(value,scope)
  const inputJson=canonicalSnapshotValue(dispatch.parameters.inputs)
  if(await hashCanonicalSnapshotText(inputJson)!==dispatch.inputDigest)throw Error('OPERATION_PARAMETER_INPUT_DIGEST')
  const assertCurrent=()=>scope.assertCurrent()
+ const verified=await scope.verifyOriginal?.(dispatch)
+ assertCurrent()
  const base=Object.freeze({
-  state:dispatch.outcome.state==='SSE_UNKNOWN'?'UNKNOWN':'DISPATCH_RECORDED',
   operationId:dispatch.operationId,requestKey:dispatch.requestKey,
   sessionId:dispatch.outcome.sessionId,turnId:dispatch.outcome.turnId,
-  dispatchState:dispatch.outcome.state,actualInputDigest:dispatch.inputDigest,assertCurrent,
+  assertCurrent,
  })
+ if(!verified){
+  const requireOriginal=()=>{assertCurrent();throw Error('OPERATION_PARAMETER_ORIGINAL_SOURCE_REQUIRED')}
+  return Object.freeze({...base,state:'HANDOFF_UNVERIFIED' as const,dispatchState:'UNVERIFIED' as const,
+   message:handoffMessage,handoffInputDigest:dispatch.inputDigest,
+   readActualInput:requireOriginal,readActionReceipt:requireOriginal})
+ }
  return Object.freeze({...base,
+  state:dispatch.outcome.state==='SSE_UNKNOWN'?'UNKNOWN' as const:'DISPATCH_RECORDED' as const,
+  dispatchState:dispatch.outcome.state,actualInputDigest:dispatch.inputDigest,
   ...(dispatch.outcome.state==='ACTION_APPLIED'?{actionReceipt:dispatch.outcome.actionReceipt}:{}),
   readActualInput:()=>{assertCurrent();return inputJson},
   readActionReceipt:()=>{
@@ -78,14 +91,18 @@ export async function readOperationDispatchParameter(scope:Scope,value:unknown){
 export async function prepareOperationReworkParameter(scope:Scope,value:unknown,reason:string){
  const dispatch=await readOperationDispatchParameter(scope,value)
  if(!reason.trim())throw Error('OPERATION_PARAMETER_REWORK_REQUIRED')
+ const base={reason:reason.trim(),
+  operationId:dispatch.operationId,requestKey:dispatch.requestKey,
+  sessionId:dispatch.sessionId,turnId:dispatch.turnId,dispatchState:dispatch.dispatchState,
+  assertCurrent:dispatch.assertCurrent,
+ }
+ if(dispatch.state==='HANDOFF_UNVERIFIED')return Object.freeze({...base,
+  state:'REWORK_EVIDENCE_REQUIRED' as const,message:dispatch.message,
+ })
  const inputs=coerceStrictJsonValue(JSON.parse(dispatch.readActualInput()))
  if(!isRecord(inputs))throw Error('OPERATION_PARAMETER_INPUT_REQUIRED')
  return Object.freeze({
-  state:'REWORK_PARAMETERS_READY' as const,reason:reason.trim(),
-  operationId:dispatch.operationId,requestKey:dispatch.requestKey,
-  sessionId:dispatch.sessionId,turnId:dispatch.turnId,dispatchState:dispatch.dispatchState,
-  inputs,
+  ...base,state:'REWORK_PARAMETERS_READY' as const,inputs,
   ...('actionReceipt' in dispatch?{actionReceipt:dispatch.actionReceipt}:{}),
-  assertCurrent:dispatch.assertCurrent,
  })
 }

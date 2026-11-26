@@ -252,11 +252,6 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  getPage?:ApiModelRuleHost['getPage']
 }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
- if (projectId === APPLICATION_CATALOG_PROJECT_ID) return loadCatalogRuntimeScenario(command)
- const execution = readLowcodeExecutionProject()
- if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
- const assertCurrent = execution.assertCurrent
- assertCurrent()
  const source = command.source ?? {mode:'design' as const,sourceRevision:'working',publicationRef:null,scenarioIds:[scenarioId]}
  if (!source.scenarioIds.includes(scenarioId)
    || source.scenarioIds.some(id => typeof id !== 'string' || !id.trim())) {
@@ -276,6 +271,14 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  if (command.pagedata && command.pagedata.scenarioId !== scenarioId) {
   throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: pagedata 场景身份不一致')
  }
+ if (projectId === APPLICATION_CATALOG_PROJECT_ID) {
+  if (source.mode !== 'design') throw new Error('CATALOG_SCENARIO_SOURCE_CONFLICT: 目录场景只接纳仓内设计来源')
+  return loadCatalogRuntimeScenario(command)
+ }
+ const execution = readLowcodeExecutionProject()
+ if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+ const assertCurrent = execution.assertCurrent
+ assertCurrent()
  if (command.dataset) {
   if (command.dataset.scenarioId !== scenarioId || command.dataset.fileName !== `${scenarioId}.dataset.json`) {
    throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: Dataset Plan 身份不一致')

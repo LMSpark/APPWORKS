@@ -9,6 +9,7 @@ import agentWorkflowConfig from '../../../../config/pages/shared/agent-workflow-
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
+  readCatalogScope: vi.fn(),
   readText: vi.fn(),
   readSpaceDefinition: vi.fn(),
   readModelBatch: vi.fn(),
@@ -43,6 +44,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
     design: {listFiles: mocks.listFiles, readTextFile: mocks.readTextFile},
   },
   lowcodeHttp: http,
+  readLowcodeCatalogRuntimeRequestScope: mocks.readCatalogScope,
   lowcodeDesignFileUpload: vi.fn(),
   createLowcodeProjectGateways: () => ({ scenarioViews: { readText: mocks.readText } }),
   readLowcodeRuntimeDatasetPlan: async () => {throw Error('published Plan must not use the legacy file reader')},
@@ -114,7 +116,10 @@ function relationFixture(field = 'missing', childModelId = 'CHILD') {
 
 describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { vi.restoreAllMocks() })
+  afterEach(() => {
+    mocks.readCatalogScope.mockReset()
+    vi.restoreAllMocks()
+  })
 
   it('reopens an independently proved Plan only after a current FileResource read', async () => {
     const scenarioId = 'PUBLISHED-PLAN'
@@ -247,6 +252,31 @@ describe('loadLowcodeRuntimeScenario', () => {
     expect(mocks.readText).not.toHaveBeenCalled()
     expect(mocks.request).not.toHaveBeenCalled()
   })
+
+  it.each(['preview', 'published pagedata', 'published Plan', 'other scenario'] as const)(
+    'rejects directory source %s before entering the directory owner',
+    async kind => {
+      const {scenarioId} = getSystemScenarioResource('pdfInspectCatalog')
+      const pagedata = {scenarioId, version: 4, fileName: '4__pagedata.json', sha256: 'proven', sourceRevision: 'snapshot',
+        text: JSON.stringify({scenarioId, tables: {}})}
+      const dataset = {scenarioId, fileName: `${scenarioId}.dataset.json`, sha256: 'proven', sourceRevision: 'snapshot'}
+      const published = {mode: 'published' as const, publicationRef: 'r=1;s=1;t=1;m=1', sourceRevision: 'manifest', scenarioIds: [scenarioId]}
+      const source = kind === 'preview'
+        ? {mode: 'preview' as const, publicationRef: null, sourceRevision: 'preview:temporary', scenarioIds: [scenarioId]}
+        : kind === 'other scenario'
+          ? {mode: 'design' as const, publicationRef: null, sourceRevision: 'working', scenarioIds: ['OTHER']}
+          : published
+      mocks.readCatalogScope.mockImplementationOnce(() => {throw new Error('directory owner was entered')})
+      await expect(loadLowcodeRuntimeScenario({projectId: 'homepage', scenarioId, source,
+        ...(kind === 'published pagedata' ? {pagedata} : kind === 'published Plan' ? {dataset} : {}),
+      })).rejects.toThrow(kind === 'other scenario' ? 'PAGE_RUNTIME_SOURCE_CONTRACT'
+        : kind === 'preview' ? 'PAGE_PREVIEW_TEMPORARY_SOURCE' : 'CATALOG_SCENARIO_SOURCE_CONFLICT')
+      expect(mocks.readCatalogScope).not.toHaveBeenCalled()
+      expect(mocks.readText).not.toHaveBeenCalled()
+      expect(mocks.readTextFile).not.toHaveBeenCalled()
+      expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+    },
+  )
 
   it('assembles the full shared 7AB scenario for a dynamic app',async()=>{
     const scene=getSystemScenarioResource('projectBlueprint')

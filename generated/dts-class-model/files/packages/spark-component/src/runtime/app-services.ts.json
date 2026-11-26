@@ -345,6 +345,10 @@
       "type": "object",
       "title": "PageSelectEntitiesOptions",
       "properties": {
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        },
         "title": {
           "type": "string"
         },
@@ -773,7 +777,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T15:05:51.879Z",
+  "generatedAt": "2026-11-26T15:32:59.780Z",
   "models": {
     "PageMessageType": {
       "name": "PageMessageType",
@@ -1171,9 +1175,15 @@
       "jsdoc": "实体选择器配置",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 选择器标题 */\n    title?: string;\n    /** 实体名称（用于空状态提示等） */\n    entityName?: string;\n    /** 搜索框占位符 */\n    placeholder?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 是否可搜索 */\n    searchable?: boolean;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 空状态文案 */\n    emptyText?: string;\n    /** 当前已选值 */\n    currentValue?: string | number | boolean | Array<string | number | boolean>;\n    /** 静态选项列表（不传则动态加载） */\n    options?: PageSelectorOption[];\n}",
+        "declarationTypeText": "{\n    /** 原调用生命周期结束时撤销本次选择。 */\n    signal?: AbortSignal;\n    /** 选择器标题 */\n    title?: string;\n    /** 实体名称（用于空状态提示等） */\n    entityName?: string;\n    /** 搜索框占位符 */\n    placeholder?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 是否可搜索 */\n    searchable?: boolean;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 空状态文案 */\n    emptyText?: string;\n    /** 当前已选值 */\n    currentValue?: string | number | boolean | Array<string | number | boolean>;\n    /** 静态选项列表（不传则动态加载） */\n    options?: PageSelectorOption[];\n}",
         "members": {
           "attributes": [
+            {
+              "name": "signal",
+              "jsdoc": "原调用生命周期结束时撤销本次选择。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "title",
               "jsdoc": "选择器标题",

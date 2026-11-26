@@ -106,7 +106,13 @@ export function buildPageContext(deps: PageContextDeps): PageContext {
       async showPrompt(...args) { assertCurrent(); const value = await pageService.showPrompt(...args); assertCurrent(); return value },
       async showAlert(...args) { assertCurrent(); await pageService.showAlert(...args); assertCurrent() },
       async showDialog(...args) { assertCurrent(); const value = await pageService.showDialog(...args); assertCurrent(); return value },
-      async selectEntities(...args) { assertCurrent(); const value = await pageService.selectEntities(...args); assertCurrent(); return value },
+      async selectEntities(options) {
+        assertCurrent()
+        const signal = options.signal ? AbortSignal.any([deps.signal, options.signal]) : deps.signal
+        const value = await pageService.selectEntities({...options, signal})
+        assertCurrent()
+        return value
+      },
       async browseFiles(...args) { assertCurrent(); const value = await pageService.browseFiles(...args); assertCurrent(); return value },
       async uploadFiles(...args) { assertCurrent(); const value = await pageService.uploadFiles(...args); assertCurrent(); return value },
       showLoading(...args) { assertCurrent(); pageService.showLoading(...args) },

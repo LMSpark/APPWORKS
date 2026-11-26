@@ -54,6 +54,10 @@
       "type": "object",
       "title": "EntityPickerSelectCommand",
       "properties": {
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        },
         "title": {
           "type": "string"
         },
@@ -112,6 +116,7 @@
         }
       },
       "required": [
+        "signal",
         "title",
         "entityName",
         "placeholder",
@@ -269,7 +274,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T15:05:51.882Z",
+  "generatedAt": "2026-11-26T15:34:07.355Z",
   "models": {
     "EntityPickerSelectOption": {
       "name": "EntityPickerSelectOption",
@@ -313,9 +318,15 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 选择器标题。 */\n    title: string;\n    /** 选择器展示的实体名称。 */\n    entityName: string;\n    /** 搜索框或空值占位文本。 */\n    placeholder: string;\n    /** 是否允许多选。 */\n    multiple: boolean;\n    /** 是否允许搜索。 */\n    searchable: boolean;\n    /** 打开选择器前的当前值。 */\n    currentValue: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string;\n    /** 当前可选实体集合。 */\n    options: EntityPickerSelectOption[];\n}",
+        "declarationTypeText": "{\n    /** 本次字段选择的生命周期。 */\n    signal: AbortSignal;\n    /** 选择器标题。 */\n    title: string;\n    /** 选择器展示的实体名称。 */\n    entityName: string;\n    /** 搜索框或空值占位文本。 */\n    placeholder: string;\n    /** 是否允许多选。 */\n    multiple: boolean;\n    /** 是否允许搜索。 */\n    searchable: boolean;\n    /** 打开选择器前的当前值。 */\n    currentValue: PageSelectorOption['value'] | Array<PageSelectorOption['value']> | string;\n    /** 当前可选实体集合。 */\n    options: EntityPickerSelectOption[];\n}",
         "members": {
           "attributes": [
+            {
+              "name": "signal",
+              "jsdoc": "本次字段选择的生命周期。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "title",
               "jsdoc": "选择器标题。",

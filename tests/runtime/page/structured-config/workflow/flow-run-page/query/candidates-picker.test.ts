@@ -50,6 +50,36 @@ async function fixture(freeChoice = false, nodeId = 'N1', useAppSelector = false
   return {wrapper, runtime, input, ds, candidates, source, directory, select, dispatch, id}
 }
 
+it.each(['scope-disposal', 'candidate-refresh', 'replacement-disposal'])('retires only the original selector on %s', async action => {
+  const f = await fixture(false, 'N1', true)
+  let mounted = true
+  const unmount = () => { f.wrapper.unmount(); mounted = false }
+  try {
+    await f.wrapper.get('.primary-action-button').trigger('click')
+    await flushPromises()
+    expect(appPageUiState.selector.options.map(item => item.value)).toEqual(['U1:张三'])
+    if (action === 'replacement-disposal') {
+      const originalRequestId = appPageUiState.selector.requestId
+      void appPageUiService.selectEntities({title: '另一选择框', options: [{label: '王五', value: 'U3'}]})
+      unmount()
+      closeAppSelector(originalRequestId)
+      expect(appPageUiState.selector.visible).toBe(true)
+      expect(appPageUiState.selector.options.map(item => item.value)).toEqual(['U3'])
+    } else {
+      if (action === 'scope-disposal') unmount()
+      else { f.candidates.queryContext = {nodeId: 'N2'}; await f.candidates.refresh() }
+      await flushPromises()
+      expect(appPageUiState.selector.visible).toBe(false)
+      expect(appPageUiState.selector.options).toEqual([])
+    }
+    expect(f.dispatch).not.toHaveBeenCalled()
+  } finally {
+    if (mounted) unmount()
+    closeAppSelector()
+    f.runtime.dispose()
+  }
+})
+
 it.each(['cancel', 'close', 'replacement', 'confirm-empty'])('settles %s on the original approval field through the application selector', async action => {
   const f = await fixture(false, 'N1', true)
   const open = async () => {

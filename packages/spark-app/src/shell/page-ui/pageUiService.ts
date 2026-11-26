@@ -26,6 +26,7 @@ type DialogState = {
   width: string}
 
 type SelectorState = {
+  requestId: number
   visible: boolean
   title: string
   placeholder: string
@@ -50,6 +51,7 @@ const dialogState = reactive<DialogState>({
 })
 
 const selectorState = reactive<SelectorState>({
+  requestId: 0,
   visible: false,
   title: '',
   placeholder: '请输入关键字',
@@ -77,9 +79,10 @@ function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): str
 }
 
 async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorResult> {
-  if (selectorResolver) {
-    selectorResolver(null)
-  }
+  const signal = options.signal
+  if (signal?.aborted) return null
+  resolveSelector(null)
+  const requestId = ++selectorState.requestId
 
   selectorState.title = options.title ?? `选择${options.entityName ?? '项目'}`
   selectorState.placeholder = options.placeholder ?? '请输入关键字'
@@ -91,10 +94,15 @@ async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageS
   selectorState.searchKeyword = ''
   selectorState.options = options.options?.slice() ?? []
   selectorState.selectedValues = normalizeSelectorKeys(options.currentValue)
-  selectorState.visible = true
-
   return await new Promise<PageSelectorResult>((resolve) => {
-    selectorResolver = resolve
+    const abort = () => closeAppSelector(requestId)
+    selectorResolver = (result) => {
+      signal?.removeEventListener('abort', abort)
+      resolve(result)
+    }
+    signal?.addEventListener('abort', abort, {once: true})
+    if (signal?.aborted) abort()
+    else selectorState.visible = true
   })
 }
 
@@ -129,6 +137,8 @@ function resolveSelector(result: PageSelectorResult): void {
   selectorResolver = null
   selectorState.visible = false
   selectorState.searchKeyword = ''
+  selectorState.options = []
+  selectorState.selectedValues = []
   if (resolver) resolver(result)
 }
 
@@ -165,6 +175,7 @@ export function cancelAppSelector(): void {
   resolveSelector(null)
 }
 
-export function closeAppSelector(): void {
-  resolveSelector(null)
+/** 关闭原弹窗。过渡动画或取消信号可能晚于新请求。 */
+export function closeAppSelector(requestId = selectorState.requestId): void {
+  if (requestId === selectorState.requestId) resolveSelector(null)
 }

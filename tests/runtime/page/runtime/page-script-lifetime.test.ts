@@ -6,12 +6,37 @@ import { buildPageContext } from '../../../../packages/spark-component/src/page/
 import type { PageServiceCapability } from '../../../../packages/spark-component/src/runtime'
 import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
 import { SparkData } from '@spark-appworks/spark-data'
+import { appPageUiService, appPageUiState, closeAppSelector } from '@spark-appworks/spark-app'
 const service: PageServiceCapability = {
  copyText:async()=>{},
  showMessage() {}, showConfirm:async()=>true, showPrompt:async()=>null, showAlert:async()=>{}, showDialog:async()=> 'confirm',
  selectEntities:async()=>[], browseFiles:async()=>[], uploadFiles:async()=>[], showLoading() {}, navigate() {},
 }
 describe('page script call lifetime', () => {
+ it.each(['page', 'caller'])('dismisses the script selector when the %s signal is aborted', async origin => {
+  const runtime = new PageRuntime({pageId:'P',scenarioIds:[],loadScenario:async()=>{throw Error('unexpected')}})
+  const page = new AbortController(), caller = new AbortController()
+  const context = buildPageContext({pageRuntime:runtime,signal:page.signal,
+   pageRoute:{path:'/',fullPath:'/',name:null,params:{},query:{},hash:''},pageContainer:ref(null),
+   pageService:{...service,...appPageUiService}})
+  try {
+   const pending = context.$page.selectEntities({signal:caller.signal, options:[{label:'张三',value:'U1'}]})
+   expect(appPageUiState.selector.visible).toBe(true)
+   if (origin === 'page') {
+    page.abort()
+    await expect(pending).rejects.toThrow('PAGE_RUNTIME_STALE')
+   } else {
+    caller.abort()
+    await expect(pending).resolves.toBeNull()
+   }
+   expect(appPageUiState.selector.visible).toBe(false)
+   expect(appPageUiState.selector.options).toEqual([])
+  } finally {
+   closeAppSelector()
+   runtime.dispose()
+  }
+ })
+
  it('checks the authenticated host before dispatch and after asynchronous completion', async () => {
   const runtime = new PageRuntime({pageId:'P',scenarioIds:[],loadScenario:async()=>{throw Error('unexpected')}})
   const controller = new AbortController()

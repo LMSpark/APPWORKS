@@ -4,7 +4,7 @@
  * 边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。
  * AI用途：需要理解 use entity picker state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。
  */
-import { computed } from 'vue'
+import { computed, onScopeDispose, shallowRef, watchEffect } from 'vue'
 import type { PageSelectorOption } from '../../../../internal'
 import type { FieldOption } from '../../../options/index.js'
 import type {
@@ -23,6 +23,8 @@ type EntityPickerSelectOption = {
 }
 
 type EntityPickerSelectCommand = {
+  /** 本次字段选择的生命周期。 */
+  signal: AbortSignal
   /** 选择器标题。 */
   title: string
   /** 选择器展示的实体名称。 */
@@ -87,6 +89,13 @@ type UseEntityPickerStateOptions = {
 }
 
 export function useEntityPickerState(options: UseEntityPickerStateOptions) {
+  const pending = shallowRef<{controller: AbortController; isOptionsCurrent: () => boolean} | null>(null)
+  watchEffect(() => {
+    const request = pending.value
+    if (request && !request.isOptionsCurrent()) request.controller.abort()
+  })
+  onScopeDispose(() => pending.value?.controller.abort())
+
   const primaryActionText = computed(() => (options.primaryAction.value === 'select' ? options.buttonText.value : options.readonlyButtonText.value))
   const hasValue = computed(() => Array.isArray(options.currentRawValue.value)
     ? options.currentRawValue.value.length > 0
@@ -103,24 +112,35 @@ export function useEntityPickerState(options: UseEntityPickerStateOptions) {
   }
 
   async function openSelector(): Promise<void> {
-    if (!options.captureOptionsGuard()()) return
+    const isOptionsCurrent = options.captureOptionsGuard()
+    if (!isOptionsCurrent()) return
     const isCurrentIntent = options.captureWriteGuard()
-    const selected = await options.selectEntities({
-      title: `${primaryActionText.value}${options.entityName.value}`,
-      entityName: options.entityName.value,
-      placeholder: options.placeholder.value,
-      multiple: options.multiple.value,
-      searchable: options.searchable.value,
-      currentValue: options.currentRawValue.value,
-      options: options.flatOptions.value.map(option => ({
-        label: option.label,
-        value: option.value,
-        ...(option.disabled === true ? { disabled: true } : {}),
-      })),
-    })
+    pending.value?.controller.abort()
+    const controller = new AbortController()
+    const request = {controller, isOptionsCurrent}
+    pending.value = request
+    try {
+      const selected = await options.selectEntities({
+        signal: controller.signal,
+        title: `${primaryActionText.value}${options.entityName.value}`,
+        entityName: options.entityName.value,
+        placeholder: options.placeholder.value,
+        multiple: options.multiple.value,
+        searchable: options.searchable.value,
+        currentValue: options.currentRawValue.value,
+        options: options.flatOptions.value.map(option => ({
+          label: option.label,
+          value: option.value,
+          ...(option.disabled === true ? { disabled: true } : {}),
+        })),
+      })
 
-    if (selected === null || !isCurrentIntent() || !options.isCurrentFieldEditable.value) return
-    await options.updateValue(buildNextValue(selected.map(item => item.value)), isCurrentIntent)
+      const canWrite = () => !controller.signal.aborted && isCurrentIntent() && options.isCurrentFieldEditable.value
+      if (selected === null || !canWrite()) return
+      await options.updateValue(buildNextValue(selected.map(item => item.value)), canWrite)
+    } finally {
+      if (pending.value === request) pending.value = null
+    }
   }
 
   function clearValue(): void {

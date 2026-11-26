@@ -180,6 +180,8 @@ export type PageSelectorOption = {
 
 /** 实体选择器配置 */
 export type PageSelectEntitiesOptions = {
+  /** 原调用生命周期结束时撤销本次选择。 */
+  signal?: AbortSignal
   /** 选择器标题 */
   title?: string
   /** 实体名称（用于空状态提示等） */

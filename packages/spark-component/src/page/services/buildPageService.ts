@@ -328,6 +328,7 @@ export function buildPageService(
     },
 
     selectEntities: async (options) => {
+      if (options.signal?.aborted) return null
       if (typeof extension?.selectEntities === 'function') {
         return await extension.selectEntities(options)
       }

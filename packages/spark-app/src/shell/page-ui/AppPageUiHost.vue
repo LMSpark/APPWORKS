@@ -30,13 +30,13 @@ AI用途：需要理解应用层如何把路由、服务和组件系统组装起
   </el-dialog>
 
   <el-dialog
+    :key="appPageUiState.selector.requestId"
     :model-value="appPageUiState.selector.visible"
     :title="appPageUiState.selector.title"
     width="640px"
     append-to-body
     destroy-on-close
-    @close="closeAppSelector"
-    @update:model-value="handleSelectorModelValueUpdate"
+    @close="closeSelectorRequest"
   >
     <div class="app-page-selector-body">
       <el-input
@@ -134,9 +134,10 @@ function handleDialogModelValueUpdate(value: boolean): void {
   if (!value) closeAppDialog()
 }
 
-function handleSelectorModelValueUpdate(value: boolean): void {
-  if (!value) closeAppSelector()
-}
+const closeSelectorRequest = computed(() => {
+  const requestId = appPageUiState.selector.requestId
+  return () => closeAppSelector(requestId)
+})
 
 function handleSearchKeywordUpdate(value: string): void {
   appPageUiState.selector.searchKeyword = value

@@ -202,7 +202,6 @@ export class PageRuntimePool {
     const reader = this.options.readPageFile
     let pagedata = new Map<string, RuntimePagePublicationPagedata>()
     let dataset = new Map<string, RuntimePagePublicationDataset>()
-    let assertReceiptCurrent: (() => void) | undefined
     let publication: RuntimePagePublicationResolution | undefined
     let receipt: RuntimePageNavigationReceipt | undefined
     const routeFullPath = route.fullPath
@@ -229,47 +228,61 @@ export class PageRuntimePool {
         && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
         throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
       }
-      assertReceiptCurrent?.()
+    }
+    const assertCallCurrent = (): void => {
+      assertBindingCurrent()
+      prepared?.assertCurrent()
+    }
+    const assertSourceCurrent = (): void => {
+      assertCallCurrent()
+      receipt?.assertCurrent()
+      publication?.assertCurrent()
+    }
+    const assertGenerationCurrent = (generation: number): void => {
+      if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 页面装配已失效')
     }
     const runtime: PageRuntime = markRaw(new PageRuntime({
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
       ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
       ...(published ? {resolveSource: async (): Promise<PageRuntimeSource> => {
-        assertBindingCurrent()
-        prepared?.assertCurrent()
+        const generation = runtime.generation
+        assertCallCurrent()
         const resolved = this.options.resolvePageNavigationReceipt
           ? undefined
           : await this.options.resolvePagePublication?.({
             projectId, pageId: page.pageId, scenarioIds: call.ids,
             ...(typeof route.meta['nodeId'] === 'string' ? {nodeId: route.meta['nodeId']} : {}),
           })
-        resolved?.assertCurrent()
+        let nextReceipt: RuntimePageNavigationReceipt | undefined
         if (this.options.resolvePageNavigationReceipt) {
           const nodeId = route.meta['nodeId']
           if (typeof nodeId !== 'string' || nodeId.trim() === '') {
             throw new Error('PAGE_NAVIGATION_RECEIPT_IDENTITY_CONFLICT: 导航节点身份缺失')
           }
-          receipt = await this.options.resolvePageNavigationReceipt({
+          nextReceipt = await this.options.resolvePageNavigationReceipt({
             projectId, pageId: page.pageId, nodeId, scenarioIds: call.ids,
             ...(call.main === undefined ? {} : {mainScenarioId: call.main}),
           })
-          assertReceiptCurrent = receipt.assertCurrent
-          receipt.assertCurrent()
-          if (receipt.state !== 'READY') {
-            throw new Error(`PAGE_NAVIGATION_RECEIPT_${receipt.state}: ${receipt.reason ?? '页面发布导航收据未就绪'}`)
-          }
         }
-        publication = receipt?.publication ?? resolved
-        if (!hasCompleteNavigationReceipt(receipt)) {
+        assertGenerationCurrent(generation)
+        assertCallCurrent()
+        nextReceipt?.assertCurrent()
+        if (nextReceipt && nextReceipt.state !== 'READY') {
+          throw new Error(`PAGE_NAVIGATION_RECEIPT_${nextReceipt.state}: ${nextReceipt.reason ?? '页面发布导航收据未就绪'}`)
+        }
+        const nextPublication = nextReceipt?.publication ?? resolved
+        if (!hasCompleteNavigationReceipt(nextReceipt)) {
           throw new Error('PAGE_NAVIGATION_RECEIPT_IDENTITY_CONFLICT: READY 收据缺少完整工具文件 proof')
         }
-        if (!publication?.manifest) {
+        if (!nextPublication?.manifest) {
           throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布运行必须读取 publication manifest')
         }
-        if (!publication.publicationRef.trim()) {
+        if (!nextPublication.publicationRef.trim()) {
           throw new Error('PAGE_RUNTIME_PUBLICATION_REQUIRED: 发布运行必须读取 publication manifest')
         }
-        publication.assertCurrent()
+        nextPublication.assertCurrent()
+        receipt = nextReceipt
+        publication = nextPublication
         return {
           mode: 'published' as const,
           sourceRevision: publication.manifest.sourceRevision,
@@ -277,8 +290,7 @@ export class PageRuntimePool {
           scenarioIds: call.ids,
         }
       }} : {resolveSource: (): Promise<PageRuntimeSource> => {
-        prepared?.assertCurrent()
-        assertBindingCurrent()
+        assertCallCurrent()
         return Promise.resolve({
           mode: 'design' as const,
           sourceRevision: `working:${projectId}:${page.pageId}:${runtime.instanceId}:${runtime.generation}`,
@@ -287,23 +299,19 @@ export class PageRuntimePool {
         })
       }}),
       loadTool: async () => {
-        prepared?.assertCurrent()
+        assertSourceCurrent()
+        const currentPublication = publication
+        const currentReceipt = receipt
         const batchReader = this.options.readPageFiles
-        if (!reader && !batchReader && receipt?.state !== 'READY') throw new Error('未注入工具文件读取器')
+        if (!reader && !batchReader && currentReceipt?.state !== 'READY') throw new Error('未注入工具文件读取器')
         const generation = runtime.generation
-        const assertGenerationCurrent = (): void => {
-          if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
-        }
-        assertBindingCurrent()
-        publication?.assertCurrent()
-        assertGenerationCurrent()
-        pagedata = new Map()
-        dataset = new Map()
-        if (publication) {
-          const manifest = publication.manifest
+        const nextPagedata = new Map<string, RuntimePagePublicationPagedata>()
+        const nextDataset = new Map<string, RuntimePagePublicationDataset>()
+        if (currentPublication) {
+          const manifest = currentPublication.manifest
           if (runtime.source.mode !== 'published'
             || manifest.sourceRevision !== runtime.source.sourceRevision
-            || publication.publicationRef !== runtime.source.publicationRef) {
+            || currentPublication.publicationRef !== runtime.source.publicationRef) {
             throw new Error('PAGE_PUBLICATION_SCOPE_STALE: 运行来源与 manifest 不一致')
           }
           if (manifest.pageId !== page.pageId) throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: manifest pageId 不一致')
@@ -329,55 +337,52 @@ export class PageRuntimePool {
             if (manifest.schemaVersion === 2) {
               const snapshot = manifest.dataset.find(item => item.scenarioId === scenarioId)
               if (!snapshot) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${scenarioId} Dataset proof`)
-              dataset.set(scenarioId, snapshot)
+              nextDataset.set(scenarioId, snapshot)
             } else {
               const snapshot = manifest.pagedata.find(item => item.scenarioId === scenarioId)
               if (!snapshot) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${scenarioId} pagedata proof`)
-              pagedata.set(scenarioId, snapshot)
+              nextPagedata.set(scenarioId, snapshot)
               await this.proofText(snapshot.text, snapshot.sha256, `${scenarioId}/pagedata.json`)
             }
           }
         }
-        prepared?.assertCurrent()
-        assertBindingCurrent()
-        publication?.assertCurrent()
+        assertGenerationCurrent(generation)
+        assertSourceCurrent()
         const commands = PAGE_TOOL_FILE_NAMES.map(fileName => ({
           projectId, pageId: page.pageId, fileName,
-          ...(publication ? {versionId: publication.publicationRef} : {}),
+          ...(currentPublication ? {versionId: currentPublication.publicationRef} : {}),
         }))
-        const receiptFiles = new Map(receipt?.state === 'READY'
-          ? (receipt.files ?? []).map(file => [file.fileName, file.text])
+        const receiptFiles = new Map(currentReceipt?.state === 'READY'
+          ? (currentReceipt.files ?? []).map(file => [file.fileName, file.text])
           : [])
-        const texts: readonly unknown[] = receipt?.state === 'READY'
+        const texts: readonly unknown[] = currentReceipt?.state === 'READY'
           ? commands.map(command => receiptFiles.get(command.fileName))
           : batchReader ? await batchReader(commands) : reader ? await Promise.all(commands.map(reader)) : []
-        assertGenerationCurrent()
-        prepared?.assertCurrent()
-        assertBindingCurrent()
-        publication?.assertCurrent()
+        assertGenerationCurrent(generation)
+        assertSourceCurrent()
         if (texts.length !== commands.length) throw new Error('工具文件读取结果数量不符')
         for (const [index, command] of commands.entries()) {
           const text = texts[index]
           if (typeof text !== 'string') throw new Error('工具文件读取结果缺少文本')
-          const proof = publication?.manifest.files.find(file => file.fileName === command.fileName)
-          if (publication && !proof) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${command.fileName}`)
+          const proof = currentPublication?.manifest.files.find(file => file.fileName === command.fileName)
+          if (currentPublication && !proof) throw new Error(`PAGE_PUBLICATION_MANIFEST_MISSING: manifest 缺少 ${command.fileName}`)
           if (proof) await this.proofText(text, proof.sha256, command.fileName)
         }
-        assertGenerationCurrent()
-        prepared?.assertCurrent()
-        assertBindingCurrent()
-        publication?.assertCurrent()
+        assertGenerationCurrent(generation)
+        assertSourceCurrent()
         for (const [index, command] of commands.entries()) {
           const text = texts[index]
           if (typeof text !== 'string') throw new Error('工具文件读取结果缺少文本')
           page.hydrateFileText(command.fileName, text)
         }
         page.markLoaded()
+        pagedata = nextPagedata
+        dataset = nextDataset
         return page
       },
       loadScenario: async scenarioId => {
-        prepared?.assertCurrent()
-        assertBindingCurrent()
+        const generation = runtime.generation
+        assertSourceCurrent()
         if (!this.options.loadScenario) throw new Error('未注入场景运行装配器')
         const snapshot = pagedata.get(scenarioId)
         const datasetSnapshot = dataset.get(scenarioId)
@@ -385,7 +390,7 @@ export class PageRuntimePool {
           projectId, scenarioId, source: runtime.source,
           ...(datasetSnapshot ? {dataset: datasetSnapshot} : snapshot ? {pagedata: snapshot} : {}),
         })
-        try { prepared?.assertCurrent(); assertBindingCurrent(); return dataSet }
+        try { assertGenerationCurrent(generation); assertSourceCurrent(); return dataSet }
         catch (error) { dataSet.destroy(); throw error }
       },
     }))
@@ -419,8 +424,7 @@ export class PageRuntimePool {
         const host = capability && {
           runtime,
           assertCurrent() {
-            assertBindingCurrent()
-            assertReceiptCurrent?.()
+            assertSourceCurrent()
             capability.assertCurrent()
           },
           invoke: (name: string, input: unknown, signal: AbortSignal) => capability.invoke(name, input, signal),
@@ -431,11 +435,7 @@ export class PageRuntimePool {
         })
       } }))
     this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key,
-      ...((prepared || this.options.resolvePageNavigationReceipt) ? {assertCurrent: () => {
-        assertBindingCurrent()
-        prepared?.assertCurrent()
-        assertReceiptCurrent?.()
-      }} : {}) })
+      ...(prepared || published ? {assertCurrent: assertSourceCurrent} : {}) })
     return runtime
   }
 

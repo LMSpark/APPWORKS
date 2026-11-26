@@ -49,7 +49,7 @@ const cases=[
   prompt:'登记问题',inputs:{checkRef:'CHECK'},query:{findingRegistrationKey:'ORIGINAL',findingCheckRef:'CHECK'}},
 ]
 
-it.each(cases.flatMap(page=>['empty','interrupted','confirmed'].map(mode=>({page,mode}))))(
+it.each(cases.flatMap(page=>['empty','interrupted','mismatched','confirmed'].map(mode=>({page,mode}))))(
  'publishes the real $page.title action message only with an original receipt for $mode',async({page,mode})=>{
   registerAllRenderers()
   state.mode=mode
@@ -66,7 +66,8 @@ it.each(cases.flatMap(page=>['empty','interrupted','confirmed'].map(mode=>({page
   const view=ensureDataSetResourceView({dataSet,tableName:'SmartBidAction',resource:{resourceType:'command',resourceId:'smart-bid:action'},
    columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
     .map(name=>({name})),{name:'inputs',type:'json'}]})
-  const submit=vi.fn(async row=>({...row,receiptRef:'RECEIPT'}))
+  const submit=vi.fn(async row=>({...row,receiptRef:'RECEIPT',
+   ...(mode==='mismatched'?{requestKey:'DIFFERENT-REQUEST'}:{})}))
   bindDataSetCommandSubmit(view,{resource:{resourceType:'command',resourceId:'smart-bid:action'},
    guard:()=>{},inputFields:['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','inputs'],
    createKey:()=> 'ORIGINAL-COMMAND',submit,verify:async()=>undefined})
@@ -114,7 +115,7 @@ it.each(cases.flatMap(page=>['empty','interrupted','confirmed'].map(mode=>({page
     expect(submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({operationId:page.operationId,requestKey:'ORIGINAL'}),expect.anything())
     expect(messages.success).toHaveBeenCalledExactlyOnceWith(page.success)
    }else{
-    expect(submit).not.toHaveBeenCalled()
+    expect(submit).toHaveBeenCalledTimes(mode==='mismatched'?1:0)
     expect(messages.success).not.toHaveBeenCalled()
     expect(messages.error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(mode==='interrupted'?'回传中断':'原业务回执'))
    }

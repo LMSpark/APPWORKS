@@ -5,6 +5,7 @@
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {coerceStrictJsonValue} from '@spark-appworks/spark-json-document'
+import {canonicalSnapshotValue} from '@/services/smart-bid/content/revision-snapshot-hash'
 import type {SmartBidActionExecutor} from './smart-bid-action-module'
 
 const commandFields=[
@@ -29,15 +30,23 @@ export function createSmartBidRuntimeActionExecutor(source:RuntimeOwner):SmartBi
   const view=candidates[0]
   if(!view||view.destroyed||view.dataSet!==dataSet)throw Error('SMART_BID_ACTION_OWNER_STALE')
   source.assertCurrent()
-  const row=await view.addRow({...input})
+  const submitted=structuredClone(input)
+  const row=await view.addRow({...submitted})
   const key=view.getPkKey(row)
   if(key===undefined)throw Error('SMART_BID_ACTION_COMMAND_KEY_REQUIRED')
   try{
    const result=await dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:[key]}]})
    source.assertCurrent()
    if(!result.success)throw Error(result.message??'SMART_BID_ACTION_SAVE_FAILED')
+   const batch=result.data, saved=batch?.viewResults[0]
+   if(batch?.viewCount!==1||batch.viewResults.length!==1||saved?.tableName!==view.tableName
+    ||saved.viewId!==view.viewId||saved.createdCount!==1||saved.savedCount!==0||saved.deletedCount!==0
+    ||saved.failedCount!==0||saved.failedEditingRows!==0)throw Error('SMART_BID_ACTION_RECEIPT_REQUIRED')
    const receipt=view.rows.find(item=>view.getPkKey(item)===key)
    if(!receipt)throw Error('SMART_BID_ACTION_RECEIPT_REQUIRED')
+   const mismatch=commandFields.find(field=>Object.hasOwn(receipt,field)
+    &&canonicalSnapshotValue(receipt[field])!==canonicalSnapshotValue(submitted[field]))
+   if(mismatch)throw Error(`SMART_BID_ACTION_RECEIPT_CONFLICT: ${mismatch}`)
    const outcome=coerceStrictJsonValue(Object.fromEntries(Object.entries(receipt).filter(([field])=>field!=='_pk')))
    if(outcome===undefined)throw Error('SMART_BID_ACTION_RECEIPT_INVALID')
    return outcome

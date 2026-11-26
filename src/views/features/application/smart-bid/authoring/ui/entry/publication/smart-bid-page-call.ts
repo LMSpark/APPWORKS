@@ -11,6 +11,7 @@ import {resolveExecutionProjectId} from '@/services/application-scope'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {captureContentAuthoringSession} from '../../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from '../content-authoring-target'
+import {createContentSubmissionScriptHost} from '../content-submission-script-host'
 import {preparePublishedContentOperationCall} from '../content-operation-target'
 import {preparePublishedBidClassModelCatalogCall,preparePublishedConfigurationReleaseCall,
  preparePublishedContentDeadlineCall,preparePublishedContentSubmissionCall,
@@ -104,7 +105,11 @@ function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
   createHost(runtime:PageRuntime){
    session.assertCurrent()
    const submit=createSmartBidPageActionSubmit(runtime,projectId,session.assertCurrent)
+   const submission=entry.pageId===submissionPageId
+    ?createContentSubmissionScriptHost(runtime,{projectId,scenarioId,assertCurrent:session.assertCurrent})
+    :undefined
    return Object.freeze({runtime,assertCurrent:session.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
+    if(name==='content.submission.readOriginal'&&submission)return submission.invoke(name,input,signal)
     if(name!=='smart-bid.dispatch')throw Error('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
     const command=createSmartBidCommand(input,{
      registrationId:operationRegistrationId,businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,

@@ -6,7 +6,7 @@ import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererTable, RendererForm, FieldText, FieldSelect} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererTable, RendererForm, FieldText, FieldSelect, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {ElSelect} from 'element-plus'
 import {defineComponent, h} from 'vue'
 import LogicViewList from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue'
@@ -16,6 +16,11 @@ import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/
 import {withTestPageService} from '../../../../support/helpers/page-service-host'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
+
+vi.mock('@/views/features/data-platform/structured-config/logic-view/ui/catalog-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/data-platform/structured-config/logic-view/ui/catalog-tool/style.css', 'utf8')}
+})
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
 let http: ApiBackend, runtime: DataSpaceRuntimeApi
@@ -68,6 +73,59 @@ describe('logic-view list page', () => {
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('session.isCurrent(current)')
     expect(source).not.toContain('new PageRuntime')
+  })
+  it('renders the directory tool with the original formal view and row selection', async () => {
+    const {wrapper} = await openList()
+    try {
+      const renderer = wrapper.getComponent(SparkPageRenderer)
+      const runtime = renderer.props('pageRuntime')
+      const table = renderer.getComponent(RendererTable)
+      const scenarioId = LowcodeLogicView.navigationScenarioId
+      const catalog = runtime.getDataSet(scenarioId)?.getView('Base_DataViewList')
+      expect(runtime.call.mainScenarioId).toBe(scenarioId)
+      expect(table.props('dataViewKey')).toBe(`${scenarioId}@Base_DataViewList@default`)
+      expect(runtime.resolveView(table.props('dataViewKey')!)).toBe(catalog)
+      expect(renderer.get('style').text()).toContain(`[data-page="${runtime.instanceId}"].spark-page-container .logic-view-catalog`)
+      const queries = http.reads.length
+      await table.get('.el-table__body .el-table__row').trigger('click'); await flushPromises()
+      expect(catalog?.getSelectedValues()).toEqual(['V1'])
+      expect(http.reads).toHaveLength(queries)
+      expect(http.saves).toEqual([])
+    } finally {wrapper.unmount()}
+  })
+  it('keeps the catalog readable when the selected row key is hidden', async () => {
+    http.hiddenFieldsById['Base_DataViewList'] = {V1: ['rowid']}
+    http.records['Base_DataViewList']?.push({rowid: 'V2', sysid: 'APP', name: '库存汇总', description: '可选择的视图'})
+    const {wrapper, router} = await openList()
+    try {
+      const table = wrapper.getComponent(RendererTable), push = vi.spyOn(router, 'push'), queries = http.reads.length
+      const button = (label: string) => {
+        const action = wrapper.findAll('button').find(item => item.text() === label)
+        if (!action) throw Error(`Missing catalog button: ${label}`)
+        return action
+      }
+      const select = async (label: string) => {
+        const row = table.findAll('.el-table__body .el-table__row').find(item => item.text().includes(label))
+        if (!row) throw Error(`Missing catalog row: ${label}`)
+        await row.trigger('click')
+        await flushPromises()
+      }
+      await select('销售汇总')
+      expect(table.text()).toContain('销售汇总')
+      expect(wrapper.text()).toContain('当前查询无法读取所选视图身份')
+      expect(button('编辑视图').attributes('disabled')).toBeDefined()
+      expect(button('打开设计').attributes('disabled')).toBeDefined()
+      expect(button('刷新').attributes('disabled')).toBeUndefined()
+      await button('打开设计').trigger('click')
+      expect(push).not.toHaveBeenCalled()
+      expect(http.saves).toEqual([])
+      expect(http.reads).toHaveLength(queries)
+
+      await select('库存汇总')
+      expect(wrapper.text()).not.toContain('当前查询无法读取所选视图身份')
+      expect(button('编辑视图').attributes('disabled')).toBeUndefined()
+      expect(button('打开设计').attributes('disabled')).toBeUndefined()
+    } finally {wrapper.unmount()}
   })
   it('does not submit an empty catalog name or missing owning application', async () => {
     const {wrapper} = await openList()

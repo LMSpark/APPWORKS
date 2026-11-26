@@ -1,0 +1,7 @@
+.flow-design-page { min-height: 420px; padding: 8px; }
+.flow-design-page__graph { min-height: 360px; height: 42vh; }
+.flow-design-page__tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.flow-design-page__wide { grid-column: 1 / -1; }
+@media (max-width: 960px) {
+  .flow-design-page__tables { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,49 @@
+[
+  {
+    "id": "logic-view-catalog",
+    "type": "r-section",
+    "props": {
+      "class": "logic-view-catalog",
+      "title": "逻辑视图",
+      "bordered": false,
+      "gridColumns": 1,
+      "gridGap": 16,
+      "onBeforeRender": "bindCatalogStatus",
+      "header": {
+        "children": [
+          {"type": "r-button", "props": {"label": "新增视图", "buttonType": "primary", "icon": "Plus", "onBeforeRender": "bindCatalogAction", "onClick": "createLogicView"}},
+          {"type": "r-button", "props": {"label": "编辑视图", "icon": "Edit", "onBeforeRender": "bindSelectedAction", "onClick": "editLogicView"}},
+          {"type": "r-button", "props": {"label": "打开设计", "icon": "Setting", "onBeforeRender": "bindSelectedAction", "onClick": "openLogicViewDesign"}},
+          {"type": "r-button", "props": {"label": "刷新", "icon": "Refresh", "onBeforeRender": "bindCatalogAction", "onClick": "refreshLogicViewCatalog"}}
+        ]
+      }
+    },
+    "children": [
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "Base_DataViewList@default",
+          "autoColumns": false,
+          "stripe": true,
+          "border": true,
+          "highlightCurrentRow": true,
+          "showDataViewMeta": false,
+          "onRowClick": "selectLogicViewRow",
+          "onBeforeRender": "bindCatalogTable",
+          "filter": {
+            "autoFitMinWidth": "230px",
+            "children": [
+              {"type": "r-text", "props": {"field": "name", "label": "视图名称", "placeholder": "按名称筛选"}}
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "name", "label": "视图名称", "width": 260}},
+          {"type": "r-text", "props": {"field": "description", "label": "描述", "width": 320}},
+          {"type": "r-select", "props": {"field": "sysid", "label": "应用系统", "optionDataViewKey": "Base_AppSystemList@default"}},
+          {"type": "r-select", "props": {"field": "createuser", "label": "创建人", "width": 150, "optionDataViewKey": "Base_UserInfo@default"}}
+        ]
+      }
+    ]
+  }
+]

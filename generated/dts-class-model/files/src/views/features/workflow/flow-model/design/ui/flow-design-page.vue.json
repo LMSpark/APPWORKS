@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
     "packageName": "app",
     "modulePath": "views/features/workflow/flow-model/design/ui/flow-design-page",
-    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/flow-design-page\n职责：按目标模型 rowid 打开流程设计工作区，可拖拽布局的 RendererGraph + 节点/边列表。\n边界：消费父 PAGE_RUNTIME；布局来自 DesignJson 投影与会话内覆盖；保存走 saveFlowDesignInfo。",
+    "jsdoc": "@module app:views/features/workflow/flow-model/design/ui/flow-design-page\n职责：把原目录调用的设计工具绑定到正式模型、图、表单、授权和文件视图。\n边界：复用父 PAGE_RUNTIME 和原保存编排，只提供本轮设计所需的动作。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-25T21:36:34.203Z",
+  "generatedAt": "2026-11-26T16:33:58.606Z",
   "models": {}
 }

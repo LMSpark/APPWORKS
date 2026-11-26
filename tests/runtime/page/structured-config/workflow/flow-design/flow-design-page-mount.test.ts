@@ -1,17 +1,20 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {createRouter,createMemoryHistory} from 'vue-router'
+import {createRouter,createMemoryHistory,type Router} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import {defineComponent, h, reactive, ref, isRef, type Ref} from 'vue'
-import {fixture} from './flow-design-data.fixture'
+import {buildFlowDesignScenario, fixture} from './flow-design-data.fixture'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import {ScenarioViewConfig, type PageRuntime} from '@spark-appworks/spark-project-model'
+import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {readRepositoryScenarioText} from '@/platform-adapters/resources/repository/scenarios/resource'
 import {FLOW_DESIGN_SCENARIO_ID, prepareFlowDesignViews, saveFlowDesignInfo} from '@/platform-adapters/resources/system/workflow/manage'
 import {withTestPageService} from '../../../../../support/helpers/page-service-host'
+import rule from '@/views/features/workflow/flow-model/design/ui/tool/rule.json?raw'
+import script from '@/views/features/workflow/flow-model/design/ui/tool/script.js?raw'
+import style from '@/views/features/workflow/flow-model/design/ui/tool/style.css?raw'
 
 vi.mock('@/platform-adapters/resources/system/workflow/manage', async importOriginal => ({
   ...await importOriginal<typeof import('@/platform-adapters/resources/system/workflow/manage')>(),
@@ -48,17 +51,6 @@ vi.mock('@/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-e
     template: '<button data-testid="pick-edge" type="button" @click="$emit(\'selectGraphId\', \'E-7\')">流程连线</button>',
   }),
 }))
-vi.mock('@spark-appworks/spark-component', async importOriginal => {
-  const actual = await importOriginal<typeof import('@spark-appworks/spark-component')>()
-  return {
-    ...actual,
-    RendererGraph: {
-      name: 'RendererGraph', props: {disabled: Boolean, draggableKeys: Array, connectableKeys: Array, edgeMarkers: Object},
-      template: '<div data-testid="flow-graph">流程图</div>',
-    },
-  }
-})
-
 const {default: FlowDesignPage} = await import('@/views/features/workflow/flow-model/design/ui/flow-design-page.vue')
 
 let currentRuntime:PageRuntime
@@ -74,34 +66,50 @@ const Host = defineComponent({
 
 const HostWithPageService=withTestPageService(Host)
 let currentPage:ReturnType<SystemPageIdentityPool['get']>
+let ownerRouter: Router
 function systemOwner(component:ReturnType<typeof defineComponent>){
- const router=createRouter({history:createMemoryHistory(),routes:[]})
- currentPage=new SystemPageIdentityPool().get(router.currentRoute.value,{scope:'application',nodeId:'design',pageId:'design',path:'/test',title:'流程设计',component,explicitQuery:{}})
+ ownerRouter=createRouter({history:createMemoryHistory(),routes:[]})
+ currentPage=new SystemPageIdentityPool().get(ownerRouter.currentRoute.value,{scope:'application',nodeId:'design',pageId:'design',path:'/test',title:'流程设计',component,explicitQuery:{}})
  return currentPage.view
 }
 const wrappers: VueWrapper[] = []
+const mountedRuntimes: PageRuntime[] = []
+const originalStubs = {...config.global.stubs}
 
 beforeEach(() => {
   queryGate = undefined
   vi.mocked(saveFlowDesignInfo).mockReset().mockResolvedValue({complete:true})
   vi.mocked(lowcodeApi.design.readTextFile).mockClear()
   registerAllRenderers()
+  const stubs = {...originalStubs}
+  for (const key of ['el-table', 'el-table-column', 'el-button', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
+  config.global.stubs = stubs
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
 afterEach(() => {
   wrappers.splice(0).forEach(item => item.unmount())
+  mountedRuntimes.splice(0).forEach(item => item.dispose())
+  config.global.stubs = originalStubs
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
 })
 
 async function mountDesign(flowModelId: string | Ref<string> = 'FM-1'): Promise<VueWrapper> {
-  const state=await fixture(true,false);currentRuntime=state.runtime
+  const state = buildFlowDesignScenario(true)
+  const tool = new PageTool({pageId: 'design'})
+  tool.hydrateFileText('rule.json', rule)
+  tool.hydrateFileText('script.js', script)
+  tool.hydrateFileText('style.css', style)
+  tool.markLoaded()
+  currentRuntime = new PageRuntime({tool, scenarioIds: [FLOW_DESIGN_SCENARIO_ID], loadScenario: async () => state.ds})
+  mountedRuntimes.push(currentRuntime)
+  await currentRuntime.load()
   state.http.beforeDefinitionRead=async()=>{await queryGate}
   const wrapper = mount(systemOwner(defineComponent({
     setup: () => () => h(HostWithPageService, {flowModelId: isRef(flowModelId) ? flowModelId.value : flowModelId}),
   })), {
     attachTo: document.body,
-    global: {plugins: [ElementPlus, Spark.createPlugin()]},
+    global: {plugins: [ownerRouter, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)
   await flushPromises()
@@ -180,6 +188,8 @@ describe('flow design page mount', () => {
     expect(edgeSelect).not.toHaveBeenCalled()
     await nodes.refresh()
     await edges.refresh()
+    await flushPromises()
+    nodeSelect.mockClear(); edgeSelect.mockClear()
     nodeTable.vm.$emit('row-click', node)
     edgeTable.vm.$emit('current-change', edge)
     await flushPromises()
@@ -219,7 +229,7 @@ describe('flow design page mount', () => {
   it('renders target title, read-only graph, and node/edge sections', async () => {
     const wrapper = await mountDesign()
     expect(wrapper.text()).toContain('设计目标：Flow 1')
-    expect(wrapper.find('[data-testid="flow-graph"]').exists()).toBe(true)
+    expect(wrapper.findComponent({name: 'RendererGraph'}).exists()).toBe(true)
     expect(wrapper.text()).toContain('流程节点')
     expect(wrapper.text()).toContain('流程连线')
   })
@@ -266,7 +276,7 @@ describe('flow design page mount', () => {
       setup: () => () => h(withTestPageService(FlowDesignPage), {flowModelId: 'FM-2'}),
     })), {
       attachTo: document.body,
-      global: {plugins: [ElementPlus, Spark.createPlugin()]},
+      global: {plugins: [ownerRouter, ElementPlus, Spark.createPlugin()]},
     })
     wrappers.push(wrapper)
     await flushPromises()

@@ -2,19 +2,10 @@
 @module app:views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page
 -->
 <template>
-  <RendererSection class="logic-view-catalog" title="逻辑视图" :bordered="false" :grid-columns="1" :grid-gap="16"
-    :status="loading ? '正在读取逻辑视图目录…' : ''" :error="error">
-    <template v-if="ready" #header-actions>
-      <RendererButton label="新增视图" button-type="primary" icon="Plus" :disabled="listLocked" @click="createView" />
-      <RendererButton label="编辑视图" icon="Edit" :disabled="listLocked || !selected" @click="editCatalog" />
-      <RendererButton label="打开设计" icon="Setting" :disabled="listLocked || !selected" @click="openDesign" />
-      <RendererButton label="刷新" icon="Refresh" :disabled="listLocked" @click="refreshCatalog" />
-    </template>
+  <div>
+    <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :route-snapshot="routeSnapshot" :host="host" :auto-load="false" />
+    <RendererSection v-else title="逻辑视图" :bordered="false" :status="loading ? '正在读取逻辑视图目录…' : ''" :error="error" />
     <template v-if="ready">
-      <div :inert="!!editing">
-        <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :stripe="true" :border="true"
-          :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
-      </div>
       <RendererDialog v-if="editing" :data-view-key="catalogKey" :model-value="true" :title="editing.create ? '新增逻辑视图' : '编辑逻辑视图'"
         width="min(700px, 94vw)" :close-disabled="busy || pending || unconfirmed" @update:model-value="closeEditor">
         <DisplayAlert v-if="!editing.create" alert-type="info" :closable="false" title="现有视图暂不支持重命名，可修改描述。" />
@@ -25,22 +16,24 @@
         </template>
       </RendererDialog>
     </template>
-  </RendererSection>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
+import {useRoute} from 'vue-router'
+import {buildDataViewKey, isDataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import type {RFilterProps} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {LowcodeLogicView} from '@/platform-adapters/resources/structured-config/logic-view/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
+import rule from './catalog-tool/rule.json?raw'
+import script from './catalog-tool/script.js?raw'
+import style from './catalog-tool/style.css?raw'
 
-const {PAGE_RUNTIME, RendererSection, RendererTable, RendererDialog, RendererForm, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, RendererSection, SparkPageRenderer, RendererDialog, RendererForm, RendererButton, DisplayAlert, useSparkComponent, consumeRequiredPageService} = SparkComponent
 const route = useRoute()
-const router = useRouter()
 const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'logic-view-list-page'})
 consumeRequiredPageService(sparkConsume, 'logic-view-list-page')
 const session = new NativePageRuntimeSession({
@@ -53,36 +46,63 @@ const pending = computed(() => {revision.value; return view.value?.hasEditingCha
 const unconfirmed = computed(() => {revision.value; return view.value?.hasUnconfirmedSave === true})
 useSystemPageDirtySource({get isDirty() {return busy.value || pending.value || unconfirmed.value}})
 let unsubscribe: (() => void) | undefined, generation = 0, active = true
-const selected = computed(() => {
+const selectionState = computed(() => {
   revision.value
-  const values = view.value?.getSelectedValues() ?? []
-  return values.length === 1 && typeof values[0] === 'string' ? values[0] : ''
+  try {
+    const values = view.value?.getSelectedValues() ?? []
+    return {id: values.length === 1 && typeof values[0] === 'string' ? values[0] : '', error: ''}
+  } catch {
+    return {id: '', error: '当前查询无法读取所选视图身份'}
+  }
 })
+const selected = computed(() => selectionState.value.id)
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaName, 'default', scenarioId.value))
 const designPath = '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page'
 const listLocked = computed(() => loading.value || busy.value || !!editing.value || pending.value || unconfirmed.value)
+const runtime = computed(() => ready.value ? session.runtime : undefined)
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    if (!active || !session.isCurrent(current)) throw new Error('逻辑视图目录运行实例已失效')
+  }
+  return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
+    assertCurrent()
+    if (command === 'logicView.catalog.connect') return {
+      state: () => ({error: error.value || selectionState.value.error, locked: listLocked.value, selected: !!selected.value, editing: !!editing.value}),
+    }
+    if (listLocked.value) return undefined
+    if (command === 'logicView.catalog.select' && isDataRow(input)) {
+      const target = view.value
+      const original = toRaw(input)
+      if (target?.rows.includes(original)) {
+        target.setCurrentRow(original)
+        target.setSelectedRows([original])
+      }
+    }
+    if (command === 'logicView.catalog.create') await createView()
+    if (command === 'logicView.catalog.edit') editCatalog()
+    if (command === 'logicView.catalog.design' && selected.value) return designTarget(selected.value)
+    if (command === 'logicView.catalog.refresh') await refreshCatalog()
+    return undefined
+  }}
+})
 async function refreshCatalog(): Promise<void> {
-  if (listLocked.value || !view.value) return
-  try {await view.value.refresh()}
-  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+  const target = view.value
+  if (listLocked.value || !target) return
+  try {await target.refresh()}
+  catch (cause) {if (view.value === target) error.value = cause instanceof Error ? cause.message : String(cause)}
 }
-const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'name', label: '视图名称', width: 260}},
-  {type: 'r-text', props: {field: 'description', label: '描述', width: 320}},
-  {type: 'r-select', props: {field: 'sysid', label: '应用系统', optionDataViewKey: buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value)}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
-    optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
-])
-const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children: [
-  {type: 'r-text', props: {field: 'name', label: '视图名称', placeholder: '按名称筛选'}},
-]}))
 const editorFields = computed<SparkNode[]>(() => [
   {type: 'r-select', props: {field: 'sysid', label: '应用系统', readonly: !editing.value?.create, optionDataViewKey: buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value)}},
   {type: 'r-text', props: {field: 'name', label: '视图名称', readonly: !editing.value?.create}},
   {type: 'r-text', props: {field: 'description', label: '描述'}},
 ])
-function choose(row: DataRow): void {if (busy.value || editing.value || pending.value) return; view.value?.setCurrentRow(row); view.value?.setSelectedRows([row])}
 async function createView(): Promise<void> {
   const target = view.value, own = generation
   if (!target || busy.value || editing.value || pending.value || unconfirmed.value) return
@@ -118,12 +138,11 @@ function cancelEditor(): void {
   catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
 function closeEditor(open: boolean): void {if (!open && !busy.value && !pending.value && !unconfirmed.value) editing.value = undefined}
-async function openDesign(): Promise<void> {if (selected.value && !editing.value && !busy.value && !pending.value && !unconfirmed.value) await openDesignRoute(selected.value)}
 function navigationNodeId(): string {
   const nodeId = route.meta['nodeId']
   return route.meta['systemPageIdentityState'] === 'resolved' && typeof nodeId === 'string' ? nodeId.trim() : ''
 }
-async function openDesignRoute(viewId: string): Promise<void> {
+function designTarget(viewId: string) {
   const nodeId = navigationNodeId()
   if (!scenarioId.value || !nodeId) {
     error.value = '缺少导航绑定的数据空间ID'
@@ -131,7 +150,7 @@ async function openDesignRoute(viewId: string): Promise<void> {
   }
   const scope = parseApplicationPathScope(route.path)
   const path = scope ? buildApplicationPath(scope, designPath) : designPath
-  await router.push({path, query: {viewId, [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: nodeId}})
+  return {path, query: {viewId, [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: nodeId}}
 }
 watch(scenarioId, async id => {
   const own = ++generation
@@ -141,7 +160,12 @@ watch(scenarioId, async id => {
     if (!id) throw new Error('逻辑视图入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeLogicView.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = session.acquire({pageId: 'logic-view-list-page', scenarioIds: [id], targetId: id,
+    const tool = new PageTool({pageId: 'logic-view-list-page'})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    const current = session.acquire({tool, scenarioIds: [id], mainScenarioId: id, targetId: id,
       loadScenario: async () => dataSet})
     await current.load()
     const results=await Promise.allSettled(['Base_DataViewList','Base_UserInfo','Base_AppSystemList'].map(async name=>{const catalogView=dataSet.getView(name);if(!catalogView)throw Error('逻辑视图目录缺少正式视图');await catalogView.refresh();if(catalogView.loadingError)throw catalogView.loadingError}))
@@ -155,7 +179,3 @@ watch(scenarioId, async id => {
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
-
-<style scoped>
-.logic-view-catalog {padding: 8px}
-</style>

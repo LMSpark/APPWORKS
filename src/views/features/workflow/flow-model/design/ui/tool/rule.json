@@ -1,0 +1,57 @@
+[
+  {
+    "id": "approval-flow-design",
+    "type": "r-section",
+    "props": {
+      "title": "流程设计",
+      "class": "flow-design-page",
+      "bordered": false,
+      "gridColumns": 1,
+      "gridGap": 12,
+      "onBeforeRender": "bindWorkspace",
+      "header": {
+        "children": [
+          {"type": "r-button", "props": {"label": "新增节点", "onBeforeRender": "bindGraphAction", "onClick": "addNode"}},
+          {"type": "r-button", "props": {"label": "删除选中", "onBeforeRender": "bindRemove", "onClick": "removeSelection"}},
+          {"type": "r-button", "props": {"label": "取消修改", "onBeforeRender": "bindCancel", "onClick": "cancelChanges"}},
+          {"type": "r-button", "props": {"label": "保存设计", "buttonType": "primary", "onBeforeRender": "bindSave", "onClick": "saveDesign"}}
+        ]
+      }
+    },
+    "children": [
+      {"type": "r-alert", "props": {"alertType": "info", "closable": false, "showIcon": true, "onBeforeRender": "bindTitle"}},
+      {"type": "r-alert", "props": {"alertType": "info", "closable": false, "showIcon": true, "title": "可拖动节点调整布局，保存后生效。"}},
+      {
+        "id": "approval-design-graph",
+        "type": "r-graph",
+        "props": {
+          "class": "flow-design-page__graph",
+          "dataViewKey": "6E462C4A39EE0D96F4D1A28FFE887C89@WFM_FLOW_NODE@default",
+          "edgeDataViewKey": "6E462C4A39EE0D96F4D1A28FFE887C89@WFM_NODE_REALATION@default",
+          "labelField": "TITLE",
+          "descriptionField": "MEMO",
+          "nodeCaptionField": "TYPEID",
+          "edgeSourceField": "UpNodeID",
+          "edgeTargetField": "NextNodeID",
+          "backgroundPattern": "dots",
+          "nodeAppearance": "card",
+          "viewportControls": true,
+          "onBeforeRender": "bindGraph",
+          "onNodeMove": "moveNode",
+          "onConnect": "connectNodes",
+          "on": {"select": "selectGraph"}
+        }
+      },
+      {
+        "type": "div",
+        "props": {"class": "flow-design-page__tables"},
+        "children": [
+          {"type": "RenderDesignNodePanel"},
+          {"type": "RenderDesignEdgePanel"},
+          {"type": "RenderDesignFormPanel"},
+          {"type": "RenderDesignAuthPanel"}
+        ]
+      }
+    ]
+  }
+]

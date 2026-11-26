@@ -6604,7 +6604,7 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts.json",
-      "sourceModifiedAt": "2026-11-26T13:53:00.587Z"
+      "sourceModifiedAt": "2026-11-26T16:20:49.881Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/use-content-authoring-departure.ts",
@@ -7234,7 +7234,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.237Z"
+      "sourceModifiedAt": "2026-11-26T16:26:30.527Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
@@ -7509,7 +7509,7 @@
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-25T21:36:34.203Z"
+      "sourceModifiedAt": "2026-11-26T16:33:58.606Z"
     },
     "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",
@@ -7534,7 +7534,7 @@
     "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/ui/flow-model-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.201Z"
+      "sourceModifiedAt": "2026-11-26T16:33:58.604Z"
     },
     "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",

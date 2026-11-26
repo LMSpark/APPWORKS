@@ -5,10 +5,12 @@ import {createMemoryHistory,createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {readFile} from 'node:fs/promises'
 import {resolve} from 'node:path'
-import {DataSet,bindDataSetCommandSubmit,ensureDataSetResourceView} from '@spark-appworks/spark-data'
+import {DataSet,DataSpaceQueryContext,DataSpaceQueryTable,bindDataSetCommandSubmit,ensureDataSetResourceView,type DataRow} from '@spark-appworks/spark-data'
 import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {Spark,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spark-component'
 import {preparePublishedSmartBidPageCall} from '@/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call'
+import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
+import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import type {AiAgentTurnBridgeOptions} from '@/services/ai/ai-turn-bridge'
 import type {AiAgentTurnCallbacks} from '@spark-appworks/spark-ai/agent'
 
@@ -61,7 +63,7 @@ it.each(cases.flatMap(page=>['empty','interrupted','mismatched','confirmed'].map
     headers:{'Content-Type':'application/json'},
    })
   }))
-  const scenarioId='SPACE',pageId='TOOL'
+  const scenarioId='SPACE',pageId=page.directory==='authoring/page13'?'smart-bid-authoring-page13':'TOOL'
   const dataSet=DataSet.fromJson({scenarioId,tables:{}})
   const view=ensureDataSetResourceView({dataSet,tableName:'SmartBidAction',resource:{resourceType:'command',resourceId:'smart-bid:action'},
    columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
@@ -123,6 +125,90 @@ it.each(cases.flatMap(page=>['empty','interrupted','mismatched','confirmed'].map
  })
 
 const applicationId='D8490EC99436A8B9AFDE205BE3153802'
+
+it.each(['empty','matched','wrong-digest','wrong-project','wrong-tool'] as const)(
+ 'reads the original request from the real published Page13 button for %s',async mode=>{
+  registerAllRenderers()
+  const scenarioId='SPACE',pageId=mode==='wrong-tool'?'other-submission-tool':'smart-bid-authoring-page13'
+  const projectId='PROJECT',attemptRef='ATTEMPT',requestKey='REQUEST'
+  const payload={projectId,attemptRef,requestKey,channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:null}
+  const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',payload]))
+  const exact={projectId,attemptRef,requestDigest,lotId:'LOT',subjectId:'ENT',channelId:'PORTAL'}
+  const requestRows=mode==='empty'?[]:[{id:attemptRef,projectId:mode==='wrong-project'?'OTHER':projectId,
+   requestKey,requestDigest,requestPayload:payload}]
+  const eventRows=[{...exact,id:attemptRef,events:[{...exact,kind:'DISPATCHED',eventRef:'EVENT',actualObjectRef:'PACKAGE'}],
+   combinedWithdrawalTarget:null}]
+  const named=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
+  const dataSet=DataSet.fromJson({scenarioId,tables:{SubmissionAttempt:{
+   modelBinding:{modelId:'ATTEMPT_MODEL',modelName:'SubmissionAttempt'},
+   columns:['id','projectId','requestKey','requestDigest','requestPayload','lotId','subjectId','channelId','events',
+    'combinedWithdrawalTarget'].map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{autoLoad:false},originalRequest:named.SubmissionAttempt.originalRequest,originalEvents:named.SubmissionAttempt.originalEvents},
+  }}})
+  const save=vi.fn(async()=>{throw Error('UNEXPECTED_SUBMISSION_WRITE')})
+  const bind=(viewId:string,rows:DataRow[])=>{
+   const view=dataSet.getView('SubmissionAttempt',viewId),table=new DataSpaceQueryTable({scenarioId,metaName:'SubmissionAttempt'})
+   if(!view)throw Error('Missing test submission view')
+   const executeQuery=vi.fn(async()=>new DataSpaceQueryContext({
+    identity:table.identity,scope:'original',readScope:()=> 'original',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+     data:{Count:rows.length,Items:rows.map(item=>({...item,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}))}}}),
+   }))
+   view.bindQueryExecutor({save,executeQuery})
+   return {view,executeQuery}
+  }
+  const original=bind('originalRequest',requestRows),events=bind('originalEvents',eventRows)
+  const tool=new PageTool({pageId})
+  for(const filename of ['rule.json','script.js','style.css'] as const){
+   tool.hydrateFileText(filename,await readFile(resolve('src/views/features/application/smart-bid/authoring/page13',filename),'utf8'))
+  }
+  tool.markLoaded()
+  const path=`/apps/${applicationId}/submission`
+  const query={projectId,scenarioId,attemptRef,requestKey,requestDigest:mode==='wrong-digest'?'0'.repeat(64):requestDigest}
+  const entry=preparePublishedSmartBidPageCall({path,query,meta:{
+   title:'签署与递交',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,
+   tool:{projectId:applicationId,pageId},
+  }})
+  if(!entry)throw Error('Missing published SmartBid host')
+  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
+   scenarioInputs:entry.scenarioInputs,loadScenario:async()=>dataSet})
+  await runtime.load()
+  const host=entry.createHost(runtime)
+  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:defineComponent({render:()=>h('div')})}]})
+  await router.push({path,query})
+  await router.isReady()
+  const previous={...config.global.stubs},stubs={...previous}
+  for(const key of ['SparkComponentRenderer','spark-component-renderer','el-button'])delete stubs[key]
+  config.global.stubs=stubs
+  const alert=vi.fn(async()=>undefined),error=vi.fn(),onError=vi.fn()
+  const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,host,
+   messageService:{success:vi.fn(),error,warning:vi.fn(),info:vi.fn()},confirmService:{alert,confirm:async()=>true},
+   routeSnapshot:{path,fullPath:router.currentRoute.value.fullPath,name:null,params:{},query,hash:''},onError},
+   global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+  try{
+   await flushPromises()
+   expect(onError).not.toHaveBeenCalled()
+   const button=wrapper.findAll('button').find(item=>item.text()==='回查原递交请求')
+   if(!button)throw Error('The published original-request button was not rendered')
+   await button.trigger('click')
+   await vi.waitFor(()=>expect(alert.mock.calls.length+error.mock.calls.length).toBe(1))
+   if(mode==='empty'||mode==='matched'){
+    expect(error).not.toHaveBeenCalled()
+    expect(alert).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(mode==='empty'?'"UNKNOWN"':'"DISPATCHED"'),'原递交记录')
+   }else{
+    expect(alert).not.toHaveBeenCalled()
+    expect(error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(
+     mode==='wrong-tool'?'SMART_BID_PAGE_ACTION_COMMAND_REQUIRED':'SUBMISSION_REQUEST_READ_CONFLICT'))
+   }
+   expect(original.executeQuery).toHaveBeenCalledTimes(mode==='wrong-tool'?0:1)
+   expect(events.executeQuery).toHaveBeenCalledTimes(mode==='matched'?1:0)
+   if(mode!=='wrong-tool')expect(original.view.queryContext).toMatchObject({projectId,attemptRef,requestKey})
+   if(mode==='matched')expect(events.view.queryContext).toMatchObject(exact)
+   expect(save).not.toHaveBeenCalled()
+   expect(state.sent).toBe(false)
+   expect(state.forwarded).not.toHaveBeenCalled()
+  }finally{wrapper.unmount();runtime.dispose();config.global.stubs=previous}
+ })
+
 const route={
  path:`/apps/${applicationId}/ai-operation`,
  meta:{title:'AI 作业与核验',type:'config-page',nodeId:'NODE',pageId:'TOOL',blueprintScenarioId:'SPACE',

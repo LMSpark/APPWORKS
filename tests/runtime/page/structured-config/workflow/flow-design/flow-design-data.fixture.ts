@@ -22,7 +22,7 @@ import {lowcodeApi,lowcodeDesignFileUpload} from '@/platform-adapters/lowcode-ru
 const pages:PageRuntime[]=[]
 beforeEach(()=>{storage.text='{"nodes":[{"id":"N1","x":7,"y":9,"custom":"preserve"}],"edges":[],"viewport":{"zoom":2}}';storage.exists=true;storage.writes=0;storage.removes=0;storage.loseReceipt=false;storage.loseDeleteReceipt=false;storage.posts=[]})
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
-export async function fixture(extra=false,prepare=true,candidate?:ScenarioViewConfig){
+export function buildFlowDesignScenario(extra=false,candidate?:ScenarioViewConfig){
  const text=readFileSync('config/pages/workflow/flow-design/pagedata.json','utf8').replace('__SCENARIO__',FLOW_DESIGN_SCENARIO_ID)
  const raw=JSON.parse(text) as {tables:Record<string,{modelBinding?:{modelId:string};views:Record<string,{queryConfig?:{fields?:string[]}}>}>}
  const formalOutputs=JSON.parse(readFileSync('tests/runtime/page/structured-config/workflow/flow-design/flow-design-formal-outputs.fixture.json','utf8')) as Record<string,string[]>
@@ -31,7 +31,12 @@ export async function fixture(extra=false,prepare=true,candidate?:ScenarioViewCo
  if(extra){http.records['WFM_FLOW_MODLE']!.push({rowid:'FM-2',TITLE:'Other',sysid:''});http.records['WFM_FLOW_NODE']!.push({rowid:'OTHER',FLOWID:'FM-2',TITLE:'Other',TYPEID:11,MEMO:''})}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:candidate??new ScenarioViewConfig(FLOW_DESIGN_SCENARIO_ID,text),space:{dataSpaceId:FLOW_DESIGN_SCENARIO_ID,name:'Design'},models,relations:[],fileExecutors:createLowcodeFileResourceExecutors({applicationId:'APP',api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent(){}})}).dataSet
- const runtime=new PageRuntime({pageId:'design-save',scenarioIds:[FLOW_DESIGN_SCENARIO_ID],loadScenario:async()=>ds});pages.push(runtime);await runtime.load()
+ return {ds,http,nodes:ds.getView('WFM_FLOW_NODE')!,forms:ds.getView('WFM_WORKFORM')!}
+}
+
+export async function fixture(extra=false,prepare=true,candidate?:ScenarioViewConfig){
+ const scenario=buildFlowDesignScenario(extra,candidate)
+ const runtime=new PageRuntime({pageId:'design-save',scenarioIds:[FLOW_DESIGN_SCENARIO_ID],loadScenario:async()=>scenario.ds});pages.push(runtime);await runtime.load()
  if(prepare)await prepareFlowDesignViews(runtime,'FM-1')
- return{ds,http,runtime,nodes:ds.getView('WFM_FLOW_NODE')!,forms:ds.getView('WFM_WORKFORM')!}
+ return {...scenario,runtime}
 }

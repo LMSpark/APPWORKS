@@ -1,44 +1,20 @@
 <!--
 @module app:views/features/workflow/flow-model/design/ui/flow-design-page
-职责：按目标模型 rowid 打开流程设计工作区，可拖拽布局的 RendererGraph + 节点/边列表。
-边界：消费父 PAGE_RUNTIME；布局来自 DesignJson 投影与会话内覆盖；保存走 saveFlowDesignInfo。
+职责：把原目录调用的设计工具绑定到正式模型、图、表单、授权和文件视图。
+边界：复用父 PAGE_RUNTIME 和原保存编排，只提供本轮设计所需的动作。
 -->
 <template>
-  <RendererSection title="流程设计" class="flow-design-page" :bordered="false" :grid-columns="1" :grid-gap="12"
-    :status="loading ? '正在打开流程设计…' : ''" :error="error" :retryable="!loading && !ready" @retry="load">
-    <template v-if="ready && prepared" #header-actions>
-      <RendererButton label="新增节点" :disabled="saving || acting || unconfirmed || loadedTarget !== flowModelId" @click="addNode" />
-      <RendererButton label="删除选中" :disabled="saving || acting || unconfirmed || loadedTarget !== flowModelId || !graphSelection" @click="removeSelection" />
-      <RendererButton label="取消修改" :disabled="saving || acting || unconfirmed" @click="cancelChanges" />
-      <RendererButton :label="unconfirmed ? '核验原提交' : '保存设计'" button-type="primary" :disabled="saving || acting || loadedTarget !== flowModelId" @click="saveDesign" />
-    </template>
-    <template v-if="ready && prepared">
-      <DisplayAlert alert-type="info" :closable="false" :show-icon="true" :title="`设计目标：${prepared.modelTitle}`" />
-      <DisplayAlert alert-type="info" :closable="false" :show-icon="true"
-        title="可拖动节点调整布局，保存后生效。" />
-      <RendererGraph class="flow-design-page__graph" :data-view-key="prepared.nodeViewKey"
-        :edge-data-view-key="prepared.edgeViewKey" label-field="TITLE" description-field="MEMO"
-        node-caption-field="TYPEID" edge-source-field="UpNodeID" edge-target-field="NextNodeID"
-        :edge-markers="FLOW_RELATION_EDGE_MARKERS"
-        :node-positions="graphLayout.nodePositions" :edge-paths="graphLayout.edgePaths"
-        :draggable-keys="draggableNodeKeys" :connectable-keys="draggableNodeKeys" :current="graphSelection"
-        background-pattern="dots" node-appearance="card" :viewport-controls="true" :disabled="saving || loading || acting || unconfirmed || loadedTarget !== flowModelId"
-        :on-node-move="onNodeMove" :on-connect="onGraphConnect" @select="onGraphSelect" />
-      <div class="flow-design-page__tables">
-        <FlowDesignNodePanel :view-key="prepared.nodeViewKey" :highlight-id="nodeHighlightId" @select-graph-id="selectNodeFromTable" />
-        <FlowDesignEdgePanel :view-key="prepared.edgeViewKey" :highlight-id="edgeHighlightId" @select-graph-id="selectEdgeFromTable" />
-        <FlowDesignFormPanel v-if="prepared.workFormViewKey" :view-key="prepared.workFormViewKey" class="flow-design-page__form" />
-        <FlowDesignNodeAuthPanel :view-key="nodeAuthViewKey" :selected-node-id="selectedNodeId"
-          :flow-model-id="loadedTarget" class="flow-design-page__auth" />
-      </div>
-    </template>
-  </RendererSection>
+  <SparkPageRenderer v-if="runtime && host" :page-runtime="runtime" :host="host" :route-snapshot="routeSnapshot"
+    :auto-load="false" />
+  <RendererSection v-else title="流程设计" :bordered="false" :grid-columns="1"
+    :status="loading ? '正在打开流程设计…' : ''" :error="error" :retryable="!loading" @retry="load()" />
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import type {GraphSelection} from '@spark-appworks/spark-component'
-import * as SparkComponent from '@spark-appworks/spark-component'
+import {useRoute} from 'vue-router'
+import {PAGE_RUNTIME, RendererSection, SparkPageRenderer, useSparkComponent, type GraphSelection} from '@spark-appworks/spark-component'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {
   FLOW_DESIGN_SCENARIO_ID, FLOW_RELATION_EDGE_MARKERS, addFlowDesignEdge,
   addFlowDesignNode,
@@ -50,14 +26,14 @@ import {
 } from '@/platform-adapters/resources/system/workflow/manage'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
-const {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererGraph, RendererSection, useSparkComponent} = SparkComponent
 import FlowDesignNodePanel from './node-panel/flow-design-node-panel.vue'
 import FlowDesignEdgePanel from './edge-panel/flow-design-edge-panel.vue'
 import FlowDesignFormPanel from './form-panel/flow-design-form-panel.vue'
 import FlowDesignNodeAuthPanel from './node-panel/flow-design-node-auth-panel.vue'
 
-const props = defineProps<{flowModelId: string}>()
+const props = defineProps<{flowModelId: string; assertOpen?: () => void; afterSave?: () => Promise<void>}>()
 const emit=defineEmits<{closeBlocked:[value:boolean]}>()
+const route = useRoute()
 const flowModelId = computed(() => String(props.flowModelId ?? '').trim())
 const {sparkConsume} = useSparkComponent({type: 'flow-design-page'})
 const ready = ref(false), loading = ref(false), saving = ref(false), acting=ref(false),error = ref(''),revision=ref(0)
@@ -71,13 +47,15 @@ const selectedNodeId = computed(() => {
   return String(sel.id).trim()
 })
 const currentCommand=()=>{const runtime=sparkConsume(PAGE_RUNTIME),own=generation,targetId=flowModelId.value
+ props.assertOpen?.()
  if(!runtime)throw Error('流程设计缺少父页运行实例')
  if(loadedTarget.value&&loadedTarget.value!==targetId)throw Error('原流程仍有修改，不能操作新目标')
- return {runtime,flowModelId:targetId,assertCurrent:()=>{if(own!==generation||flowModelId.value!==targetId||sparkConsume(PAGE_RUNTIME)!==runtime)throw Error('原流程设计目标已变化')}}}
+ return {runtime,flowModelId:targetId,assertCurrent:()=>{props.assertOpen?.()
+  if(own!==generation||flowModelId.value!==targetId||sparkConsume(PAGE_RUNTIME)!==runtime)throw Error('原流程设计目标已变化')}}}
 const graphLayout=computed(()=>{revision.value;if(!ready.value||loadedTarget.value!==flowModelId.value)return {nodePositions:{},edgePaths:{}};return flowDesignGraphLayout(currentCommand())})
-const unconfirmed=computed(()=>{revision.value;if(!ready.value)return false;try{const runtime=sparkConsume(PAGE_RUNTIME);return !!runtime&&flowDesignWorkspaceViews({runtime,flowModelId:loadedTarget.value}).some(view=>view.hasUnconfirmedSave)}catch{return true}})
-const closeBlocked=computed(()=>{revision.value;if(saving.value||acting.value)return true;if(!ready.value)return false;try{const runtime=sparkConsume(PAGE_RUNTIME);return !!runtime&&hasFlowDesignChanges({runtime,flowModelId:loadedTarget.value})}catch{return true}})
-watch(closeBlocked,value=>emit('closeBlocked',value),{immediate:true})
+const unconfirmed=computed(()=>{revision.value;if(!ready.value)return false;try{const runtime=sparkConsume(PAGE_RUNTIME);return !runtime||flowDesignWorkspaceViews({runtime,flowModelId:loadedTarget.value}).some(view=>view.hasUnconfirmedSave)}catch{return true}})
+const closeBlocked=computed(()=>{revision.value;if(saving.value||acting.value)return true;if(!ready.value)return false;try{const runtime=sparkConsume(PAGE_RUNTIME);return !runtime||hasFlowDesignChanges({runtime,flowModelId:loadedTarget.value})}catch{return true}})
+watch(closeBlocked,value=>emit('closeBlocked',value),{immediate:true,flush:'sync'})
 useSystemPageDirtySource({get isDirty(){return closeBlocked.value}})
 const draggableNodeKeys = computed(() => {
   revision.value
@@ -95,8 +73,81 @@ const draggableNodeKeys = computed(() => {
 const nodeHighlightId = computed(() => graphSelection.value?.kind === 'node' ? graphSelection.value.id : null)
 const edgeHighlightId = computed(() => graphSelection.value?.kind === 'edge' ? graphSelection.value.id : null)
 let generation = 0
+let active = true
+const runtime = computed(() => ready.value && prepared.value ? sparkConsume(PAGE_RUNTIME) : undefined)
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
+const graphDisabled = computed(() => saving.value || loading.value || acting.value || unconfirmed.value
+  || loadedTarget.value !== flowModelId.value)
 
-function onGraphSelect(event: GraphSelection): void {
+function isGraphId(value: unknown): value is string | number {
+  return typeof value === 'string' || typeof value === 'number'
+}
+const host = computed(() => {
+  const current = runtime.value
+  if (!current) return undefined
+  const assertCurrent = () => {
+    props.assertOpen?.()
+    if (!active || current.destroyed || sparkConsume(PAGE_RUNTIME) !== current) throw Error('原流程设计实例已失效')
+  }
+  return {runtime: current, assertCurrent, async invoke(command: string, input: unknown) {
+    assertCurrent()
+    if (command === 'approvalDesign.connect') {
+      return {
+        edgeMarkers: FLOW_RELATION_EDGE_MARKERS,
+        panels: {node: FlowDesignNodePanel, edge: FlowDesignEdgePanel, form: FlowDesignFormPanel, auth: FlowDesignNodeAuthPanel},
+        state: () => {
+          const data = prepared.value
+          if (!data) return undefined
+          return {modelTitle: data.modelTitle, nodeViewKey: data.nodeViewKey, edgeViewKey: data.edgeViewKey,
+            workFormViewKey: data.workFormViewKey, nodeAuthViewKey: nodeAuthViewKey.value, selectedNodeId: selectedNodeId.value,
+            flowModelId: loadedTarget.value, graphSelection: graphSelection.value, graphLayout: graphLayout.value,
+            draggableNodeKeys: draggableNodeKeys.value, nodeHighlightId: nodeHighlightId.value, edgeHighlightId: edgeHighlightId.value,
+            graphDisabled: graphDisabled.value, loading: loading.value, error: error.value, unconfirmed: unconfirmed.value,
+            cancelDisabled: loading.value || saving.value || acting.value || unconfirmed.value,
+            saveDisabled: saving.value || acting.value || loadedTarget.value !== flowModelId.value}
+        },
+      }
+    }
+    if (command === 'approvalDesign.cancel') {
+      if (!loading.value && !saving.value && !acting.value && !unconfirmed.value) await cancelChanges()
+      return undefined
+    }
+    if (command === 'approvalDesign.save') {
+      if (!acting.value) await saveDesign()
+      return undefined
+    }
+    if (graphDisabled.value) return undefined
+    switch (command) {
+      case 'approvalDesign.selectNode': if (isGraphId(input)) selectNodeFromTable(input); break
+      case 'approvalDesign.selectEdge': if (isGraphId(input)) selectEdgeFromTable(input); break
+      case 'approvalDesign.selectGraph':
+        if (isRecord(input) && (input['kind'] === 'node' || input['kind'] === 'edge') && isGraphId(input['id'])) {
+          onGraphSelect({kind: input['kind'], id: input['id']})
+        }
+        break
+      case 'approvalDesign.move':
+        if (isRecord(input) && isGraphId(input['id']) && typeof input['x'] === 'number' && Number.isFinite(input['x'])
+          && typeof input['y'] === 'number' && Number.isFinite(input['y'])) {
+          await onNodeMove({id: input['id'], x: input['x'], y: input['y']})
+        }
+        break
+      case 'approvalDesign.link':
+        if (isRecord(input) && isGraphId(input['source']) && isGraphId(input['target'])) {
+          await onGraphConnect({source: input['source'], target: input['target']})
+        }
+        break
+      case 'approvalDesign.add': await addNode(); break
+      case 'approvalDesign.remove': await removeSelection(); break
+      default: throw Error('流程设计工具动作未登记')
+    }
+    return undefined
+  }}
+})
+
+function onGraphSelect(event: Pick<GraphSelection, 'kind' | 'id'>): void {
   graphSelection.value = {kind: event.kind, id: event.id}
   if (event.kind === 'node') void refreshNodeAuth(String(event.id))
 }
@@ -138,8 +189,8 @@ async function removeSelection():Promise<void>{
   command.assertCurrent();await stageFlowDesignGraph(command);graphSelection.value=null}
  catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{acting.value=false}
 }
-function cancelChanges():void{
- try{const runtime=sparkConsume(PAGE_RUNTIME);if(!runtime)throw Error('缺少原实例');cancelFlowDesignChanges({runtime,flowModelId:loadedTarget.value});graphSelection.value=null;error.value='';if(loadedTarget.value!==flowModelId.value)void load()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+async function cancelChanges():Promise<void>{
+ try{const runtime=sparkConsume(PAGE_RUNTIME);if(!runtime)throw Error('缺少原实例');cancelFlowDesignChanges({runtime,flowModelId:loadedTarget.value});graphSelection.value=null;error.value='';if(loadedTarget.value!==flowModelId.value)await load(true)}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
 
 async function refreshNodeAuth(nodeId: string): Promise<void> {
@@ -166,9 +217,13 @@ async function refreshNodeAuth(nodeId: string): Promise<void> {
 async function refreshPrepared(clearSelection = false): Promise<void> {
   const own = generation, targetId = flowModelId.value
   try {
+    props.assertOpen?.()
     const runtime = sparkConsume(PAGE_RUNTIME)
     if (!runtime) throw new Error('流程设计缺少父页运行实例')
-    const next = await prepareFlowDesignViews(runtime, targetId, {assertCurrent: () => {if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计读取已失效')}})
+    const next = await prepareFlowDesignViews(runtime, targetId, {assertCurrent: () => {
+      props.assertOpen?.()
+      if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计读取已失效')
+    }})
     if (own !== generation) return
     loadedTarget.value=targetId
     prepared.value = next
@@ -185,16 +240,18 @@ async function refreshPrepared(clearSelection = false): Promise<void> {
   }
 }
 
-async function load(): Promise<void> {
+async function load(preserveTool = false): Promise<void> {
   const own = ++generation
   if(ready.value&&loadedTarget.value){try{const runtime=sparkConsume(PAGE_RUNTIME)
     if(runtime&&hasFlowDesignChanges({runtime,flowModelId:loadedTarget.value})){error.value=`流程${loadedTarget.value}仍有未保存修改，请先处理原工作区`;return}}
     catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return}}
 
-  ready.value = false
+  if (!preserveTool) {
+    ready.value = false
+    prepared.value = undefined
+  }
   loading.value = true
   error.value = ''
-  prepared.value = undefined
   graphSelection.value = null
   try {
     await refreshPrepared(true)
@@ -211,13 +268,20 @@ async function saveDesign(): Promise<void> {
   try {
     const runtime = sparkConsume(PAGE_RUNTIME)
     if (!runtime) throw new Error('流程设计缺少父页运行实例')
+    const changed = hasFlowDesignChanges({runtime, flowModelId: targetId})
     const result=await saveFlowDesignInfo({
       runtime,
       flowModelId: targetId,
-      assertCurrent: () => {if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计保存已失效')},
+      assertCurrent: () => {
+        props.assertOpen?.()
+        if (own !== generation || flowModelId.value !== targetId || sparkConsume(PAGE_RUNTIME) !== runtime) throw Error('原流程设计保存已失效')
+      },
     })
     if (own !== generation) return
-    if(result.complete)await load()
+    if(result.complete) {
+      await refreshPrepared(true)
+      if (changed && own === generation) await props.afterSave?.()
+    }
     else error.value='原提交核验完成，仍有未保存修改，请再次明确保存'
   } catch (cause) {
     if (own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
@@ -227,17 +291,5 @@ async function saveDesign(): Promise<void> {
 }
 
 watch(flowModelId, () => { void load() }, {immediate: true})
-onBeforeUnmount(() => { generation++;off?.() })
+onBeforeUnmount(() => { active = false; generation++;off?.() })
 </script>
-
-<style scoped>
-.flow-design-page {min-height: 420px; padding: 8px}
-.flow-design-page__graph {min-height: 360px; height: 42vh}
-.flow-design-page__tables {display: grid; grid-template-columns: 1fr 1fr; gap: 12px}
-.flow-design-page__form,
-.flow-design-page__auth {grid-column: 1 / -1}
-@media (max-width: 960px) {
-  .flow-design-page__tables {grid-template-columns: 1fr}
-  .flow-design-page__form {grid-column: auto}
-}
-</style>

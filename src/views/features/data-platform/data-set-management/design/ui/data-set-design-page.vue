@@ -15,6 +15,13 @@
     <DisplayAlert v-if="selectedId === 'parameters' && actionError" alert-type="error" :closable="false" :show-icon="true" :title="actionError" />
     <DisplayAlert v-if="selectedId === 'parameters' && actionMessage" alert-type="info" :closable="false" :show-icon="true" :title="actionMessage" />
     <template v-if="session">
+      <div v-if="runtimePlanState.status !== 'idle'">
+        <p role="status" data-runtime-plan-status>{{ runtimePlanLabels[runtimePlanState.status] }}</p>
+        <p v-if="runtimePlanState.message" role="alert">{{ runtimePlanState.message }}</p>
+        <RendererButton v-if="runtimePlanState.status !== 'pending'" data-action="resume-runtime-dataset-plan"
+          :label="runtimePlanState.status === 'unknown' ? '核验原 Plan 提交' : '继续发布 Plan'"
+          :disabled="busy || parameterOpen || detailOpen" @click="resumeRuntimeDataSetPlan" />
+      </div>
       <section class="space-history-entry" aria-label="空间级场景历史">
         <RendererButton v-if="historyView" label="场景历史" :disabled="historyPending" @click="historyOpen = true" />
         <ScenarioHistoryPanel v-if="historyOpen && historyView" :open="true" :view="historyView" :can-create="historyCanCreate"
@@ -1396,6 +1403,18 @@ const definitionNotice = computed(() => {
 })
 const parameterViewKey = computed(() => session.value?.metadataDataSet.scenarioId
   ? buildDataViewKey('Base_DataSet', 'default', session.value.metadataDataSet.scenarioId) : undefined)
+const runtimePlanLabels = {
+  pending: '正在处理运行 Plan',
+  deferred: '运行 Plan 待发布。请先处理其他元数据草稿，再继续。',
+  retry: '运行 Plan 发布仍待处理。核对当前错误后可继续。',
+  unknown: '运行 Plan 提交结果未知，请核验原文件。',
+}
+const runtimePlanState = computed(() => {
+  revision.value
+  const current = session.value
+  if (!current || current.metadataDataSet.destroyed) return {status: 'idle', message: undefined} as const
+  return current.getRuntimeDataSetPlanState()
+})
 const parameterState = computed(() => {
   revision.value
   try {
@@ -1453,10 +1472,13 @@ function isPending(includeLayout = true): boolean {
 const hasPending = computed(() => {revision.value; return isPending()})
 defineExpose({hasPending})
 const definitionPending = computed(() => {revision.value; return isPending(false)})
-useSystemPageDirtySource({get isDirty() {return isPending()}})
+useSystemPageDirtySource({get isDirty() {return isPending() || runtimePlanState.value.status !== 'idle'}})
 
 async function load(): Promise<void> {
-  if (session.value && (isPending() || parameterOpen.value)) {error.value = '请先保存或明确处理本地修改和待核验提交，并关闭输入参数窗口'; return}
+  if (session.value && (isPending() || parameterOpen.value || runtimePlanState.value.status !== 'idle')) {
+    error.value = '请先保存或明确处理本地修改和待核验提交，并关闭输入参数窗口'
+    return
+  }
   const ownGeneration = ++generation
   definitionLoading.value = false
   workspaceLoading.value = false; busy.value = false
@@ -1557,6 +1579,20 @@ async function load(): Promise<void> {
     }
   }
   finally {if (active && generation === ownGeneration) {loading.value = false; definitionLoading.value = false}}
+}
+async function resumeRuntimeDataSetPlan(): Promise<void> {
+  const current = session.value
+  if (!current || busy.value) return
+  busy.value = true
+  try {
+    const operation = current.resumeRuntimeDataSetPlan()
+    changed()
+    await operation
+  } catch (cause) {
+    if (session.value === current && releasedSession(cause)) error.value = readError(cause)
+  } finally {
+    if (active && session.value === current) {busy.value = false; changed()}
+  }
 }
 async function parameterAction(action: 'save' | 'verify'): Promise<void> {
   const current = session.value

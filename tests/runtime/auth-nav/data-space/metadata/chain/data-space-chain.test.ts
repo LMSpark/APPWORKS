@@ -4,8 +4,8 @@ import {defineComponent, h, ref} from 'vue'
 import ElementPlus, {ElButton, ElCheckbox, ElTabs, ElSelect, ElRadioGroup, ElInputNumber, ElTable, ElTableColumn} from 'element-plus'
 import {FieldText, FieldNumber, FieldCheckbox, FieldJson, FilterExpressionEditor, FilterValueFunctionDialog, RendererSection, RendererTabs, RendererForm, Spark, PAGE_RUNTIME, useSparkComponent, registerAllRenderers} from '@spark-appworks/spark-component'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
-import {PageRuntime, ProjectWorkspace, ScenarioDefinitionDocument} from '@spark-appworks/spark-project-model'
-import {RequestState, type DataSet, DataView} from '@spark-appworks/spark-data'
+import {PageRuntime, ProjectWorkspace, ScenarioDefinitionDocument, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {RequestState, DataSet, DataView, parseRuntimeDataSetPlanFile} from '@spark-appworks/spark-data'
 import {isRecord, type RequestConfig} from '@spark-appworks/spark-utils'
 import { DataSpaceDesignApi } from '@/platform-adapters/api'
 import type {LowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/view-design/lowcode-data-space-view-design'
@@ -47,7 +47,9 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
 })
 vi.mock('@/services/project/project-shell', () => ({getAppProjectBlueprintWorkspace: transport.workspace}))
 import {openLowcodeDataSpaceDesignSession} from '@/platform-adapters/data-space/lowcode-data-space-design'
-import {loadLowcodeRuntimeScenario, loadLowcodeScenarioDefinitions} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import {assembleLowcodeRuntimeDataSetPlan, loadLowcodeRuntimeScenario, loadLowcodeScenarioDefinitions} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
+import {readRuntimeDataSetPlan} from '@/platform-adapters/data-space/runtime-data-set-plan-file'
+import {markFileMutationMayHaveApplied} from '@/platform-adapters/api/design/file-mutation-state'
 
 const sessions: LowcodeDataSpaceDesignSession[] = []
 const runtimes: DataSet[] = []
@@ -72,7 +74,18 @@ async function open(target: string) {
   return session
 }
 
-it('keeps the confirmed metadata save when both filter layers prevent Plan generation', async () => {
+it.each([
+  {
+    label: 'independent filter layers',
+    config: {
+      scopeFilter: {field: 'region', operator: 'ne', value: 'restricted'},
+      filterExpression: {field: 'region', operator: 'eq', value: 'north'},
+    },
+    error: '不支持同时保存常驻范围和初始过滤',
+  },
+  {label: 'default query inputs', config: {queryContext: {region: 'north'}}, error: '不支持保存非空 queryContext'},
+  {label: 'independent sort', config: {sortExpression: [{field: 'region', direction: 'desc'}]}, error: '不支持保存独立 sortExpression'},
+])('keeps the confirmed metadata save when $label prevent Plan generation', async ({config, error}) => {
   const f = dataSpaceChainFixture()
   const scenario: unknown = JSON.parse(f.files.get(f.target)!)
   const tables = isRecord(scenario) ? scenario['tables'] : undefined
@@ -81,8 +94,7 @@ it('keeps the confirmed metadata save when both filter layers prevent Plan gener
     throw new Error('fixture must declare the original Orders DataView')
   }
   const orders = tables['OrderTable']['views']['default']
-  orders['scopeFilter'] = {field: 'region', operator: 'ne', value: 'restricted'}
-  orders['filterExpression'] = {field: 'region', operator: 'eq', value: 'north'}
+  Object.assign(orders, config)
   f.files.set(f.target, JSON.stringify(scenario))
   transport.request.mockImplementation(f.request)
   transport.scope.mockImplementation(f.readScope)
@@ -96,9 +108,51 @@ it('keeps the confirmed metadata save when both filter layers prevent Plan gener
   await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
   expect(session.getInputParameterState().status).toBe('idle')
   expect(session.getRuntimeDataSetPlanState().status).toBe('retry')
-  await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow('OrderTable@default 不支持同时保存常驻范围和初始过滤')
+  await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow(`OrderTable@default ${error}`)
   expect(f.planFileWrites).toEqual([])
   expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+})
+
+it.each(['rejected', 'lost'] as const)('reopens a saved named definition when the Plan upload is %s', async mode => {
+  const f = dataSpaceChainFixture()
+  const key = `${f.target}.dataset.json`
+  const failure = new Error('Plan upload failed')
+  let attempts = 0
+  transport.request.mockImplementation(f.request)
+  transport.scope.mockImplementation(f.readScope)
+  transport.workspace.mockImplementation(f.workspace)
+  transport.gateways.mockReturnValue({scenarioViews: {...f.fileGateway, writeText: async (id: string, text: string) => {
+    if (id !== key) return f.fileGateway.writeText(id, text)
+    attempts++
+    if (mode === 'rejected' && attempts === 1) throw failure
+    await f.fileGateway.writeText(id, text)
+    if (attempts === 1) throw markFileMutationMayHaveApplied(failure)
+  }}})
+  const session = await open(f.target)
+  await view(session.metadataDataSet, 'DataViewDefinition').addRow({dataSetId: f.target, dataModelId: 'ORDER-MODEL',
+    dataModelName: 'Orders', tableName: 'OrderTable', viewId: 'confirmedBeforePlan', autoLoad: false})
+  const saved = await session.metadataDataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}]})
+  expect(saved).toMatchObject({success: true, data: {createdCount: 1, failedCount: 0, followUpError: expect.any(Error)}})
+  expect(session.getRuntimeDataSetPlanState().status).toBe(mode === 'rejected' ? 'retry' : 'unknown')
+  expect(attempts).toBe(1)
+
+  const reopened = await open(f.target)
+  expect(view(reopened.metadataDataSet, 'DataViewDefinition').rows).toContainEqual(expect.objectContaining({viewId: 'confirmedBeforePlan'}))
+  await session.resumeRuntimeDataSetPlan()
+  expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+  expect(attempts).toBe(mode === 'rejected' ? 2 : 1)
+  expect(f.fileWrites).toHaveLength(1)
+  const carrier = DataSet.fromJson({scenarioId: f.target, tables: {}})
+  runtimes.push(carrier)
+  const assertCurrent = () => expect(f.readScope().headers['X-AppId']).toBe('CHAIN-APP')
+  const text = await readRuntimeDataSetPlan({dataSet: carrier, scenarioId: f.target, assertCurrent})
+  expect(text).toBe(f.planFileWrites[0])
+  const runtime = await assembleLowcodeRuntimeDataSetPlan({projectId: 'CHAIN-APP', scenarioId: f.target, text: text!, assertCurrent})
+  runtimes.push(runtime)
+  const orders = view(runtime, 'Orders', 'confirmedBeforePlan')
+  expect((await orders.loadFromServer()).success).toBe(true)
+  expect(orders.rows).not.toHaveLength(0)
+  expect(f.requests.at(-1)?.data).toMatchObject({Table: [{Name: 'Orders'}]})
 })
 
 it('replaces a stale working Plan whose reported hash matches the confirmed definition', async () => {
@@ -378,6 +432,10 @@ describe('one data space from metadata definitions through persistence to runtim
       dataModelName: registration, tableName: 'SourceResult', viewId: 'list', autoLoad: false,
       ...(parameterSource ? {queryConfig: {sourceInputMode: 'direct'}, queryContext: {region: 'east'}} : {})})
     expect((await reopened.metadataDataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}]})).success).toBe(true)
+    if (parameterSource) {
+      expect(reopened.getRuntimeDataSetPlanState()).toMatchObject({status: 'retry', message: expect.stringContaining('SourceResult@list')})
+      expect(f.planFileWrites).toHaveLength(1)
+    }
     f.records.set(registration, [Object.fromEntries(item.fields.map(name => [name, name === 'val' ? 7 : name === 'haschild' ? false : name === 'ordIdx' ? 1 : `${name}-value`]))])
     const consumer = await open(f.target), result = view(consumer.definitionDataSet!, 'SourceResult', 'list')
     await consumer.loadViewFields({tableName: 'SourceResult', modelId: id, modelName: registration, viewId: 'list'})
@@ -600,6 +658,8 @@ describe('one data space from metadata definitions through persistence to runtim
     definitions.updateEditingValue(definitions.getPkKey(definition)!, 'pageSize', 3)
     await designer.metadataDataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}]})
     expect(f.fileWrites).toHaveLength(1)
+    expect(f.planFileWrites).toEqual([])
+    expect(designer.getRuntimeDataSetPlanState()).toMatchObject({status: 'retry', message: expect.stringContaining('sortExpression')})
     expect(runningModels.pageSize).toBe(originalSize)
     const reopened = await open(f.target)
     expect(reopened.metadataDataSet.scenarioId).toBe(f.meta)
@@ -772,4 +832,222 @@ describe('one data space from metadata definitions through persistence to runtim
     expect(editing.fieldAccess(editing.rows[0]!, 'choice').write).toBe('denied')
     expect(f.records.get('Base_DataSet')?.find(row => row['rowid'] === 'OTHER')?.['inputParams']).toBe('[]')
   })
+})
+
+describe('Runtime Dataset Plan follow-up', () => {
+  it('checks the named text cascade before acquiring the Plan file view', async () => {
+    const f = dataSpaceChainFixture()
+    const scenario = structuredClone(new ScenarioViewConfig(f.target, f.files.get(f.target)!).toJSON())
+    const definitions = scenario['tables']
+    if (!isRecord(definitions) || !isRecord(definitions['OrderTable'])
+      || !isRecord(definitions['OrderTable']['views']) || !isRecord(definitions['OrderTable']['views']['default'])) {
+      throw new Error('fixture must declare the original Orders DataView')
+    }
+    definitions['OrderTable']['views']['source'] = {}
+    const viewCascades = [{
+      parentTable: 'OrderTable', parentViewId: 'source', childTable: 'OrderTable', childViewId: 'default',
+      filterBindings: [{sourceField: 'region', targetField: 'region', operator: 'contains'}],
+    }]
+    f.files.set(f.target, JSON.stringify({...scenario, viewCascades}))
+    transport.request.mockImplementation(f.request)
+    transport.scope.mockImplementation(f.readScope)
+    transport.workspace.mockImplementation(f.workspace)
+    transport.gateways.mockReturnValue({scenarioViews: f.fileGateway})
+    const session = await open(f.target)
+    const input = [{rowid: 'PARAM-1', Name: 'region', Description: '区域', IsBusParam: true}]
+    session.stageInputParameters({expectedValue: '[]', value: input})
+    await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
+    expect(session.getInputParameterState().status).toBe('idle')
+    expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+
+    expect(session.getRuntimeDataSetPlanState().status).toBe('retry')
+    await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow('OrderTable@default.region 不支持 contains')
+    expect(f.planFileWrites).toEqual([])
+    expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+  })
+
+  it.each(['rejected', 'lost receipt', 'lost receipt before newer metadata', 'lost receipt confirmed by original owner'] as const)('isolates a %s Plan write from the confirmed metadata receipt', async failure => {
+    const f = dataSpaceChainFixture()
+    const key = `${f.target}.dataset.json`
+    const scenario = structuredClone(new ScenarioViewConfig(f.target, f.files.get(f.target)!).toJSON())
+    const definitions = scenario['tables']
+    if (!isRecord(definitions) || !isRecord(definitions['OrderTable'])
+      || !isRecord(definitions['OrderTable']['views']) || !isRecord(definitions['OrderTable']['views']['default'])) {
+      throw new Error('fixture must declare the original Orders DataView')
+    }
+    definitions['OrderTable']['views']['default']['scopeFilter'] = {field: 'region', operator: 'eq',
+      value: {Type: 'GetInputParam', ParamName: 'region'}}
+    f.files.set(f.target, JSON.stringify(scenario))
+    let attempts = 0
+    let failRead = false
+    transport.request.mockImplementation(f.request)
+    transport.scope.mockImplementation(f.readScope)
+    transport.workspace.mockImplementation(f.workspace)
+    transport.gateways.mockReturnValue({scenarioViews: {
+      ...f.fileGateway,
+      readText: async (id: string) => {
+        if (id === key && failRead) throw new Error('cannot read original Plan yet')
+        return f.fileGateway.readText(id)
+      },
+      writeText: async (id: string, text: string) => {
+        if (id !== key) return f.fileGateway.writeText(id, text)
+        attempts++
+        if (attempts === 1 && failure === 'rejected') throw new Error('file definitively rejected')
+        await f.fileGateway.writeText(id, text)
+        if (attempts === 1) throw markFileMutationMayHaveApplied(new Error('original Plan response lost'))
+      },
+    }})
+    const session = await open(f.target)
+    const input = [{rowid: 'PARAM-1', Name: 'region', Description: '区域', IsBusParam: true}]
+    session.stageInputParameters({expectedValue: '[]', value: input})
+    await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
+    expect(session.getInputParameterState().status).toBe('idle')
+    expect(session.getRuntimeDataSetPlanState().status).toBe(failure === 'rejected' ? 'retry' : 'unknown')
+    const originalBatch = session.metadataDataSet.saveJournal.batchId
+    await expect(session.reloadInputParameters({discardPending: false})).resolves.toMatchObject([{Name: 'region'}])
+    expect(attempts).toBe(1)
+    if (failure === 'lost receipt confirmed by original owner') {
+      await expect(session.metadataDataSet.verifySaveJournal()).resolves.toMatchObject({
+        batchId: originalBatch, completed: true, views: [{state: 'applied', owner: 'file'}],
+      })
+      expect(session.getRuntimeDataSetPlanState().status).toBe('retry')
+      expect(attempts).toBe(1)
+    }
+    const newerMetadata = failure === 'lost receipt before newer metadata'
+    if (newerMetadata) {
+      session.stageInputParameters({expectedValue: JSON.stringify(input), value: [{...input[0], Description: '后续确认的区域'}]})
+      await expect(session.saveInputParameters({expectedValue: JSON.stringify(input)})).resolves.toMatchObject([{Description: '后续确认的区域'}])
+      expect(session.getRuntimeDataSetPlanState().status).toBe('unknown')
+      expect(attempts).toBe(1)
+    }
+    if (failure === 'lost receipt') {
+      failRead = true
+      await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow('cannot read original Plan yet')
+      expect(session.getRuntimeDataSetPlanState().status).toBe('unknown')
+      expect(session.metadataDataSet.saveJournal.batchId).toBe(originalBatch)
+      expect(attempts).toBe(1)
+      failRead = false
+    }
+    await session.resumeRuntimeDataSetPlan()
+    if (newerMetadata) {
+      expect(session.getRuntimeDataSetPlanState().status).toBe('deferred')
+      expect(attempts).toBe(1)
+      expect(f.planFileWrites).toHaveLength(1)
+      expect(f.planFileWrites[0]).not.toContain('后续确认的区域')
+      await session.resumeRuntimeDataSetPlan()
+      expect(f.planFileWrites.at(-1)).toContain('后续确认的区域')
+    }
+    expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+    expect(session.metadataDataSet.saveJournal).toMatchObject({completed: true, views: [{state: 'applied', owner: 'file'}]})
+    if (failure === 'lost receipt') expect(session.metadataDataSet.saveJournal.batchId).toBe(originalBatch)
+    expect(attempts).toBe(failure === 'rejected' || newerMetadata ? 2 : 1)
+    expect(f.planFileWrites).toHaveLength(newerMetadata ? 2 : 1)
+    expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(newerMetadata ? 2 : 1)
+    const carrier = DataSet.fromJson({dataSetName: 'Independent Plan read', scenarioId: f.target, tables: {}})
+    runtimes.push(carrier)
+    const assertCurrent = () => expect(f.readScope().headers['X-AppId']).toBe('CHAIN-APP')
+    const text = await readRuntimeDataSetPlan({dataSet: carrier, scenarioId: f.target, assertCurrent})
+    expect(text).toBe(f.planFileWrites.at(-1))
+    expect(parseRuntimeDataSetPlanFile(text!, f.target).inputParams).toEqual([expect.objectContaining({name: 'region'})])
+    const reopened = await assembleLowcodeRuntimeDataSetPlan({projectId: 'CHAIN-APP', scenarioId: f.target, text: text!, assertCurrent})
+    runtimes.push(reopened)
+    expect(reopened).not.toBe(session.definitionDataSet)
+    const orders = view(reopened, 'Orders')
+    expect((await orders.loadFromServer({context: {region: 'east'}})).success).toBe(true)
+    expect(f.requests.at(-1)?.data).toMatchObject({Table: [{Name: 'Orders', Filter: {Field: 'region', Operator: 'equal',
+      ValueFun: {Type: 'GetConstValue', Value: 'east'}}}]})
+  })
+})
+
+
+it.each(['plan read', 'dispatch preimage', 'write readback'] as const)('keeps Plan source and receipt separate during %s', async phase => {
+  const f = dataSpaceChainFixture()
+  const fileName = `${f.target}.dataset.json`
+  const lateDraft = JSON.stringify([{rowid: 'PARAM-2', Name: 'district', Description: '晚到草稿', IsBusParam: true}])
+  transport.request.mockImplementation(f.request)
+  transport.scope.mockImplementation(f.readScope)
+  transport.workspace.mockImplementation(f.workspace)
+  transport.gateways.mockReturnValue({scenarioViews: f.fileGateway})
+  const session = await open(f.target)
+  const metadata = view(session.metadataDataSet, 'Base_DataSet')
+  let planReads = 0
+  const affectedRead = phase === 'plan read' ? 1 : phase === 'dispatch preimage' ? 2 : 3
+  transport.gateways.mockReturnValue({scenarioViews: {
+    ...f.fileGateway,
+    readText: async (id: string) => {
+      if (id === fileName && ++planReads === affectedRead) metadata.updateEditingValue(f.target, 'inputParams', lateDraft)
+      return f.fileGateway.readText(id)
+    },
+  }})
+  session.stageInputParameters({expectedValue: '[]', value: [
+    {rowid: 'PARAM-1', Name: 'region', Description: '已确认区域', IsBusParam: true},
+  ]})
+
+  await expect(session.saveInputParameters({expectedValue: '[]'})).resolves.toMatchObject([{Name: 'region'}])
+  expect(metadata.getEditingRow(f.target)?.['inputParams']).toBe(lateDraft)
+  const beforeDispatch = phase !== 'write readback'
+  expect(f.planFileWrites).toHaveLength(beforeDispatch ? 0 : 1)
+  expect(session.getRuntimeDataSetPlanState().status).toBe(beforeDispatch ? 'retry' : 'idle')
+
+  if (beforeDispatch) {
+    metadata.discardEditingRows([f.target])
+    await session.resumeRuntimeDataSetPlan()
+    expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+  }
+  expect(f.planFileWrites).toHaveLength(1)
+  expect(f.planFileWrites[0]).toContain('region')
+  expect(f.planFileWrites[0]).not.toContain('district')
+  expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+})
+
+it.each(['default', 'modelFields'] as const)('Runtime Dataset Plan follow-up waits for a separate %s metadata draft', async fieldView => {
+  const f = dataSpaceChainFixture()
+  transport.request.mockImplementation(async (config: RequestConfig) => {
+    const response = await f.request(config)
+    const result: unknown = response.Result
+    const data = isRecord(result) && isRecord(result['data']) ? result['data'] : undefined
+    if (Array.isArray(data?.['Items'])) {
+      for (const row of data['Items'].filter(isRecord)) {
+        const permissions = row['lingma_sys_params']
+        if (row['dataModelId'] === 'ORDER-MODEL' && isRecord(permissions)) permissions['e'] = ['description']
+      }
+    }
+    return response
+  })
+  transport.scope.mockImplementation(f.readScope)
+  transport.workspace.mockImplementation(f.workspace)
+  transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}})
+  const session = await open(f.target)
+  const original = [{rowid: 'PARAM-1', Name: 'region', Description: '区域', IsBusParam: true}]
+  session.stageInputParameters({expectedValue: '[]', value: original})
+  await session.saveInputParameters({expectedValue: '[]'})
+  expect(f.planFileWrites).toHaveLength(1)
+  expect(f.planFileWrites[0]).toContain('region')
+
+  const fields = fieldView === 'modelFields' ? await session.loadModelFields('ORDER-MODEL')
+    : view(session.metadataDataSet, 'Base_DataModel_Field')
+  if (fieldView === 'default') await fields.loadFromServer()
+  const field = fields.rows.find(item => item['Name'] === 'region' && item['dataModelId'] === 'ORDER-MODEL')!
+  const fieldKey = fields.getPkKey(field)!
+  fields.updateEditingValue(fieldKey, 'description', '独立字段草稿')
+  const second = [{...original[0], Name: 'district'}]
+  session.stageInputParameters({expectedValue: JSON.stringify(original), value: second})
+  await expect(session.saveInputParameters({expectedValue: JSON.stringify(original)})).resolves.toMatchObject([{Name: 'district'}])
+  expect(session.getInputParameterState().status).toBe('idle')
+  expect(f.planFileWrites).toHaveLength(1)
+  expect(f.files.get(`${f.target}.dataset.json`)).not.toContain('district')
+  const stored = f.records.get('Base_DataSet')?.find(item => item['rowid'] === f.target)
+  expect(stored?.['inputParams']).toContain('district')
+  expect(fields.getEditingRow(fieldKey)?.['description']).toBe('独立字段草稿')
+  expect(session.getRuntimeDataSetPlanState().status).toBe('deferred')
+  await session.resumeRuntimeDataSetPlan()
+  expect(session.getRuntimeDataSetPlanState().status).toBe('deferred')
+  expect(f.planFileWrites).toHaveLength(1)
+  expect(fields.getEditingRow(fieldKey)?.['description']).toBe('独立字段草稿')
+  fields.discardEditingRows([fieldKey])
+  await session.resumeRuntimeDataSetPlan()
+  expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+  expect(f.planFileWrites).toHaveLength(2)
+  expect(f.planFileWrites.at(-1)).toContain('district')
+  expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(2)
 })

@@ -214,6 +214,24 @@ describe('runtime data set plan', () => {
       .toEqual(scopeFilter)
   })
 
+  it('rejects view defaults that Plan v1 cannot reconstruct, while allowing empty declarations', () => {
+    const build = (view: Record<string, unknown>) => buildRuntimeDataSetPlan({
+      scenarioId: 'SPACE', space: {rowid: 'SPACE', Name: 'Space'},
+      models: [{rowid: 'MODEL', Name: 'Orders', MetaName: 'source_orders', Type: '数据库表'}],
+      fields: [], relations: [],
+      scenarioConfig: {scenarioId: 'SPACE', tables: {Orders: {
+        modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, views: {default: view},
+      }}},
+    })
+
+    expect(() => build({queryContext: {region: 'north', includeArchived: false}}))
+      .toThrow('SPACE Orders@default 不支持保存非空 queryContext')
+    expect(() => build({sortExpression: [{field: 'createdAt', direction: 'desc'}, {field: 'id', direction: 'asc'}]}))
+      .toThrow('SPACE Orders@default 不支持保存独立 sortExpression')
+    expect(compileRuntimeDataSetPlan(build({queryContext: {}, sortExpression: []})).metadata.tables['Orders']?.views['default'])
+      .toBeDefined()
+  })
+
   it('keeps the runtime Plan structure hash independent of savedAt', () => {
     const input = {
       scenarioId: 'SPACE', space: {rowid: 'SPACE', Name: 'Space'}, models: [], fields: [], relations: [],

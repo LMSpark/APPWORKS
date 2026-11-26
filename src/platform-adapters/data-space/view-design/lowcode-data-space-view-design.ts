@@ -12,7 +12,8 @@ import { LowcodeDataSpaceViewFields } from './lowcode-data-space-view-fields'
 import { LowcodeDataSpaceFieldValue } from '../model-source/field/lowcode-data-space-field-value'
 import { LowcodeDataSpaceRelationMetadata } from './lowcode-data-space-relation-metadata'
 import { LowcodeDataSpaceCascadeMetadata } from './lowcode-data-space-cascade-metadata'
-import {RUNTIME_DATA_SET_PLAN_FILE_TABLE} from '../runtime-data-set-plan-file'
+import {RUNTIME_DATA_SET_PLAN_FILE_TABLE, runtimeDataSetPlanUnconfirmed, verifyRuntimeDataSetPlan,
+  type PublishRuntimeDataSetPlanInput} from '../runtime-data-set-plan-file'
 
 import {
   createInputParameterEditHost, inputParameterGetState, inputParameterReload, inputParameterSave, inputParameterStage,
@@ -43,6 +44,9 @@ import { LowcodeDataSpaceModelDependencies } from '../model-source/model/lowcode
 import { LowcodeDataSpaceQueryPreview } from './preview/lowcode-data-space-query-preview'
 import {LowcodeDataSpaceMetadata} from '../lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from '../lowcode-model-relation-adapter'
+
+type RuntimeDataSetPlanStatus = Exclude<SparkData.DataViewSourceWriteAttemptStatus['state'], 'confirmed' | 'not-applied'>
+  | 'pending' | 'deferred' | 'retry'
 
 type DataViewExecutor=Parameters<SparkData.DataView['bindQueryExecutor']>[0]
 function readOnlyFileExecutor(executor:DataViewExecutor):DataViewExecutor{
@@ -108,12 +112,7 @@ type ViewDesignOptions = Readonly<{
   loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput,'fileExecutors'|'projectionBindings'>): Promise<SparkData.DataSet>
   readLegacyLayout?(targetId: string): Promise<string | null>
   /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */
-  publishRuntimeDataSetPlan?(input: Readonly<{
-    scenarioId: string
-    metadataDataSet: SparkData.DataSet
-    scenarioConfig: Readonly<Record<string, unknown>>
-    assertCurrent: () => void
-  }>): Promise<void>
+  publishRuntimeDataSetPlan?(input: PublishRuntimeDataSetPlanInput): Promise<void>
   /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */
   modelSources?: ModelCreateSources
   assertScope(): void
@@ -235,6 +234,12 @@ export class LowcodeDataSpaceDesignSession {
   readonly #sourceRemovalDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
   readonly #fieldOutputDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
   #removeSaveCompletion: (() => void) | null = null
+  #runtimePlanRequested = 0
+  #runtimePlanConfirmed = 0
+  /** 元数据代次由会话关联，提交捕获及回执由原 Plan 文件视图承接。 */
+  #runtimePlanFileRevision: number | undefined
+  #runtimePlanPending = false
+  #runtimePlanError: string | undefined
 
   private readonly design: LowcodeDataSpaceViewDesign
   private readonly options: ViewDesignOptions
@@ -267,24 +272,71 @@ export class LowcodeDataSpaceDesignSession {
         if (saveOptions?.views?.length && saveOptions.views.every(view => !relevantTables.has(view.tableName))) return
         const changed = (result.data?.createdCount ?? 0) + (result.data?.savedCount ?? 0) + (result.data?.deletedCount ?? 0)
         if (!changed) return
-        await this.persistRuntimeDataSetPlan()
+        this.#runtimePlanRequested++
+        if (this.#runtimePlanPending || this.#runtimePlanError !== undefined) return
+        await this.advanceRuntimeDataSetPlan()
       })
     }
   }
 
+  /** Plan 承接结果独立于元数据回执。状态仅指当前设计会话的后续发布。 */
+  getRuntimeDataSetPlanState(): Readonly<{status: RuntimeDataSetPlanStatus; message?: string}> {
+    if (this.#disposed || this.metadataDataSet.destroyed) return {status: 'idle'}
+    if (this.#runtimePlanPending) return {status: 'pending'}
+    if (runtimeDataSetPlanUnconfirmed({dataSet: this.metadataDataSet, scenarioId: this.targetId})) {
+      return {status: 'unknown', ...(this.#runtimePlanError === undefined ? {} : {message: this.#runtimePlanError})}
+    }
+    if (this.#runtimePlanRequested === this.#runtimePlanConfirmed) return {status: 'idle'}
+    return this.#runtimePlanError === undefined ? {status: 'deferred'} : {status: 'retry', message: this.#runtimePlanError}
+  }
+
+  /** 继续当前空间 Plan。未知时本次动作仅回读原文件，之后的请求仍需明确处理。 */
+  async resumeRuntimeDataSetPlan(): Promise<void> {
+    this.assertOwner()
+    if (this.#runtimePlanPending) throw new Error('RUNTIME_DATA_SET_PLAN_PENDING: 当前 Plan 操作正在执行')
+    await this.advanceRuntimeDataSetPlan()
+  }
+
+  private async advanceRuntimeDataSetPlan(): Promise<void> {
+    this.assertOwner()
+    const requested = this.#runtimePlanRequested
+    if (requested === this.#runtimePlanConfirmed || !this.options.publishRuntimeDataSetPlan) return
+    const file = {scenarioId: this.targetId, dataSet: this.metadataDataSet, assertCurrent: () => this.assertOwner()}
+    this.#runtimePlanPending = true
+    try {
+      if (runtimeDataSetPlanUnconfirmed(file)) {
+        const original = this.#runtimePlanFileRevision
+        if (original === undefined) throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原文件提交与元数据代次无法关联')
+        await verifyRuntimeDataSetPlan(file)
+        this.#runtimePlanConfirmed = original
+      } else {
+        if (!(await this.persistRuntimeDataSetPlan(requested))) return
+        this.#runtimePlanConfirmed = requested
+      }
+      this.#runtimePlanError = undefined
+    } catch (error) {
+      this.#runtimePlanError = error instanceof Error ? error.message : String(error)
+      throw error
+    } finally {
+      this.#runtimePlanPending = false
+    }
+  }
+
+  private hasPendingRuntimePlanMetadata(): boolean {
+    return LowcodeDataSpaceMetadata.tables.some(name => {
+      const table = this.metadataDataSet.getTable(name)
+      return table !== undefined && Object.values(table.views).some(view =>
+        view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges() || view.hasUnconfirmedSave)
+    })
+  }
+
   /** 正式 metadata 与当前已保存定义都确认后，发布唯一独立 Plan。 */
-  private async persistRuntimeDataSetPlan(): Promise<void> {
+  private async persistRuntimeDataSetPlan(revision: number): Promise<boolean> {
     this.assertLive()
     const publish = this.options.publishRuntimeDataSetPlan
-    if (!publish) return
+    if (!publish) return false
     this.assertOwner()
-    const pendingMetadata = LowcodeDataSpaceMetadata.tables.some(name => {
-      const view = this.metadataDataSet.getView(name, 'default')
-      return view?.dirtyTracking.hasPendingChanges() === true
-        || view?.hasEditingChanges() === true
-        || view?.hasUnconfirmedSave === true
-    })
-    if (pendingMetadata) return
+    if (this.hasPendingRuntimePlanMetadata()) return false
     const file = this.#file
     if (!file || !file.isPersisted || file.isDirty || file.saveStatus !== 'idle') {
       throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE: 场景定义文件尚未确认保存')
@@ -300,17 +352,27 @@ export class LowcodeDataSpaceDesignSession {
         if (!view) throw new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: 缺少正式 ${name} 视图`)
         const refreshed = await view.requestRefresh()
         if (!refreshed.success) throw refreshed.error ?? new Error(`RUNTIME_DATA_SET_PLAN_SOURCE: ${name} 回读失败`)
+        if (view.refreshPending || this.hasPendingRuntimePlanMetadata()) return false
       }
       this.assertOwner()
       if (file !== this.#file || state(file).dirty || state(file).saveStatus !== 'idle') {
         throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE_STALE: 定义文件保存期间已变化')
       }
+      const sourceRevision = file.revision
+      this.#runtimePlanFileRevision = revision
       await publish({
         scenarioId: this.targetId,
         metadataDataSet: this.metadataDataSet,
         scenarioConfig: file.value.toJSON(),
-        assertCurrent: () => this.assertLive(),
+        assertCurrent: () => this.assertOwner(),
+        assertSourceCurrent: () => {
+          if (file !== this.#file || file.revision !== sourceRevision || file.isDirty || file.saveStatus !== 'idle'
+            || revision !== this.#runtimePlanRequested || this.hasPendingRuntimePlanMetadata()) {
+            throw new Error('RUNTIME_DATA_SET_PLAN_SOURCE_STALE: 派发前场景定义或正式元数据已变化')
+          }
+        },
       })
+      return true
     } finally {
       for (const view of deferred) {
         if (!view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges() && !view.hasUnconfirmedSave) view.resetState()

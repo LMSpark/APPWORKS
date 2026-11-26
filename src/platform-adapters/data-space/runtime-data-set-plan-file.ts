@@ -21,12 +21,15 @@ import {isFileMutationUnconfirmed, markFileMutationMayHaveApplied} from '@/platf
 export const RUNTIME_DATA_SET_PLAN_FILE_TABLE = 'RuntimeDataSetPlanFile'
 const RESOURCE_ID = 'spark.runtimeDataSetPlan.file'
 const CUSTOM_PATH = 'DataSet'
+const writeViewId = (scenarioId: string): string => `dataset-${scenarioId}`
 
 export type PublishRuntimeDataSetPlanInput = Readonly<{
   scenarioId: string
   metadataDataSet: DataSet
   scenarioConfig: Readonly<Record<string, unknown>>
   assertCurrent: () => void
+  /** 仅阻止失效来源的新写入，原文件回读和已派发回执仍由执行域校验。 */
+  assertSourceCurrent: () => void
 }>
 type RuntimeDataSetPlanFileInput=Readonly<{
   scenarioId:string
@@ -41,9 +44,13 @@ function rows(view: DataView | undefined, label: string): ReadonlyArray<Readonly
   return view.rows
 }
 
-function transport(input: RuntimeDataSetPlanFileInput): FileResourceTransport {
+function transport(input: RuntimeDataSetPlanFileInput, assertSourceCurrent?: () => void): FileResourceTransport {
   const fileName = `${input.scenarioId}.dataset.json`
   const locator = {appType: 'designfile', customPath: CUSTOM_PATH, fileName} as const
+  const assertWriteCurrent = () => {
+    input.assertCurrent()
+    assertSourceCurrent?.()
+  }
   return {
     read: async () => {
       input.assertCurrent()
@@ -57,8 +64,8 @@ function transport(input: RuntimeDataSetPlanFileInput): FileResourceTransport {
       }
     },
     write: async ({text}) => {
-      input.assertCurrent()
-      await lowcodeDesignFileUpload.uploadWorkingText({...locator, text})
+      assertWriteCurrent()
+      await lowcodeDesignFileUpload.uploadWorkingText({...locator, text, assertReady: assertWriteCurrent})
       try {input.assertCurrent()} catch (error) {
         throw markFileMutationMayHaveApplied(error)
       }
@@ -108,12 +115,13 @@ function planText(input: PublishRuntimeDataSetPlanInput): string {
   return text
 }
 
-function getPlanFileView(input:RuntimeDataSetPlanFileInput,options:Readonly<{readOnly?:boolean;viewId?:string}>={}):DataView{
+type PlanFileViewOptions = Readonly<{readOnly?: boolean; viewId?: string; assertSourceCurrent?: () => void}>
+function getPlanFileView(input:RuntimeDataSetPlanFileInput,options:PlanFileViewOptions={}):DataView{
   const dataSet=ensurePlanFileTable(input.dataSet),fileName=`${input.scenarioId}.dataset.json`
   return getOrCreateFileResourceView({
     dataSet,
     tableName:RUNTIME_DATA_SET_PLAN_FILE_TABLE,
-    viewId:options.viewId??`dataset-${input.scenarioId}`,
+    viewId:options.viewId??writeViewId(input.scenarioId),
     resourceId:RESOURCE_ID,
     contentField:'text',
     columns:dataSet.getTable(RUNTIME_DATA_SET_PLAN_FILE_TABLE)?.columns??[],
@@ -123,7 +131,7 @@ function getPlanFileView(input:RuntimeDataSetPlanFileInput,options:Readonly<{rea
       if(scenarioId!==input.scenarioId||currentFileName!==fileName)throw new Error('RUNTIME_DATA_SET_PLAN_SCOPE: Plan 文件目标已变化')
       return {key:JSON.stringify([scenarioId,fileName]),fields:{scenarioId,fileName}}
     },
-    transport:transport(input),
+    transport:transport(input,options.assertSourceCurrent),
     ...(options.readOnly?{canWrite:()=>false,canCreate:()=>false,canDelete:()=>false}:{}),
     assertCurrent:input.assertCurrent,
   })
@@ -151,21 +159,37 @@ export async function readRuntimeDataSetPlan(input:RuntimeDataSetPlanFileInput):
   }
 }
 
+/** 从原 Plan 文件视图投影其在本 DataSet 中的未决提交。 */
+export function runtimeDataSetPlanUnconfirmed(input: Pick<RuntimeDataSetPlanFileInput, 'scenarioId' | 'dataSet'>): boolean {
+  return input.dataSet.getView(RUNTIME_DATA_SET_PLAN_FILE_TABLE, writeViewId(input.scenarioId))?.hasUnconfirmedSave === true
+}
+
+/** 仅经原 DataSet 和文件视图核验已有提交。运行 Plan 的后续版本需要另一笔明确意图。 */
+export async function verifyRuntimeDataSetPlan(input: RuntimeDataSetPlanFileInput): Promise<void> {
+  input.assertCurrent()
+  const view = input.dataSet.getView(RUNTIME_DATA_SET_PLAN_FILE_TABLE, writeViewId(input.scenarioId))
+  if (!view?.hasUnconfirmedSave) throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原 Plan 提交捕获已不可用')
+  const result = await input.dataSet.resolveUnconfirmedSaves([view])
+  input.assertCurrent()
+  if (result.state !== 'confirmed' || result.views.length !== 1) {
+    throw result.views[0]?.error ?? new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原 Plan 提交尚未确认')
+  }
+}
+
 /** 由一份 FileResource DataView 承接 Plan 替换；保存器内置写后精确文本回读。 */
 export async function publishRuntimeDataSetPlan(input: PublishRuntimeDataSetPlanInput): Promise<void> {
   input.assertCurrent()
+  input.assertSourceCurrent()
   let text = planText(input)
   const dataSet=input.metadataDataSet
+  const view = getPlanFileView({scenarioId: input.scenarioId, dataSet, assertCurrent: input.assertCurrent},
+    {assertSourceCurrent: input.assertSourceCurrent})
   try {
-    const view=getPlanFileView({scenarioId:input.scenarioId,dataSet,assertCurrent:input.assertCurrent})
-    if (view.hasUnconfirmedSave) {
-      const verified = await view.verifySourceWriteAttempt()
-      if (verified.state !== 'confirmed') throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原提交仍未确认，须显式重开或核验')
-      view.acknowledgeSourceWriteAttempt()
-    }
+    if (view.hasUnconfirmedSave) throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原提交仍未确认，须先核验')
     const queried = await view.requestRefresh()
     input.assertCurrent()
-    if (!queried.success) throw queried.error ?? new Error(queried.message ?? 'Runtime Dataset Plan 读取失败')
+    if (!queried.success || view.refreshPending) throw queried.error ?? new Error('Runtime Dataset Plan 基线读取未完成')
+    input.assertSourceCurrent()
     const row = view.currentRow
     if (!row) {
       await view.addRow({text})
@@ -177,20 +201,25 @@ export async function publishRuntimeDataSetPlan(input: PublishRuntimeDataSetPlan
       }
       if (view.getEditingRow(key)?.['text'] !== text && row['text'] !== text) await view.editRowById(key, {text})
     }
-    if (view.hasUnconfirmedSave) {
-      const verified = await view.verifySourceWriteAttempt()
-      if (verified.state !== 'confirmed') throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原提交仍未确认，须重新打开设计会话')
-      view.acknowledgeSourceWriteAttempt()
+    if (!view.dirtyTracking.hasPendingChanges() && !view.hasEditingChanges()) {
+      if (view.currentRow?.['text'] !== text) throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 原文件视图未接纳待发布正文')
+      return
     }
-    if (!view.dirtyTracking.hasPendingChanges() && !view.hasEditingChanges()) return
     const saved = await dataSet.saveChanges({views: [{tableName: RUNTIME_DATA_SET_PLAN_FILE_TABLE, viewId: view.viewId}]})
     input.assertCurrent()
-    if (!saved.success) throw saved.error ?? new Error(saved.message ?? 'Runtime Dataset Plan 保存失败')
-    const readback = await view.requestRefresh()
-    if (!readback.success || view.currentRow?.['text'] !== text) {
-      throw new Error('RUNTIME_DATA_SET_PLAN_WRITE: 保存回读与提交文本不一致')
+    const receipt = saved.data?.viewResults[0]
+    if (!saved.success || saved.data?.viewCount !== 1 || receipt?.tableName !== RUNTIME_DATA_SET_PLAN_FILE_TABLE
+      || receipt.viewId !== view.viewId || receipt.createdCount + receipt.savedCount !== 1
+      || view.currentRow?.['text'] !== text) {
+      throw saved.error ?? new Error('RUNTIME_DATA_SET_PLAN_WRITE: 文件回执未确认原提交正文')
     }
   } catch (error) {
+    input.assertCurrent()
+    const records = dataSet.saveJournal.views
+    if (dataSet.getView(RUNTIME_DATA_SET_PLAN_FILE_TABLE, view.viewId) === view && records.length === 1
+      && records[0]?.tableName === view.tableName && records[0].viewId === view.viewId && records[0].state === 'not-applied') {
+      dataSet.discardSaveJournalNotApplied()
+    }
     throw new Error(`RUNTIME_DATA_SET_PLAN_WRITE: ${error instanceof Error ? error.message : String(error)}`, {cause: error})
   }
 }

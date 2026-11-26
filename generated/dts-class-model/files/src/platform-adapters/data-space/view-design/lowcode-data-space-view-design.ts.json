@@ -17,6 +17,17 @@
     ]
   },
   "$defs": {
+    "RuntimeDataSetPlanStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeDataSetPlanStatus",
+      "enum": [
+        "unknown",
+        "idle",
+        "pending",
+        "deferred",
+        "retry"
+      ]
+    },
     "FormalModel": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -114,9 +125,9 @@
         },
         "saveStatus": {
           "enum": [
+            "unknown",
             "idle",
-            "pending",
-            "unknown"
+            "pending"
           ]
         },
         "submittedText": {
@@ -316,30 +327,7 @@
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "properties": {
-                "scenarioId": {
-                  "type": "string"
-                },
-                "metadataDataSet": {
-                  "type": "object",
-                  "title": "SparkData.DataSet"
-                },
-                "scenarioConfig": {
-                  "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
-                },
-                "assertCurrent": {
-                  "type": "object",
-                  "title": "() => void"
-                }
-              },
-              "required": [
-                "scenarioId",
-                "metadataDataSet",
-                "scenarioConfig",
-                "assertCurrent"
-              ],
-              "additionalProperties": false
+              "$ref": "../runtime-data-set-plan-file.ts.json#/$defs/PublishRuntimeDataSetPlanInput"
             }
           },
           "additionalProperties": false
@@ -633,6 +621,35 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.getRuntimeDataSetPlanState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRuntimeDataSetPlanState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/RuntimeDataSetPlanStatus"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "method.resumeRuntimeDataSetPlan.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resumeRuntimeDataSetPlan.return": {
+          "type": "object",
+          "title": "Promise<void>"
         },
         "method.loadQueryPlanFields.params": {
           "type": "object",
@@ -1460,8 +1477,36 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T17:41:13.937Z",
+  "generatedAt": "2026-11-26T18:01:53.144Z",
   "models": {
+    "RuntimeDataSetPlanStatus": {
+      "name": "RuntimeDataSetPlanStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Exclude<SparkData.DataViewSourceWriteAttemptStatus['state'], 'confirmed' | 'not-applied'> | 'pending' | 'deferred' | 'retry'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Exclude<SparkData.DataViewSourceWriteAttemptStatus['state'], 'confirmed' | 'not-applied'>",
+            "targetName": "Exclude"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'deferred'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'retry'"
+          }
+        ],
+        "members": {}
+      }
+    },
     "FormalModel": {
       "name": "FormalModel",
       "jsdoc": "",
@@ -1728,11 +1773,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: Readonly<{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }>): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: PublishRuntimeDataSetPlanInput): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: Readonly<{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }>): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */\n    fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput, 'fileExecutors' | 'projectionBindings'>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 正式保存确认后生成并回读独立 Runtime Dataset Plan。 */\n    publishRuntimeDataSetPlan?(input: PublishRuntimeDataSetPlanInput): Promise<void>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1904,13 +1949,8 @@
                   "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        scenarioId: string;\n        metadataDataSet: SparkData.DataSet;\n        scenarioConfig: Readonly<Record<string, unknown>>;\n        assertCurrent: () => void;\n    }"
-                      }
-                    ]
+                    "name": "PublishRuntimeDataSetPlanInput",
+                    "sourcePath": "src/platform-adapters/data-space/runtime-data-set-plan-file.ts"
                   }
                 }
               ],
@@ -2223,6 +2263,36 @@
             }
           ],
           "methods": [
+            {
+              "name": "getRuntimeDataSetPlanState",
+              "jsdoc": "Plan 承接结果独立于元数据回执。状态仅指当前设计会话的后续发布。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        status: RuntimeDataSetPlanStatus;\n        message?: string;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resumeRuntimeDataSetPlan",
+              "jsdoc": "继续当前空间 Plan。未知时本次动作仅回读原文件，之后的请求仍需明确处理。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
             {
               "name": "loadQueryPlanFields",
               "jsdoc": "子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。\n@param input 本空间已绑定的正式模型身份；不接受文件资源或另一模型的表键。\n@returns 正式输出字段、可过滤的全部正式字段和原值函数目录；不查询业务行、不保存。",

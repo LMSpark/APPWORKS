@@ -8182,3 +8182,37 @@ describe('metadata invalidation ownership', () => {
     const source = readFileSync(resolve(__dirname, '../../../../../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'), 'utf8')
     expect(source).not.toMatch(/fileBindingSubmissionUnconfirmed|parameterBaseline|historyDefinitionSnapshot/)
   })
+
+it('Runtime Dataset Plan follow-up stays actionable after a successful parameter save closes the modal', async () => {
+  const f = fixture({overviewOnly: true})
+  const {wrapper, instance} = await page('?scenarioId=A', true)
+  const session = f.sessions[0]!
+  const originalSave = session.saveInputParameters.bind(session)
+  let status: ReturnType<typeof session.getRuntimeDataSetPlanState>['status'] = 'idle'
+  vi.spyOn(session, 'getRuntimeDataSetPlanState').mockImplementation(() => ({status}))
+  vi.spyOn(session, 'saveInputParameters').mockImplementation(async input => {
+    const result = await originalSave(input)
+    status = 'unknown'
+    return result
+  })
+  const resume = vi.spyOn(session, 'resumeRuntimeDataSetPlan').mockImplementation(async () => {
+    status = status === 'unknown' ? 'deferred' : 'idle'
+  })
+  await select(wrapper, '输入参数')
+  await editParameter(wrapper, '描述 1', '参数已确认')
+  await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+  expect(parameterEditor(wrapper)).toBeUndefined()
+  expect(instance.isDirty).toBe(true)
+  expect(writes(f)).toHaveLength(1)
+  expect(wrapper.get('[data-runtime-plan-status]').text()).toContain('提交结果未知')
+  expect(sourceButton(wrapper, 'resume-runtime-dataset-plan').text()).toBe('核验原 Plan 提交')
+  await sourceButton(wrapper, 'resume-runtime-dataset-plan').trigger('click'); await flushPromises()
+  expect(resume).toHaveBeenCalledTimes(1)
+  expect(wrapper.get('[data-runtime-plan-status]').text()).toContain('待发布')
+  expect(sourceButton(wrapper, 'resume-runtime-dataset-plan').text()).toBe('继续发布 Plan')
+  await sourceButton(wrapper, 'resume-runtime-dataset-plan').trigger('click'); await flushPromises()
+  expect(resume).toHaveBeenCalledTimes(2)
+  expect(wrapper.find('[data-runtime-plan-status]').exists()).toBe(false)
+  expect(writes(f)).toHaveLength(1)
+  expect(instance.isDirty).toBe(false)
+})

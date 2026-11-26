@@ -229,6 +229,15 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
     const fields = modelFields.filter(field => field.dataModelId === modelId)
     for (const [viewId, rawView] of Object.entries(tableViews)) {
       if (!isRecord(rawView)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}.${viewId}: 视图配置无效`)
+      // Plan v1 的空间入参和字段投影不能代替视图自己的默认上下文和独立排序。
+      const queryContext = rawView['queryContext']
+      if (isRecord(queryContext) && Object.keys(queryContext).length > 0) {
+        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryContext: ${input.scenarioId} ${tableName}@${viewId} 不支持保存非空 queryContext`)
+      }
+      const sort = rawView['sortExpression']
+      if (Array.isArray(sort) && sort.length > 0) {
+        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.sortExpression: ${input.scenarioId} ${tableName}@${viewId} 不支持保存独立 sortExpression`)
+      }
       const recordId = stableViewRecordId(tableName, viewId)
       const cascadeDependencies: RuntimeDataSetPlanDependency[] = []
       const dependentFilters: RuntimePlanFilter[] = []

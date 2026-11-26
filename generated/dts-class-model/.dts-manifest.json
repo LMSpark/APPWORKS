@@ -3014,7 +3014,7 @@
     "packages/spark-data/src/runtime-data-set-plan/builder.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json",
-      "sourceModifiedAt": "2026-11-26T12:44:51.402Z"
+      "sourceModifiedAt": "2026-11-26T19:02:19.815Z"
     },
     "packages/spark-data/src/runtime-data-set-plan/compiler.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/compiler.ts",
@@ -4129,7 +4129,7 @@
     "src/platform-adapters/data-space/runtime-data-set-plan-file.ts": {
       "sourceFile": "src/platform-adapters/data-space/runtime-data-set-plan-file.ts",
       "shardFile": "files/src/platform-adapters/data-space/runtime-data-set-plan-file.ts.json",
-      "sourceModifiedAt": "2026-11-24T09:05:40.259Z"
+      "sourceModifiedAt": "2026-11-26T13:09:04.572Z"
     },
     "src/platform-adapters/data-space/view-design/lowcode-data-space-cascade-metadata.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-cascade-metadata.ts",
@@ -4144,7 +4144,7 @@
     "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-11-23T17:41:13.937Z"
+      "sourceModifiedAt": "2026-11-26T18:01:53.144Z"
     },
     "src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -6874,7 +6874,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:03:43.546Z"
+      "sourceModifiedAt": "2026-11-25T11:04:44.535Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",

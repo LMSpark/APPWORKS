@@ -39,7 +39,13 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.assertCurrent.return": true
+        "method.assertCurrent.return": true,
+        "method.assertSourceCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertSourceCurrent.return": true
       }
     },
     "RuntimeDataSetPlanFileInput": {
@@ -66,18 +72,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T09:05:40.259Z",
+  "generatedAt": "2026-11-26T13:09:04.572Z",
   "models": {
     "PublishRuntimeDataSetPlanInput": {
       "name": "PublishRuntimeDataSetPlanInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n    /** 仅阻止失效来源的新写入，原文件回读和已派发回执仍由执行域校验。 */\n    assertSourceCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metadataDataSet: DataSet;\n    scenarioConfig: Readonly<Record<string, unknown>>;\n    assertCurrent: () => void;\n    /** 仅阻止失效来源的新写入，原文件回读和已派发回执仍由执行域校验。 */\n    assertSourceCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -102,6 +108,15 @@
           "methods": [
             {
               "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertSourceCurrent",
+              "jsdoc": "仅阻止失效来源的新写入，原文件回读和已派发回执仍由执行域校验。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

@@ -4,6 +4,7 @@
  * 边界：只核本次配置与正式模型身份，不创建表、查询、草稿或页面owner。
  */
 import { EnterpriseInitializationResource } from '@/platform-adapters/api'
+import {buildDataViewKey,resolveDataViewKey} from '@spark-appworks/spark-data'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord,type HttpClientBase} from '@spark-appworks/spark-utils'
 import type {LowcodeDataSpaceAssemblerInput} from '../../../data-space/lowcode-data-space-assembler'
@@ -17,13 +18,18 @@ export function createEnterpriseRegistrationBindings(input:Input):Pick<LowcodeDa
  if(input.config.scenarioId!==scenarioId)return{}
  input.assertCurrent()
  const tables=input.config.toJSON()['tables']
- const table=isRecord(tables)?tables[enterprise.modelName]:undefined,binding=isRecord(table)?table['modelBinding']:undefined
- if(!isRecord(binding)||binding['modelId']!==enterprise.modelId||binding['modelName']!==enterprise.modelName)throw Error('ENTERPRISE_REGISTRATION_BINDING: 企业模型正式身份不符')
+ const bindings=(isRecord(tables)?Object.values(tables):[]).flatMap(table=>{
+  const binding=isRecord(table)?table['modelBinding']:undefined
+  return isRecord(binding)&&binding['modelName']===enterprise.modelName?[binding]:[]
+ })
+ if(bindings.length!==1||bindings[0]?.['modelId']!==enterprise.modelId)throw Error('ENTERPRISE_REGISTRATION_BINDING: 企业模型正式身份不符')
  const command=isRecord(tables)?tables[commandTable]:undefined
  if(!isRecord(command)||command['resourceType']!=='command'||command['resourceId']!==EnterpriseInitializationResource.resourceId)throw Error('ENTERPRISE_REGISTRATION_BINDING: 初始化命令资源身份不符')
  return{commandBindings:{[commandTable]:view=>{
   input.assertCurrent()
-  const ds=view.dataSet,list=ds?.getView(enterprise.modelName,'default'),readback=ds?.getView(enterprise.modelName,'initializationReadback')
+  const ds=view.dataSet
+  const list=resolveDataViewKey(buildDataViewKey(enterprise.modelName,'default',scenarioId),ds)
+  const readback=resolveDataViewKey(buildDataViewKey(enterprise.modelName,'initializationReadback',scenarioId),ds)
   if(ds?.scenarioId!==scenarioId||view.viewId!=='default'||view.dataTable?.tableName!==commandTable||!list||!readback
    ||list.dataTable?.modelBinding?.modelId!==enterprise.modelId||list.dataTable.modelBinding.modelName!==enterprise.modelName)throw Error('ENTERPRISE_REGISTRATION_BINDING: 初始化命令缺少同实例企业视图')
   return new EnterpriseInitializationResource({list,readback,http:input.http,readScope:input.readScope,assertCurrent:input.assertCurrent}).binding(view)

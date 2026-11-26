@@ -39,7 +39,7 @@ export class EnterpriseInitializationResource{
    if(readScope().token!==this.#scope||command.destroyed||list.destroyed||readback.destroyed||!ds||ds.destroyed
     ||list.dataSet!==ds||readback.dataSet!==ds||command.dataTable?.resourceType!=='command'
     ||command.dataTable.resourceId!==EnterpriseInitializationResource.resourceId||command.primaryKey!=='commandId'
-    ||list.tableName!=='Base_Enterprise_Info'||readback.tableName!=='Base_Enterprise_Info'||list===readback
+    ||list.dataTable?.modelBinding?.modelName!=='Base_Enterprise_Info'||list.dataTable!==readback.dataTable||list===readback
     ||list.primaryKey!=='rowid'||readback.primaryKey!=='rowid')throw Error('ENTERPRISE_INIT_SCOPE: 企业初始化命令资源已失效')
   }
   const source=(enterpriseId:string)=>{

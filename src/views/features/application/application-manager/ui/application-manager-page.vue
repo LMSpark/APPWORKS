@@ -63,7 +63,7 @@ const dataSet = () => {
   return found
 }
 const pageView = () => {
-  const found = dataSet().getView(modelName, 'default')
+  const found = ready.value ? session.runtime?.resolveView(viewKey.value) : undefined
   if (!found) throw new Error('应用目录缺少正式列表视图')
   return found
 }

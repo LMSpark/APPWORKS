@@ -4,7 +4,7 @@
  * 边界：值与待提交状态只在原 DataView；新增先确认主表再写依附记录，删除先删依附记录再删主表；分阶段非事务，按阶段如实回报。
  * 负责人 RoleIdField/CategoryID 来自视图常驻范围（pagedata），只是数据值，不作任何前端权限判断。
  */
-import type {DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, resolveDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 
 export const APPLICATION_MANAGER_SCENARIO = '0C70F74793F9E858B71E0DBDEC784D57'
@@ -27,9 +27,9 @@ function failure(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause)
 }
 
-function requireView(dataSet: DataSet, table: string, viewId = 'default'): DataView {
-  const found = dataSet.getView(table, viewId)
-  if (!found) throw new Error(`应用管理缺少正式视图 ${table}@${viewId}`)
+function requireView(dataSet: DataSet, modelName: string, viewId = 'default'): DataView {
+  const found = resolveDataViewKey(buildDataViewKey(modelName, viewId, APPLICATION_MANAGER_SCENARIO), dataSet)
+  if (!found) throw new Error(`应用管理缺少正式视图 ${modelName}@${viewId}`)
   return found
 }
 

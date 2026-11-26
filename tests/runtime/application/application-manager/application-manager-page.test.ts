@@ -10,6 +10,7 @@ import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import * as Fixture from './application-manager.fixture'
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
+import applicationScenario from '../../../../config/pages/application/application-manager/pagedata.json'
 
 const {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO: SCENARIO, OWNER_ROLE, resetApplicationManagerFixture} = Fixture
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
@@ -237,6 +238,33 @@ describe('application manager restored with standard components and formal DataV
     await click('报价管理')
     expect(pageUi.showMessage.mock.calls).toEqual([['导出尚未交付', 'info'], ['报价管理尚未交付', 'info']])
     expect(http.saves).toHaveLength(0)
+  })
+
+  it('edits the original application and owner when scenario table keys differ from formal models', async () => {
+    const {Base_AppSystemList: applicationRows, Base_AppAndSource_Relation: databaseLinks,
+      Base_MainBody_RoleUser: ownerRows, Base_NavigationInfo: navigationRows, ...other} = applicationScenario.tables
+    pagedata[SCENARIO] = JSON.stringify({...applicationScenario, tables: {applicationRows, databaseLinks, ownerRows, navigationRows, ...other}})
+    try {
+      const {wrapper, view} = await open()
+      rowButtonFor(wrapper, 'needle description', '编辑').click()
+      await settle()
+      expect(bodyText()).toContain('编辑应用系统')
+      const main = view('applicationRows', 'form'), owner = view('ownerRows')
+      expect(main.rows.map(row => row['rowid'])).toEqual(['APP-1'])
+      expect(owner.rows.map(row => row['rowid'])).toEqual(['OWNER-1'])
+      expect(inputValues()).toContain('database 1 / 数据库 1')
+      main.updateEditingValue('APP-1', 'AppName', 'renamed')
+      owner.updateEditingValue('OWNER-1', 'UserIdField', 'USER-2')
+      await click('保存')
+      expect(http.saves).toHaveLength(2)
+      expect(http.saves.find(save => save.table === 'Base_AppSystemList')?.changed)
+        .toEqual([expect.objectContaining({rowid: 'APP-1', AppName: 'renamed'})])
+      expect(http.saves.find(save => save.table === 'Base_MainBody_RoleUser')?.changed)
+        .toEqual([expect.objectContaining({rowid: 'OWNER-1', UserIdField: 'USER-2'})])
+      expect(bodyText()).not.toContain('编辑应用系统')
+    } finally {
+      pagedata[SCENARIO] = JSON.stringify(applicationScenario)
+    }
   })
 
   it('edits the main record and owner through their views and saves both in one phase', async () => {

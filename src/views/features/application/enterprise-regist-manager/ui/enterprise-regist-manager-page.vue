@@ -79,7 +79,7 @@ const filter: RFilterProps = {
       optionDataViewKey: checkStateKey, optionValueField: 'val', optionLabelField: 'txt'}},
   ],
 }
-const listView = computed(() => ready.value ? session.runtime?.getDataSet(scenarioId)?.getView(modelName, 'default') : undefined)
+const listView = computed(() => ready.value ? session.runtime?.resolveView(viewKey.value) : undefined)
 const canAudit = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
   Boolean(row && dataSource && dataSource.fieldAccess(row, 'CheckState').write === 'allowed')
 const action = (label: string, kind: DialogKind, extra: Record<string, unknown> = {}) => ({type: 'r-button', props: {
@@ -125,8 +125,8 @@ function readShortName(row: DataRow): string {
   return shortName.trim()
 }
 async function prepareConfig(recordId: string, shortName: string): Promise<void> {
-  const current = session.runtime, dataSet = current?.getDataSet(scenarioId)
-  const config = dataSet?.getView(modelName, 'currentEnterprise'), applications = dataSet?.getView('Base_AppSystemList', 'enterpriseApplications')
+  const current = session.runtime
+  const config = current?.resolveView(configKey), applications = current?.resolveView(applicationKey)
   if (!current || !config || !applications) throw new Error('入驻管理缺少企业配置视图')
   if (config.hasEditingChanges() || config.dirtyTracking.hasPendingChanges() || config.hasUnconfirmedSave) throw new Error('上一次企业配置尚未保存或取消')
   config.queryContext = {...config.queryContext, enterpriseId: recordId}

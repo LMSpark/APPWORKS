@@ -27,7 +27,7 @@ afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 async function fixture(configure:(http:EnterpriseHttp)=>void=()=>undefined){
  const filter={field:'rowid',operator:'eq',value:{Type:'GetInputParam',ParamName:'enterpriseId'}}
  const ds=DataSet.fromJson({scenarioId:'5914',tables:{
-  Base_Enterprise_Info:{modelBinding:{modelId:'ENT',modelName:'Base_Enterprise_Info'},
+  enterpriseRows:{modelBinding:{modelId:'ENT',modelName:'Base_Enterprise_Info'},
    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'ShortName',type:'string'},{name:'CheckState',type:'string'}],
    views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}},
     initializationReadback:{autoLoad:false,filterExpression:filter,queryConfig:{pagination:'none'}}}},
@@ -41,7 +41,7 @@ async function fixture(configure:(http:EnterpriseHttp)=>void=()=>undefined){
   sourceName:'Base_Enterprise_Info',sourceId:'DB',sourceType:'表',primaryKey:'rowid',businessMain:false,raw:{},
   fields:['rowid','ShortName','CheckState'].map(name=>({id:name,modelId:'ENT',name,canonicalName:name,type:'varchar',primaryKey:name==='rowid',
    description:name,output:true,computed:false,order:0,orderType:'',raw:{}}))}
- const list=ds.getView('Base_Enterprise_Info')!,readback=ds.getView('Base_Enterprise_Info','initializationReadback')!,command=ds.getView('EnterpriseInitializationRequest')!
+ const list=ds.getView('enterpriseRows')!,readback=ds.getView('enterpriseRows','initializationReadback')!,command=ds.getView('EnterpriseInitializationRequest')!
  runtime.bindModelView(list,formal);runtime.bindModelView(readback,formal)
  const binding=new Api.EnterpriseInitializationResource({list,readback,http,readScope,assertCurrent:()=>undefined}).binding(command)
  bindDataSetCommandSubmit(command,binding)

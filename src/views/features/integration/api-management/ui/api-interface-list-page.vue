@@ -6,39 +6,13 @@
 <template>
   <RendererSection v-if="!ready" :grid-columns="1" :bordered="false" :status="loading ? '正在读取接口方案…' : ''" :error="error" />
   <RendererButton v-if="!loading && !ready" label="关闭接口方案" @click="emit('close')" />
-  <RendererDialog v-if="dialogRule" v-bind="dialogRule.props" :model-value="true"
-    :title="`${providerName || '当前提供商'} - 接口列表`" :close-disabled="busy" @update:model-value="close">
-    <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" >
-      <template #content="{children}">
-        <div class="interface-list">
-          <SparkComponentRenderer :config="region(children,'api-interface-sidebar')" />
-          <RendererSection v-for="workspace in children.filter(node => nodeId(node) === 'api-interface-workspace')" key="api-interface-workspace"
-            v-bind="workspace.props" :title="selected ? `${providerName || '当前提供商'} / ${selectedName || '接口配置'}` : ''" :status="status" :error="error" :retryable="definitionUnconfirmed && !busy">
-            <template v-if="selected" #header-actions>
-              <SparkComponentRenderer :config="region(getSparkNodeChildren(workspace.children),'api-interface-save')" />
-            </template>
-            <RendererTabs v-if="selected" v-model="tab" v-bind="region(getSparkNodeChildren(workspace.children),'api-interface-tabs').props">
-              <RendererTabPane v-for="(pane, index) in getSparkNodeChildren(region(getSparkNodeChildren(workspace.children),'api-interface-tabs').children)"
-                :key="nodeId(pane) ?? index" :index="index" v-bind="pane.props">
-                <SparkComponentRenderer v-for="node in getSparkNodeChildren(pane.children)"
-                  :key="nodeId(pane) === 'api-interface-edit-tab' ? String(selectedId) : nodeId(node) ?? node.type" :config="node" />
-                <InterfaceJsonImportDialog v-if="nodeId(pane) === 'api-interface-edit-tab' && importing"
-                  :key="importing.epoch" :dialog-rule="region(children,'api-interface-json-import')" :target="importing.target" @close="importing=undefined" />
-              </RendererTabPane>
-            </RendererTabs>
-            <SparkComponentRenderer v-else :config="region(getSparkNodeChildren(workspace.children),'api-interface-empty')" />
-          </RendererSection>
-        </div>
-      </template>
-    </SparkPageRenderer>
-    <ParameterBindingDialog v-if="bindingWindow && listRuntime" :key="bindingWindow.epoch" :dialog-rule="region(listRuntime.tool.rule.children,'api-interface-binding-dialog')" :parameters-key="INTERFACE_KEYS.bindings" :interface-key="INTERFACE_KEYS.interfaces" :interface-id="bindingWindow.interfaceId" :output-key="INTERFACE_KEYS.outputs" :output-id="bindingWindow.outputId" @close="closeBinding" />
-  </RendererDialog>
+  <SparkPageRenderer v-if="listRuntime && listHost" :page-runtime="listRuntime" :route-snapshot="routeSnapshot" :host="listHost" :auto-load="false" />
 </template>
 <script setup lang="ts">
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {getSparkNodeChildren, nodeId, type DataSet, type DataRow, type DataView, type DataViewEditingFieldChangeEvent, type SparkNode} from '@spark-appworks/spark-data'
+import type {DataSet, DataRow, DataView, DataViewEditingFieldChangeEvent} from '@spark-appworks/spark-data'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@/platform-adapters/api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
@@ -52,7 +26,7 @@ import script from './interface-list/script.js?raw'
 import style from './interface-list/style.css?raw'
 import {featureTableToolbar,runFeatureTableAction,type FeatureTableAction} from '@/views/features/shared/table/feature-table-actions'
 import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
-const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, SparkPageRenderer, SparkComponentRenderer, RendererButton, RendererTabs, RendererTabPane, consumeRequiredPageService} = SparkComponent
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, SparkPageRenderer, SparkComponentRenderer, RendererButton, consumeRequiredPageService} = SparkComponent
 const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
@@ -87,11 +61,6 @@ const interfacePending = computed(() => {const interfaces = view('Base_DataServi
 const status = computed(() => definitionUnconfirmed.value ? '保存结果尚未确认，请核验原保存结果' :
   callUnconfirmed.value ? '上次外部调用结果尚未确认，请在调用输出中处理' : '')
 
-function region(children:readonly SparkNode[],id:string):SparkNode {
-  const node=children.find(child=>nodeId(child)===id)
-  if(!node)throw new Error(`接口工作区缺少配置区域 ${id}`)
-  return node
-}
 const requestTab=ref('params')
 const importing=ref<{target:'json'|'form';epoch:number}>()
 let importEpoch=0
@@ -110,18 +79,20 @@ function openImport():void {
 }
 function requestToolbar(table:string,order:readonly FeatureTableAction[]){
   const target=requireView(table)
+  const runtime = listRuntime.value, parent = selected.value, query = target.queryContext
+  const currentRow = target.currentRow
   return featureTableToolbar({view:target,order,locked:locked.value,addBlocked:pendingCreate.value,
-    run:action=>act(async()=>{
-      await runFeatureTableAction(target,action,pageService)
-      if(action==='save'&&table==='_Base_ParamList')await requireView(table,'references').refresh()
-    }),
+    run:action=>{
+      if (!runtime || !active || !session.isCurrent(runtime) || !parent || selected.value !== parent || target.queryContext !== query || locked.value) return
+      if ((action === 'add' && pendingCreate.value) || (action === 'remove' && target.currentRow !== currentRow)) return
+      return act(async()=>{
+        await runFeatureTableAction(target,action,pageService)
+        if(action==='save'&&table==='_Base_ParamList'&&active&&session.isCurrent(runtime)&&selected.value===parent)await requireView(table,'references').refresh()
+      })
+    },
   })
 }
 const listRuntime=computed(()=>ready.value?session.runtime:undefined)
-const dialogRule=computed(()=>{
-  const runtime=listRuntime.value
-  return runtime ? region(runtime.tool.rule.children,'api-interface-dialog') : undefined
-})
 const routeSnapshot=computed(()=>{
   const {path,fullPath,name,params,query,hash}=route
   return {path,fullPath,name:name??null,params,query,hash}
@@ -133,6 +104,28 @@ const listHost=computed(()=>{
   return {runtime,assertCurrent,async invoke(command:string,input:unknown){
     assertCurrent()
     if(command==='interfaces.connect')return {
+      node: SparkComponentRenderer,
+      importDialog: InterfaceJsonImportDialog,
+      parameterBinding: ParameterBindingDialog,
+      close: async () => {
+        if (active && session.isCurrent(runtime)) await close()
+      },
+      layout: () => ({provider: props.providerName || '当前提供商', selected: !!selected.value,
+        id: selectedId.value, name: selectedName.value, tab: tab.value, busy: busy.value,
+        status: status.value, error: error.value, retryable: definitionUnconfirmed.value && !busy.value}),
+      importing: () => {
+        const original = importing.value
+        return original ? {key: original.epoch, target: original.target,
+          onClose: () => {if (importing.value === original) importing.value = undefined}} : undefined
+      },
+      binding: () => {
+        const original = bindingWindow.value
+        return original ? {key: original.epoch, interfaceId: original.interfaceId, outputId: original.outputId,
+          parametersKey: INTERFACE_KEYS.bindings, interfaceKey: INTERFACE_KEYS.interfaces, outputKey: INTERFACE_KEYS.outputs,
+          onClose: (result: SparkComponent.DataViewRecordEditingFinish) => {
+            if (bindingWindow.value === original) void closeBinding(result)
+          }} : undefined
+      },
       invocation:()=>{
         const calls=view('InterfaceCallRequest'),unknown=calls?.hasUnconfirmedSave===true
         return {unknown,busy:busy.value,locked:locked.value,pending:pendingCreate.value,
@@ -153,6 +146,7 @@ const listHost=computed(()=>{
         return {createDisabled:locked.value||interfaces?.addActionState()!=='enabled',removeDisabled:locked.value||!removable}
       },
     }
+    if(command==='interfaces.tab'&&(input==='edit'||input==='invoke'||input==='output'))tab.value=input
     if(command==='interfaces.verifyDefinition'&&definitionUnconfirmed.value&&!busy.value){
       await verifyOriginalSaves()
       return undefined
@@ -192,7 +186,7 @@ useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || d
 function changed(): void {revision.value++}
 const failure = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 async function act(action: () => unknown): Promise<void> {
-  if (busy.value) return
+  if (!active || busy.value) return
   busy.value = true; error.value = ''
   try {await action()} catch (cause) {error.value = failure(cause)}
   finally {busy.value = false; changed()}

@@ -1,7 +1,40 @@
-/* global $page */
+/* global $page, h */
 let interfaces
 
 async function __init__() { interfaces = await $page.invokeHostCommand('interfaces.connect') }
+function RenderInterfaceLayout({regions}) {
+  return interfaces ? [h('div', {class:'interface-list'}, regions.map(config => h(interfaces.node, {key:config.id, config})))] : null
+}
+function RenderInterfaceEdit({content}) {
+  const key = interfaces?.layout().id
+  return key === undefined ? null : [h(interfaces.node, {key, config:content})]
+}
+function RenderInterfaceImport({dialog}) {
+  const input = interfaces?.importing()
+  return input ? [h(interfaces.importDialog, {...input, dialogRule:dialog})] : null
+}
+function RenderParameterBinding({dialog}) {
+  const input = interfaces?.binding()
+  return input ? [h(interfaces.parameterBinding, {...input, dialogRule:dialog})] : null
+}
+function bindInterfaceDialog() {
+  const state = interfaces?.layout()
+  return {title:`${state?.provider ?? '当前提供商'} - 接口列表`,closeDisabled:state?.busy !== false}
+}
+function bindInterfaceWorkspace() {
+  const state = interfaces?.layout()
+  return {title:state?.selected ? `${state.provider} / ${state.name || '接口配置'}` : '',
+    status:state?.status ?? '', error:state?.error ?? '', retryable:state?.retryable === true,
+    ...(state?.selected ? {} : {header:{children:[]}})}
+}
+function bindInterfaceTabs() {
+  const state = interfaces?.layout()
+  return {visible:state?.selected === true,modelValue:state?.tab ?? 'edit'}
+}
+function bindInterfaceEmpty() { return {visible:interfaces?.layout().selected !== true} }
+async function closeInterfaceDialog(open) { if (open === false) await interfaces?.close() }
+async function selectInterfaceTab(name) { await $page.invokeHostCommand('interfaces.tab',name) }
+
 function bindCreate() { return {disabled:interfaces?.actions().createDisabled !== false} }
 function bindRemove() { return {disabled:interfaces?.actions().removeDisabled !== false} }
 async function createInterface() { await $page.invokeHostCommand('interfaces.create') }

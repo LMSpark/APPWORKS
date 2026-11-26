@@ -128,6 +128,31 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(f.interfaces.selectedRows.map(row=>row['rowid'])).toEqual(['I2'])
     expect(f.http.saves).toEqual([])
   })
+  it('ignores a request header action captured before the selected interface changed', async () => {
+    const f = await interfaceFixture()
+    const headers = f.ds.getView('Base_InterfaceApi_Headers')!
+    f.select('I1')
+    await f.tab('Header')
+    const headerTable = () => f.wrapper.findAllComponents(RendererTable).find(table =>
+      table.props('dataViewKey') === `${API}@Base_InterfaceApi_Headers@default`)
+    await vi.waitFor(() => expect(headerTable()?.props('toolbar')).toBeDefined())
+    const add = headerTable()?.props('toolbar')?.children?.find(node =>
+      isRecord(node) && isRecord(node['props']) && node['props']['label'] === '新增')
+    const oldAdd = isRecord(add) && isRecord(add['props']) ? add['props']['onClick'] : undefined
+    if (typeof oldAdd !== 'function') throw Error('原接口请求头工具栏缺少新增动作')
+    const sidebar = f.wrapper.get('.interface-list__sidebar')
+    await sidebar.findAll('.renderer-list-item-shell').find(node => node.text() === '查询')!.trigger('click')
+    await vi.waitFor(() => expect(headers.rows.map(row => row['rowid'])).toEqual(['X1']))
+    await oldAdd()
+    expect(headers.rows.map(row => row['rowid'])).toEqual(['X1'])
+    expect(headers.dirtyTracking.hasPendingChanges()).toBe(false)
+    await f.tab('Header')
+    await vi.waitFor(() => expect(headerTable()?.findAll('button').some(item => item.text() === '新增')).toBe(true))
+    await headerTable()!.findAll('button').find(item => item.text() === '新增')!.trigger('click')
+    await vi.waitFor(() => expect(headers.rows).toHaveLength(2))
+    expect(headers.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(f.http.saves).toEqual([])
+  })
   it('hosts the API interface catalog runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-interface-list-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
@@ -595,22 +620,33 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(observed.size).toBe(1)
   })
 
-  it('opens the interface scheme for one provider with no child definition loaded before a selection', async () => {
-    const wrapper = await mountAt(InterfacePage, {providerId: 'P1'})
-    const dialog = wrapper.getComponent(RendererDialog)
+  it('opens the configured interface scheme from the provider directory and loads the work area after selection', async () => {
+    const wrapper = await mountAt(ManagementPage)
+    await wrapper.findAll('button').find(item => item.text() === '接口列表')!.trigger('click')
+    const workbench = () => wrapper.getComponent(InterfacePage)
+    await vi.waitFor(() => expect(workbench().text()).toContain('请选择左侧接口，或先新建接口'))
+    const dialog = workbench().getComponent(RendererDialog)
     expect(dialog.props('dataViewKey')).toBe(`${API}@Base_DataServiceInterface@default`)
     expect(dialog.props('width')).toBe(1480)
-    const page = dialog.get('.spark-page-container')
+    const page = workbench().get('.spark-page-container')
     const scope = `[data-page="${page.attributes('data-page')}"].spark-page-container`
     expect(page.find('.interface-list').exists()).toBe(true)
-    expect(dialog.get('style').element.textContent).toContain(`${scope} .interface-list {`)
-    expect(wrapper.text()).toContain('取令牌')
-    expect(wrapper.text()).not.toContain('其他')
-    expect(wrapper.text()).toContain('请选择左侧接口，或先新建接口')
+    expect(workbench().get('style').element.textContent).toContain(`${scope} .interface-list {`)
+    expect(dialog.text()).toContain('取令牌')
+    expect(dialog.text()).not.toContain('其他')
     expect(api.current.state.http.reads.some(read => read.table === '_Base_ParamList')).toBe(false)
+    const sidebar = dialog.get('.interface-list__sidebar')
+    await sidebar.findAll('.renderer-list-item-shell').find(node => node.text() === '取令牌')!.trigger('click')
+    await vi.waitFor(() => {
+      const tabs = workbench().findAllComponents(RendererTabs).find(item => item.props('id') === 'api-interface-tabs')
+      expect(tabs?.findAll('.el-tabs__item').map(item => item.text())).toEqual(
+        expect.arrayContaining(['接口编辑', '调用输出', '输出内容']),
+      )
+      expect(dialog.text()).toContain('服务甲 / 取令牌')
+    })
     dialog.vm.$emit('update:modelValue', false)
     await flushPromises()
-    expect(wrapper.getComponent(InterfacePage).emitted('close')).toEqual([[]])
+    expect(wrapper.findComponent(InterfacePage).exists()).toBe(false)
   })
 
   it('keeps a single interface close confirmation and preserves the draft when canceled', async () => {

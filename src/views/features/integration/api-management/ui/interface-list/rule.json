@@ -1,5 +1,11 @@
 [
   {
+    "id":"api-interface-dialog",
+    "type":"r-dialog",
+    "props":{"width":1480,"modelValue":true,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
+      "onBeforeRender":"bindInterfaceDialog","on":{"update:modelValue":"closeInterfaceDialog"}},
+    "children":[{"type":"RenderInterfaceLayout","props":{"regions":[
+  {
     "id":"api-interface-sidebar",
     "type":"r-list",
     "props":{"class":"interface-list__sidebar","dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default",
@@ -11,26 +17,23 @@
     "children":[{"type":"r-text-display","props":{"field":"Name","placeholder":"未命名接口"}}]
   },
   {
-    "id":"api-interface-dialog",
-    "type":"r-dialog",
-    "props":{"width":1480,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"}
-  },
-  {
     "id":"api-interface-workspace",
     "type":"r-section",
-    "props":{"gridColumns":1,"bordered":false,"retryText":"核验原保存结果","onRetry":"verifyDefinition"},
-    "children":[
+    "props":{"gridColumns":1,"bordered":false,"retryText":"核验原保存结果","onBeforeRender":"bindInterfaceWorkspace","on":{"retry":"verifyDefinition"},"header":{"children":[
       {
         "id":"api-interface-save",
         "type":"r-button",
         "props":{"label":"保存","buttonType":"primary","onBeforeRender":"bindDefinitionSave","onClick":"saveDefinition"}
-      },
+      }
+    ]}},
+    "children":[
       {
         "id":"api-interface-tabs",
         "type":"r-tabs",
-        "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"},
+        "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","onBeforeRender":"bindInterfaceTabs","on":{"update:modelValue":"selectInterfaceTab"}},
         "children":[
           {"id":"api-interface-edit-tab","type":"r-tab-pane","props":{"name":"edit","label":"接口编辑","dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default"},"children":[
+            {"type":"RenderInterfaceEdit","props":{"content":
             {"id":"api-interface-edit","type":"r-section","props":{"bordered":false,"gridColumns":1,"class":"interface-edit"},"children":[
               {"type":"r-form","props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","autoColumns":false,"showDataViewMeta":false,"gridColumns":6,"labelWidth":"92px"},"children":[
                 {"type":"r-text","props":{"field":"Name","label":"名称:","placeholder":"请输入接口名称","colSpan":2}},
@@ -93,7 +96,7 @@
                   ]}
                 ]}
               ]}
-            ]}
+            ]}}}
           ]},
           {"id":"api-interface-invoke-tab","type":"r-tab-pane","props":{"name":"invoke","label":"调用输出","lazy":true,"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@InterfaceCallRequest@default"},"children":[
             {
@@ -143,10 +146,12 @@
           ]}
         ]
       },
-      {"id":"api-interface-empty","type":"r-empty","props":{"description":"请选择左侧接口，或先新建接口"}}
+      {"id":"api-interface-empty","type":"r-empty","props":{"description":"请选择左侧接口，或先新建接口","onBeforeRender":"bindInterfaceEmpty"}}
     ]
+  }
+    ]}}]
   },
-  {
+  {"type":"RenderParameterBinding","props":{"dialog":{
     "id": "api-interface-binding-dialog",
     "type": "r-dialog",
     "props": {
@@ -337,8 +342,8 @@
         ]
       }
     ]
-  },
-  {
+  }}},
+  {"type":"RenderInterfaceImport","props":{"dialog":{
     "id":"api-interface-json-import",
     "type":"r-dialog",
     "props":{"dataViewKey":"EC84BD89BDBDF46B1FE5132DD53836E5@Base_DataServiceInterface@default","title":"JSON输入","width":720,"appendToBody":true,
@@ -350,5 +355,5 @@
       {"id":"json-import-input","type":"r-json","props":{"label":"请输入 JSON","mode":"text","height":360}},
       {"id":"json-import-error","type":"r-alert","props":{"alertType":"error","closable":false}}
     ]
-  }
+  }}}
 ]

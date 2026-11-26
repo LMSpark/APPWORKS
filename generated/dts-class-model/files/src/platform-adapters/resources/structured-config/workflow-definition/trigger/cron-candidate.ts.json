@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate",
+    "sourcePath": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate.ts",
+    "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/cron-candidate\n职责：将模型草稿解析为单条可预览的六段 Cron 候选，核对字段范围和日周互斥。\n边界：候选仅支持常用 Quartz 表达式；不解析历史字段、不负责服务时区或调度结果。\nAI用途：在向用户展示模型生成的时间表达式前校验候选格式和语义范围。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-26T16:00:21.647Z",
+  "models": {}
+}

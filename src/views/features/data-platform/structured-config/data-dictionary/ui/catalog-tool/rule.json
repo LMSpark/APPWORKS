@@ -1,0 +1,56 @@
+[
+  {
+    "id": "dictionary-catalog",
+    "type": "r-section",
+    "props": {
+      "class": "dictionary-catalog-page",
+      "title": "数据字典",
+      "bordered": false,
+      "gridColumns": 1,
+      "gridGap": 16,
+      "onBeforeRender": "bindCatalogStatus",
+      "header": {
+        "children": [
+          {"type": "r-button", "props": {"label": "新增字典", "buttonType": "primary", "icon": "Plus", "dataViewKey": "_Base_DictType@default", "permAction": "create", "onBeforeRender": "bindCatalogAction", "onClick": "createDictionary"}},
+          {"type": "r-button", "props": {"label": "方案设计", "icon": "Edit", "onBeforeRender": "bindSelectedAction", "onClick": "openDictionaryDesign"}},
+          {"type": "r-button", "props": {"label": "打开数据维护", "icon": "List", "onBeforeRender": "bindSelectedAction", "onClick": "openDictionaryEntries"}},
+          {"type": "r-button", "props": {"label": "刷新", "icon": "Refresh", "onBeforeRender": "bindCatalogAction", "onClick": "refreshDictionaryCatalog"}}
+        ]
+      }
+    },
+    "children": [
+      {"type": "r-alert", "props": {"alertType": "warning", "closable": false, "showIcon": true, "title": "部分创建人在当前可读用户目录中未解析，保留原始标识。", "onBeforeRender": "bindCreatorWarning"}},
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "_Base_DictType@default",
+          "autoColumns": false,
+          "stripe": true,
+          "border": true,
+          "highlightCurrentRow": true,
+          "showDataViewMeta": false,
+          "onRowClick": "selectDictionaryRow",
+          "onBeforeRender": "bindCatalogTable",
+          "filter": {
+            "autoFitMinWidth": "230px",
+            "children": [
+              {"type": "r-select", "props": {"field": "AppId", "label": "所属应用", "clearable": true, "filterable": true, "optionDataViewKey": "Base_AppSystemList@default", "optionLabelField": "AppDesc", "optionValueField": "rowid"}},
+              {"type": "r-tree-select", "props": {"field": "StructureTypeID", "label": "领域分类", "checkStrictly": true, "filterable": true, "optionDataViewKey": "Base_StructureType@default"}},
+              {"type": "r-text", "props": {"field": "TypeName", "label": "字典名称", "placeholder": "按字典名称筛选"}},
+              {"type": "r-text", "props": {"field": "functiondesc", "label": "功能描述", "placeholder": "按功能描述筛选"}},
+              {"type": "r-text", "props": {"field": "createuser", "label": "创建人", "placeholder": "按姓名片段筛选"}}
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "TypeName", "label": "字典名称", "width": 230}},
+          {"type": "r-select", "props": {"field": "AppId", "label": "所属应用", "width": 180, "optionDataViewKey": "Base_AppSystemList@default", "optionLabelField": "AppDesc", "optionValueField": "rowid"}},
+          {"type": "r-text", "props": {"field": "functiondesc", "label": "功能描述", "width": 320}},
+          {"type": "r-tree-select", "props": {"field": "StructureTypeID", "label": "领域分类", "width": 180, "optionDataViewKey": "Base_StructureType@default"}},
+          {"type": "r-select", "props": {"field": "createuser", "label": "创建人", "width": 150, "optionDataViewKey": "Base_UserInfo@default"}},
+          {"type": "r-text", "props": {"field": "crttime", "label": "创建时间", "width": 180}}
+        ]
+      }
+    ]
+  }
+]

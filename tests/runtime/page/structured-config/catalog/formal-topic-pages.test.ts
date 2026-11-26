@@ -8,6 +8,7 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, SparkPageRenderer, registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
+import {AiTurnDraftRunner} from '@spark-appworks/spark-ai/agent'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
@@ -19,7 +20,7 @@ import {LowcodeExcelImport} from '@/platform-adapters/resources/semi-structured/
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
 import workflowCatalog from '../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
-import {withTestPageService} from '../../../../support/helpers/page-service-host'
+import {createTestPageService,withTestPageService} from '../../../../support/helpers/page-service-host'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
 vi.mock('@spark-appworks/spark-app', async () => {
@@ -319,6 +320,67 @@ describe('formal topic catalog pages', () => {
       expect(DataViewFilterCodec.parseStored(typeof stored==='string'?stored:undefined)?.toJSON()).toEqual({field:'Count',operator:'eq',value:2})
       expect(state.http.saves[0]?.table).toBe('Base_WorkflowDefinition')
     }
+  })
+  it.each(['adopt','decline','manual-edit','close','invalid','denied'])('settles a Cron candidate with %s against the original definition',async outcome=>{
+    Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',activeType:'time',timeExp:'0 0 8 * * ?'})
+    if(outcome==='denied')state.http.readonlyFields['Base_WorkflowDefinition']=['timeExp']
+    vi.stubEnv('VITE_AI_DATA_ENTRY_AGENTS','{"tenant":"AGENT1"}')
+    let finish:((candidate:string)=>void)|undefined
+    const run=vi.spyOn(AiTurnDraftRunner.prototype,'run').mockImplementation(()=>new Promise(resolve=>{finish=resolve}))
+    const path=`/apps/${state.appId}/catalog`
+    const router=createRouter({history:createMemoryHistory(),routes:[{path,component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push(path);await router.isReady()
+    const confirm=vi.fn(async()=>outcome!=='decline')
+    const showPrompt=vi.fn(async()=>'每天九点')
+    const host=defineComponent({setup(){
+      useSparkComponent({type:'cron-test-host'}).sparkProvide(PAGE_SERVICE,{
+        ...createTestPageService(router),showPrompt,showConfirm:confirm,
+      })
+      return ()=>h(RouterView)
+    }})
+    try{
+      const wrapper=mount(host,{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+      await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+      const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label);expect(b?.props('label')).toBe(label);b?.vm.$emit('click');await flushPromises()}
+      await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
+      await vi.waitFor(()=>expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+      const cron=wrapper.getComponent(RendererForm).findAllComponents(FieldText).find(f=>f.props('field')==='timeExp')!
+      await click('AI 生成时间表达式')
+      if(outcome==='denied'){
+        expect(showPrompt).not.toHaveBeenCalled()
+        expect(run).not.toHaveBeenCalled()
+        expect(state.http.saves).toEqual([])
+        return
+      }
+      expect(run).toHaveBeenCalledWith(expect.stringContaining('每天九点'),expect.any(AbortSignal))
+      if(outcome==='manual-edit')await cron.get('input').setValue('0 0 10 * * ?')
+      if(outcome==='close'){
+        await click('关闭定义')
+        expect(run.mock.calls[0]?.[1]?.aborted).toBe(true)
+      }
+      finish?.(outcome==='invalid'?'0 0 99 * * ?':'0 0 9 * * ?');await flushPromises()
+      expect(state.http.saves).toEqual([])
+      if(outcome==='close')expect(confirm).not.toHaveBeenCalled()
+      else if(outcome==='invalid'){
+        expect(confirm).not.toHaveBeenCalled()
+        expect(cron.get('input').element.value).toBe('0 0 8 * * ?')
+      }else if(outcome==='manual-edit'){
+        expect(confirm).not.toHaveBeenCalled()
+        expect(cron.get('input').element.value).toBe('0 0 10 * * ?')
+      }else{
+        expect(confirm).toHaveBeenCalledWith(expect.stringContaining('0 0 9 * * ?'),expect.any(String))
+        expect(cron.get('input').element.value).toBe(outcome==='adopt'?'0 0 9 * * ?':'0 0 8 * * ?')
+      }
+      if(outcome==='adopt'){
+        await click('保存定义')
+        expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',timeExp:'0 0 9 * * ?'})])
+        await click('关闭定义')
+        await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises()
+        await click('编辑定义')
+        await vi.waitFor(()=>expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+        expect(wrapper.getComponent(RendererForm).findAllComponents(FieldText).find(f=>f.props('field')==='timeExp')?.get('input').element.value).toBe('0 0 9 * * ?')
+      }
+    }finally{run.mockRestore();vi.unstubAllEnvs()}
   })
   it.each(['save','cancel'])('edits trigger type and Cron through standard bound fields and %s',async outcome=>{
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',activeType:'table',timeExp:'original-expression',tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:'add,edit'})

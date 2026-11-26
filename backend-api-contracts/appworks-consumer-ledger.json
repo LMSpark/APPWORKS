@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 238,
+  "consumerCount": 239,
   "directUnmatchedCount": 114,
   "consumers": [
     {
@@ -103,7 +103,13 @@
     {
       "expression": "/api/ai/v1/turns/T1/cancel",
       "sourceFile": "packages/spark-ai/src/agent/conversation/turn/ai-turn-draft-runner.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 62,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/ai/v1/turns",
+      "sourceFile": "packages/spark-ai/src/agent/conversation/turn/ai-turn-draft-runner.test.ts",
+      "sourceLine": 100,
       "scope": "tooling"
     },
     {

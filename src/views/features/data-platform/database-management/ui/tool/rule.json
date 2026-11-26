@@ -1,0 +1,108 @@
+[
+  {
+    "id": "server-directory",
+    "type": "r-section",
+    "props": {
+      "title": "服务器管理",
+      "class": "database-server-page",
+      "bordered": false,
+      "gridColumns": 1,
+      "gridGap": 16,
+      "onBeforeRender": "bindDirectory",
+      "header": {
+        "children": [
+          {"type": "r-button", "props": {"label": "注册", "buttonType": "primary", "icon": "Plus", "onBeforeRender": "bindCreate", "onClick": "createServer"}}
+        ]
+      }
+    },
+    "children": [
+      {
+        "type": "div",
+        "props": {"onBeforeRender": "bindDirectoryBody"},
+        "children": [
+          {
+            "id": "server-catalog",
+            "type": "r-table",
+            "props": {
+              "onBeforeRender": "bindCatalog",
+              "onRowClick": "selectServer",
+              "autoColumns": false,
+              "stripe": true,
+              "border": true,
+              "showRowIndex": true,
+              "highlightCurrentRow": true,
+              "showDataViewMeta": false,
+              "actionColumn": {"label": "操作", "width": 260, "fixed": true},
+              "filter": {
+                "autoQuery": false,
+                "collapsible": true,
+                "defaultCollapsed": true,
+                "children": [
+                  {"type": "r-text", "props": {"field": "ServerName", "label": "服务器名称", "placeholder": "请输入服务器名称", "clearable": true}},
+                  {"type": "r-text", "props": {"field": "ip_address", "label": "服务器IP地址", "placeholder": "请输入服务器IP地址", "clearable": true}},
+                  {"type": "r-select", "props": {"field": "Type", "label": "类型", "placeholder": "请选择类型", "clearable": true}}
+                ]
+              },
+              "actions": {
+                "children": [
+                  {"type": "r-button", "props": {"label": "编辑", "link": true, "buttonType": "primary", "onBeforeRender": "bindRowAction", "onClick": "editServer"}},
+                  {"type": "r-button", "props": {"label": "删除", "link": true, "buttonType": "danger", "onBeforeRender": "bindRowAction", "onClick": "openDeleteServer"}}
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "server-editor",
+        "type": "r-dialog",
+        "props": {
+          "modelValue": true,
+          "visible": false,
+          "width": 860,
+          "gridColumns": 1,
+          "onBeforeRender": "bindEditor",
+          "on": {"update:modelValue": "closeEditor"},
+          "footer": {
+            "children": [
+              {"type": "r-button", "props": {"label": "测试连接", "buttonType": "primary", "plain": true, "onBeforeRender": "bindTestConnection", "onClick": "testConnection"}},
+              {"type": "r-button", "props": {"label": "取消", "onBeforeRender": "bindCancelEdit", "onClick": "cancelEdit"}},
+              {"type": "r-button", "props": {"label": "确定", "buttonType": "primary", "onBeforeRender": "bindSaveEdit", "onClick": "saveEdit"}},
+              {"type": "r-button", "props": {"label": "核验保存结果", "onBeforeRender": "bindVerifyEdit", "onClick": "saveEdit"}},
+              {"type": "r-button", "props": {"label": "重新读取", "onBeforeRender": "bindReadback", "onClick": "saveEdit"}}
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindActionError"}},
+          {"type": "r-alert", "props": {"alertType": "warning", "closable": false, "title": "保存结果尚未确认。核验只确认原提交结果，不会再次写入。", "onBeforeRender": "bindUnknown"}},
+          {"type": "r-alert", "props": {"alertType": "warning", "closable": false, "title": "已保存，但目录尚未重新读取成功，请重新读取。", "onBeforeRender": "bindReadback"}},
+          {"type": "r-form", "props": {"contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "gridColumns": 12, "labelWidth": "120px", "onBeforeRender": "bindForm"}}
+        ]
+      },
+      {
+        "id": "server-delete",
+        "type": "r-dialog",
+        "props": {
+          "modelValue": true,
+          "visible": false,
+          "title": "删除确认",
+          "width": 420,
+          "gridColumns": 1,
+          "onBeforeRender": "bindDelete",
+          "on": {"update:modelValue": "closeDelete"},
+          "footer": {
+            "children": [
+              {"type": "r-button", "props": {"label": "取消", "onBeforeRender": "bindBusy", "onClick": "cancelDelete"}},
+              {"type": "r-button", "props": {"label": "删除", "buttonType": "danger", "onBeforeRender": "bindBusy", "onClick": "deleteServer"}}
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-alert", "props": {"alertType": "warning", "closable": false, "showIcon": true, "onBeforeRender": "bindDeleteName"}},
+          {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindActionError"}}
+        ]
+      }
+    ]
+  }
+]

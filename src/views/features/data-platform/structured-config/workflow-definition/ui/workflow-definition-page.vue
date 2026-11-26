@@ -20,6 +20,8 @@
         <SparkComponent.FieldText field="sysid" label="所属应用ID" :readonly="true" />
         <SparkComponent.FieldRadio field="activeType" label="触发类型" :options="triggerTypes" :readonly="definitionLocked" />
         <SparkComponent.FieldText field="timeExp" label="时间表达式" placeholder="请输入时间表达式（Cron）" :readonly="definitionLocked" />
+        <SparkComponent.RendererButton label="AI 生成时间表达式" :disabled="!canAssistCron || !!cronRequest" @click="assistCron" />
+        <SparkComponent.RendererButton v-if="cronRequest" label="取消时间表达式生成" @click="cancelCronRequest" />
         <SparkComponent.FieldText field="tblName" label="触发表" :readonly="true" />
         <SparkComponent.RendererButton label="选择触发表" :disabled="definitionLocked || conditionEditing" @click="triggerOpen = true" />
         <SparkComponent.FieldCheckboxGroup field="tableOperate" label="操作方式" :options="triggerOperations" value-mode="separated-string" value-separator="," :readonly="definitionLocked" />
@@ -51,6 +53,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {readLowcodeExecutionProject} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import {LowcodeWorkflowDefinition} from '@/platform-adapters/resources/structured-config/workflow-definition/resource'
+import {captureWorkflowCronTarget, requestWorkflowCronCandidate} from '@/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance'
 import {resolveExecutionProjectId, APPLICATION_CATALOG_PROJECT_ID} from '@/services/application-scope'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
 import WorkflowTriggerCondition from './workflow-trigger-condition.vue'
@@ -59,7 +62,8 @@ import WorkflowDesign from '../design/ui/workflow-design-page.vue'
 const route = useRoute()
 const designTarget=ref(''),designPage=ref<{hasPending:boolean;busy:boolean;unconfirmed:boolean;discardChanges:()=>boolean}>()
 const designPending=computed(()=>designPage.value?.hasPending===true||designPage.value?.busy===true)
-const {sparkProvide, sparkRemove} = SparkComponent.useSparkComponent({type: 'workflow-definition-page'})
+const {sparkConsume, sparkProvide, sparkRemove} = SparkComponent.useSparkComponent({type: 'workflow-definition-page'})
+const pageService = SparkComponent.consumeRequiredPageService(sparkConsume, 'workflow-definition-page')
 const session = new NativePageRuntimeSession({
   provide: () => undefined,
   remove: () => sparkRemove(SparkComponent.PAGE_RUNTIME),
@@ -70,10 +74,17 @@ const conditionEditing=ref(false)
 const triggerTypes=[{label:'表',value:'table'},{label:'时间',value:'time'}]
 const triggerOperations=[{label:'删除',value:'delete'},{label:'添加',value:'add'},{label:'编辑',value:'edit'}]
 const editTarget=ref(''),editReady=ref(false),editBusy=ref(false)
+const cronRequest = shallowRef<AbortController>()
 const editor=()=>session.runtime?.resolveView(editKey.value)
 const definitionUnconfirmed=computed(()=>{revision.value;return editor()?.hasUnconfirmedSave===true})
 const definitionLocked=computed(()=>editBusy.value||definitionUnconfirmed.value)
 const definitionPending=computed(()=>{revision.value;const target=editor();return conditionEditing.value||editBusy.value||!!target&&(target.hasUnconfirmedSave||target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges())})
+const canAssistCron = computed(() => {
+  revision.value
+  const target = editor()
+  if (!target || !editReady.value || definitionLocked.value || conditionEditing.value) return false
+  try { captureWorkflowCronTarget(target, editTarget.value); return true } catch { return false }
+})
 let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selectionState = computed(() => {
   revision.value
@@ -125,13 +136,54 @@ async function openDefinition():Promise<void>{
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)editBusy.value=false}
 }
-function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){triggerOpen.value=false;editTarget.value='';editReady.value=false}}
-function cancelDefinition():void{if(definitionLocked.value)return;try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function cancelCronRequest(): void {
+  cronRequest.value?.abort()
+  cronRequest.value = undefined
+}
+async function assistCron(): Promise<void> {
+  const view = editor(), runtime = session.runtime, dataSet = view?.dataSet
+  const id = editTarget.value, own = generation
+  if (!view || !runtime || !dataSet || !canAssistCron.value || cronRequest.value) return
+  const request = new AbortController()
+  cronRequest.value = request
+  error.value = ''
+  try {
+    const execution = readLowcodeExecutionProject()
+    const target = captureWorkflowCronTarget(view, id)
+    const assertCurrent = () => {
+      request.signal.throwIfAborted()
+      execution.assertCurrent()
+      if (!active || own !== generation || !session.isCurrent(runtime) || editor() !== view
+        || id !== editTarget.value || !editReady.value || definitionLocked.value || conditionEditing.value) {
+        throw Error('时间触发定义已变化，请重新生成候选')
+      }
+      target.assertCurrent()
+    }
+    const requirement = await pageService.showPrompt('描述计划运行的时间，例如每天上午九点。', '生成时间表达式')
+    if (requirement === null) return
+    assertCurrent()
+    const candidate = await requestWorkflowCronCandidate(dataSet, requirement, request.signal)
+    assertCurrent()
+    const confirmed = await pageService.showConfirm(`采用 ${candidate}？这会更新定义草稿，保存后才提交。`, '确认时间表达式')
+    if (!confirmed) return
+    assertCurrent()
+    target.apply(candidate)
+  } catch (cause) {
+    if (!request.signal.aborted && active && own === generation) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+    }
+  } finally {
+    if (cronRequest.value === request) cronRequest.value = undefined
+  }
+}
+function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){cancelCronRequest();triggerOpen.value=false;editTarget.value='';editReady.value=false}}
+function cancelDefinition():void{if(definitionLocked.value)return;cancelCronRequest();try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function saveDefinition():Promise<void>{
  if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}
  const target=editor(),ds=session.runtime?.getDataSet(scenarioId.value),catalog=view.value,id=editTarget.value,own=generation
  if(editBusy.value||!editReady.value||!target||!ds)return
  if(target.queryContext['definitionId']!==id||target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id){error.value='工作流定义编辑目标已变化';return}
+ cancelCronRequest()
  editBusy.value=true;error.value=''
  let saved=false
  try{
@@ -149,6 +201,7 @@ function closeDesign(open:boolean):void{if(!open&&!designPending.value)designTar
 function discardDesign():void{if(designPage.value?.busy||designPage.value?.unconfirmed)return;if(designPage.value?.discardChanges()===true)closeDesign(false)}
 watch([scenarioId, projectId], async ([id, project]) => {
   const own = ++generation
+  cancelCronRequest()
   ready.value = false; loading.value = true; error.value = ''
   designTarget.value=''; editTarget.value=''; editReady.value=false; editBusy.value=false
   triggerOpen.value=false; conditionEditing.value=false
@@ -176,7 +229,7 @@ watch([scenarioId, projectId], async ([id, project]) => {
   }
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
+onBeforeUnmount(() => {active = false; generation++; cancelCronRequest(); unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

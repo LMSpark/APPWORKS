@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/ui/service-management-page",
-    "jsdoc": "@module app:views/features/data-platform/database-management/ui/service-management-page\n职责：服务器目录；字段元信息只在 Base_serverInfo 的 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，编排只调用 spark-data。\n注册表单绑定 DatabaseServerRegister 写命令视图（/Db/registerServer），编辑表单绑定目录视图。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/ui/service-management-page\n职责：装配正式服务器目录场景及原调用的 PageTool，向工具提供原 DataView 身份和命令。\n边界：列元数据、注册、连接测试、编辑与删除由原资源和 DataView 承接。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-23T08:02:15.262Z",
+  "generatedAt": "2026-11-26T15:55:51.198Z",
   "models": {}
 }

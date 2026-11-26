@@ -25,6 +25,10 @@ import {defineComponent, h} from 'vue'
 import {withTestPageService} from '../../../support/helpers/page-service-host'
 import {RouterView} from 'vue-router'
 
+vi.mock('@/views/features/data-platform/structured-config/data-dictionary/ui/catalog-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/data-platform/structured-config/data-dictionary/ui/catalog-tool/style.css', 'utf8')}
+})
 vi.mock('@/views/features/data-platform/structured-config/data-dictionary/ui/definition-tool/style.css?raw', async () => {
   const {readFileSync} = await import('node:fs')
   return {default: readFileSync('src/views/features/data-platform/structured-config/data-dictionary/ui/definition-tool/style.css', 'utf8')}
@@ -282,6 +286,22 @@ describe('dictionary catalog formal view assembly', () => {
       expect.objectContaining({Name: 'TypeName', OrderType: 'descending'}),
     ])}]})
     expect(JSON.stringify(http.requests[0]!.data)).not.toContain('"Value":"APP"')
+  })
+  it('renders the catalog tool against the exact directory data space', async () => {
+    const {wrapper} = await openCatalog()
+    const renderer = wrapper.getComponent(SparkPageRenderer)
+    const runtime = renderer.props('pageRuntime')
+    expect(runtime.call.mainScenarioId).toBe('CATALOG')
+    const catalog = runtime.getDataSet('CATALOG')?.getView('_Base_DictType', 'default')
+    const table = renderer.getComponent(RendererTable)
+    expect(table.props('dataViewKey')).toBe('CATALOG@_Base_DictType@default')
+    expect(runtime.resolveView(table.props('dataViewKey')!)).toBe(catalog)
+    const queries = http.requests.length
+    await table.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    expect(catalog?.getSelectedValues()).toEqual(['D1'])
+    expect(http.requests).toHaveLength(queries)
+    expect(renderer.get('style').text()).toContain(`[data-page="${runtime.instanceId}"].spark-page-container .dictionary-catalog-page`)
   })
   it.each(['000000', 0, ''])('roundtrips an explicit root parent %j without treating unrelated orphans as roots', rootParentValue => {
     const config = new ScenarioViewConfig('CATALOG', JSON.stringify({scenarioId: 'CATALOG', tables: {

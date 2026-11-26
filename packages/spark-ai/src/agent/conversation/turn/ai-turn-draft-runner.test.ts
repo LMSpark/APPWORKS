@@ -1,6 +1,6 @@
 import {DataSet} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import {afterEach, describe, expect, it} from 'vitest'
+import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {AiTurnDraftRunner} from './ai-turn-draft-runner.js'
 import {AiTurnResource} from './ai-turn-resource.js'
@@ -8,9 +8,11 @@ import {AiTurnResource} from './ai-turn-resource.js'
 class Http extends HttpClientBase {
   readonly requests: RequestConfig[] = []
   readonly responses: unknown[] = []
+  beforeResponse?: (config: RequestConfig) => Promise<void>
   constructor() { super({retry: 0, retryDelay: 0}) }
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
+    if (this.beforeResponse) await this.beforeResponse(config)
     const response = this.responses.shift()
     if (response === undefined) throw new Error(`Unexpected request ${config.method} ${config.url}`)
     return {data: {Code: 200, Result: response}, status: 200, statusText: 'OK', headers: {}}
@@ -18,6 +20,12 @@ class Http extends HttpClientBase {
 }
 const sets: DataSet[] = []
 afterEach(() => sets.splice(0).forEach(set => set.destroy()))
+function gate() {
+  let release: () => void = () => { throw Error('Delay was not initialized') }
+  const waiting = new Promise<void>(resolve => {release = resolve})
+  return {waiting, release}
+}
+
 function fixture() {
   const dataSet = DataSet.fromJson({scenarioId: 'AI-DRAFT', tables: {}}); sets.push(dataSet)
   const http = new Http(), turnResource = new AiTurnResource({dataSet, http, guard: () => undefined})
@@ -52,6 +60,68 @@ describe('AiTurnDraftRunner', () => {
     await new Promise(resolve => setTimeout(resolve, 0)); controller.abort()
     await expect(run).rejects.toThrow('AI生成已取消')
     expect(f.http.requests.at(-1)).toMatchObject({method: 'POST', url: '/api/ai/v1/turns/T1/cancel'})
+  })
+  it.each(['query', 'local draft'] as const)('does not dispatch a creation cancelled while waiting for the %s', async boundary => {
+    const f = fixture(), controller = new AbortController(), entered = gate(), resume = gate()
+    f.accepted()
+    f.http.responses.push(true)
+    const view = f.turnResource.requests
+    if (boundary === 'query') {
+      const refresh = view.refresh.bind(view)
+      vi.spyOn(view, 'refresh').mockImplementationOnce(async () => {
+        entered.release()
+        await resume.waiting
+        await refresh()
+      })
+    } else {
+      const addRow = view.addRow.bind(view)
+      vi.spyOn(view, 'addRow').mockImplementationOnce(async input => {
+        const staged = await addRow(input)
+        entered.release()
+        await resume.waiting
+        return staged
+      })
+    }
+
+    const run = f.runner.run('生成', controller.signal)
+    await entered.waiting
+    controller.abort()
+    resume.release()
+    await expect(run).rejects.toThrow('AI生成已取消')
+
+    expect(f.http.requests.map(request => `${request.method} ${request.url}`)).toEqual(['GET /api/ai/v1/agents'])
+    expect(view.rows).toHaveLength(0)
+    expect(view.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(f.runner.busy).toBe(false)
+  })
+  it.each(['known', 'unknown'] as const)('preserves %s creation semantics if cancelled after dispatch', async receipt => {
+    const f = fixture(), controller = new AbortController(), entered = gate(), resume = gate()
+    const createPath = '/api/ai/v1/turns'
+    f.http.beforeResponse = async config => {
+      if (config.method !== 'POST' || config.url !== createPath) return
+      entered.release()
+      await resume.waiting
+    }
+    if (receipt === 'known') { f.accepted(); f.http.responses.push(true) }
+    else f.http.responses.push([{id: 'A1', agentName: 'a', description: null}], {status: 'QUEUED'})
+
+    const run = f.runner.run('生成', controller.signal)
+    await entered.waiting
+    controller.abort()
+    resume.release()
+
+    const expectedRequests = ['GET /api/ai/v1/agents', `POST ${createPath}`]
+    if (receipt === 'known') {
+      await expect(run).rejects.toThrow('AI生成已取消')
+      expectedRequests.push('POST /api/ai/v1/turns/T1/cancel')
+    } else {
+      await expect(run).rejects.toThrow(/待核验/)
+      await expect(f.runner.run('不重放')).rejects.toThrow(/待核验/)
+    }
+    expect(f.http.requests.map(request => `${request.method} ${request.url}`)).toEqual(expectedRequests)
+    expect(f.runner.hasUnconfirmedSave).toBe(receipt === 'unknown')
+    expect(f.runner.busy).toBe(false)
   })
   it('rejects concurrent runs and empty messages', async () => {
     const f = fixture(); await expect(f.runner.run(' ')).rejects.toThrow('不能为空')

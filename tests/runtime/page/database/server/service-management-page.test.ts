@@ -5,7 +5,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {registerAllRenderers, RendererFilter, RendererTable, Spark} from '@spark-appworks/spark-component'
+import {registerAllRenderers, RendererFilter, RendererTable, Spark, SparkPageRenderer} from '@spark-appworks/spark-component'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import {provideTestPageService} from '../../../../support/helpers/page-service-host'
@@ -82,10 +82,13 @@ describe('service-management-page', () => {
   it('loads the server catalog when blueprintScenarioId is bound', async () => {
     const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
     await flushPromises()
+    const runtime = wrapper.getComponent(SparkPageRenderer).props('pageRuntime')
+    expect(runtime?.tool.toDefinition().rule[0]?.id).toBe('server-directory')
     expect(wrapper.text()).toContain('服务器管理')
     expect(http.requests.some(request => JSON.stringify(request.data).includes('Base_serverInfo'))).toBe(true)
     const table = wrapper.findComponent(RendererTable)
     expect(table.exists()).toBe(true)
+    expect(runtime?.resolveView(table.props('dataViewKey')!)).toBe(runtime?.getDataSet(DATABASE_SERVER_SCENARIO_ID)?.getView('Base_serverInfo'))
     const header = table.find('.el-table__header-wrapper').text()
     expect(header).toContain('服务器名称')
     expect(header).toContain('端口')
@@ -211,17 +214,7 @@ describe('service-management-page', () => {
     await flushPromises()
     const body = new DOMWrapper(document.body)
     const dialog = body.findAll('.el-dialog').at(-1)!
-    const setByLabel = async (label: string, value: string) => {
-      const item = dialog.findAll('.el-form-item').find(row => row.text().includes(label))
-      expect(item).toBeTruthy()
-      const input = item!.find('input')
-      expect(input.exists()).toBe(true)
-      await input.setValue(value)
-    }
-    await setByLabel('服务器名称', '新库')
-    await setByLabel('服务器IP地址', '127.0.0.1')
-    await setByLabel('账号', 'root')
-    await setByLabel('密码', 'secret')
+    await fillRegistration(dialog)
     const ok = dialog.findAll('button').find(button => button.text() === '确定')
     expect(ok).toBeTruthy()
     await ok!.trigger('click')
@@ -231,6 +224,31 @@ describe('service-management-page', () => {
     expect(document.body.textContent).toContain('服务器注册成功')
     expect(http.requests.some(request => request.url === '/api/Db/registerServer')).toBe(true)
     expect(wrapper.text()).toContain('新库')
+  })
+
+  it('keeps an unconfirmed server registration in the rendered dialog and verifies only that submission', async () => {
+    http.registerMode = 'dropped'
+    const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    await pageButton(wrapper, '注册').trigger('click')
+    await flushPromises()
+    const dialog = new DOMWrapper(document.body).findAll('.el-dialog').at(-1)!
+    const button = (label: string) => dialog.findAll('button').find(item => item.text() === label)
+    const registrations = () => http.requests.filter(request => request.url === '/api/Db/registerServer')
+    const queries = () => http.requests.filter(request => request.url === '/api/DataOperation/GetData')
+    await fillRegistration(dialog)
+    await button('确定')!.trigger('click')
+    await vi.waitFor(() => expect(button('核验保存结果')?.exists()).toBe(true))
+    expect(dialog.text()).toContain('保存结果尚未确认')
+    expect(button('确定')).toBeUndefined()
+    expect(button('测试连接')).toBeUndefined()
+    expect(registrations()).toHaveLength(1)
+    const priorQueries = queries().length
+    await button('核验保存结果')!.trigger('click')
+    await flushPromises()
+    expect(queries().length).toBeGreaterThan(priorQueries)
+    expect(registrations()).toHaveLength(1)
+    expect(dialog.text()).toContain('保存结果尚未确认')
+    expect(http.rows.map(row => row.rowid)).toEqual(['S1'])
   })
 
   it('edits selected server description through edit dialog confirm', async () => {
@@ -319,4 +337,12 @@ function pageButton(wrapper: VueWrapper, label: string) {
   const button = wrapper.findAll('button').find(item => item.text() === label)
   expect(button).toBeTruthy()
   return button!
+}
+
+async function fillRegistration(dialog: DOMWrapper<Element>): Promise<void> {
+  for (const [label, value] of [['服务器名称', '新库'], ['服务器IP地址', '127.0.0.1'], ['账号', 'root'], ['密码', 'secret']] as const) {
+    const item = dialog.findAll('.el-form-item').find(row => row.text().includes(label))
+    expect(item).toBeTruthy()
+    await item!.get('input').setValue(value)
+  }
 }

@@ -68,7 +68,7 @@ export class AiTurnDraftRunner {
   /**
    * 创建一个轮次并等待终态，返回完成的 assistantDraft 原文。
    * @param message 发送给 Agent 的完整用户消息（≤100000 字符）。
-   * @param signal 中止后对已知轮次发正式取消命令并以“AI生成已取消”拒绝。
+   * @param signal 创建提交前中止时仅丢弃本次本地草稿，提交后仅对已知轮次发正式取消命令。
    * @throws 轮次 FAILED/CANCELLED、草稿为空、超时、未知回执或作用域失效。
    */
   public async run(message: string, signal?: AbortSignal): Promise<string> {
@@ -83,11 +83,16 @@ export class AiTurnDraftRunner {
       if (!this.#turns.agents.rows.some(row => row['id'] === this.#agentId)) throw new Error('当前租户的正式Agent目录不包含已配置Agent')
       if (signal?.aborted) throw new Error('AI生成已取消')
       await this.#turns.requests.refresh()
+      if (signal?.aborted) throw new Error('AI生成已取消')
       const staged = await this.#turns.requests.addRow({agentId: this.#agentId, message})
       const key: unknown = Reflect.get(staged, 'idempotencyKey')
+      if (typeof key !== 'string' || !key) throw new Error('AI轮次创建未返回本地命令身份')
+      if (signal?.aborted) {
+        this.#turns.requests.discardPendingChanges([key])
+        throw new Error('AI生成已取消')
+      }
       const saved = await this.#dataSet.saveChanges(selected(this.#turns.requests))
       if (!saved.success) throw saved.error ?? new Error(saved.message ?? 'AI轮次创建命令未确认')
-      if (typeof key !== 'string' || !key) throw new Error('AI轮次创建未返回本地命令身份')
       const request = this.#turns.requests.rows.find(row => row['idempotencyKey'] === key)
       if (typeof request?.['turnId'] !== 'string' || !request['turnId']) throw new Error('AI轮次创建未返回正式turnId')
       turnId = request['turnId']

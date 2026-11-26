@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance",
+    "sourcePath": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance.ts",
+    "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/cron-assistance\n职责：沿原 DataSet 生成时间表达式候选，明确采用时只更新已捕获的定义草稿。\n边界：不保存定义、不调度执行、不从候选推断权限。原定义行、触发类型或草稿已变更时拒绝采用。\nAI用途：在工作流定义中从调度说明取得候选，经用户确认后写入当次打开的 timeExp 字段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-26T16:00:21.646Z",
+  "models": {}
+}

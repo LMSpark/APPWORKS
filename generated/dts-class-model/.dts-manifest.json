@@ -129,7 +129,7 @@
     "packages/spark-ai/src/agent/conversation/turn/ai-turn-draft-runner.ts": {
       "sourceFile": "packages/spark-ai/src/agent/conversation/turn/ai-turn-draft-runner.ts",
       "shardFile": "files/packages/spark-ai/src/agent/conversation/turn/ai-turn-draft-runner.ts.json",
-      "sourceModifiedAt": "2026-11-23T06:57:05.261Z"
+      "sourceModifiedAt": "2026-11-26T15:55:57.178Z"
     },
     "packages/spark-ai/src/agent/conversation/turn/ai-turn-resource.ts": {
       "sourceFile": "packages/spark-ai/src/agent/conversation/turn/ai-turn-resource.ts",
@@ -4886,6 +4886,16 @@
       "shardFile": "files/src/platform-adapters/resources/structured-config/workflow-definition/source/query-source-node-commit.ts.json",
       "sourceModifiedAt": "2026-11-23T08:02:15.454Z"
     },
+    "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance.ts": {
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance.ts",
+      "shardFile": "files/src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-assistance.ts.json",
+      "sourceModifiedAt": "2026-11-26T16:00:21.646Z"
+    },
+    "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate.ts": {
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate.ts",
+      "shardFile": "files/src/platform-adapters/resources/structured-config/workflow-definition/trigger/cron-candidate.ts.json",
+      "sourceModifiedAt": "2026-11-26T16:00:21.647Z"
+    },
     "src/platform-adapters/resources/structured-config/workflow-definition/trigger/start-parameters.ts": {
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/trigger/start-parameters.ts",
       "shardFile": "files/src/platform-adapters/resources/structured-config/workflow-definition/trigger/start-parameters.ts.json",
@@ -7049,7 +7059,7 @@
     "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.262Z"
+      "sourceModifiedAt": "2026-11-26T15:55:51.198Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
@@ -7184,7 +7194,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.242Z"
+      "sourceModifiedAt": "2026-11-26T15:56:07.205Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
@@ -7294,7 +7304,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.222Z"
+      "sourceModifiedAt": "2026-11-26T15:53:34.879Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",

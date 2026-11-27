@@ -56,9 +56,9 @@ export async function invokeApi(input: InterfaceCallViews): Promise<string> {
   if (id === undefined) throw new Error('调用命令缺少原生身份')
   calls.setCurrentRow(added)
   try {
-    const saved = await calls.dataSet?.saveChanges({views: [{tableName: calls.tableName, viewId: calls.viewId, ids: [id]}]})
-    if (!saved) throw new Error('调用命令缺少所属数据空间')
-    if (!saved.success) throw new Error(saved.error?.message ?? saved.message ?? '接口调用失败')
+    const dataSet = calls.dataSet
+    if (!dataSet) throw new Error('调用命令缺少所属数据空间')
+    await dataSet.saveRecord(calls,id)
   } catch (error) {
     if (!calls.destroyed && !unconfirmed(calls) && calls.dirtyTracking.isPendingCreate(id)) await calls.removeRow(id)
     throw error
@@ -68,8 +68,17 @@ export async function invokeApi(input: InterfaceCallViews): Promise<string> {
 
 /** 明确放弃结果未知的调用；不撤销服务端可能已执行的调用。 */
 export function abandonInterfaceCall(calls: DataView): void {
+  const dataSet = calls.dataSet, journal = dataSet?.saveJournal
+  const target = journal?.views[0], id = target?.ids[0]
+  if (!dataSet || !journal?.batchId || journal.views.length !== 1 || target?.owner !== 'command'
+    || target.state !== 'unknown' || target.tableName !== calls.tableName || target.viewId !== calls.viewId
+    || dataSet.getView(target.tableName,target.viewId) !== calls || target.ids.length !== 1
+    || id === undefined || !calls.dirtyTracking.isPendingCreate(id)) {
+    throw new Error('调用结果缺少原命令批次，无法放弃')
+  }
   if (!calls.abandonUnconfirmedSave()) throw new Error('调用结果仍待核验，无法放弃')
-  calls.discardPendingChanges()
+  calls.discardPendingChanges([id])
+  dataSet.abandonPreparedSaveJournal(journal.batchId)
 }
 
 export type InterfaceOutputField = Readonly<{enname: string; DataType: string}>

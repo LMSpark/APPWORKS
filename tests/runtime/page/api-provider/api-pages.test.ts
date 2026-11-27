@@ -358,6 +358,28 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(confirmBox).toHaveBeenCalledWith('确定要删除接口“空接口”吗？','删除确认',expect.anything())
     expect(f.http.saves[0]).toMatchObject({table:'Base_DataServiceInterface',added:[],changed:[],deleted:[expect.objectContaining({rowid:'I4'})]})
   })
+
+  it('reports that a command draft removed before dispatch has no interface receipt',async()=>{
+    const f=await interfaceFixture()
+    f.select('I1');await flushPromises()
+    await f.tab('调用输出')
+    const calls=f.ds.getView('InterfaceCallRequest')!
+    const removeStagedCommand=()=>{
+      if(!calls.currentRow)return
+      calls.events.off('currentRowChanged',removeStagedCommand)
+      calls.discardPendingChanges()
+    }
+    calls.events.on('currentRowChanged',removeStagedCommand)
+    try{
+      await button(f.wrapper,'调用')!.trigger('click')
+      await flushPromises()
+      expect(f.http.invocations).toEqual([])
+      expect(calls.rows).toEqual([])
+      expect(calls.hasUnconfirmedSave).toBe(false)
+      expect(f.wrapper.text()).toContain('原记录没有已确认的保存回执')
+    }finally{calls.events.off('currentRowChanged',removeStagedCommand)}
+  })
+
   it('invokes the selected interface once through the call command and shows the result',async()=>{
     const f=await interfaceFixture();f.select('I1');await flushPromises()
     await f.tab('调用输出')
@@ -399,6 +421,13 @@ describe('external API pages assembled through the standard scenario entry', () 
     await vi.waitFor(()=>expect(calls.hasUnconfirmedSave).toBe(false))
     expect(f.http.invocations).toHaveLength(1)
     expect(inputs.getEditingRow('A1')?.['pardesc']).toBe('input before external call')
+
+    f.http.invocationResult={token:'second'}
+    await button(f.wrapper,'调用')!.trigger('click')
+    await vi.waitFor(()=>expect(f.http.invocations).toHaveLength(2))
+    await vi.waitFor(()=>expect(calls.currentRow?.['result']).toContain('second'))
+    expect(calls.hasUnconfirmedSave).toBe(false)
+
     expect(f.http.saves).toEqual([])
   })
   it('releases only the staged command when parameter proof changes before actual dispatch', async () => {

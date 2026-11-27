@@ -115,7 +115,7 @@
             },
             "member": {
               "type": "object",
-              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"selectedRows\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\">"
+              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"selectedRows\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\">"
             },
             "fieldMember": {
               "type": "object",
@@ -256,7 +256,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.827Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",

@@ -66,10 +66,19 @@
               "const": "number"
             },
             {
-              "const": "text"
+              "const": "select"
+            },
+            {
+              "const": "checkbox"
             },
             {
               "const": "date"
+            },
+            {
+              "const": "radio"
+            },
+            {
+              "const": "text"
             },
             {
               "type": "object",
@@ -324,15 +333,6 @@
               "additionalProperties": false
             },
             {
-              "const": "select"
-            },
-            {
-              "const": "checkbox"
-            },
-            {
-              "const": "radio"
-            },
-            {
               "const": "date-range"
             },
             {
@@ -521,7 +521,7 @@
       ]
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.934Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "ComponentDefinition": {
       "name": "ComponentDefinition",

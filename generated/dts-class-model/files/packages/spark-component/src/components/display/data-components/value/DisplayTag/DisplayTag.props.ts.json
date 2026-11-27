@@ -87,8 +87,8 @@
           "enum": [
             "",
             "info",
-            "warning",
             "success",
+            "warning",
             "danger"
           ]
         },
@@ -99,8 +99,8 @@
             "enum": [
               "",
               "info",
-              "warning",
               "success",
+              "warning",
               "danger"
             ]
           }
@@ -150,7 +150,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.771Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "TagType": {
       "name": "TagType",

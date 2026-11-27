@@ -23,11 +23,11 @@
       "title": "RuntimeNavigationItemKind",
       "enum": [
         "module",
+        "link",
         "page",
         "system-directory",
         "system-page",
         "system-action",
-        "link",
         "ref"
       ]
     },
@@ -55,9 +55,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "NavigationLinkTarget",
       "enum": [
+        "self",
         "iframe",
-        "new-tab",
-        "self"
+        "new-tab"
       ]
     },
     "NavigationContextConfig": {
@@ -101,7 +101,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.475Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "RuntimeNavigationItemKind": {
       "name": "RuntimeNavigationItemKind",

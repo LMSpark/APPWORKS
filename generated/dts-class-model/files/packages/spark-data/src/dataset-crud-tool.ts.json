@@ -632,43 +632,19 @@
                   "const": "object"
                 },
                 {
-                  "const": "text"
-                },
-                {
-                  "const": "int"
-                },
-                {
-                  "const": "integer"
+                  "const": "array"
                 },
                 {
                   "const": "decimal"
                 },
                 {
-                  "const": "float"
-                },
-                {
-                  "const": "double"
-                },
-                {
-                  "const": "varchar"
-                },
-                {
-                  "const": "bool"
-                },
-                {
                   "const": "date"
                 },
                 {
-                  "const": "datetime"
+                  "const": "text"
                 },
                 {
                   "const": "time"
-                },
-                {
-                  "const": "array"
-                },
-                {
-                  "const": "enum"
                 },
                 {
                   "type": "object",
@@ -921,6 +897,30 @@
                     "at"
                   ],
                   "additionalProperties": false
+                },
+                {
+                  "const": "int"
+                },
+                {
+                  "const": "integer"
+                },
+                {
+                  "const": "float"
+                },
+                {
+                  "const": "double"
+                },
+                {
+                  "const": "varchar"
+                },
+                {
+                  "const": "bool"
+                },
+                {
+                  "const": "datetime"
+                },
+                {
+                  "const": "enum"
                 }
               ]
             },
@@ -1767,43 +1767,19 @@
                   "const": "object"
                 },
                 {
-                  "const": "text"
-                },
-                {
-                  "const": "int"
-                },
-                {
-                  "const": "integer"
+                  "const": "array"
                 },
                 {
                   "const": "decimal"
                 },
                 {
-                  "const": "float"
-                },
-                {
-                  "const": "double"
-                },
-                {
-                  "const": "varchar"
-                },
-                {
-                  "const": "bool"
-                },
-                {
                   "const": "date"
                 },
                 {
-                  "const": "datetime"
+                  "const": "text"
                 },
                 {
                   "const": "time"
-                },
-                {
-                  "const": "array"
-                },
-                {
-                  "const": "enum"
                 },
                 {
                   "type": "object",
@@ -2056,6 +2032,30 @@
                     "at"
                   ],
                   "additionalProperties": false
+                },
+                {
+                  "const": "int"
+                },
+                {
+                  "const": "integer"
+                },
+                {
+                  "const": "float"
+                },
+                {
+                  "const": "double"
+                },
+                {
+                  "const": "varchar"
+                },
+                {
+                  "const": "bool"
+                },
+                {
+                  "const": "datetime"
+                },
+                {
+                  "const": "enum"
                 }
               ]
             },
@@ -2940,17 +2940,17 @@
                     "$ref": "types.ts.json#/$defs/DataViewQueryChild"
                   }
                 },
-                "fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
                 "pagination": {
                   "enum": [
                     "paged",
                     "none"
                   ]
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "parentResult": {
                   "type": "object",
@@ -3329,10 +3329,10 @@
             "type": {
               "enum": [
                 "sum",
+                "count",
                 "avg",
                 "min",
                 "max",
-                "count",
                 "join"
               ]
             },
@@ -4980,7 +4980,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T03:39:49.681Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "DataSetCrudToolCreateTableOptions": {
       "name": "DataSetCrudToolCreateTableOptions",

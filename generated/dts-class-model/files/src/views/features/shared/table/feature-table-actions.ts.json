@@ -15,20 +15,36 @@
     ]
   },
   "$defs": {
-    "FeatureTableUi": {
+    "FeatureTableActionOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "FeatureTableUi",
+      "title": "FeatureTableActionOptions",
       "properties": {
-        "showMessage": {
+        "ui": {
           "type": "object",
-          "title": "(message: string, type?: PageMessageType) => void"
+          "properties": {
+            "showMessage": {
+              "type": "object",
+              "title": "(message: string, type?: PageMessageType) => void"
+            }
+          },
+          "required": [
+            "showMessage"
+          ],
+          "additionalProperties": false
         }
       },
-      "required": [
-        "showMessage"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.readback.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readback.return": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      }
     },
     "FeatureTableAction": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -82,27 +98,42 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.327Z",
+  "generatedAt": "2026-11-27T21:59:01.263Z",
   "models": {
-    "FeatureTableUi": {
-      "name": "FeatureTableUi",
-      "jsdoc": "",
+    "FeatureTableActionOptions": {
+      "name": "FeatureTableActionOptions",
+      "jsdoc": "共享表格动作的结果呈现及原保存确认后的关联读取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<PageServiceCapability, 'showMessage'>",
+        "declarationTypeText": "Readonly<{\n    /** 在当前工具栏呈现公共保存状态或关联读取结果。 */\n    ui: Pick<PageServiceCapability, 'showMessage'>;\n    /** 确认写入后解析本次操作仍有效的关联视图。视图失效时返回 undefined。 */\n    readback?: () => DataView | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<PageServiceCapability, 'showMessage'>",
-            "targetName": "Pick"
+            "typeText": "Readonly<{\n    /** 在当前工具栏呈现公共保存状态或关联读取结果。 */\n    ui: Pick<PageServiceCapability, 'showMessage'>;\n    /** 确认写入后解析本次操作仍有效的关联视图。视图失效时返回 undefined。 */\n    readback?: () => DataView | undefined;\n}>",
+            "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "showMessage",
+              "name": "ui",
+              "jsdoc": "在当前工具栏呈现公共保存状态或关联读取结果。",
               "readable": true,
-              "writable": true
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readback",
+              "jsdoc": "确认写入后解析本次操作仍有效的关联视图。视图失效时返回 undefined。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView"
+                }
+              }
             }
           ]
         }

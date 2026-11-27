@@ -85,7 +85,13 @@ function openDelete(value:unknown):void{
 async function verifyOriginal():Promise<void>{
  if(busy.value||editing.value||operation.value||!sourceCurrent.value||!view.hasUnconfirmedSave)return
  acting.value=true;error.value=''
- try{await dataSet.saveChanges({applyEditingRows:false,views:[{tableName:view.tableName,viewId:view.viewId}]})}catch(cause){message(cause)}finally{if(active){acting.value=false;changed()}}
+ try{
+  const {batchId}=dataSet.saveJournal
+  if(!batchId)throw Error('缺少增强规则原保存批次')
+  const result=await dataSet.verifySaveJournalAndRead({batchId,receiptViews:[view],readbackViews:[]})
+  if(!sourceCurrent.value||result.settlement==='confirmed')return
+  message(result.journal.originalError??'增强规则原保存未完整确认')
+ }catch(cause){if(sourceCurrent.value)message(cause)}finally{if(active){acting.value=false;changed()}}
 }
 onBeforeUnmount(()=>{active=false;stop();emit('session-change',false)})
 defineExpose({

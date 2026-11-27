@@ -6,7 +6,13 @@
 import type {DataView, SparkNode} from '@spark-appworks/spark-data'
 import type {PageServiceCapability, RToolbarProps} from '@spark-appworks/spark-component'
 
-type FeatureTableUi = Pick<PageServiceCapability, 'showMessage'>
+/** 共享表格动作的结果呈现及原保存确认后的关联读取。 */
+type FeatureTableActionOptions = Readonly<{
+  /** 在当前工具栏呈现公共保存状态或关联读取结果。 */
+  ui: Pick<PageServiceCapability, 'showMessage'>
+  /** 确认写入后解析本次操作仍有效的关联视图。视图失效时返回 undefined。 */
+  readback?: () => DataView | undefined
+}>
 
 export type FeatureTableAction = 'add' | 'remove' | 'save' | 'cancel'
 /** locked为页面忙碌等外部锁；addBlocked只进一步限制新增，例如所属父记录尚未保存。 */
@@ -32,8 +38,9 @@ export function featureTableToolbar(input: FeatureTableToolbarInput): RToolbarPr
   return {gap: 10, children: input.order.map(action => buttons[action])}
 }
 
-/** 保存只提交本视图的变更；未确认回执抛错交由页面重读核验，不自动重放。 */
-export async function runFeatureTableAction(view: DataView, action: FeatureTableAction, ui: FeatureTableUi): Promise<void> {
+/** 保存只提交本视图的变更，收到确认回执后才读取调用方声明的关联视图。 */
+export async function runFeatureTableAction(view: DataView, action: FeatureTableAction, options: FeatureTableActionOptions): Promise<void> {
+  const {ui, readback} = options
   if (action === 'add') {view.setCurrentRow(await view.addRow({})); return}
   if (action === 'cancel') {if (!view.hasUnconfirmedSave) view.discardPendingChanges(); return}
   if (action === 'remove') {
@@ -42,9 +49,29 @@ export async function runFeatureTableAction(view: DataView, action: FeatureTable
     await view.removeRow(id)
     return
   }
-  if (!view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges()) {ui.showMessage('当前没有可保存的变更', 'info'); return}
-  const result = await view.dataSet?.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
-  if (!result) throw new Error('表格缺少所属数据空间')
-  if (!result.success) throw new Error(result.error?.message ?? result.message ?? '保存结果未确认，请重读核验')
+  const dataSet = view.dataSet
+  if (!dataSet) throw Error('表格缺少所属数据空间')
+  const outcome = await dataSet.saveView(view)
+  if (outcome.state === 'not-submitted') {
+    ui.showMessage('本次未提交变更', 'info')
+    return
+  }
+  if (outcome.state === 'unknown') throw Error('保存结果未知，请核验原提交', {cause: outcome.error})
+  if (outcome.state === 'partial') throw Error(`部分变更已保存：${outcome.error.message}`, {cause: outcome.error})
+  if (outcome.state === 'failed') throw outcome.error
+  if (outcome.state === 'follow-up-failed') {
+    ui.showMessage(`保存已确认，后续操作失败：${outcome.error.message}`, 'warning')
+    return
+  }
+  try {
+    const nextView = readback?.()
+    if (nextView && (await nextView.requestRefresh({defer: false})).refreshStatus !== 'read') {
+      ui.showMessage('保存已确认，关联数据回读失败', 'warning')
+      return
+    }
+  } catch {
+    ui.showMessage('保存已确认，关联数据回读失败', 'warning')
+    return
+  }
   ui.showMessage('保存成功', 'success')
 }

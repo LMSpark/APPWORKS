@@ -30,6 +30,8 @@
             },
             "Operator": {
               "enum": [
+                "contains",
+                "in",
                 "equal",
                 "notequal",
                 "greaterthan",
@@ -38,13 +40,11 @@
                 "lessthanorequal",
                 "isnull",
                 "isnotnull",
-                "contains",
                 "nolike",
                 "startswith",
                 "nostartswith",
                 "endswith",
                 "notendswith",
-                "in",
                 "notin",
                 "isempty",
                 "isnotempty"
@@ -152,7 +152,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.034Z",
+  "generatedAt": "2026-11-27T21:55:30.000Z",
   "models": {
     "DataViewFilterWire": {
       "name": "DataViewFilterWire",

@@ -104,20 +104,26 @@ async function act(action: () => Promise<unknown>): Promise<void> {
   finally {busy.value = false; changed()}
 }
 function run(viewKey: string, action: FeatureTableAction): Promise<void> {
-  return act(async () => {
-    await runFeatureTableAction(view(viewKey), action, pageService)
-    if (action === 'save' && viewKey === parameterKey && loaded.has('headers')) await view(referencesKey).refresh()
-  })
+  return act(() => runFeatureTableAction(view(viewKey), action, {
+    ui: pageService,
+    readback: () => active && viewKey === parameterKey && loaded.has('headers') ? view(referencesKey) : undefined,
+  }))
 }
 async function saveAuthentication(): Promise<void> {
   if (active && ready.value && !unconfirmed.value) await run(authKey, 'save')
 }
 function verifyOriginalSaves(): Promise<void> {
   return act(async () => {
-    for (const target of views.value.filter(item => item.hasUnconfirmedSave)) {
-      const result=await target.saveChanges()
-      if(!result.success)throw new Error(result.message || '原保存结果尚未核定')
-    }
+    const owner = dataSet
+    const receiptViews = views.value.filter(view => view.hasUnconfirmedSave)
+    if (!owner || receiptViews.length === 0) return
+    const {batchId} = owner.saveJournal
+    if (!batchId) throw new Error('缺少配置原保存批次')
+    const result = await owner.verifySaveJournalAndRead({batchId, receiptViews, readbackViews: []})
+    if (!active || dataSet !== owner) return
+    if (result.settlement === 'not-applied') throw new Error('原提交未应用，修改已保留')
+    if (result.settlement === 'partial') throw new Error('原提交部分已确认，未应用的修改已保留')
+    if (result.settlement !== 'confirmed') throw new Error('原保存结果尚未完全确认')
   })
 }
 defineExpose({bindings, saveAuthentication, verifyOriginalSaves, selectTab, retryTab: () => loadTab(tab.value), close})

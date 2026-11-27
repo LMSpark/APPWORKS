@@ -5,6 +5,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, type Component} from 'vue'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
+import type {DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import ElementPlus, {ElSelect} from 'element-plus'
 import VXETable from 'vxe-table'
@@ -45,9 +46,11 @@ const {default: InterfacePage} = await import('@/views/features/integration/api-
 
 api.current = createApiService()
 const wrappers: VueWrapper[] = []
+const messages = vi.fn<PageServiceCapability['showMessage']>()
 const originalStubs = {...config.global.stubs}
 beforeEach(() => {
   api.current.reset(seed)
+  messages.mockClear()
   registerAllRenderers()
   const stubs = {...originalStubs}
   for (const key of ['el-button', 'el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
@@ -68,7 +71,7 @@ async function mountAt(component: Component, props: Record<string, unknown> = {}
       const {sparkProvide} = useSparkComponent({type: 'api-page-test-host'})
       const service: PageServiceCapability = {
         copyText: async () => {},
-        showMessage: () => {},
+        showMessage: messages,
         showConfirm: async (message, title, options) => confirmBox(message, title ?? '确认', options).then(() => true, () => false),
         showPrompt: async () => null,
         showAlert: async () => {},
@@ -118,6 +121,55 @@ async function interfaceFixture(){
 }
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it.each(['not-submitted', 'rejected', 'unknown', 'follow-up-failed', 'readback-blocked', 'confirmed'] as const)(
+    'reports the shared table save result (%s)', async mode => {
+      const {runFeatureTableAction} = await import('@/views/features/shared/table/feature-table-actions')
+      const f = await interfaceFixture()
+      f.select('I1')
+      await flushPromises()
+      const view = f.ds.getView('_Base_ParamList')!
+      await vi.waitFor(() => expect(view.rows.some(row => view.getPkKey(row) === 'A1')).toBe(true))
+      view.updateEditingValue('A1', 'pardesc', '更新描述')
+      const showMessage = vi.fn()
+      const readback = vi.fn(() => view)
+      const submit = () => runFeatureTableAction(view, 'save', {ui: {showMessage}, readback})
+
+      if (mode === 'not-submitted') {
+        const save = f.ds.saveChanges.bind(f.ds)
+        vi.spyOn(f.ds, 'saveChanges').mockImplementationOnce(options => {
+          view.discardPendingChanges(['A1'])
+          return save(options)
+        })
+      }
+      if (mode === 'rejected') f.http.rejectNextSave = true
+      if (mode === 'unknown') f.http.failAfterWrite = true
+      if (mode === 'follow-up-failed') {
+        f.ds.setSaveCompletionHandler(() => {throw Error('后续操作故障')})
+      }
+      if (mode === 'readback-blocked') {
+        f.ds.setSaveCompletionHandler(() => {view.updateEditingValue('A1', 'pardesc', '后来草稿')})
+      }
+
+      if (mode === 'rejected') await expect(submit()).rejects.toThrow('Rejected before write')
+      else if (mode === 'unknown') {
+        await expect(submit()).rejects.toThrow('保存结果未知，请核验原提交')
+        await expect(submit()).rejects.toThrow('保存结果未知，请核验原提交')
+        expect(view.hasUnconfirmedSave).toBe(true)
+      } else await submit()
+
+      expect(f.http.saves).toHaveLength(mode === 'not-submitted' || mode === 'rejected' ? 0 : 1)
+      expect(readback).toHaveBeenCalledTimes(mode === 'confirmed' || mode === 'readback-blocked' ? 1 : 0)
+      if (mode === 'confirmed') expect(showMessage).toHaveBeenCalledExactlyOnceWith('保存成功', 'success')
+      else if (mode === 'not-submitted') expect(showMessage).toHaveBeenCalledExactlyOnceWith('本次未提交变更', 'info')
+      else if (mode === 'follow-up-failed') expect(showMessage).toHaveBeenCalledExactlyOnceWith('保存已确认，后续操作失败：后续操作故障', 'warning')
+      else if (mode === 'readback-blocked') {
+        expect(showMessage).toHaveBeenCalledExactlyOnceWith('保存已确认，关联数据回读失败', 'warning')
+        expect(view.refreshPending).toBe(false)
+        expect(view.getEditingRow('A1')?.['pardesc']).toBe('后来草稿')
+      } else expect(showMessage).not.toHaveBeenCalled()
+    },
+  )
+
   it('selects the original interface from the configured sidebar',async()=>{
     const f=await interfaceFixture()
     const sidebar=f.wrapper.find('.interface-list__sidebar')
@@ -580,11 +632,26 @@ describe('external API pages assembled through the standard scenario entry', () 
     f.http.failAfterWrite=true
     await f.wrapper.find('.interface-output').findAll('button').find(item=>item.text()==='保存')!.trigger('click')
     await vi.waitFor(()=>expect(outputs.hasUnconfirmedSave).toBe(true))
+    const batchId = f.ds.saveJournal.batchId
+    expect(batchId).toEqual(expect.any(String))
+    expect(f.ds.saveJournal.views).toMatchObject([{tableName:'Base_TblField', viewId:'default', state:'unknown'}])
+    expect(f.ds.saveJournal.completed).toBe(false)
+    const beforeReadback = f.http.reads.length
     await button(f.wrapper,'核验原保存结果')!.trigger('click')
-    await flushPromises()
+    await vi.waitFor(()=>expect(outputs.hasUnconfirmedSave).toBe(false))
     expect(f.http.saves.map(item=>item.table)).toEqual(['Base_TblField'])
+    expect(f.http.reads.slice(beforeReadback).some(read=>read.table==='Base_TblField')).toBe(true)
+    const savedOutputs = f.http.saves[0]!.added
+    expect(savedOutputs.length).toBeGreaterThan(0)
+    for (const saved of savedOutputs) {
+      const recovered = outputs.rows.find(row => Object.is(row['rowid'], saved['rowid']))
+      expect(recovered?.['enname']).toBe(saved['enname'])
+    }
     expect(inputs.getEditingRow('A1')?.['pardesc']).toBe('keep original input draft')
     expect(inputs.hasEditingChanges('A1')).toBe(true)
+    expect(f.ds.saveJournal.batchId).toBe(batchId)
+    expect(f.ds.saveJournal.views).toMatchObject([{tableName:'Base_TblField', viewId:'default', state:'applied'}])
+    expect(f.ds.saveJournal.completed).toBe(true)
   })
   it('refuses to reset outputs that would remove a field bound to a public parameter',async()=>{
     const f=await interfaceFixture();f.http.invocationResult={other:1};f.select('I1');await flushPromises()
@@ -766,11 +833,21 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(save).toBeDefined()
     save!.vm.$emit('click')
     await vi.waitFor(()=>expect(auth.hasUnconfirmedSave,wrapper.text()).toBe(true))
+    const batchId = ds.saveJournal.batchId
+    expect(batchId).toEqual(expect.any(String))
+    expect(ds.saveJournal.views).toMatchObject([{tableName:'Base_InterfaceProvider', viewId:'authentication', state:'unknown'}])
+    expect(ds.saveJournal.completed).toBe(false)
+    const beforeReadback = api.current.state.http.reads.length
     await button(wrapper,'核验原保存结果')!.trigger('click')
-    await flushPromises()
+    await vi.waitFor(()=>expect(auth.hasUnconfirmedSave).toBe(false))
     expect(api.current.state.http.saves).toHaveLength(1)
+    expect(api.current.state.http.reads.slice(beforeReadback).some(read=>read.table==='Base_InterfaceProvider')).toBe(true)
+    expect(auth.rows.find(row => row['rowid'] === 'P1')?.['TokenPrefix']).toBe('Updated prefix ')
     expect(headers.getEditingRow(id)?.['paramName']).toBe('unsaved-header')
     expect(headers.hasEditingChanges()).toBe(true)
+    expect(ds.saveJournal.batchId).toBe(batchId)
+    expect(ds.saveJournal.views).toMatchObject([{tableName:'Base_InterfaceProvider', viewId:'authentication', state:'applied'}])
+    expect(ds.saveJournal.completed).toBe(true)
   })
 
   it('loads each configuration tab on demand and adds an account owned by the provider', async () => {
@@ -904,4 +981,122 @@ describe('external API pages assembled through the standard scenario entry', () 
     expect(f.interfaces.getEditingRow('I1')?.['Name']).toBe('保留接口草稿')
     expect(f.wrapper.getComponent(InterfacePage).emitted('close')).toBeUndefined()
   })
+})
+
+
+it('keeps the original write unknown if the view is released before the receipt', async()=>{
+ const f=await interfaceFixture()
+ f.select('I1')
+ await flushPromises()
+ const view=f.ds.getView('_Base_ParamList')!
+ await vi.waitFor(()=>expect(view.rows.some(row=>view.getPkKey(row)==='A1')).toBe(true))
+ view.updateEditingValue('A1','pardesc','写入后丢回执')
+ f.http.beforeSave=async()=>{view.destroy()}
+ f.http.failAfterWrite=true
+ const outcome=await f.ds.saveView(view)
+ expect(f.http.saves).toHaveLength(1)
+ expect(view.destroyed).toBe(true)
+ expect(f.ds.saveJournal.views).toMatchObject([{tableName:'_Base_ParamList',state:'unknown'}])
+ expect(outcome.state).toBe('unknown')
+})
+
+function clearOriginalDraftBeforeSaving(view: DataView, id: string | number) {
+  const dataSet = view.dataSet!
+  const save = dataSet.saveChanges.bind(dataSet)
+  return vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(options => {
+    expect(view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    view.discardPendingChanges([id])
+    return save(options)
+  })
+}
+
+it('requires a formal receipt before reporting interface definition saved', async () => {
+  const f = await interfaceFixture()
+  f.select('I1')
+  await flushPromises()
+  const originalName = records('Base_DataServiceInterface').find(row => row['rowid'] === 'I1')?.['Name']
+  f.interfaces.updateEditingValue('I1', 'Name', '未派发的定义修改')
+  const save = clearOriginalDraftBeforeSaving(f.interfaces, 'I1')
+  const submit = button(f.wrapper, '保存')!
+  await vi.waitFor(() => expect(submit.attributes('disabled')).toBeUndefined())
+  await submit.trigger('click')
+  await vi.waitFor(() => expect(save).toHaveBeenCalledOnce())
+  await flushPromises()
+  expect(f.http.saves).toHaveLength(0)
+  expect(records('Base_DataServiceInterface').find(row => row['rowid'] === 'I1')?.['Name']).toBe(originalName)
+  expect(messages).not.toHaveBeenCalledWith('保存成功', 'success')
+  expect(messages).toHaveBeenCalledWith('本次未提交变更', 'info')
+})
+
+it('requires a formal receipt before reporting a childless interface deleted', async () => {
+  records('Base_DataServiceInterface').push({rowid:'I4',ProviderID:'P1',Name:'空接口',LinkUrl:'/empty',request:'GET',requiresAuth:0,RequestType:'Body'})
+  confirmBox.mockReset().mockResolvedValue('confirm')
+  const f = await interfaceFixture()
+  f.select('I4')
+  await flushPromises()
+  const save = clearOriginalDraftBeforeSaving(f.interfaces, 'I4')
+  await button(f.wrapper, '删除')!.trigger('click')
+  await vi.waitFor(() => expect(save).toHaveBeenCalledOnce())
+  await flushPromises()
+  expect(confirmBox).toHaveBeenCalledWith('确定要删除接口“空接口”吗？', '删除确认', expect.anything())
+  expect(f.http.saves).toHaveLength(0)
+  expect(records('Base_DataServiceInterface').some(row => row['rowid'] === 'I4')).toBe(true)
+  expect(messages).not.toHaveBeenCalledWith('删除成功', 'success')
+  expect(f.wrapper.text()).toContain('原记录没有已确认的保存回执')
+})
+
+it('requires a formal receipt before reporting a childless provider deleted', async () => {
+  records('Base_InterfaceProvider').push({rowid:'P3',Name:'服务丙',BaseURL:'https://c.test'})
+  confirmBox.mockReset().mockResolvedValue('confirm')
+  const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
+  vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})
+  const wrapper = await mountAt(ManagementPage)
+  const provider = [...observed].find(page => page.getDataSet(NAV))!.getDataSet(NAV)!.getView('Base_InterfaceProvider')!
+  const save = clearOriginalDraftBeforeSaving(provider, 'P3')
+  expect(wrapper.text()).toContain('服务丙')
+  await wrapper.findAll('button').filter(item => item.text() === '删除')[2]!.trigger('click')
+  await vi.waitFor(() => expect(save).toHaveBeenCalledOnce())
+  await flushPromises()
+  expect(confirmBox).toHaveBeenCalledWith('确定要删除服务提供商“服务丙”吗？', '删除确认', expect.anything())
+  expect(api.current.state.http.saves).toHaveLength(0)
+  expect(records('Base_InterfaceProvider').some(row => row['rowid'] === 'P3')).toBe(true)
+  expect(messages).not.toHaveBeenCalledWith('删除成功', 'success')
+  expect(wrapper.text()).toContain('原记录没有已确认的保存回执')
+})
+it('separates confirmed provider deletion from failed catalog readback', async () => {
+  const http = api.current.state.http
+  records('Base_InterfaceProvider').push({rowid:'P3',Name:'服务丙',BaseURL:'https://c.test'})
+  confirmBox.mockReset().mockResolvedValue('confirm')
+  const observed = new Set<PageRuntime>(), original = PageRuntime.prototype.load
+  vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function (this: PageRuntime) {observed.add(this); return original.call(this)})
+  const wrapper = await mountAt(ManagementPage)
+  const dataSet = [...observed].find(page => page.getDataSet(NAV))!.getDataSet(NAV)!
+  const provider = dataSet.getView('Base_InterfaceProvider')!
+  let failedReadbacks = 0
+  http.beforeDefinitionRead = async table => {
+    if (table === 'Base_InterfaceProvider' && http.saves.length === 1) {
+      failedReadbacks++
+      throw Error('隔离目录回读故障')
+    }
+  }
+  await wrapper.findAll('button').filter(item => item.text() === '删除')[2]!.trigger('click')
+  await vi.waitFor(() => expect(provider.loadingError?.message).toContain('隔离目录回读故障'))
+  await flushPromises()
+  expect(failedReadbacks).toBe(1)
+  expect(http.saves).toEqual([{table:'Base_InterfaceProvider', added:[], changed:[], deleted:[expect.objectContaining({rowid:'P3'})]}])
+  expect(records('Base_InterfaceProvider').some(row => row['rowid'] === 'P3')).toBe(false)
+  expect(provider.refreshPending).toBe(false)
+  expect(dataSet.saveJournal.completed).toBe(true)
+  expect(dataSet.saveJournal.views).toMatchObject([{tableName:'Base_InterfaceProvider', state:'applied'}])
+  expect(wrapper.text()).not.toContain('删除服务提供商失败')
+  expect(messages).toHaveBeenCalledWith('删除已确认，外部服务目录回读失败：隔离目录回读故障', 'warning')
+  expect(messages).not.toHaveBeenCalledWith('删除成功', 'success')
+
+  const batchId = dataSet.saveJournal.batchId
+  delete http.beforeDefinitionRead
+  await button(wrapper, '重试读取')!.trigger('click')
+  await vi.waitFor(() => expect(() => provider.captureReadResult()()).not.toThrow())
+  expect(provider.rows.some(row => row['rowid'] === 'P3')).toBe(false)
+  expect(dataSet.saveJournal.batchId).toBe(batchId)
+  expect(http.saves).toHaveLength(1)
 })

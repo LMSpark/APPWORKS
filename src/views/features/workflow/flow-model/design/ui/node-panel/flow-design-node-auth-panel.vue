@@ -94,7 +94,7 @@ async function runAuthAction(action: FeatureTableAction): Promise<void> {
       view.setCurrentRow(await view.addRow(defaults))
       return
     }
-    await runFeatureTableAction(view, action, pageService)
+    await runFeatureTableAction(view, action, {ui: pageService})
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
     pageService.showMessage(message, 'error')

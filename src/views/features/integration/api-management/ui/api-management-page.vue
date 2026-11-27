@@ -210,15 +210,26 @@ async function removeProvider(row: DataRow): Promise<void> {
     const occupied = children.filter(child => child.view.rows.length > 0 || child.view.total > 0).map(child => child.label)
     if (occupied.length > 0) throw new Error(`该服务提供商下仍有${occupied.join('、')}，不能删除`)
     if (view.deleteActionState(row) !== 'enabled') throw new Error('当前无删除该服务提供商的权限')
+    const owner = view.dataSet
+    if (!owner) throw new Error('外部服务目录缺少所属数据空间')
     await view.removeRow(id)
-    const result = await view.dataSet?.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-    if (!result) throw new Error('外部服务目录缺少所属数据空间')
-    if (!result.success) {
-      if (!view.hasUnconfirmedSave) view.discardPendingChanges([id])
-      throw new Error(result.error?.message ?? '删除结果未确认，请刷新核验')
+    try {
+      await owner.saveRecord(view, id)
+    } catch (cause) {
+      if (!view.destroyed && !view.hasUnconfirmedSave && view.dirtyTracking.isPendingDelete(id)) {
+        view.discardPendingChanges([id])
+      }
+      throw cause
+    }
+    try {
+      const readback = await view.requestRefresh({defer: false})
+      if (readback.refreshStatus !== 'read') throw new Error(readback.message ?? '目录未完成读取')
+      revision.value++
+    } catch (cause) {
+      pageService.showMessage('删除已确认，外部服务目录回读失败：' + failure(cause), 'warning')
+      return
     }
     pageService.showMessage('删除成功', 'success')
-    await refreshList()
   } catch (cause) { message.value = `删除服务提供商失败：${failure(cause)}` } finally { busy.value = false }
 }
 </script>

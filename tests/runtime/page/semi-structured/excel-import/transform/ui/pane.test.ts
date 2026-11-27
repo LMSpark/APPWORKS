@@ -83,7 +83,13 @@ describe('original DataView transform rules workspace',()=>{
  it('keeps the original mixed-row capture pending without saving a later draft',async()=>{
   const f=await fixture();f.rules.updateEditingValue('R1','rule_name','one');f.rules.updateEditingValue('R2','rule_name','two');f.http.failAfterWrite=true
   await expect(f.ds.saveChanges()).rejects.toThrow();f.rules.updateEditingValue('R1','rule_name','later draft');await flushPromises()
+  const originalBatch = f.ds.saveJournal.batchId
+  const save = vi.spyOn(f.ds, 'saveChanges')
+  const originalReads = f.http.reads.length
   await f.click('核验原未确认规则提交')
+  expect(save).not.toHaveBeenCalled()
+  expect(f.http.reads.slice(originalReads).map(read => read.table)).toContain('Base_Import_Transform_Rule')
+  expect(f.ds.saveJournal).toMatchObject({batchId: originalBatch, completed: true})
   expect(f.rules.hasUnconfirmedSave).toBe(false);expect(f.http.saves).toHaveLength(1)
   expect(f.rules.getEditingRow('R1')?.['rule_name']).toBe('later draft')
  })

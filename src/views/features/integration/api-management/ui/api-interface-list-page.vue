@@ -86,10 +86,11 @@ function requestToolbar(table:string,order:readonly FeatureTableAction[]){
     run:action=>{
       if (!runtime || !active || !session.isCurrent(runtime) || !parent || selected.value !== parent || target.queryContext !== query || locked.value) return
       if ((action === 'add' && pendingCreate.value) || (action === 'remove' && target.currentRow !== currentRow)) return
-      return act(async()=>{
-        await runFeatureTableAction(target,action,pageService)
-        if(action==='save'&&table==='_Base_ParamList'&&active&&session.isCurrent(runtime)&&selected.value===parent)await requireView(table,'references').refresh()
-      })
+      return act(() => runFeatureTableAction(target, action, {
+        ui: pageService,
+        readback: () => table === '_Base_ParamList' && active && session.isCurrent(runtime) && selected.value === parent
+          ? requireView(table, 'references') : undefined,
+      }))
     },
   })
 }
@@ -171,7 +172,7 @@ const listHost=computed(()=>{
         outputs: requireView('Base_TblField'), assertCurrent})
       pageService.showMessage('输出内容已重置，保存后生效', 'success')
     })
-    if(command==='interfaces.saveOutput')await act(()=>runFeatureTableAction(requireView('Base_TblField'),'save',pageService))
+    if(command==='interfaces.saveOutput')await act(()=>runFeatureTableAction(requireView('Base_TblField'),'save',{ui:pageService}))
     if(command==='interfaces.bindOutput'){
       const outputs=view('Base_TblField')
       const row=outputs?.rows.find(item=>outputs.getPkKey(item)===input)
@@ -237,8 +238,8 @@ async function removeApi(): Promise<void> {
     const created = interfaces.dirtyTracking.isPendingCreate(id)
     await interfaces.removeRow(id)
     if (created) return
-    const result = await dataSet?.saveChanges({views: [{tableName: interfaces.tableName, viewId: interfaces.viewId, ids: [id]}]})
-    if (!result?.success) throw new Error(result?.error?.message ?? result?.message ?? '删除结果未确认，请重读核验')
+    if (!dataSet) throw new Error('接口目录缺少所属数据空间')
+    await dataSet.saveRecord(interfaces, id)
     pageService.showMessage('删除成功', 'success')
   })
 }
@@ -246,9 +247,7 @@ function saveApi(): Promise<void> {
   return act(async () => {
     const interfaces = requireView('Base_DataServiceInterface'), id = selectedId.value
     if (id !== undefined && !String(interfaces.getEditingRow(id)?.['RequestType'] ?? '')) {pageService.showMessage('请选择参数类型', 'warning'); return}
-    const result = await dataSet?.saveChanges({views: [{tableName: interfaces.tableName, viewId: interfaces.viewId}]})
-    if (!result?.success) throw new Error(result?.error?.message ?? result?.message ?? '接口保存结果未确认，请重读核验')
-    pageService.showMessage('保存成功', 'success')
+    await runFeatureTableAction(interfaces, 'save', {ui: pageService})
   })
 }
 /** 原页联动：请求地址变化同步路径参数；参数类型在Body/FormData间切换时清空不兼容的请求体。均写当前行编辑覆盖。 */
@@ -296,17 +295,19 @@ async function closeBinding(result: SparkComponent.DataViewRecordEditingFinish):
   } catch {if (active && session.runtime === owner) error.value = '绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
 }
 async function verifyOriginalSaves(): Promise<void> {
-  const runtime = listRuntime.value
-  if (!runtime || bindingWindow.value) return
-  const pendingViews = views.value.filter(view => view.hasUnconfirmedSave)
+  const runtime = listRuntime.value, owner = dataSet
+  if (!runtime || !owner || bindingWindow.value) return
   await act(async () => {
-    for (const view of pendingViews) {
-      if (!active || !session.isCurrent(runtime)) return
-      if (!view.hasUnconfirmedSave) continue
-      const result=await view.saveChanges()
-      if (!active || !session.isCurrent(runtime)) return
-      if(!result.success)throw new Error(result.error?.message || result.message || '原保存结果尚未核定')
-    }
+    if (!active || !session.isCurrent(runtime) || dataSet !== owner) return
+    const receiptViews = views.value.filter(view => view.hasUnconfirmedSave)
+    if (receiptViews.length === 0) return
+    const {batchId} = owner.saveJournal
+    if (!batchId) throw new Error('缺少接口原保存批次')
+    const result = await owner.verifySaveJournalAndRead({batchId, receiptViews, readbackViews: []})
+    if (!active || !session.isCurrent(runtime) || dataSet !== owner) return
+    if (result.settlement === 'not-applied') throw new Error('原提交未应用，修改已保留')
+    if (result.settlement === 'partial') throw new Error('原提交部分已确认，未应用的修改已保留')
+    if (result.settlement !== 'confirmed') throw new Error('原保存结果尚未完全确认')
   })
 }
 async function close(): Promise<void> {

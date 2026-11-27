@@ -25,7 +25,7 @@ import ReportCreateDialog from './report-create-dialog.vue'
 import ReportVersionDialog from './report-version-dialog.vue'
 import ReportModelDialog from './report-model-dialog.vue'
 import {formatDay, syncAppName, textOf} from './report-format'
-import {commitReportChanges, reportPendingReason, UNCONFIRMED_HINT} from './report-save'
+import {commitReportChanges, reportPendingReason, reportSaveReadback, UNCONFIRMED_HINT} from './report-save'
 
 import rule from './tool/rule.json?raw'
 import script from './tool/script.js?raw'
@@ -249,6 +249,7 @@ const remove = (row: DataRow) => guarded(async () => {
     return idOf(versions, version)
   })
   let dispatched = false
+  let readback: string | undefined
   try {
     for (const versionId of versionIds) await versions.removeRow(versionId)
     assertReport()
@@ -263,9 +264,10 @@ const remove = (row: DataRow) => guarded(async () => {
     throw cause
   } finally {
     if (dispatched && ![info, versions].some(item => item.hasUnconfirmedSave)) {
-      await Promise.all([info.refresh(), view(reportKey).refresh()])
+      readback = await reportSaveReadback([info, view(reportKey)], '目录')
     }
   }
-  pageService.showMessage('删除成功', 'success')
+  if (readback) message.value = '删除成功。' + readback
+  else pageService.showMessage('删除成功', 'success')
 })
 </script>

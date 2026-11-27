@@ -21,7 +21,7 @@ import {getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from 
 import * as Components from '@spark-appworks/spark-component'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import {isOn, textOf} from './report-format'
-import {commitReportChanges, reportPendingReason} from './report-save'
+import {commitReportChanges, reportPendingReason, reportSaveReadback} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
 const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode; toolbarRule: SparkNode | undefined; formRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: []}>()
@@ -135,6 +135,7 @@ const remove = (row: DataRow) => guarded(async () => {
   const versions = view(versionKey), id = captureVersion(versions, row, ['State'])
   if (isOn(row['State'])) throw new Error('启用中的版本不能删除，请先启动其他版本')
   let dispatched = false
+  let readback: string | undefined
   try {
     await versions.removeRow(id)
     dispatched = true
@@ -143,9 +144,9 @@ const remove = (row: DataRow) => guarded(async () => {
     if (!dispatched && versions.dirtyTracking.hasPendingChanges(id)) versions.discardPendingChanges([id])
     throw cause
   } finally {
-    if (dispatched && !versions.hasUnconfirmedSave) await loadVersions()
+    if (dispatched && !versions.hasUnconfirmedSave) readback = await reportSaveReadback([versions], '版本')
   }
-  message.value = '删除成功'
+  message.value = readback ? '删除成功。' + readback : '删除成功'
 })
 const activate = (row: DataRow) => guarded(async () => {
   assertSettled()
@@ -156,6 +157,7 @@ const activate = (row: DataRow) => guarded(async () => {
   const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''
   const ids = [id]
   let dispatched = false
+  let readback: string | undefined
   try {
     for (const other of versions.rows) {
       const otherId = versions.getPkKey(other)
@@ -176,9 +178,10 @@ const activate = (row: DataRow) => guarded(async () => {
     }
     throw cause
   } finally {
-    if (dispatched && ![versions, info].some(item => item.hasUnconfirmedSave)) await loadVersions()
+    if (dispatched && ![versions, info].some(item => item.hasUnconfirmedSave)) readback = await reportSaveReadback([versions], '版本')
   }
-  message.value = label ? `已启动版本 ${label}` : '已启动版本'
+  const confirmed = label ? `已启动版本 ${label}` : '已启动版本'
+  message.value = readback ? confirmed + '。' + readback : confirmed
 })
 function invoke(command: string, row?: DataRow): void | Promise<void> {
   if (busy.value || editor.value || !ready.value) return

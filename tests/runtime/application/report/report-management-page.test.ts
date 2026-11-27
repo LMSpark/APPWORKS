@@ -379,6 +379,35 @@ describe('报表多记录修改的失败收敛', () => {
     expect(reopened.versions.rows).toHaveLength(0)
   })
 
+
+  it('AW-03 ordinary report delete separates a confirmed receipt and readback failure', async () => {
+    const f = await open()
+    await seed(f)
+    f.http.beforeSave = vi.fn()
+    let directoryReads = 0
+    f.http.beforeDefinitionRead = async table => {
+      if (table === 'Base_ReportInfo') {
+        directoryReads++
+        throw new Error('报表目录来源暂不可用')
+      }
+    }
+    try {
+      await rowAction(f, '删除', infoRow(f))
+      await confirmBox(true)
+      await vi.waitFor(() => expect(directoryReads).toBe(1))
+      await vi.waitFor(() => expect(f.info.loadingError?.message).toContain('报表目录来源暂不可用'))
+      expect(f.info.dataSet?.saveJournal).toMatchObject({completed: true})
+      expect(f.info.hasUnconfirmedSave).toBe(false)
+      expect(f.http.beforeSave).toHaveBeenCalledOnce()
+      expect(f.http.saves).toHaveLength(2)
+    } finally {delete f.http.beforeDefinitionRead}
+    const reopened = await readPersistedReport(scenario, f.http)
+    expect(reopened.info.rows).toHaveLength(0)
+    expect(reopened.versions.rows).toHaveLength(0)
+    expect(document.body.textContent).toContain('删除成功')
+    expect(f.wrapper.text()).toContain('目录回读失败')
+  })
+
   it('删除在写入前被拒绝时撤销本地删除并刷新，可再次删除', async () => {
     const f = await open()
     await seed(f)
@@ -488,6 +517,43 @@ describe('报表多记录修改的失败收敛', () => {
     expect(document.body.textContent).toContain('缺少唯一原查询行')
     expect(f.http.saves).toHaveLength(0)
     expect(versions.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+
+  it.each(['启动', '删除'])('AW-03 ordinary report version %s separates confirmation and readback', async action => {
+    const f = await open()
+    await seed(f)
+    await rowAction(f, '历史版本', infoRow(f))
+    const versions = f.runtime.resolveView(`${scenario}@Base_Report@byReport`)
+    if (!versions) throw new Error('缺少版本视图')
+    await vi.waitFor(() => expect(versions.rows).toHaveLength(2))
+    const version = versions.rows.find(row => row['rowid'] === 'V2')
+    if (!version) throw new Error('缺少版本二')
+    f.http.beforeSave = vi.fn()
+    let versionReads = 0
+    f.http.beforeDefinitionRead = async table => {
+      if (table === 'Base_Report') {
+        versionReads++
+        throw new Error('报表版本来源暂不可用')
+      }
+    }
+    try {
+      await rowAction(f, action, version, 1)
+      await vi.waitFor(() => expect(document.body.textContent).toContain('报表版本来源暂不可用'))
+      expect(versionReads).toBe(1)
+      expect(f.info.dataSet?.saveJournal).toMatchObject({completed: true})
+      expect(versions.hasUnconfirmedSave).toBe(false)
+      expect(f.http.beforeSave).toHaveBeenCalledOnce()
+    } finally {delete f.http.beforeDefinitionRead}
+    const reopened = await readPersistedReport(scenario, f.http)
+    if (action === '启动') {
+      expect(reopened.info.rows).toMatchObject([{rowid: 'R1', version_id: 'V2'}])
+      expect(reopened.versions.rows.find(row => row['rowid'] === 'V2')?.['State']).toBe('1')
+    } else {
+      expect(reopened.versions.rows.map(row => row['rowid'])).toEqual(['V1'])
+    }
+    expect(document.body.textContent).toContain('版本回读失败')
+    expect(document.body.textContent).toMatch(action === '启动' ? /已启动版本|启动版本已确认/ : /删除成功|删除版本已确认/)
   })
 
   it('启动版本被拒绝时撤销两表本地修改，未知回执须在目录核验', async () => {

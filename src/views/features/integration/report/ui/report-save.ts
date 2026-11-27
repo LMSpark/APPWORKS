@@ -68,3 +68,19 @@ export async function commitReportChanges({label, targets}: ReportSaveRequest): 
   }
   return result.data
 }
+
+/** 回读调用方声明的视图，保留已获回执，并说明本次读取失败或延期。 */
+export async function reportSaveReadback(views: readonly DataView[], scope: string): Promise<string | undefined> {
+  const results = await Promise.allSettled(views.map(view => view.requestRefresh()))
+  const errors = results.flatMap(result => {
+    if (result.status === 'rejected') {
+      return [result.reason instanceof Error ? result.reason.message : String(result.reason)]
+    }
+    return result.value.success ? [] : [result.value.message ?? '原读取视图已失效']
+  })
+  if (errors.length > 0) return `${scope}回读失败：${errors.join('；')}`
+  if (results.some(result => result.status === 'fulfilled' && result.value.refreshStatus === 'deferred')) {
+    return `${scope}回读已延期`
+  }
+  return undefined
+}

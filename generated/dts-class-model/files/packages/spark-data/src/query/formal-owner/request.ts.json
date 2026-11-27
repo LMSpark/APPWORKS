@@ -72,11 +72,15 @@
           "title": "AbortSignal"
         }
       },
-      "required": [
-        "table",
-        "options"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertQueryCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertQueryCurrent.return": true
+      }
     },
     "DataSpaceRequestSaveChange": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -278,7 +282,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T06:47:15.532Z",
+  "generatedAt": "2026-11-27T20:20:31.460Z",
   "models": {
     "DataSpaceSaveUnconfirmedError": {
       "name": "DataSpaceSaveUnconfirmedError",
@@ -354,11 +358,11 @@
       "jsdoc": "模型查询表、执行选项与可选取消信号的请求命令。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
+        "declarationTypeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n    /** 原查询调用的检查，在封包完成和实际传输前复核。 */\n    assertQueryCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
+            "typeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n    /** 原查询调用的检查，在封包完成和实际传输前复核。 */\n    assertQueryCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -383,6 +387,17 @@
               "name": "signal",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertQueryCurrent",
+              "jsdoc": "原查询调用的检查，在封包完成和实际传输前复核。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

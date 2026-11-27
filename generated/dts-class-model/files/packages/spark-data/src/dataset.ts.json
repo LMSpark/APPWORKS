@@ -176,6 +176,10 @@
             "additionalProperties": false
           }
         },
+        "formalQueryGuard": {
+          "type": "object",
+          "title": "() => void"
+        },
         "destroyed": {
           "type": "boolean"
         },
@@ -213,6 +217,17 @@
           "additionalProperties": false
         },
         "method.initAutoSelection.return": true,
+        "method.bindFormalQueryGuard.params": {
+          "type": "object",
+          "properties": {
+            "guard": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindFormalQueryGuard.return": true,
         "method.setSharedHttpClient.params": {
           "type": "object",
           "properties": {
@@ -1091,7 +1106,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T13:46:41.000Z",
+  "generatedAt": "2026-11-27T20:15:10.704Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -1325,6 +1340,12 @@
               "writable": true
             },
             {
+              "name": "formalQueryGuard",
+              "jsdoc": "正式查询 owner 在派发、缓存复用及接纳时使用同一检查。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "destroyed",
               "jsdoc": "数据集是否已被销毁",
               "readable": true,
@@ -1342,6 +1363,33 @@
               "name": "initAutoSelection",
               "jsdoc": "对所有表的 default 视图触发 autoCurrentFirst / autoSelectFirst 初始选中逻辑。\n必须在页面脚本（__init__）完成事件订阅**之后**调用，确保订阅者能收到\n`currentRowChanged` 事件。渲染层在组件 mounted 钩子中、\n`__init__` 执行完毕后调用此方法。",
               "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "bindFormalQueryGuard",
+              "jsdoc": "固定本次运行调用的正式查询检查，不参与已接纳结果的保存或核验。",
+              "parameters": [
+                {
+                  "name": "guard",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

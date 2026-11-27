@@ -27,6 +27,8 @@ type ResultCacheRequest = Readonly<{
 type DataSpaceQueryCacheOptions = ConstructorParameters<typeof DataSpaceQueryResource>[0]
 
 type DataSpaceQueryCacheQueryInput = Readonly<{
+  /** 按原 DataSet 检查本次读取，缓存命中或加入在途查询也必须核对。 */
+  assertQueryCurrent?: () => void
   /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */
   projection?: DataSpaceQueryProjection
   identity: DataSpaceQueryIdentity
@@ -36,6 +38,7 @@ type DataSpaceQueryCacheQueryInput = Readonly<{
 }>
 
 type DataSpaceQueryCacheLoadInput = Readonly<{
+  assertQueryCurrent?: () => void
   /** 派发与分页沿用同一次模型图快照。 */
   projection?: DataSpaceQueryProjection
   key: string
@@ -79,22 +82,25 @@ export class DataSpaceQueryCache {
 
   public async query(input: DataSpaceQueryCacheQueryInput): Promise<DataSpaceQueryContext> {
     input.projection?.assertCurrent()
+    input.assertQueryCurrent?.()
     const options = input.options ?? {}
     const config = input.config ?? DataSpaceRequestConfig.resolveQuery()
     const cache = input.cache
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(input.identity).identity
     const { singleFlight: _singleFlight, ...executionOptions } = options
-    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition,
+    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition, input.assertQueryCurrent,
       input.projection?.owner, input.projection?.signature, input.projection?.columns, { ...executionOptions,
       ...(executionOptions.filter === undefined ? {} : { filter: executionOptions.filter?.toJSON() ?? null }) }])
     const load = () => this.load({key, normalized, executionOptions, config, ...(cache?.accept ? {accept: cache.accept} : {}),
+      ...(input.assertQueryCurrent ? {assertQueryCurrent: input.assertQueryCurrent} : {}),
       ...(input.projection === undefined ? {} : {projection: input.projection})})
     const context = cache === undefined ? await load() : await this.#results.query({
       key, page: cache.page, load, isCurrent: () => this.currentScope() === scope && cache.isCurrent(),
     })
     context.assertIdentity(normalized)
     input.projection?.assertCurrent()
+    input.assertQueryCurrent?.()
     return context
   }
 
@@ -110,7 +116,7 @@ export class DataSpaceQueryCache {
   }
 
   private async load(input: DataSpaceQueryCacheLoadInput): Promise<DataSpaceQueryContext> {
-    const {key, normalized, executionOptions, config, accept} = input
+    const {key, normalized, executionOptions, config, accept, projection, assertQueryCurrent} = input
     const existing = this.#flights.get(key)
     if (existing) return existing
     let resource = this.#resources.get(normalized.scenarioId)
@@ -118,7 +124,9 @@ export class DataSpaceQueryCache {
       resource = new DataSpaceQueryResource(this.#options)
       this.#resources.set(normalized.scenarioId, resource)
     }
-    const flight = resource.query(normalized, executionOptions, input.projection ? {config, projection: input.projection} : config).then(context => {
+    const flight = resource.query(normalized, executionOptions, {config,
+      ...(projection ? {projection} : {}), ...(assertQueryCurrent ? {assertQueryCurrent} : {})}).then(context => {
+      assertQueryCurrent?.()
       accept?.(context)
       return context
     }).finally(() => {

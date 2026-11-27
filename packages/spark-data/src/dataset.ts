@@ -585,6 +585,19 @@ export class DataSet extends SparkAIModel implements DataSetContract {
 
   // ===== HTTP 客户端共享 =====
 
+  #formalQueryGuard?: () => void
+
+  /** 固定本次运行调用的正式查询检查，不参与已接纳结果的保存或核验。 */
+  bindFormalQueryGuard(guard: () => void): void {
+    if (this.destroyed || this.#formalQueryGuard) throw new Error('DATA_SET_QUERY_GUARD: 原查询检查不可替换')
+    this.#formalQueryGuard = guard
+  }
+
+  /** 正式查询 owner 在派发、缓存复用及接纳时使用同一检查。 */
+  get formalQueryGuard(): (() => void) | undefined {
+    return this.#formalQueryGuard
+  }
+
   /**
    * 注入共享 HTTP 客户端（M5）——所有 DataTable 的 CrudService 将复用该实例。
    *

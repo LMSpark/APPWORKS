@@ -2373,6 +2373,7 @@ protected logger = Logger('DataView')
         if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
       }
       if (this.#queryExecutor !== undefined) {
+        this.dataSet?.formalQueryGuard?.()
         queryResult = await this.#queryExecutor.executeQuery(this, loadParams)
         if (loadParams.parentResult) {
           const parent = DataViewParentResult.resolve(this)
@@ -2398,6 +2399,7 @@ protected logger = Logger('DataView')
           assertOriginalResult()
           if (this.validateQueryResult) await this.validateQueryResult(queryResult)
           if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
+          this.dataSet?.formalQueryGuard?.()
           parentCapture?.assertCurrent()
           assertParentInputs?.()
           assertOriginalResult()
@@ -3697,6 +3699,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const request = this.withScopeFilter(this.withViewQueryDefaults(this.buildTreeModeParams(params)))
     const assertCurrent = (): void => {
       this.checkDestroyed()
+      this.dataSet?.formalQueryGuard?.()
       if (this.#queryResult !== base || this.#queryExecutor !== executor || this.refreshIdentity() !== identity
         || this.currentLoadRequestId !== requestId || this._resultStale || this.hasUnconfirmedSave
         || this.dirtyTrackingDelegate.pendingCreateIds.size > 0 || this.dirtyTrackingDelegate.pendingDeleteIds.size > 0) {
@@ -3705,6 +3708,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
     this._trackMutating(1)
     try {
+      assertCurrent()
       const addition = await executor.executeQuery(this, request)
       assertCurrent()
       addition.assertIdentity(this.queryIdentity())

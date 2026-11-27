@@ -41,6 +41,8 @@ type DataSpaceRequestQueryCommand = Readonly<{
   options: DataSpaceQueryOptions
   config?: DataSpaceRequestConfig
   signal?: AbortSignal
+  /** 原查询调用的检查，在封包完成和实际传输前复核。 */
+  assertQueryCurrent?: () => void
 }>
 type DataSpaceRequestCapture = Readonly<{ token: string; generation: number; signal?: AbortSignal }>
 /** 单模型候选变更及其原查询上下文；身份必须与上下文一致。 */
@@ -116,11 +118,15 @@ export class DataSpaceRequest {
     const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
     const data = command.table.buildRequest(command.options)
     this.assertCurrent(captured)
+    command.assertQueryCurrent?.()
     try {
       const response = await this.#http.request<unknown>({
         ...config.endpoint, method: 'POST', data, headers,
         ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
         retry: 0, cache: false, meta: { rawEnvelope: true },
+        ...(command.assertQueryCurrent ? {onTransportAttempt(started) {
+          if (started) command.assertQueryCurrent?.()
+        }} : {}),
         ...(command.signal === undefined ? {} : { signal: command.signal }),
       })
       this.assertCurrent(captured)

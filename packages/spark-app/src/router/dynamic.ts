@@ -234,6 +234,7 @@ constructor(options: DynamicRouterOptions) {
       ...(options.preparePageCall ? {preparePageCall: options.preparePageCall} : {}),
       loadScenario: options.loadScenario,
       readNavTree: () => this._navTree,
+      readApplicationNavTree: () => this._appNavTree,
       readCurrentRoute: () => this.router.currentRoute.value,
       refreshRoutes: () => this.refreshRoutes(),
     })
@@ -604,6 +605,7 @@ constructor(options: DynamicRouterOptions) {
         if (route?.name !== undefined) this.router.removeRoute(route.name)
       }
       this.systemPages.replaceOwners(nextSystemPageOwners)
+      if (publicNavTree === null && appNavTree !== null) this.runtimePool.acceptApplicationNavigation(appNavTree)
     } catch (error: unknown) {
       const affectedRoutes = new Set([...previousRoutes, ...this.registeredRoutes])
       for (const path of affectedRoutes) {

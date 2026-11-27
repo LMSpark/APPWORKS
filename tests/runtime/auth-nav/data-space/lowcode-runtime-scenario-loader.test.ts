@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
+import {defineComponent, h} from 'vue'
+import {createMemoryHistory, createRouter} from 'vue-router'
+import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
+import {createPageToolPublicationManifest} from '@/services/project/page-tool-publication'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import { DATA_SPACE_DESIGN_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
@@ -19,18 +23,21 @@ const mocks = vi.hoisted(() => ({
   listFiles: vi.fn(),
   readTextFile: vi.fn(),
   request: vi.fn(),
+  prepareRequest: vi.fn(),
 }))
 
 vi.mock('@/platform-adapters/lowcode-runtime', async () => {
   const {DataSpaceRuntimeApi} = await import('@spark-appworks/spark-data')
   const {HttpClientBase} = await import('@spark-appworks/spark-utils')
   class NoRequest extends HttpClientBase {
-    protected override async executeRequest(): Promise<never> {
-      mocks.request()
+    protected override async executeRequest() {
+      const response = await mocks.request()
+      if (response) return response
       throw new Error('unexpected business request')
     }
   }
   const http = new NoRequest()
+  http.interceptors.request.use({async onRequest(config) {await mocks.prepareRequest(); return config}})
   return {
   createPageToolFilesIo: () => ({list: async () => [], read: async () => null,
     upload: async () => {throw new Error('unexpected ProjectToolFile upload')},
@@ -122,6 +129,100 @@ describe('loadLowcodeRuntimeScenario', () => {
   afterEach(() => {
     mocks.readCatalogScope.mockReset()
     vi.restoreAllMocks()
+  })
+
+  it.each(['response', 'dispatch', 'restored navigation', 'append validation'] as const)(
+    'blocks formal reads after the retained publication loses its navigation binding during %s', async checkpoint => {
+    const {text, models} = relationFixture('rowid')
+    for (const model of models) {
+      model.primaryKey = 'rowid'
+      model.fields[0]!.canonicalName = 'rowid'
+    }
+    mocks.readRelations.mockResolvedValue([])
+    const response = (rowid: string) => ({status: 200, statusText: 'OK', headers: {},
+      data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: false, lingma_sys_key: 'table',
+        data: {Items: [{rowid, lingma_sys_key: 'row', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}], Count: 1}}}})
+    let releaseResponse = () => {}
+    const delayed = new Promise<void>(resolve => { releaseResponse = resolve })
+    mocks.request.mockResolvedValueOnce(response('baseline'))
+    if (checkpoint === 'append validation') {
+      mocks.request.mockResolvedValueOnce(response('late'))
+    } else if (checkpoint !== 'dispatch') {
+      mocks.request.mockImplementationOnce(async () => {await delayed; return response('late')})
+    }
+    const page = defineComponent({render: () => h('div')})
+    const tool = {projectId: 'APP', pageId: 'TOOL'}
+    const path = '/apps/APP/__page/NODE'
+    const router = createRouter({history: createMemoryHistory(), routes: [
+      {path, component: page, meta: {type: 'config-page', nodeId: 'NODE', tool, blueprintScenarioId: 'SCENE'}},
+      {path: '/apps/APP/other', component: page},
+    ]})
+    await router.push({path, query: {scenarioId: 'SCENE'}})
+    const route = router.currentRoute.value
+    const files = [{fileName: 'rule.json', version: 1, text: '[]'}, {fileName: 'script.js', version: 1, text: ''},
+      {fileName: 'style.css', version: 1, text: ''}] as const
+    const manifest = await createPageToolPublicationManifest({pageId: 'TOOL', files,
+      pagedata: [{scenarioId: 'SCENE', version: 1, sourceRevision: 'scene-v1', text}]})
+    let allowed = true
+    const pool = new PageRuntimePool({pageComponent: page, readPageFile: undefined,
+      resolvePageNavigationReceipt: async () => ({state: 'READY', files, assertCurrent() {},
+        publication: {manifest, publicationRef: 'r=1;s=1;t=1;m=1', assertCurrent() {}}}),
+      readCurrentRoute: () => router.currentRoute.value,
+      readNavTree: () => ({title: 'App', childPlacement: 'header',
+        items: allowed ? [{id: 'NODE', title: 'Tool', path, tool, blueprintScenarioId: 'SCENE'}] : []}),
+      refreshRoutes: async () => undefined, loadScenario: loadLowcodeRuntimeScenario,
+    })
+    const runtime = pool.getPageRuntime(route)!
+    try {
+      await runtime.load()
+      const view = runtime.getDataSet('SCENE')!.getView('PARENT')!
+      await view.refresh()
+      expect(view.rows[0]?.['rowid']).toBe('baseline')
+      await router.push('/apps/APP/other')
+      let preparing = false
+      if (checkpoint === 'dispatch') mocks.prepareRequest.mockImplementationOnce(async () => {
+        preparing = true
+        await delayed
+      })
+      if (checkpoint === 'append validation') view.validateQueryResult = async () => {
+        preparing = true
+        await delayed
+      }
+      const pending = checkpoint === 'append validation'
+        ? Promise.allSettled([view.appendQueryRows({filter: {field: 'rowid', operator: 'eq', value: 'late'}})])
+        : view.refresh()
+      const dispatched = checkpoint === 'dispatch' ? 1 : 2
+      await vi.waitFor(() => {
+        expect(mocks.request).toHaveBeenCalledTimes(dispatched)
+        if (checkpoint === 'dispatch' || checkpoint === 'append validation') expect(preparing).toBe(true)
+      })
+      await router.push(route.fullPath)
+      allowed = false
+      if (checkpoint === 'restored navigation') {
+        pool.acceptApplicationNavigation({projectId:'APP', title:'App', childPlacement:'header', items:[]})
+        allowed = true
+      } else expect(() => pool.getPageRuntime(route)).toThrow('PAGE_RUNTIME_STALE')
+      releaseResponse()
+      const result = await pending
+      if (checkpoint === 'append validation') {
+        expect(result).toMatchObject([{status:'rejected', reason: expect.objectContaining({message: expect.stringContaining('PAGE_RUNTIME_STALE')})}])
+      }
+      expect(view.rows[0]?.['rowid']).not.toBe('late')
+      if (checkpoint !== 'append validation') expect(view.loadingError?.message).toContain('PAGE_RUNTIME_STALE')
+      await view.refresh()
+      expect(mocks.request).toHaveBeenCalledTimes(dispatched)
+      expect(view.loadingError?.message).toContain('PAGE_RUNTIME_STALE')
+      expect(view.destroyed).toBe(false)
+      allowed = true
+      expect(() => pool.getPageRuntime(route)).toThrow('PAGE_RUNTIME_STALE')
+      await view.refresh()
+      expect(mocks.request).toHaveBeenCalledTimes(dispatched)
+    } finally {
+      releaseResponse()
+      pool.disposePageRuntimes()
+      mocks.request.mockReset()
+      mocks.prepareRequest.mockReset()
+    }
   })
 
   it('reopens an independently proved Plan only after a current FileResource read', async () => {

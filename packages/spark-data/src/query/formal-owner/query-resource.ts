@@ -28,7 +28,9 @@ type DataSpaceQueryExecution = Readonly<{
   /** 原查询端点和超时策略，不携带结果授权。 */
   config: DataSpaceRequestConfig
   /** 正式模型图提供的只读输出及本次生命周期守卫。 */
-  projection: DataSpaceQueryProjection
+  projection?: DataSpaceQueryProjection
+  /** 本次读取的派发和接纳检查，不改变已接纳原查询上下文的 scope。 */
+  assertQueryCurrent?: () => void
 }>
 
 /** 拥有模型查询的分页收集与结果上下文生命周期；全部页通过后才发布上下文。 */
@@ -58,9 +60,10 @@ export class DataSpaceQueryResource {
   /** 按正式场景模型查询；执行参数可携带模型图投影，所有分页和最终上下文沿用其守卫。 */
   public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
     execution: DataSpaceRequestConfig | DataSpaceQueryExecution = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
-    const {config, projection} = execution instanceof DataSpaceRequestConfig ? {config: execution, projection: undefined} : execution
+    const {config, projection, assertQueryCurrent} = execution instanceof DataSpaceRequestConfig ? {config: execution} : execution
     const scope = this.contextScope()
     const assertCurrent = () => {
+      assertQueryCurrent?.()
       projection?.assertCurrent()
       if (this.#disposed || this.contextScope() !== scope) {
         throw new Error('SPARK_EXECUTION_SCOPE_STALE: 模型查询所属执行域已失效')
@@ -83,7 +86,8 @@ export class DataSpaceQueryResource {
     const firstPageIndex = allPages ? 1 : captured.page?.index ?? 1
     const queryPage = async (index: number) => {
       assertCurrent()
-      const result = await this.#request.query({ table, config, options: {
+      const result = await this.#request.query({ table, config,
+        ...(assertQueryCurrent === undefined ? {} : {assertQueryCurrent}), options: {
         ...captured, ...(pageSize === undefined ? {} : { page: { index, size: pageSize } }),
       } }).finally(assertCurrent)
       assertCurrent()

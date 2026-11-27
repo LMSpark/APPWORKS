@@ -60,6 +60,7 @@ type DataSpaceRuntimeUnconfirmed = Readonly<{
   captures: readonly DataSpaceRuntimePreparedSaveChange[]
 }>
 type DataSpaceQueryWithConfigInput = Readonly<{
+  assertQueryCurrent?: () => void
   /** 正式子查询解析产生的本次只读投影与模型图守卫。 */
   projection?: DataSpaceQueryProjection
   identity: DataSpaceQueryIdentity
@@ -138,13 +139,14 @@ export class DataSpaceRuntimeApi {
   public releaseQueryCache(page: object): void {this.queryCache.releaseResults(page)}
 
   private async queryWithConfig(input: DataSpaceQueryWithConfigInput, heldMutationKeys?: ReadonlySet<string>): Promise<DataSpaceQueryContext> {
-    const {identity, options, config, view, accept, definition} = input
+    const {identity, options, config, view, accept, definition, assertQueryCurrent} = input
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(identity).identity
     const key = this.resourceKey(scope, normalized)
     const mutation = this.#mutationFlights.get(key)
     if (mutation !== undefined && !heldMutationKeys?.has(key)) await mutation
     this.assertScope(scope)
+    assertQueryCurrent?.()
     const cacheType = view?.queryConfig.cacheType
     const cache = view && cacheType && cacheType !== 'none' ? {
       ...(cacheType === 'page' ? {page: view.dataSet ?? view} : {}),
@@ -153,6 +155,7 @@ export class DataSpaceRuntimeApi {
       ...(accept === undefined ? {} : {accept}),
     } : undefined
     const flight = this.queryCache.query({
+      ...(assertQueryCurrent ? {assertQueryCurrent} : {}),
       ...(input.projection === undefined ? {} : {projection: input.projection}),
       identity: normalized,
       options,
@@ -167,6 +170,7 @@ export class DataSpaceRuntimeApi {
     flights.add(flight)
     try {
       const context = await flight
+      assertQueryCurrent?.()
       if (cache === undefined) accept?.(context)
       this.assertScope(scope)
       if (options.allPages && context.resultKind === 'entity' && context.resultPrimaryKey) {
@@ -310,6 +314,10 @@ export class DataSpaceRuntimeApi {
 
   /** 命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。 */
   public async executeQuery(view: DataView, params: QueryParams): Promise<DataSpaceQueryContext> {
+    const assertQueryCurrent = view.dataSet?.formalQueryGuard
+    assertQueryCurrent?.()
+    const read = (captured: QueryParams) => this.queryWithConfig({...this.prepareQuery(view, captured),
+      ...(assertQueryCurrent ? {assertQueryCurrent} : {})})
     const binding=view.dataTable?this.#models.get(view.dataTable):undefined
     if(binding?.adapter){
       this.assertScope(binding.scope)
@@ -318,15 +326,17 @@ export class DataSpaceRuntimeApi {
       const originals=new Set<DataSpaceQueryContext>()
       const guard=()=>{this.assertScope(binding.scope);if(view.destroyed||view.dataSet?.destroyed||!view.dataTable||this.#models.get(view.dataTable)!==binding)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 来源分页绑定已失效')}
       const result=await binding.adapter.execute({view,params,read:async captured=>{
-        guard();const context=await this.queryWithConfig(this.prepareQuery(view,captured));guard();originals.add(context);return context
+        guard();const context=await read(captured);guard();originals.add(context);return context
       }})
       guard()
+      assertQueryCurrent?.()
       if(!originals.has(result.result))throw new Error('SPARK_MODEL_ADAPTER_RESULT: 分页结果不是本次正式读取结果')
       return result.nextPageAvailable===undefined?result.result:result.result.withNextPageAvailable(result.nextPageAvailable)
     }
     if (params.parentResult) {
       const parentBinding = this.prepareParentQuery(view, params)
       await DataViewParentResult.request(view)
+      assertQueryCurrent?.()
       this.assertScope(parentBinding.scope)
       const source = DataViewParentResult.resolve(view)
       if (!source) throw new Error('SPARK_PARENT_MODEL: 父来源不存在')
@@ -336,7 +346,7 @@ export class DataSpaceRuntimeApi {
       result.bindFormalModel(parentBinding.model)
       return result
     }
-    return this.queryWithConfig(this.prepareQuery(view, params))
+    return read(params)
   }
 
   /** 正式接口命令的一次执行能力；供命令提交适配消费，不经读缓存/合并，不登记CRUD核验基线。 */

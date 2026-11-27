@@ -84,10 +84,15 @@
           "$ref": "#/$defs/ResultCacheRequest"
         }
       },
-      "required": [
-        "identity"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertQueryCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertQueryCurrent.return": true
+      }
     },
     "DataSpaceQueryCache": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -162,7 +167,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:03:44.629Z",
+  "generatedAt": "2026-11-27T20:20:31.458Z",
   "models": {
     "ResultCacheRequest": {
       "name": "ResultCacheRequest",
@@ -251,11 +256,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 按原 DataSet 检查本次读取，缓存命中或加入在途查询也必须核对。 */\n    assertQueryCurrent?: () => void;\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+            "typeText": "Readonly<{\n    /** 按原 DataSet 检查本次读取，缓存命中或加入在途查询也必须核对。 */\n    assertQueryCurrent?: () => void;\n    /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */\n    projection?: DataSpaceQueryProjection;\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -286,6 +291,17 @@
               "name": "cache",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertQueryCurrent",
+              "jsdoc": "按原 DataSet 检查本次读取，缓存命中或加入在途查询也必须核对。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

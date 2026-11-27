@@ -500,6 +500,21 @@
           "type": "object",
           "title": "RouteLocationNormalizedLoaded"
         },
+        "method.readApplicationNavTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readApplicationNavTree.return": {
+          "anyOf": [
+            {
+              "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "method.preparePageCall.params": {
           "type": "object",
           "properties": {
@@ -580,6 +595,16 @@
         "method.getPageRuntime.return": {
           "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         },
+        "method.acceptApplicationNavigation.params": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acceptApplicationNavigation.return": true,
         "method.getPageRuntimeView.params": {
           "type": "object",
           "properties": {
@@ -652,7 +677,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-22T17:59:40.298Z",
+  "generatedAt": "2026-11-27T20:15:10.699Z",
   "models": {
     "RuntimeScenarioLoadCommand": {
       "name": "RuntimeScenarioLoadCommand",
@@ -992,11 +1017,11 @@
       "jsdoc": "实例池依赖：页面渲染组件、工具文件读取、场景装配、当前导航树与路由刷新。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    /** 已提交的应用授权投影，独立于平台或公开导航的当前展示。 */\n    readApplicationNavTree?: () => RuntimeNavigation | null;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** One scoped read session for the complete tool. Results correspond to the input order. */\n    readPageFiles?: (commands: ReadonlyArray<Parameters<PageFileReader>[0]>) => Promise<readonly string[]>;\n    resolvePagePublication?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePagePublicationResolution | undefined>;\n    resolvePageNavigationReceipt?: (command: Readonly<{\n        projectId: string;\n        pageId: string;\n        nodeId: string;\n        mainScenarioId?: string;\n        scenarioIds: readonly string[];\n    }>) => Promise<RuntimePageNavigationReceipt>;\n    /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */\n    readCurrentRoute?: () => RouteLocationNormalizedLoaded;\n    /** 已提交的应用授权投影，独立于平台或公开导航的当前展示。 */\n    readApplicationNavTree?: () => RuntimeNavigation | null;\n    preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{\n        scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>;\n        assertCurrent(): void;\n        createHost?: (runtime: PageRuntime) => Readonly<{\n            runtime: PageRuntime;\n            assertCurrent(): void;\n            invoke(name: string, input: unknown, signal: AbortSignal): unknown;\n        }>;\n    }> | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1119,6 +1144,25 @@
               }
             },
             {
+              "name": "readApplicationNavTree",
+              "jsdoc": "已提交的应用授权投影，独立于平台或公开导航的当前展示。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
               "name": "preparePageCall",
               "parameters": [
                 {
@@ -1220,6 +1264,24 @@
                   "type": "reference",
                   "name": "PageRuntime"
                 }
+              }
+            },
+            {
+              "name": "acceptApplicationNavigation",
+              "jsdoc": "记录已提交的同应用授权投影，后台实例也不能借之后恢复的投影继续旧读取。",
+              "parameters": [
+                {
+                  "name": "tree",
+                  "type": {
+                    "type": "reference",
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

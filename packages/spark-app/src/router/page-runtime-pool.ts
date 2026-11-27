@@ -82,7 +82,8 @@ export type RuntimePageNavigationReceipt = Readonly<{
   assertCurrent(): void
 }>
 
-type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string; assertCurrent?: () => void }
+type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string;
+  assertCurrent?: () => void; onApplicationNavigation?: (tree: RuntimeNavigation) => void }
 
 function hasCompleteNavigationReceipt(receipt: RuntimePageNavigationReceipt | undefined): boolean {
   if (receipt?.state !== 'READY') return true
@@ -118,6 +119,8 @@ export type PageRuntimePoolOptions = Readonly<{
   }>) => Promise<RuntimePageNavigationReceipt>
   /** Reads the active route so retained tabs reject a route/call scope that is no longer current. */
   readCurrentRoute?: () => RouteLocationNormalizedLoaded
+  /** 已提交的应用授权投影，独立于平台或公开导航的当前展示。 */
+  readApplicationNavTree?: () => RuntimeNavigation | null
   preparePageCall?: (route: RouteLocationNormalizedLoaded) => Readonly<{
     scenarioInputs: NonNullable<PageRuntimeOptions['scenarioInputs']>
     assertCurrent(): void
@@ -204,6 +207,7 @@ export class PageRuntimePool {
     let dataset = new Map<string, RuntimePagePublicationDataset>()
     let publication: RuntimePagePublicationResolution | undefined
     let receipt: RuntimePageNavigationReceipt | undefined
+    let publishedBindingInvalidated = false
     const routeFullPath = route.fullPath
     const findNode = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined => {
       for (const node of nodes) {
@@ -220,14 +224,23 @@ export class PageRuntimePool {
           || currentRoute.params['projectId'] !== route.params['projectId'])) {
         throw new Error('PAGE_RUNTIME_STALE: 路由或调用身份已改变，必须重新打开页面')
       }
+      assertRegisteredNodeCurrent()
+    }
+    const assertRegisteredNodeCurrent = (): void => {
       if (programmatic) return
-      const navTree = this.options.readNavTree()
-      const node = findNode(navTree?.items ?? [])
-      const registeredTool = node?.tool
-      if (navTree !== null
-        && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId || node?.blueprintScenarioId !== route.meta['blueprintScenarioId'])) {
+      const navTree = published && this.options.readApplicationNavTree
+        ? this.options.readApplicationNavTree()
+        : this.options.readNavTree()
+      if (publishedBindingInvalidated || (navTree !== null && !matchesRegisteredNode(navTree))) {
+        if (published) publishedBindingInvalidated = true
         throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
       }
+    }
+    const matchesRegisteredNode = (tree: RuntimeNavigation): boolean => {
+      const node = findNode(tree.items)
+      const registeredTool = node?.tool
+      return registeredTool?.pageId === page.pageId && registeredTool.projectId === projectId
+        && node?.blueprintScenarioId === route.meta['blueprintScenarioId']
     }
     const assertCallCurrent = (): void => {
       assertBindingCurrent()
@@ -390,7 +403,18 @@ export class PageRuntimePool {
           projectId, scenarioId, source: runtime.source,
           ...(datasetSnapshot ? {dataset: datasetSnapshot} : snapshot ? {pagedata: snapshot} : {}),
         })
-        try { assertGenerationCurrent(generation); assertSourceCurrent(); return dataSet }
+        try {
+          assertGenerationCurrent(generation)
+          assertSourceCurrent()
+          if (published) dataSet.bindFormalQueryGuard(() => {
+            assertGenerationCurrent(generation)
+            assertRegisteredNodeCurrent()
+            prepared?.assertCurrent()
+            receipt?.assertCurrent()
+            publication?.assertCurrent()
+          })
+          return dataSet
+        }
         catch (error) { dataSet.destroy(); throw error }
       },
     }))
@@ -435,8 +459,16 @@ export class PageRuntimePool {
         })
       } }))
     this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key,
+      ...(published ? {onApplicationNavigation(tree: RuntimeNavigation) {
+        if (tree.projectId === projectId && !matchesRegisteredNode(tree)) publishedBindingInvalidated = true
+      }} : {}),
       ...(prepared || published ? {assertCurrent: assertSourceCurrent} : {}) })
     return runtime
+  }
+
+  /** 记录已提交的同应用授权投影，后台实例也不能借之后恢复的投影继续旧读取。 */
+  acceptApplicationNavigation(tree: RuntimeNavigation): void {
+    for (const entry of this.pageInstances.values()) entry.onApplicationNavigation?.(tree)
   }
 
   /** 返回该路由页面实例对应的包装视图组件。 */

@@ -23,7 +23,7 @@ function fixture() {
       hooks.assertCurrent(); hooks.beforeApply(); text = remote; applied()
     },
   }
-  const executor = {source, executeQuery: vi.fn(async () => {
+  const executor = {source, invalidateQueryCache:vi.fn(), executeQuery: vi.fn(async () => {
     await queryGate
     if (queryFailure) throw new Error('query failed')
     return {
@@ -93,6 +93,126 @@ describe('query column ownership', () => {
 })
 
 describe('requested refresh lifecycle', () => {
+
+  it.each([RequestState.Idle, RequestState.Preparing, RequestState.Loading] as const)(
+    'keeps a same-key refresh started by the synchronous %s notification separate', async stage => {
+      const f = fixture()
+      let replacement: Promise<void> | undefined
+      const supersede = (state: RequestState) => {
+        if (state !== stage) return
+        f.view.events.off('requestStateChanged', supersede)
+        f.stored('successor')
+        replacement = f.view.refresh()
+      }
+      try {
+        await f.view.refresh()
+        f.view.events.on('requestStateChanged', supersede)
+        const original = f.view.requestRefresh({defer:false})
+        expect(replacement).toBeDefined()
+        await replacement
+        await expect(original).resolves.toMatchObject({success:false,refreshStatus:'invalidated'})
+        expect(f.view.rows[0]?.['text']).toBe('successor')
+        expect(f.executor.executeQuery).toHaveBeenCalledTimes(2)
+        expect(f.view.refreshPending).toBe(false)
+      } finally {f.ds.destroy()}
+    },
+  )
+
+  it('does not use a same-key replacement started synchronously by the query owner', async () => {
+    const f = fixture()
+    let replacement: Promise<void> | undefined
+    try {
+      await f.view.refresh()
+      const execute = f.executor.executeQuery.getMockImplementation()
+      if (!execute) throw Error('TEST_QUERY_EXECUTOR_REQUIRED')
+      f.executor.executeQuery.mockImplementationOnce(async () => {
+        f.stored('successor')
+        replacement = f.view.refresh()
+        await replacement
+        return execute()
+      })
+      const original = f.view.requestRefresh({defer:false})
+      expect(replacement).toBeDefined()
+      await replacement
+      await expect(original).resolves.toMatchObject({success:false,refreshStatus:'invalidated'})
+      expect(f.view.rows[0]?.['text']).toBe('successor')
+      expect(f.executor.executeQuery).toHaveBeenCalledTimes(3)
+      expect(f.view.refreshPending).toBe(false)
+    } finally {f.ds.destroy()}
+  })
+
+  it.each(['empty','existing'] as const)('does not register or replace a deferred refresh with defer disabled (%s)', async pending => {
+    const f = fixture()
+    try {
+      await f.view.refresh()
+      f.view.updateEditingValue('1', 'text', 'draft')
+      if (pending === 'existing') {
+        expect(await f.view.requestRefresh()).toMatchObject({refreshStatus:'deferred'})
+      }
+      expect(await f.view.requestRefresh({defer:false})).toMatchObject({success:false,refreshStatus:'failed'})
+      expect(f.view.refreshPending).toBe(pending === 'existing')
+      expect(f.view.getEditingRow('1')?.['text']).toBe('draft')
+      expect(f.executor.executeQuery).toHaveBeenCalledTimes(1)
+      f.stored('stored')
+      f.view.discardEditingRows(['1'])
+      if (pending === 'existing') {
+        expect(f.view.refreshPending).toBe(true)
+        const immediate = f.view.requestRefresh({defer:false})
+        expect(await immediate).toMatchObject({success:false,refreshStatus:'failed'})
+        await vi.waitFor(() => expect(f.view.rows[0]?.['text']).toBe('stored'))
+        expect(f.executor.executeQuery).toHaveBeenCalledTimes(2)
+      } else {
+        await new Promise<void>(resolve => {setTimeout(resolve,0)})
+        expect(f.executor.executeQuery).toHaveBeenCalledTimes(1)
+        expect(f.view.rows[0]?.['text']).toBe('before')
+      }
+    } finally { f.ds.destroy() }
+  })
+
+  it('lets an in-flight read finish when the next cache invalidation fails', async () => {
+    const f=fixture()
+    let release=()=>{}
+    const gate=new Promise<void>(resolve=>{release=resolve})
+    try {
+      await f.view.refresh()
+      f.stored('original');f.holdQuery(gate)
+      const original=f.view.requestRefresh({defer:false})
+      f.executor.invalidateQueryCache.mockImplementationOnce(()=>{throw Error('cache invalidation failed')})
+      await expect(f.view.refresh()).rejects.toThrow('cache invalidation failed')
+      expect(f.view.requestState).toBe(RequestState.Loading)
+      expect(f.executor.executeQuery).toHaveBeenCalledTimes(2)
+      release()
+      await expect(original).resolves.toMatchObject({success:true,refreshStatus:'read'})
+      expect(f.view.rows[0]?.['text']).toBe('original')
+    } finally {release();f.ds.destroy()}
+  })
+
+  it('preserves the successor started while the original rows are published', async () => {
+    const f=fixture()
+    let release=()=>{},replacement:Promise<void>|undefined
+    const gate=new Promise<void>(resolve=>{release=resolve})
+    const supersede=()=>{
+      f.view.events.off('rowsChanged',supersede)
+      f.stored('successor');f.holdQuery(gate)
+      replacement=f.view.refresh()
+    }
+    try {
+      await f.view.refresh()
+      f.stored('original')
+      f.view.events.on('rowsChanged',supersede)
+      const original=f.view.requestRefresh({defer:false})
+      await expect(original).resolves.toMatchObject({success:false,refreshStatus:'invalidated'})
+      expect(replacement).toBeDefined()
+      expect(f.view.requestState).toBe(RequestState.Loading)
+      expect(f.view.rows[0]?.['text']).toBe('original')
+      release();await replacement
+      expect(f.view.rows[0]?.['text']).toBe('successor')
+      expect(f.executor.executeQuery).toHaveBeenCalledTimes(3)
+    } finally {release();await replacement;f.ds.destroy()}
+  })
+
+
+
   it('preserves a deferred refresh when query inputs are replaced with the same values', async () => {
     const f = fixture()
     try {

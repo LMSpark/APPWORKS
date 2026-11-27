@@ -2209,6 +2209,7 @@ protected logger = Logger('DataView')
 
     const run = async (): Promise<number> => {
       this.setRequestState(RequestState.Preparing)
+      if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return requestId
 
       // 逐个父视图检查依赖是否满足
       const ds = this.dataSet
@@ -2218,7 +2219,7 @@ protected logger = Logger('DataView')
       try {
         for (const rel of parents) {
           await this.requestCascadeSource(rel)
-          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return requestId
+          if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return requestId
         }
         for (const rel of parents) {
           const cascadeFilter = ds?.resolveCascadeFilter(rel)
@@ -2228,13 +2229,17 @@ protected logger = Logger('DataView')
           }
           if (cascadeFilter !== undefined) cascadeFilters.push(cascadeFilter)
         }
+        const pendingBeforeCascade = this._pendingRequestData
         if (!this.cascadeDelegate.applyInputs()) {
           this.rejectCascade(new Error('QUERY_CASCADE_INPUT: 父输入尚未就绪'))
           return requestId
         }
-        // 配置赋值使旧请求失效；当前编排在同一同步段接管新配置。
+        // 采用本次级联写入的配置。若通知已启动另一笔读取，保留后继查询。
+        if (this.isDestroyed() || this._pendingRequestData !== pendingBeforeCascade
+          || (this.requestState !== RequestState.Idle && this.requestState !== RequestState.Preparing)) return requestId
         requestId = this.currentLoadRequestId
         this.setRequestState(RequestState.Preparing)
+        if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return requestId
       } catch (error) {
         if (requestId !== this.currentLoadRequestId) return requestId
         this.rejectCascade(error)
@@ -2253,7 +2258,7 @@ protected logger = Logger('DataView')
       if (this._shouldApplyStaticLocalFilter() && !this.queryConfig.parentResult) {
         try {
           const filter = await DataViewFilterLookup.resolve(this, mergedFilter)
-          if (this._isDestroyed || requestId !== this.currentLoadRequestId) return requestId
+          if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return requestId
           this.loadingError = null
           this.applyInMemoryCascade(filter)
         } catch (error) {if (requestId === this.currentLoadRequestId) this.rejectCascade(error)}
@@ -2274,8 +2279,10 @@ protected logger = Logger('DataView')
       }
 
       try {
+        const beforeLoad = this.currentLoadRequestId
         const loading = this.loadFromServer(this.withViewQueryDefaults(params))
-        requestId = this.currentLoadRequestId
+        // loadFromServer 先登记自己的代次，再同步通知状态并调用 owner。
+        if (this.currentLoadRequestId !== beforeLoad) requestId = beforeLoad + 1
         await loading
       } catch (error: unknown) {
         if (requestId !== this.currentLoadRequestId) return requestId
@@ -2290,7 +2297,7 @@ protected logger = Logger('DataView')
     }
 
     const pending = run()
-    this._pendingRequestData = pending
+    if (!this.isDestroyed() && requestId === this.currentLoadRequestId) this._pendingRequestData = pending
     try {
       return await pending
     } finally {
@@ -2328,10 +2335,10 @@ protected logger = Logger('DataView')
     if (this.requestState === RequestState.Loading) return { success: false, message: 'Already loading' }
     const assertOriginalResult=this.captureQueryReplacementGuard()
 
+    const requestId = ++this.currentLoadRequestId
     this.loadingError = null
     this.setRequestState(RequestState.Loading)
-
-    const requestId = ++this.currentLoadRequestId
+    if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
 
     try {
       const loadParams = this.buildTreeModeParams({...DataViewQuery.capture(this.queryConfig), ...params})
@@ -2361,7 +2368,7 @@ protected logger = Logger('DataView')
         const filter = await DataViewFilterLookup.resolve(this, loadParams.filter ?? this.filterExpression)
         if (filter === undefined) delete loadParams.filter
         else loadParams.filter = filter
-        if (this._isDestroyed || requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
+        if (this.isDestroyed() || requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
       }
       if (this.#queryExecutor !== undefined) {
         queryResult = await this.#queryExecutor.executeQuery(this, loadParams)
@@ -2590,11 +2597,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return this.requestData()
   }
 
-  private prepareQueryReload(invalidateCache = false): void {
+  private prepareQueryReload(invalidateCache = false): number {
     this.assertResultReplacementAllowed()
+    const previousId = this.currentLoadRequestId
     if (invalidateCache && !this.queryConfig.parentResult) this.#queryExecutor?.invalidateQueryCache?.()
-    this.currentLoadRequestId++
+    if (this.isDestroyed() || previousId !== this.currentLoadRequestId) return previousId
+    const requestId = ++this.currentLoadRequestId
     this.setRequestState(RequestState.Idle)
+    return requestId
   }
 
   /** 是否存在等待本视图编辑、提交或查询结束的刷新请求；仅为运行状态，不序列化。 */
@@ -2603,28 +2613,37 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   /**
    * 请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。
    * 延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。
+   * 显式证据读取可传 defer=false。受阻时立即失败，保留已有延期请求，不登记本次请求。
    * @returns 本次刷新已读、延期、失败或失效。延期登记返回 success=true，后续异步失败由 requestState 和 loadingError 报告。
    */
-  async requestRefresh(): Promise<DataViewRefreshResult> {
+  async requestRefresh({defer = true}: Readonly<{defer?: boolean}> = {}): Promise<DataViewRefreshResult> {
     this.checkDestroyed()
     const identity = this.refreshIdentity(), table = this._dataTable
-    if (this.refreshBlocked()) {
+    const blocked = this.refreshBlocked()
+    if (!defer && (blocked || this.refreshPending)) {
+      return {success: false, refreshStatus: 'failed', message: '当前视图尚不能读取'}
+    }
+    if (blocked) {
       this._refreshRequest = {identity, table}
       for (const event of DataView.refreshEvents) this.events.on(event, this.scheduleRefresh)
       this.events.on('configChanged', this.clearRefreshRequest)
       return {success: true, refreshStatus: 'deferred', message: '刷新已登记，等待当前修改或操作结束'}
     }
     this.clearRefreshRequest()
-    this.prepareQueryReload(true)
+    const preparedId = this.prepareQueryReload(true)
+    const preparedState = this.requestState
+    if (this.isDestroyed() || preparedId !== this.currentLoadRequestId || preparedState !== RequestState.Idle) {
+      return {...this._createRequestSupersededResult(), refreshStatus: 'invalidated'}
+    }
     const requestId = await this.runRequestData()
-    if (this._isDestroyed || table !== this._dataTable) {
+    if (this.isDestroyed() || table !== this._dataTable) {
       return {success: false, refreshStatus: 'invalidated', message: '刷新视图已失效'}
     }
     if (requestId !== this.currentLoadRequestId) {
       return {...this._createRequestSupersededResult(), refreshStatus: 'invalidated'}
     }
     // 请求发出后也可能产生编辑；接纳守卫会保留草稿，此时继续等待而不是丢掉刷新意图。
-    if (this.loadingError instanceof DataViewUnsavedChangesError
+    if (defer && this.loadingError instanceof DataViewUnsavedChangesError
       && (this.hasUnconfirmedSave || this.hasEditingChanges() || this._dirtyTrackingDelegate?.hasPendingChanges()) && identity === this.refreshIdentity()) {
       return this.requestRefresh()
     }

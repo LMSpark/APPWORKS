@@ -2,7 +2,7 @@
  * @module app:views/features/application/smart-bid/authority/original-registration-view
  * 职责：按固定请求从授权登记命名视图捕获可读原行。
  */
-import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
+import {buildDataViewKey,RequestState,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition} from '../authoring/model/content-revision-reader'
 
@@ -19,6 +19,12 @@ export function originalRegistrationView(primaryKey:string,keys:readonly string[
   queryConfig:{autoQuery:false,cacheType:'none',pagination:'none',fields:[...new Set([primaryKey,...keys,...fields])]}}
 }
 
+/** 先保护本次查询的源视图，避免改变其它在途读取的输入。 */
+export function assertRegistrationViewRefreshable(view:DataView,message:string):void{
+ view.assertResultReplacementAllowed()
+ if(view.refreshPending||view.mutating||view.requestState===RequestState.Preparing||view.requestState===RequestState.Loading)throw Error(message)
+}
+
 /** 取同请求唯一原行、保留空查询证明，由业务读取器确认状态和可读字段。 */
 export async function readOriginalRegistrationView(host:RegistrationViewHost,target:Readonly<{model:string;viewName?:string}>,
  request:Readonly<Record<string,string>>){
@@ -32,13 +38,15 @@ export async function readOriginalRegistrationView(host:RegistrationViewHost,tar
   view.queryConfig.autoQuery===false&&(view.queryConfig.cacheType===undefined||view.queryConfig.cacheType==='none')&&
   fields.every(field=>hasContentScopeCondition(view,field,{Type:'GetInputParam',ParamName:field}))
  if(!view||!valid()||view.hasEditingChanges())throw Error(error)
+ assertRegistrationViewRefreshable(view,error)
  view.queryContext={...view.queryContext,...request}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid()||view.loadingError||view.hasEditingChanges()||
    filters.some(([field,value])=>view.queryContext[field]!==value))throw Error(error)
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error(error)
  assertScope()
  if(view.countReported!==true||view.nextPageAvailable===true||view.rows.length>1||view.total!==view.rows.length)
   throw Error(error)

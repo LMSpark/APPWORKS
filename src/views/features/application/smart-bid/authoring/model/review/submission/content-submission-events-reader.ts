@@ -5,6 +5,7 @@
  * AI用途：核查原批次事件与项目、标段、渠道和请求摘要之间的对应关系。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../../../authority/original-registration-view'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {recoverSubmissionAttempt} from '@/services/smart-bid/content/review/submission-attempt-recovery'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -47,13 +48,15 @@ export async function readRegisteredSubmissionEvents(host:ContentRevisionReadHos
   !/^[a-f0-9]{64}$/u.test(scope.requestDigest))throw Error('SUBMISSION_EVENTS_SCOPE')
  const key=buildDataViewKey('SubmissionAttempt','originalEvents',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('SUBMISSION_EVENTS_VIEW_REQUIRED')
+ assertRegistrationViewRefreshable(view,'SUBMISSION_EVENTS_STALE')
  view.queryContext={...view.queryContext,...scope}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    Object.entries(scope).some(([field,value])=>view.queryContext[field]!==value))throw Error('SUBMISSION_EVENTS_STALE')
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error('SUBMISSION_EVENTS_STALE')
  assertScope()
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
   throw Error('SUBMISSION_EVENTS_INCOMPLETE')

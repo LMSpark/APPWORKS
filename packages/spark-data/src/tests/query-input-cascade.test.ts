@@ -34,6 +34,25 @@ const cascade: DataViewQueryCascade = {parentTable: 'Inputs', parentViewId: 'def
   ]}
 
 describe('query cascade configuration inputs', () => {
+
+  it('does not take over the successor started during cascade input assignment', async () => {
+    const {ds,child,list}=fixture()
+    child.queryConfig={...child.queryConfig,autoQuery:false}
+    ds.addCascade({...cascade,inputBindings:[{sourceField:'key',target:'queryContext.parentKey'}]})
+    let successor:ReturnType<typeof child.requestRefresh>|undefined
+    const startSuccessor=()=>{
+      child.events.off('configChanged',startSuccessor)
+      successor=child.requestRefresh({defer:false})
+    }
+    child.events.on('configChanged',startSuccessor)
+    const prior=await child.requestRefresh({defer:false})
+    expect(successor).toBeDefined()
+    const current=await successor
+    expect(prior).toMatchObject({success:false,refreshStatus:'invalidated'})
+    expect(current).toMatchObject({success:true,refreshStatus:'read'})
+    expect(list).toHaveBeenCalledOnce()
+    expect(child.queryContext).toMatchObject({parentKey:'id'})
+  })
   it('ignores an in-flight result after switching query inputs away and back', async () => {
     const {child, list} = fixture()
     let deliver!: (value: Awaited<ReturnType<typeof child.crud.list>>) => void

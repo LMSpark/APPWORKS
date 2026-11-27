@@ -73,3 +73,57 @@ it('reads a fixed original request and rejects payload drift despite an unchange
   for(const script of [page13,page14])expect(script.trim()).toBe('')
  }finally{ds.destroy()}
 })
+
+
+it.each(['request','events'] as const)('Page13 rejects a superseded same-key %s query',async kind=>{
+ const payload={projectId:'P',attemptRef:'A',requestKey:'Q',channelId:'PORTAL',enterpriseId:'ENT',objectRef:'LOT',priorAttemptRef:null}
+ const requestDigest=await hashCanonicalSnapshotText(canonicalSnapshotValue(['spark-bid.submission-request/1',payload]))
+ const wanted={projectId:'P',attemptRef:'A',lotId:'LOT',subjectId:'ENT',channelId:'PORTAL',requestDigest}
+ const event={...wanted,eventRef:'EVENT',kind:'DISPATCHED',actualObjectRef:'PACKAGE'}
+ const row={...wanted,id:'A',requestKey:'Q',requestPayload:payload,events:[event],combinedWithdrawalTarget:null}
+ const views=contentSubmissionScenarioViews({SubmissionAttempt:'id',ChannelReceipt:'id',SubmissionReconciliation:'id',TenderOutcome:'id'})
+ const dataSet=DataSet.fromJson({scenarioId:'S',tables:{SubmissionAttempt:{
+  modelBinding:{modelName:'SubmissionAttempt',modelId:'M'},
+  columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+  views:{default:{},originalRequest:views.SubmissionAttempt.originalRequest,originalEvents:views.SubmissionAttempt.originalEvents},
+ }}})
+ const save=vi.fn(async()=>{throw Error('UNEXPECTED_SUBMISSION_WRITE')})
+ let release=()=>{}
+ const first=new Promise<void>(resolve=>{release=resolve})
+ const mount=(name:'originalRequest'|'originalEvents',hold:boolean)=>{
+  const view=dataSet.getView('SubmissionAttempt',name)
+  if(!view)throw Error('TEST_SUBMISSION_VIEW_REQUIRED')
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'SubmissionAttempt'})
+  let queries=0
+  const execute=vi.fn(async()=>{
+   const initial=++queries===1
+   if(initial&&hold)await first
+   const rows=initial&&hold?[]:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]
+   return new DataSpaceQueryContext({identity:table.identity,scope:name,readScope:()=>name,
+    snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:rows.length,Items:rows}}}),
+   })
+  })
+  view.bindQueryExecutor({executeQuery:execute,save})
+  return {view,execute}
+ }
+ const request=mount('originalRequest',kind==='request'),events=mount('originalEvents',kind==='events')
+ const runtime={resolveView:(key:string)=>key==='S@SubmissionAttempt@originalRequest'?request.view:
+  key==='S@SubmissionAttempt@originalEvents'?events.view:undefined,generation:1,isLoaded:true,destroyed:false}
+ const host=createContentSubmissionScriptHost(runtime,{scenarioId:'S',projectId:'P',assertCurrent:()=>{}})
+ const signal=new AbortController().signal
+ const read=()=>host.invoke('content.submission.readOriginal',{...payload,requestDigest},signal)
+ const selected=kind==='request'?request:events
+ const outcome=read().then(value=>({value}),error=>({error}))
+ try{
+  await vi.waitFor(()=>expect(selected.execute).toHaveBeenCalledTimes(1))
+  await selected.view.refresh()
+  expect(selected.view.rows).toHaveLength(1)
+  release()
+  expect(await outcome).toMatchObject({error:expect.objectContaining({
+   message:kind==='request'?'SUBMISSION_REQUEST_READ_STALE':'SUBMISSION_EVENTS_STALE',
+  })})
+  expect(events.execute).toHaveBeenCalledTimes(kind==='request'?0:2)
+  await expect(read()).resolves.toMatchObject({status:'DISPATCHED',registered:true,evidenceRef:'EVENT'})
+  expect(save).not.toHaveBeenCalled()
+ }finally{release();await outcome;dataSet.destroy()}
+})

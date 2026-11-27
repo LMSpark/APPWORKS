@@ -2759,7 +2759,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-26T20:50:20.298Z"
+      "sourceModifiedAt": "2026-11-27T10:51:30.101Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -6314,7 +6314,7 @@
     "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-draft-save-reader.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.073Z"
+      "sourceModifiedAt": "2026-11-27T10:35:16.217Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-fact-version-reader.ts",
@@ -6514,7 +6514,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-events-reader.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.108Z"
+      "sourceModifiedAt": "2026-11-27T10:35:16.216Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-preflight.ts",
@@ -6529,7 +6529,7 @@
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-request-reader.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.109Z"
+      "sourceModifiedAt": "2026-11-27T10:35:16.215Z"
     },
     "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views.ts",
@@ -6634,7 +6634,7 @@
     "src/views/features/application/smart-bid/authority/original-registration-view.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/original-registration-view.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authority/original-registration-view.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.138Z"
+      "sourceModifiedAt": "2026-11-27T10:35:16.214Z"
     },
     "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
@@ -6659,7 +6659,7 @@
     "src/views/features/application/smart-bid/authority/resource-version-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authority/resource-version-reader.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authority/resource-version-reader.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:33.152Z"
+      "sourceModifiedAt": "2026-11-27T10:35:16.214Z"
     },
     "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/collaboration/handoff/bid-handoff-reader.ts",

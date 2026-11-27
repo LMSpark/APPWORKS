@@ -6,7 +6,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey,type DataView,type ViewMetadata} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
-import {originalRegistrationView,readOriginalRegistrationView} from './original-registration-view'
+import {assertRegistrationViewRefreshable,originalRegistrationView,readOriginalRegistrationView} from './original-registration-view'
 import {hasContentScopeCondition} from '../authoring/model/content-revision-reader'
 
 const fields=['id','typeVersion','validFrom','validTo','sourceTerms','rights']
@@ -36,13 +36,15 @@ async function readHistory(host:Parameters<typeof readOriginalRegistrationView>[
  const {runtime,scenarioId}=host
  const dataViewKey=buildDataViewKey(model,'versionHistory',scenarioId),view=runtime.resolveView(dataViewKey)
  if(!view||!isHistoryView(view)||view.hasEditingChanges())throw Error(error)
+ assertRegistrationViewRefreshable(view,error)
  view.queryContext={...view.queryContext,resourceId}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(dataViewKey)!==view||!isHistoryView(view)||view.loadingError||view.hasEditingChanges()||
    view.queryContext['resourceId']!==resourceId)throw Error(error)
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error(error)
  assertScope()
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true)throw Error('BID_RESOURCE_HISTORY_INCOMPLETE')
  const assertResult=view.captureReadResult(),knownVersions=new Set<string>()

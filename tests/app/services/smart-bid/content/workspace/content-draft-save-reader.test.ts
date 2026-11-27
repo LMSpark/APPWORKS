@@ -41,3 +41,44 @@ it('reads only the original authorized save result and keeps a missing result un
   await expect(readRegisteredOriginalContentDraftSave(host,input)).rejects.toThrow('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
  }finally{ds.destroy()}
 })
+
+it('rejects a superseded same-key original draft save read',async()=>{
+ const input={requestKey:'Q',requestDigest:'a'.repeat(64),contentDigest:'b'.repeat(64),expectedDraftVersion:'V1'}
+ const row={...input,id:'R',projectId:'P',draftId:'D',authorId:'U',state:'SAVED',draftVersion:'V2',receiptRef:'RC'}
+ const filters=['projectId','draftId','authorId','requestKey','requestDigest'].map(field=>({field,operator:'eq' as const,
+  value:{Type:'GetInputParam',ParamName:field}}))
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{SaveReceipt:{
+  modelBinding:{modelId:'R',modelName:'SaveReceipt'},
+  columns:Object.keys(row).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
+  views:{default:{},originalDraftSave:{commitMode:'staged',queryConfig:{autoQuery:false},scopeFilter:{logic:'and',filters}}},
+ }}})
+ const view=ds.getView('SaveReceipt','originalDraftSave')
+ if(!view)throw Error('TEST_RECEIPT_VIEW_REQUIRED')
+ const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'SaveReceipt'})
+ let release=()=>{},started=()=>{},calls=0,writes=0
+ const entered=new Promise<void>(resolve=>{started=resolve})
+ const gate=new Promise<void>(resolve=>{release=resolve})
+ view.bindQueryExecutor({save:async()=>{writes++;throw Error('NO_WRITE')},async executeQuery(){
+  const current=++calls
+  if(current===1){started();await gate}
+  const items=current===1?[]:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]
+  return new DataSpaceQueryContext({
+   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+    data:{Count:items.length,Items:items}}}),
+  })
+ }})
+ const receiptDataViewKey='S@SaveReceipt@originalDraftSave'
+ const host={runtime:{resolveView:(key:string)=>key===receiptDataViewKey?view:undefined},scenarioId:'S',projectId:'P',
+  draftId:'D',actorUserId:'U',receiptDataViewKey,assertCurrent:()=>{}}
+ try{
+  const original=readRegisteredOriginalContentDraftSave(host,input).then(value=>({state:value.state}),error=>({error}))
+  await entered
+  await view.refresh()
+  release()
+  const result=await original
+  expect(result).toHaveProperty('error.message','CONTENT_DRAFT_SAVE_RECEIPT_STALE')
+  expect(view.rows[0]).toMatchObject({receiptRef:'RC',state:'SAVED'})
+  expect(calls).toBe(2)
+  expect(writes).toBe(0)
+ }finally{release();ds.destroy()}
+})

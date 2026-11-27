@@ -47,6 +47,108 @@ it('reads the current channel in the trusted scope without reusing any historica
  }finally{ds.destroy()}
 })
 
+
+it.each(['replaced','busy'] as const)('binds Page19 authority to its own query when a read is %s', async mode => {
+  const row = {id:'CHANNEL',kind:'template',key:'PROPOSAL',scope:'ENTERPRISE',scopeId:'ORG',
+    version:'P1',state:'ACTIVE',hash:'a'.repeat(64)}
+  const ds = DataSet.fromJson({scenarioId:'S',tables:{ConfigChannel:{
+    modelBinding:{modelId:'C',modelName:'ConfigChannel'},
+    columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+    views:{default:{},currentChannel:configurationChannelReadView('id')},
+  }}})
+  const table = new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigChannel'})
+  const save = vi.fn(async () => {throw Error('NO_WRITE')})
+  let release!: () => void
+  let entered!: () => void
+  const waiting = new Promise<void>(resolve => {release = resolve})
+  const started = new Promise<void>(resolve => {entered = resolve})
+  let pointer = 'P1'
+  const read = vi.fn(async () => {
+    const version = pointer
+    if (version === 'P1') {entered(); await waiting}
+    return new DataSpaceQueryContext({identity:table.identity,scope:'channel',readScope:()=> 'channel',
+      snapshot:table.applyResult({Result:{primaryKeyField:'id',
+        data:{Count:1,Items:[{...row,version,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+      }})})
+  })
+  try {
+    const view = ds.getView('ConfigChannel','currentChannel')!
+    view.bindQueryExecutor({executeQuery:read,save})
+    const page = createConfigurationReleaseScriptHost({resolveView:()=>view,generation:1,isLoaded:true,destroyed:false},
+      {scenarioId:'S',scopeId:'ORG',configurationScope:'ENTERPRISE',assertCurrent:()=>{}})
+    const signal = new AbortController().signal
+    const invoke = () => Promise.resolve(page.invoke('configuration.release.readCurrentChannel',
+      {kind:row.kind,key:row.key},signal))
+    const original = invoke()
+    void original.catch(() => undefined)
+    await Promise.race([started,original])
+    pointer = 'P2'
+    if (mode === 'replaced') {
+      await view.refresh()
+      expect(view.rows[0]?.['version']).toBe('P2')
+      release()
+      await expect(original).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+      expect(read).toHaveBeenCalledTimes(2)
+      expect(view.rows[0]?.['version']).toBe('P2')
+    } else {
+      await expect(invoke()).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+      release()
+      await expect(original).resolves.toMatchObject({pointerVersion:'P1'})
+      await Promise.resolve()
+      expect(read).toHaveBeenCalledOnce()
+      expect(view.refreshPending).toBe(false)
+    }
+    await expect(invoke()).resolves.toMatchObject({pointerVersion:'P2'})
+    expect(save).not.toHaveBeenCalled()
+  } finally {release(); ds.destroy()}
+})
+
+it('does not schedule a Page19 read after a late edit prevents result adoption', async () => {
+  const row = {id:'CHANNEL',kind:'template',key:'PROPOSAL',scope:'ENTERPRISE',scopeId:'ORG',
+    version:'P1',state:'ACTIVE',hash:'a'.repeat(64)}
+  const ds = DataSet.fromJson({scenarioId:'S',tables:{ConfigChannel:{
+    modelBinding:{modelId:'C',modelName:'ConfigChannel'},
+    columns:Object.keys(row).map(name=>({name,isPrimaryKey:name==='id'})),
+    views:{default:{},currentChannel:configurationChannelReadView('id')},
+  }}})
+  let release!: () => void
+  let entered!: () => void
+  const held = new Promise<void>(resolve => {release = resolve})
+  const started = new Promise<void>(resolve => {entered = resolve})
+  const table = new DataSpaceQueryTable({scenarioId:'S',metaName:'ConfigChannel'})
+  const context = () => new DataSpaceQueryContext({identity:table.identity,scope:'channel',readScope:()=> 'channel',
+    snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:1,
+      Items:[{...row,lingma_sys_params:{r:[],e:['version'],h:[],m:[],d:false}}]},
+    }})})
+  const read = vi.fn(async () => context())
+  const save = vi.fn(async () => {throw new Error('NO_WRITE')})
+  try {
+    const view = ds.getView('ConfigChannel','currentChannel')!
+    view.bindQueryExecutor({executeQuery:read,save})
+    const page = createConfigurationReleaseScriptHost({resolveView:()=>view,generation:1,isLoaded:true,destroyed:false},
+      {scenarioId:'S',scopeId:'ORG',configurationScope:'ENTERPRISE',assertCurrent:()=>{}})
+    const signal = new AbortController().signal
+    const invoke = () => Promise.resolve(page.invoke('configuration.release.readCurrentChannel',
+      {kind:row.kind,key:row.key},signal))
+    await expect(invoke()).resolves.toMatchObject({pointerVersion:'P1'})
+    row.version = 'P2'
+    read.mockImplementationOnce(async () => {entered(); await held; return context()})
+    const original = invoke()
+    void original.catch(() => undefined)
+    await Promise.race([started,original])
+    view.updateEditingValue('CHANNEL','version','未提交的修改')
+    release()
+    await expect(original).rejects.toThrow('ORIGINAL_REGISTRATION_VIEW_REQUIRED')
+    expect(view.getEditingRow('CHANNEL')?.['version']).toBe('未提交的修改')
+    expect(view.refreshPending).toBe(false)
+    view.discardEditingRows(['CHANNEL'])
+    await new Promise<void>(resolve => {setTimeout(resolve,0)})
+    expect(read).toHaveBeenCalledTimes(2)
+    await expect(invoke()).resolves.toMatchObject({pointerVersion:'P2'})
+    expect(save).not.toHaveBeenCalled()
+  } finally {release(); ds.destroy()}
+})
+
 it('binds enablement evidence and stops parent inheritance for explicit disablement',async()=>{
  const scope={kind:'TEMPLATE',key:'PROPOSAL',scopeId:'ORG'}
  const version={versionId:'V1',digest:'a'.repeat(64)}

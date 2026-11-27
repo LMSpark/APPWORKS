@@ -5,6 +5,7 @@
  * AI用途：检查保存结果未知时是否可以从原办理视图确认结果。
  */
 import {parseDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../authority/original-registration-view'
 import {readOriginalContentDraftSave} from '@/services/smart-bid/content/draft/content-draft-save-recovery'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from './content-revision-reader'
@@ -33,13 +34,15 @@ export function readRegisteredOriginalContentDraftSave(host:ContentRevisionReadH
    const {authorId,requestKey,requestDigest}=request,context={projectId,draftId,authorId,requestKey,requestDigest}
    const view=runtime.resolveView(key)
    if(!view||!valid(view)||view.hasEditingChanges())throw Error('CONTENT_DRAFT_SAVE_RECEIPT_VIEW_REQUIRED')
+   assertRegistrationViewRefreshable(view,'CONTENT_DRAFT_SAVE_RECEIPT_STALE')
    view.queryContext={...view.queryContext,...context}
    const assertScope=()=>{
     host.assertCurrent()
     if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
      keys.some(field=>view.queryContext[field]!==context[field]))throw Error('CONTENT_DRAFT_SAVE_RECEIPT_STALE')
    }
-   await view.refresh()
+   const refreshed=await view.requestRefresh({defer:false})
+   if(refreshed.refreshStatus!=='read')throw Error('CONTENT_DRAFT_SAVE_RECEIPT_STALE')
    assertScope()
    if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true||view.rows.length>1)
     throw Error('CONTENT_DRAFT_SAVE_RECEIPT_INCOMPLETE')

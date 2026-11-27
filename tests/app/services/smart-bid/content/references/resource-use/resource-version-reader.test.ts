@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {authorityScenarioViews} from '@/views/features/application/smart-bid/authority/authority-scenario-views'
 import {DataSet} from '@spark-appworks/spark-data'
 import {createBidResourceVersionHost} from '@/views/features/application/smart-bid/authority/resource-version-reader'
@@ -62,3 +62,58 @@ it('shows only the requested original metadata and suppresses unauthorized prove
   await expect(page.invoke('bid.resources.readHistory',{},signal)).rejects.toThrow('BID_RESOURCE_HISTORY_INCOMPLETE')
  }finally{ds.destroy()}
 })
+
+
+
+it.each(['another-refresh','same-action'] as const)(
+ 'keeps Page05 history attached to its own query under %s', async mode=>{
+  const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'ResourceVersion'})
+  const fields=['id','resourceId','version','typeVersion','createdAt']
+  const views=authorityScenarioViews({AuthorityGrant:'id',ResourceVersion:'id',ResourceUseDecision:'id'})
+  const dataSet=DataSet.fromJson({scenarioId:'S',tables:{ResourceVersion:{
+   modelBinding:{modelName:'ResourceVersion',modelId:'M'},
+   columns:fields.map(name=>({name,isPrimaryKey:name==='id'})),
+   views:{default:{},...views.ResourceVersion},
+  }}})
+  const view=dataSet.getView('ResourceVersion','versionHistory')
+  if(!view)throw Error('TEST_HISTORY_VIEW_REQUIRED')
+  let release=()=>{}
+  const firstGate=new Promise<void>(resolve=>{release=resolve})
+  const execute=vi.fn(async()=>{
+   const query=execute.mock.calls.length
+   if(query===1)await firstGate
+   const rows=query===1?[{id:'VER-A',version:'V1'}]:[{id:'VER-B',version:'V2'},{id:'VER-C',version:'V3'}]
+   return new DataSpaceQueryContext({identity:table.identity,scope:'history',readScope:()=> 'history',
+    snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Count:rows.length,Items:rows.map(row=>({
+     ...row,resourceId:'RESOURCE',typeVersion:'LICENSE',createdAt:'2026-11-27T08:00:00Z',
+     lingma_sys_params:{r:[],e:[],h:[],m:[],d:false},
+    }))}}}),
+   })
+  })
+  const save=vi.fn(async()=>{throw Error('UNEXPECTED_HISTORY_WRITE')})
+  view.bindQueryExecutor({executeQuery:execute,save})
+  const runtime={resolveView:(key:string)=>key==='S@ResourceVersion@versionHistory'?view:undefined,generation:1,isLoaded:true,destroyed:false}
+  const host=createBidResourceVersionHost(runtime,{scenarioId:'S',resourceId:'RESOURCE',assertCurrent:()=>{}})
+  const signal=new AbortController().signal
+  const read=()=>host.invoke('bid.resources.readHistory',{},signal)
+  const settled=(result:ReturnType<typeof read>)=>result.then(value=>({value}),error=>({error}))
+  const original=settled(read())
+  try{
+   await vi.waitFor(()=>expect(execute).toHaveBeenCalledTimes(1))
+   if(mode==='another-refresh'){
+    await view.refresh()
+    expect(view.rows.map(row=>row['id'])).toEqual(['VER-B','VER-C'])
+    release()
+    expect(await original).toMatchObject({error:expect.objectContaining({message:'BID_RESOURCE_VERSION_SCOPE'})})
+    expect(view.rows.map(row=>row['id'])).toEqual(['VER-B','VER-C'])
+   }else{
+    expect(await settled(read())).toMatchObject({error:expect.objectContaining({message:'BID_RESOURCE_VERSION_SCOPE'})})
+    expect(execute).toHaveBeenCalledTimes(1)
+    release()
+    expect(await original).toMatchObject({value:{count:1}})
+    await expect(read()).resolves.toMatchObject({count:2})
+    expect(execute).toHaveBeenCalledTimes(2)
+   }
+   expect(save).not.toHaveBeenCalled()
+  }finally{release();await original;dataSet.destroy()}
+ })

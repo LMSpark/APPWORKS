@@ -2655,7 +2655,11 @@
         },
         "method.requestRefresh.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "defer": {
+              "type": "boolean"
+            }
+          },
           "additionalProperties": false
         },
         "method.requestRefresh.return": {
@@ -3582,7 +3586,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T20:50:20.298Z",
+  "generatedAt": "2026-11-27T10:51:30.101Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -7333,8 +7337,26 @@
             },
             {
               "name": "requestRefresh",
-              "jsdoc": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n@returns 本次刷新已读、延期、失败或失效。延期登记返回 success=true，后续异步失败由 requestState 和 loadingError 报告。",
-              "parameters": [],
+              "jsdoc": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n显式证据读取可传 defer=false。受阻时立即失败，保留已有延期请求，不登记本次请求。\n@returns 本次刷新已读、延期、失败或失效。延期登记返回 success=true，后续异步失败由 requestState 和 loadingError 报告。",
+              "parameterStyle": "named",
+              "parameters": [
+                {
+                  "name": "{ defer }",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        defer?: boolean;\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

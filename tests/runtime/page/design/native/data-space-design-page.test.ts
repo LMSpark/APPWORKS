@@ -2646,9 +2646,9 @@ async function chooseBound(wrapper: Pick<VueWrapper, 'findAllComponents'>, label
     expect(control.props('disabled')).toBe(false)
     control.vm.$emit('update:modelValue', value === 1); await flushPromises(); return
   }
+  await vi.waitFor(() => expect(boundSelect(wrapper, label).props('disabled')).toBe(false))
   const select = await openBoundSelect(wrapper, label)
-  expect(select.props('disabled')).toBe(false)
-  expect(select.findAllComponents(ElOption).map(option => option.props('value'))).toContain(value)
+  await vi.waitFor(() => expect(select.findAllComponents(ElOption).map(option => option.props('value'))).toContain(value))
   const selectedOption = select.findAllComponents(ElOption).find(option => {
     const optionValue: unknown = option.props('value')
     return optionValue === value

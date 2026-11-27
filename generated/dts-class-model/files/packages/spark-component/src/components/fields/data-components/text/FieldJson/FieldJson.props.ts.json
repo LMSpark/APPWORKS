@@ -240,8 +240,8 @@
           "type": "array",
           "items": {
             "enum": [
-              "delete",
               "create",
+              "delete",
               "edit"
             ]
           }
@@ -285,7 +285,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-20T20:59:31.889Z",
   "models": {
     "JsonArrayRowAdapter": {
       "name": "JsonArrayRowAdapter",

@@ -29,6 +29,21 @@
       "type": "object",
       "title": "DataSetCommandColumnSpec",
       "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "type": {
           "anyOf": [
             {
@@ -44,19 +59,43 @@
               "const": "object"
             },
             {
-              "const": "array"
+              "const": "text"
+            },
+            {
+              "const": "int"
+            },
+            {
+              "const": "integer"
             },
             {
               "const": "decimal"
             },
             {
+              "const": "float"
+            },
+            {
+              "const": "double"
+            },
+            {
+              "const": "varchar"
+            },
+            {
+              "const": "bool"
+            },
+            {
               "const": "date"
             },
             {
-              "const": "text"
+              "const": "datetime"
             },
             {
               "const": "time"
+            },
+            {
+              "const": "array"
+            },
+            {
+              "const": "enum"
             },
             {
               "type": "object",
@@ -309,55 +348,7 @@
                 "at"
               ],
               "additionalProperties": false
-            },
-            {
-              "const": "int"
-            },
-            {
-              "const": "integer"
-            },
-            {
-              "const": "float"
-            },
-            {
-              "const": "double"
-            },
-            {
-              "const": "varchar"
-            },
-            {
-              "const": "bool"
-            },
-            {
-              "const": "datetime"
-            },
-            {
-              "const": "enum"
             }
-          ]
-        },
-        "trim": {
-          "enum": [
-            "reject",
-            "normalize"
-          ]
-        },
-        "label": {
-          "type": "string"
-        },
-        "pattern": {
-          "type": "string"
-        },
-        "min": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number"
-        },
-        "required": {
-          "enum": [
-            false,
-            true
           ]
         },
         "minLength": {
@@ -365,6 +356,9 @@
         },
         "maxLength": {
           "type": "number"
+        },
+        "pattern": {
+          "type": "string"
         },
         "allowDBNull": {
           "enum": [
@@ -393,6 +387,12 @@
         },
         "patternMessage": {
           "type": "string"
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
         },
         "unique": {
           "enum": [
@@ -859,7 +859,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-26T17:46:54.021Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",

@@ -56,7 +56,7 @@
         },
         "contextDataMember": {
           "type": "object",
-          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"selectedRows\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\" | undefined>"
+          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"selectedRows\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\" | undefined>"
         },
         "contextDataField": {
           "type": "object",
@@ -195,7 +195,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-20T20:59:31.621Z",
   "models": {
     "DataSourceLoggerLike": {
       "name": "DataSourceLoggerLike",

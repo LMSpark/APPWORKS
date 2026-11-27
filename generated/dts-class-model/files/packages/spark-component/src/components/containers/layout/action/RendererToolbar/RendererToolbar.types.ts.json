@@ -149,16 +149,16 @@
         "align": {
           "enum": [
             "start",
-            "center",
             "end",
+            "center",
             "stretch"
           ]
         },
         "justify": {
           "enum": [
             "start",
-            "center",
             "end",
+            "center",
             "space-between"
           ]
         }
@@ -166,7 +166,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-20T20:59:31.643Z",
   "models": {
     "InlineAlign": {
       "name": "InlineAlign",

@@ -189,19 +189,43 @@
           "const": "object"
         },
         {
-          "const": "array"
+          "const": "text"
+        },
+        {
+          "const": "int"
+        },
+        {
+          "const": "integer"
         },
         {
           "const": "decimal"
         },
         {
+          "const": "float"
+        },
+        {
+          "const": "double"
+        },
+        {
+          "const": "varchar"
+        },
+        {
+          "const": "bool"
+        },
+        {
           "const": "date"
         },
         {
-          "const": "text"
+          "const": "datetime"
         },
         {
           "const": "time"
+        },
+        {
+          "const": "array"
+        },
+        {
+          "const": "enum"
         },
         {
           "type": "object",
@@ -454,30 +478,6 @@
             "at"
           ],
           "additionalProperties": false
-        },
-        {
-          "const": "int"
-        },
-        {
-          "const": "integer"
-        },
-        {
-          "const": "float"
-        },
-        {
-          "const": "double"
-        },
-        {
-          "const": "varchar"
-        },
-        {
-          "const": "bool"
-        },
-        {
-          "const": "datetime"
-        },
-        {
-          "const": "enum"
         }
       ]
     },
@@ -3259,8 +3259,8 @@
         },
         "direction": {
           "enum": [
-            "desc",
-            "asc"
+            "asc",
+            "desc"
           ]
         }
       },
@@ -3369,8 +3369,8 @@
         "sortDirection": {
           "enum": [
             null,
-            "desc",
-            "asc"
+            "asc",
+            "desc"
           ]
         },
         "group": {
@@ -3518,17 +3518,17 @@
                 "$ref": "#/$defs/DataViewQueryChild"
               }
             },
-            "pagination": {
-              "enum": [
-                "paged",
-                "none"
-              ]
-            },
             "fields": {
               "type": "array",
               "items": {
                 "type": "string"
               }
+            },
+            "pagination": {
+              "enum": [
+                "paged",
+                "none"
+              ]
             },
             "parentResult": {
               "type": "object",
@@ -7498,7 +7498,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-27T14:05:50.000Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",

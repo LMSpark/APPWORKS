@@ -53,8 +53,8 @@
         "mode": {
           "enum": [
             "text",
-            "table",
-            "tree"
+            "tree",
+            "table"
           ]
         },
         "indentation": {
@@ -112,7 +112,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-20T20:59:31.814Z",
   "models": {
     "SparkJsonEditorMode": {
       "name": "SparkJsonEditorMode",

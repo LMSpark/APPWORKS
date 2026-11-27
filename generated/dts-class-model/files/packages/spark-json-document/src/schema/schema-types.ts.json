@@ -64,13 +64,13 @@
               "const": "object"
             },
             {
+              "const": "integer"
+            },
+            {
               "const": "array"
             },
             {
               "const": "null"
-            },
-            {
-              "const": "integer"
             },
             {
               "type": "array",
@@ -215,7 +215,7 @@
       "additionalProperties": true
     }
   },
-  "generatedAt": "2026-11-27T21:55:30.000Z",
+  "generatedAt": "2026-11-20T20:59:32.187Z",
   "models": {
     "JsonSchemaType": {
       "name": "JsonSchemaType",

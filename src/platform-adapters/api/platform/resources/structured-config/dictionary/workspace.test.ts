@@ -1279,3 +1279,56 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(() => DictionarySchema.validateEntry({...initialEntry, val: value}, {...initialDefinition, dictionaryType: '1'})).toThrow()
   })
 })
+
+it('settles the same DataSet dictionary batch after an original read temporarily fails', async () => {
+  const {workspace, http, dataSet} = fixture()
+  try {
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '实际提交值')
+    http.failAfterWrite = true
+    await expect(workspace.saveData()).rejects.toThrow()
+    const batchId = dataSet.saveJournal.batchId
+    expect(dataSet.saveJournal.views).toMatchObject([{tableName: '_Base_DictData', state: 'unknown'}])
+    http.failAfterWrite = false
+    http.failReads = true
+    const before = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(http.reads).toHaveLength(before + 1)
+    expect(dataSet.saveJournal).toMatchObject({batchId, completed: false})
+    http.failReads = false
+    await expect(workspace.load(true)).resolves.toBeUndefined()
+    expect(http.saves).toHaveLength(1)
+    expect(dataSet.saveJournal).toMatchObject({batchId, completed: true,
+      views: [{tableName: '_Base_DictData', state: 'applied'}]})
+    const reopened = fixture(http)
+    try {
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows[0]?.['exVal_4']).toBe('实际提交值')
+    } finally {reopened.dataSet.destroy()}
+  } finally {dataSet.destroy()}
+})
+
+it('verifies the dictionary capture without consuming a separate pending definition', async () => {
+  const {workspace, http, dataSet} = fixture()
+  try {
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '已写的条目')
+    http.failAfterWrite = true
+    await expect(workspace.saveData()).rejects.toThrow()
+    const batchId = dataSet.saveJournal.batchId
+    http.failAfterWrite = false
+    http.failBeforeWrite = true
+    workspace.definition.updateEditingValue('D1', 'TypeName', '独立待核定义')
+    await expect(dataSet.saveChanges({views: [{tableName: workspace.definition.tableName,
+      viewId: workspace.definition.viewId, ids: ['D1']}]})).rejects.toThrow()
+    http.failBeforeWrite = false
+    const reads = http.reads.length
+    await expect(workspace.load(true)).rejects.toThrow('仍有随后发生的编辑')
+    expect(http.reads).toHaveLength(reads + 1)
+    expect(http.saves).toHaveLength(2)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
+    expect(dataSet.saveJournal).toMatchObject({batchId, completed: true,
+      views: [{tableName: '_Base_DictData', state: 'applied'}]})
+  } finally {dataSet.destroy()}
+})

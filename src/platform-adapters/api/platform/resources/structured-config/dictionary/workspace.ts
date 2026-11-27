@@ -4,7 +4,7 @@
  * 边界：不发送HTTP、不保存第二份行数据、不把字典查询授权转换为元记录维护授权。
  * AI用途：设计页绑定definition，独立数据页绑定entries并消费已保存标题，各自通过明确的保存方法提交。
  */
-import {DataView, DataViewFilter, RequestState, type DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {DataViewFilter, RequestState, type DataView, type DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {deriveAiDataEntryFields} from '@spark-appworks/spark-ai/agent'
 import {DictionarySchema} from './schema'
 
@@ -97,7 +97,7 @@ export class DictionaryWorkspace {
         if (this.#unconfirmed.some(({view, ids, failure}) => !failure || !view.hasUnconfirmedSaveFor(ids, failure))) {
           throw new Error('字典提交结果缺少可核验的原捕获，不能安全重读')
         }
-        const resolution = await DataView.resolveQuerySaves(this.#unconfirmed.map(item => item.view))
+        const resolution = await this.#input.dataSet.resolveUnconfirmedSaves(this.#unconfirmed.map(item => item.view))
         this.#unconfirmed = this.#unconfirmed.filter(capture => {
           const result = resolution.views.find(item => item.tableName === capture.view.tableName && item.viewId === capture.view.viewId)
           if (result?.state === 'unknown' && result.error && capture.view.hasUnconfirmedSaveFor(capture.ids, result.error)) {

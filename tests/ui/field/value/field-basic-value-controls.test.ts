@@ -381,6 +381,29 @@ describe('基础值字段组件', () => {
     expect(wrapper.find('.el-input-stub').attributes('data-value')).toBe('Bob')
   })
 
+
+  it('resolves the declared mention candidate view in the active field', () => {
+    const dataSet = SparkData.createDataSet({dataSetName:'Mention', scenarioId:'extra', tables:{
+      Orders:{tableName:'Orders', resourceType:'static-data',
+        columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'name',type:'string'}],
+        views:{default:{rows:[{id:'chosen',name:'Original candidate'}]}}},
+    }})
+    const open = (key: string) => mountFieldInContext({component:FieldMention, type:'r-mention',
+      model:{assignee:''}, fieldName:'assignee', pageDataSet:dataSet,
+      componentProps:{mentionTriggers:[{prefix:'@',split:' ',options:{dataViewKey:key,valueField:'id',labelField:'name'}}]},
+      global:{stubs:{'el-form-item':ElFormItemStub,'el-mention':ElMentionStub}},
+    })
+    try {
+      const wrapper = open('extra@Orders@default')
+      try {
+        expect(wrapper.getComponent(ElMentionStub).props('options')).toEqual([
+          {value:'Original candidate',label:'Original candidate',persistedValue:'chosen'},
+        ])
+      } finally {wrapper.unmount()}
+      expect(() => open('extra@Orders@missing')).toThrow('DATA_VIEW_MISSING: extra@Orders@missing')
+    } finally {dataSet.destroy()}
+  })
+
   it('FieldMention 在缺失 DATA_ROW 时应通过 DATA_SOURCE.currentRow 写回字段', async () => {
     const view = await createCurrentRowDataView({ assignee: '' })
     const { registry, rootContext } = Spark.createSystem()

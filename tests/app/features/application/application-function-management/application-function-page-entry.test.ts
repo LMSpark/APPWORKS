@@ -36,7 +36,8 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
     return capturedPage
   }}
 })
-const fixtureState = vi.hoisted(() => ({current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
+type BlueprintReceiptFixture = {hostRows:DataRow[];desktopRows:DataRow[];readDesktop?:()=>DataRow[];remapHost?:boolean;loseDesktop?:boolean}
+const fixtureState = vi.hoisted(() => ({desktopReceipt:undefined as BlueprintReceiptFixture|undefined,current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
   patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>),
   catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[], applications: undefined as DataRow[] | undefined}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
@@ -102,7 +103,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; fixtureState.applications = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.desktopReceipt=undefined;fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; fixtureState.applications = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown, context: Readonly<Record<string, unknown>> = {}): boolean {
   if (!isDataRow(filter)) return true
@@ -163,12 +164,18 @@ function catalogDataSet(numericFlags = false) {
         filterExpression: {field: 'SysId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'projectId'}}}} : {})}}]
   }))
   for (const table of CATALOG_MODEL_TABLES) tables[table] = pagedataTable(blueprintPagedata.tables[table]!)
+  if(fixtureState.desktopReceipt){
+    for(const table of ['Base_Navigation_DataRelation','Base_Desktop_System','Base_DataSet'])
+      tables[table]=pagedataTable(blueprintPagedata.tables[table]!)
+    const host = tables['Base_Navigation_DataRelation']
+    if(isDataRow(host) && Array.isArray(host['columns']))host['columns'].push({name:'title',type:'string',isPrimaryKey:false})
+  }
   const dataSet = DataSet.fromJson({scenarioId: CATALOG, tables})
   datasets.push(dataSet)
   return dataSet
 }
 
-function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean; omitOutput?: readonly string[]}> = {}) {
+function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean; omitOutput?: readonly string[]; readRows?:()=>DataRow[];remapAdded?:boolean;loseReply?:boolean}> = {}) {
   const hidden = options.hidden ?? []
   const crud = options.crud ? 'enabled' as const : 'disabled' as const
   const result = (selected: DataRow[]) => ({
@@ -191,9 +198,14 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
     viewActionState: () => 'enabled' as const,
   })
   type Save = NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>
+  let lostReply:Awaited<ReturnType<Save>>|undefined
+  let lostOnce=false
   const save = vi.fn(async (command: Parameters<Save>[0]) =>
-    command.changes.map(change => {
-      const changed = change.changes.changed ?? [], added = change.changes.added ?? [], deleted = change.changes.deleted ?? []
+    {
+    if(lostReply)return lostReply
+    const receipts=command.changes.map(change => {
+      const changed = change.changes.changed ?? [], deleted = change.changes.deleted ?? []
+      const added = (change.changes.added ?? []).map(row=>options.remapAdded?{...row,rowid:'FORMAL-HOST'}:row)
       for (const patch of changed) {
         const row = rows.find(candidate => candidate['rowid'] === patch['rowid'])
         if (!row) throw new Error('test save target missing')
@@ -210,14 +222,19 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
       }
       return {metaName: change.identity.metaName, changed, added, deleted,
         changedFields: changed.map(row => Object.keys(row)), context: result(rows)}
-    }))
+    })
+     if(options.loseReply&&!lostOnce){lostOnce=true;lostReply=receipts;throw Error('回执中断')}
+     return receipts
+    })
   view.bindQueryExecutor({queryColumns: target => target.columns.filter(column => !options.omitOutput?.includes(column.name)),
     executeQuery: async (_target, params) => {
       const parsed = params.filter === undefined ? undefined : DataViewFilter.parse(params.filter)
       if (parsed && !parsed.ok) throw new Error('fixture query filter is invalid')
       const filter = parsed?.value.bindInputParams(params.context ?? {}).toJSON()
-      return result(rows.filter(row => matches(row, filter, params.context ?? {})))
+      return result((options.readRows?.()??rows).filter(row => matches(row, filter, params.context ?? {})))
     }, save,
+    hasUnconfirmedSave:()=>lostReply!==undefined,
+    acknowledgeSave:()=>{lostReply=undefined;return undefined},
     appendQueryResult: (base, addition) => {
       const keys = new Set(base.rows.map(row => row['rowid']))
       return result([...base.rows, ...addition.rows.filter(row => !keys.has(row['rowid']))].map(row => ({...row})))
@@ -251,6 +268,14 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   bindRows(ownerDataSet.getView('Base_NavigationInfo', 'savedProjectNodes')!, rows)
   bindAllViews(ownerDataSet, blueprintPagedata.tables, 'Base_DataModel', fixtureState.catalogModels)
   bindAllViews(ownerDataSet, blueprintPagedata.tables, 'Base_DataModel_Field', fixtureState.catalogFields)
+  const receiptFixture=fixtureState.desktopReceipt
+  const receiptSaves=receiptFixture?{
+    host:bindRows(ownerDataSet.getView('Base_Navigation_DataRelation','byNode')!,receiptFixture.hostRows,{crud:true,...(receiptFixture.remapHost?{remapAdded:true}:{})}),
+    desktop:bindRows(ownerDataSet.getView('Base_Desktop_System','byNode')!,receiptFixture.desktopRows,{
+      crud:true,...(receiptFixture.readDesktop?{readRows:receiptFixture.readDesktop}:{}),...(receiptFixture.loseDesktop?{loseReply:true}:{}),
+    }),
+  }:undefined
+  if(receiptFixture)bindRows(ownerDataSet.getView('Base_DataSet','navHostDataSets')!,[])
   const versionRows: DataRow[] = [
     {rowid: 'VER-1', prowid: 'NODE-1', VersionName: 'Tester[2024-01-01 00:00:00] first', desc: '<p>v1<script>x()</script></p>'},
     {rowid: 'VER-OTHER', prowid: 'NODE-2', VersionName: 'other', desc: '<p>other</p>'},
@@ -363,7 +388,7 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
   }})
   disposals.push(() => wrapper.unmount())
   await flushPromises()
-  return {page: readPageInstance(), state, owner, view, rows, save, wrapper, router, path, versionRows, versionSave}
+  return {page: readPageInstance(), state, owner, view, rows, save, wrapper, router, path, versionRows, versionSave, receiptSaves}
 }
 
 describe('application function page entry', () => {
@@ -1166,6 +1191,122 @@ describe('application function page dimension source design', () => {
 })
 
 describe('application function page navigation and delivery', () => {
+  it('compares the submitted field value after editing moves into the original dirty row',async()=>{
+    const hosts:DataRow[]=[{rowid:'H1',prowid:'NODE-1',title:'旧值'}]
+    fixtureState.desktopReceipt={hostRows:hosts,desktopRows:[]}
+    const {page,receiptSaves}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.navHost.view.value?.rows).toHaveLength(1))
+    const view=page.navHost.view.value!
+    await page.navHost.openEdit(view.rows[0]!)
+    view.updateEditingValue('H1','title','正式新值')
+    expect((await view.applyEditingRows(['H1'])).success).toBe(true)
+    await page.navHost.save()
+    expect(receiptSaves?.host).toHaveBeenCalledTimes(1)
+    expect(hosts[0]?.['title']).toBe('正式新值')
+    expect(page.navHost.dialogError.value).toBe('')
+    expect(page.notice.value).toBe('修改导航宿主成功')
+  })
+  it('can reopen the original desktop receipt after returning to its node',async()=>{
+    const rows:DataRow[]=[]
+    fixtureState.desktopReceipt={hostRows:[],desktopRows:rows,loseDesktop:true}
+    const {page,router,path}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.desktop.view.value).toBeDefined())
+    const target=page.desktop.view.value!
+    await page.desktop.toggle()
+    await page.desktop.saveCreate()
+    expect(target.hasUnconfirmedSave).toBe(true)
+    expect(rows).toHaveLength(1)
+    const ordinary=vi.spyOn(target.dataSet!,'saveChanges')
+    try{
+      await router.push({path,query:{...router.currentRoute.value.query,nodeId:'NODE-2'}})
+      await vi.waitFor(()=>expect(page.selectedNodeId.value).toBe('NODE-2'))
+      expect(target.queryContext['nodeId']).toBe('NODE-1')
+      await router.push({path,query:{...router.currentRoute.value.query,nodeId:'NODE-1'}})
+      await vi.waitFor(()=>expect(page.desktop.dialogOpen.value).toBe(true))
+      await page.desktop.saveCreate()
+      expect(ordinary).not.toHaveBeenCalled()
+      expect(page.desktop.dialogError.value).toBe('')
+      expect(page.notice.value).toBe('桌面显示保存成功')
+      expect(rows).toHaveLength(1)
+    }finally{ordinary.mockRestore()}
+  })
+  it('uses the confirmed navigation host key when the service assigns another key',async()=>{
+    const hosts:DataRow[]=[{rowid:'OLDER',prowid:'NODE-1'}]
+    fixtureState.desktopReceipt={hostRows:hosts,desktopRows:[],remapHost:true}
+    const {page,receiptSaves}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.navHost.view.value?.rows).toHaveLength(1))
+    await page.navHost.openCreate()
+    expect(page.navHost.editingId.value).toMatch(/^NEW-/)
+    await page.navHost.save()
+    expect(receiptSaves?.host).toHaveBeenCalledTimes(1)
+    expect(hosts.map(row=>row['rowid'])).toEqual(['OLDER','FORMAL-HOST'])
+    expect(page.navHost.dialogError.value).toBe('')
+    expect(page.notice.value).toBe('新增导航宿主成功')
+  })
+  it('does not feed a late desktop readback into a reselected instance of the same node',async()=>{
+    fixtureState.desktopReceipt={hostRows:[],desktopRows:[]}
+    const {page,receiptSaves,router,path}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.desktop.view.value).toBeDefined())
+    const target=page.desktop.view.value!
+    const refresh=target.requestRefresh.bind(target)
+    let release!:()=>void
+    const held=new Promise<void>(resolve=>{release=resolve})
+    const read=vi.spyOn(target,'requestRefresh').mockImplementationOnce(async options=>{
+      const outcome=await refresh(options)
+      await held
+      return outcome
+    })
+    await page.desktop.toggle()
+    const save=page.desktop.saveCreate()
+    try{
+      await vi.waitFor(()=>expect(read).toHaveBeenCalledTimes(1))
+      await router.push({path,query:{...router.currentRoute.value.query,nodeId:'NODE-2'}})
+      await vi.waitFor(()=>expect(page.selectedNodeId.value).toBe('NODE-2'))
+      await router.push({path,query:{...router.currentRoute.value.query,nodeId:'NODE-1'}})
+      await vi.waitFor(()=>expect(page.selectedNodeId.value).toBe('NODE-1'))
+    }finally{release();await save;read.mockRestore()}
+    expect(page.notice.value).not.toContain('桌面显示保存成功')
+    expect(page.desktop.readbackPending.value).toBe(true)
+    expect(page.desktop.dialogOpen.value).toBe(true)
+    await page.desktop.saveCreate()
+    expect(page.notice.value).toBe('桌面显示保存成功')
+    expect(receiptSaves?.desktop).toHaveBeenCalledTimes(1)
+  })
+  it('does not announce a saved navigation host after an unchanged form',async()=>{
+    fixtureState.desktopReceipt={hostRows:[{rowid:'H1',prowid:'NODE-1'}],desktopRows:[]}
+    const {page,receiptSaves}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.navHost.view.value?.rows).toHaveLength(1))
+    await page.navHost.openEdit(page.navHost.view.value!.rows[0]!)
+    await page.navHost.save()
+    expect(receiptSaves?.host).not.toHaveBeenCalled()
+    expect(page.notice.value).toContain('未提交')
+  })
+  it.each(['create','delete'] as const)('reports desktop %s as confirmed but readback not established',async operation=>{
+    const persisted:DataRow[]=operation==='delete'?[{rowid:'NODE-1'}]:[]
+    let alleged=structuredClone(persisted)
+    fixtureState.desktopReceipt={hostRows:[],desktopRows:persisted,readDesktop:()=>alleged}
+    const {page,receiptSaves}=await setup({nodeId:'NODE-1',blueprintTab:'navAttr'})
+    await vi.waitFor(()=>expect(page.desktop.view.value).toBeDefined())
+    await page.desktop.toggle()
+    if(operation==='create')await page.desktop.saveCreate()
+    else await page.desktop.confirmRemove()
+    expect(receiptSaves?.desktop).toHaveBeenCalledTimes(1)
+    expect(persisted).toHaveLength(operation==='create'?1:0)
+    expect(page.desktop.dialogError.value).toContain('已确认')
+    expect(page.desktop.dialogError.value).toContain('回读')
+    expect(page.notice.value).not.toContain('成功')
+    if(operation==='create')page.desktop.cancelCreate()
+    else page.desktop.cancelRemove()
+    expect(page.desktop.readbackPending.value).toBe(true)
+    await page.desktop.toggle()
+    alleged=structuredClone(persisted)
+    if(operation==='create')await page.desktop.saveCreate()
+    else await page.desktop.confirmRemove()
+    expect(receiptSaves?.desktop).toHaveBeenCalledTimes(1)
+    expect(page.desktop.dialogError.value).toBe('')
+    expect(page.notice.value).toContain('成功')
+  })
+
   it('opens the navAttr deep link, loads navigation dictionaries and shows why desktop and host are unavailable', async () => {
     const readModel = vi.spyOn(lowcodeApi.dataSpace.design, 'readModel').mockRejectedValue(new Error('模型不存在'))
     const readSpace = vi.spyOn(lowcodeApi.dataSpace.design, 'readSpaceDefinition')

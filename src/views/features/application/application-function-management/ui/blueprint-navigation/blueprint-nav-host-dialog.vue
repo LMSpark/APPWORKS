@@ -9,7 +9,7 @@ AI用途：调整宿主列表列或表单分组时只改本组件；业务动作
   <section class="blueprint-nav-host">
     <div class="blueprint-nav-host__toolbar">
       <h3>导航宿主</h3>
-      <RendererButton label="新增" button-type="primary" :disabled="!host.view.value || host.busy.value || host.loading.value || !host.canCreate.value" @click="host.openCreate" />
+      <RendererButton :label="host.readbackPending.value ? '重试宿主回读' : '新增'" button-type="primary" :disabled="!host.view.value || host.busy.value || host.loading.value || (!host.readbackPending.value && !host.canCreate.value)" @click="host.openCreate" />
     </div>
     <DisplayAlert v-if="host.error.value" :description="host.error.value" alert-type="error" />
     <RendererTable v-if="host.listKey.value" :data-view-key="host.listKey.value" :children="columns" :actions="actions" :stripe="true" :show-row-index="true"
@@ -36,7 +36,7 @@ AI用途：调整宿主列表列或表单分组时只改本组件；业务动作
       </RendererForm>
       <template #footer>
         <RendererButton label="取消" :disabled="host.busy.value || host.unknown.value" @click="host.cancelEdit()" />
-        <RendererButton :label="host.unknown.value ? '核验保存结果' : '保存'" button-type="primary" :loading="host.busy.value" @click="host.save" />
+        <RendererButton :label="host.readbackPending.value ? '重试回读' : host.unknown.value ? '核验保存结果' : '保存'" button-type="primary" :loading="host.busy.value" @click="host.save" />
       </template>
     </RendererDialog>
 
@@ -46,7 +46,7 @@ AI用途：调整宿主列表列或表单分组时只改本组件；业务动作
       <DisplayAlert v-if="host.dialogError.value" :description="host.dialogError.value" alert-type="error" />
       <template #footer>
         <RendererButton label="取消" :disabled="host.busy.value || host.unknown.value" @click="host.cancelRemove()" />
-        <RendererButton :label="host.unknown.value ? '核验删除结果' : '确定'" button-type="danger" :loading="host.busy.value" @click="host.confirmRemove" />
+        <RendererButton :label="host.readbackPending.value ? '重试回读' : host.unknown.value ? '核验删除结果' : '确定'" button-type="danger" :loading="host.busy.value" @click="host.confirmRemove" />
       </template>
     </RendererDialog>
 

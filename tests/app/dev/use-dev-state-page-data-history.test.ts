@@ -1125,6 +1125,92 @@ describe('tool and shared scenario editing owners',()=>{
    } finally {wrapper.unmount()}
   })
 
+
+  const missingView = 'extra@Orders@missing'
+  const viewBindingCases = [
+   {name:'mention trigger', node:{type:'r-mention', props:{field:'id', mentionTriggers:[
+     {prefix:'@', split:' ', options:{dataViewKey:'Orders@default'}},
+     {prefix:'#', split:' ', options:{dataViewKey:missingView}},
+   ]}}},
+   {name:'popover content', node:{type:'r-popover', props:{contentChildren:[{type:'r-form', props:{dataViewKey:missingView}}]}}},
+   {name:'field header', node:{type:'r-table', props:{dataViewKey:'Orders@default'}, children:[
+    {type:'r-text', props:{field:'id',header:{type:'r-form',props:{dataViewKey:missingView}}}},
+   ]}},
+   {name:'original simple header', node:{type:'r-form',props:{header:{dataViewKey:missingView}}}},
+   {name:'nested JSON form option', node:{type:'r-json', props:{field:'id',mode:'form',schema:{
+    properties:{outer:{type:'object',properties:{choice:{type:'string','x-optionDataViewKey':missingView}}}},
+   }}}},
+   {name:'JSON form array option', node:{type:'r-json',props:{field:'id',mode:'form',schema:{
+    properties:{choices:{type:'array',items:{type:'string'},'x-optionDataViewKey':missingView}},
+   }}}},
+  ]
+  it.each(['pagedata', 'Dataset Plan'].flatMap(kind => viewBindingCases.map(entry => ({kind,...entry}))))
+   ('checks the published $name before writing with $kind', async ({kind,node}) => {
+   configurePublicationSources(kind)
+   const rule = JSON.stringify([{type:'r-form',props:{dataViewKey:'Orders@default'},children:[node]}])
+   const {page, state, save, wrapper} = await openPublication(rule)
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join(' ')
+    await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect({wrotePointer:save.mock.calls.length, toolVersions:designVersions.size, scenarioVersions:scenarioVersions.size,
+     workingFiles:designWorking.size, status:status()}).toEqual({
+     wrotePointer:0, toolVersions:0, scenarioVersions:0, workingFiles:0,
+     status:expect.stringContaining('页面绑定的视图不存在: extra@Orders@missing'),
+    })
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['pagedata', 'Dataset Plan'].flatMap(kind => ['Orders@default', '', null].map(key => ({kind,key}))))
+   ('checks the published JSON option requires a complete key $key with $kind', async ({kind,key}) => {
+   configurePublicationSources(kind)
+   const rule = JSON.stringify([{type:'r-json',props:{field:'id',mode:'form',schema:{
+    properties:{choice:{type:'string','x-optionDataViewKey':key}},
+   }}}])
+   const {page,state,save,wrapper} = await openPublication(rule)
+   try {
+    page.actions.value.saveDelivery()
+    const status = () => state.statusMessages.value.map(message => message.text).join(' ')
+    await vi.waitFor(() => expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
+    expect(status()).toContain('JSON_OPTION_VIEW: 选项必须使用完整数据视图键')
+    expect([designVersions.size,scenarioVersions.size,designWorking.size,save.mock.calls.length]).toEqual([0,0,0,0])
+   } finally {wrapper.unmount()}
+  })
+
+  it.each(['pagedata', 'Dataset Plan'])('publishes declared view bindings and preserves ordinary business data with %s', async kind => {
+   configurePublicationSources(kind)
+   const trigger = {prefix:'@', split:' ', options:{dataViewKey:'extra@Orders@default'}}
+   const business = {'x-optionDataViewKey':'business-value'}
+   const excluded = {properties:{choice:{type:'string',...business}}}
+   const rule = JSON.stringify([{type:'r-form', props:{dataViewKey:'Orders@default'}, children:[
+    {type:'r-mention', props:{field:'id', mentionTriggers:[trigger]}},
+    {type:'r-popover', props:{contentChildren:[{type:'r-form',props:{dataViewKey:'Orders@default'}}]}},
+    {type:'r-table',props:{dataViewKey:'Orders@default'},children:[{type:'r-text',props:{field:'id',
+     header:{type:'r-form',props:{dataViewKey:'extra@Orders@default'}}}}]},
+    {type:'r-json',props:{mode:'form',field:'id',schema:{...business,properties:{
+     outer:{type:'object',...business,properties:{choice:{type:'string','x-optionDataViewKey':'extra@Orders@default',
+      default:business,examples:[business],enum:[business],oneOf:[business]}}},
+     choices:{type:'array',items:{type:'string',...business},'x-optionDataViewKey':'extra@Orders@default'},
+    }}}},
+    {type:'r-json',props:{mode:'properties',field:'id',schema:excluded}},
+    {type:'r-json',props:{mode:'form',dataMember:'rows',dataViewKey:'Orders@default',schema:excluded}},
+    {type:'r-section',props:{header:{type:'r-header',props:{dataViewKey:'business-value'},
+     children:[{type:'r-form',props:{dataViewKey:'extra@Orders@default'}}]}}},
+    {type:'r-button', props:{action:'host-command', command:'fixture.read',
+     input:{mentionTriggers:[{...trigger, options:{dataViewKey:'business-value'}}],
+      header:{type:'r-form',props:{dataViewKey:'business-value'}}, schema:excluded,
+      contentChildren:[{type:'r-form',props:{dataViewKey:'business-value'}}]}}},
+   ]}])
+   const {page, state, save, wrapper} = await openPublication(rule)
+   try {
+    page.actions.value.saveDelivery()
+    await vi.waitFor(() => expect(state.statusMessages.value.map(message => message.text).join(' '))
+     .toContain('发布指针已一次切换并读回'))
+    expect([...designVersions.values()]).toContain(rule)
+    expect(save).toHaveBeenCalledOnce()
+   } finally {wrapper.unmount()}
+  })
+
   const uncoveredLocations = [
    {type:'r-filter-expression', property:'columnDataViewKey'},
    {type:'r-filter-expression', property:'inputParameterDataViewKey'},

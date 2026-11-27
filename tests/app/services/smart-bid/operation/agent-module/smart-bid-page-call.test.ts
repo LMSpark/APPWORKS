@@ -12,6 +12,7 @@ import {Spark,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spar
 import {preparePublishedSmartBidPageCall} from '@/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
+import {bidFindingsScenarioViews} from '@/views/features/application/smart-bid/collaboration/tasks/bid-findings-scenario-views'
 import type {AiAgentTurnBridgeOptions} from '@/services/ai/ai-turn-bridge'
 import type {AiAgentTurnCallbacks} from '@spark-appworks/spark-ai/agent'
 import * as page19Target from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
@@ -334,6 +335,86 @@ it('opens both authorized Page15 menu nodes as independent ordinary instances',a
   expect(loadScenario).toHaveBeenCalledTimes(2)
   expect(state.forwarded).not.toHaveBeenCalled()
  }finally{pool.disposePageRuntimes()}
+})
+
+it.each([
+ ['registration','exact'],['recheck','exact'],['registration','empty'],
+ ['recheck','foreign-project'],['registration','digest-conflict'],['recheck','hidden-evidence'],
+] as const)('reads the real published Page15 %s button for %s',async (kind,outcome)=>{
+ const scenarioId='FINDINGS_SPACE',projectId='PROJECT',pageId='smart-bid-collaboration-page15'
+ const registration=kind==='registration',requestDigest='a'.repeat(64)
+ const nodeId=registration?'2D6E6B35F32B2B478F135FD0E65A6824':'7804AC9D8D2C20019B82E0A745467D20'
+ const viewName=registration?'originalFindingRegistration':'originalRecheckResult'
+ const query={projectId,scenarioId,...(registration
+  ?{findingCheckRef:'CHECK',findingRegistrationKey:'REQUEST',findingRegistrationDigest:requestDigest}
+  :{findingId:'FINDING',expectedFindingVersion:'VERSION',recheckRequestKey:'REQUEST',recheckRequestDigest:requestDigest})}
+ const requestContext=registration?{projectId,checkRef:'CHECK',requestKey:'REQUEST'}
+  :{projectId,findingId:'FINDING',expectedFindingVersion:'VERSION',requestKey:'REQUEST'}
+ const row={...requestContext,id:'RESULT',projectId:outcome==='foreign-project'?'OTHER':projectId,
+  requestDigest:outcome==='digest-conflict'?'b'.repeat(64):requestDigest,
+  ...(registration?{findingId:'FINDING'}:{outcome:'CORRECTED',evidenceRef:'EVIDENCE'})}
+ const dataSet=DataSet.fromJson({scenarioId,tables:{CheckFinding:{
+  modelBinding:{modelId:'CHECK_FINDING_MODEL',modelName:'CheckFinding'},
+  columns:Object.keys(row).map(name=>({name,type:'string',isPrimaryKey:name==='id'})),
+  views:{default:{autoLoad:false},[viewName]:bidFindingsScenarioViews('id')[viewName]},
+ }}})
+ const view=dataSet.getView('CheckFinding',viewName)!
+ const source=new DataSpaceQueryTable({scenarioId,metaName:'CheckFinding'})
+ const read=vi.fn(async()=>new DataSpaceQueryContext({
+  identity:source.identity,scope:'page15',readScope:()=> 'page15',snapshot:source.applyResult({Result:{
+   primaryKeyField:'id',data:{Count:outcome==='empty'?0:1,Items:outcome==='empty'?[]:[{
+    ...row,lingma_sys_params:{r:[],e:[],h:outcome==='hidden-evidence'?['evidenceRef']:[],m:[],d:false},
+   }]},
+  }}),
+ }))
+ const save=vi.fn(async()=>{throw Error('UNEXPECTED_FINDING_WRITE')})
+ view.bindQueryExecutor({save,executeQuery:read})
+ const tool=new PageTool({pageId})
+ for(const fileName of ['rule.json','script.js','style.css'] as const){
+  tool.hydrateFileText(fileName,await readFile(resolve('src/views/features/application/smart-bid/collaboration/tasks/page15',fileName),'utf8'))
+ }
+ tool.markLoaded()
+ const path=`/apps/${app}/__page/${nodeId}`
+ const entry=preparePublishedSmartBidPageCall({path,query,meta:{
+  title:registration?'任务与警示':'检查问题',type:'config-page',nodeId,pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
+ }})
+ if(!entry)throw Error('MISSING_PUBLISHED_FINDING_HOST')
+ const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
+  scenarioInputs:entry.scenarioInputs,loadScenario:async()=>dataSet})
+ const router=createRouter({history:createMemoryHistory(),routes:[{path,component:defineComponent({render:()=>h('div')})}]})
+ await router.push({path,query})
+ await router.isReady()
+ const previous={...config.global.stubs},stubs={...previous}
+ for(const name of ['SparkComponentRenderer','spark-component-renderer','el-button'])delete stubs[name]
+ config.global.stubs=stubs
+ registerAllRenderers()
+ await runtime.load()
+ const alert=vi.fn(async(_text:string,_title?:string)=>undefined),error=vi.fn()
+ const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,host:entry.createHost(runtime),
+  messageService:{success:vi.fn(),error,warning:vi.fn(),info:vi.fn()},confirmService:{alert,confirm:async()=>true},
+  routeSnapshot:{path,fullPath:router.currentRoute.value.fullPath,name:null,params:{},query,hash:''}},
+  global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+ try{
+  await flushPromises()
+  const button=wrapper.findAll('button').find(el=>el.text()===(registration?'回查原问题登记':'回查原复验结果'))
+  if(!button)throw Error('MISSING_PAGE15_ORIGINAL_RESULT_BUTTON')
+  await button.trigger('click')
+  await vi.waitFor(()=>expect(alert.mock.calls.length+error.mock.calls.length).toBe(1))
+  expect(read).toHaveBeenCalledOnce()
+  expect(view.queryContext).toMatchObject(requestContext)
+  if(outcome==='exact'||outcome==='empty'){
+   expect(error).not.toHaveBeenCalled()
+   expect(JSON.parse(alert.mock.calls[0]?.[0]??'null')).toMatchObject(outcome==='empty'?{state:'UNKNOWN'}
+    :registration?{state:'REGISTERED',registrationRef:'RESULT',findingId:'FINDING'}
+    :{state:'REGISTERED',recheckRef:'RESULT',outcome:'CORRECTED',evidenceRef:'EVIDENCE'})
+  }else{
+   expect(alert).not.toHaveBeenCalled()
+   expect(error).toHaveBeenCalledOnce()
+  }
+  expect(save).not.toHaveBeenCalled()
+  expect(state.sent).toBe(false)
+  expect(state.forwarded).not.toHaveBeenCalled()
+ }finally{wrapper.unmount();runtime.dispose();config.global.stubs=previous}
 })
 
 it('preserves auxiliary scenario bindings for standard action pages',()=>{

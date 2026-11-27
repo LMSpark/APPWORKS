@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save",
+    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts",
+    "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save\n职责：绑定原蓝图节点的单记录回执与当前 DataView 的独立回读。\n边界：数据和权限均来自原 SPARK Data，切走节点保留原操作，重试回读不派发。\nAI用途：导航宿主和桌面配置共用本模块校验原记录及真实回读。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNodeSave"
+    ]
+  },
+  "$defs": {
+    "RecordKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RecordKey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "SaveIntent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveIntent",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/RecordKey"
+        },
+        "operation": {
+          "enum": [
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        "scope": {
+          "enum": [
+            "host",
+            "desktop"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "BlueprintNodeSave": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeSave",
+      "properties": {
+        "awaitingReadback": {
+          "type": "boolean"
+        },
+        "pending": {
+          "$ref": "#/$defs/SaveIntent"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.commit.params": {
+          "type": "object",
+          "properties": {
+            "intent": {
+              "$ref": "#/$defs/SaveIntent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.commit.return": {
+          "type": "object",
+          "title": "Promise<'confirmed' | 'not-submitted'>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-27T12:54:18.000Z",
+  "models": {
+    "RecordKey": {
+      "name": "RecordKey",
+      "jsdoc": "当前正式模型的标量记录主键。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SaveIntent": {
+      "name": "SaveIntent",
+      "jsdoc": "一次明确的蓝图关联记录提交或只读恢复输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前正式场景下的原保存视图。 */\n    view: DataView;\n    /** 捕获提交时的正式蓝图节点。 */\n    nodeId: string;\n    /** 本次 DataView 提交所选行键。 */\n    id: RecordKey;\n    /** 原保存所执行的新建、修改或删除。 */\n    operation: 'create' | 'update' | 'delete';\n    /** 与本次正式读回查询的范围一致。 */\n    scope: 'host' | 'desktop';\n    /** 检查原视图、节点和页面调用是否仍可消费结果。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前正式场景下的原保存视图。 */\n    view: DataView;\n    /** 捕获提交时的正式蓝图节点。 */\n    nodeId: string;\n    /** 本次 DataView 提交所选行键。 */\n    id: RecordKey;\n    /** 原保存所执行的新建、修改或删除。 */\n    operation: 'create' | 'update' | 'delete';\n    /** 与本次正式读回查询的范围一致。 */\n    scope: 'host' | 'desktop';\n    /** 检查原视图、节点和页面调用是否仍可消费结果。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "当前正式场景下的原保存视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "捕获提交时的正式蓝图节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "本次 DataView 提交所选行键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
+              "jsdoc": "原保存所执行的新建、修改或删除。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "与本次正式读回查询的范围一致。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "检查原视图、节点和页面调用是否仍可消费结果。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeSave": {
+      "name": "BlueprintNodeSave",
+      "jsdoc": "同一编辑器只跟踪本次调用捕获的回执；新查询和原草稿仍由 SPARK Data 管理。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "同一编辑器只跟踪本次调用捕获的回执；新查询和原草稿仍由 SPARK Data 管理。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "awaitingReadback",
+              "jsdoc": "原回执已确认且正式回读仍未完成时为真。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "当前实例尚须结算的原操作，供切回节点时恢复原按钮。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "commit",
+              "jsdoc": "提交单条原记录，或仅核验并读取已发出的那次提交。\n@param intent 从当前正式 DataView 捕获的原节点、行键、操作与实例校验。\n@returns 已确认且精确回读，或修改意图无任何待提交值。",
+              "parameters": [
+                {
+                  "name": "intent",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveIntent",
+                    "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "confirmed"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "not-submitted"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

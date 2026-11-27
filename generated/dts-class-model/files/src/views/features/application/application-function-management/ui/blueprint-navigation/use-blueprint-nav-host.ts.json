@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
     "packageName": "app",
     "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
-    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，\n跨字段约束由场景装配注册的模型规则执行；保存与删除只经 DataSet.saveChanges 提交本行，结果未知时再次提交只核验原捕获。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
+    "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，\n跨字段约束由场景装配注册的模型规则执行；原保存和精确回读共用当前 SPARK Data 单记录回执。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNavHostInput"
@@ -84,7 +84,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.034Z",
+  "generatedAt": "2026-11-27T12:54:18.000Z",
   "models": {
     "Id": {
       "name": "Id",

@@ -110,7 +110,7 @@
         <template v-else-if="isSelectedNodeReady && activeTab === 'navAttr'">
           <div class="application-function-page__details-toolbar">
             <h2>导航信息</h2>
-            <RendererButton :label="desktop.exists.value ? '取消桌面显示' : '+桌面'" :disabled="!desktop.view.value || desktop.busy.value"
+            <RendererButton :label="desktop.readbackPending.value ? '重试桌面回读' : desktop.exists.value ? '取消桌面显示' : '+桌面'" :disabled="!desktop.view.value || desktop.busy.value"
               :loading="desktop.loading.value" @click="desktop.toggle" />
             <RendererButton label="核验当前节点" :disabled="verifying || !!verifyBlockedReason" :title="verifyBlockedReason"
               :loading="verifying" @click="verifyCurrentNode" />

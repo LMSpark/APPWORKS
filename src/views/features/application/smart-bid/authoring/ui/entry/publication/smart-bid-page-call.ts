@@ -12,6 +12,7 @@ import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/conten
 import {captureContentAuthoringSession} from '../../../model/content-authoring-host'
 import type {ContentAuthoringRoute} from '../content-authoring-target'
 import {createContentSubmissionScriptHost} from '../content-submission-script-host'
+import {createBidFindingsScriptHost} from '../../../../collaboration/tasks/bid-findings-script-host'
 import {preparePublishedContentOperationCall} from '../content-operation-target'
 import {preparePublishedBidClassModelCatalogCall,preparePublishedConfigurationReleaseCall,
  preparePublishedContentDeadlineCall,
@@ -107,7 +108,12 @@ function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
    const submission=entry.pageId===submissionPageId
     ?createContentSubmissionScriptHost(runtime,{projectId,scenarioId,assertCurrent:session.assertCurrent})
     :undefined
+   const findings=entry.pageId===findingsPageId
+    ?createBidFindingsScriptHost(runtime,{projectId,scenarioId,assertCurrent:session.assertCurrent},{})
+    :undefined
    return Object.freeze({runtime,assertCurrent:session.assertCurrent,async invoke(name:string,input:unknown,signal:AbortSignal){
+    if(findings&&(name==='bid.tasks.readFindingRegistration'||name==='bid.tasks.readRecheckResult'))
+     return findings.invoke(name,input,signal)
     if(name==='content.submission.readOriginal'&&submission)return submission.invoke(name,input,signal)
     if(name!=='smart-bid.dispatch')throw Error('SMART_BID_PAGE_ACTION_COMMAND_REQUIRED')
     if(!submit)throw Error('SMART_BID_PAGE_ACTION_PROJECT_REQUIRED')

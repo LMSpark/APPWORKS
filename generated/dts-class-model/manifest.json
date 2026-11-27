@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1537,
+  "scannedFileCount": 1538,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -19861,6 +19861,21 @@
         "symbols": []
       }
     },
+    "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts": {
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts.json",
+      "module": {
+        "name": "app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save",
+        "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts",
+        "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts",
+        "packageName": "app",
+        "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save\n职责：绑定原蓝图节点的单记录回执与当前 DataView 的独立回读。\n边界：数据和权限均来自原 SPARK Data，切走节点保留原操作，重试回读不派发。\nAI用途：导航宿主和桌面配置共用本模块校验原记录及真实回读。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNodeSave"
+        ]
+      }
+    },
     "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts": {
       "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts.json",
       "module": {
@@ -19888,7 +19903,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：读取当前节点的桌面记录（主键即节点 id），新增对话框与取消确认。\n边界：直接使用蓝图 DataSet 中 7AB 场景声明的 Base_Desktop_System@byNode；默认值只写入新行可写的字段；\n保存与删除只经 DataSet.saveChanges 提交本行并回读，结果未知时对话框不能关闭或放弃，再次提交只核验原捕获。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-desktop\n职责：导航配置页签的“+桌面 / 取消桌面显示”：读取当前节点的桌面记录（主键即节点 id），新增对话框与取消确认。\n边界：直接使用蓝图 DataSet 中 7AB 场景声明的 Base_Desktop_System@byNode；默认值只写入新行可写的字段；\n原保存和精确回读共用当前 SPARK Data 单记录回执。\nAI用途：页面与对话框只消费本组合函数返回的状态与动作。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "BlueprintDesktopInput"
@@ -19903,7 +19918,7 @@
         "sourceFile": "src/views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host.ts",
         "packageName": "app",
         "modulePath": "views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host",
-        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，\n跨字段约束由场景装配注册的模型规则执行；保存与删除只经 DataSet.saveChanges 提交本行，结果未知时再次提交只核验原捕获。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
+        "jsdoc": "@module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host\n职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。\n边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，\n跨字段约束由场景装配注册的模型规则执行；原保存和精确回读共用当前 SPARK Data 单记录回执。\nAI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "BlueprintNavHostInput"
@@ -21281,7 +21296,7 @@
         "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
         "packageName": "app",
         "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
-        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按发布导航标题和正式元信息选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。",
+        "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按正式发布工具 ID 选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未登记工具继续走普通四文件页面。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -25541,6 +25556,10 @@
     "BlueprintNodeFormData": {
       "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
       "file": "files/src/services/project/blueprint-workspace-dataview.ts.json"
+    },
+    "BlueprintNodeSave": {
+      "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts",
+      "file": "files/src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-save.ts.json"
     },
     "BlueprintNodeVerifyInput": {
       "sourcePath": "src/views/features/application/application-function-management/ui/blueprint-navigation/blueprint-node-verify.ts",

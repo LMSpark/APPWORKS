@@ -30,7 +30,7 @@ AI用途：调整桌面字段分组或标签时只改模板。
     </RendererForm>
     <template #footer>
       <RendererButton label="取消" :disabled="desktop.busy.value || desktop.unknown.value" @click="desktop.cancelCreate()" />
-      <RendererButton :label="desktop.unknown.value ? '核验保存结果' : '保存'" button-type="primary" :loading="desktop.busy.value" @click="desktop.saveCreate" />
+      <RendererButton :label="desktop.readbackPending.value ? '重试回读' : desktop.unknown.value ? '核验保存结果' : '保存'" button-type="primary" :loading="desktop.busy.value" @click="desktop.saveCreate" />
     </template>
   </RendererDialog>
 
@@ -40,7 +40,7 @@ AI用途：调整桌面字段分组或标签时只改模板。
     <DisplayAlert v-if="desktop.dialogError.value" :description="desktop.dialogError.value" alert-type="error" />
     <template #footer>
       <RendererButton label="取消" :disabled="desktop.busy.value || desktop.unknown.value" @click="desktop.cancelRemove()" />
-      <RendererButton :label="desktop.unknown.value ? '核验删除结果' : '确定'" button-type="danger" :loading="desktop.busy.value" @click="desktop.confirmRemove" />
+      <RendererButton :label="desktop.readbackPending.value ? '重试回读' : desktop.unknown.value ? '核验删除结果' : '确定'" button-type="danger" :loading="desktop.busy.value" @click="desktop.confirmRemove" />
     </template>
   </RendererDialog>
 </template>

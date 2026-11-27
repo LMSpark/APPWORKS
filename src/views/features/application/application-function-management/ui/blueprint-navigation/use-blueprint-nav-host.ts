@@ -2,13 +2,14 @@
  * @module app:views/features/application/application-function-management/ui/blueprint-navigation/use-blueprint-nav-host
  * 职责：导航配置页签的导航宿主关系列表、新增/编辑对话框、删除确认与“数据空间设计”入口。
  * 边界：直接使用蓝图 DataSet 中 7AB 场景的 byNode 视图；必填、候选成员、资源类型回填与字段级联由场景 pagedata 声明，
- *   跨字段约束由场景装配注册的模型规则执行；保存与删除只经 DataSet.saveChanges 提交本行，结果未知时再次提交只核验原捕获。
+ *   跨字段约束由场景装配注册的模型规则执行；原保存和精确回读共用当前 SPARK Data 单记录回执。
  * AI用途：页面与宿主对话框只消费本组合函数返回的状态与动作。
  */
 import {computed, ref, shallowRef, watch, type Ref} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import type {BlueprintTreeContext} from '../use-application-function-page'
 import {readBlueprintCurrentText} from '../application-function-page-contract'
+import {BlueprintNodeSave} from './blueprint-node-save'
 
 const HOST_TABLE = 'Base_Navigation_DataRelation'
 const HOST_VIEW = 'byNode'
@@ -40,6 +41,17 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   const designId = ref('')
   const revision = ref(0)
   let generation = 0
+  const recordSave = new BlueprintNodeSave()
+  const readbackPending = computed(() => {void revision.value; return recordSave.awaitingReadback})
+  const isCurrent = (target: DataView, key: string, epoch: number): boolean => {
+    const context = input.context()
+    return !!context && input.active() && epoch === generation && view.value === target
+      && target.dataSet === context.owner.dataSet && key === input.selectedNodeId.value
+      && target.queryContext['nodeId'] === key && input.isLive(context, key)
+  }
+  function assertScope(target: DataView, key: string, epoch: number): void {
+    if (!isCurrent(target, key, epoch)) throw Error('原蓝图节点保存目标已变化')
+  }
 
   const scenarioId = computed(() => view.value?.dataSet?.scenarioId ?? '')
   const viewKey = (tableName: string, viewId: string): string => scenarioId.value ? buildDataViewKey(tableName, viewId, scenarioId.value) : ''
@@ -58,7 +70,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     view.value = undefined
     editingId.value = undefined
     deleteId.value = undefined
-    if (!current || current.hasUnconfirmedSave) return
+    if (!current || current.mutating || current.hasUnconfirmedSave || recordSave.pending?.view === current) return
     const ids = current.rows.map(row => current.getPkKey(row)).filter((id): id is Id => id !== undefined)
     if (ids.length) current.discardPendingChanges(ids)
   }
@@ -76,6 +88,18 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
       const dataSet = context.owner.dataSet
       const target = dataSet.getView(HOST_TABLE, HOST_VIEW), dataSets = dataSet.getView('Base_DataSet', 'navHostDataSets')
       if (!target || !dataSets) throw new Error('蓝图运行时缺少导航宿主视图')
+      const original = recordSave.pending
+      if (original?.view === target || target.hasUnconfirmedSave || target.mutating) {
+        if (target.queryContext['nodeId'] !== nodeId || original?.view === target && original.nodeId !== nodeId)
+          throw Error('请返回原蓝图节点处理保存结果')
+        if (current !== generation || !input.isLive(context, nodeId)) return
+        view.value = target
+        if (original?.view === target) {
+          if (original.operation === 'delete') deleteId.value = original.id
+          else editingId.value = original.id
+        }
+        return
+      }
       target.queryContext = {nodeId}
       dataSets.queryContext = {applicationId: context.projectId}
       await Promise.all([target.refresh(), dataSets.refresh()])
@@ -93,33 +117,32 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
 
   watch(() => [input.active(), input.context()?.key, input.selectedNodeId.value], () => { void reload() }, {immediate: true})
 
-  async function run(action: (target: DataView) => void | Promise<void>, onError: Ref<string>): Promise<void> {
+  async function run(action: (target: DataView, assertCurrent: () => void) => void | Promise<void>, onError: Ref<string>): Promise<void> {
     const target = view.value
     if (!target || busy.value) return
+    const key = input.selectedNodeId.value, epoch = generation
     busy.value = true
     onError.value = ''
     try {
-      await action(target)
+      await action(target, () => assertScope(target, key, epoch))
     } catch (cause) {
-      if (view.value === target) onError.value = describe(cause)
+      if (isCurrent(target, key, epoch)) onError.value = describe(cause)
     } finally {
       busy.value = false
       revision.value++
     }
   }
 
-  /** 提交本行并回读；结果未知时保留原捕获，由下一次提交核验。 */
-  async function commit(target: DataView, id: Id): Promise<void> {
-    const dataSet = target.dataSet
-    if (!dataSet) throw new Error('导航宿主视图缺少 DataSet')
-    const result = await dataSet.saveChanges({views: [{tableName: HOST_TABLE, viewId: HOST_VIEW, ids: [id]}]})
-    if (!result.success) throw result.error ?? new Error(result.message ?? '导航宿主提交失败')
-    if (target.hasUnconfirmedSave) throw new Error('导航宿主提交结果未知，请核验')
-    await target.refresh()
-    if (target.loadingError) throw target.loadingError
+  function showOriginal(target: DataView | undefined): boolean {
+    const original = recordSave.pending
+    if (!target || original?.view !== target || original.nodeId !== input.selectedNodeId.value) return false
+    if (original.operation === 'delete') deleteId.value = original.id
+    else editingId.value = original.id
+    return true
   }
 
   async function openCreate(): Promise<void> {
+    if (showOriginal(view.value)) return
     await run(async target => {
       const context = input.context()
       const hostName = context ? readBlueprintCurrentText(context.owner, 'FunName') || readBlueprintCurrentText(context.owner, 'name') : ''
@@ -132,6 +155,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   }
 
   async function openEdit(row: Readonly<DataRow>): Promise<void> {
+    if (showOriginal(view.value)) return
     const id = view.value?.getPkKey(row)
     if (id === undefined) return
     await run(target => {
@@ -144,12 +168,13 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   async function save(): Promise<void> {
     const id = editingId.value
     if (id === undefined) return
-    await run(async target => {
-      const wasCreate = target.dirtyTracking.isPendingCreate(id)
-      await commit(target, id)
-      if (view.value !== target) return
+    await run(async (target, assertCurrent) => {
+      const operation = recordSave.pending?.operation === 'create' || target.dirtyTracking.isPendingCreate(id) ? 'create' : 'update'
+      const result = await recordSave.commit({view:target,id,operation,nodeId:input.selectedNodeId.value,scope:'host',assertCurrent})
+      assertCurrent()
       editingId.value = undefined
-      input.notice.value = wasCreate ? '新增导航宿主成功' : '修改导航宿主成功'
+      input.notice.value = result === 'not-submitted' ? '本次未提交导航宿主变更'
+        : operation === 'create' ? '新增导航宿主成功' : '修改导航宿主成功'
     }, dialogError)
   }
 
@@ -157,7 +182,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     const target = view.value, id = editingId.value
     if (value || busy.value || !target || id === undefined || target.hasUnconfirmedSave) return
     try {
-      if (target.hasEditingChanges(id) || target.dirtyTracking.hasPendingChanges(id)) target.discardPendingChanges([id])
+      if (!recordSave.awaitingReadback && (target.hasEditingChanges(id) || target.dirtyTracking.hasPendingChanges(id))) target.discardPendingChanges([id])
       editingId.value = undefined
       dialogError.value = ''
     } catch (cause) {
@@ -168,6 +193,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   }
 
   function askRemove(row: Readonly<DataRow>): void {
+    if (showOriginal(view.value)) return
     const id = view.value?.getPkKey(row)
     if (id === undefined || busy.value) return
     dialogError.value = ''
@@ -178,14 +204,14 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
   async function confirmRemove(): Promise<void> {
     const id = deleteId.value
     if (id === undefined) return
-    await run(async target => {
-      if (!target.hasUnconfirmedSave && !target.dirtyTracking.pendingDeleteIds.has(id)) {
+    await run(async (target, assertCurrent) => {
+      if (!recordSave.awaitingReadback && !target.hasUnconfirmedSave && !target.dirtyTracking.pendingDeleteIds.has(id)) {
         const row = target.rows.find(item => target.getPkKey(item) === id)
         if (!row || target.deleteActionState(row) !== 'enabled') throw new Error('当前查询不允许删除该导航宿主')
         await target.removeRow(id)
       }
-      await commit(target, id)
-      if (view.value !== target) return
+      await recordSave.commit({view:target,id,operation:'delete',nodeId:input.selectedNodeId.value,scope:'host',assertCurrent})
+      assertCurrent()
       deleteId.value = undefined
       input.notice.value = '删除导航宿主成功'
     }, dialogError)
@@ -224,6 +250,7 @@ export function useBlueprintNavHost(input: BlueprintNavHostInput) {
     designId,
     created,
     unknown,
+    readbackPending,
     canCreate,
     revision,
     openCreate,

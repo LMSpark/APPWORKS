@@ -41,6 +41,7 @@
  * └──────────────────────────────────────────────────────┘
  */
 
+import { parseDataViewKey } from '../core/data-view-key.js'
 import { isSparkNode, normalizeSparkNode, nodeId, type SparkNode, type SparkNodeChildren } from './spark-node.js'
 import { isRecord, SnapshotHistory } from '@spark-appworks/spark-utils'
 
@@ -61,7 +62,9 @@ export function visitSparkNodeDataViewBindings(
 ): void {
   const bindingProperties = ['dataViewKey', 'optionDataViewKey', 'edgeDataViewKey', 'additionalEdgeDataViewKey'] as const
   const structuredProperties = ['toolbar', 'actions', 'filter', 'header', 'footer', 'tail'] as const
-  const visited = new WeakSet<object>()
+  const visitedNodes = new WeakSet<object>()
+  const visitedConfigs = new WeakSet<object>()
+  const visitedSchemas = new WeakSet<object>()
   const visitedActions = new WeakSet<object>()
   const dataViewActions = new Set(['set-field', 'append-row', 'delete', 'patch', 'move', 'message-row',
     'refresh', 'clear-rows', 'submit-current-form', 'discard-changes'])
@@ -95,11 +98,43 @@ export function visitSparkNodeDataViewBindings(
     visitAction(value)
   }
 
+  // A form renders properties of object members; defaults, examples and items are JSON data or metadata.
+  const visitJsonFormOptions = (schema: unknown): void => {
+    if (!isRecord(schema) || !isRecord(schema['properties']) || visitedSchemas.has(schema)) return
+    visitedSchemas.add(schema)
+    for (const member of Object.values(schema['properties'])) {
+      if (!isRecord(member)) continue
+      if (member['type'] === 'object') {
+        visitJsonFormOptions(member)
+      } else if (Object.hasOwn(member, 'x-optionDataViewKey')) {
+        const key = member['x-optionDataViewKey']
+        if (typeof key !== 'string' || !parseDataViewKey(key)?.scope) {
+          throw new Error('JSON_OPTION_VIEW: 选项必须使用完整数据视图键')
+        }
+        visitProperty(member, 'x-optionDataViewKey')
+      }
+    }
+  }
+
   const visitNode = (node: SparkNode): void => {
-    if (visited.has(node)) return
-    visited.add(node)
+    if (visitedNodes.has(node)) return
+    visitedNodes.add(node)
     if (node.props) {
       const props = node.props
+      // Drawer, dialog and section pass a flat zone to RendererHeader. A field header is a SparkNode.
+      const flatHeader = node.type === 'r-drawer' || node.type === 'r-dialog' || node.type === 'r-section'
+      if (!flatHeader && isSparkNode(props['header'])) visitNode(props['header'])
+      if (node.type === 'r-popover' && Array.isArray(props['contentChildren'])) {
+        for (const child of props['contentChildren']) if (isSparkNode(child)) visitNode(child)
+      }
+      if (node.type === 'r-json' && props['mode'] === 'form' && props['dataMember'] !== 'rows') {
+        visitJsonFormOptions(props['schema'])
+      }
+      if (node.type === 'r-mention' && Array.isArray(props['mentionTriggers'])) {
+        for (const trigger of props['mentionTriggers']) {
+          if (isRecord(trigger) && isRecord(trigger['options'])) visitProperty(trigger['options'], 'dataViewKey')
+        }
+      }
       if (node.type === 'r-filter-expression') visitProperty(props, 'columnDataViewKey')
       if (node.type === 'r-value-function') visitProperty(props, 'publicParameterDataViewKey')
       if (node.type === 'r-filter-expression' || node.type === 'r-value-function') visitProperty(props, 'inputParameterDataViewKey')
@@ -122,8 +157,8 @@ export function visitSparkNodeDataViewBindings(
   }
 
   const visitConfig = (config: Record<string, unknown>): void => {
-    if (visited.has(config)) return
-    visited.add(config)
+    if (visitedConfigs.has(config)) return
+    visitedConfigs.add(config)
     for (const property of bindingProperties) visitProperty(config, property)
     const additionalNodeSources = config['additionalNodeSources']
     if (Array.isArray(additionalNodeSources)) {

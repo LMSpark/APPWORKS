@@ -18,7 +18,7 @@ type Registration=Parameters<typeof prepareRegisteredBidFinding>
 export function createBidFindingsScriptHost<Runtime extends Pick<PageRuntime,'resolveView'|'generation'|'isLoaded'|'destroyed'>>(
  runtime:Runtime,host:Omit<Read[0],'runtime'>,sources:Readonly<{
   assertCurrent?:()=>void
-  readCoverage:(signal:AbortSignal)=>Promise<Read[1]>
+  readCoverage?:(signal:AbortSignal)=>Promise<Read[1]>
   readRegistration?:(check:Parameters<Registration[2]>[0],signal:AbortSignal)=>ReturnType<Registration[2]>
   readRecheck?:(input:Readonly<{request:Recheck[1];finding:Parameters<Recheck[2]>[0]}>,signal:AbortSignal)=>ReturnType<Recheck[2]>
   submitAction?:SmartBidPageActionSubmit
@@ -86,7 +86,7 @@ export function createBidFindingsScriptHost<Runtime extends Pick<PageRuntime,'re
      inputs:{record:prepared.record,requestDigest:prepared.requestDigest}}),
     assertCurrent:prepared.assertCurrent})
   }
-  if(name!=='bid.tasks.readFindings'||Object.keys(input).length!==0)throw Error('BID_FINDINGS_PAGE_REQUEST')
+  if(name!=='bid.tasks.readFindings'||Object.keys(input).length!==0||!sources.readCoverage)throw Error('BID_FINDINGS_PAGE_REQUEST')
   const source=await sources.readCoverage(signal)
   assertCurrent()
   return readFindingsForCompletedCoverage({...host,runtime,assertCurrent},source)

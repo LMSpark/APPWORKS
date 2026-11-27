@@ -223,11 +223,15 @@ it('dispatches only the published node and tool pair in the declared space',()=>
   .toThrow('CONTENT_AUTHORING_ENTRY_IDENTITY_CONFLICT')
  expect(resolvePublishedContentAuthoringTarget({...route(),meta:{...route().meta,blueprintScenarioId:space}},entry)?.scenarioId).toBe(space)
 })
-it('derives the production page 11 host identity from the authorized route',()=>{
- const target={...route(),meta:{...route().meta,blueprintScenarioId:space}}
+function productionAuthoringRoute():ContentAuthoringRoute{
+ const input=route(),pageId='smart-bid-authoring-page11'
+ return {...input,meta:{...input.meta,pageId,blueprintScenarioId:space,tool:{projectId:app,pageId}}}
+}
+it('binds the registered production page 11 tool and the authorized navigation node',()=>{
+ const target=productionAuthoringRoute()
  const prepared=preparePublishedContentAuthoringCall(target)
  expect(prepared?.scenarioInputs).toEqual({[space]:{projectId:'P',currentUserId:'ACTOR'}})
- expect(resolvePublishedContentAuthoringTarget(target)?.pageId).toBe('TOOL11')
+ expect(resolvePublishedContentAuthoringTarget(target)?.pageId).toBe('smart-bid-authoring-page11')
 })
 it('does not require a content-authoring draft for another published SmartBid page',()=>{
  const target=route(),tool={projectId:app,pageId:'smart-bid-authority-page06'}
@@ -235,7 +239,7 @@ it('does not require a content-authoring draft for another published SmartBid pa
   .toBeUndefined()
 })
 it('leaves page 11 on the ordinary published-page renderer without a draft identity',()=>{
- const target=route()
+ const target=productionAuthoringRoute()
  expect(preparePublishedContentAuthoringCall({...target,query:{scenarioId:space}})).toBeUndefined()
 })
 it('takes page and space identity from resolved navigation while keeping explicit project/draft',()=>{
@@ -266,4 +270,16 @@ it.each([
  {query:{scenarioId:space,projectId:'P',draftId:'D',scenarioInputs:JSON.stringify({[space]:{currentUserId:'ROUTE_USER'}})}},
 ])('rejects incomplete or conflicting entry identity %j',patch=>{
  expect(()=>resolveContentAuthoringTarget({...route(),...patch})).toThrow()
+})
+
+it.each(['smart-bid-configuration-page19','smart-bid-authority-page06'])('keeps %s out of the production authoring host even with a draft',pageId=>{
+ const original=productionAuthoringRoute()
+ const candidate={...original,meta:{...original.meta,pageId,title:'标书正文编制',tool:{projectId:app,pageId}}}
+ expect(resolvePublishedContentAuthoringTarget(candidate)).toBeUndefined()
+ expect(preparePublishedContentAuthoringCall(candidate)).toBeUndefined()
+})
+it.each([undefined,'OTHER'])('requires scene %s to come from the authorized production navigation',blueprintScenarioId=>{
+ const original=productionAuthoringRoute()
+ const candidate={...original,meta:{...original.meta,blueprintScenarioId}}
+ expect(()=>preparePublishedContentAuthoringCall(candidate)).toThrow(/CONTENT_AUTHORING_(?:PUBLICATION|ENTRY)_IDENTITY_CONFLICT/)
 })

@@ -10,6 +10,7 @@ import {captureContentAuthoringSession,ContentAuthoringHost, type ContentAuthori
 import ContentDraftWorkspace from '@/views/features/application/smart-bid/authoring/ui/content-draft-workspace.vue'
 import {createPublishedContentAuthoringHost,type ContentAuthoringScriptSession} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host'
 import {preparePublishedContentAuthoringCall} from '@/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target'
+import {preparePublishedSmartBidPageCall} from '@/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call'
 import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart-bid/content/revision-snapshot-hash'
 import rule from '@/views/features/application/smart-bid/authoring/page11/rule.json?raw'
 import script from '@/views/features/application/smart-bid/authoring/page11/script.js?raw'
@@ -453,4 +454,27 @@ it('hands its original binding to the standard draft workspace, whose cancel kee
  expect(host.hasPending).toBe(false)
  wrapper.unmount();wrapper=undefined;host.close()
  expect(binding.runtime.destroyed).toBe(true)
+})
+
+it('keeps the real Page19 configuration host when production dispatch receives an unrelated draft parameter',async()=>{
+ const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
+ const pageId='smart-bid-configuration-page19'
+ auth.appId=applicationId
+ const incoming={path:`/apps/${applicationId}/__page/CONFIG-NODE`,
+  meta:{type:'config-page',nodeId:'CONFIG-NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:applicationId,pageId}},
+  query:{scenarioId,projectId:'P',draftId:'D'}}
+ const prepare=preparePublishedContentAuthoringCall(incoming)??preparePublishedSmartBidPageCall(incoming)
+ if(!prepare)throw Error('TEST_CONFIGURATION_ENTRY_REQUIRED')
+ const readScenario=vi.fn(async()=>{throw Error('UNEXPECTED_SCENARIO_LOAD')})
+ const runtime=new PageRuntime({pageId,scenarioIds:[scenarioId],deferredScenarioIds:[scenarioId],
+  scenarioInputs:prepare.scenarioInputs,loadScenario:readScenario})
+ try{
+  await runtime.load()
+  const selected=prepare.createHost(runtime)
+  expect(selected.runtime).toBe(runtime)
+  expect(isAuthoringSession(selected)).toBe(false)
+  await expect(Promise.resolve().then(() => selected.invoke('configuration.release.readCurrentChannel', undefined,
+    new AbortController().signal))).rejects.toThrow('CONFIGURATION_RELEASE_PAGE_REQUEST')
+  expect(readScenario).not.toHaveBeenCalled()
+ }finally{runtime.dispose()}
 })

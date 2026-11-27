@@ -63,7 +63,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-22T05:42:01.176Z",
+  "generatedAt": "2026-11-25T11:23:16.737Z",
   "models": {
     "ContentAuthoringRoute": {
       "name": "ContentAuthoringRoute",
@@ -101,7 +101,7 @@
     },
     "ContentAuthoringPublishedEntry": {
       "name": "ContentAuthoringPublishedEntry",
-      "jsdoc": "Optional explicit IDs used by isolated fixtures; production derives both from the authorized route.",
+      "jsdoc": "生产绑定已登记正文工具。显式入口提供隔离夹具自己的正式节点及工具身份。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    nodeId: string;\n    pageId: string;\n    receiptDataViewKey?: string;\n}>",

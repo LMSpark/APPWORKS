@@ -13,13 +13,14 @@ import {createPublishedContentAuthoringHost} from './content-authoring-script-ho
 import {bindPublishedPageRuntime,matchesPublishedPageBinding} from './publication/published-page-binding'
 
 const applicationId='D8490EC99436A8B9AFDE205BE3153802',scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
+const publishedAuthoringToolId='smart-bid-authoring-page11'
 const originalSaveReceiptDataViewKey=`${scenarioId}@SaveReceipt@originalSave`
 function identity(value:unknown):value is string {return typeof value==='string'&&value.length>0&&value.trim()===value}
 
 /** 消费正式工具导航元信息；调用场景由正式工具运行时同样读取的query明确声明。 */
 export type ContentAuthoringRoute=Readonly<{path:string;meta:Readonly<Record<string,unknown>>;query:Readonly<Record<string,unknown>>}>
 
-/** Optional explicit IDs used by isolated fixtures; production derives both from the authorized route. */
+/** 生产绑定已登记正文工具。显式入口提供隔离夹具自己的正式节点及工具身份。 */
 export type ContentAuthoringPublishedEntry = Readonly<{nodeId:string;pageId:string;receiptDataViewKey?:string}>
 
 /** Prepare the published route with the session inputs expected by the runtime pool. */
@@ -53,13 +54,14 @@ export function resolvePublishedContentAuthoringTarget(
 ):ContentAuthoringTarget | undefined {
  if (resolveExecutionProjectId(route.path) !== applicationId || route.query['scenarioId'] !== scenarioId) return undefined
  const tool=route.meta['tool']
- if(entry !== undefined && route.meta['nodeId'] !== entry.nodeId) return undefined
+ const expectedPageId=entry?.pageId??publishedAuthoringToolId
+ if(entry===undefined&&(!isRecord(tool)||tool['pageId']!==expectedPageId))return undefined
+ if(entry!==undefined&&route.meta['nodeId']!==entry.nodeId)return undefined
+ if(entry===undefined&&route.meta['blueprintScenarioId']!==scenarioId)throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_CONFLICT')
  const nodeId=entry?.nodeId??route.meta['nodeId']
- const pageId=entry?.pageId??(isRecord(tool)?tool['pageId']:undefined)
- const target = resolveContentAuthoringTarget(route)
- const expectedPageId=entry?.pageId??pageId
- if (!identity(nodeId) || !identity(expectedPageId) || route.meta['nodeId'] !== nodeId || target.pageId !== expectedPageId
-  || route.query['additionalScenarioIds'] !== undefined) {
+ const target=resolveContentAuthoringTarget(route)
+ if(!identity(nodeId)||!identity(expectedPageId)||target.pageId!==expectedPageId
+  ||route.query['additionalScenarioIds']!==undefined){
   throw Error('CONTENT_AUTHORING_PUBLICATION_IDENTITY_CONFLICT')
  }
  const receiptDataViewKey=entry?.receiptDataViewKey??originalSaveReceiptDataViewKey

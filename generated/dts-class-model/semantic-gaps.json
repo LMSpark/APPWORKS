@@ -1,5 +1,5 @@
 {
-  "gapCount": 9145,
+  "gapCount": 9151,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -42579,6 +42579,42 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "attribute",
+      "className": "NativeWorkingPlanSource",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NativeWorkingPlanSource.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 53,
+      "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NativeWorkingPlanSource",
+      "memberName": "routePath",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NativeWorkingPlanSource.routePath 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 54,
+      "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "NativeWorkingPlanSource",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NativeWorkingPlanSource.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 55,
+      "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "module",
       "className": "app:platform-adapters/data-space/lowcode-model-relation-adapter",
       "moduleName": "app:platform-adapters/data-space/lowcode-model-relation-adapter",
@@ -52603,7 +52639,7 @@
       "chainBreak": "LowcodeProjectGateways.blueprint 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 98,
+      "declarationLine": 106,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52615,7 +52651,7 @@
       "chainBreak": "LowcodeProjectGateways.projectReferences 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 99,
+      "declarationLine": 107,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52627,7 +52663,7 @@
       "chainBreak": "LowcodeProjectGateways.scenarioViews 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 100,
+      "declarationLine": 108,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -108344,6 +108380,39 @@
       "declarationFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/integration/mp-open/ui/application-detail",
+      "moduleName": "app:views/features/integration/mp-open/ui/application-detail",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/integration/mp-open/ui/application-detail 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/integration/mp-open/ui/application-detail.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/mp-open/ui/application-detail.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-detail.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/integration/mp-open/ui/application-fields",
+      "moduleName": "app:views/features/integration/mp-open/ui/application-fields",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/integration/mp-open/ui/application-fields 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/integration/mp-open/ui/application-fields.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/mp-open/ui/application-fields.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-fields.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/integration/mp-open/ui/application-page",
+      "moduleName": "app:views/features/integration/mp-open/ui/application-page",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/integration/mp-open/ui/application-page 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/integration/mp-open/ui/application-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/mp-open/ui/application-page.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-page.vue"
     },
     {
       "kind": "module",

@@ -8,10 +8,10 @@ import {computed, onBeforeUnmount, ref, toValue, watch, type MaybeRefOrGetter, t
 import {useRoute} from 'vue-router'
 import type {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
-import {buildDataViewKey, RequestState} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
-import {resolveExecutionProjectId} from '@/services/application-scope'
+import {buildApplicationPath, resolveExecutionProjectId} from '@/services/application-scope'
 
 /** 一个原生功能页的正式数据身份及组件上下文。 */
 type FeaturePageRuntimeOptions = Readonly<{
@@ -37,6 +37,10 @@ type FeaturePageRuntimeOptions = Readonly<{
   optionViews?: readonly string[]
   /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */
   queryContext?: () => Readonly<Record<string, string>>
+  /** 明确选用本次原生导航的已验证工作 Plan。 */
+  workingPlanRoute?: string
+  /** 列表和详情可在首次读取前为自己的主视图声明投影或正式键过滤。 */
+  prepareView?: (view: DataView) => void
   /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */
   preserveRuntime?: () => boolean
 }>
@@ -62,6 +66,8 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const target = computed(() => ({
     projectId: resolveExecutionProjectId(route.path),
     scenario: route.meta['blueprintScenarioId'],
+    companionScenario: options.workingPlanRoute ? route.meta['companionScenarioId'] : undefined,
+    workingPlanPath: options.workingPlanRoute ? route.path : undefined,
     nodeId: route.meta['nodeId'],
     state: route.meta['systemPageIdentityState'],
   }))
@@ -75,7 +81,8 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       return
     }
     reloadBlocked.value = false
-    const {projectId, nodeId: nodeIdRaw, state} = target.value
+    const binding = target.value
+    const {projectId, nodeId: nodeIdRaw, state, scenario, companionScenario} = binding
     const nodeId = typeof nodeIdRaw === 'string' ? nodeIdRaw.trim() : ''
     const own = ++generation
     ready.value = false; loading.value = true; error.value = ''; session.dispose()
@@ -88,6 +95,11 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       if (peers.some(peer => !peer || peer === scenarioId) || new Set(peers).size !== peers.length) {
         throw new Error(`${title}伙伴数据空间身份无效或重复`)
       }
+      const workingPlanRoute = options.workingPlanRoute
+      if (workingPlanRoute && (companionScenario !== undefined || scenario !== scenarioId ||
+        binding.workingPlanPath !== buildApplicationPath({projectId}, workingPlanRoute))) {
+        throw new Error('工作 Plan 与当前原生入口不一致')
+      }
       const context = options.queryContext?.()
       const tool = typeof options.tool === 'function' ? options.tool(nodeId) : options.tool
       current = session.acquire({
@@ -95,7 +107,10 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
         scenarioIds: [scenarioId, ...peers],
         ...(peers.length > 0 ? {mainScenarioId: scenarioId} : {}),
         targetId: `${projectId}:${nodeId}`,
-        loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id}),
+        loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,
+          ...(workingPlanRoute ? {workingSource: {nodeId, routePath: workingPlanRoute, assertCurrent() {
+            if (!active || own !== generation || target.value !== binding) throw new Error('工作 Plan 原实例已失效')
+          }}} : {})}),
       })
       await current.load()
       if (!isCurrent(current, own)) return
@@ -103,6 +118,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       const viewId = toValue(options.viewId ?? 'default')
       const view = current.resolveView(buildDataViewKey(modelName, viewId, scenarioId))
       if (!view) throw new Error(`${title}缺少正式${modelName}@${viewId}视图`)
+      options.prepareView?.(view)
       const runtime = current
       const views = [view, ...(options.optionModels ?? []).map(name => {
         const option = runtime.resolveView(buildDataViewKey(name, 'default', scenarioId))

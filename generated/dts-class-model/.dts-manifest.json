@@ -3949,7 +3949,7 @@
     "src/platform-adapters/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/platform-adapters/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:03:43.918Z"
+      "sourceModifiedAt": "2026-11-27T05:28:57.585Z"
     },
     "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts",
@@ -4174,7 +4174,7 @@
     "src/platform-adapters/lowcode-runtime.ts": {
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "shardFile": "files/src/platform-adapters/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-23T19:16:52.945Z"
+      "sourceModifiedAt": "2026-11-27T05:28:57.618Z"
     },
     "src/platform-adapters/resources/application/project-blueprint-document.ts": {
       "sourceFile": "src/platform-adapters/resources/application/project-blueprint-document.ts",
@@ -7381,6 +7381,21 @@
       "shardFile": "files/src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue.json",
       "sourceModifiedAt": "2026-11-20T20:59:33.305Z"
     },
+    "src/views/features/integration/mp-open/ui/application-detail.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-detail.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/application-detail.vue.json",
+      "sourceModifiedAt": "2026-11-27T05:28:58.224Z"
+    },
+    "src/views/features/integration/mp-open/ui/application-fields.ts": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-fields.ts",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/application-fields.ts.json",
+      "sourceModifiedAt": "2026-11-27T05:28:58.224Z"
+    },
+    "src/views/features/integration/mp-open/ui/application-page.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/application-page.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/application-page.vue.json",
+      "sourceModifiedAt": "2026-11-27T05:28:58.226Z"
+    },
     "src/views/features/integration/report/ui/report-create-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-create-dialog.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-create-dialog.vue.json",
@@ -7449,7 +7464,7 @@
     "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
       "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
       "shardFile": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.212Z"
+      "sourceModifiedAt": "2026-11-27T05:28:58.250Z"
     },
     "src/views/features/shared/table/feature-table-actions.ts": {
       "sourceFile": "src/views/features/shared/table/feature-table-actions.ts",

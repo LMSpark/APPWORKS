@@ -15,7 +15,7 @@ import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspa
 import { PageRuntime, ProjectWorkspace, type ProjectBlueprintRecord } from '@spark-appworks/spark-project-model'
 import { createLowcodeProjectGateways, createPageToolFilesIo } from '@/platform-adapters/lowcode-runtime'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
-import { lowcodeEnterpriseNavigation, lowcodePlatformNavigation } from '@/platform-adapters/system-navigation'
+import { applicationDesignItems, lowcodeEnterpriseNavigation, lowcodePlatformNavigation, withApplicationDesign } from '@/platform-adapters/system-navigation'
 
 const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
 const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
@@ -36,6 +36,7 @@ import {
   lowcodeBlueprintRecords,
   lowcodeNavigationAuthorization,
   readLowcodeRuntimeNavigation,
+  verifyLowcodeNativeApplicationPlan,
 } from '@/platform-adapters/lowcode-runtime'
 
 function saveExecutionScope(applicationId: string, navigationRootId = `ROOT-${applicationId}`): void {
@@ -1126,5 +1127,63 @@ describe('lowcode project navigation projection', () => {
     expect(projection.items[0]?.path).toBe('/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=#details')
     expect(projection.items[0]?.blueprintScenarioId).toBe('BOUND-SCENARIO')
     expect(projection.homePath).toBe(`/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=native#details`)
+  })
+})
+
+describe('D99 working Plan navigation admission uses formal node and current authorization', () => {
+  const projectId = 'D99A1DCE9894698799101EFD70F8FC76'
+  const nodeId = 'B9EB9A416B3AFC711E3787399368D247'
+  const routePath = '/features/integration/mp-open/ui/application-page'
+  const target = `vue:${routePath}`
+  const command = {projectId, nodeId, scenarioId: nodeId, routePath, assertCurrent: () => undefined}
+  const leaf = {...record({nodeId, name: '审批', title: '审批', target, scenarioId: nodeId}), projectId}
+  const item = {id: nodeId, target, targetKind: 'vue' as const, formKey: nodeId, children: []}
+
+  beforeEach(() => {
+    saveExecutionScope(projectId)
+    vi.spyOn(lowcodeBlueprintRecords, 'readRecords').mockResolvedValue([leaf])
+    vi.spyOn(lowcodeNavigationAuthorization, 'readNavigationAuthorization').mockResolvedValue({items: [item], contexts: []})
+  })
+
+  it('accepts only the actual blueprint and matching formal authorization with its original scope', async () => {
+    await expect(verifyLowcodeNativeApplicationPlan(command)).resolves.toBeUndefined()
+    expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledExactlyOnceWith(projectId, `ROOT-${projectId}`)
+  })
+
+  it('registers a Vue component without adding a synthetic application design entry', async () => {
+    const entry = VuePageRegistry.getVuePageEntry(routePath)
+    expect(entry?.scope).toBe('app')
+    await expect(entry?.load()).resolves.toHaveProperty('default')
+    expect(applicationDesignItems(withApplicationDesign([])).some(page => page.path === routePath)).toBe(false)
+  })
+
+  it('requires a matching blueprint owner before authorization lookup', async () => {
+    vi.mocked(lowcodeBlueprintRecords.readRecords).mockResolvedValueOnce([])
+    await expect(verifyLowcodeNativeApplicationPlan(command)).rejects.toThrow('原生入口与正式应用蓝图不一致')
+    expect(lowcodeNavigationAuthorization.readNavigationAuthorization).not.toHaveBeenCalled()
+    vi.mocked(lowcodeBlueprintRecords.readRecords).mockResolvedValueOnce([leaf, leaf])
+    await expect(verifyLowcodeNativeApplicationPlan(command)).rejects.toThrow('原生入口与正式应用蓝图不一致')
+    vi.mocked(lowcodeBlueprintRecords.readRecords).mockResolvedValueOnce([{...leaf, projectId: 'another-app'}])
+    await expect(verifyLowcodeNativeApplicationPlan(command)).rejects.toThrow('原生入口与正式应用蓝图不一致')
+  })
+
+  it.each([
+    ['no node', []],
+    ['wrong URL', [{...item, target: 'vue:/not-the-application-entry'}]],
+    ['wrong form', [{...item, formKey: 'other-scenario'}]],
+  ])('rejects authorization with %s', async (_case, items) => {
+    vi.mocked(lowcodeNavigationAuthorization.readNavigationAuthorization).mockResolvedValueOnce({items, contexts: []})
+    await expect(verifyLowcodeNativeApplicationPlan(command)).rejects.toThrow('当前人缺少本入口和主场景的正式授权')
+  })
+
+  it('rejects a matching authorization delivered after application navigation root changed', async () => {
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeNavigationAuthorization.readNavigationAuthorization>>>()
+    vi.mocked(lowcodeNavigationAuthorization.readNavigationAuthorization).mockReturnValueOnce(authorization.promise)
+    const outcome = verifyLowcodeNativeApplicationPlan(command)
+    const rejected = expect(outcome).rejects.toThrow(/SCOPE_STALE|NAVIGATION_UNAUTHORIZED/)
+    await vi.waitFor(() => expect(lowcodeNavigationAuthorization.readNavigationAuthorization).toHaveBeenCalledOnce())
+    lowcodeApi.application.save({application: application(projectId), navigationRootId: 'other-root'})
+    authorization.resolve({items: [item], contexts: []})
+    await rejected
   })
 })

@@ -61,6 +61,13 @@
       "dataSpaceId": "A8FB2B2B161125A16FD15ED9581CD15B"
     },
     {
+      "path": "/features/integration/mp-open/ui/application-page",
+      "title": "小程序申请",
+      "scope": "app",
+      "source": "src/views/features/integration/mp-open/ui/application-page.vue",
+      "hidden": true
+    },
+    {
       "path": "/features/integration/api-management/ui/api-management-page",
       "title": "外部服务管理",
       "scope": "enterprise",

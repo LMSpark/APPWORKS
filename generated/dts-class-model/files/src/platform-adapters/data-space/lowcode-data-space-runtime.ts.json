@@ -230,9 +230,31 @@
           ]
         }
       }
+    },
+    "NativeWorkingPlanSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativeWorkingPlanSource",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "routePath": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-23T08:03:43.918Z",
+  "generatedAt": "2026-11-27T05:28:57.585Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",
@@ -397,6 +419,45 @@
                     ]
                   }
                 ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "NativeWorkingPlanSource": {
+      "name": "NativeWorkingPlanSource",
+      "jsdoc": "原生页明确选用已知应用工作 Plan，实例 guard 约束导航变更期间迟到的已派发读取。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    routePath: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    routePath: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routePath",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]

@@ -3,7 +3,7 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceApi } from '@/platform-adapters/api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp, verifyLowcodeNativeApplicationPlan } from '../lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
@@ -242,11 +242,24 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  return result.dataSet
 }
 
+const MP_APPLICATION_WORKING_PLAN = Object.freeze({
+ projectId: 'D99A1DCE9894698799101EFD70F8FC76',
+ nodeId: 'B9EB9A416B3AFC711E3787399368D247',
+ scenarioId: 'B9EB9A416B3AFC711E3787399368D247',
+ routePath: '/features/integration/mp-open/ui/application-page',
+ modelId: '42a0f810-edb8-46a1-9174-f6141d212c6d',
+ modelName: 'base_channel_miniapp_template_application',
+})
+
+/** 原生页明确选用已知应用工作 Plan，实例 guard 约束导航变更期间迟到的已派发读取。 */
+type NativeWorkingPlanSource = Readonly<{nodeId: string; routePath: string; assertCurrent: () => void}>
+
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
 export async function loadLowcodeRuntimeScenario(command: Readonly<{
  projectId: string
  scenarioId: string
  source?: PageRuntimeSource
+ workingSource?: NativeWorkingPlanSource
  pagedata?: Readonly<{scenarioId: string; version: number; fileName: string; sha256: string; sourceRevision: string; text: string}>
  dataset?: Readonly<{scenarioId: string; fileName: string; sha256: string; sourceRevision: string}>
  getPage?:ApiModelRuleHost['getPage']
@@ -270,6 +283,37 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  if (command.pagedata && command.dataset) throw new Error('PAGE_RUNTIME_SOURCE_CONFLICT: pagedata 与 Dataset proof 不能同时存在')
  if (command.pagedata && command.pagedata.scenarioId !== scenarioId) {
   throw new Error('PAGE_PUBLICATION_MANIFEST_CONFLICT: pagedata 场景身份不一致')
+ }
+ const workingSource = command.workingSource
+ if (workingSource) {
+  const expected = MP_APPLICATION_WORKING_PLAN
+  if (source.mode !== 'design' || source.sourceRevision !== 'working' || source.scenarioIds.length !== 1) {
+   throw new Error('NATIVE_DATASET_PLAN_SOURCE_CONFLICT: 工作 Plan 只适用于本次原生主场景')
+  }
+  if (projectId !== expected.projectId || scenarioId !== expected.scenarioId
+    || workingSource.nodeId !== expected.nodeId || workingSource.routePath !== expected.routePath) {
+   throw new Error('NATIVE_DATASET_PLAN_IDENTITY: 工作 Plan 与正式应用及入口身份不一致')
+  }
+  const execution = readLowcodeExecutionProject()
+  if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工作 Plan 所属应用已失效')
+  const assertCurrent = () => {
+   workingSource.assertCurrent()
+   execution.assertCurrent()
+  }
+  assertCurrent()
+  await verifyLowcodeNativeApplicationPlan({...expected, assertCurrent})
+  assertCurrent()
+  const fileDataSet = DataSet.fromJson({scenarioId, tables: {}})
+  const text = await readRuntimeDataSetPlan({scenarioId, dataSet: fileDataSet, assertCurrent})
+   .finally(() => fileDataSet.destroy())
+  assertCurrent()
+  if (text === null) throw new Error('DATASET_PLAN_FILE_MISSING: 后端独立 Dataset 文件不存在')
+  const plan = parseRuntimeDataSetPlanFile(text, scenarioId)
+  if (plan.models.length !== 1 || plan.models[0]?.id !== expected.modelId || plan.models[0].metaName !== expected.modelName) {
+   throw new Error('NATIVE_DATASET_PLAN_MODEL: 工作 Plan 未绑定本入口的正式模型')
+  }
+  return assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
+   ...(command.getPage ? {getPage: command.getPage} : {})})
  }
  if (projectId === APPLICATION_CATALOG_PROJECT_ID) {
   if (source.mode !== 'design') throw new Error('CATALOG_SCENARIO_SOURCE_CONFLICT: 目录场景只接纳仓内设计来源')

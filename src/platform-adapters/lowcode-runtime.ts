@@ -465,6 +465,39 @@ function runtimeTargetProjection(
   return { targetKind }
 }
 
+/** 工作 Plan 必须绑定当前应用正式蓝图与同一次授权菜单中的原生节点。 */
+export async function verifyLowcodeNativeApplicationPlan(command: Readonly<{
+  projectId: string
+  nodeId: string
+  routePath: string
+  scenarioId: string
+  assertCurrent: () => void
+}>): Promise<void> {
+  command.assertCurrent()
+  const active = lowcodeApi.application.get()
+  if (active?.application.id !== command.projectId || !active.navigationRootId) {
+    throw new Error('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED: 当前应用没有正式导航根')
+  }
+  const records = await lowcodeBlueprintRecords.readRecords(command.projectId)
+  command.assertCurrent()
+  const leaves = records.filter(record => record.nodeId === command.nodeId)
+  const leaf = leaves.length === 1 ? leaves[0] : undefined
+  const target = `vue:${command.routePath}`
+  if (leaf?.projectId !== command.projectId || leaf.dataSpace?.scenarioId !== command.scenarioId
+    || leaf.navigation?.publishInMenu !== true || leaf.navigation.target !== target) {
+    throw new Error('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED: 原生入口与正式应用蓝图不一致')
+  }
+  const authorization = await readNavigationAuthorizationDataView({
+    applicationId: command.projectId, navigationRootId: active.navigationRootId, assertCurrent: command.assertCurrent,
+  })
+  command.assertCurrent()
+  const granted = findAuthorization(authorization.items, command.nodeId)
+  if (lowcodeApi.application.get()?.navigationRootId !== active.navigationRootId || granted?.targetKind !== 'vue'
+    || granted.target !== target || granted.formKey !== command.scenarioId) {
+    throw new Error('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED: 当前人缺少本入口和主场景的正式授权')
+  }
+}
+
 function buildRuntimeNavigationItem(
   record: ProjectModel.ProjectBlueprintRecord,
   childrenByParent: ReadonlyMap<string, readonly ProjectModel.ProjectBlueprintRecord[]>,

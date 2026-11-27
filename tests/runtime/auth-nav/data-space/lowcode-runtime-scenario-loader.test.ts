@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import { DATA_SPACE_DESIGN_FORM_KEY, LowcodeApiError } from '@/platform-adapters/api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig, ProjectToolResource, ProjectWorkspace } from '@spark-appworks/spark-project-model'
@@ -9,6 +10,7 @@ import agentWorkflowConfig from '../../../../config/pages/shared/agent-workflow-
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
+  verifyNativeApplicationPlan: vi.fn(),
   readCatalogScope: vi.fn(),
   readText: vi.fn(),
   readSpaceDefinition: vi.fn(),
@@ -43,6 +45,7 @@ vi.mock('@/platform-adapters/lowcode-runtime', async () => {
       runtime: new DataSpaceRuntimeApi({http, readScope: mocks.readRequestScope}) },
     design: {listFiles: mocks.listFiles, readTextFile: mocks.readTextFile},
   },
+  verifyLowcodeNativeApplicationPlan: mocks.verifyNativeApplicationPlan,
   lowcodeHttp: http,
   readLowcodeCatalogRuntimeRequestScope: mocks.readCatalogScope,
   lowcodeDesignFileUpload: vi.fn(),
@@ -767,4 +770,121 @@ describe('scoped projection scenario loading',()=>{
    expect(mocks.request).not.toHaveBeenCalled()
   }finally{dataSet.destroy()}
  })
+})
+
+describe('D99 application entry explicitly reads its working Dataset Plan', () => {
+  const projectId = 'D99A1DCE9894698799101EFD70F8FC76'
+  const scenarioId = 'B9EB9A416B3AFC711E3787399368D247'
+  const modelId = '42a0f810-edb8-46a1-9174-f6141d212c6d'
+  const modelName = 'base_channel_miniapp_template_application'
+  const routePath = '/features/integration/mp-open/ui/application-page'
+  const workingSource = {nodeId: scenarioId, routePath, assertCurrent: () => undefined}
+  const command = {projectId, scenarioId, workingSource}
+  const fixtureFieldId = 'isolation-formal-id-field'
+  const planModel = {id: modelId, metaName: modelName, name: modelName, description: '', sourceType: '数据库表',
+    isBusinessMain: false, isBusiness: false, outputType: '', filter: '', parentField: '', hasChildField: '',
+    selfType: '', topValue: '', cacheType: '', join: {joinType: '', foreignKeyFields: '', joinFilter: '', pId: ''},
+    crud: {addApi: '', updateApi: '', deleteApi: ''}}
+
+  function plan(overrides: Record<string, unknown> = {}) {
+    return JSON.stringify({
+      schemaVersion: 1, kind: 'spark.runtimeDataSetPlan', scenarioId, name: '申请审批', description: '', type: '数据源',
+      savedAt: '2026-11-25T00:00:00.000Z', contentHash: 'fnv1a:12345678',
+      source: {dataSetId: scenarioId, exportedFrom: 'data-space-design', graphFile: `${scenarioId}.json`},
+      inputParams: [], models: [planModel],
+      modelFields: [{id: fixtureFieldId, dataModelId: modelId, name: 'id', asName: '', fieldType: 'bigint',
+        isPKey: true, isOutput: true, order: 0, orderType: '', group: 0, type: 'dataModel', description: ''}],
+      views: [], viewFields: [], relations: [], linkage: {edges: []}, ...overrides,
+    })
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    mocks.readRequestScope.mockReturnValue(scope('current-actor', projectId))
+    mocks.readText.mockResolvedValue(null)
+    mocks.verifyNativeApplicationPlan.mockResolvedValue(undefined)
+    mocks.readTextFile.mockResolvedValue(plan())
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: scenarioId, name: '申请审批'})
+    mocks.readModelBatch.mockResolvedValue([{id: modelId, name: modelName, metaName: modelName,
+      sourceName: modelName, sourceId: 'fixture-database', sourceType: '数据库表', primaryKey: 'id',
+      businessMain: false, raw: {}, fields: [{id: fixtureFieldId, modelId, name: 'id',
+        canonicalName: 'id', type: 'bigint', primaryKey: true, description: '', output: true, computed: false,
+        order: 0, orderType: '', raw: {}}]}])
+  })
+
+  it('binds the one historical model through its current scoped working file and formal metadata', async () => {
+    const native = new NativePageRuntimeSession()
+    const runtime = native.acquire({
+      pageId: scenarioId, scenarioIds: [scenarioId], targetId: `${projectId}:${scenarioId}`,
+      loadScenario: id => loadLowcodeRuntimeScenario({...command, scenarioId: id}),
+    })
+    try {
+      await runtime.load()
+      expect(runtime.getDataSet(scenarioId)?.getTable(modelName)?.modelBinding?.modelId).toBe(modelId)
+      expect(runtime.resolveView(`${scenarioId}@${modelName}@default`)?.primaryKey).toBe('id')
+      expect(mocks.readTextFile).toHaveBeenCalledExactlyOnceWith({
+        appType: 'designfile', customPath: 'DataSet', fileName: `${scenarioId}.dataset.json`,
+      })
+      expect(mocks.readText).not.toHaveBeenCalled()
+    } finally {native.dispose()}
+  })
+
+  it('stops before both file and metadata reads when the formal node is absent', async () => {
+    mocks.verifyNativeApplicationPlan.mockRejectedValue(new Error('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED'))
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED')
+    expect(mocks.readTextFile).not.toHaveBeenCalled()
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['node', {workingSource: {...workingSource, nodeId: 'different-node'}}],
+    ['path', {workingSource: {...workingSource, routePath: '/another-entry'}}],
+    ['scenario', {scenarioId: 'different-scenario'}],
+    ['project', {projectId: 'different-application'}],
+    ['directory', {projectId: 'homepage'}],
+  ])('rejects a different %s before any Plan or metadata IO', async (_case, overrides) => {
+    await expect(loadLowcodeRuntimeScenario({...command, ...overrides})).rejects.toThrow('NATIVE_DATASET_PLAN_IDENTITY')
+    expect(mocks.verifyNativeApplicationPlan).not.toHaveBeenCalled()
+    expect(mocks.readTextFile).not.toHaveBeenCalled()
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
+  it('does not treat a working-source admission as publication proof', async () => {
+    await expect(loadLowcodeRuntimeScenario({...command, source: {
+      mode: 'published', sourceRevision: 'revision', publicationRef: null, scenarioIds: [scenarioId],
+    }})).rejects.toThrow('PAGE_RUNTIME_PUBLICATION_REQUIRED')
+    expect(mocks.verifyNativeApplicationPlan).not.toHaveBeenCalled()
+    expect(mocks.readTextFile).not.toHaveBeenCalled()
+  })
+
+  it('retains permission and missing file errors and never falls back to pagedata', async () => {
+    mocks.readTextFile.mockRejectedValueOnce(new LowcodeApiError(403, 'Plan read denied'))
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('Plan read denied')
+    mocks.readTextFile.mockRejectedValueOnce(new LowcodeApiError(404, 'Plan file missing'))
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('DATASET_PLAN_FILE_MISSING')
+    expect(mocks.readText).not.toHaveBeenCalled()
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
+  it('rejects a valid-shaped Plan for another model before metadata IO', async () => {
+    const replacementModel = {...planModel, id: 'other-model'}
+    mocks.readTextFile.mockResolvedValue(plan({models: [replacementModel], modelFields: []}))
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('NATIVE_DATASET_PLAN_MODEL')
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
+  it('discards a working file that arrives after the page or application identity changed', async () => {
+    let currentPage = true
+    const guardedCommand = {...command, workingSource: {...workingSource, assertCurrent() {
+      if (!currentPage) throw new Error('page instance expired')
+    }}}
+    mocks.readTextFile.mockImplementationOnce(async () => {currentPage = false; return plan()})
+    await expect(loadLowcodeRuntimeScenario(guardedCommand)).rejects.toThrow('page instance expired')
+    mocks.readTextFile.mockImplementationOnce(async () => {
+      mocks.readRequestScope.mockReturnValue(scope('replacement-actor', projectId))
+      return plan()
+    })
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
 })

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1527,
+  "scannedFileCount": 1530,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -23328,6 +23328,45 @@
         "modulePath": "views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record",
         "jsdoc": "@module app:views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record\n职责：明确确认原公共参数四字段重绑，或处理其原生待提交修改。\n边界：固定原rowid，复用原DataView及公共记录操作；不新增参数、不持有可编辑草稿。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/application-detail.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/application-detail.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/application-detail",
+        "sourcePath": "src/views/features/integration/mp-open/ui/application-detail.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/application-detail.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/application-detail",
+        "jsdoc": "app 的 views/features/integration/mp-open/ui/application-detail 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/application-fields.ts": {
+      "file": "files/src/views/features/integration/mp-open/ui/application-fields.ts.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/application-fields",
+        "sourcePath": "src/views/features/integration/mp-open/ui/application-fields.ts",
+        "sourceFile": "src/views/features/integration/mp-open/ui/application-fields.ts",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/application-fields",
+        "jsdoc": "app 的 views/features/integration/mp-open/ui/application-fields 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/application-page.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/application-page.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/application-page",
+        "sourcePath": "src/views/features/integration/mp-open/ui/application-page.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/application-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/application-page",
+        "jsdoc": "app 的 views/features/integration/mp-open/ui/application-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
         "symbols": []
       }
     },

@@ -11,7 +11,8 @@ import {hashRevisionContentRoot} from '@/services/smart-bid/content/hashes/revis
 import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
-export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean;baselineRequirementVersion?:string;baselineFactId?:string;responseReview?:{reviewedBy:string|null;reviewedAt:string|null}}={}){
+export async function createCandidateReadFixture(mode='normal',options:{tenderConfirmStatus?:'CONFIRMED'|'REJECTED';threeVersions?:boolean;headingText?:string;computeRoot?:boolean;scenarioId?:string;baselineRequirementVersion?:string;baselineFactId?:string;responseReview?:{reviewedBy:string|null;reviewedAt:string|null}}={}){
+ const scenarioId=options.scenarioId??'S'
  const param=(name:string)=>({Type:'GetInputParam',ParamName:name})
  const eq=(field:string,name=field)=>({field,operator:'eq' as const,value:param(name)})
  const payloads:Array<{nodeId:string;parentId:string;index:number;type:string;class:string[];value:string;data:Record<string,unknown>}>=
@@ -58,7 +59,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   targetScopes:[{schemaVersion:2,projectId:'P',targets:[{kind:'PROJECT'}]},
    {schemaVersion:2,projectId:'P',targets:[{kind:'NODE',nodeId:'C',extent:'NODE'},{kind:'NODE',nodeId:'H',extent:'NODE'}]}],
   lockHash:'f'.repeat(64)}
- const ds=DataSet.fromJson({scenarioId:'S',tables:{
+ const ds=DataSet.fromJson({scenarioId,tables:{
   Response:{modelBinding:{modelId:'RESPONSE',modelName:'Response'},
    columns:['id','projectId','assignmentId','lineageId','version','revisionId','statement','data','deviation',
     'answerLocation','promiseRefs','evidenceRefs','reviewedBy','reviewedAt'].map(name=>({name,isPrimaryKey:name==='id'})),
@@ -107,7 +108,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
   stageRef:mode==='stage'?{id:'ST',version:'2'}:{version:'1',id:'ST'},
   templateRefs:mode==='template'?[{documentId:'D',key:'T',version:'2',hash:'a'.repeat(64)}]:templateRefs}
  const query=vi.fn(async(view:DataView)=>{
-  const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId:'S',metaName:model})
+  const model=view.dataTable!.tableName,q=new DataSpaceQueryTable({scenarioId,metaName:model})
   const rows=model==='Response'?[{id:'NEW',projectId:'P',assignmentId:'A',lineageId:'L',version:'R1',revisionId:'ORIGINAL',
    statement:'报价{{金额}}',data:{金额:{type:'fact',factId:'PRICE'}},deviation:null,
    answerLocation:{id:'LOCATION'},promiseRefs:[],evidenceRefs:[],reviewedBy:null,reviewedAt:null,...options.responseReview}]:
@@ -125,7 +126,7 @@ export async function createCandidateReadFixture(mode='normal',options:{tenderCo
  for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))view.bindQueryExecutor({executeQuery:query,save})
  ds.getView('ContentProject','selectedProject')!.queryContext={projectId:'P'}
  let current=true
- const host={scenarioId:'S',projectId:'P',runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},
+ const host={scenarioId,projectId:'P',runtime:{resolveView:(key:string)=>{const k=parseDataViewKey(key);return k?ds.getView(k.tableName,k.viewId):undefined}},
   assertCurrent:()=>{if(!current)throw Error('HOST_STALE')}}
  return {ds,host,query,save,expire:()=>{current=false}}
 }

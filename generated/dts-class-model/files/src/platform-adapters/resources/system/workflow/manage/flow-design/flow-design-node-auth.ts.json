@@ -59,7 +59,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.799Z",
+  "generatedAt": "2026-11-27T01:46:48.076Z",
   "models": {
     "SyncFlowDesignNodeAuthCommand": {
       "name": "SyncFlowDesignNodeAuthCommand",

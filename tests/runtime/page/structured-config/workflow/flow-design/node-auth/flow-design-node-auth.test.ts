@@ -10,11 +10,12 @@ type MockView = {
   destroyed: boolean
   queryContext: Record<string, string>
   loadingError: Error | null
+  assertResultReplacementAllowed: () => void
   refresh: ReturnType<typeof vi.fn>
 }
 
 function createView(): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, refresh: vi.fn(async () => undefined)}
+  return {destroyed: false, queryContext: {}, loadingError: null, assertResultReplacementAllowed() {}, refresh: vi.fn(async () => undefined)}
 }
 
 describe('defaultFlowDesignNodeAuthRow', () => {

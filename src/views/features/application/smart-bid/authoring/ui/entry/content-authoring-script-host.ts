@@ -31,6 +31,22 @@ type DraftCandidateInput=Readonly<{
 }>
 type PublishedContentAuthoringInvoke=(name:string,input:unknown,signal:AbortSignal)=>Promise<unknown>
 
+function readDeclaredAddedNodeIds(value:unknown):readonly string[]|undefined{
+ if(value===undefined)return undefined
+ const ids=Array.isArray(value)?value:[value]
+ if(!ids.every(identity))throw Error('CONTENT_PAGE_COMMAND_INPUT_REQUIRED')
+ return ids
+}
+
+function readCandidateOriginalForm(value:unknown):CandidatePreviewInput['originalFormTemplate']{
+ if(value===undefined)return undefined
+ if(!isRecord(value))throw Error('BID_ORIGINAL_FORM_SCOPE')
+ const {documentId,templateRef,templateVersion}=value
+ if(documentId===undefined&&templateRef===undefined&&templateVersion===undefined)return undefined
+ if(!identity(documentId)||!identity(templateRef)||!identity(templateVersion))throw Error('BID_ORIGINAL_FORM_SCOPE')
+ return {documentId,templateRef,templateVersion}
+}
+
 function isUncachedContentRead(view:NonNullable<ReturnType<PageRuntime['resolveView']>>){
  const {cacheType}=view.queryConfig
  return cacheType===undefined||cacheType==='none'
@@ -89,20 +105,16 @@ export function createPublishedContentAuthoringHost(runtime:PageRuntime,target:C
     return session.readCurrentHead()
    if(name==='content.authoring.previewCandidate'&&isRecord(input['options'])){
     const options=input['options']
-    const declaredAddedNodeIds=Array.isArray(options['declaredAddedNodeIds'])
-     ? options['declaredAddedNodeIds'].filter((value):value is string=>typeof value==='string') : []
-    const originalForm=isRecord(options['originalFormTemplate'])?options['originalFormTemplate']:undefined
-    const preview:CandidatePreviewInput={declaredAddedNodeIds,
-     ...(originalForm?{originalFormTemplate:{documentId:String(originalForm['documentId']),templateRef:String(originalForm['templateRef']),
-      templateVersion:String(originalForm['templateVersion'])}}:{})}
+    const declaredAddedNodeIds=readDeclaredAddedNodeIds(options['declaredAddedNodeIds'])??[]
+    const originalFormTemplate=readCandidateOriginalForm(options['originalFormTemplate'])
+    const preview:CandidatePreviewInput={declaredAddedNodeIds,...(originalFormTemplate?{originalFormTemplate}:{})}
     return session.previewCandidate({
      candidateRevisionId:String(input['candidateRevisionId']),
      expectedHead:input['expectedHead']===undefined||input['expectedHead']===null?null:String(input['expectedHead']),
     },preview)
    }
    if(name==='content.authoring.prepareCandidate'){
-    const declared=Array.isArray(input['declaredAddedNodeIds'])
-     ? input['declaredAddedNodeIds'].filter((value):value is string=>typeof value==='string') : undefined
+    const declared=readDeclaredAddedNodeIds(input['declaredAddedNodeIds'])
     const request:DraftCandidateInput={requestKey:String(input['requestKey']),
      ...(input['targetScope']===undefined?{}:{targetScope:input['targetScope']}),
      ...(input['firstBatchId']===undefined?{}:{firstBatchId:String(input['firstBatchId'])}),

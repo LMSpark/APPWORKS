@@ -119,3 +119,94 @@ it('runs the approval design tool in the original directory and keeps each save 
     expect(load.mock.calls.map(([args]) => args.scenarioId)).toEqual([catalogId, FLOW_DESIGN_SCENARIO_ID])
   } finally {releaseDirectory(); wrapper.unmount(); load.mockReset()}
 })
+
+it('keeps node authorization bound to the current formal selection while candidates load', async () => {
+  const catalog = catalogFixture(), design = buildFlowDesignScenario()
+  design.http.records['WFM_FLOW_NODE']!.push({rowid: 'N2', FLOWID: 'FM-1', TITLE: 'Second', TYPEID: 11, MEMO: ''})
+  design.http.records['FunctionNodeAuth'] = [
+    {rowid: 'AUTH1', pageID: 'FM-1', FunCodeID: 'N1', contenttype: 1, QID: 'subject-only-N1'},
+    {rowid: 'AUTH2', pageID: 'FM-1', FunCodeID: 'N2', contenttype: 1, QID: 'subject-only-N2'},
+  ]
+  const load = vi.mocked(loadLowcodeRuntimeScenario)
+  load.mockImplementation(async args => args.scenarioId === catalogId ? catalog.ds : design.ds)
+  const router = createRouter({history: createMemoryHistory(), routes: [{path, component: FlowModelList,
+    meta: {nodeId: catalogId, blueprintScenarioId: catalogId, systemPageIdentityState: 'resolved'}}]})
+  await router.push(path); await router.isReady()
+  const page = new SystemPageIdentityPool().get(router.currentRoute.value, {scope: 'application', projectId: 'APP',
+    nodeId: catalogId, pageId: catalogId, path, title: '流程模型', explicitQuery: {}, component: FlowModelList})
+  const wrapper = mount(withTestPageService(page.view, router), {attachTo: document.body,
+    global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+  const body = new DOMWrapper(document.body)
+  const button = (label: string) => body.findAll('button').find(item => item.text().trim() === label)
+  let releaseCandidates: () => void = () => undefined
+  const candidates = new Promise<void>(resolve => {releaseCandidates = resolve})
+  let awaitingCandidates = false
+  let releaseOldSelection: () => void = () => undefined
+  const oldSelection = new Promise<void>(resolve => {releaseOldSelection = resolve})
+  try {
+    await vi.waitFor(() => expect(button('设计')).toBeDefined())
+    await button('设计')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererGraph).exists()).toBe(true))
+    const graph = wrapper.getComponent(RendererGraph)
+    const select = (id: string) => graph.vm.$emit('select', {kind: 'node', id})
+    select('N1')
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N1'))
+    design.http.beforeDefinitionRead = async table => {
+      if (table !== '_Base_FunctionNode') return
+      awaitingCandidates = true
+      await candidates
+    }
+    select('N2')
+    await vi.waitFor(() => expect(awaitingCandidates).toBe(true))
+    expect(graph.props('current')).toEqual({kind: 'node', id: 'N2'})
+    expect(body.text()).not.toContain('subject-only-N1')
+    releaseCandidates()
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
+    expect(body.text()).not.toContain('subject-only-N1')
+
+    const authReads = () => design.http.reads.filter(read => read.table === 'FunctionNodeAuth').length
+    let oldSelectionStarted = false
+    design.http.beforeDefinitionRead = async table => {
+      if (table !== '_Base_FunctionNode' || oldSelectionStarted) return
+      oldSelectionStarted = true
+      await oldSelection
+    }
+    select('N1')
+    await vi.waitFor(() => expect(oldSelectionStarted).toBe(true))
+    select('N2')
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
+    select('N1')
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N1'))
+    await flushPromises()
+    const afterReselect = authReads()
+    releaseOldSelection()
+    await flushPromises()
+    expect(authReads()).toBe(afterReselect)
+    expect(body.text()).not.toContain('subject-only-N2')
+
+    const auth = design.ds.getView('FunctionNodeAuth', 'nodeAuth')!
+    auth.updateEditingValue('AUTH1', 'QID', 'unsubmitted-subject-N1')
+    const beforeDirtySwitch = authReads()
+    select('N2')
+    await vi.waitFor(() => expect(body.text()).toContain('必须先保存或明确放弃修改'))
+    expect(graph.props('current')).toEqual({kind: 'node', id: 'N1'})
+    expect(auth.queryContext['selectedNodeId']).toBe('N1')
+    expect(auth.getEditingRow('AUTH1')?.['QID']).toBe('unsubmitted-subject-N1')
+    expect(authReads()).toBe(beforeDirtySwitch)
+    auth.discardPendingChanges()
+
+    await button('新增节点')!.trigger('click')
+    await vi.waitFor(() => {
+      const selection = graph.props('current')
+      expect(selection?.kind).toBe('node')
+      expect(design.nodes.dirtyTracking.isPendingCreate(selection!.id)).toBe(true)
+    })
+    const draftId = String(graph.props('current')!.id)
+    select(draftId)
+    await flushPromises()
+    expect(body.text()).not.toContain('subject-only-N1')
+    expect(body.text()).not.toContain('subject-only-N2')
+    expect(authReads()).toBe(beforeDirtySwitch)
+    expect(design.http.saves).toHaveLength(0)
+  } finally {releaseCandidates(); releaseOldSelection(); wrapper.unmount(); load.mockReset()}
+})

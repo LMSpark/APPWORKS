@@ -35,6 +35,7 @@ export async function syncFlowDesignNodeAuthView(command: SyncFlowDesignNodeAuth
     command.assertCurrent?.()
   }
   const view = requireView(dataSet.getView('FunctionNodeAuth', 'nodeAuth'), 'FunctionNodeAuth', 'nodeAuth')
+  view.assertResultReplacementAllowed()
   view.queryContext = {
     ...view.queryContext,
     FLOWID: targetId,

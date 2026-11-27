@@ -22,18 +22,18 @@
         "projectId": {
           "type": "string"
         },
-        "dataViewKey": {
+        "draftId": {
           "type": "string"
         },
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
         },
-        "draftId": {
-          "type": "string"
-        },
         "runtime": {
           "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "dataViewKey": {
+          "type": "string"
         },
         "actorUserId": {
           "type": "string"
@@ -45,10 +45,10 @@
       },
       "required": [
         "projectId",
-        "dataViewKey",
-        "assertCurrent",
         "draftId",
+        "assertCurrent",
         "runtime",
+        "dataViewKey",
         "actorUserId",
         "setPending"
       ],
@@ -342,7 +342,8 @@
           "additionalProperties": false
         },
         "method.editorProps.return": {
-          "$ref": "../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.readOriginalSave.params": {
           "type": "object",
@@ -451,7 +452,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-25T22:11:37.840Z",
+  "generatedAt": "2026-11-27T01:46:48.085Z",
   "models": {
     "Binding": {
       "name": "Binding",
@@ -474,7 +475,7 @@
               "writable": true
             },
             {
-              "name": "dataViewKey",
+              "name": "draftId",
               "readable": true,
               "writable": true
             },
@@ -484,12 +485,12 @@
               "writable": true
             },
             {
-              "name": "draftId",
+              "name": "runtime",
               "readable": true,
               "writable": true
             },
             {
-              "name": "runtime",
+              "name": "dataViewKey",
               "readable": true,
               "writable": true
             },

@@ -5009,7 +5009,7 @@
     "src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts",
       "shardFile": "files/src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-node-auth.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:32.799Z"
+      "sourceModifiedAt": "2026-11-27T01:46:48.076Z"
     },
     "src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-save.ts": {
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design/flow-design-save.ts",
@@ -6554,7 +6554,7 @@
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-script-host.ts.json",
-      "sourceModifiedAt": "2026-11-25T22:11:37.840Z"
+      "sourceModifiedAt": "2026-11-27T01:46:48.085Z"
     },
     "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/content-authoring-target.ts",
@@ -7509,7 +7509,7 @@
     "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
       "shardFile": "files/src/views/features/workflow/flow-model/design/ui/flow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-26T16:33:58.606Z"
+      "sourceModifiedAt": "2026-11-27T01:46:48.074Z"
     },
     "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue": {
       "sourceFile": "src/views/features/workflow/flow-model/design/ui/form-panel/flow-design-form-panel.vue",

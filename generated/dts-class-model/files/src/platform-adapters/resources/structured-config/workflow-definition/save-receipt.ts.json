@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/structured-config/workflow-definition/save-receipt",
+    "sourcePath": "src/platform-adapters/resources/structured-config/workflow-definition/save-receipt.ts",
+    "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/save-receipt.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/structured-config/workflow-definition/save-receipt",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/save-receipt\n职责：保留工作流普通保存发起的原批次，核验只消费这次保存的原视图与原目标。\n边界：只编排 SPARK Data 的写入与恢复，保留原视图草稿，核验阶段不发业务保存。\nAI用途：设计定义、节点、布局和连线复用同一批次归属与原回执检查。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-27T12:46:58.025Z",
+  "models": {}
+}

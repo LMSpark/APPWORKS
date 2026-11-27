@@ -89,6 +89,7 @@ AI用途：节点对话框承接同一节点身份，来源和字段操作不因
 </template>
 <script setup lang="ts">
 
+import {settleWorkflowSave} from '@/platform-adapters/resources/structured-config/workflow-definition/save-receipt'
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {buildDataViewKey,RequestState,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
@@ -309,9 +310,22 @@ async function save(table:string):Promise<void>{
  const ds=dataSet.value,target=view(table),own=generation,id=target?.currentRow&&target.getPkKey(target.currentRow)
  if(!target||typeof id!=='string')return
  acting.value=true;error.value=''
- try{assertScope();if(table===nodesTable){if(props.boundaryPending)throw Error('请先保存或取消边界补齐');await validateWorkflowNodeTypeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]});await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]});await validateWorkflowOperationOutputChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]})}
-  assertScope();const result=await ds.saveChanges({views:[{tableName:table,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'保存未完整确认')
- }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ try{
+  assertScope()
+  if(!target.hasUnconfirmedSave){
+   if(!target.hasEditingChanges(id)&&!target.dirtyTracking.hasPendingChanges(id))throw Error('本次未提交节点变更')
+   if(table===nodesTable){
+    if(props.boundaryPending)throw Error('请先保存或取消边界补齐')
+    const input={dataSet:ds,workflowId:workflowId.value,nodeIds:[id]}
+    await validateWorkflowNodeTypeChanges(input)
+    await validateWorkflowMergeNodeChanges(input)
+    await validateWorkflowOperationOutputChanges(input)
+   }
+   assertScope()
+   if(target.currentRow===null||target.getPkKey(target.currentRow)!==id)throw Error('原保存目标已变化')
+  }
+  await settleWorkflowSave(target,id)
+ }catch(cause){if(active&&own===generation&&dataSet.value===ds&&target.currentRow&&target.getPkKey(target.currentRow)===id)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;emit('changed')}}
 }
 function cancel(table:string):void{

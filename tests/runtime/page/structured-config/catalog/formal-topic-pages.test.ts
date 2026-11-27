@@ -1,3 +1,4 @@
+import {DataSet} from '@spark-appworks/spark-data'
 import {readFileSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {resolve} from 'node:path'
@@ -500,13 +501,18 @@ describe('formal topic catalog pages', () => {
     }
     if(outcome==='catalog-refresh-failed'){
       expect(wrapper.text()).toContain('定义保存已确认，目录刷新失败')
-      expect(state.http.saves).toHaveLength(1);await click('保存定义');expect(state.http.saves).toHaveLength(1)
+      expect(state.http.saves).toHaveLength(1)
+      await field().get('input').setValue('稍后提交的新草稿');await flushPromises()
+      await click('重读定义目录');expect(state.http.saves).toHaveLength(1)
+      expect(field().get('input').element.value).toBe('稍后提交的新草稿')
     }
     if(outcome==='lost-receipt'){
       expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
       expect(wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消定义修改')!.props('disabled')).toBe(true)
       await router.push('/other');expect(router.currentRoute.value.path).toBe(path)
-      await click('核验定义保存结果')
+      const ordinarySave=vi.spyOn(DataSet.prototype,'saveChanges')
+      try{await click('核验定义保存结果');expect(ordinarySave).not.toHaveBeenCalled()}
+      finally{ordinarySave.mockRestore()}
       expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(false)
       expect(wrapper.text()).not.toContain('服务未提供原请求的权威终态')
     }

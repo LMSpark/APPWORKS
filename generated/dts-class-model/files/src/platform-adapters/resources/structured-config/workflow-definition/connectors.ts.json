@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "platform-adapters/resources/structured-config/workflow-definition/connectors",
     "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/connectors\n职责：正式工作流连线的端点/环校验与原DataView新增、精确保存。\n边界：连线不是布局；不复制节点或草稿，未知提交仅沿原DataSet核验，不重复新增。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "WorkflowConnectors"
     ]
@@ -87,12 +87,12 @@
         },
         "method.save.return": {
           "type": "object",
-          "title": "Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+          "title": "ReturnType<DataSet['saveChanges']>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.740Z",
+  "generatedAt": "2026-11-27T12:29:41.000Z",
   "models": {
     "WorkflowConnectors": {
       "name": "WorkflowConnectors",
@@ -175,11 +175,11 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "Promise",
+                "name": "ReturnType",
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>"
+                    "name": "DataSet['saveChanges']"
                   }
                 ]
               }

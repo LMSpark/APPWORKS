@@ -29,7 +29,7 @@
         <SparkComponent.FieldTextarea field="description" label="描述" :readonly="definitionLocked" />
       </SparkComponent.RendererForm>
       <template #footer>
-        <SparkComponent.RendererButton :label="definitionUnconfirmed ? '核验定义保存结果' : '保存定义'" :disabled="editBusy || !editReady" @click="saveDefinition" />
+        <SparkComponent.RendererButton :label="definitionUnconfirmed ? '核验定义保存结果' : pendingCatalogRead?.view===editor() && pendingCatalogRead?.id===editTarget ? '重读定义目录' : '保存定义'" :disabled="editBusy || !editReady" @click="saveDefinition" />
         <SparkComponent.RendererButton label="取消定义修改" :disabled="definitionLocked" @click="cancelDefinition" />
         <SparkComponent.RendererButton label="关闭定义" :disabled="definitionPending" @click="closeDefinition(false)" />
       </template>
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import {settleWorkflowSave} from '@/platform-adapters/resources/structured-config/workflow-definition/save-receipt'
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute,onBeforeRouteLeave,onBeforeRouteUpdate} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
@@ -178,6 +179,7 @@ async function assistCron(): Promise<void> {
 }
 function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){cancelCronRequest();triggerOpen.value=false;editTarget.value='';editReady.value=false}}
 function cancelDefinition():void{if(definitionLocked.value)return;cancelCronRequest();try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+const pendingCatalogRead=shallowRef<Readonly<{view:DataView;id:string}>>()
 async function saveDefinition():Promise<void>{
  if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}
  const target=editor(),ds=session.runtime?.getDataSet(scenarioId.value),catalog=view.value,id=editTarget.value,own=generation
@@ -187,12 +189,20 @@ async function saveDefinition():Promise<void>{
  editBusy.value=true;error.value=''
  let saved=false
  try{
-  const result=await ds.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]})
-  if(!result.success)throw Error(result.message??'定义保存未确认')
+  const rereading=pendingCatalogRead.value?.view===target&&pendingCatalogRead.value.id===id
+  if(!rereading){
+   if(!target.hasUnconfirmedSave&&!target.hasEditingChanges(id)&&!target.dirtyTracking.hasPendingChanges(id))
+    throw Error('本次未提交定义变更')
+   await settleWorkflowSave(target,id)
+   pendingCatalogRead.value={view:target,id}
+  }
   saved=true
-  if(!active||own!==generation)return
-  await catalog?.refresh()
-  if(catalog?.loadingError)throw catalog.loadingError
+  if(!active||own!==generation||target!==editor()||id!==editTarget.value)return
+  if(catalog){
+   const readback=await catalog.requestRefresh({defer:false})
+   if(!readback.success||readback.refreshStatus!=='read')throw Error(readback.message??'目录未完成本次读取')
+  }
+  if(pendingCatalogRead.value?.view===target&&pendingCatalogRead.value.id===id)pendingCatalogRead.value=undefined
  }
  catch(cause){if(active&&own===generation)error.value=(saved?'定义保存已确认，目录刷新失败：':'')+(cause instanceof Error?cause.message:String(cause))}
  finally{if(active&&own===generation){editBusy.value=false;revision.value++}}

@@ -63355,7 +63355,7 @@
       "chainBreak": "WorkflowConnectorCondition.load 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
-      "declarationLine": 11,
+      "declarationLine": 6,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
@@ -63367,7 +63367,7 @@
       "chainBreak": "WorkflowConnectorCondition.columns 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
-      "declarationLine": 12,
+      "declarationLine": 7,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
@@ -63379,7 +63379,7 @@
       "chainBreak": "WorkflowConnectorCondition.presentation 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
-      "declarationLine": 13,
+      "declarationLine": 8,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
@@ -63391,7 +63391,7 @@
       "chainBreak": "WorkflowConnectorCondition.add 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
-      "declarationLine": 28,
+      "declarationLine": 23,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
@@ -63403,7 +63403,7 @@
       "chainBreak": "WorkflowConnectorCondition.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
-      "declarationLine": 29,
+      "declarationLine": 24,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
@@ -63426,7 +63426,7 @@
       "chainBreak": "WorkflowConnectors.add 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts",
-      "declarationLine": 9,
+      "declarationLine": 4,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts",
       "declarationKind": "class"
     },
@@ -63438,7 +63438,7 @@
       "chainBreak": "WorkflowConnectors.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts",
-      "declarationLine": 13,
+      "declarationLine": 8,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/connectors.ts",
       "declarationKind": "class"
     },

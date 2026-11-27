@@ -520,7 +520,9 @@ describe('workflow query model creation in the original DataSet',()=>{
   const pending=await WorkflowConnectors.add(ds,'W1',{source:'START',target:'B'})
   http.failAfterWrite=true
   await expect(WorkflowConnectors.save(ds,'W1',pending)).rejects.toThrow()
-  expect((await WorkflowConnectors.save(ds,'W1',pending)).success).toBe(true)
+  const ordinarySave=vi.spyOn(ds,'saveChanges')
+  try{expect((await WorkflowConnectors.save(ds,'W1',pending)).success).toBe(true);expect(ordinarySave).not.toHaveBeenCalled()}
+  finally{ordinarySave.mockRestore()}
   expect(edges.hasUnconfirmedSave).toBe(false);expect(http.saves).toHaveLength(2)
   await edges.refresh()
   expect(edges.rows.some(row=>row['rowid']===pending)).toBe(true)

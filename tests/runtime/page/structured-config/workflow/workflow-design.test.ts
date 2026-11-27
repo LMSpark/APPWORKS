@@ -830,7 +830,9 @@ describe('workflow formal design page',()=>{
   await name.get('input').setValue('已提交待回读');await flushPromises();state.http.failAfterWrite=true;await f.click('保存节点')
   expect(state.http.saves).toHaveLength(1)
   expect(f.buttons().find(b=>b.text()==='取消节点修改')?.attributes('disabled')).toBeDefined()
-  await f.click('核验节点保存结果')
+  const ordinarySave = vi.spyOn(DataSet.prototype, 'saveChanges')
+  try {await f.click('核验节点保存结果');expect(ordinarySave).not.toHaveBeenCalled()}
+  finally {ordinarySave.mockRestore()}
   expect(state.http.saves).toHaveLength(1)
   expect(state.dirty[0]?.isDirty).toBe(false)
   expect(state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='N1')?.['name']).toBe('已提交待回读')
@@ -839,6 +841,54 @@ describe('workflow formal design page',()=>{
   await nodes.refresh()
   expect(nodes.rows.find(row=>row['rowid']==='N1')?.['name']).toBe('已提交待回读')
   expect(state.http.saves).toHaveLength(1)
+ })
+ it('leaves an unknown node batch with the workflow operation that actually submitted it',async()=>{
+  const f=await open()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}})
+  await flushPromises()
+  const ds=f.wrapper.getComponent(WorkflowSourceEdit).props('dataSet'),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  nodes.updateEditingValue('N1','name','其他操作确认')
+  state.http.failAfterWrite=true
+  await expect(ds.saveChanges({views:[{tableName:nodes.tableName,viewId:nodes.viewId,ids:['N1']}]})).rejects.toThrow()
+  const {batchId}=ds.saveJournal
+  await f.click('核验节点保存结果')
+  expect(f.text()).toContain('请通过原工作流操作核验保存结果')
+  expect(ds.saveJournal.batchId).toBe(batchId)
+  expect(nodes.hasUnconfirmedSave).toBe(true)
+  if(!batchId)throw Error('缺少夹具原批次')
+  const result=await ds.verifySaveJournalAndRead({batchId,receiptViews:[nodes],readbackViews:[]})
+  expect(result.settlement).toBe('confirmed')
+  expect(state.http.saves).toHaveLength(1)
+ })
+ it('preserves the node draft after a definite rejection and permits a manual retry',async()=>{
+  const f=await open()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}})
+  await flushPromises()
+  const name=f.wrapper.findAllComponents(FieldText).find(field=>field.props('label')==='节点名称')!
+  await name.get('input').setValue('继续人工保存')
+  await flushPromises()
+  state.http.rejectNextSave=true
+  await f.click('保存节点')
+  expect(state.http.saves).toHaveLength(0)
+  expect(name.get('input').element.value).toBe('继续人工保存')
+  await f.click('保存节点')
+  expect(state.http.saves).toHaveLength(1)
+  expect(state.http.records['Base_WorkflowNodeDefinition']?.[0]?.['name']).toBe('继续人工保存')
+ })
+ it('shows when node or layout save had no change to submit',async()=>{
+  state.layoutText='{"nodes":[{"id":"N1","x":10,"y":20}],"edges":[]}'
+  const f=await open()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  await f.click('保存布局')
+  expect(f.text()).toContain('本次未提交布局变更')
+  expect(state.uploads).toHaveLength(0)
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}})
+  await flushPromises()
+  await f.click('保存节点')
+  expect(f.text()).toContain('本次未提交节点变更')
+  expect(state.http.saves).toHaveLength(0)
  })
  it('projects layout from the bound file view and saves a drag without saving business nodes',async()=>{
   state.layoutText='{"nodes":[{"id":"N1","x":10,"y":20,"custom":false}],"edges":[],"keep":0}'
@@ -871,7 +921,10 @@ describe('workflow formal design page',()=>{
   f.wrapper.getComponent(RendererGraph).props('onNodeMove')?.({id:'N1',x:80,y:90,edges:[]});await flushPromises();state.loseLayoutReceipt=true
   await f.click('保存布局');expect(state.uploads).toHaveLength(1)
   expect(f.wrapper.getComponent(RendererGraph).props('draggableKeys')).toEqual([])
-  await f.click('核验布局保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+  const ordinarySave = vi.spyOn(DataSet.prototype, 'saveChanges')
+  try {await f.click('核验布局保存结果');expect(ordinarySave).not.toHaveBeenCalled()}
+  finally {ordinarySave.mockRestore()}
+  expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
  })
  it.each([{type:'query',expected:'订单模型'},{type:'copy',expected:'订单模型'},{type:'add',expected:'目标模型'},{type:'edit',expected:'目标模型'},{type:'delete',expected:'目标模型'}])('resolves $type node model ownership before loading fields',async({type,expected})=>{
   Object.assign(state.http.records['Base_WorkflowNodeDefinition']![0]!,{node_type:type,...['add','edit','delete'].includes(type)?{node_config:'',dataOperateModId:'M2'}:{node_config:'M1',dataOperateModId:''}})

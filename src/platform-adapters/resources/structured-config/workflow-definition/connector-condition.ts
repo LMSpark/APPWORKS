@@ -3,6 +3,7 @@
  * 职责：按流程及连接器的节点端点维护条件，提供源节点输出字段目录。
  * 边界：不把模型关系改成节点条件，不持有草稿、不执行过滤或工作流；读写和未知回执归原DataView。
  */
+import {settleWorkflowSave} from '@/platform-adapters/resources/structured-config/workflow-definition/save-receipt'
 import * as SparkData from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowOutputFields} from './output/output-fields'
@@ -47,6 +48,16 @@ function loaded(context:ReturnType<typeof scope>):SparkData.DataRow|undefined{
  if(row){const key=view.getPkKey(row),editing=key===undefined?undefined:view.getEditingRow(key);if(editing?.['dataSetId']!==workflowId||editing['parentModId']!==sourceId||editing['childModId']!==targetId)throw Error('条件编辑归属已变化，不能移动到其他端点')}
  return row
 }
+async function saveConditionView(view:SparkData.DataView):ReturnType<SparkData.DataSet['saveChanges']>{
+ try{
+  const result=await settleWorkflowSave(view)
+  return typeof result==='string'?{success:true}:{success:true,data:result}
+ }catch(cause){
+  if(view.hasUnconfirmedSave)throw cause
+  const error=cause instanceof Error?cause:Error(String(cause))
+  return {success:false,error,message:error.message}
+ }
+}
 /** 同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。 */
 export class WorkflowConnectorCondition{
  static async load(dataSet:SparkData.DataSet,workflowId:string,edgeId:string|number):Promise<SparkData.DataView>{
@@ -81,11 +92,17 @@ export class WorkflowConnectorCondition{
   const row=view.rows.find(candidate=>view.getPkKey(candidate)===view.getPkKey(result))
   if(!row)throw Error('条件草稿未进入原视图');view.setCurrentRow(row);return row
  }
- static async save(dataSet:SparkData.DataSet,workflowId:string,edgeId:string|number){
+ static async save(dataSet:SparkData.DataSet,workflowId:string,edgeId:string|number):ReturnType<SparkData.DataSet['saveChanges']>{
   const context=scope(dataSet,workflowId,edgeId),{view}=context
-  const options={views:[{tableName:table,viewId}]}
-  if(view.hasUnconfirmedSave){loaded({...context,view});return dataSet.saveChanges(options)}
-  if(view.dirtyTracking.pendingDeleteIds.size){loaded(context);return dataSet.saveChanges(options)}
+  if(view.hasUnconfirmedSave){loaded(context);await settleWorkflowSave(view);return {success:true}}
+  const pendingDeleteIds=[...view.dirtyTracking.pendingDeleteIds]
+  if(pendingDeleteIds.length){
+   loaded(context)
+   const id=pendingDeleteIds[0],original=id===undefined?undefined:view.dirtyTracking.getPendingDeleteSnapshot(id)
+   if(pendingDeleteIds.length!==1||!original||view.getPkKey(original)!==id||original['dataSetId']!==workflowId
+    ||original['parentModId']!==context.sourceId||original['childModId']!==context.targetId)throw Error('条件删除不属于当前连线端点')
+   return saveConditionView(view)
+  }
   const columns=this.columns(dataSet,workflowId,edgeId)
   const row=loaded(context);if(!row)throw Error('当前连线没有条件记录')
   const id=view.getPkKey(row);if(id===undefined)throw Error('条件身份缺失')
@@ -94,7 +111,11 @@ export class WorkflowConnectorCondition{
   if(value!==undefined&&value!==null&&typeof value!=='string')throw Error('连线条件必须是SPARK JSON文本')
   const parsed=SparkData.DataViewFilterCodec.parseStored(value)
   if(parsed&&(view.dirtyTracking.isPendingCreate(id)||value!==row['filter']||Object.hasOwn(view.dirtyTracking.getDiff(id,row),'filter')))validateWorkflowConditionFilter(parsed,columns)
-  if(!parsed)await view.removeRow(id)
-  return dataSet.saveChanges(options)
+  if(!parsed){
+   const creating=view.dirtyTracking.isPendingCreate(id)
+   await view.removeRow(id)
+   if(creating)return {success:true}
+  }
+  return saveConditionView(view)
  }
 }

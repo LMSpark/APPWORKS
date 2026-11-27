@@ -8,7 +8,7 @@
     "packageName": "app",
     "modulePath": "platform-adapters/resources/structured-config/workflow-definition/connector-condition",
     "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/connector-condition\n职责：按流程及连接器的节点端点维护条件，提供源节点输出字段目录。\n边界：不把模型关系改成节点条件，不持有草稿、不执行过滤或工作流；读写和未知回执归原DataView。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "WorkflowConnectorCondition"
     ]
@@ -244,12 +244,12 @@
         },
         "method.save.return": {
           "type": "object",
-          "title": "Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
+          "title": "ReturnType<SparkData.DataSet['saveChanges']>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.739Z",
+  "generatedAt": "2026-11-27T12:29:41.000Z",
   "models": {
     "WorkflowConnectorCondition": {
       "name": "WorkflowConnectorCondition",
@@ -470,17 +470,11 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "Promise",
+                "name": "ReturnType",
                 "typeArguments": [
                   {
-                    "type": "reference",
-                    "name": "SparkData.CrudResult",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "SparkData.DataSetSaveChangesResult"
-                      }
-                    ]
+                    "type": "unknown",
+                    "name": "SparkData.DataSet['saveChanges']"
                   }
                 ]
               }

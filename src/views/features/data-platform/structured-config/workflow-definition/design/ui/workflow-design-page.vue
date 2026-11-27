@@ -68,6 +68,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
 </template>
 <script setup lang="ts">
 
+import {settleWorkflowSave} from '@/platform-adapters/resources/structured-config/workflow-definition/save-receipt'
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
@@ -212,7 +213,9 @@ async function save(table:string):Promise<void>{
  if(busy.value||loadedTarget.value!==workflowId.value)return
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
- try{const result=await ds.saveChanges({views:[{tableName:table,viewId:target.viewId}]});if(!result.success)throw Error(result.message??'保存未完整确认')}
+ try{
+  if(await settleWorkflowSave(target)==='not-submitted')throw Error('本次未提交布局变更')
+ }
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }

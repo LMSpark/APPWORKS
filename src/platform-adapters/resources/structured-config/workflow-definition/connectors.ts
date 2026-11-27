@@ -3,6 +3,7 @@
  * 职责：正式工作流连线的端点/环校验与原DataView新增、精确保存。
  * 边界：连线不是布局；不复制节点或草稿，未知提交仅沿原DataSet核验，不重复新增。
  */
+import {settleWorkflowSave} from '@/platform-adapters/resources/structured-config/workflow-definition/save-receipt'
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 function read(view:DataView,row:DataRow,field:string):unknown{
@@ -63,15 +64,18 @@ export class WorkflowConnectors{
   if(!row||typeof id!=='string'||read(edges,row,'workflow_id')!==workflowId)throw Error('新增连线未获得当前流程正式身份')
   scope(ds,workflowId);edges.setCurrentRow(row);return id
  }
- static async save(ds:DataSet,workflowId:string,edgeId:string){
-  const {edges}=scope(ds,workflowId),options={views:[{tableName:edges.tableName,viewId:edges.viewId,ids:[edgeId]}]}
-  if(edges.hasUnconfirmedSave)return ds.saveChanges(options)
+ static async save(ds:DataSet,workflowId:string,edgeId:string):ReturnType<DataSet['saveChanges']>{
+  const {edges}=scope(ds,workflowId)
+  if(edges.hasUnconfirmedSave){await settleWorkflowSave(edges,edgeId);return {success:true}}
   const row=edges.rows.find(candidate=>edges.getPkKey(candidate)===edgeId)
   if(!row)throw Error('当前连线不存在')
   const effective=edges.getEditingRow(edgeId)??row,source=read(edges,row,'sourceID'),target=read(edges,row,'targetID')
   if(effective['sourceID']!==source||effective['targetID']!==target||effective['workflow_id']!==workflowId)throw Error('请取消不支持的连线端点修改')
   if(typeof source!=='string'&&typeof source!=='number'||typeof target!=='string'&&typeof target!=='number')throw Error('连线端点无效')
   if(edges.dirtyTracking.isPendingCreate(edgeId))validate({ds,workflowId,edge:{source,target},existingId:edgeId})
-  return ds.saveChanges(options)
+  if(!edges.hasEditingChanges(edgeId)&&!edges.dirtyTracking.hasPendingChanges(edgeId))throw Error('本次未提交连线变更')
+  const result=await settleWorkflowSave(edges,edgeId)
+  if(typeof result==='string')throw Error('连线没有本次保存回执')
+  return {success:true,data:result}
  }
 }

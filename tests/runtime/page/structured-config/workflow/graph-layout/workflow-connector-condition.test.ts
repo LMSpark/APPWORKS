@@ -154,7 +154,9 @@ describe('workflow connector condition',()=>{
   view.updateEditingValue(view.getPkKey(row)!,'filter',filter);f.http.failAfterWrite=true
   await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow()
   expect(f.http.saves).toHaveLength(1)
-  expect((await WorkflowConnectorCondition.save(f.ds,'W1','E1')).success).toBe(true)
+  const ordinarySave=vi.spyOn(f.ds,'saveChanges')
+  try{expect((await WorkflowConnectorCondition.save(f.ds,'W1','E1')).success).toBe(true);expect(ordinarySave).not.toHaveBeenCalled()}
+  finally{ordinarySave.mockRestore()}
   expect(view.hasUnconfirmedSave).toBe(false)
   expect(f.http.saves).toHaveLength(1)
   const reopened=await WorkflowConnectorCondition.load(f.ds,'W1','E1')

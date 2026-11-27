@@ -662,7 +662,7 @@ describe('tool and shared scenario editing owners',()=>{
   expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(false)
   wrapper.unmount()
  })
- it('previews an actual scene snapshot before restoring and blocks dirty versions',async()=>{
+ it.each(['history', 'history with warning', 'toolbar with warning'])('reports the actual workbench history save (%s)',async(stage)=>{
   let remote = fixtureText(20)
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}))
   httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content})
@@ -679,8 +679,21 @@ describe('tool and shared scenario editing owners',()=>{
   await wrapper.get('[data-test="scene-restore"]').trigger('click');await flushPromises()
   expect(JSON.parse(state.scenarioDefinitionDocument.value!.getText()).tables.Orders.views.default.pageSize).toBe(50)
   expect(state.pageDataDirty.value).toBe(true);expect(httpPut).not.toHaveBeenCalled()
-  await wrapper.get('[data-test="scene-save"]').trigger('click');await vi.waitFor(()=>expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50))
-  expect(httpPut).toHaveBeenCalledOnce()
+  const dataSet=state.scenarioDefinitionDocument.value!.dataSet
+  const originalSave=dataSet.saveChanges.bind(dataSet)
+  const receipt=stage!=='history'?vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(async options=>{
+   const result=await originalSave(options)
+   if(!result.success||!result.data)throw Error('Expected the original confirmed definition receipt')
+   return {...result,data:{...result.data,followUpError:Error('工作 Plan 隔离续办失败')}}
+  }):undefined
+  try {
+   const target=stage==='toolbar with warning'?wrapper:wrapper.get('[aria-label="场景历史"]')
+   await target.get('[data-test="scene-save"]').trigger('click');await flushPromises()
+   expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50)
+   expect(httpPut).toHaveBeenCalledOnce()
+   expect(target.text()).toContain(stage==='toolbar with warning'?'场景视图已保存并确认':'定义已显式保存')
+   if(receipt)expect(target.text()).toContain('工作 Plan 隔离续办失败')
+  }finally{receipt?.mockRestore()}
   expect(preview).toHaveBeenCalledTimes(2)
   await state.writeScenarioViewText(fixtureText(70));await wrapper.vm.$nextTick()
   expect(wrapper.get('[data-test="scene-snapshot"]').attributes()).toHaveProperty('disabled')

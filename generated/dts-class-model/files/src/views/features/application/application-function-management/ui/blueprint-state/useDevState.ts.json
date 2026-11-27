@@ -658,7 +658,7 @@
         },
         "saveScenarioViewText": {
           "type": "object",
-          "title": "() => Promise<void>"
+          "title": "() => Promise<string | undefined>"
         },
         "listScenarioVersions": {
           "type": "object",
@@ -1082,7 +1082,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T00:56:53.621Z",
+  "generatedAt": "2026-11-27T17:17:25.627Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

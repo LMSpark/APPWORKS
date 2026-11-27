@@ -47,7 +47,7 @@ const props = defineProps<{
   canCreate: boolean
   draftDirty: boolean
   onRestore: (version: string | number, text: string) => Promise<void>
-  onSave?: () => Promise<void>
+  onSave?: () => Promise<void | string>
   canUndo?: boolean
   canRedo?: boolean
   onUndo?: (() => Promise<void>) | undefined
@@ -116,7 +116,13 @@ async function restore(): Promise<void> {
 async function save(): Promise<void> {
   if (busy.value || !props.draftDirty || !props.onSave) return
   const id = start()
-  try {await props.onSave(); if (current(id)) message.value = '定义已显式保存'}
+  try {
+    const followUpError = await props.onSave()
+    if (current(id)) {
+      message.value = '定义已显式保存'
+      error.value = followUpError ?? ''
+    }
+  }
   catch (cause) {if (current(id)) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {finish(id)}
 }

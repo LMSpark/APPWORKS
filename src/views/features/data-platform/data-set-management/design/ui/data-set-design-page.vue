@@ -513,16 +513,24 @@ async function restoreHistoryDraft(version: string | number, preview: string): P
   historyDocument.value?.dispose(); historyDocument.value = document
   changed()
 }
-async function saveHistoryDraft(): Promise<void> {
+async function saveHistoryDraft(): Promise<string | undefined> {
   const current = session.value, document = historyDocument.value, ownGeneration = generation
   if (!current || !document || document.dataSet !== current.metadataDataSet || !document.isDirty) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 没有待保存的历史定义草稿')
   const result = await current.metadataDataSet.saveChanges({views: document.viewSelectors})
-  if (session.value !== current || ownGeneration !== generation) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存目标已切换')
+  const isCurrent = () => session.value === current && ownGeneration === generation && historyDocument.value === document
+  if (!isCurrent()) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存目标已切换')
   if (!result.success) throw result.error ?? new Error(result.message ?? '历史定义保存失败')
-  document.dispose(); historyDocument.value = null
-  await current.refresh({deferDefinition: true})
-  if (session.value !== current || ownGeneration !== generation) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存回读目标已切换')
+  const receipt = result.data
+  if (!receipt || receipt.createdCount + receipt.savedCount + receipt.deletedCount === 0) throw Error('缺少历史定义保存回执')
+  const followUpError = receipt.followUpError?.message
+  if (document.isDirty) {changed(); return followUpError}
+  let readbackError: string | undefined
+  try {await current.refresh({deferDefinition: true})}
+  catch (cause) {readbackError = `历史定义回读失败：${readError(cause)}`}
+  if (!isCurrent()) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存回读目标已切换')
+  if (!document.isDirty) {document.dispose(); historyDocument.value = null}
   changed()
+  return [followUpError, readbackError].filter(Boolean).join('；') || undefined
 }
 const DEFINITION_CHANGE_EVENTS = ['rowsChanged', 'configChanged', 'requestStateChanged', 'mutatingChanged', 'cleared',
   'editingChanged', 'editingFieldChanged', 'editingDiscarded'] as const

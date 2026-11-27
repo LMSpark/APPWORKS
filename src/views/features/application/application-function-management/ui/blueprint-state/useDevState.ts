@@ -1293,12 +1293,15 @@ export function useDevState() {
     await target.document.setText(text)
     target.assertCurrent(); scenarioDefinitionRevision.value++; pageDataError.value = null
   }
-  async function saveScenarioViewText(): Promise<void> {
+  async function saveScenarioViewText(): Promise<string | undefined> {
     const target = captureScenarioVersionTarget()
     const result = await target.document.dataSet.saveChanges({views: target.document.viewSelectors})
     target.assertCurrent()
     if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
+    const receipt = result.data
+    if (!receipt || receipt.createdCount + receipt.savedCount + receipt.deletedCount === 0) throw Error('缺少场景定义保存回执')
     scenarioDefinitionRevision.value++
+    return receipt.followUpError?.message
   }
 
   /** 版本请求绑定实际工作区、节点与共享文件，迟到结果不能落入新的选择。 */

@@ -83,7 +83,7 @@ watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.st
   })
 }, {immediate:true})
 async function restoreHistory(version:string|number,text:string):Promise<void>{await props.state.restoreScenarioVersion(version,text)}
-async function saveHistoryDraft():Promise<void>{await props.state.saveScenarioViewText()}
+async function saveHistoryDraft():Promise<string|undefined>{return props.state.saveScenarioViewText()}
 async function undoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.undo())throw new Error('没有可撤销的定义修改');props.state.scenarioDefinitionRevision.value++}
 async function redoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.redo())throw new Error('没有可重做的定义修改');props.state.scenarioDefinitionRevision.value++}
 const canCreate=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.isPersisted === false && !props.state.pageDataDirty.value})
@@ -100,8 +100,9 @@ async function load():Promise<void>{
 async function save():Promise<void>{
   if(busy.value)return
   const id=++operationRequest, verifying=recovering.value;busy.value=true;error.value='';message.value=''
-  try{await props.state.saveScenarioViewText();if(id===operationRequest){
+  try{const followUpError=await props.state.saveScenarioViewText();if(id===operationRequest){
     message.value=props.state.pageDataDirty.value ? '本轮提交已确认，仍有新修改待保存' : verifying ? '原提交已核验，未重复写入' : '场景视图已保存并确认'
+    error.value=followUpError??''
   }}
   catch(cause){if(id===operationRequest)error.value=cause instanceof Error?cause.message:String(cause)}
   finally{busy.value=false}

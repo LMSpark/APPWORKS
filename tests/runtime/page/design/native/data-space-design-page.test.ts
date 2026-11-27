@@ -2728,7 +2728,7 @@ describe('native data-space design entry', () => {
     const {instance} = await page('?scenarioId=A')
     expect(instance.isDirty).toBe(false)
   })
-  it('restores from a fresh overview after the full definition document loads without treating hydration as an edit', async () => {
+  it.each(['preview', 'readback failure', 'later draft', 'readback draft'])('restores from a fresh overview and retains confirmed history saves (%s)', async stage => {
     const f = fixture({overviewOnly: true})
     const {wrapper} = await page('?scenarioId=A')
     const historical = JSON.parse(f.stored.get('A')!) as {tables: Record<string, {views: Record<string, Record<string, unknown>>}>}
@@ -2752,6 +2752,63 @@ describe('native data-space design entry', () => {
     expect(source.rows.length).toBeGreaterThan(0)
     expect(source.hasEditingChanges()).toBe(true)
     expect(f.fileWrites).toEqual([])
+    if (stage === 'readback failure') {
+      const refresh = vi.spyOn(session, 'refresh').mockRejectedValueOnce(new Error('历史定义隔离回读失败'))
+      try {
+        await wrapper.get('[aria-label="场景历史"] [data-test="scene-save"]').trigger('click'); await flushPromises()
+        expect(refresh).toHaveBeenCalledOnce()
+        expect(f.fileWrites).toHaveLength(1)
+        const reopened = await f.open('A')
+        expect(reopened.definitionDataSet?.getView('OrdersAlias')?.pageSize).toBe(37)
+        const panel = wrapper.get('[aria-label="场景历史"]')
+        expect(panel.get('[role="alert"]').text()).toContain('历史定义隔离回读失败')
+        expect(panel.get('[role="status"]').text()).toContain('定义已显式保存')
+      } finally {refresh.mockRestore()}
+    }
+    if (stage === 'later draft') {
+      const release = f.holdFileResponse()
+      const refresh = vi.spyOn(session, 'refresh')
+      const panel = wrapper.get('[aria-label="场景历史"]')
+      try {
+        await panel.get('[data-test="scene-save"]').trigger('click'); await flushPromises()
+        expect(f.fileWrites).toHaveLength(1)
+        const row = source.rows.find(item => item['tableName'] === 'OrdersAlias' && item['viewId'] === 'default')!
+        const key = source.getPkKey(row)!
+        source.updateEditingValue(key, 'pageSize', 51)
+        release(); await flushPromises()
+        expect(refresh).not.toHaveBeenCalled()
+        expect(panel.get('[role="status"]').text()).toContain('定义已显式保存')
+        expect(panel.find('[data-test="scene-save"]').exists()).toBe(true)
+        expect(source.getEditingRow(key)?.['pageSize']).toBe(51)
+        const reopened = await f.open('A')
+        expect(reopened.definitionDataSet?.getView('OrdersAlias')?.pageSize).toBe(37)
+        expect(f.fileWrites).toHaveLength(1)
+      } finally {release(); refresh.mockRestore()}
+    }
+    if (stage === 'readback draft') {
+      const reload = session.refresh.bind(session)
+      let release = () => {}
+      const delayed = new Promise<void>(resolve => {release = resolve})
+      const refresh = vi.spyOn(session, 'refresh').mockImplementationOnce(async options => {
+        await delayed
+        return reload(options)
+      })
+      const panel = wrapper.get('[aria-label="场景历史"]')
+      try {
+        await panel.get('[data-test="scene-save"]').trigger('click'); await flushPromises()
+        expect(refresh).toHaveBeenCalledOnce()
+        expect(f.fileWrites).toHaveLength(1)
+        const row = source.rows.find(item => item['tableName'] === 'OrdersAlias' && item['viewId'] === 'default')!
+        const key = source.getPkKey(row)!
+        source.updateEditingValue(key, 'pageSize', 51)
+        release(); await flushPromises()
+        expect(panel.get('[role="status"]').text()).toContain('定义已显式保存')
+        expect((await f.open('A')).definitionDataSet?.getView('OrdersAlias')?.pageSize).toBe(37)
+        await panel.get('[data-test="scene-save"]').trigger('click'); await flushPromises()
+        expect(f.fileWrites).toHaveLength(2)
+        expect((await f.open('A')).definitionDataSet?.getView('OrdersAlias')?.pageSize).toBe(51)
+      } finally {release(); refresh.mockRestore()}
+    }
   })
   it('recomputes shared history dirtiness after undoing a restored named view and redoing it', async () => {
     const f = fixture({overviewOnly: true})

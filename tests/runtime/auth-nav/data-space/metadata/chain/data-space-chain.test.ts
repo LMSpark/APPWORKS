@@ -87,6 +87,7 @@ it.each([
   {label: 'replaceable initial filter', config: {filterExpression: {field: 'region', operator: 'eq', value: 'north'}}, error: '不支持保存可替换的初始过滤'},
   {label: 'independent sort', config: {sortExpression: [{field: 'region', direction: 'desc'}]}, error: '不支持保存独立 sortExpression'},
   {label: 'explicit query fields', config: {queryConfig: {fields: ['rowid']}}, error: '不支持保存显式 queryConfig.fields'},
+  {label: 'a non-default row limit', config: {queryConfig: {allPages: true, maxRows: 1}}, error: '不支持保存非默认 queryConfig.maxRows'},
 ])('keeps the confirmed metadata save when $label prevent Plan generation', async ({config, error}) => {
   const f = dataSpaceChainFixture()
   const scenario: unknown = JSON.parse(f.files.get(f.target)!)

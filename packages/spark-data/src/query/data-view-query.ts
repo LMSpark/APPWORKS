@@ -10,6 +10,9 @@ import type {SortExpression, DataViewQueryChild, QueryParams, ViewMetadata} from
 import {DataViewFilterLookup} from './filter/data-view-filter-lookup'
 import {DataViewFilter} from './filter/data-view-filter'
 
+/** 默认允许接纳的完整查询集合行数。显式 maxRows 可覆盖此限制。 */
+export const DEFAULT_DATA_VIEW_MAX_ROWS = 50_000
+
 /** 查询模式与读取范围的唯一配置解析器；省略属性保持责任方既定默认值。 */
 export class DataViewQuery {
   /** 校验原生完成函数名；仅保存标识符，不解析或执行脚本，空字符串禁用。 */

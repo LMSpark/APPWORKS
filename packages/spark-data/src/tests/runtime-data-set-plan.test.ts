@@ -231,9 +231,14 @@ describe('runtime data set plan', () => {
       .toThrow('SPACE Orders@default 不支持保存独立 sortExpression')
     expect(() => build({queryConfig: {fields: ['id']}}))
       .toThrow('SPACE Orders@default 不支持保存显式 queryConfig.fields')
+    expect(() => build({queryConfig: {allPages: true, maxRows: 1}}))
+      .toThrow('SPACE Orders@default 不支持保存非默认 queryConfig.maxRows')
     expect(compileRuntimeDataSetPlan(build({queryContext: {}, sortExpression: [], queryConfig: {fields: []}}))
       .metadata.tables['Orders']?.views['default'])
       .toBeDefined()
+    expect(compileRuntimeDataSetPlan(build({queryConfig: {allPages: true, maxRows: 50_000}}))
+      .metadata.tables['Orders']?.views['default']?.queryConfig?.allPages)
+      .toBe(true)
   })
 
   it('keeps the runtime Plan structure hash independent of savedAt', () => {

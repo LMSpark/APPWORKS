@@ -11,6 +11,7 @@ import type {
   DataSpaceQueryProjection,
   DataSpaceRequestScope,
 } from '../formal-table-contract'
+import { DEFAULT_DATA_VIEW_MAX_ROWS } from '../data-view-query'
 import { collectDataSpaceQueryPages } from './pagination'
 import { DataSpaceQueryContext } from './query-context'
 import { DataSpaceQueryNested } from './query-nested'
@@ -77,7 +78,7 @@ export class DataSpaceQueryResource {
     const selfRef = captured.tree !== undefined || captured.outputType === 'SelfRefData'
     const unpaged = captured.pagination === 'none'
     const allPages = !selfRef && captured.allPages === true
-    const maxRows = captured.maxRows ?? 50_000
+    const maxRows = captured.maxRows ?? DEFAULT_DATA_VIEW_MAX_ROWS
     if ((allPages || selfRef || unpaged) && (!Number.isSafeInteger(maxRows) || maxRows <= 0)) {
       throw new TypeError('数据资源全量查询 maxRows 必须是正整数')
     }

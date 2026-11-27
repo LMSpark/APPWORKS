@@ -8,7 +8,7 @@ import type {DataRow, QueryParams} from '../types'
 import type {DataView} from '../data-view'
 import {DataViewFilter} from './filter/data-view-filter'
 import {DataViewFilterLocal} from './filter/data-view-filter-local'
-import {DataViewQuery} from './data-view-query'
+import {DataViewQuery, DEFAULT_DATA_VIEW_MAX_ROWS} from './data-view-query'
 
 type DataViewQueryResult=Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>
 type DataViewLocalReadonlyIdentity=Readonly<{scenarioId:string;metaName:string}>
@@ -80,7 +80,7 @@ export class DataViewLocalQuery {
         return 0
       })
     }
-    const total = rows.length, max = params.maxRows ?? 50000
+    const total = rows.length, max = params.maxRows ?? DEFAULT_DATA_VIEW_MAX_ROWS
     if (!Number.isSafeInteger(max) || max < 1) throw new Error('本地资源集合上限必须是正整数')
     if (DataViewQuery.isPaginated(params)) {
       const page = params.page ?? 1, size = params.pageSize ?? 20

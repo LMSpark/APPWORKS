@@ -1,4 +1,5 @@
 import type { DataSpaceQueryPage } from '../formal-table-contract'
+import { DEFAULT_DATA_VIEW_MAX_ROWS } from '../data-view-query'
 
 export const DATA_SPACE_MAX_PAGE_SIZE = 1000
 
@@ -22,7 +23,7 @@ export async function collectDataSpaceQueryPages<T>(
   options: DataSpacePageCollectionOptions<T> = {},
 ): Promise<DataSpacePageCollection<T>> {
   const pageSize = options.pageSize ?? DATA_SPACE_MAX_PAGE_SIZE
-  const maxRows = options.maxRows ?? 50_000
+  const maxRows = options.maxRows ?? DEFAULT_DATA_VIEW_MAX_ROWS
   requireDataSpaceQueryPage({index: 1, size: pageSize})
   if (!Number.isSafeInteger(maxRows) || maxRows <= 0) throw new RangeError('SPARK 批量查询 maxRows 必须是正整数')
   const assertActive = () => {options.signal?.throwIfAborted(); options.assertCurrent?.()}

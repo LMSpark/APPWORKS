@@ -5,6 +5,7 @@
  * AI用途：数据空间设计保存确认后，用正式行和 pagedata 定义导出唯一运行文件。
  */
 import {isRecord} from '@spark-appworks/spark-utils'
+import {DEFAULT_DATA_VIEW_MAX_ROWS} from '../query/data-view-query'
 import type {DataViewFilterJsonValue} from '../query/filter/data-view-filter-contract'
 import type {DataViewFieldCascade} from '../types'
 import {parseRuntimeDataSetPlanFile} from './parser'
@@ -335,9 +336,15 @@ function assertPlanViewDefaults(view: RuntimePlanRecord, viewIdentity: string): 
     const detail = scope ? '不支持同时保存常驻范围和初始过滤' : '不支持保存可替换的初始过滤'
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.filterExpression: ${viewIdentity} ${detail}`)
   }
-  const fields = isRecord(view['queryConfig']) ? view['queryConfig']['fields'] : undefined
+  const queryConfig = view['queryConfig']
+  if (!isRecord(queryConfig)) return
+  const fields = queryConfig['fields']
   if (Array.isArray(fields) && fields.length > 0) {
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${viewIdentity} 不支持保存显式 queryConfig.fields`)
+  }
+  const maxRows = queryConfig['maxRows']
+  if (maxRows !== undefined && maxRows !== DEFAULT_DATA_VIEW_MAX_ROWS) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.maxRows: ${viewIdentity} 不支持保存非默认 queryConfig.maxRows`)
   }
 }
 

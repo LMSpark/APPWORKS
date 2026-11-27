@@ -916,6 +916,7 @@ describe('tool and shared scenario editing owners',()=>{
 
   const unsupportedPlanDefaults = [
    {member:'queryConfig.fields',working:explicitFieldsText,error:'不支持保存显式 queryConfig.fields'},
+   {member:'queryConfig.maxRows',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryConfig":{"allPages":true,"maxRows":1}'),error:'不支持保存非默认 queryConfig.maxRows'},
    {member:'queryContext',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryContext":{"region":"north"}'),error:'不支持保存非空 queryContext'},
    {member:'sortExpression',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"sortExpression":[{"field":"id","direction":"desc"}]'),error:'不支持保存独立 sortExpression'},
    {member:'filterExpression',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"filterExpression":{"field":"id","operator":"eq","value":"ONE"}'),error:'不支持保存可替换的初始过滤'},
